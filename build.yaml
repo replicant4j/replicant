@@ -1,0 +1,12 @@
+gems:
+  - buildr = 1.4.6
+
+repositories:
+  remote:
+   - http://www.ibiblio.org/maven2
+
+artifacts:
+  javax_inject: javax.inject:javax.inject:jar:1
+  javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
+  gwt_user: com.google.gwt:gwt-user:jar:2.3.0
+
