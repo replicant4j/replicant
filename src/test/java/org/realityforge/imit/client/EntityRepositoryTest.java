@@ -43,8 +43,10 @@ public class EntityRepositoryTest
     {
       r.registerEntity( type, id, entity );
     }
-    catch ( Exception e )
+    catch( final IllegalStateException e )
     {
+      assertEquals( "Attempting to register duplicate entity with type '" + type.getName() + "' and id = '" + id + "'",
+                    e.getMessage() );
       return;
     }
     fail( "Expected to raise an exception when re-registering an entity" );
@@ -61,8 +63,10 @@ public class EntityRepositoryTest
     {
       r.deregisterEntity( type, id );
     }
-    catch ( Exception e )
+    catch( final IllegalStateException e )
     {
+      assertEquals( "Attempting to de-register non existent entity with type '" + type.getName() +
+                    "' and id = '" + id + "'", e.getMessage() );
       return;
     }
     fail( "Expected to raise an exception when de-registering an entity not present" );
@@ -109,11 +113,13 @@ public class EntityRepositoryTest
       r.getByID( type, id );
       failed = false;
     }
-    catch ( final Exception e )
+    catch( final IllegalStateException e )
     {
+      assertEquals( "Unable to locate entity with type '" + type.getName() + "' and id = '" + id + "'",
+                    e.getMessage() );
       failed = true;
     }
-    if ( !failed )
+    if( !failed )
     {
       fail( "Expected getByID to fail with exception for bad ID" );
     }
@@ -125,7 +131,7 @@ public class EntityRepositoryTest
   }
 
   static class A
-    extends B
+      extends B
   {
   }
 }
