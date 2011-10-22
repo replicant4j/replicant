@@ -15,7 +15,7 @@ class RecordingListener
     return !hasNoRecordedEvents();
   }
 
-  private boolean hasNoRecordedEvents()
+  public boolean hasNoRecordedEvents()
   {
     return 0 == _entityRemovedEvents.size() &&
            0 == _attributeChangedEvents.size() &&
