@@ -13,25 +13,11 @@ public final class EntityChangeEvent
   private final String _name;
   private final Object _value;
 
-  public EntityChangeEvent( @Nonnull final EntityChangeType type, @Nonnull final Object object )
+  protected EntityChangeEvent( @Nonnull final EntityChangeType type,
+                               @Nonnull final Object object,
+                               @Nullable final String name,
+                               @Nullable final Object value )
   {
-    this( type, object, null, null );
-  }
-
-  @SuppressWarnings( { "ConstantConditions" } )
-  public EntityChangeEvent( @Nonnull final EntityChangeType type,
-                            @Nonnull final Object object,
-                            @Nullable final String name,
-                            @Nullable final Object value )
-  {
-    if ( null == type )
-    {
-      throw new NullPointerException( "type" );
-    }
-    if ( null == object )
-    {
-      throw new NullPointerException( "object" );
-    }
     _type = type;
     _object = object;
     _name = name;
@@ -62,6 +48,9 @@ public final class EntityChangeEvent
     return _value;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public final String toString()
   {
     final StringBuilder sb = new StringBuilder();
