@@ -29,11 +29,9 @@ public final class EntityChangeBrokerImpl
 
   private EntityChangeListener[] _globalListeners = _emptyListenerSet;
   private final Map<Object, EntityChangeListener[]> _objectListeners = new HashMap<Object, EntityChangeListener[]>();
-  private final Map<Object, Map<Object, EntityChangeListener[]>> _featureListeners =
-    new HashMap<Object, Map<Object, EntityChangeListener[]>>();
+  private final Map<Object, Map<Object, EntityChangeListener[]>> _featureListeners = new HashMap<Object, Map<Object, EntityChangeListener[]>>();
   private final Map<Object, EntityChangeListener[]> _classListeners = new HashMap<Object, EntityChangeListener[]>();
-  private final Map<Object, Map<Object, EntityChangeListener[]>> _classFeatureListeners =
-    new HashMap<Object, Map<Object, EntityChangeListener[]>>();
+  private final Map<Object, Map<Object, EntityChangeListener[]>> _classFeatureListeners = new HashMap<Object, Map<Object, EntityChangeListener[]>>();
 
   @Override
   public final void addChangeListener( @Nonnull final EntityChangeListener listener )
