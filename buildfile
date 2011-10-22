@@ -1,7 +1,7 @@
 require 'buildr/java/emma'
 
-desc "ImitationLayer: Client-side state representation infrastructure"
-define('imit') do
+desc "Replicant: Client-side state representation infrastructure"
+define('replicant') do
   project.version = '0.2'
   project.group = 'org.realityforge'
   compile.options.source = '1.6'
