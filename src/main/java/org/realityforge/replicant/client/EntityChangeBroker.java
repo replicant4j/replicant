@@ -13,30 +13,11 @@ public interface EntityChangeBroker
 
   void addChangeListener( @Nonnull Object object, @Nonnull EntityChangeListener listener );
 
-  void addAttributeChangeListener( @Nonnull Object object,
-                                   @Nonnull String feature,
-                                   @Nonnull EntityChangeListener listener );
-
-  /**
-   * Add a listener if you want to listen to changes in an attribute on the specified class.
-   */
-  void addAttributeChangeListener( @Nonnull Class clazz,
-                                   @Nonnull String feature,
-                                   @Nonnull EntityChangeListener listener );
-
   void removeChangeListener( @Nonnull EntityChangeListener listener );
 
   void removeChangeListener( @Nonnull Object object, @Nonnull EntityChangeListener listener );
 
   void removeChangeListener( @Nonnull Class clazz, @Nonnull EntityChangeListener listener );
-
-  void removeAttributeChangeListener( @Nonnull Class clazz,
-                                      @Nonnull String name,
-                                      @Nonnull EntityChangeListener listener );
-
-  void removeAttributeChangeListener( @Nonnull Object object,
-                                      @Nonnull String name,
-                                      @Nonnull EntityChangeListener listener );
 
   void activate();
 
