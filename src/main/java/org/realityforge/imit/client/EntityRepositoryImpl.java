@@ -3,11 +3,12 @@ package org.realityforge.imit.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EntityRepositoryImpl
-  implements EntityRepository
+    implements EntityRepository
 {
-  private HashMap<Class,HashMap> _dataStore = new HashMap<Class, HashMap>(  );
+  private HashMap<Class, HashMap> _dataStore = new HashMap<Class, HashMap>();
 
   public <T> void registerEntity( final Class<T> type, final Object id, final T entity )
   {
@@ -18,7 +19,7 @@ public class EntityRepositoryImpl
     }
     objectMap.put( id, entity );
     final Class<? super T> superclass = type.getSuperclass();
-    if ( Object.class != superclass )
+    if( Object.class != superclass )
     {
       registerEntity( superclass, id, entity );
     }
@@ -34,9 +35,13 @@ public class EntityRepositoryImpl
       throw new IllegalStateException( "Attempting to de-register non existent " + describeEntity( type, id ) );
     }
     final Class<? super T> superclass = type.getSuperclass();
-    if ( Object.class != superclass )
+    if( Object.class != superclass )
     {
       deregisterEntity( superclass, id );
+    }
+    if( existing instanceof Linkable )
+    {
+      ( (Linkable) existing ).delink();
     }
     return existing;
   }
@@ -53,9 +58,12 @@ public class EntityRepositoryImpl
   }
 
   @Override
+  @Nullable
   public <T> T findByID( final Class<T> type, final Object id )
   {
-    return getObjectMap( type ).get( id );
+    final T t = getObjectMap( type ).get( id );
+    linkEntity( t );
+    return t;
   }
 
   @Override
@@ -65,6 +73,10 @@ public class EntityRepositoryImpl
     final HashMap<Object, T> map = getObjectMap( type );
     final ArrayList<T> results = new ArrayList<T>( map.size() );
     results.addAll( map.values() );
+    for( T result : results )
+    {
+      linkEntity( result );
+    }
     return results;
   }
 
@@ -78,6 +90,14 @@ public class EntityRepositoryImpl
       _dataStore.put( type, objectMap );
     }
     return objectMap;
+  }
+
+  private <T> void linkEntity( final Object t )
+  {
+    if( t instanceof Linkable )
+    {
+      ( (Linkable) t ).link();
+    }
   }
 
   private <T> String describeEntity( final Class<T> type, final Object id )

@@ -1,5 +1,6 @@
 package org.realityforge.imit.client;
 
+import java.util.ArrayList;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -17,17 +18,45 @@ public class EntityRepositoryTest
     // If I register an ID it should be accessible in all weird and wonderful ways
     r.registerEntity( type, id, entity );
 
+    assertNotLinked( entity );
+
     assertPresent( r, type, id, entity );
     assertPresent( r, parentType, id, entity );
     assertNotPresent( r, type, "X" );
     assertNotPresent( r, parentType, "X" );
 
+    // entity linked the first time it is "found" in repository
+    assertLinked( entity );
+
     r.deregisterEntity( type, id );
+
+    // entity is de-linked after de-registration
+    assertNotLinked( entity );
 
     assertNotPresent( r, type, id );
     assertNotPresent( r, parentType, id );
     assertNotPresentInSet( r, type, entity );
   }
+
+  @Test
+  public void linkedAfterFindAll()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    final Class<A> type = A.class;
+    final String id = "A";
+    final A entity = new A();
+
+    r.registerEntity( type, id, entity );
+
+    assertNotLinked( entity );
+
+    final ArrayList<A> results = r.findAll( type );
+
+    assertLinked( entity );
+
+    assertTrue( results.contains( entity ) );
+  }
+
 
   @Test
   public void duplicateRegisterRaisesException()
@@ -76,7 +105,7 @@ public class EntityRepositoryTest
   {
     assertCanFind( r, type, id, entity );
     assertCanGet( r, type, id, entity );
-    assertTrue( r.findAll( type ).contains( entity ) );
+    assertPresentInSet( r, type, entity );
   }
 
   private void assertNotPresent( final EntityRepository r, final Class<?> type, final Object id )
@@ -90,14 +119,23 @@ public class EntityRepositoryTest
     assertFalse( r.findAll( type ).contains( entity ) );
   }
 
+  private void assertPresentInSet( final EntityRepository r, final Class<?> type, final Object entity )
+  {
+    assertTrue( r.findAll( type ).contains( entity ) );
+  }
+
   private void assertCanFind( final EntityRepository r, final Class<?> type, final Object id, final Object entity )
   {
-    assertEquals( entity, r.findByID( type, id ) );
+    final Object actual = r.findByID( type, id );
+    assertEquals( actual, entity );
+    assertLinked( (B) actual );
   }
 
   private void assertCanGet( final EntityRepository r, final Class<?> type, final Object id, final Object entity )
   {
-    assertEquals( entity, r.getByID( type, id ) );
+    final Object actual = r.getByID( type, id );
+    assertEquals( actual, entity );
+    assertLinked( (B) actual );
   }
 
   private void assertCanNotFind( final EntityRepository r, final Class<?> type, final Object id )
@@ -125,9 +163,30 @@ public class EntityRepositoryTest
     }
   }
 
+  private static void assertNotLinked( final B entity )
+  {
+    assertFalse( entity._linked );
+  }
+
+  private static void assertLinked( final B entity )
+  {
+    assertTrue( entity._linked );
+  }
 
   static class B
+      implements Linkable
   {
+    boolean _linked;
+
+    public final void link()
+    {
+      _linked = true;
+    }
+
+    public final void delink()
+    {
+      _linked = false;
+    }
   }
 
   static class A
