@@ -18,12 +18,12 @@ public final class MessageTestUtil
   public static final String ATTR_KEY1 = "ATTR_KEY1";
   public static final String ATTR_KEY2 = "ATTR_KEY2";
 
-  static EntityMessage createMessage( @Nonnull final String id,
-                                      final int typeID,
-                                      @Nullable final String r1,
-                                      @Nullable final String r2,
-                                      @Nullable final String a1,
-                                      @Nullable final String a2 )
+  public static EntityMessage createMessage( @Nonnull final Serializable id,
+                                             final int typeID,
+                                             @Nullable final String r1,
+                                             @Nullable final String r2,
+                                             @Nullable final String a1,
+                                             @Nullable final String a2 )
   {
     final HashMap<String, Serializable> routingKeys = new HashMap<String, Serializable>();
     if( null != r1 )
@@ -49,18 +49,18 @@ public final class MessageTestUtil
     return new EntityMessage( id, typeID, routingKeys, attributeValues );
   }
 
-  static void assertAttributeValue( final EntityMessage message,
-                                    final String key,
-                                    final String value )
+  public static void assertAttributeValue( final EntityMessage message,
+                                           final String key,
+                                           final String value )
   {
     final Map<String, Serializable> values = message.getAttributeValues();
     assertNotNull( values );
     assertEquals( values.get( key ), value );
   }
 
-  static void assertRouteValue( final EntityMessage message,
-                                final String key,
-                                final String value )
+  public static void assertRouteValue( final EntityMessage message,
+                                       final String key,
+                                       final String value )
   {
     assertEquals( message.getRoutingKeys().get( key ), value );
   }
