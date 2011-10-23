@@ -45,6 +45,37 @@ public class ReplicationInterceptorTest
   }
 
   @Test
+  public void ensureNestedInvokationDoNotCauseSave()
+      throws Exception
+  {
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, "r1", "r2", "a1", "a2" );
+    EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
+
+    final TestInvocationContext context = new TestInvocationContext()
+    {
+      public Object proceed()
+          throws Exception
+      {
+        final TestInvocationContext innerContext = new TestInvocationContext();
+        final TestReplicationInterceptor innerInterceptor = createInterceptor( registry );
+        innerInterceptor.businessIntercept( innerContext );
+        assertTrue( innerContext.isInvoked() );
+        assertNull( innerInterceptor._messages );
+        return super.proceed();
+      }
+    };
+
+    final Object result = interceptor.businessIntercept( context );
+
+    assertTrue( context.isInvoked() );
+    assertEquals( result, TestInvocationContext.RESULT );
+    assertNotNull( interceptor._messages );
+    assertTrue( interceptor._messages.contains( message ) );
+  }
+
+  @Test
   public void ensureChangesResultInSaveEvenIfException()
       throws Exception
   {
