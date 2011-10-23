@@ -7,6 +7,10 @@ repositories:
 
 artifacts:
   javax_inject: javax.inject:javax.inject:jar:1
+  javax_transaction: javax.transaction:jta:jar:1.1
+  javax_interceptor: org.apache.geronimo.specs:geronimo-interceptor_1.1_spec:jar:1.0
+  javax_naming: geronimo:geronimo-naming:jar:1.1.1
+  javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
   javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
   gwt_user: com.google.gwt:gwt-user:jar:2.3.0
 

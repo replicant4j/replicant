@@ -10,7 +10,12 @@ define('replicant') do
 
   compile.with :gwt_user,
                :javax_inject,
-               :javax_annotation
+               :javax_annotation,
+               :javax_transaction,
+               :javax_interceptor,
+               :javax_persistence,
+               :javax_naming
+
   #iml.add_gwt_facet
 
   package(:jar)
