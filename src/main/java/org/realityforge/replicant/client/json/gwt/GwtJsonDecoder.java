@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.Linkable;
-import org.realityforge.replicant.shared.gwt_json.TransportUtil;
+import org.realityforge.replicant.shared.json.TransportConstants;
 
 public class GwtJsonDecoder
 {
@@ -26,23 +26,23 @@ public class GwtJsonDecoder
 
   public final int apply( final com.google.gwt.json.client.JSONValue value )
   {
-    final JSONObject changeSet = toObject( value, TransportUtil.CHANGE_SET );
+    final JSONObject changeSet = toObject( value, TransportConstants.CHANGE_SET );
     final com.google.gwt.json.client.JSONArray array =
-      toArray( changeSet.get( TransportUtil.CHANGES ),
-               TransportUtil.CHANGES );
+      toArray( changeSet.get( TransportConstants.CHANGES ),
+               TransportConstants.CHANGES );
     final int size = array.size();
     final ArrayList<Linkable> entitiesToLink = new ArrayList<Linkable>( size );
     for ( int i = 0; i < size; i++ )
     {
-      final JSONObject change = toObject( array.get( i ), TransportUtil.TYPE_ID + "[" + i + "]" );
-      final int typeID = toInteger( change.get( TransportUtil.TYPE_ID ), TransportUtil.TYPE_ID );
+      final JSONObject change = toObject( array.get( i ), TransportConstants.TYPE_ID + "[" + i + "]" );
+      final int typeID = toInteger( change.get( TransportConstants.TYPE_ID ), TransportConstants.TYPE_ID );
 
       final Map<String, java.io.Serializable> data =
-        change.containsKey( TransportUtil.DATA ) ?
-        toMap( toObject( change.get( TransportUtil.DATA ), TransportUtil.DATA ) ) :
+        change.containsKey( TransportConstants.DATA ) ?
+        toMap( toObject( change.get( TransportConstants.DATA ), TransportConstants.DATA ) ) :
         null;
 
-      final JSONValue idValue = change.get( TransportUtil.ENTITY_ID );
+      final JSONValue idValue = change.get( TransportConstants.ENTITY_ID );
       final Object id;
       if( null != idValue.isNumber() )
       {
@@ -72,7 +72,7 @@ public class GwtJsonDecoder
     {
       linkable.link();
     }
-    return toInteger( changeSet.get( TransportUtil.LAST_CHANGE_SET_ID ), TransportUtil.LAST_CHANGE_SET_ID );
+    return toInteger( changeSet.get( TransportConstants.LAST_CHANGE_SET_ID ), TransportConstants.LAST_CHANGE_SET_ID );
   }
 
   @Nonnull
