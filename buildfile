@@ -2,7 +2,7 @@ require 'buildr/java/emma'
 
 desc "Replicant: Client-side state representation infrastructure"
 define('replicant') do
-  project.version = '0.2'
+  project.version = '0.2.1-dev'
   project.group = 'org.realityforge'
   compile.options.source = '1.6'
   compile.options.target = '1.6'
