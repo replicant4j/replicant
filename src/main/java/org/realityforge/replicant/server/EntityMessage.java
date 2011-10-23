@@ -1,16 +1,17 @@
 package org.realityforge.replicant.server;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class EntityMessage
+public final class EntityMessage
 {
   private final Serializable _id;
   private final int _typeID;
-  private final Map<String, Serializable> _attributeValues;
   private final Map<String, Serializable> _routingKeys;
+  private Map<String, Serializable> _attributeValues;
 
   public EntityMessage( @Nonnull final Serializable id,
                         final int typeID,
@@ -65,5 +66,40 @@ public class EntityMessage
            ",RoutingKeys=" + getRoutingKeys() +
            ( !isDelete() ? ",Data=" + getAttributeValues() : "" ) +
            ")";
+  }
+
+  void merge( final EntityMessage message )
+  {
+    mergeRoutingKeys( message );
+    mergeAttributeValues( message );
+  }
+
+  private void mergeRoutingKeys( final EntityMessage message )
+  {
+    final Map<String, Serializable> routingKeys = message.getRoutingKeys();
+    for( final Map.Entry<String, Serializable> entry : routingKeys.entrySet() )
+    {
+      getRoutingKeys().put( entry.getKey(), entry.getValue() );
+    }
+  }
+
+  private void mergeAttributeValues( final EntityMessage message )
+  {
+    final Map<String, Serializable> attributeValues = message.getAttributeValues();
+    if( null == attributeValues )
+    {
+      _attributeValues = null;
+    }
+    else
+    {
+      if( null == _attributeValues )
+      {
+        _attributeValues = new HashMap<String, Serializable>();
+      }
+      for( final Map.Entry<String, Serializable> entry : attributeValues.entrySet() )
+      {
+        _attributeValues.put( entry.getKey(), entry.getValue() );
+      }
+    }
   }
 }
