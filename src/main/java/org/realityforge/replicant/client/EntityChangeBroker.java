@@ -19,9 +19,44 @@ public interface EntityChangeBroker
 
   void removeChangeListener( @Nonnull Class clazz, @Nonnull EntityChangeListener listener );
 
-  void activate();
+  /**
+   * Pause the broker.
+   *
+   * <p>Changes sent to the broker while it is paused will be cached and transmitted when it is resumed.</p>
+   */
+  void pause();
 
-  void deactivate();
+  /**
+   * Resume the broker.
+   *
+   * <p>Any changes that have been delivered since pause has been invoked will be delivered on resume.</p>
+   */
+  void resume();
+
+  /**
+   * @return true if the broker is paused.
+   */
+  boolean isPaused();
+
+  /**
+   * Disable the transmission of changes to listeners.
+   *
+   * <p>Changes sent to the broker while it is disabled will be discarded.</p>
+   *
+   * <p>Typically the broker is disabled before a bulk load of an EntityRepository and re-enabled
+   * after the fact.</p>
+   */
+  void disable();
+
+  /**
+   * Re-enable the transmission of changes to listeners after a disable.
+   */
+  void enable();
+
+  /**
+   * @return true if the broker is enabled.
+   */
+  boolean isEnabled();
 
   void attributeChanged( @Nonnull Object entity, @Nonnull String name, @Nonnull Object value );
 

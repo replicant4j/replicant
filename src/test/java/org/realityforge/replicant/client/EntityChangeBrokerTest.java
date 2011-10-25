@@ -140,14 +140,14 @@ public class EntityChangeBrokerTest
     //Attr changed
     assertAttributeChangeEventCount( globalListener, 0 );
 
-    broker.deactivate();
+    broker.pause();
 
     broker.attributeChanged( entity, ATTR_KEY, 42 );
 
     assertHasNoRecordedEvents( globalListener );
 
     //Allow the entities to flow
-    broker.activate();
+    broker.resume();
 
     assertAttributeChangeEventCount( globalListener, 1 );
     assertAttributeChangedEvent( globalListener.getAttributeChangedEvents().get( 0 ), entity, ATTR_KEY, 42 );
@@ -157,16 +157,40 @@ public class EntityChangeBrokerTest
     //Entity Removed
     assertEntityRemovedEventCount( globalListener, 0 );
 
-    broker.deactivate();
+    broker.pause();
 
     broker.entityRemoved( entity );
 
     assertHasNoRecordedEvents( globalListener );
 
-    broker.activate();
+    broker.resume();
 
     assertEntityRemovedEventCount( globalListener, 1 );
     assertEntityRemovedEvent( globalListener.getEntityRemovedEvents().get( 0 ), entity );
+  }
+
+  @Test
+  public void ensureMessagesAreNotDeliveredWhileDisabled()
+  {
+    final B entity = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+    final RecordingListener globalListener = new RecordingListener();
+
+    broker.addChangeListener( globalListener );
+
+    //Attr changed
+    assertAttributeChangeEventCount( globalListener, 0 );
+
+    broker.disable();
+
+    broker.attributeChanged( entity, ATTR_KEY, 42 );
+
+    assertHasNoRecordedEvents( globalListener );
+
+    broker.enable();
+
+    assertHasNoRecordedEvents( globalListener );
   }
 
   private void assertHasNoRecordedEvents( final RecordingListener listener )

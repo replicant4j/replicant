@@ -11,16 +11,14 @@ import javax.annotation.Nonnull;
 
 @SuppressWarnings( { "JavaDoc" } )
 public final class EntityChangeBrokerImpl
-    implements EntityChangeBroker
+  implements EntityChangeBroker
 {
   private static final Logger LOG = Logger.getLogger( EntityChangeBrokerImpl.class.getName() );
 
   private final EntityChangeListener[] _emptyListenerSet = new EntityChangeListener[ 0 ];
 
-  /**
-   * Count of users who have asked this object to suspend event transmission.
-   */
-  private int _count;
+  private boolean _disabled;
+  private boolean _paused;
 
   /**
    * Backlog of events we still have to send
@@ -109,25 +107,24 @@ public final class EntityChangeBrokerImpl
    * {@inheritDoc}
    */
   @Override
-  public final void activate()
+  public final void resume()
   {
-    _count--;
-    if( isActive() )
+    if ( !_paused )
     {
-
-      EntityChangeEvent[] deferredEvents = null;
-      if( null != _deferredEvents )
+      throw new IllegalStateException( "Attempting to resume already resumed broker" );
+    }
+    _paused = false;
+    EntityChangeEvent[] deferredEvents = null;
+    if ( null != _deferredEvents )
+    {
+      deferredEvents = _deferredEvents.toArray( new EntityChangeEvent[ _deferredEvents.size() ] );
+      _deferredEvents = null;
+    }
+    if ( null != deferredEvents )
+    {
+      for ( final EntityChangeEvent event : deferredEvents )
       {
-        deferredEvents = _deferredEvents.toArray( new EntityChangeEvent[ _deferredEvents.size() ] );
-        _deferredEvents = null;
-      }
-
-      if( deferredEvents != null )
-      {
-        for( final EntityChangeEvent event : deferredEvents )
-        {
-          doSendEvent( event );
-        }
+        doSendEvent( event );
       }
     }
   }
@@ -136,35 +133,81 @@ public final class EntityChangeBrokerImpl
    * {@inheritDoc}
    */
   @Override
-  public final void deactivate()
+  public final void pause()
   {
-    _count++;
+    if ( _paused )
+    {
+      throw new IllegalStateException( "Attempting to pause already paused broker" );
+    }
+    _paused = true;
   }
 
-  private boolean isActive()
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isPaused()
   {
-    return _count == 0;
+    return _paused;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void disable()
+  {
+    if ( _disabled )
+    {
+      throw new IllegalStateException( "Attempting to disabled already disabled broker" );
+    }
+    _disabled = true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void enable()
+  {
+    if ( !_disabled )
+    {
+      throw new IllegalStateException( "Attempting to enable already enable broker" );
+    }
+    _disabled = false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isEnabled()
+  {
+    return !_disabled;
   }
 
   private void sendEvent( final EntityChangeEvent event )
   {
-    if( isActive() )
+    if ( isEnabled() )
     {
-      doSendEvent( event );
-    }
-    else
-    {
-      if( null == _deferredEvents )
+      if ( !isPaused() )
       {
-        _deferredEvents = new ArrayList<EntityChangeEvent>();
+        doSendEvent( event );
       }
-      _deferredEvents.add( event );
+      else
+      {
+        if ( null == _deferredEvents )
+        {
+          _deferredEvents = new ArrayList<EntityChangeEvent>();
+        }
+        _deferredEvents.add( event );
+      }
     }
   }
 
   private void doSendEvent( final EntityChangeEvent event )
   {
-    if( LOG.isLoggable( Level.FINE ) )
+    if ( LOG.isLoggable( Level.FINE ) )
     {
       LOG.fine( "Sending event " + event );
     }
@@ -177,7 +220,7 @@ public final class EntityChangeBrokerImpl
     final EntityChangeListener[] objectListenersCopy = copyListeners( getListeners( _objectListeners, object ) );
 
     Class clazz = object.getClass();
-    while( clazz != Object.class )
+    while ( clazz != Object.class )
     {
       classListenersCopy.add( copyListeners( getListeners( _classListeners, clazz ) ) );
       clazz = clazz.getSuperclass();
@@ -188,7 +231,7 @@ public final class EntityChangeBrokerImpl
 
     clazz = object.getClass();
     int i = 0;
-    while( clazz != Object.class )
+    while ( clazz != Object.class )
     {
       doSendEvent( classListenersCopy.get( i ), event );
       i++;
@@ -199,12 +242,12 @@ public final class EntityChangeBrokerImpl
   private void doSendEvent( final EntityChangeListener[] listenersCopy,
                             final EntityChangeEvent event )
   {
-    for( final EntityChangeListener listener : listenersCopy )
+    for ( final EntityChangeListener listener : listenersCopy )
     {
       final EntityChangeType type = event.getType();
       try
       {
-        switch( type )
+        switch ( type )
         {
           case ATTRIBUTE_CHANGED:
             listener.attributeChanged( event );
@@ -222,7 +265,7 @@ public final class EntityChangeBrokerImpl
             throw new IllegalStateException( "Unknown type: " + type );
         }
       }
-      catch( final Throwable t )
+      catch ( final Throwable t )
       {
         LOG.log( Level.SEVERE, "Error sending event to listener: " + listener, t );
       }
@@ -239,7 +282,7 @@ public final class EntityChangeBrokerImpl
   private EntityChangeListener[] getListeners( final Map<Object, EntityChangeListener[]> map, final Object object )
   {
     final EntityChangeListener[] listeners = map.get( object );
-    if( null == listeners )
+    if ( null == listeners )
     {
       return _emptyListenerSet;
     }
@@ -254,7 +297,7 @@ public final class EntityChangeBrokerImpl
   {
     final ArrayList<EntityChangeListener> list = new ArrayList<EntityChangeListener>( listeners.length + 1 );
     list.addAll( Arrays.asList( listeners ) );
-    if( !list.contains( listener ) )
+    if ( !list.contains( listener ) )
     {
       list.add( listener );
     }
@@ -276,7 +319,7 @@ public final class EntityChangeBrokerImpl
   {
     final EntityChangeListener[] listenersSet = getListeners( map, object );
     final EntityChangeListener[] listeners = doRemoveAttributeChangeListener( listenersSet, listener );
-    if( 0 == listeners.length )
+    if ( 0 == listeners.length )
     {
       map.remove( object );
     }
