@@ -1,7 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
