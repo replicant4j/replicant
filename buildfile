@@ -14,12 +14,17 @@ define('replicant') do
                :javax_transaction,
                :javax_interceptor,
                :javax_persistence,
-               :javax_naming
+               :javax_naming,
+               :json
+
+  test.with :jsonpath,
+            :json_smart
 
   #iml.add_gwt_facet
 
   package(:jar)
   package(:sources)
+
 
   test.using :testng
 
