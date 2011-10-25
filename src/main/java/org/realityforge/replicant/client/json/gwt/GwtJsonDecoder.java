@@ -26,7 +26,7 @@ public class GwtJsonDecoder
 
   public final int apply( final com.google.gwt.json.client.JSONValue value )
   {
-    final JSONObject changeSet = toObject( value, TransportConstants.CHANGE_SET );
+    final JSONObject changeSet = toObject( value, "changeset" );
     final com.google.gwt.json.client.JSONArray array =
       toArray( changeSet.get( TransportConstants.CHANGES ),
                TransportConstants.CHANGES );
