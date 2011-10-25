@@ -92,7 +92,7 @@ public class EntityRepositoryImpl
     return objectMap;
   }
 
-  private <T> void linkEntity( final Object t )
+  private void linkEntity( final Object t )
   {
     if( t instanceof Linkable )
     {
