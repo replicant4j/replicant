@@ -98,6 +98,24 @@ public final class EntityChangeBrokerImpl
    * {@inheritDoc}
    */
   @Override
+  public void relatedAdded( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object other )
+  {
+    sendEvent( new EntityChangeEvent( EntityChangeType.RELATED_ADDED, entity, name, other ) );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void relatedRemoved( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object other )
+  {
+    sendEvent( new EntityChangeEvent( EntityChangeType.RELATED_REMOVED, entity, name, other ) );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void entityRemoved( @Nonnull final Object entity )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_REMOVED, entity, null, null ) );

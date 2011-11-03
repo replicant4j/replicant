@@ -1,19 +1,22 @@
 package org.realityforge.replicant.client;
 
+import java.util.ArrayList;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class EntityChangeBrokerTest
 {
-
-  public static final String ATTR_KEY = "MyKey";
+  public static final String ATTR_KEY = "MyAttribute";
+  public static final String REL_KEY = "MyRelationship";
 
   @Test
   public void ensureCanSendMessagesWhenNoListeners()
   {
     final EntityChangeBroker broker = new EntityChangeBrokerImpl();
     broker.entityRemoved( new A() );
-    broker.attributeChanged( new A(), "MyKey", 42 );
+    broker.attributeChanged( new A(), ATTR_KEY, 42 );
+    broker.relatedAdded( new A(), REL_KEY, new B() );
+    broker.relatedRemoved( new A(), REL_KEY, new B() );
 
     // We are really just ensuring that the above methods do no raise an exception
     assertTrue( true );
@@ -131,6 +134,7 @@ public class EntityChangeBrokerTest
   public void ensureDeferredMessagesAreDelivered()
   {
     final B entity = new B();
+    final B other = new B();
 
     final EntityChangeBroker broker = new EntityChangeBrokerImpl();
     final RecordingListener globalListener = new RecordingListener();
@@ -167,12 +171,46 @@ public class EntityChangeBrokerTest
 
     assertEntityRemovedEventCount( globalListener, 1 );
     assertEntityRemovedEvent( globalListener.getEntityRemovedEvents().get( 0 ), entity );
+
+    globalListener.clear();
+
+    //Related Added
+    assertRelatedAddedEventCount( globalListener, 0 );
+
+    broker.pause();
+
+    broker.relatedAdded( entity, REL_KEY, other );
+
+    assertHasNoRecordedEvents( globalListener );
+
+    broker.resume();
+
+    assertRelatedAddedEventCount( globalListener, 1 );
+    assertRelatedAddedEvent( globalListener.getRelatedAddedEvents().get( 0 ), entity, REL_KEY, other );
+
+    globalListener.clear();
+
+    //Related Removed
+    assertRelatedRemovedEventCount( globalListener, 0 );
+
+    broker.pause();
+
+    broker.relatedRemoved( entity, REL_KEY, other );
+
+    assertHasNoRecordedEvents( globalListener );
+
+    broker.resume();
+
+    assertRelatedRemovedEventCount( globalListener, 1 );
+    assertRelatedRemovedEvent( globalListener.getRelatedRemovedEvents().get( 0 ), entity, REL_KEY, other );
+
   }
 
   @Test
   public void ensureMessagesAreNotDeliveredWhileDisabled()
   {
     final B entity = new B();
+    final B other = new B();
 
     final EntityChangeBroker broker = new EntityChangeBrokerImpl();
     final RecordingListener globalListener = new RecordingListener();
@@ -185,7 +223,15 @@ public class EntityChangeBrokerTest
     broker.disable();
 
     broker.attributeChanged( entity, ATTR_KEY, 42 );
+    assertHasNoRecordedEvents( globalListener );
 
+    broker.entityRemoved( entity );
+    assertHasNoRecordedEvents( globalListener );
+
+    broker.relatedAdded( entity, REL_KEY, other );
+    assertHasNoRecordedEvents( globalListener );
+
+    broker.relatedRemoved( entity, REL_KEY, other );
     assertHasNoRecordedEvents( globalListener );
 
     broker.enable();
@@ -200,7 +246,13 @@ public class EntityChangeBrokerTest
 
   private void assertAttributeChangeEventCount( final RecordingListener listener, final int eventCount )
   {
-    assertEquals( eventCount, listener.getAttributeChangedEvents().size() );
+    final ArrayList<EntityChangeEvent> events = listener.getAttributeChangedEvents();
+    assertChangeCount( eventCount, events );
+  }
+
+  private void assertChangeCount( final int eventCount, final ArrayList<EntityChangeEvent> events )
+  {
+    assertEquals( eventCount, events.size() );
   }
 
   private static void assertAttributeChangedEvent( final EntityChangeEvent event,
@@ -208,15 +260,50 @@ public class EntityChangeBrokerTest
                                                    final String attrKey,
                                                    final int attributeValue )
   {
+    assertEvent( event, EntityChangeType.ATTRIBUTE_CHANGED, entity, attrKey, attributeValue );
+  }
+
+  private static void assertRelatedRemovedEvent( final EntityChangeEvent event,
+                                                 final Object entity,
+                                                 final String relKey,
+                                                 final Object other )
+  {
+    assertEvent( event, EntityChangeType.RELATED_REMOVED, entity, relKey, other );
+  }
+
+  private void assertRelatedRemovedEventCount( final RecordingListener listener, final int eventCount )
+  {
+    assertChangeCount( eventCount, listener.getRelatedRemovedEvents() );
+  }
+
+
+  private static void assertRelatedAddedEvent( final EntityChangeEvent event,
+                                               final Object entity,
+                                               final String relKey,
+                                               final Object other )
+  {
+    assertEvent( event, EntityChangeType.RELATED_ADDED, entity, relKey, other );
+  }
+
+  private void assertRelatedAddedEventCount( final RecordingListener listener, final int eventCount )
+  {
+    assertChangeCount( eventCount, listener.getRelatedAddedEvents() );
+  }
+
+  private static void assertEvent( final EntityChangeEvent event,
+                                   final EntityChangeType type,
+                                   final Object entity,
+                                   final String name, final Object value )
+  {
     assertEquals( entity, event.getObject() );
-    assertEquals( attrKey, event.getName() );
-    assertEquals( attributeValue, event.getValue() );
-    assertEquals( EntityChangeType.ATTRIBUTE_CHANGED, event.getType() );
+    assertEquals( name, event.getName() );
+    assertEquals( value, event.getValue() );
+    assertEquals( type, event.getType() );
   }
 
   private void assertEntityRemovedEventCount( final RecordingListener listener, final int eventCount )
   {
-    assertEquals( eventCount, listener.getEntityRemovedEvents().size() );
+    assertChangeCount( eventCount, listener.getEntityRemovedEvents() );
   }
 
   private static void assertEntityRemovedEvent( final EntityChangeEvent event,
@@ -234,12 +321,12 @@ public class EntityChangeBrokerTest
   }
 
   public static class B
-      extends A
+    extends A
   {
   }
 
   public static class SubB
-      extends B
+    extends B
   {
   }
 

@@ -73,4 +73,22 @@ public interface EntityChangeBroker
    * @param entity the entity removed.
    */
   void entityRemoved( @Nonnull Object entity );
+
+  /**
+   * Notify listeners that the specified entity gained a relationship to the "other" entity.
+   *
+   * @param entity the entity on which the relationship was updated.
+   * @param name the key used to identify the relationship that changed.
+   * @param other the entity that updated to relate to this entity.
+   */
+  void relatedAdded( @Nonnull Object entity, @Nonnull String name, @Nonnull Object other );
+
+  /**
+   * Notify listeners that the specified entity lost a relationship to the "other" entity.
+   *
+   * @param entity the entity on which the relationship was updated.
+   * @param name the key used to identify the relationship that changed.
+   * @param other the entity that updated to no longer relate to this entity.
+   */
+  void relatedRemoved( @Nonnull Object entity, @Nonnull String name, @Nonnull Object other );
 }
