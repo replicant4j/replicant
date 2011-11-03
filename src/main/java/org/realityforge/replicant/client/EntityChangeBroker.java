@@ -7,17 +7,51 @@ import javax.annotation.Nonnull;
  */
 public interface EntityChangeBroker
 {
+  /**
+   * Add an EntityChangeListener that receives all change messages.
+   *
+   * @param listener the EntityChangeListener
+   */
   void addChangeListener( @Nonnull EntityChangeListener listener );
 
+  /**
+   * Add an EntityChangeListener that receives all change messages for models of a particular type and all sub-types.
+   *
+   * @param clazz the type to subscribe to.
+   * @param listener the EntityChangeListener
+   */
   void addChangeListener( @Nonnull Class clazz, @Nonnull EntityChangeListener listener );
 
-  void addChangeListener( @Nonnull Object object, @Nonnull EntityChangeListener listener );
+  /**
+   * Add an EntityChangeListener that receives all change messages for a particular entity.
+   *
+   * @param entity the entity to subscribe to.
+   * @param listener the EntityChangeListener
+   */
+  void addChangeListener( @Nonnull Object entity, @Nonnull EntityChangeListener listener );
 
+  /**
+   * Remove an EntityChangeListener that receives all change messages.
+   *
+   * @param listener the EntityChangeListener
+   */
   void removeChangeListener( @Nonnull EntityChangeListener listener );
 
-  void removeChangeListener( @Nonnull Object object, @Nonnull EntityChangeListener listener );
-
+  /**
+   * Remove an EntityChangeListener that receives all change messages for models of a particular type and all sub-types.
+   *
+   * @param clazz the type to subscribe to.
+   * @param listener the EntityChangeListener
+   */
   void removeChangeListener( @Nonnull Class clazz, @Nonnull EntityChangeListener listener );
+
+  /**
+   * Remove an EntityChangeListener that receives all change messages for a particular entity.
+   *
+   * @param entity the entity to subscribe to.
+   * @param listener the EntityChangeListener
+   */
+  void removeChangeListener( @Nonnull Object entity, @Nonnull EntityChangeListener listener );
 
   /**
    * Pause the broker.
