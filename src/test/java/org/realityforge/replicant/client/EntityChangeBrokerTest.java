@@ -473,7 +473,38 @@ public class EntityChangeBrokerTest
     assertEntityRemovedEventCount( globalListener, 0 );
     assertEntityRemovedEventCount( classListener, 0 );
     assertEntityRemovedEventCount( instanceListener, 0 );
+  }
 
+  @Test
+  public void ensureMessagesSentInsideListenerAreDeferredTillAfterSendCompletes()
+  {
+    final B entity1 = new B();
+    final B entity2 = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+
+    broker.addChangeListener( new RecordingListener()
+    {
+      private boolean _sent;
+
+      public void entityRemoved( final EntityChangeEvent event )
+      {
+        if( !_sent )
+        {
+          broker.entityRemoved( entity2 );
+          _sent = true;
+        }
+      }
+    } );
+
+    final RecordingListener globalListener = new RecordingListener();
+    broker.addChangeListener( globalListener );
+
+    broker.entityRemoved( entity1 );
+
+    assertEntityRemovedEventCount( globalListener, 2 );
+    assertEquals( entity1, globalListener.getEntityRemovedEvents().get( 0 ).getObject() );
+    assertEquals( entity2, globalListener.getEntityRemovedEvents().get( 1 ).getObject() );
   }
 
   private void assertHasNoRecordedEvents( final RecordingListener listener )
