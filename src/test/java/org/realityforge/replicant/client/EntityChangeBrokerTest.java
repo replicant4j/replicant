@@ -239,6 +239,147 @@ public class EntityChangeBrokerTest
     assertHasNoRecordedEvents( globalListener );
   }
 
+  @Test
+  public void ensureDuplicateAddsAndRemovesAreIgnored()
+  {
+    final B entity = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+    final RecordingListener listener = new RecordingListener();
+
+    // Add the same listener twice
+    broker.addChangeListener( listener );
+    broker.addChangeListener( listener );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 1 );
+
+    listener.clear();
+
+    //One remove is enough to clear it out
+    broker.removeChangeListener( listener );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 0 );
+
+    // duplicate remove does not cause an error
+    broker.removeChangeListener( listener );
+
+
+    // Add the same listener twice
+    broker.addChangeListener( entity, listener );
+    broker.addChangeListener( entity, listener );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 1 );
+
+    listener.clear();
+
+    //One remove is enough to clear it out
+    broker.removeChangeListener( entity, listener );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 0 );
+
+    // duplicate remove does not cause an error
+    broker.removeChangeListener( entity, listener );
+
+    // Add the same listener twice
+    broker.addChangeListener( B.class, listener );
+    broker.addChangeListener( B.class, listener );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 1 );
+
+    listener.clear();
+
+    //One remove is enough to clear it out
+    broker.removeChangeListener( B.class, listener );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 0 );
+
+    // duplicate remove does not cause an error
+    broker.removeChangeListener( B.class, listener );
+  }
+
+  @Test
+  public void ensureMultipleListenersOfSameTypeAllReceiveMessages()
+  {
+    final B entity = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+    final RecordingListener listener1 = new RecordingListener();
+    final RecordingListener listener2 = new RecordingListener();
+    final RecordingListener listener3 = new RecordingListener();
+    final RecordingListener listener4 = new RecordingListener();
+    final RecordingListener listener5 = new RecordingListener();
+
+    broker.addChangeListener( listener1 );
+    broker.addChangeListener( listener2 );
+    broker.addChangeListener( listener3 );
+    broker.addChangeListener( listener4 );
+    broker.addChangeListener( listener5 );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener1, 1 );
+    assertEntityRemovedEventCount( listener2, 1 );
+    assertEntityRemovedEventCount( listener3, 1 );
+    assertEntityRemovedEventCount( listener4, 1 );
+    assertEntityRemovedEventCount( listener5, 1 );
+
+    listener1.clear();
+    listener2.clear();
+    listener3.clear();
+    listener4.clear();
+    listener5.clear();
+
+    broker.removeChangeListener( listener3 );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener1, 1 );
+    assertEntityRemovedEventCount( listener2, 1 );
+    assertEntityRemovedEventCount( listener3, 0 );
+    assertEntityRemovedEventCount( listener4, 1 );
+    assertEntityRemovedEventCount( listener5, 1 );
+
+    listener1.clear();
+    listener2.clear();
+    listener3.clear();
+    listener4.clear();
+    listener5.clear();
+
+    broker.removeChangeListener( listener5 );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener1, 1 );
+    assertEntityRemovedEventCount( listener2, 1 );
+    assertEntityRemovedEventCount( listener3, 0 );
+    assertEntityRemovedEventCount( listener4, 1 );
+    assertEntityRemovedEventCount( listener5, 0 );
+
+    listener1.clear();
+    listener2.clear();
+    listener3.clear();
+    listener4.clear();
+    listener5.clear();
+
+    broker.removeChangeListener( listener1 );
+
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener1, 0 );
+    assertEntityRemovedEventCount( listener2, 1 );
+    assertEntityRemovedEventCount( listener3, 0 );
+    assertEntityRemovedEventCount( listener4, 1 );
+    assertEntityRemovedEventCount( listener5, 0 );
+
+    listener1.clear();
+    listener2.clear();
+    listener3.clear();
+    listener4.clear();
+    listener5.clear();
+  }
+
   private void assertHasNoRecordedEvents( final RecordingListener listener )
   {
     assertTrue( listener.hasNoRecordedEvents() );
@@ -321,12 +462,12 @@ public class EntityChangeBrokerTest
   }
 
   public static class B
-    extends A
+      extends A
   {
   }
 
   public static class SubB
-    extends B
+      extends B
   {
   }
 
