@@ -380,6 +380,102 @@ public class EntityChangeBrokerTest
     listener5.clear();
   }
 
+  @Test
+  public void ensureAddsAndRemovesDuringSendingAreDeferred()
+  {
+    final B entity = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+
+    final RecordingListener globalListener = new RecordingListener();
+    final RecordingListener classListener = new RecordingListener();
+    final RecordingListener instanceListener = new RecordingListener();
+
+    final RecordingListener addingListener = new RecordingListener()
+    {
+      public void entityRemoved( final EntityChangeEvent event )
+      {
+        broker.addChangeListener( globalListener );
+        broker.addChangeListener( B.class, classListener );
+        broker.addChangeListener( entity, instanceListener );
+      }
+    };
+
+    final RecordingListener removingListener = new RecordingListener()
+    {
+      public void entityRemoved( final EntityChangeEvent event )
+      {
+        broker.removeChangeListener( globalListener );
+        broker.removeChangeListener( B.class, classListener );
+        broker.removeChangeListener( entity, instanceListener );
+      }
+    };
+
+    broker.addChangeListener( addingListener );
+
+    broker.entityRemoved( entity );
+
+    broker.removeChangeListener( addingListener );
+
+    //None of the listeners should receive messages as the action is deferred until after send occurs
+    assertEntityRemovedEventCount( globalListener, 0 );
+    assertEntityRemovedEventCount( classListener, 0 );
+    assertEntityRemovedEventCount( instanceListener, 0 );
+
+    globalListener.clear();
+    classListener.clear();
+    instanceListener.clear();
+
+    broker.entityRemoved( entity );
+
+    // All should receive messages as they were all added
+    assertEntityRemovedEventCount( globalListener, 1 );
+    assertEntityRemovedEventCount( classListener, 1 );
+    assertEntityRemovedEventCount( instanceListener, 1 );
+
+    globalListener.clear();
+    classListener.clear();
+    instanceListener.clear();
+
+    //Remove all the change listeners again
+    broker.removeChangeListener( globalListener );
+    broker.removeChangeListener( B.class, classListener );
+    broker.removeChangeListener( entity, instanceListener );
+
+    broker.entityRemoved( entity );
+
+    assertEntityRemovedEventCount( globalListener, 0 );
+    assertEntityRemovedEventCount( classListener, 0 );
+    assertEntityRemovedEventCount( instanceListener, 0 );
+
+    // if we add removing listener first to ensure that it is called first then we
+    // add the other listeners. This proves they will not be removed until after message
+    // has been sent
+    broker.addChangeListener( removingListener );
+    broker.addChangeListener( globalListener );
+    broker.addChangeListener( B.class, classListener );
+    broker.addChangeListener( entity, instanceListener );
+
+    broker.entityRemoved( entity );
+
+    // All should receive messages as they were still around during last send
+    assertEntityRemovedEventCount( globalListener, 1 );
+    assertEntityRemovedEventCount( classListener, 1 );
+    assertEntityRemovedEventCount( instanceListener, 1 );
+
+    globalListener.clear();
+    classListener.clear();
+    instanceListener.clear();
+
+    broker.entityRemoved( entity );
+
+    // None should receive messages as they were removed in last event send
+    assertEntityRemovedEventCount( globalListener, 0 );
+    assertEntityRemovedEventCount( classListener, 0 );
+    assertEntityRemovedEventCount( instanceListener, 0 );
+
+  }
+
   private void assertHasNoRecordedEvents( final RecordingListener listener )
   {
     assertTrue( listener.hasNoRecordedEvents() );
