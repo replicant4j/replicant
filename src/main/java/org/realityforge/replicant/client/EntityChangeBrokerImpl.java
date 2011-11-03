@@ -27,7 +27,7 @@ public final class EntityChangeBrokerImpl
 
   private EntityChangeListener[] _globalListeners = _emptyListenerSet;
   private final Map<Object, EntityChangeListener[]> _objectListeners = new HashMap<Object, EntityChangeListener[]>();
-  private final Map<Object, EntityChangeListener[]> _classListeners = new HashMap<Object, EntityChangeListener[]>();
+  private final Map<Class, EntityChangeListener[]> _classListeners = new HashMap<Class, EntityChangeListener[]>();
 
   /**
    * {@inheritDoc}
@@ -297,7 +297,7 @@ public final class EntityChangeBrokerImpl
     return listenersCopy;
   }
 
-  private EntityChangeListener[] getListeners( final Map<Object, EntityChangeListener[]> map, final Object object )
+  private <T> EntityChangeListener[] getListeners( final Map<T, EntityChangeListener[]> map, final T object )
   {
     final EntityChangeListener[] listeners = map.get( object );
     if ( null == listeners )
@@ -331,9 +331,9 @@ public final class EntityChangeBrokerImpl
     return list.toArray( new EntityChangeListener[ list.size() ] );
   }
 
-  private void removeChangeListener( final Map<Object, EntityChangeListener[]> map,
-                                     final Object object,
-                                     final EntityChangeListener listener )
+  private <T> void removeChangeListener( final Map<T, EntityChangeListener[]> map,
+                                         final T object,
+                                         final EntityChangeListener listener )
   {
     final EntityChangeListener[] listenersSet = getListeners( map, object );
     final EntityChangeListener[] listeners = doRemoveAttributeChangeListener( listenersSet, listener );
@@ -347,9 +347,9 @@ public final class EntityChangeBrokerImpl
     }
   }
 
-  private void addChangeListener( final Map<Object, EntityChangeListener[]> map,
-                                  final Object object,
-                                  final EntityChangeListener listener )
+  private <T> void addChangeListener( final Map<T, EntityChangeListener[]> map,
+                                      final T object,
+                                      final EntityChangeListener listener )
   {
     final EntityChangeListener[] listenerSet = getListeners( map, object );
     final EntityChangeListener[] listeners = doAddChangeListener( listenerSet, listener );
