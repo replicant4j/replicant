@@ -58,7 +58,19 @@ public interface EntityChangeBroker
    */
   boolean isEnabled();
 
+  /**
+   * Notify listeners that an attribute has changed.
+   *
+   * @param entity the entity on which the change occurred.
+   * @param name the key used to identify the property that changed.
+   * @param value the value that the property changed to.
+   */
   void attributeChanged( @Nonnull Object entity, @Nonnull String name, @Nonnull Object value );
 
+  /**
+   * Notify listeners that an entity was removed.
+   *
+   * @param entity the entity removed.
+   */
   void entityRemoved( @Nonnull Object entity );
 }
