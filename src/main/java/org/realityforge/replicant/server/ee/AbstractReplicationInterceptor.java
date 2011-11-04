@@ -24,7 +24,7 @@ public abstract class AbstractReplicationInterceptor
   private TransactionSynchronizationRegistry _registry;
 
   @AroundInvoke
-  public final Object businessIntercept( final InvocationContext context )
+  public Object businessIntercept( final InvocationContext context )
       throws Exception
   {
     final Integer depth = (Integer) _registry.getResource( REPLICATION_TX_DEPTH );
