@@ -25,8 +25,8 @@ define('replicant') do
   package(:jar)
   package(:sources)
 
-
   test.using :testng
+  test.compile.with :mockito
 
   emma.include 'org.realityforge.*'
 end
