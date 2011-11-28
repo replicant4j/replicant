@@ -1,0 +1,79 @@
+package org.realityforge.replicant.client;
+
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
+
+public class RDateTest
+{
+  @DataProvider( name = "validDates" )
+  public Object[][] validDates()
+  {
+    return new Object[][]{
+      { "2001-1-1", new RDate( 2001, 1, 1 ) },
+      { "2001-10-1", new RDate( 2001, 10, 1 ) },
+      { "2001-2-28", new RDate( 2001, 2, 28 ) },
+      { "2021-12-31", new RDate( 2021, 12, 31 ) },
+    };
+  }
+
+  @Test( dataProvider = "validDates" )
+  public void validDate( final String input, final RDate expected )
+  {
+    assertEquals( RDate.parse( input ), expected );
+  }
+
+  @DataProvider( name = "invalidDates" )
+  public Object[][] invalidDates()
+  {
+    return new Object[][]{
+      { "x2001-12-1" },
+      { "2001x-12-1" },
+      { "2001-12x-1" },
+      { "2001-x12-1" },
+      { "2001-10-1x" },
+      { "2001-10-x1" },
+      { "2001-10-1-" },
+    };
+  }
+
+  @Test( dataProvider = "invalidDates", expectedExceptions = IllegalArgumentException.class )
+  public void invalidDate( final String input )
+  {
+    RDate.parse( input );
+  }
+
+  @DataProvider( name = "compared" )
+  public Object[][] comparableDates()
+  {
+    return new Object[][]{
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 1 ), 0 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2002, 1, 1 ), 1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2000, 1, 1 ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 2, 1 ), 1 },
+      { new RDate( 2001, 2, 1 ), new RDate( 2001, 1, 1 ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 2 ), 1 },
+      { new RDate( 2001, 1, 2 ), new RDate( 2001, 1, 1 ), -1 },
+    };
+  }
+
+  @Test( dataProvider = "compared" )
+  public void compareDates( final RDate source, final RDate target, final int result )
+  {
+    assertEquals( result, source.compareTo( target ) );
+  }
+
+  @Test
+  public void ensureHashCodeEqualWhenEqual()
+  {
+    final RDate d1 = new RDate( 2001, 1, 1 );
+    final RDate d2 = new RDate( 2001, 1, 1 );
+    final RDate d3 = new RDate( 2002, 1, 1 );
+    assertEquals( d1, d2 );
+    assertEquals( d1.hashCode(), d2.hashCode() );
+    assertNotSame( d1, d3 );
+    assertFalse( d1.hashCode() == d3.hashCode() );
+    assertNotSame( d2, d3 );
+    assertFalse( d2.hashCode() == d3.hashCode() );
+  }
+}
