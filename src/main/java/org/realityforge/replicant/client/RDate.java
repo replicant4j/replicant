@@ -13,6 +13,12 @@ public final class RDate
   private int _month;
   private int _day;
 
+  ///Constructor required for GWT serialization
+  @SuppressWarnings( { "UnusedDeclaration" } )
+  private RDate()
+  {
+  }
+
   public RDate( final int year, final int month, final int day )
   {
     assert ( year > 0 || year < 2050 );
