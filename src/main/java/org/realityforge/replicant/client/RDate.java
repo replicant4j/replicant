@@ -1,20 +1,37 @@
 package org.realityforge.replicant.client;
 
-public final class RDate
-  implements Comparable<RDate>
-{
-  private final int _day;
-  private final int _month;
-  private final int _year;
+import java.io.Serializable;
+import javax.annotation.Nonnull;
 
-  public RDate( final int year, final int month, final int day )
+/**
+ * The client-side GWT representation of a date.
+ */
+public final class RDate
+  implements Comparable<RDate>, Serializable
+{
+  private final int _year;
+  private final int _month;
+  private final int _day;
+  @Nonnull
+  private final DayOfWeek _dayOfWeek;
+
+  @SuppressWarnings( { "ConstantConditions" } )
+  public RDate( final int year, final int month, final int day, @Nonnull final DayOfWeek dayOfWeek )
   {
     assert ( year > 0 || year < 2050 );
     assert ( month > 0 || month <= 12 );
     assert ( day > 0 || day < 31 );
+    assert ( null != dayOfWeek );
     _year = year;
     _month = month;
     _day = day;
+    _dayOfWeek = dayOfWeek;
+  }
+
+  @Nonnull
+  public DayOfWeek getDayOfWeek()
+  {
+    return _dayOfWeek;
   }
 
   public int getDay()
@@ -35,7 +52,7 @@ public final class RDate
   @Override
   public String toString()
   {
-    return getYear() + "-" + getMonth() + "-" + getDay();
+    return getDayOfWeek().name() + " " + getYear() + "-" + getMonth() + "-" + getDay();
   }
 
   @Override
@@ -62,6 +79,11 @@ public final class RDate
     {
       return other.getDay() - getDay();
     }
+    // Should never be an issue as it is bound by day but just in case ...
+    else if ( getDayOfWeek() != other.getDayOfWeek() )
+    {
+      return other.getDayOfWeek().ordinal() - getDayOfWeek().ordinal();
+    }
     else
     {
       return 0;
@@ -78,7 +100,8 @@ public final class RDate
     final RDate other = (RDate) object;
     return getYear() == other.getYear() &&
            getMonth() == other.getMonth() &&
-           getDay() == other.getDay();
+           getDay() == other.getDay() &&
+           getDayOfWeek() == other.getDayOfWeek();
   }
 
   public static RDate parse( final String text )
@@ -88,17 +111,24 @@ public final class RDate
 
     try
     {
-      int year;
-      int month;
-      int day;
-
       final StringBuilder sb = new StringBuilder();
+      while ( i < length && !Character.isWhitespace( text.charAt( i ) ) )
+      {
+        sb.append( text.charAt( i ) );
+        i++;
+      }
+      final DayOfWeek dayOfWeek = DayOfWeek.valueOf( sb.toString() );
+      sb.setLength( 0 );
+
+      //skip the space
+      i++;
+
       while ( i < length && Character.isDigit( text.charAt( i ) ) )
       {
         sb.append( text.charAt( i ) );
         i++;
       }
-      year = Integer.parseInt( sb.toString() );
+      final int year = Integer.parseInt( sb.toString() );
       sb.setLength( 0 );
 
       //skip the -
@@ -109,7 +139,7 @@ public final class RDate
         sb.append( text.charAt( i ) );
         i++;
       }
-      month = Integer.parseInt( sb.toString() );
+      final int month = Integer.parseInt( sb.toString() );
       sb.setLength( 0 );
 
       //skip the -
@@ -120,14 +150,14 @@ public final class RDate
         sb.append( text.charAt( i ) );
         i++;
       }
-      day = Integer.parseInt( sb.toString() );
+      final int day = Integer.parseInt( sb.toString() );
 
       if ( i != length )
       {
         throw poorlyFormattedException( text );
       }
 
-      return new RDate( year, month, day );
+      return new RDate( year, month, day, dayOfWeek );
     }
     catch ( final NumberFormatException nfe )
     {
