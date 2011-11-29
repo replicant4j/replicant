@@ -9,9 +9,9 @@ import java.util.Date;
 public final class RDate
   implements Comparable<RDate>, Serializable
 {
-  private final int _year;
-  private final int _month;
-  private final int _day;
+  private int _year;
+  private int _month;
+  private int _day;
 
   public RDate( final int year, final int month, final int day )
   {
