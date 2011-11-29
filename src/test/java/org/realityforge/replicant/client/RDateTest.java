@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -123,5 +124,32 @@ public class RDateTest
     outputStream.writeObject( date );
     outputStream.close();
     return out.toByteArray();
+  }
+
+  @SuppressWarnings( { "deprecation" } )
+  @Test
+  public void fromDate()
+    throws Exception
+  {
+    final Date date = new Date();
+    final RDate rDate = RDate.fromDate( date );
+    assertEquals( rDate.getYear(), date.getYear() );
+    assertEquals( rDate.getMonth(), date.getMonth() );
+    assertEquals( rDate.getDay(), date.getDate() );
+  }
+
+  @SuppressWarnings( { "deprecation" } )
+  @Test
+  public void toDate()
+    throws Exception
+  {
+    final RDate rDate = new RDate( 2011, 10, 9 );
+    final Date date = RDate.toDate( rDate );
+    assertEquals( date.getYear(), rDate.getYear() );
+    assertEquals( date.getMonth(), rDate.getMonth() );
+    assertEquals( date.getDate(), rDate.getDay() );
+    assertEquals( date.getHours(), 0 );
+    assertEquals( date.getMinutes(), 0 );
+    assertEquals( date.getSeconds(), 0 );
   }
 }

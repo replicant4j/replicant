@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * The client-side GWT representation of a date.
@@ -12,7 +13,7 @@ public final class RDate
   private final int _month;
   private final int _day;
 
-  public RDate( final int year, final int month, final int day)
+  public RDate( final int year, final int month, final int day )
   {
     assert ( year > 0 || year < 2050 );
     assert ( month > 0 || month <= 12 );
@@ -84,6 +85,18 @@ public final class RDate
     return getYear() == other.getYear() &&
            getMonth() == other.getMonth() &&
            getDay() == other.getDay();
+  }
+
+  @SuppressWarnings( { "deprecation" } )
+  public static RDate fromDate( final Date date )
+  {
+    return new RDate( date.getYear(), date.getMonth(), date.getDate() );
+  }
+
+  @SuppressWarnings( { "deprecation" } )
+  public static Date toDate( final RDate date )
+  {
+    return new Date( date.getYear(), date.getMonth(), date.getDay() );
   }
 
   public static RDate parse( final String text )
