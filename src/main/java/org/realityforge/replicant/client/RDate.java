@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client;
 
 import java.io.Serializable;
-import javax.annotation.Nonnull;
 
 /**
  * The client-side GWT representation of a date.
@@ -12,26 +11,15 @@ public final class RDate
   private final int _year;
   private final int _month;
   private final int _day;
-  @Nonnull
-  private final DayOfWeek _dayOfWeek;
 
-  @SuppressWarnings( { "ConstantConditions" } )
-  public RDate( final int year, final int month, final int day, @Nonnull final DayOfWeek dayOfWeek )
+  public RDate( final int year, final int month, final int day)
   {
     assert ( year > 0 || year < 2050 );
     assert ( month > 0 || month <= 12 );
     assert ( day > 0 || day < 31 );
-    assert ( null != dayOfWeek );
     _year = year;
     _month = month;
     _day = day;
-    _dayOfWeek = dayOfWeek;
-  }
-
-  @Nonnull
-  public DayOfWeek getDayOfWeek()
-  {
-    return _dayOfWeek;
   }
 
   public int getDay()
@@ -52,7 +40,7 @@ public final class RDate
   @Override
   public String toString()
   {
-    return getDayOfWeek().name() + " " + getYear() + "-" + getMonth() + "-" + getDay();
+    return getYear() + "-" + getMonth() + "-" + getDay();
   }
 
   @Override
@@ -79,11 +67,6 @@ public final class RDate
     {
       return other.getDay() - getDay();
     }
-    // Should never be an issue as it is bound by day but just in case ...
-    else if ( getDayOfWeek() != other.getDayOfWeek() )
-    {
-      return other.getDayOfWeek().ordinal() - getDayOfWeek().ordinal();
-    }
     else
     {
       return 0;
@@ -100,8 +83,7 @@ public final class RDate
     final RDate other = (RDate) object;
     return getYear() == other.getYear() &&
            getMonth() == other.getMonth() &&
-           getDay() == other.getDay() &&
-           getDayOfWeek() == other.getDayOfWeek();
+           getDay() == other.getDay();
   }
 
   public static RDate parse( final String text )
@@ -112,17 +94,6 @@ public final class RDate
     try
     {
       final StringBuilder sb = new StringBuilder();
-      while ( i < length && !Character.isWhitespace( text.charAt( i ) ) )
-      {
-        sb.append( text.charAt( i ) );
-        i++;
-      }
-      final DayOfWeek dayOfWeek = DayOfWeek.valueOf( sb.toString() );
-      sb.setLength( 0 );
-
-      //skip the space
-      i++;
-
       while ( i < length && Character.isDigit( text.charAt( i ) ) )
       {
         sb.append( text.charAt( i ) );
@@ -157,7 +128,7 @@ public final class RDate
         throw poorlyFormattedException( text );
       }
 
-      return new RDate( year, month, day, dayOfWeek );
+      return new RDate( year, month, day );
     }
     catch ( final NumberFormatException nfe )
     {

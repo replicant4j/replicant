@@ -15,13 +15,10 @@ public class RDateTest
   public Object[][] validDates()
   {
     return new Object[][]{
-      { "MON 2001-1-1", new RDate( 2001, 1, 1, DayOfWeek.MON ) },
-      { "TUE 2001-10-1", new RDate( 2001, 10, 1, DayOfWeek.TUE ) },
-      { "WED 2001-2-28", new RDate( 2001, 2, 28, DayOfWeek.WED ) },
-      { "THU 2021-12-31", new RDate( 2021, 12, 31, DayOfWeek.THU ) },
-      { "FRI 2021-12-31", new RDate( 2021, 12, 31, DayOfWeek.FRI ) },
-      { "SAT 2021-12-31", new RDate( 2021, 12, 31, DayOfWeek.SAT ) },
-      { "SUN 2021-12-31", new RDate( 2021, 12, 31, DayOfWeek.SUN ) },
+      { "2001-1-1", new RDate( 2001, 1, 1 ) },
+      { "2001-10-1", new RDate( 2001, 10, 1 ) },
+      { "2001-2-28", new RDate( 2001, 2, 28 ) },
+      { "2021-12-31", new RDate( 2021, 12, 31 ) },
     };
   }
 
@@ -35,14 +32,13 @@ public class RDateTest
   public Object[][] invalidDates()
   {
     return new Object[][]{
-      { "MON x2001-12-1" },
-      { "MON 2001x-12-1" },
-      { "MON 2001-12x-1" },
-      { "MON 2001-x12-1" },
-      { "MON 2001-10-1x" },
-      { "MON 2001-10-x1" },
-      { "MON 2001-10-1-" },
-      { "XXX 2001-10-1-" },
+      { "x2001-12-1" },
+      { "2001x-12-1" },
+      { "2001-12x-1" },
+      { "2001-x12-1" },
+      { "2001-10-1x" },
+      { "2001-10-x1" },
+      { "2001-10-1-" },
     };
   }
 
@@ -56,15 +52,13 @@ public class RDateTest
   public Object[][] comparableDates()
   {
     return new Object[][]{
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ), new RDate( 2001, 1, 1, DayOfWeek.MON ), 0 },
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ), new RDate( 2002, 1, 1, DayOfWeek.MON ), 1 },
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ), new RDate( 2000, 1, 1, DayOfWeek.MON ), -1 },
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ), new RDate( 2001, 2, 1, DayOfWeek.MON ), 1 },
-      { new RDate( 2001, 2, 1, DayOfWeek.MON ), new RDate( 2001, 1, 1, DayOfWeek.MON ), -1 },
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ), new RDate( 2001, 1, 2, DayOfWeek.MON ), 1 },
-      { new RDate( 2001, 1, 2, DayOfWeek.MON ), new RDate( 2001, 1, 1, DayOfWeek.MON ), -1 },
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ), new RDate( 2001, 1, 1, DayOfWeek.TUE ), 1 },
-      { new RDate( 2001, 1, 1, DayOfWeek.TUE ), new RDate( 2001, 1, 1, DayOfWeek.MON ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 1 ), 0 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2002, 1, 1 ), 1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2000, 1, 1 ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 2, 1 ), 1 },
+      { new RDate( 2001, 2, 1 ), new RDate( 2001, 1, 1 ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 2 ), 1 },
+      { new RDate( 2001, 1, 2 ), new RDate( 2001, 1, 1 ), -1 },
     };
   }
 
@@ -77,9 +71,9 @@ public class RDateTest
   @Test
   public void ensureHashCodeEqualWhenEqual()
   {
-    final RDate d1 = new RDate( 2001, 1, 1, DayOfWeek.MON );
-    final RDate d2 = new RDate( 2001, 1, 1, DayOfWeek.MON );
-    final RDate d3 = new RDate( 2002, 1, 1, DayOfWeek.MON );
+    final RDate d1 = new RDate( 2001, 1, 1 );
+    final RDate d2 = new RDate( 2001, 1, 1 );
+    final RDate d3 = new RDate( 2002, 1, 1 );
     assertEquals( d1, d2 );
     assertEquals( d1.hashCode(), d2.hashCode() );
     assertNotSame( d1, d3 );
@@ -92,9 +86,9 @@ public class RDateTest
   public Object[][] transformDates()
   {
     return new Object[][]{
-      { new RDate( 2001, 1, 1, DayOfWeek.MON ) },
-      { new RDate( 2001, 2, 1, DayOfWeek.TUE ) },
-      { new RDate( 2001, 1, 3, DayOfWeek.SAT ) },
+      { new RDate( 2001, 1, 1 ) },
+      { new RDate( 2001, 2, 1 ) },
+      { new RDate( 2001, 1, 3 ) },
     };
   }
 
