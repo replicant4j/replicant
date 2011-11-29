@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -133,8 +134,11 @@ public class RDateTest
   {
     final Date date = new Date();
     final RDate rDate = RDate.fromDate( date );
-    assertEquals( rDate.getYear(), date.getYear() );
-    assertEquals( rDate.getMonth(), date.getMonth() );
+
+    assertEquals( "" + rDate.getYear(), new SimpleDateFormat( "yyyy" ).format( date ) );
+    assertEquals( rDate.getYear(), date.getYear() + 1900 );
+    assertEquals( "" + rDate.getMonth(), new SimpleDateFormat( "MM" ).format( date ) );
+    assertEquals( rDate.getMonth(), date.getMonth() + 1 );
     assertEquals( rDate.getDay(), date.getDate() );
   }
 
@@ -145,11 +149,22 @@ public class RDateTest
   {
     final RDate rDate = new RDate( 2011, 10, 9 );
     final Date date = RDate.toDate( rDate );
-    assertEquals( date.getYear(), rDate.getYear() );
-    assertEquals( date.getMonth(), rDate.getMonth() );
+    assertEquals( new SimpleDateFormat( "yyyy" ).format( date ), "" + rDate.getYear() );
+    assertEquals( date.getYear() + 1900, rDate.getYear() );
+    assertEquals( new SimpleDateFormat( "MM" ).format( date ), "" + rDate.getMonth() );
+    assertEquals( date.getMonth() + 1, rDate.getMonth() );
     assertEquals( date.getDate(), rDate.getDay() );
     assertEquals( date.getHours(), 0 );
     assertEquals( date.getMinutes(), 0 );
     assertEquals( date.getSeconds(), 0 );
+  }
+
+  @SuppressWarnings( { "deprecation" } )
+  @Test
+  public void fromToDate()
+    throws Exception
+  {
+    final RDate rDate = new RDate( 2011, 10, 9 );
+    assertEquals( RDate.fromDate( RDate.toDate( rDate ) ), rDate );
   }
 }

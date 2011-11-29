@@ -90,13 +90,13 @@ public final class RDate
   @SuppressWarnings( { "deprecation" } )
   public static RDate fromDate( final Date date )
   {
-    return new RDate( date.getYear(), date.getMonth(), date.getDate() );
+    return new RDate( date.getYear() + 1900, date.getMonth() + 1, date.getDate() );
   }
 
   @SuppressWarnings( { "deprecation" } )
   public static Date toDate( final RDate date )
   {
-    return new Date( date.getYear(), date.getMonth(), date.getDay() );
+    return new Date( date.getYear() - 1900, date.getMonth() -1, date.getDay() );
   }
 
   public static RDate parse( final String text )
