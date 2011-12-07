@@ -5,7 +5,13 @@ package org.realityforge.replicant.client;
  */
 public interface Linkable
 {
+  /**
+   * Resolve any references to related entities.
+   */
   void link();
 
+  /**
+   * Remove direct references to related entities and mark as unresolved.
+   */
   void delink();
 }
