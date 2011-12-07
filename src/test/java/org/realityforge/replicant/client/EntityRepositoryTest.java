@@ -20,6 +20,11 @@ public class EntityRepositoryTest
 
     assertNotLinked( entity );
 
+    assertEquals( r.findByID( type, id, false ), entity );
+    assertNotLinked( entity );
+    assertEquals( r.findByID( type, id, true ), entity );
+    assertLinked( entity );
+
     assertPresent( r, type, id, entity );
     assertPresent( r, parentType, id, entity );
     assertNotPresent( r, type, "X" );

@@ -61,8 +61,17 @@ public class EntityRepositoryImpl
   @Nullable
   public <T> T findByID( final Class<T> type, final Object id )
   {
+    return findByID( type, id, true );
+  }
+
+  @Override
+  public <T> T findByID( final Class<T> type, final Object id, final boolean forceLink )
+  {
     final T t = getObjectMap( type ).get( id );
-    linkEntity( t );
+    if ( forceLink )
+    {
+      linkEntity( t );
+    }
     return t;
   }
 
