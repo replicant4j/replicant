@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONValue;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -28,10 +29,10 @@ public class GwtJsonDecoder
   {
     final JSONObject changeSet = toObject( value, "changeset" );
     final com.google.gwt.json.client.JSONArray array =
-      toArray( changeSet.get( TransportConstants.CHANGES ),
-               TransportConstants.CHANGES );
+      toArray( changeSet.get( TransportConstants.CHANGES ), TransportConstants.CHANGES );
     final int size = array.size();
-    final ArrayList<Linkable> entitiesToLink = new ArrayList<Linkable>( size );
+    final ArrayList<Linkable> updatedEntities = new ArrayList<Linkable>( size );
+    final HashSet<Linkable> removedEntities = new HashSet<Linkable>( size );
     for ( int i = 0; i < size; i++ )
     {
       final JSONObject change = toObject( array.get( i ), TransportConstants.TYPE_ID + "[" + i + "]" );
@@ -42,37 +43,55 @@ public class GwtJsonDecoder
         toMap( toObject( change.get( TransportConstants.DATA ), TransportConstants.DATA ) ) :
         null;
 
-      final JSONValue idValue = change.get( TransportConstants.ENTITY_ID );
-      final Object id;
-      if( null != idValue.isNumber() )
-      {
-        id = (int)idValue.isNumber().doubleValue();
-      }
-      else if( null != idValue.isBoolean() )
-      {
-        id = idValue.isBoolean().booleanValue();
-      }
-      else if( null != idValue.isString() )
-      {
-        id = idValue.isString().stringValue();
-      }
-      else
-      {
-        throw new IllegalStateException( "Unexpected id type " + idValue );
-      }
+      final Object id = toValue( change.get( TransportConstants.ENTITY_ID ) );
 
       final Object entity = _changeMapper.applyChange( typeID, id, data );
       //Is the entity a update and is it linkable?
-      if ( null != data && entity instanceof Linkable )
+      if ( entity instanceof Linkable )
       {
-        entitiesToLink.add( (Linkable) entity );
+        if ( null == data )
+        {
+          removedEntities.add( (Linkable) entity );
+        }
+        else
+        {
+          updatedEntities.add( (Linkable) entity );
+        }
       }
     }
-    for ( final Linkable linkable : entitiesToLink )
+    for ( final Linkable entity : updatedEntities )
     {
-      linkable.link();
+      // In some circumstances a create and remove can appear in same change set so guard against this
+      if ( !removedEntities.contains( entity ) )
+      {
+        entity.link();
+      }
     }
     return toInteger( changeSet.get( TransportConstants.LAST_CHANGE_SET_ID ), TransportConstants.LAST_CHANGE_SET_ID );
+  }
+
+  private Serializable toValue( final JSONValue value )
+  {
+    if( null != value.isNumber() )
+    {
+      return (int)value.isNumber().doubleValue();
+    }
+    else if( null != value.isBoolean() )
+    {
+      return value.isBoolean().booleanValue();
+    }
+    else if( null != value.isString() )
+    {
+      return value.isString().stringValue();
+    }
+    else if( null != value.isNull() )
+    {
+      return null;
+    }
+    else
+    {
+      throw new IllegalStateException( "Unexpected value " + value );
+    }
   }
 
   @Nonnull
@@ -92,27 +111,7 @@ public class GwtJsonDecoder
     final HashMap<String, Serializable> result = new HashMap<String, Serializable>();
     for ( final String key : value.keySet() )
     {
-      final JSONValue attributeValue = value.get( key );
-      if ( null != attributeValue.isString() )
-      {
-        result.put( key, attributeValue.isString().stringValue() );
-      }
-      else if ( null != attributeValue.isNumber() )
-      {
-        result.put( key, (int) attributeValue.isNumber().doubleValue() );
-      }
-      else if ( null != attributeValue.isBoolean() )
-      {
-        result.put( key, attributeValue.isBoolean().booleanValue() );
-      }
-      else if ( null != attributeValue.isNull() )
-      {
-        result.put( key, null );
-      }
-      else
-      {
-        throw new IllegalStateException( "Unexpected value for " + key );
-      }
+      result.put( key, toValue( value.get( key ) ) );
     }
     return result;
   }
