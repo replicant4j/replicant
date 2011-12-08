@@ -54,6 +54,13 @@ public interface EntityChangeBroker
   void removeChangeListener( @Nonnull Object entity, @Nonnull EntityChangeListener listener );
 
   /**
+   * Remove listener from listening to any changes.
+   *
+   * @param listener the EntityChangeListener
+   */
+  void purgeChangeListener( @Nonnull EntityChangeListener listener );
+
+  /**
    * Pause the broker.
    *
    * <p>Changes sent to the broker while it is paused will be cached and transmitted when it is resumed.</p>

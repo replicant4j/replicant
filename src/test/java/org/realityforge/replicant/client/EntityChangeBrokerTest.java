@@ -203,7 +203,6 @@ public class EntityChangeBrokerTest
 
     assertRelatedRemovedEventCount( globalListener, 1 );
     assertRelatedRemovedEvent( globalListener.getRelatedRemovedEvents().get( 0 ), entity, REL_KEY, other );
-
   }
 
   @Test
@@ -411,6 +410,14 @@ public class EntityChangeBrokerTest
       }
     };
 
+    final RecordingListener purgingListener = new RecordingListener()
+    {
+      public void entityRemoved( final EntityChangeEvent event )
+      {
+        broker.purgeChangeListener( globalListener );
+      }
+    };
+
     broker.addChangeListener( addingListener );
 
     broker.entityRemoved( entity );
@@ -421,10 +428,6 @@ public class EntityChangeBrokerTest
     assertEntityRemovedEventCount( globalListener, 0 );
     assertEntityRemovedEventCount( classListener, 0 );
     assertEntityRemovedEventCount( instanceListener, 0 );
-
-    globalListener.clear();
-    classListener.clear();
-    instanceListener.clear();
 
     broker.entityRemoved( entity );
 
@@ -473,6 +476,32 @@ public class EntityChangeBrokerTest
     assertEntityRemovedEventCount( globalListener, 0 );
     assertEntityRemovedEventCount( classListener, 0 );
     assertEntityRemovedEventCount( instanceListener, 0 );
+
+    // if we add purging listener first to ensure that it is called first then we
+    // add the other listeners. This proves they will not be removed until after message
+    // has been sent
+    broker.addChangeListener( purgingListener );
+    broker.addChangeListener( globalListener );
+    broker.addChangeListener( B.class, classListener );
+    broker.addChangeListener( entity, instanceListener );
+
+    broker.entityRemoved( entity );
+
+    // All should receive messages as they were still around during last send
+    assertEntityRemovedEventCount( globalListener, 1 );
+    assertEntityRemovedEventCount( classListener, 1 );
+    assertEntityRemovedEventCount( instanceListener, 1 );
+
+    globalListener.clear();
+    classListener.clear();
+    instanceListener.clear();
+
+    broker.entityRemoved( entity );
+
+    // None should receive messages as they were removed in last event send
+    assertEntityRemovedEventCount( globalListener, 0 );
+    assertEntityRemovedEventCount( classListener, 0 );
+    assertEntityRemovedEventCount( instanceListener, 0 );
   }
 
   @Test
@@ -489,7 +518,7 @@ public class EntityChangeBrokerTest
 
       public void entityRemoved( final EntityChangeEvent event )
       {
-        if( !_sent )
+        if ( !_sent )
         {
           broker.entityRemoved( entity2 );
           _sent = true;
@@ -505,6 +534,77 @@ public class EntityChangeBrokerTest
     assertEntityRemovedEventCount( globalListener, 2 );
     assertEquals( entity1, globalListener.getEntityRemovedEvents().get( 0 ).getObject() );
     assertEquals( entity2, globalListener.getEntityRemovedEvents().get( 1 ).getObject() );
+  }
+
+  @Test
+  public void purgeChangeListener()
+  {
+    final B entity = new B();
+    final B other = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+    final RecordingListener listener = new RecordingListener();
+
+    //Pre add purge should not cause any problems
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+
+    // purge after add a global
+    broker.addChangeListener( listener );
+    assertEntityRemovedMessageSent( entity, broker, listener );
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+
+    //Double purge does nothing
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+
+    // purge after add a type listener
+    broker.addChangeListener( B.class, listener );
+    assertEntityRemovedMessageSent( entity, broker, listener );
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+
+    // purge after add multiple type listener
+    broker.addChangeListener( B.class, listener );
+    broker.addChangeListener( C.class, listener );
+    assertEntityRemovedMessageSent( entity, broker, listener );
+    assertEntityRemovedMessageSent( new C(), broker, listener );
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+    assertEntityRemovedMessageNotSent( new C(), broker, listener );
+
+    // purge after add a instance listener
+    broker.addChangeListener( entity, listener );
+    assertEntityRemovedMessageSent( entity, broker, listener );
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+
+    // purge multiple after add a instance listener
+    broker.addChangeListener( entity, listener );
+    broker.addChangeListener( other, listener );
+    assertEntityRemovedMessageSent( entity, broker, listener );
+    assertEntityRemovedMessageSent( other, broker, listener );
+    broker.purgeChangeListener( listener );
+    assertEntityRemovedMessageNotSent( entity, broker, listener );
+    assertEntityRemovedMessageNotSent( other, broker, listener );
+  }
+
+  private void assertEntityRemovedMessageSent( final Object entity,
+                                               final EntityChangeBroker broker,
+                                               final RecordingListener listener )
+  {
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 1 );
+    listener.clear();
+  }
+
+  private void assertEntityRemovedMessageNotSent( final Object entity,
+                                                  final EntityChangeBroker broker,
+                                                  final RecordingListener listener )
+  {
+    broker.entityRemoved( entity );
+    assertEntityRemovedEventCount( listener, 0 );
   }
 
   private void assertHasNoRecordedEvents( final RecordingListener listener )
@@ -589,12 +689,12 @@ public class EntityChangeBrokerTest
   }
 
   public static class B
-      extends A
+    extends A
   {
   }
 
   public static class SubB
-      extends B
+    extends B
   {
   }
 
