@@ -484,13 +484,20 @@ public final class EntityChangeBrokerImpl
     {
       if( listener == listeners[ i ] )
       {
-        final EntityChangeListener[] results = new EntityChangeListener[ listeners.length - 1 ];
-        System.arraycopy( listeners, 0, results, 0, i );
-        if( i != listeners.length - 1 )
+        if ( 1 == listeners.length )
         {
-          System.arraycopy( listeners, i + 1, results, i, listeners.length - i - 1 );
+          return _emptyListenerSet;
         }
-        return results;
+        else
+        {
+          final EntityChangeListener[] results = new EntityChangeListener[ listeners.length - 1 ];
+          System.arraycopy( listeners, 0, results, 0, i );
+          if ( i != listeners.length - 1 )
+          {
+            System.arraycopy( listeners, i + 1, results, i, listeners.length - i - 1 );
+          }
+          return results;
+        }
       }
     }
     return listeners;
