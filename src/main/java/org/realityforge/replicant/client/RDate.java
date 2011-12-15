@@ -64,15 +64,15 @@ public final class RDate
   {
     if ( getYear() != other.getYear() )
     {
-      return other.getYear() - getYear();
+      return getYear() - other.getYear();
     }
     else if ( getMonth() != other.getMonth() )
     {
-      return other.getMonth() - getMonth();
+      return getMonth() - other.getMonth();
     }
     else if ( getDay() != other.getDay() )
     {
-      return other.getDay() - getDay();
+      return getDay() - other.getDay();
     }
     else
     {

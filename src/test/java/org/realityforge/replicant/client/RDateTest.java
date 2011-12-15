@@ -55,12 +55,12 @@ public class RDateTest
   {
     return new Object[][]{
       { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 1 ), 0 },
-      { new RDate( 2001, 1, 1 ), new RDate( 2002, 1, 1 ), 1 },
-      { new RDate( 2001, 1, 1 ), new RDate( 2000, 1, 1 ), -1 },
-      { new RDate( 2001, 1, 1 ), new RDate( 2001, 2, 1 ), 1 },
-      { new RDate( 2001, 2, 1 ), new RDate( 2001, 1, 1 ), -1 },
-      { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 2 ), 1 },
-      { new RDate( 2001, 1, 2 ), new RDate( 2001, 1, 1 ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2002, 1, 1 ), -1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2000, 1, 1 ), 1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 2, 1 ), -1 },
+      { new RDate( 2001, 2, 1 ), new RDate( 2001, 1, 1 ), 1 },
+      { new RDate( 2001, 1, 1 ), new RDate( 2001, 1, 2 ), -1 },
+      { new RDate( 2001, 1, 2 ), new RDate( 2001, 1, 1 ), 1 },
     };
   }
 
@@ -68,6 +68,24 @@ public class RDateTest
   public void compareDates( final RDate source, final RDate target, final int result )
   {
     assertEquals( result, source.compareTo( target ) );
+  }
+
+  @Test( dataProvider = "compared" )
+  public void compareDatesSameAsDateCompared( final RDate source, final RDate target, final int result )
+  {
+    final int actual = RDate.toDate( source ).compareTo( RDate.toDate( target ) );
+    if( 0 == result )
+    {
+      assertEquals( actual, 0  );
+    }
+    else if( 0 > result )
+    {
+      assertTrue( 0 > actual  );
+    }
+    else
+    {
+      assertTrue( 0 < actual  );
+    }
   }
 
   @Test
