@@ -40,10 +40,13 @@ public abstract class ChangeRecorder
 
   private void queueEntityMessageForObject( @Nonnull final Object object, final boolean update )
   {
-    final EntityMessage entityMessage = toEntityMessage( object, update );
-    if( null != entityMessage )
+    if ( !getRegistry().getRollbackOnly() )
     {
-      EntityMessageCacheUtil.getEntityMessageSet( getRegistry() ).merge( entityMessage );
+      final EntityMessage entityMessage = toEntityMessage( object, update );
+      if ( null != entityMessage )
+      {
+        EntityMessageCacheUtil.getEntityMessageSet( getRegistry() ).merge( entityMessage );
+      }
     }
   }
 
