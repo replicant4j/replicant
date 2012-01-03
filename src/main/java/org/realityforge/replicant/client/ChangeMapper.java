@@ -1,9 +1,5 @@
 package org.realityforge.replicant.client;
 
-import java.io.Serializable;
-import java.util.Map;
-import javax.annotation.Nullable;
-
 /**
  * The ChangeMapper is responsible for applying changes to the world.
  *
@@ -24,10 +20,8 @@ public interface ChangeMapper
   /**
    * Apply a single change to the world.
    *
-   * @param typeID the type code of the entities type.
-   * @param designator the entities designator,
-   * @param data the data to use to update the entity or null if the entity should be removed from the system.
+   * @param change the Change.
    * @return the entity that was created, updated or removed.
    */
-  Object applyChange( int typeID, Object designator, @Nullable Map<String, Serializable> data );
+  Object applyChange( Change change );
 }
