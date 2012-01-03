@@ -155,7 +155,7 @@ public class RDateTest
 
     assertEquals( "" + rDate.getYear(), new SimpleDateFormat( "yyyy" ).format( date ) );
     assertEquals( rDate.getYear(), date.getYear() + 1900 );
-    assertEquals( "" + rDate.getMonth(), new SimpleDateFormat( "MM" ).format( date ) );
+    assertEquals( "" + rDate.getMonth(), new SimpleDateFormat( "M" ).format( date ) );
     assertEquals( rDate.getMonth(), date.getMonth() + 1 );
     assertEquals( rDate.getDay(), date.getDate() );
   }
