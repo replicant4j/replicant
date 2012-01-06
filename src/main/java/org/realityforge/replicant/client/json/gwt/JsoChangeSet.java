@@ -36,10 +36,6 @@ public final class JsoChangeSet
     return this.changes[ index ];
   }-*/;
 
-  //public static native JsoChangeSet asChangeSet( String json ) /*-{
-  //  return eval( '(' + json + ')' );
-  //}-*/;
-
   public static ChangeSet asChangeSet( final String json )
   {
     return asChangeSet0( json );
