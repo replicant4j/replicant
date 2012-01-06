@@ -12,7 +12,12 @@ public final class JsoChange
   }
 
   @Override
-  public final native Object getDesignator() /*-{
+  public final native int getDesignatorAsInt() /*-{
+    return this.id;
+  }-*/;
+
+  @Override
+  public final native String getDesignatorAsString() /*-{
     return this.id;
   }-*/;
 
