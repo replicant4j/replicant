@@ -80,6 +80,7 @@ public class ChangeRecorderTest
       {
         return MessageTestUtil.createMessage( ENTITY,
                                               1,
+                                              0,
                                               "r1",
                                               "r2",
                                               ( update ? "a1" : null ), ( update ? "a2" : null ) );

@@ -38,7 +38,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
     final Object result = interceptor.businessIntercept( context );
@@ -57,7 +57,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
     final TestInvocationContext context = new TestInvocationContext()
@@ -100,7 +100,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
     try
@@ -134,7 +134,7 @@ public class ReplicationInterceptorTest
     };
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
     final Object result = interceptor.businessIntercept( context );

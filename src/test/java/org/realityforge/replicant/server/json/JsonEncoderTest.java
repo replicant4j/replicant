@@ -23,7 +23,7 @@ public final class JsonEncoderTest
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
@@ -52,7 +52,7 @@ public final class JsonEncoderTest
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     final ArrayList<String> messages = new ArrayList<String>();
     messages.add( JsonEncoder.encodeEntityMessageAsString( message ) );
@@ -82,7 +82,7 @@ public final class JsonEncoderTest
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     final String result = JsonEncoder.encodeEntityMessageAsString( message );
     assertNotNull( result );
@@ -99,7 +99,7 @@ public final class JsonEncoderTest
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, "r1", "r2", null, null );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
     final String result = JsonEncoder.encodeEntityMessageAsString( message );
     assertNotNull( result );
@@ -115,7 +115,7 @@ public final class JsonEncoderTest
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     final JSONObject object = JsonEncoder.encodeEntityMessage( message );
 
@@ -135,7 +135,7 @@ public final class JsonEncoderTest
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, "r1", "r2", null, null );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
     final JSONObject object = JsonEncoder.encodeEntityMessage( message );
 

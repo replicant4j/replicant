@@ -20,6 +20,7 @@ public final class MessageTestUtil
 
   public static EntityMessage createMessage( @Nonnull final Serializable id,
                                              final int typeID,
+                                             final long timestamp,
                                              @Nullable final String r1,
                                              @Nullable final String r2,
                                              @Nullable final String a1,
@@ -46,7 +47,7 @@ public final class MessageTestUtil
       attributeValues.put( ATTR_KEY2, a2 );
     }
 
-    return new EntityMessage( id, typeID, routingKeys, attributeValues );
+    return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues );
   }
 
   public static void assertAttributeValue( final EntityMessage message,
@@ -63,5 +64,11 @@ public final class MessageTestUtil
                                        final String value )
   {
     assertEquals( message.getRoutingKeys().get( key ), value );
+  }
+
+  public static void assertTimestamp( final EntityMessage message,
+                                      final int value )
+  {
+    assertEquals( message.getTimestamp(), value );
   }
 }

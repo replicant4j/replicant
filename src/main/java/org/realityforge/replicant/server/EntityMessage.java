@@ -12,14 +12,17 @@ public final class EntityMessage
   private final int _typeID;
   private final Map<String, Serializable> _routingKeys;
   private Map<String, Serializable> _attributeValues;
+  private long _timestamp;
 
   public EntityMessage( @Nonnull final Serializable id,
                         final int typeID,
+                        final long timestamp,
                         @Nonnull final Map<String, Serializable> routingKeys,
                         @Nullable final Map<String, Serializable> attributeValues )
   {
     _id = id;
     _typeID = typeID;
+    _timestamp = timestamp;
     _routingKeys = routingKeys;
     _attributeValues = attributeValues;
   }
@@ -33,6 +36,11 @@ public final class EntityMessage
   public Serializable getID()
   {
     return _id;
+  }
+
+  public long getTimestamp()
+  {
+    return _timestamp;
   }
 
   public boolean isUpdate()
@@ -70,8 +78,17 @@ public final class EntityMessage
 
   void merge( final EntityMessage message )
   {
+    mergeTimestamp( message );
     mergeRoutingKeys( message );
     mergeAttributeValues( message );
+  }
+
+  private void mergeTimestamp( final EntityMessage message )
+  {
+    if ( message.getTimestamp() > getTimestamp() )
+    {
+      _timestamp = message.getTimestamp();
+    }
   }
 
   private void mergeRoutingKeys( final EntityMessage message )
