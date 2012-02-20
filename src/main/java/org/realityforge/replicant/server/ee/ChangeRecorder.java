@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.ee;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -51,6 +52,7 @@ public abstract class ChangeRecorder
     }
   }
 
+  @Nullable
   protected abstract EntityMessage toEntityMessage( @Nonnull Object object, boolean update );
 
   private TransactionSynchronizationRegistry getRegistry()
