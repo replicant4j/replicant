@@ -12,6 +12,11 @@ import javax.persistence.PreRemove;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 
+/**
+ * Abstract class to extend to collect changes to entities so that they can be replicated by the library. 
+ * Library users should implement the {@link #toEntityMessage(Object, boolean)} method to provide messages
+ * specific the particular application.
+ */
 public abstract class ChangeRecorder
 {
   /**
@@ -34,6 +39,15 @@ public abstract class ChangeRecorder
     queueEntityMessageForObject( object, true );
   }
 
+  /**
+   * Collect messages before they are committed to the database with the
+   * assumption that the remove will not fail. This allows us to traverse
+   * the object graph before it is deleted. Note: This is a different strategy
+   * from postUpdate() but PostUpdate may be changed in the future to match
+   * remove hook.
+   *
+   * @param object the entity removed.
+   */
   @PreRemove
   public void preRemove(final Object object)
   {
@@ -52,6 +66,13 @@ public abstract class ChangeRecorder
     }
   }
 
+  /**
+   * Convert the jpa entity to an EntityMessage for replication via replicant library.
+   *
+   * @param object the entity that was modified or removed.
+   * @param update false if the entity was removed, true otherwise.
+   * @return the EntityMessage or null if no update should be replicated.
+   */
   @Nullable
   protected abstract EntityMessage toEntityMessage( @Nonnull Object object, boolean update );
 
