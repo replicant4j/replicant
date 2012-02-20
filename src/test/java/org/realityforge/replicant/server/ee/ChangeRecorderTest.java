@@ -20,7 +20,7 @@ public class ChangeRecorderTest
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final ChangeRecorder changeRecorder = createChangeRecorder( registry );
-    changeRecorder.postRemove( ENTITY );
+    changeRecorder.preRemove(ENTITY);
     assertMessageGenerated( registry, false );
   }
 

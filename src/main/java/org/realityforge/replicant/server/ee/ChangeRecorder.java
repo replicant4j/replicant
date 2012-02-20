@@ -7,6 +7,7 @@ import javax.naming.NamingException;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
+import javax.persistence.PreRemove;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 
@@ -32,8 +33,8 @@ public abstract class ChangeRecorder
     queueEntityMessageForObject( object, true );
   }
 
-  @PostRemove
-  public void postRemove( final Object object )
+  @PreRemove
+  public void preRemove(final Object object)
   {
     queueEntityMessageForObject( object, false );
   }
