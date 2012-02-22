@@ -192,6 +192,11 @@ public class EntityRepositoryTest
     {
       _linked = false;
     }
+
+    @Override
+    public void invalidate()
+    {
+    }
   }
 
   static class A

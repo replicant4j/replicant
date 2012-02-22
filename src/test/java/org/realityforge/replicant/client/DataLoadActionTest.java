@@ -157,6 +157,11 @@ public class DataLoadActionTest
     }
 
     @Override
+    public void invalidate()
+    {
+    }
+
+    @Override
     public String toString()
     {
       return "Entity:" + System.identityHashCode( this );
