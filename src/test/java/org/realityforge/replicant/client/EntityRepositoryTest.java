@@ -37,6 +37,7 @@ public class EntityRepositoryTest
 
     // entity is de-linked after de-registration
     assertNotLinked( entity );
+    assertInvalidated( entity );
 
     assertNotPresent( r, type, id );
     assertNotPresent( r, parentType, id );
@@ -173,8 +174,14 @@ public class EntityRepositoryTest
     assertFalse( entity._linked );
   }
 
+  private static void assertInvalidated( final B entity )
+  {
+    assertTrue( entity._invalidated );
+  }
+
   private static void assertLinked( final B entity )
   {
+    assertFalse( entity._invalidated );
     assertTrue( entity._linked );
   }
 
@@ -182,6 +189,7 @@ public class EntityRepositoryTest
       implements Linkable
   {
     boolean _linked;
+    boolean _invalidated;
 
     public final void link()
     {
@@ -196,6 +204,7 @@ public class EntityRepositoryTest
     @Override
     public void invalidate()
     {
+      _invalidated = true;
     }
   }
 
