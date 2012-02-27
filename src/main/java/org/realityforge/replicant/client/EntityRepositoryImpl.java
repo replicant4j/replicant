@@ -28,6 +28,19 @@ public class EntityRepositoryImpl
   @Nonnull
   public <T> T deregisterEntity( final Class<T> type, final Object id )
   {
+    final T existing = doDeregisterEntity( type, id );
+    if( existing instanceof Linkable )
+    {
+      final Linkable linkable = (Linkable) existing;
+      linkable.delink();
+      linkable.invalidate();
+    }
+    return existing;
+  }
+
+  @Nonnull
+  private <T> T doDeregisterEntity( final Class<T> type, final Object id )
+  {
     final HashMap<Object, T> objectMap = getObjectMap( type );
     final T existing = objectMap.remove( id );
     if( null == existing )
@@ -37,13 +50,7 @@ public class EntityRepositoryImpl
     final Class<? super T> superclass = type.getSuperclass();
     if( Object.class != superclass )
     {
-      deregisterEntity( superclass, id );
-    }
-    if( existing instanceof Linkable )
-    {
-      final Linkable linkable = (Linkable) existing;
-      linkable.delink();
-      linkable.invalidate();
+      doDeregisterEntity( superclass, id );
     }
     return existing;
   }

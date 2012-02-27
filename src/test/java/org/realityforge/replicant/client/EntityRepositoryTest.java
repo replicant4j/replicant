@@ -198,12 +198,14 @@ public class EntityRepositoryTest
 
     public final void delink()
     {
+      assertTrue( _linked );
       _linked = false;
     }
 
     @Override
     public void invalidate()
     {
+      assertFalse( _invalidated );
       _invalidated = true;
     }
   }
