@@ -114,7 +114,9 @@ public class EntityRepositoryImpl
   {
     if( t instanceof Linkable )
     {
-      ( (Linkable) t ).link();
+      final Linkable linkable = (Linkable) t;
+      assert linkable.isValid();
+      linkable.link();
     }
   }
 
