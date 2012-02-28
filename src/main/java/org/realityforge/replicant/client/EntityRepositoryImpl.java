@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 public class EntityRepositoryImpl
     implements EntityRepository
 {
-  private HashMap<Class, HashMap> _dataStore = new HashMap<Class, HashMap>();
+  private HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<Class, HashMap<Object, ?>>();
 
   public <T> void registerEntity( final Class<T> type, final Object id, final T entity )
   {
