@@ -91,7 +91,7 @@ public class EntityRepositoryImpl
     final HashMap<Object, T> map = getObjectMap( type );
     final ArrayList<T> results = new ArrayList<T>( map.size() );
     results.addAll( map.values() );
-    for( T result : results )
+    for( final T result : results )
     {
       linkEntity( result );
     }
