@@ -63,6 +63,43 @@ public class EntityRepositoryTest
     assertTrue( results.contains( entity ) );
   }
 
+  @Test
+  public void validate()
+    throws Exception
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    final Class<A> type = A.class;
+    final A entity = new A();
+
+    r.registerEntity( type, "1", entity );
+
+    r.validate();
+
+    //Ensure non linkables can be validated
+    r.registerEntity( String.class, "foo", "foo" );
+
+    r.validate();
+
+    final A entity2 = new A();
+    entity2.invalidate();
+
+    r.registerEntity( type, "2", entity2 );
+
+    boolean invalid = false;
+    try
+    {
+      r.validate();
+    }
+    catch ( Exception e )
+    {
+      invalid = true;
+    }
+
+    if ( !invalid )
+    {
+      fail( "Expected invalid object to raise exception in validate method" );
+    }
+  }
 
   @Test
   public void duplicateRegisterRaisesException()
@@ -78,7 +115,7 @@ public class EntityRepositoryTest
     {
       r.registerEntity( type, id, entity );
     }
-    catch( final IllegalStateException e )
+    catch ( final IllegalStateException e )
     {
       assertEquals( "Attempting to register duplicate entity with type '" + type.getName() + "' and id = '" + id + "'",
                     e.getMessage() );
@@ -98,7 +135,7 @@ public class EntityRepositoryTest
     {
       r.deregisterEntity( type, id );
     }
-    catch( final IllegalStateException e )
+    catch ( final IllegalStateException e )
     {
       assertEquals( "Attempting to de-register non existent entity with type '" + type.getName() +
                     "' and id = '" + id + "'", e.getMessage() );
@@ -157,13 +194,13 @@ public class EntityRepositoryTest
       r.getByID( type, id );
       failed = false;
     }
-    catch( final IllegalStateException e )
+    catch ( final IllegalStateException e )
     {
       assertEquals( "Unable to locate entity with type '" + type.getName() + "' and id = '" + id + "'",
                     e.getMessage() );
       failed = true;
     }
-    if( !failed )
+    if ( !failed )
     {
       fail( "Expected getByID to fail with exception for bad ID" );
     }
@@ -186,7 +223,7 @@ public class EntityRepositoryTest
   }
 
   static class B
-      implements Linkable
+    implements Linkable
   {
     boolean _linked;
     boolean _invalidated;
@@ -217,7 +254,7 @@ public class EntityRepositoryTest
   }
 
   static class A
-      extends B
+    extends B
   {
   }
 }

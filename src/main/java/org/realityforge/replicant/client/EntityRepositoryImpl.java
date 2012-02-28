@@ -2,6 +2,7 @@ package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -96,6 +97,28 @@ public class EntityRepositoryImpl
       linkEntity( result );
     }
     return results;
+  }
+
+  @Override
+  public void validate()
+    throws Exception
+  {
+    for ( final Entry<Class, HashMap<Object, ?>> entry : _dataStore.entrySet() )
+    {
+      for ( final Entry<Object, ?> entityEntry : entry.getValue().entrySet() )
+      {
+        final Object entity = entityEntry.getValue();
+        if( entity instanceof Linkable )
+        {
+          if ( !( (Linkable) entity ).isValid() )
+          {
+            final String message =
+              "Invalid " + describeEntity( entry.getKey(), entityEntry.getKey() ) + " found. Entity = " + entity;
+            throw new Exception( message );
+          }
+        }
+      }
+    }
   }
 
   @SuppressWarnings( { "unchecked" } )
