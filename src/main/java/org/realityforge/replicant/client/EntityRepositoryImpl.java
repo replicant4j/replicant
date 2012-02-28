@@ -120,7 +120,7 @@ public class EntityRepositoryImpl
     }
   }
 
-  private <T> String describeEntity( final Class<T> type, final Object id )
+  private String describeEntity( final Class<?> type, final Object id )
   {
     return "entity with type '" + type.getName() + "' and id = '" + id + "'";
   }
