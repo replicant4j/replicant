@@ -208,6 +208,12 @@ public class EntityRepositoryTest
       assertFalse( _invalidated );
       _invalidated = true;
     }
+
+    @Override
+    public boolean isValid()
+    {
+      return !_invalidated;
+    }
   }
 
   static class A

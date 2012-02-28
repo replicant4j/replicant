@@ -18,6 +18,11 @@ public interface Linkable
   void delink();
 
   /**
+   * @return false if invalidate has been invoked on entity, true otherwise.
+   */
+  boolean isValid();
+
+  /**
    * Invalidating the entity will remove the references to this entity from the repository and change broker.
    * This makes this entity no longer usable.
    */

@@ -162,6 +162,12 @@ public class DataLoadActionTest
     }
 
     @Override
+    public boolean isValid()
+    {
+      return true;
+    }
+
+    @Override
     public String toString()
     {
       return "Entity:" + System.identityHashCode( this );
