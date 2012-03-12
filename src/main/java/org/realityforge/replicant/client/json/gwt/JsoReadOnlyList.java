@@ -14,7 +14,7 @@ public final class JsoReadOnlyList<E extends JavaScriptObject>
 {
   private final JsArray<E> _data;
 
-  protected JsoReadOnlyList( final JsArray<E> data )
+  public JsoReadOnlyList( final JsArray<E> data )
   {
     _data = data;
   }

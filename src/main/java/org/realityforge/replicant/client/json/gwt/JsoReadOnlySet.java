@@ -15,7 +15,7 @@ public final class JsoReadOnlySet<E extends JavaScriptObject>
 {
   private final JsArray<E> _data;
 
-  protected JsoReadOnlySet( final JsArray<E> data )
+  public JsoReadOnlySet( final JsArray<E> data )
   {
     _data = data;
   }
