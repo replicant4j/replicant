@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.json.jackson;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +33,6 @@ public final class DateListSerializerTest
     }
 
     final DateListSerializer serializer = new DateListSerializer();
-    final StringWriter writer = new StringWriter();
     final JsonGenerator generator = mock( JsonGenerator.class );
     final SerializerProvider provider = mock( SerializerProvider.class );
 
