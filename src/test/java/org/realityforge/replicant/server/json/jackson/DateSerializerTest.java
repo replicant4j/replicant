@@ -1,31 +1,14 @@
 package org.realityforge.replicant.server.json.jackson;
 
-import com.jayway.jsonpath.JsonPath;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.SerializerProvider;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.RDate;
-import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.MessageTestUtil;
-import org.realityforge.replicant.server.json.JsonEncoder;
-import org.realityforge.replicant.shared.json.TransportConstants;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-import static org.testng.Assert.*;
-import java.lang.reflect.Field;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
-/**
- * Utility class used when encoding EntityMessage into JSON payload.
- */
 public final class DateSerializerTest
 {
   @DataProvider( name = "validDates" )
@@ -59,6 +42,6 @@ public final class DateSerializerTest
     serializer.serialize( instance.getTime(), generator, provider );
 
     verify( generator ).writeString( expectedFormat );
-    assertEquals(  RDate.parse( expectedFormat ), date );
+    assertEquals( RDate.parse( expectedFormat ), date );
   }
 }
