@@ -15,7 +15,9 @@ define('replicant') do
                :javax_interceptor,
                :javax_persistence,
                :javax_naming,
-               :json
+               :json,
+               :jackson_core,
+               :jackson_mapper
 
   test.with :jsonpath,
             :json_smart
