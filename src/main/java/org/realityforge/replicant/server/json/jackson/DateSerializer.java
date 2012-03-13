@@ -10,17 +10,16 @@ import org.codehaus.jackson.map.SerializerProvider;
 /**
  * Serializer for jackson library that serializes dates in a format as expected by RDate.
  */
-public class DateSerializer
+public final class DateSerializer
   extends JsonSerializer<Date>
 {
   @Override
-  public void serialize( final Date value,
+  public void serialize( final Date date,
                          final JsonGenerator generator,
                          final SerializerProvider provider )
     throws IOException
   {
     final SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd" );
-    final String formattedDate = formatter.format( value );
-    generator.writeString( formattedDate );
+    generator.writeString( formatter.format( date ) );
   }
 }
