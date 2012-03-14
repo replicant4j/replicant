@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.json.jackson;
 
-import java.util.Calendar;
 import java.util.Date;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
@@ -18,10 +17,10 @@ public final class DateSerializationTest
   public Object[][] validDates()
   {
     return new Object[][]{
-      { "2001-01-01", toDate( 2001, 1, 1 ), new RDate( 2001, 1, 1 ) },
-      { "2001-10-01", toDate( 2001, 10, 1 ), new RDate( 2001, 10, 1 ) },
-      { "2001-02-28", toDate( 2001, 2, 28 ), new RDate( 2001, 2, 28 ) },
-      { "2021-12-31", toDate( 2021, 12, 31 ), new RDate( 2021, 12, 31 ) },
+      { "2001-01-01", DateTestUtil.toDayDate( 2001, 1, 1 ), new RDate( 2001, 1, 1 ) },
+      { "2001-10-01", DateTestUtil.toDayDate( 2001, 10, 1 ), new RDate( 2001, 10, 1 ) },
+      { "2001-02-28", DateTestUtil.toDayDate( 2001, 2, 28 ), new RDate( 2001, 2, 28 ) },
+      { "2021-12-31", DateTestUtil.toDayDate( 2021, 12, 31 ), new RDate( 2021, 12, 31 ) },
     };
   }
 
@@ -40,18 +39,5 @@ public final class DateSerializationTest
 
     assertEquals( RDate.parse( expectedFormat ), rDate );
     assertEquals( RDate.fromDate( result ), rDate );
-  }
-
-  public static Date toDate( final int year, final int month, final int day )
-  {
-    final Calendar calendar = Calendar.getInstance();
-    calendar.set( Calendar.YEAR, year );
-    calendar.set( Calendar.MONTH, month - 1 );
-    calendar.set( Calendar.DAY_OF_MONTH, day );
-    calendar.set( Calendar.HOUR, 0 );
-    calendar.set( Calendar.MINUTE, 0 );
-    calendar.set( Calendar.SECOND, 0 );
-    calendar.set( Calendar.MILLISECOND, 0 );
-    return calendar.getTime();
   }
 }
