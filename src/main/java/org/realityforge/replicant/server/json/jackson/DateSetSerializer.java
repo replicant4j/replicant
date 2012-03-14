@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server.json.jackson;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Set;
 import org.codehaus.jackson.JsonGenerator;
@@ -20,7 +20,7 @@ public final class DateSetSerializer
                          final SerializerProvider provider )
     throws IOException
   {
-    final SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd" );
+    final DateFormat formatter = DateUtil.newDateFormatter();
     generator.writeStartArray();
     for ( final Date date : dates )
     {
