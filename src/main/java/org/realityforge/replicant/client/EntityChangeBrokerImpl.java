@@ -14,7 +14,7 @@ import org.realityforge.replicant.client.DeferredListenerAction.ActionType;
  * A single threaded in-memory EntityChangeBroker implementation.
  */
 @SuppressWarnings( { "JavaDoc" } )
-public final class EntityChangeBrokerImpl
+public class EntityChangeBrokerImpl
     implements EntityChangeBroker
 {
   private static final Logger LOG = Logger.getLogger( EntityChangeBrokerImpl.class.getName() );
