@@ -1,7 +1,8 @@
 repositories:
   remote:
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
-   - http://www.ibiblio.org/maven2
+   - http://repo1.maven.org/maven2
+
   release_to:
     url: http://repo.fire.dse.vic.gov.au/content/repositories/releases/
     username: upload
@@ -13,7 +14,7 @@ artifacts:
   javax_naming: geronimo:geronimo-naming:jar:1.1.1
   javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
   javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
-  gwt_user: com.google.gwt:gwt-user:jar:2.3.0
+  gwt_user: com.google.gwt:gwt-user:jar:2.5.0
 
   # Encoding on the server
   json: org.json:json:jar:20090211
