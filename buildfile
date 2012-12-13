@@ -22,8 +22,6 @@ define('replicant') do
   test.with :jsonpath,
             :json_smart
 
-  #iml.add_gwt_facet
-
   package(:jar)
   package(:sources)
 
