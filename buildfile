@@ -8,6 +8,8 @@ define('replicant') do
   compile.options.target = '1.6'
   compile.options.lint = 'all'
 
+  project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
+
   compile.with :gwt_user,
                :javax_inject,
                :javax_annotation,
