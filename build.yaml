@@ -1,6 +1,3 @@
-gems:
-  - buildr = 1.4.6
-
 repositories:
   remote:
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg

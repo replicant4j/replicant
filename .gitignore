@@ -3,4 +3,6 @@
 /*.iws
 /target
 /reports
-_buildr.rb
+/_buildr.rb
+/.bundle
+/Gemfile.lock
