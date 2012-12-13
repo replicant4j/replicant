@@ -22,8 +22,27 @@ public class ReplicationInterceptorTest
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
 
+    when( em.isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
+
+    assertTrue( context.isInvoked() );
+    assertEquals( result, TestInvocationContext.RESULT );
+    assertNull( interceptor._messages );
+  }
+
+  @Test
+  public void ensureClosedEntityManagerDoesNotResultInFlushOrSave()
+    throws Exception
+  {
+    final TestInvocationContext context = new TestInvocationContext();
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+    final EntityManager em = mock( EntityManager.class );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+
+    when( em.isOpen() ).thenReturn( false );
+    final Object result = interceptor.businessIntercept( context );
+    verify( em, never() ).flush();
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -41,6 +60,7 @@ public class ReplicationInterceptorTest
     final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
+    when( em.isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -68,6 +88,7 @@ public class ReplicationInterceptorTest
         final TestInvocationContext innerContext = new TestInvocationContext();
         final EntityManager em = mock( EntityManager.class );
         final TestReplicationInterceptor innerInterceptor = createInterceptor( registry, em );
+        when( em.isOpen() ).thenReturn( true );
         innerInterceptor.businessIntercept( innerContext );
         assertTrue( innerContext.isInvoked() );
         assertNull( innerInterceptor._messages );
@@ -75,6 +96,7 @@ public class ReplicationInterceptorTest
       }
     };
 
+    when( em.isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -105,6 +127,7 @@ public class ReplicationInterceptorTest
 
     try
     {
+      when( em.isOpen() ).thenReturn( true );
       interceptor.businessIntercept( context );
       fail( "Expected proceed to result in exception" );
     }
@@ -137,6 +160,7 @@ public class ReplicationInterceptorTest
     final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
+    when( em.isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -157,6 +181,7 @@ public class ReplicationInterceptorTest
     //Create registry but no changes
     EntityMessageCacheUtil.getEntityMessageSet( registry );
 
+    when( em.isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 

@@ -43,14 +43,17 @@ public abstract class AbstractReplicationInterceptor
       _registry.putResource( REPLICATION_TX_DEPTH, depth );
       if( null == depth )
       {
-        _em.flush();
-        final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
-        if( null != messageSet && !_registry.getRollbackOnly() )
+        if( _em.isOpen() )
         {
-          final Collection<EntityMessage> messages = messageSet.getEntityMessages();
-          if( messages.size() > 0 )
+          _em.flush();
+          final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
+          if( null != messageSet && !_registry.getRollbackOnly() )
           {
-            saveEntityMessages( messages );
+            final Collection<EntityMessage> messages = messageSet.getEntityMessages();
+            if( messages.size() > 0 )
+            {
+              saveEntityMessages( messages );
+            }
           }
         }
       }
