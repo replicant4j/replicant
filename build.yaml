@@ -3,10 +3,6 @@ repositories:
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
    - http://repo1.maven.org/maven2
 
-  release_to:
-    url: http://repo.fire.dse.vic.gov.au/content/repositories/releases/
-    username: upload
-
 artifacts:
   javax_inject: javax.inject:javax.inject:jar:1
   javax_transaction: javax.transaction:jta:jar:1.1
