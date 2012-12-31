@@ -1,6 +1,5 @@
 repositories:
   remote:
-   - http://repo.fire.dse.vic.gov.au/content/groups/fisg
    - http://repo1.maven.org/maven2
 
 artifacts:
