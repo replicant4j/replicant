@@ -18,6 +18,7 @@ define('replicant') do
                :javax_persistence,
                :javax_naming,
                :json,
+               :javax_json,
                :jackson_core,
                :jackson_mapper
 

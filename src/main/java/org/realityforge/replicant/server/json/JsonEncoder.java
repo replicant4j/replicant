@@ -1,11 +1,14 @@
 package org.realityforge.replicant.server.json;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nonnull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonGeneratorFactory;
+import org.glassfish.json.JsonGeneratorFactoryImpl;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
@@ -26,105 +29,68 @@ public final class JsonEncoder
    * @return the encoded change set.
    */
   @Nonnull
-  public static JSONObject encodeChangeSetFromEntityMessages( final int lastChangeSetID,
-                                                              @Nonnull final Collection<EntityMessage> messages )
+  public static String encodeChangeSetFromEntityMessages( final int lastChangeSetID,
+                                                          @Nonnull final Collection<EntityMessage> messages )
   {
-    final ArrayList<JSONObject> jsonMessages = new ArrayList<JSONObject>();
+    final JsonGeneratorFactory factory = new JsonGeneratorFactoryImpl();
+    final StringWriter writer = new StringWriter();
+    final JsonGenerator generator = factory.createGenerator( writer );
+
+    generator.writeStartObject().
+      write( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID ).
+      writeStartArray( TransportConstants.CHANGES );
+
     for ( final EntityMessage message : messages )
     {
-      jsonMessages.add( JsonEncoder.encodeEntityMessage( message ) );
-    }
-    return encodeChangeSet( lastChangeSetID, jsonMessages );
-  }
+      generator.writeStartObject();
+      writeField( generator, TransportConstants.ENTITY_ID, message.getID() );
+      generator.write( TransportConstants.TYPE_ID, message.getTypeID() );
 
-  /**
-   * Encode the change set with the EntityMessages.
-   *
-   * @param lastChangeSetID the last change set ID.
-   * @param messages        the messages encoded as EntityMessage objects.
-   * @return the encoded change set.
-   */
-  @Nonnull
-  public static JSONObject encodeChangeSetFromEncodedStrings( final int lastChangeSetID,
-                                                              @Nonnull final Collection<String> messages )
-  {
-    try
-    {
-      final ArrayList<JSONObject> jsonMessages = new ArrayList<JSONObject>();
-      for ( final String message : messages )
-      {
-        jsonMessages.add( new JSONObject( message ) );
-      }
-      return encodeChangeSet( lastChangeSetID, jsonMessages );
-    }
-    catch ( final JSONException je )
-    {
-      throw new IllegalStateException( je.getMessage(), je );
-    }
-  }
-
-  /**
-   * Encode the change set with the structured messages.
-   *
-   * @param lastChangeSetID the last change set ID.
-   * @param messages        the messages encoded as json objects.
-   * @return the encoded change set.
-   */
-  private static JSONObject encodeChangeSet( final int lastChangeSetID, final ArrayList<JSONObject> messages )
-  {
-    try
-    {
-      final JSONObject changeSet = new JSONObject();
-      changeSet.put( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID );
-      final JSONArray changes = new JSONArray();
-      changeSet.put( TransportConstants.CHANGES, changes );
-      for ( final JSONObject jsonObject : messages )
-      {
-        changes.put( jsonObject );
-      }
-      return changeSet;
-    }
-    catch ( final JSONException je )
-    {
-      throw new IllegalStateException( je.getMessage(), je );
-    }
-  }
-
-  /**
-   * Encode the specified message as a json string.
-   *
-   * @param message the EntityMessage
-   * @return the json string.
-   */
-  @Nonnull
-  public static String encodeEntityMessageAsString( @Nonnull final EntityMessage message )
-  {
-    return encodeEntityMessage( message ).toString();
-  }
-
-  /**
-   * Encode the specified message as a json object.
-   *
-   * @param message the EntityMessage
-   * @return the JSONObject representation
-   */
-  @Nonnull
-  public static JSONObject encodeEntityMessage( @Nonnull final EntityMessage message )
-  {
-    try
-    {
-      final JSONObject json = new JSONObject();
-      json.put( TransportConstants.ENTITY_ID, message.getID() );
-      json.put( TransportConstants.TYPE_ID, message.getTypeID() );
       if ( message.isUpdate() )
       {
-        json.put( TransportConstants.DATA, new JSONObject( message.getAttributeValues() ) );
+        generator.writeStartObject( TransportConstants.DATA );
+        final Map<String, Serializable> values = message.getAttributeValues();
+        assert null != values;
+        for ( final Entry<String, Serializable> entry : values.entrySet() )
+        {
+          writeField( generator, entry.getKey(), entry.getValue() );
+        }
+        generator.writeEnd();
       }
-      return json;
+      generator.writeEnd();
     }
-    catch ( final JSONException je )
+    generator.
+      writeEnd().
+      writeEnd().
+      close();
+    return writer.toString();
+  }
+
+  private static void writeField( final JsonGenerator generator, final String key, final Serializable serializable )
+  {
+    if ( serializable instanceof String )
     {
-      throw new IllegalStateException( je.getMessage(), je );
+      generator.write( key, (String) serializable );
+    }
+    else if ( serializable instanceof Integer )
+    {
+      generator.write( key, ( (Integer) serializable ).intValue() );
+    }
+    else if ( null == serializable )
+    {
+      generator.writeNull( key );
+    }
+    else if ( serializable instanceof Float )
+    {
+      generator.write( key, (Float) serializable );
+    }
+    else if ( serializable instanceof Boolean )
+    {
+      generator.write( key, (Boolean) serializable );
+    }
+    else
+    {
+      throw new IllegalStateException( "Unable to encode: " + serializable );
     }
   }
 }

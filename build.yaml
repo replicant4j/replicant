@@ -26,3 +26,6 @@ artifacts:
   # Jackson library
   jackson_core: org.codehaus.jackson:jackson-core-asl:jar:1.9.4
   jackson_mapper: org.codehaus.jackson:jackson-mapper-asl:jar:1.9.4
+
+  # JEE7 json library
+  javax_json: org.glassfish:javax.json:jar:1.0-b02

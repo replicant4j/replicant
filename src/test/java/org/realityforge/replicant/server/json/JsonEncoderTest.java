@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.json;
 
-import com.jayway.jsonpath.JsonPath;
 import java.text.ParseException;
 import java.util.ArrayList;
 import org.json.JSONException;
@@ -28,7 +27,8 @@ public final class JsonEncoderTest
     final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
     final int lastChangeSetID = 1;
-    final JSONObject changeSet = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
+    final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
 
@@ -46,18 +46,19 @@ public final class JsonEncoderTest
   }
 
   @Test
-  public void encodeChangeSetFromEncodedStrings_updateMessage()
+  public void encodeChangeSetFromEntityMessages_deleteMessage()
     throws JSONException, ParseException
   {
     final String id = "myID";
     final int typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
-    final ArrayList<String> messages = new ArrayList<String>();
-    messages.add( JsonEncoder.encodeEntityMessageAsString( message ) );
+    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
+    messages.add( message );
     final int lastChangeSetID = 1;
-    final JSONObject changeSet = JsonEncoder.encodeChangeSetFromEncodedStrings( lastChangeSetID, messages );
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
+    final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
 
@@ -68,80 +69,7 @@ public final class JsonEncoderTest
     assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
-    final JSONObject data = object.getJSONObject( TransportConstants.DATA );
-    assertNotNull( data );
-    assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
-    assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
-  }
-
-
-  @Test
-  public void encodeEntityMessageAsString_updateMessage()
-    throws JSONException, ParseException
-  {
-    final String id = "myID";
-    final int typeID = 42;
-
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-
-    final String result = JsonEncoder.encodeEntityMessageAsString( message );
-    assertNotNull( result );
-    assertEquals( id, JsonPath.read( result, "$." + TransportConstants.ENTITY_ID ) );
-    assertEquals( typeID, JsonPath.read( result, "$." + TransportConstants.TYPE_ID ) );
-    assertEquals( "a1", JsonPath.read( result, "$." + TransportConstants.DATA + "." + MessageTestUtil.ATTR_KEY1 ) );
-    assertEquals( "a2", JsonPath.read( result, "$." + TransportConstants.DATA + "." + MessageTestUtil.ATTR_KEY2 ) );
-  }
-
-  @Test
-  public void encodeEntityMessageAsString_deleteMessage()
-    throws JSONException, ParseException
-  {
-    final String id = "myID";
-    final int typeID = 42;
-
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
-
-    final String result = JsonEncoder.encodeEntityMessageAsString( message );
-    assertNotNull( result );
-    assertEquals( id, JsonPath.read( result, "$." + TransportConstants.ENTITY_ID ) );
-    assertEquals( typeID, JsonPath.read( result, "$." + TransportConstants.TYPE_ID ) );
-    assertNull( JsonPath.read( result, "$." + TransportConstants.DATA ) );
-  }
-
-  @Test
-  public void encodeEntityMessage_updateMessage()
-    throws JSONException
-  {
-    final String id = "myID";
-    final int typeID = 42;
-
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-
-    final JSONObject object = JsonEncoder.encodeEntityMessage( message );
-
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
-    assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
-
-    final JSONObject data = object.getJSONObject( TransportConstants.DATA );
-    assertNotNull( data );
-    assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
-    assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
-  }
-
-  @Test
-  public void encodeEntityMessage_deleteMessage()
-    throws JSONException
-  {
-    final String id = "myID";
-    final int typeID = 42;
-
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
-
-    final JSONObject object = JsonEncoder.encodeEntityMessage( message );
-
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
-    assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
-
-    assertFalse( object.has( TransportConstants.DATA ) );
+    final JSONObject data = object.optJSONObject( TransportConstants.DATA );
+    assertNull( data );
   }
 }
