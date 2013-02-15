@@ -1,6 +1,9 @@
 repositories:
   remote:
    - http://repo1.maven.org/maven2
+  release_to:
+    url: http://repo.fire.dse.vic.gov.au/content/repositories/releases/
+    username: upload
 
 artifacts:
   javax_inject: javax.inject:javax.inject:jar:1
