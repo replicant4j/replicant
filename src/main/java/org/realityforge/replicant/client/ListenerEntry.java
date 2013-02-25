@@ -66,10 +66,20 @@ public final class ListenerEntry
     return _interestedInstances;
   }
 
+  @SuppressWarnings( "CloneDoesntCallSuperClone" )
   @Override
   public Object clone()
-    throws CloneNotSupportedException
   {
-    return super.clone();
+    final ListenerEntry entry = new ListenerEntry(_listener );
+    entry.setGlobalListener( isGlobalListener() );
+    for ( final Class type : _interestedTypes )
+    {
+      entry.getInterestedTypeSet().add( type );
+    }
+    for ( final Object instance : _interestedInstances )
+    {
+      entry.getInterestedInstanceSet().add( instance );
+    }
+    return entry;
   }
 }
