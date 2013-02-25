@@ -16,7 +16,7 @@ public final class ListenerEntry
   private final HashSet<Class> _interestedTypes = new HashSet<Class>();
   private final HashSet<Object> _interestedInstances = new HashSet<Object>();
 
-  ListenerEntry( final EntityChangeListener listener )
+  public ListenerEntry( final EntityChangeListener listener )
   {
     _listener = listener;
   }
