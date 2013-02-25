@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Interface for interacting with the local entity broker.
@@ -132,4 +133,13 @@ public interface EntityChangeBroker
    * @param other the entity that updated to no longer relate to this entity.
    */
   void relatedRemoved( @Nonnull Object entity, @Nonnull String name, @Nonnull Object other );
+
+  /**
+   * Return the listener entry for specified listener if it exists.
+   *
+   * @param listener the listener.
+   * @return the associated entry or null.
+   */
+  @Nullable
+  ListenerEntry findEntryForListener( @Nonnull EntityChangeListener listener );
 }

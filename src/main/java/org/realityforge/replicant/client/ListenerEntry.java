@@ -1,11 +1,14 @@
 package org.realityforge.replicant.client;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * A simple container for representing listener in the broker.
  */
-final class ListenerEntry
+public final class ListenerEntry
 {
   private final EntityChangeListener _listener;
   private boolean _globalListener;
@@ -19,10 +22,10 @@ final class ListenerEntry
 
   boolean isEmpty()
   {
-    return !isGlobalListener() && 0 == getInterestedTypes().size() && 0 == getInterestedInstances().size();
+    return !isGlobalListener() && 0 == interestedTypeSet().size() && 0 == interestedInstanceSet().size();
   }
 
-  boolean isGlobalListener()
+  public boolean isGlobalListener()
   {
     return _globalListener;
   }
@@ -32,17 +35,32 @@ final class ListenerEntry
     _globalListener = globalListener;
   }
 
-  EntityChangeListener getListener()
+  @Nonnull
+  public EntityChangeListener getListener()
   {
     return _listener;
   }
 
-  HashSet<Class> getInterestedTypes()
+  @Nonnull
+  public Set<Class> getInterestedTypeSet()
+  {
+    return Collections.unmodifiableSet( interestedTypeSet() );
+  }
+
+  @Nonnull
+  HashSet<Class> interestedTypeSet()
   {
     return _interestedTypes;
   }
 
-  HashSet<Object> getInterestedInstances()
+  @Nonnull
+  public Set<Object> getInterestedInstanceSet()
+  {
+    return Collections.unmodifiableSet( _interestedInstances );
+  }
+
+  @Nonnull
+  HashSet<Object> interestedInstanceSet()
   {
     return _interestedInstances;
   }

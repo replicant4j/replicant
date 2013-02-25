@@ -73,7 +73,7 @@ public class EntityChangeBrokerImpl
     {
       final ListenerEntry entry = getEntryForListener( listener );
       addChangeListener( _classListeners, clazz, entry );
-      entry.getInterestedTypes().add( clazz );
+      entry.interestedTypeSet().add( clazz );
     }
   }
 
@@ -91,7 +91,7 @@ public class EntityChangeBrokerImpl
     {
       final ListenerEntry entry = getEntryForListener( listener );
       addChangeListener( _objectListeners, object, entry );
-      entry.getInterestedInstances().add( object );
+      entry.interestedInstanceSet().add( object );
     }
   }
 
@@ -132,7 +132,7 @@ public class EntityChangeBrokerImpl
       if ( null != entry )
       {
         removeChangeListener( _objectListeners, object, entry );
-        entry.getInterestedInstances().remove( object );
+        entry.interestedInstanceSet().remove( object );
         removeEntryIfEmpty( entry );
       }
     }
@@ -155,7 +155,7 @@ public class EntityChangeBrokerImpl
       if ( null != entry )
       {
         removeChangeListener( _classListeners, clazz, entry );
-        entry.getInterestedTypes().remove( clazz );
+        entry.interestedTypeSet().remove( clazz );
         removeEntryIfEmpty( entry );
       }
     }
@@ -180,13 +180,13 @@ public class EntityChangeBrokerImpl
         {
           removeChangeListener( listener );
         }
-        final HashSet<Class> types = entry.getInterestedTypes();
+        final HashSet<Class> types = entry.interestedTypeSet();
         final HashSet<Class> typesToRemove = types.size() > 1 ? new HashSet<Class>( types ) : types;
         for ( final Class type : typesToRemove )
         {
           removeChangeListener( type, listener );
         }
-        final HashSet<Object> instances = entry.getInterestedInstances();
+        final HashSet<Object> instances = entry.interestedInstanceSet();
         final HashSet<Object> instancesToRemove = instances.size() > 1 ? new HashSet<Object>( instances ) : instances;
         for ( final Object instance : instancesToRemove )
         {
@@ -545,8 +545,7 @@ public class EntityChangeBrokerImpl
    * @param listener the listener to remove.
    * @return the new listener array sans the specified listener.
    */
-  private ListenerEntry[] doRemoveChangeListener( final ListenerEntry[] listeners,
-                                                         final ListenerEntry listener )
+  private ListenerEntry[] doRemoveChangeListener( final ListenerEntry[] listeners, final ListenerEntry listener )
   {
     for( int i = 0; i < listeners.length; i++ )
     {
@@ -636,7 +635,7 @@ public class EntityChangeBrokerImpl
    * @return the associated entry or null.
    */
   @Nullable
-  private ListenerEntry findEntryForListener( @Nonnull final EntityChangeListener listener )
+  public ListenerEntry findEntryForListener( @Nonnull final EntityChangeListener listener )
   {
     return _listenerEntries.get( listener );
   }
