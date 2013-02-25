@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
  * A simple container for representing listener in the broker.
  */
 public final class ListenerEntry
+  implements Cloneable
 {
   private final EntityChangeListener _listener;
   private boolean _globalListener;
@@ -63,5 +64,12 @@ public final class ListenerEntry
   HashSet<Object> interestedInstanceSet()
   {
     return _interestedInstances;
+  }
+
+  @Override
+  public Object clone()
+    throws CloneNotSupportedException
+  {
+    return super.clone();
   }
 }
