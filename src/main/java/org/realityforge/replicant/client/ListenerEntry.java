@@ -68,17 +68,17 @@ public final class ListenerEntry
 
   @SuppressWarnings( "CloneDoesntCallSuperClone" )
   @Override
-  public Object clone()
+  public ListenerEntry clone()
   {
     final ListenerEntry entry = new ListenerEntry(_listener );
     entry.setGlobalListener( isGlobalListener() );
     for ( final Class type : _interestedTypes )
     {
-      entry.getInterestedTypeSet().add( type );
+      entry.interestedTypeSet().add( type );
     }
     for ( final Object instance : _interestedInstances )
     {
-      entry.getInterestedInstanceSet().add( instance );
+      entry.interestedInstanceSet().add( instance );
     }
     return entry;
   }
