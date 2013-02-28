@@ -46,7 +46,7 @@ public class ListenerEntryTest
     entry.interestedTypeSet().add( String.class );
     entry.interestedInstanceSet().add( instance );
 
-    final ListenerEntry clone = entry.clone();
+    final ListenerEntry clone = entry.dup();
 
     assertNotSame( clone, entry );
     assertEquals( clone.getListener(), listener );
