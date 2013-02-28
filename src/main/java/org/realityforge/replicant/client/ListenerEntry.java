@@ -66,9 +66,7 @@ public final class ListenerEntry
     return _interestedInstances;
   }
 
-  @SuppressWarnings( "CloneDoesntCallSuperClone" )
-  @Override
-  public ListenerEntry clone()
+  public ListenerEntry dup()
   {
     final ListenerEntry entry = new ListenerEntry(_listener );
     entry.setGlobalListener( isGlobalListener() );
