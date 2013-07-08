@@ -6,7 +6,6 @@ import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageSet;
@@ -25,9 +24,6 @@ public abstract class AbstractReplicationInterceptor
   @Resource
   private TransactionSynchronizationRegistry _registry;
 
-  @PersistenceContext
-  private EntityManager _em;
-
   @AroundInvoke
   public Object businessIntercept( final InvocationContext context )
       throws Exception
@@ -43,9 +39,9 @@ public abstract class AbstractReplicationInterceptor
       _registry.putResource( REPLICATION_TX_DEPTH, depth );
       if( null == depth )
       {
-        if( _em.isOpen() )
+        if( getEntityManager().isOpen() )
         {
-          _em.flush();
+          getEntityManager().flush();
           final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
           if( null != messageSet && !_registry.getRollbackOnly() )
           {
@@ -59,6 +55,8 @@ public abstract class AbstractReplicationInterceptor
       }
     }
   }
+
+  protected abstract EntityManager getEntityManager();
 
   protected abstract void saveEntityMessages( @Nonnull Collection<EntityMessage> messages );
 }
