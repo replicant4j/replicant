@@ -5,10 +5,10 @@ import java.util.Iterator;
 final class JsArrayIterator<T>
   implements Iterator<T>
 {
-  private JsArrayList<T> _collection;
+  private JsArrayWrapper<T> _collection;
   int currentIndex;
 
-  public JsArrayIterator( final JsArrayList<T> collection )
+  public JsArrayIterator( final JsArrayWrapper<T> collection )
   {
     _collection = collection;
     currentIndex = 0;
@@ -24,12 +24,12 @@ final class JsArrayIterator<T>
   public T next()
   {
     currentIndex++;
-    return _collection.getData().get( currentIndex - 1 );
+    return _collection.get( currentIndex - 1 );
   }
 
   @Override
   public void remove()
   {
-    _collection.getData().slice( currentIndex - 1, currentIndex );
+    _collection.slice( currentIndex - 1, currentIndex );
   }
 }

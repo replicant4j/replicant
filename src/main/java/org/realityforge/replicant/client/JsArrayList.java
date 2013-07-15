@@ -30,17 +30,12 @@ final class JsArrayList<T>
   @Nonnull
   public Iterator<T> iterator()
   {
-    return new JsArrayIterator<T>( this );
+    return new JsArrayIterator<T>( _data );
   }
 
   @Override
   public int size()
   {
     return _data.size();
-  }
-
-  final JsArrayWrapper<T> getData()
-  {
-    return _data;
   }
 }
