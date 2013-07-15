@@ -194,9 +194,8 @@ public class ReplicationInterceptorTest
                                                         final EntityManager entityManager )
     throws Exception
   {
-    final TestReplicationInterceptor interceptor = new TestReplicationInterceptor();
+    final TestReplicationInterceptor interceptor = new TestReplicationInterceptor(entityManager);
     setField( interceptor, "_registry", registry );
-    setField( interceptor, "_em", entityManager );
     return interceptor;
   }
 
@@ -214,6 +213,12 @@ public class ReplicationInterceptorTest
     extends AbstractReplicationInterceptor
   {
     Collection<EntityMessage> _messages;
+    EntityManager _entityManager;
+
+    TestReplicationInterceptor( final EntityManager entityManager )
+    {
+      _entityManager = entityManager;
+    }
 
     protected void saveEntityMessages( @Nonnull final Collection<EntityMessage> messages )
     {
@@ -222,6 +227,12 @@ public class ReplicationInterceptorTest
         fail( "saveEntityMessages called multiple times" );
       }
       _messages = messages;
+    }
+
+    @Override
+    protected EntityManager getEntityManager()
+    {
+      return _entityManager;
     }
   }
 }
