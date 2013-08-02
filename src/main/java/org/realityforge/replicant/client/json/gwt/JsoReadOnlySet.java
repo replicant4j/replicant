@@ -20,6 +20,11 @@ public final class JsoReadOnlySet<E extends JavaScriptObject>
     _data = data;
   }
 
+  public JsArray<E> asArray()
+  {
+    return _data;
+  }
+
   @Override
   public Iterator<E> iterator()
   {

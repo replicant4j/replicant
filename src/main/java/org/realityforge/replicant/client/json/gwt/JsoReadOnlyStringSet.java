@@ -19,6 +19,11 @@ public final class JsoReadOnlyStringSet
     _data = data;
   }
 
+  public JsArrayString asArray()
+  {
+    return _data;
+  }
+
   @Override
   public Iterator<String> iterator()
   {

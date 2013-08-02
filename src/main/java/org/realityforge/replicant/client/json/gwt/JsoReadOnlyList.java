@@ -19,6 +19,11 @@ public final class JsoReadOnlyList<E extends JavaScriptObject>
     _data = data;
   }
 
+  public JsArray<E> asArray()
+  {
+    return _data;
+  }
+
   @Override
   public E get( final int index )
   {

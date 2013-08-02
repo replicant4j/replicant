@@ -18,6 +18,11 @@ public final class JsoReadOnlyStringList
     _data = data;
   }
 
+  public JsArrayString asArray()
+  {
+    return _data;
+  }
+
   @Override
   public String get( final int index )
   {

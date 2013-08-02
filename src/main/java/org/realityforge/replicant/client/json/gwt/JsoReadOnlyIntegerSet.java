@@ -19,6 +19,11 @@ public final class JsoReadOnlyIntegerSet
     _data = data;
   }
 
+  public JsArrayInteger asArray()
+  {
+    return _data;
+  }
+
   @Override
   public Iterator<Integer> iterator()
   {

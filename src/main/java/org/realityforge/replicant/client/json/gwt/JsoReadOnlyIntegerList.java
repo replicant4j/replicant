@@ -18,6 +18,11 @@ public final class JsoReadOnlyIntegerList
     _data = data;
   }
 
+  public JsArrayInteger asArray()
+  {
+    return _data;
+  }
+
   @Override
   public Integer get( final int index )
   {
