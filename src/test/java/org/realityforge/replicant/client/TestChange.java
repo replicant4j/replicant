@@ -53,6 +53,12 @@ final class TestChange
   }
 
   @Override
+  public long getLongValue( final String key )
+  {
+    return 0L;
+  }
+
+  @Override
   public String getStringValue( final String key )
   {
     return null;

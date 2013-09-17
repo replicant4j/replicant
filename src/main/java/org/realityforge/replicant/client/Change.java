@@ -43,6 +43,8 @@ public interface Change
 
   int getIntegerValue( String key );
 
+  long getLongValue( String key );
+
   String getStringValue( String key );
 
   boolean getBooleanValue( String key );

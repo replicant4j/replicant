@@ -57,6 +57,16 @@ public final class JsoChange
   }-*/;
 
   @Override
+  public final native long getLongValue( String key ) /*-{
+    if (this.data && (typeof this.data[key] == "number")) {
+      return this.data[key];
+    }
+    else {
+      return null;
+    }
+  }-*/;
+
+  @Override
   public final native String getStringValue( String key ) /*-{
     if (this.data && (typeof this.data[key] == "string")) {
       return this.data[key];
