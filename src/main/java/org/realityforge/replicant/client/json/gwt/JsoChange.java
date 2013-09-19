@@ -60,7 +60,8 @@ public final class JsoChange
   @Override
   public final native Date getDateValue( String key ) /*-{
     if (this.data && (typeof this.data[key] == "string")) {
-      return @java.util.Date::new(J)(this.data[key]);
+      var d = new Date(this.data[key] );
+      return @java.util.Date::new(IIIIII)( d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds() );
     }
     else {
       return null;
