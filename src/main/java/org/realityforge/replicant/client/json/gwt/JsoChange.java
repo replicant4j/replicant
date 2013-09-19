@@ -70,7 +70,7 @@ public final class JsoChange
   @Override
   public final native String getStringValue( String key ) /*-{
     if (this.data && (typeof this.data[key] == "string")) {
-      return new Date(this.data[key] ).getTime();
+      return this.data[key];
     }
     else {
       return null;
