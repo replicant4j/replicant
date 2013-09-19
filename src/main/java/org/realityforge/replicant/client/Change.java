@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client;
 
+import java.util.Date;
+
 /**
  * A change to an entity.
  */
@@ -43,7 +45,7 @@ public interface Change
 
   int getIntegerValue( String key );
 
-  long getLongValue( String key );
+  Date getDateValue( String key );
 
   String getStringValue( String key );
 

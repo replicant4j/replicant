@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client;
 
+import java.util.Date;
+
 final class TestChange
   implements Change
 {
@@ -53,9 +55,9 @@ final class TestChange
   }
 
   @Override
-  public long getLongValue( final String key )
+  public Date getDateValue( final String key )
   {
-    return 0L;
+    return new Date();
   }
 
   @Override

@@ -1,7 +1,11 @@
 package org.realityforge.replicant.server.json;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.realityforge.replicant.server.EntityMessage;
@@ -21,8 +25,21 @@ public final class JsonEncoderTest
   {
     final String id = "myID";
     final int typeID = 42;
+    final Calendar calendar = Calendar.getInstance();
+    calendar.set( Calendar.YEAR, 2001 );
+    calendar.set( Calendar.MONTH, Calendar.JULY );
+    calendar.set( Calendar.DAY_OF_MONTH, 5 );
+    calendar.set( Calendar.AM_PM, Calendar.AM );
+    calendar.set( Calendar.HOUR_OF_DAY, 5 );
+    calendar.set( Calendar.MINUTE, 8 );
+    calendar.set( Calendar.SECOND, 56 );
+    calendar.set( Calendar.MILLISECOND, 0 );
+
+    final Date date = calendar.getTime();
+    System.out.println( "date = " + date );
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    message.getAttributeValues().put( "key3", date );
 
     final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
@@ -43,6 +60,7 @@ public final class JsonEncoderTest
     assertNotNull( data );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
+    assertTrue( data.getString( "key3" ).startsWith( "2001-07-05T05:08:56.000" ) );
   }
 
   @Test

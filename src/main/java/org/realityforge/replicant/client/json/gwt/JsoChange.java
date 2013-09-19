@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.json.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import java.util.Date;
 import org.realityforge.replicant.client.Change;
 
 public final class JsoChange
@@ -57,9 +58,9 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native long getLongValue( String key ) /*-{
-    if (this.data && (typeof this.data[key] == "number")) {
-      return this.data[key];
+  public final native Date getDateValue( String key ) /*-{
+    if (this.data && (typeof this.data[key] == "string")) {
+      return @java.util.Date::new(J)(this.data[key]);
     }
     else {
       return null;
@@ -69,7 +70,7 @@ public final class JsoChange
   @Override
   public final native String getStringValue( String key ) /*-{
     if (this.data && (typeof this.data[key] == "string")) {
-      return this.data[key];
+      return new Date(this.data[key] ).getTime();
     }
     else {
       return null;
