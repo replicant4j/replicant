@@ -2,7 +2,9 @@ package org.realityforge.replicant.server.json;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
@@ -35,6 +37,7 @@ public final class JsonEncoder
     final JsonGeneratorFactory factory = new JsonGeneratorFactoryImpl();
     final StringWriter writer = new StringWriter();
     final JsonGenerator generator = factory.createGenerator( writer );
+    final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject().
       write( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID ).
@@ -43,7 +46,7 @@ public final class JsonEncoder
     for ( final EntityMessage message : messages )
     {
       generator.writeStartObject();
-      writeField( generator, TransportConstants.ENTITY_ID, message.getID() );
+      writeField( generator, TransportConstants.ENTITY_ID, message.getID(), dateFormat );
       generator.write( TransportConstants.TYPE_ID, message.getTypeID() );
 
       if ( message.isUpdate() )
@@ -53,7 +56,7 @@ public final class JsonEncoder
         assert null != values;
         for ( final Entry<String, Serializable> entry : values.entrySet() )
         {
-          writeField( generator, entry.getKey(), entry.getValue() );
+          writeField( generator, entry.getKey(), entry.getValue(), dateFormat );
         }
         generator.writeEnd();
       }
@@ -66,7 +69,10 @@ public final class JsonEncoder
     return writer.toString();
   }
 
-  private static void writeField( final JsonGenerator generator, final String key, final Serializable serializable )
+  private static void writeField( final JsonGenerator generator,
+                                  final String key,
+                                  final Serializable serializable,
+                                  final SimpleDateFormat dateFormat )
   {
     if ( serializable instanceof String )
     {
@@ -83,6 +89,10 @@ public final class JsonEncoder
     else if ( serializable instanceof Float )
     {
       generator.write( key, (Float) serializable );
+    }
+    else if ( serializable instanceof Date )
+    {
+      generator.write( key, dateFormat.format( (Date) serializable ) );
     }
     else if ( serializable instanceof Boolean )
     {
