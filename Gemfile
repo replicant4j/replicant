@@ -1,2 +1,3 @@
-source :rubygems
-gem 'buildr', '= 1.4.12'
+source 'https://rubygems.org'
+
+gem 'buildr', '= 1.4.13'
