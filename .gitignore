@@ -4,6 +4,5 @@
 /target
 /reports
 /_buildr.rb
-/.bundle
 /Gemfile.lock
 .DS_Store
