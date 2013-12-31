@@ -3,7 +3,7 @@ require 'buildr/jacoco'
 
 desc "Replicant: Client-side state representation infrastructure"
 define 'replicant' do
-  project.group = 'org.realityforge'
+  project.group = 'org.realityforge.replicant'
   compile.options.source = '1.6'
   compile.options.target = '1.6'
   compile.options.lint = 'all'
