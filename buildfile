@@ -2,7 +2,7 @@ require 'buildr/git_auto_version'
 require 'buildr/java/emma'
 
 desc "Replicant: Client-side state representation infrastructure"
-define('replicant') do
+define 'replicant' do
   project.group = 'org.realityforge'
   compile.options.source = '1.6'
   compile.options.target = '1.6'
