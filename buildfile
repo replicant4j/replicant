@@ -1,5 +1,5 @@
 require 'buildr/git_auto_version'
-require 'buildr/java/emma'
+require 'buildr/jacoco'
 
 desc "Replicant: Client-side state representation infrastructure"
 define 'replicant' do
@@ -30,6 +30,4 @@ define 'replicant' do
 
   test.using :testng
   test.compile.with :mockito
-
-  emma.include 'org.realityforge.*'
 end
