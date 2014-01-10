@@ -8,9 +8,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
+import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
-import org.glassfish.json.JsonGeneratorFactoryImpl;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
@@ -34,7 +34,7 @@ public final class JsonEncoder
   public static String encodeChangeSetFromEntityMessages( final int lastChangeSetID,
                                                           @Nonnull final Collection<EntityMessage> messages )
   {
-    final JsonGeneratorFactory factory = new JsonGeneratorFactoryImpl();
+    final JsonGeneratorFactory factory = Json.createGeneratorFactory( null );
     final StringWriter writer = new StringWriter();
     final JsonGenerator generator = factory.createGenerator( writer );
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
