@@ -1,6 +1,8 @@
 require 'buildr/git_auto_version'
 require 'buildr/jacoco'
 
+PROVIDED_DEPS = [:javax_inject, :javax_annotation, :javax_transaction, :javax_interceptor, :javax_persistence, :javax_naming, :javax_json]
+
 desc "Replicant: Client-side state representation infrastructure"
 define 'replicant' do
   project.group = 'org.realityforge.replicant'
@@ -10,14 +12,8 @@ define 'replicant' do
 
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
 
-  compile.with :gwt_user,
-               :javax_inject,
-               :javax_annotation,
-               :javax_transaction,
-               :javax_interceptor,
-               :javax_persistence,
-               :javax_naming,
-               :javax_json,
+  compile.with PROVIDED_DEPS,
+               :gwt_user,
                :jackson_core,
                :jackson_mapper
 
