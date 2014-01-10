@@ -17,12 +17,12 @@ define 'replicant' do
                :javax_interceptor,
                :javax_persistence,
                :javax_naming,
-               :json,
                :javax_json,
                :jackson_core,
                :jackson_mapper
 
   test.with :jsonpath,
+            :json,
             :json_smart
 
   package(:jar)
