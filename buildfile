@@ -4,8 +4,8 @@ require 'buildr/jacoco'
 desc "Replicant: Client-side state representation infrastructure"
 define 'replicant' do
   project.group = 'org.realityforge.replicant'
-  compile.options.source = '1.6'
-  compile.options.target = '1.6'
+  compile.options.source = '1.7'
+  compile.options.target = '1.7'
   compile.options.lint = 'all'
 
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
