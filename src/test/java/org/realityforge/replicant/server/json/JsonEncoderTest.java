@@ -1,9 +1,11 @@
 package org.realityforge.replicant.server.json;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.realityforge.replicant.server.EntityMessage;
@@ -37,7 +39,9 @@ public final class JsonEncoderTest
     System.out.println( "date = " + date );
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    message.getAttributeValues().put( "key3", date );
+    final Map<String,Serializable> values = message.getAttributeValues();
+    assertNotNull( values );
+    values.put( "key3", date );
 
     final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
