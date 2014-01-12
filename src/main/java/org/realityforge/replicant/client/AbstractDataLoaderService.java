@@ -21,6 +21,8 @@ public abstract class AbstractDataLoaderService
   private ChangeMapper _changeMapper;
   @Inject
   private EntityChangeBroker _changeBroker;
+  @Inject
+  private EntityRepository _repository;
 
   private int _lastKnownChangeSet = Integer.MIN_VALUE;
 
@@ -189,11 +191,19 @@ public abstract class AbstractDataLoaderService
       {
         _changeBroker.enable();
         onBulkLoadComplete();
+        if ( shouldValidateOnLoad() )
+        {
+          validateRepository();
+        }
       }
       else
       {
         _changeBroker.resume();
         onIncrementalLoadComplete();
+        if ( shouldValidateOnLoad() )
+        {
+          validateRepository();
+        }
       }
       return true;
     }
@@ -215,5 +225,33 @@ public abstract class AbstractDataLoaderService
     }
     _currentAction = null;
     return true;
+  }
+
+  protected final EntityRepository getRepository()
+  {
+    return _repository;
+  }
+
+  /**
+   * @return true if a load action should result in the EntityRepository being validated.
+   */
+  protected boolean shouldValidateOnLoad()
+  {
+    return false;
+  }
+
+  /**
+   * Perform a validation of the EntityRepository.
+   */
+  protected final void validateRepository()
+  {
+    try
+    {
+      _repository.validate();
+    }
+    catch ( final Exception e )
+    {
+      throw new IllegalStateException( e.getMessage(), e );
+    }
   }
 }
