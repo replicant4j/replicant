@@ -1,4 +1,6 @@
 ## 0.4.14:
+* Move the org.realityforge.replicant.client.json.gwt.JsoReadOnly* collections
+  to org.realityforge.gwt.datatypes.client.collections in the gwt-datatypes package.
 * Add GwtDataLoaderService to simplify creating a DataLoader in GWT.
 * Add template method AbstractDataLoaderService.shouldValidateOnLoad() that will
   validate the entity repository on each change. Useful to override and return true
