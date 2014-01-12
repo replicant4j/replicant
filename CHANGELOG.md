@@ -1,4 +1,6 @@
 ## 0.4.14:
+* Move the RDate, Date*Serializer and Date*Deserializer classes to gwt-datatypes
+  library.
 * Move the org.realityforge.replicant.client.json.gwt.JsoReadOnly* collections
   to org.realityforge.gwt.datatypes.client.collections in the gwt-datatypes package.
 * Add GwtDataLoaderService to simplify creating a DataLoader in GWT.
