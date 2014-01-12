@@ -1,4 +1,5 @@
 ## 0.4.14:
+* Add GwtDataLoaderService to simplify creating a DataLoader in GWT.
 * Add template method AbstractDataLoaderService.shouldValidateOnLoad() that will
   validate the entity repository on each change. Useful to override and return true
   during development or in debug mode.
