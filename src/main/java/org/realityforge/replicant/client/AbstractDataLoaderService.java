@@ -32,9 +32,13 @@ public abstract class AbstractDataLoaderService
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
-  protected abstract void onBulkLoadComplete();
+  protected void onBulkLoadComplete()
+  {
+  }
 
-  protected abstract void onIncrementalLoadComplete();
+  protected void onIncrementalLoadComplete()
+  {
+  }
 
   protected abstract void scheduleDataLoad();
 
