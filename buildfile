@@ -26,7 +26,7 @@ define 'replicant' do
             :json,
             :json_smart
 
-  package(:jar)
+  package(:jar).include("#{_(:source, :main, :java)}/*")
   package(:sources)
   package(:javadoc)
 
