@@ -1,4 +1,6 @@
 ## 0.5.2:
+* Add the EntityMessageGenerator interface to abstract over code responsible
+  for generating EntityMessage instances.
 * Import EntityMessageSorter to make it easier to share sorting mechanisms
   across projects that use replicant.
 
