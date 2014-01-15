@@ -1,4 +1,8 @@
 ## 0.5.1:
+* Import EntityMessageSorter to make it easier to share sorting mechanisms
+  across projects that use replicant.
+
+## 0.5.1:
 * Include source in jar file to make it easier to integrate with GWT.
 
 ## 0.5:
