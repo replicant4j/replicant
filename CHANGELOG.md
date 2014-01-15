@@ -1,4 +1,4 @@
-## 0.5.1:
+## 0.5.2:
 * Import EntityMessageSorter to make it easier to share sorting mechanisms
   across projects that use replicant.
 
