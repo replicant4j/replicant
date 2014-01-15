@@ -4,11 +4,20 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class EntityMessageSorterTest
 {
+  private int _nextID;
+
+  @BeforeMethod
+  public void resetNextID()
+  {
+    _nextID = 0;
+  }
+
   @Test
   public void sort()
   {
@@ -74,5 +83,118 @@ public class EntityMessageSorterTest
                               timestamp,
                               new HashMap<String, Serializable>(),
                               isDelete ? null : new HashMap<String, Serializable>() );
+  }
+
+  @Test
+  public void deletionsShouldOrderBeforeChanges()
+  {
+    final EntityMessage[] messages = { createDeletionMessage( 1 ),
+                                       createUpdateMessage( 1 ),
+                                       createDeletionMessage( 1 ) };
+
+    final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
+
+    assertDeletion( sortedMessages.get( 0 ) );
+    assertDeletion( sortedMessages.get( 1 ) );
+    assertUpdate( sortedMessages.get( 2 ) );
+  }
+
+  @Test
+  public void typesShouldOrderDescendingWithinDeletions()
+  {
+    final EntityMessage[] messages = { createUpdateMessage( 1 ),
+                                       createDeletionMessage( 1 ),
+                                       createDeletionMessage( 3 ),
+                                       createDeletionMessage( 2 ),
+                                       createDeletionMessage( 4 ) };
+
+    final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
+
+    assertEquals( sortedMessages.get( 0 ).getTypeID(), 4 );
+    assertEquals( sortedMessages.get( 1 ).getTypeID(), 3 );
+    assertEquals( sortedMessages.get( 2 ).getTypeID(), 2 );
+    assertEquals( sortedMessages.get( 3 ).getTypeID(), 1 );
+    assertUpdate( sortedMessages.get( 4 ) );
+  }
+
+  @Test
+  public void typesShouldOrderAscendingWithinUpdates()
+  {
+    final EntityMessage[] messages = { createUpdateMessage( 1 ),
+                                       createUpdateMessage( 3 ),
+                                       createUpdateMessage( 2 ),
+                                       createUpdateMessage( 4 ),
+                                       createDeletionMessage( 2 ) };
+
+    final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
+
+    assertDeletion( sortedMessages.get( 0 ) );
+    assertEquals( sortedMessages.get( 1 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 2 ).getTypeID(), 2 );
+    assertEquals( sortedMessages.get( 3 ).getTypeID(), 3 );
+    assertEquals( sortedMessages.get( 4 ).getTypeID(), 4 );
+  }
+
+  @Test
+  public void deletionForSameTypeShouldOrderByReverseTime()
+  {
+    final EntityMessage[] messages = { createDeletionMessage( 2, 10 ),
+                                       createDeletionMessage( 1, 15 ),
+                                       createDeletionMessage( 2, 20 ),
+                                       createDeletionMessage( 2, 15 ) };
+
+    final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
+
+    assertEquals( sortedMessages.get( 0 ).getTimestamp(), 20 );
+    assertEquals( sortedMessages.get( 1 ).getTimestamp(), 15 );
+    assertEquals( sortedMessages.get( 2 ).getTimestamp(), 10 );
+    assertEquals( sortedMessages.get( 3 ).getTypeID(), 1 );
+  }
+
+  @Test
+  public void updateForSameTypeShouldOrderByTime()
+  {
+    final EntityMessage[] messages = { createUpdateMessage( 2, 10 ),
+                                       createUpdateMessage( 1, 15 ),
+                                       createUpdateMessage( 2, 20 ),
+                                       createUpdateMessage( 2, 15 ) };
+
+    final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
+
+    assertEquals( sortedMessages.get( 0 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 1 ).getTimestamp(), 10 );
+    assertEquals( sortedMessages.get( 2 ).getTimestamp(), 15 );
+    assertEquals( sortedMessages.get( 3 ).getTimestamp(), 20 );
+  }
+
+  private EntityMessage createUpdateMessage( final int typeID )
+  {
+    return createUpdateMessage( typeID, 0 );
+  }
+
+  private EntityMessage createUpdateMessage( final int typeID, final long time )
+  {
+    return new EntityMessage( _nextID++, typeID, time, new HashMap<String, Serializable>(),
+                              new HashMap<String, Serializable>() );
+  }
+
+  private EntityMessage createDeletionMessage( final int typeID )
+  {
+    return createDeletionMessage( typeID, 0 );
+  }
+
+  private EntityMessage createDeletionMessage( final int typeID, final long time )
+  {
+    return new EntityMessage( _nextID++, typeID, time, new HashMap<String, Serializable>(), null );
+  }
+
+  private void assertDeletion( final EntityMessage message )
+  {
+    assertTrue( message.isDelete(), "Expected " + message.toString() + " to be a deletion" );
+  }
+
+  private void assertUpdate( final EntityMessage message )
+  {
+    assertTrue( message.isUpdate(), "Expected " + message.toString() + " to be an update" );
   }
 }
