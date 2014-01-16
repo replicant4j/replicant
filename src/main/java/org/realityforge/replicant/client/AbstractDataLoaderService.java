@@ -15,7 +15,6 @@ public abstract class AbstractDataLoaderService
 {
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
-  private static final Level LOG_LEVEL = Level.FINEST;
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
   @Inject
   private ChangeMapper _changeMapper;
@@ -73,9 +72,9 @@ public abstract class AbstractDataLoaderService
   {
     if ( null == _currentAction && _dataLoadActions.isEmpty() )
     {
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "No data to load. Terminating incremental load process." );
+        LOG.log( getLogLevel(), "No data to load. Terminating incremental load process." );
       }
       return false;
     }
@@ -84,9 +83,9 @@ public abstract class AbstractDataLoaderService
     if ( null == _currentAction )
     {
       _currentAction = _dataLoadActions.remove();
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "Action Selected: " + _currentAction );
+        LOG.log( getLogLevel(), "Action Selected: " + _currentAction );
       }
       if ( _currentAction.isBulkLoad() )
       {
@@ -109,9 +108,9 @@ public abstract class AbstractDataLoaderService
     final String rawJsonData = _currentAction.getRawJsonData();
     if ( null != rawJsonData )
     {
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "Parsing JSON: " + _currentAction );
+        LOG.log( getLogLevel(), "Parsing JSON: " + _currentAction );
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       _currentAction.setChangeSet( changeSet );
@@ -121,9 +120,9 @@ public abstract class AbstractDataLoaderService
     //Step: Process a chunk of changes
     if ( _currentAction.areChangesPending() )
     {
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "Processing ChangeSet: " + _currentAction );
+        LOG.log( getLogLevel(), "Processing ChangeSet: " + _currentAction );
       }
       Change change;
       for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
@@ -148,9 +147,9 @@ public abstract class AbstractDataLoaderService
     //Step: Calculate the entities that need to be linked
     if ( !_currentAction.areEntityLinksCalculated() )
     {
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "Calculating Link list: " + _currentAction );
+        LOG.log( getLogLevel(), "Calculating Link list: " + _currentAction );
       }
       _currentAction.calculateEntitiesToLink();
       return true;
@@ -159,9 +158,9 @@ public abstract class AbstractDataLoaderService
     //Step: Process a chunk of links
     if ( _currentAction.areEntityLinksPending() )
     {
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "Linking Entities: " + _currentAction );
+        LOG.log( getLogLevel(), "Linking Entities: " + _currentAction );
       }
       Linkable linkable;
       for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = _currentAction.nextEntityToLink() ); i++ )
@@ -182,9 +181,9 @@ public abstract class AbstractDataLoaderService
     if ( !_currentAction.hasWorldBeenNotified() )
     {
       _currentAction.markWorldAsNotified();
-      if ( LOG.isLoggable( LOG_LEVEL ) )
+      if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( LOG_LEVEL, "Finalizing action: " + _currentAction );
+        LOG.log( getLogLevel(), "Finalizing action: " + _currentAction );
       }
       _lastKnownChangeSet = set.getSequence();
       if ( _currentAction.isBulkLoad() )
@@ -214,9 +213,9 @@ public abstract class AbstractDataLoaderService
     }
 
     //Step: Run the post actions
-    if ( LOG.isLoggable( LOG_LEVEL ) )
+    if ( LOG.isLoggable( getLogLevel() ) )
     {
-      LOG.log( LOG_LEVEL, "Running post action and cleaning action: " + _currentAction );
+      LOG.log( getLogLevel(), "Running post action and cleaning action: " + _currentAction );
     }
     final Runnable runnable = _currentAction.getRunnable();
     if ( null != runnable )
@@ -225,6 +224,11 @@ public abstract class AbstractDataLoaderService
     }
     _currentAction = null;
     return true;
+  }
+
+  protected Level getLogLevel()
+  {
+    return Level.FINEST;
   }
 
   protected final EntityRepository getRepository()
