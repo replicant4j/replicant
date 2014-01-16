@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -211,6 +212,7 @@ public class ReplicationInterceptorTest
 
   static class TestReplicationInterceptor
     extends AbstractReplicationInterceptor
+    implements EntityMessageEndpoint
   {
     Collection<EntityMessage> _messages;
     EntityManager _entityManager;
@@ -220,7 +222,13 @@ public class ReplicationInterceptorTest
       _entityManager = entityManager;
     }
 
-    protected void saveEntityMessages( @Nonnull final Collection<EntityMessage> messages )
+    @Override
+    protected EntityMessageEndpoint getEndpoint()
+    {
+      return this;
+    }
+
+    public void saveEntityMessages( @Nonnull final Collection<EntityMessage> messages )
     {
       if ( null != _messages )
       {

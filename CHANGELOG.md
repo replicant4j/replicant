@@ -1,4 +1,7 @@
 ## 0.5.2:
+* Add EntityMessageEndpoint to abstract the endpoint to which the interceptor
+  delivers EntityMessage instances. Adjust the AbstractReplicationInterceptor
+  to deliver messages to endpoint.
 * Add the EntityMessageGenerator interface to abstract over code responsible
   for generating EntityMessage instances.
 * Import EntityMessageSorter to make it easier to share sorting mechanisms

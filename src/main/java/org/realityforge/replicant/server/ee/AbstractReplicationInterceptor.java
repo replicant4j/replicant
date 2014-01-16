@@ -8,6 +8,7 @@ import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
 
 /**
@@ -48,7 +49,7 @@ public abstract class AbstractReplicationInterceptor
             final Collection<EntityMessage> messages = messageSet.getEntityMessages();
             if( messages.size() > 0 )
             {
-              saveEntityMessages( messages );
+              getEndpoint().saveEntityMessages( messages );
             }
           }
         }
@@ -58,6 +59,6 @@ public abstract class AbstractReplicationInterceptor
 
   protected abstract EntityManager getEntityManager();
 
-  protected abstract void saveEntityMessages( @Nonnull Collection<EntityMessage> messages );
+  protected abstract EntityMessageEndpoint getEndpoint();
 }
 
