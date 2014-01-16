@@ -276,7 +276,7 @@ public class EntityChangeBrokerImpl
   {
     if( _disabled )
     {
-      throw new IllegalStateException( "Attempting to disabled already disabled broker" );
+      throw new IllegalStateException( "Attempting to disable already disabled broker" );
     }
     _disabled = true;
   }
@@ -289,7 +289,7 @@ public class EntityChangeBrokerImpl
   {
     if( !_disabled )
     {
-      throw new IllegalStateException( "Attempting to enable already enable broker" );
+      throw new IllegalStateException( "Attempting to enable already enabled broker" );
     }
     _disabled = false;
   }
