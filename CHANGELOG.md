@@ -1,4 +1,6 @@
 ## 0.5.2:
+* Add EntityMessageAccumulator to help collect and forward EntityMessages to
+  the respective clients.
 * Add EntityMessageEndpoint to abstract the endpoint to which the interceptor
   delivers EntityMessage instances. Adjust the AbstractReplicationInterceptor
   to deliver messages to endpoint.
