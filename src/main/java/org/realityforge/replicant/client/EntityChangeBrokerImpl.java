@@ -40,6 +40,18 @@ public class EntityChangeBrokerImpl
   private final Map<Object, ListenerEntry[]> _objectListeners = new HashMap<Object, ListenerEntry[]>();
   private final Map<Class, ListenerEntry[]> _classListeners = new HashMap<Class, ListenerEntry[]>();
 
+  private boolean _raiseErrorOnEventHandlerError = true;
+
+  public boolean shouldRaiseErrorOnEventHandlerError()
+  {
+    return _raiseErrorOnEventHandlerError;
+  }
+
+  public void setRaiseErrorOnEventHandlerError( final boolean raiseErrorOnEventHandlerError )
+  {
+    _raiseErrorOnEventHandlerError = raiseErrorOnEventHandlerError;
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -489,7 +501,12 @@ public class EntityChangeBrokerImpl
    */
   protected void logEventHandlingError( final EntityChangeListener listener, final Throwable t )
   {
-    LOG.log( Level.SEVERE, "Error sending event to listener: " + listener, t );
+    final String message = "Error sending event to listener: " + listener;
+    LOG.log( Level.SEVERE, message, t );
+    if ( _raiseErrorOnEventHandlerError )
+    {
+      throw new IllegalStateException( message, t );
+    }
   }
 
   /**

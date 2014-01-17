@@ -10,6 +10,32 @@ public class EntityChangeBrokerTest
   public static final String REL_KEY = "MyRelationship";
 
   @Test
+  public void raiseErrorOnEventHandlerError()
+  {
+    final EntityChangeBrokerImpl broker = new EntityChangeBrokerImpl();
+    final Exception cause = new Exception();
+    try
+    {
+      broker.logEventHandlingError( null, cause );
+    }
+    catch ( final IllegalStateException e )
+    {
+      assertEquals( e.getCause(), cause );
+      assertEquals( e.getMessage(), "Error sending event to listener: null" );
+    }
+
+    broker.setRaiseErrorOnEventHandlerError( false );
+    try
+    {
+      broker.logEventHandlingError( null, cause );
+    }
+    catch ( final IllegalStateException e )
+    {
+      fail();
+    }
+  }
+
+  @Test
   public void ensureCanSendMessagesWhenNoListeners()
   {
     final EntityChangeBroker broker = new EntityChangeBrokerImpl();

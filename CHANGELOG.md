@@ -1,4 +1,7 @@
 ## 0.5.2:
+* In EntityChangeBrokerImpl, default to raising an IllegalStateException if
+  there is an error handling events but support suppression of exceptions via
+  EntityChangeBrokerImpl.setRaiseErrorOnEventHandlerError().
 * Add EntityMessageAccumulator to help collect and forward EntityMessages to
   the respective clients.
 * Add EntityMessageEndpoint to abstract the endpoint to which the interceptor
