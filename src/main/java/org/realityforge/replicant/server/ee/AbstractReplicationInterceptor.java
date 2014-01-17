@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.ee;
 
 import java.util.Collection;
-import javax.annotation.Nonnull;
 import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
