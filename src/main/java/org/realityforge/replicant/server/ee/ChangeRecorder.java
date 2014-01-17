@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.ee;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -10,11 +9,12 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PreRemove;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.EntityMessageGenerator;
 
 /**
  * Abstract class to extend to collect changes to entities so that they can be replicated by the library. 
- * Library users should implement the {@link #toEntityMessage(Object, boolean)} method to provide messages
- * specific the particular application.
+ * Library users should implement the {@link #getEntityMessageGenerator()}} method to provide message
+ * generator specific to the particular application.
  */
 public abstract class ChangeRecorder
 {
@@ -57,7 +57,7 @@ public abstract class ChangeRecorder
   {
     if ( !getRegistry().getRollbackOnly() )
     {
-      final EntityMessage entityMessage = toEntityMessage( object, update );
+      final EntityMessage entityMessage = getEntityMessageGenerator().convertToEntityMessage( object, update );
       if ( null != entityMessage )
       {
         EntityMessageCacheUtil.getEntityMessageSet( getRegistry() ).merge( entityMessage );
@@ -66,14 +66,9 @@ public abstract class ChangeRecorder
   }
 
   /**
-   * Convert the jpa entity to an EntityMessage for replication via replicant library.
-   *
-   * @param object the entity that was modified or removed.
-   * @param update false if the entity was removed, true otherwise.
-   * @return the EntityMessage or null if no update should be replicated.
+   * @return the message generator for the specific application.
    */
-  @Nullable
-  protected abstract EntityMessage toEntityMessage( @Nonnull Object object, boolean update );
+  protected abstract EntityMessageGenerator getEntityMessageGenerator();
 
   private TransactionSynchronizationRegistry getRegistry()
   {

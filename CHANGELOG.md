@@ -1,4 +1,6 @@
 ## 0.5.2:
+* Link the ChangeRecorder to the EntityMessageGenerator to reduce boilerplate
+  code in dependent projects.
 * In EntityChangeBrokerImpl, default to raising an IllegalStateException if
   there is an error handling events but support suppression of exceptions via
   EntityChangeBrokerImpl.setRaiseErrorOnEventHandlerError().

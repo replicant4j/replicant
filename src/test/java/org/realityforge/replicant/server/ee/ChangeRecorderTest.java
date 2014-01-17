@@ -2,8 +2,8 @@ package org.realityforge.replicant.server.ee;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.EntityMessageGenerator;
 import org.realityforge.replicant.server.EntityMessageSet;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.testng.annotations.Test;
@@ -73,8 +73,16 @@ public class ChangeRecorderTest
 
   static class TestChangeRecorder
       extends ChangeRecorder
+      implements EntityMessageGenerator
   {
-    protected EntityMessage toEntityMessage( @Nonnull final Object object, final boolean update )
+    @Override
+    protected EntityMessageGenerator getEntityMessageGenerator()
+    {
+      return this;
+    }
+
+    @Override
+    public EntityMessage convertToEntityMessage( final Object object, final boolean isUpdate )
     {
       if( object.equals( ENTITY ) )
       {
@@ -83,7 +91,7 @@ public class ChangeRecorderTest
                                               0,
                                               "r1",
                                               "r2",
-                                              ( update ? "a1" : null ), ( update ? "a2" : null ) );
+                                              ( isUpdate ? "a1" : null ), ( isUpdate ? "a2" : null ) );
       }
       else
       {
