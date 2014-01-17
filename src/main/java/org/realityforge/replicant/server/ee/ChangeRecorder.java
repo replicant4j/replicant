@@ -12,7 +12,7 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageGenerator;
 
 /**
- * Abstract class to extend to collect changes to entities so that they can be replicated by the library. 
+ * Abstract class to extend to collect changes to entities so that they can be replicated by the library.
  * Library users should implement the {@link #getEntityMessageGenerator()}} method to provide message
  * generator specific to the particular application.
  */
@@ -93,3 +93,4 @@ public abstract class ChangeRecorder
     }
   }
 }
+
