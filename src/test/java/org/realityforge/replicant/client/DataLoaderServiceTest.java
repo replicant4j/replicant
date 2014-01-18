@@ -8,7 +8,7 @@ import static org.testng.Assert.*;
 public class DataLoaderServiceTest
 {
   @Test
-  public void verifyDataLoader()
+  public void verifyDataLoader_bulkDataLoad()
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
