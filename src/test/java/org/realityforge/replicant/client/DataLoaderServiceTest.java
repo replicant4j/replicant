@@ -86,7 +86,7 @@ public class DataLoaderServiceTest
     assertTrue( service.isIncrementalLoadCompleteCalled() );
   }
 
-    @Test
+  @Test
   public void verifyValidateIsNotCalled()
     throws Exception
   {
