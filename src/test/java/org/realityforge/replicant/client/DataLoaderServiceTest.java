@@ -21,7 +21,8 @@ public class DataLoaderServiceTest
     when( changeMapper.applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
     // last known id is negative before initial process
-    assertTrue( service.getLastKnownChangeSet() < 0 );
+    final int initialChangeSetID = service.getLastKnownChangeSet();
+    assertTrue( initialChangeSetID < 0 );
 
     final Runnable runnable = mock( Runnable.class );
 
@@ -30,7 +31,8 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 8 );
 
-    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+    // Bulk loads will not change the changeSetID, only incrementals
+    assertEquals( service.getLastKnownChangeSet(), initialChangeSetID );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( changeBroker ).disable();
@@ -74,11 +76,17 @@ public class DataLoaderServiceTest
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
     final TestDataLoadService service = newService( changeSet, mock( ChangeMapper.class ), changeBroker, true );
 
+    // last known id is negative before initial process
+    final int initialChangeSetID = service.getLastKnownChangeSet();
+    assertTrue( initialChangeSetID < 0 );
+
     ensureEnqueueDataLoads( service, false, null );
 
     progressWorkTillDone( service );
 
     verify( service.getRepository(), times( 1 ) ).validate();
+
+    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
 
     verify( changeBroker ).pause();
     verify( changeBroker ).resume();
