@@ -1,4 +1,5 @@
 ## 0.5.2:
+* Add @Replicate annotation to help define interceptor in EE application.
 * Link the ChangeRecorder to the EntityMessageGenerator to reduce boilerplate
   code in dependent projects.
 * In EntityChangeBrokerImpl, default to raising an IllegalStateException if
