@@ -42,7 +42,7 @@ public class EntityChangeBrokerImpl
 
   private boolean _raiseErrorOnEventHandlerError = true;
 
-  public boolean shouldRaiseErrorOnEventHandlerError()
+  public final boolean shouldRaiseErrorOnEventHandlerError()
   {
     return _raiseErrorOnEventHandlerError;
   }
@@ -503,7 +503,7 @@ public class EntityChangeBrokerImpl
   {
     final String message = "Error sending event to listener: " + listener;
     LOG.log( Level.SEVERE, message, t );
-    if ( _raiseErrorOnEventHandlerError )
+    if ( shouldRaiseErrorOnEventHandlerError() )
     {
       throw new IllegalStateException( message, t );
     }
