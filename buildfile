@@ -1,7 +1,7 @@
 require 'buildr/git_auto_version'
 require 'buildr/jacoco'
 
-PROVIDED_DEPS = [:javax_inject, :javax_annotation, :javax_transaction, :javax_interceptor, :javax_persistence, :javax_naming, :javax_json]
+PROVIDED_DEPS = [:javax_inject, :javax_annotation, :javax_transaction, :javax_interceptor, :javax_persistence, :javax_naming, :javax_json, :gwt_user]
 
 desc "Replicant: Client-side state representation infrastructure"
 define 'replicant' do
@@ -17,10 +17,7 @@ define 'replicant' do
   pom.add_developer('realityforge', "Peter Donald")
   pom.provided_dependencies.concat PROVIDED_DEPS
 
-  compile.with PROVIDED_DEPS,
-               :gwt_user,
-               :jackson_core,
-               :jackson_mapper
+  compile.with PROVIDED_DEPS
 
   test.with :jsonpath,
             :json,
