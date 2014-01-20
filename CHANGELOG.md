@@ -1,3 +1,6 @@
+## 0.5.3:
+* Make EntityChangeBrokerImpl.shouldRaiseErrorOnEventHandlerError() final.
+
 ## 0.5.2:
 * Add @Replicate annotation to help define interceptor in EE application.
 * Link the ChangeRecorder to the EntityMessageGenerator to reduce boilerplate
