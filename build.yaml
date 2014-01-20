@@ -11,6 +11,13 @@ artifacts:
   javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
   gwt_user: com.google.gwt:gwt-user:jar:2.5.1
 
+  #
+  # GIN and associated dependencies
+  gwt_gin: com.google.gwt.inject:gin:jar:2.1.2
+  google_guice: com.google.inject:guice:jar:3.0
+  google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
+  aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
+
   # Encoding on the server
   json: org.json:json:jar:20090211
 

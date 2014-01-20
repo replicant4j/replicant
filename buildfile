@@ -1,7 +1,10 @@
 require 'buildr/git_auto_version'
 require 'buildr/jacoco'
 
+GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin]
+
 PROVIDED_DEPS = [:javax_inject, :javax_annotation, :javax_transaction, :javax_interceptor, :javax_persistence, :javax_naming, :javax_json, :gwt_user]
+OPTIONAL_DEPS = GIN_DEPS
 
 desc "Replicant: Client-side state representation infrastructure"
 define 'replicant' do
@@ -16,8 +19,9 @@ define 'replicant' do
   pom.add_github_project("realityforge/replicant")
   pom.add_developer('realityforge', "Peter Donald")
   pom.provided_dependencies.concat PROVIDED_DEPS
+  pom.optional_dependencies.concat OPTIONAL_DEPS
 
-  compile.with PROVIDED_DEPS
+  compile.with PROVIDED_DEPS, OPTIONAL_DEPS
 
   test.with :json
 
