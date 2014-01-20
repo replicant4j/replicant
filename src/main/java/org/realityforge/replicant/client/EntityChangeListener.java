@@ -5,6 +5,8 @@ package org.realityforge.replicant.client;
  */
 public interface EntityChangeListener
 {
+  void entityAdded( EntityChangeEvent event );
+
   void entityRemoved( EntityChangeEvent event );
 
   void attributeChanged( EntityChangeEvent event );

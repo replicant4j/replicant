@@ -5,10 +5,11 @@ import java.util.ArrayList;
 class RecordingListener
     implements EntityChangeListener
 {
-  private final ArrayList<EntityChangeEvent> _entityRemovedEvents = new ArrayList<EntityChangeEvent>();
-  private final ArrayList<EntityChangeEvent> _attributeChangedEvents = new ArrayList<EntityChangeEvent>();
-  private final ArrayList<EntityChangeEvent> _relatedAddedEvents = new ArrayList<EntityChangeEvent>();
-  private final ArrayList<EntityChangeEvent> _relatedRemovedEvents = new ArrayList<EntityChangeEvent>();
+  private final ArrayList<EntityChangeEvent> _entityAddedEvents = new ArrayList<>();
+  private final ArrayList<EntityChangeEvent> _entityRemovedEvents = new ArrayList<>();
+  private final ArrayList<EntityChangeEvent> _attributeChangedEvents = new ArrayList<>();
+  private final ArrayList<EntityChangeEvent> _relatedAddedEvents = new ArrayList<>();
+  private final ArrayList<EntityChangeEvent> _relatedRemovedEvents = new ArrayList<>();
 
   public boolean hasRecordedEvents()
   {
@@ -17,7 +18,8 @@ class RecordingListener
 
   public boolean hasNoRecordedEvents()
   {
-    return 0 == _entityRemovedEvents.size() &&
+    return 0 == _entityAddedEvents.size() &&
+           0 == _entityRemovedEvents.size() &&
            0 == _attributeChangedEvents.size() &&
            0 == _relatedAddedEvents.size() &&
            0 == _relatedRemovedEvents.size();
@@ -25,10 +27,17 @@ class RecordingListener
 
   public void clear()
   {
+    _entityAddedEvents.clear();
     _entityRemovedEvents.clear();
     _attributeChangedEvents.clear();
     _relatedAddedEvents.clear();
     _relatedRemovedEvents.clear();
+  }
+
+  @Override
+  public void entityAdded( final EntityChangeEvent event )
+  {
+    _entityAddedEvents.add( event );
   }
 
   public void entityRemoved( final EntityChangeEvent event )
@@ -49,6 +58,11 @@ class RecordingListener
   public void relatedRemoved( final EntityChangeEvent event )
   {
     _relatedRemovedEvents.add( event );
+  }
+
+  public ArrayList<EntityChangeEvent> getEntityAddedEvents()
+  {
+    return _entityAddedEvents;
   }
 
   public ArrayList<EntityChangeEvent> getEntityRemovedEvents()

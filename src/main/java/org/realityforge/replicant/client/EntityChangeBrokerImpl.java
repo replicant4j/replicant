@@ -239,6 +239,15 @@ public class EntityChangeBrokerImpl
    * {@inheritDoc}
    */
   @Override
+  public void entityAdded( @Nonnull final Object entity )
+  {
+    sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_ADDED, entity, null, null ) );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void entityRemoved( @Nonnull final Object entity )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_REMOVED, entity, null, null ) );
@@ -477,6 +486,9 @@ public class EntityChangeBrokerImpl
             break;
           case RELATED_REMOVED:
             listener.relatedRemoved( event );
+            break;
+          case ENTITY_ADDED:
+            listener.entityAdded( event );
             break;
           case ENTITY_REMOVED:
             listener.entityRemoved( event );

@@ -1,4 +1,6 @@
 ## 0.5.3:
+* Update EntityChangeListener to add a callback method that is called when
+  and entity is added to the system.
 * Make EntityChangeBrokerImpl.shouldRaiseErrorOnEventHandlerError() final.
 
 ## 0.5.2:

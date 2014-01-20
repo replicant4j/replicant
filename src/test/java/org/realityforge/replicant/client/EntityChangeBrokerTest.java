@@ -68,6 +68,36 @@ public class EntityChangeBrokerTest
     broker.addChangeListener( C.class, differentTypeListener );
     broker.addChangeListener( entity, instanceListener );
 
+    assertEntityAddedEventCount( globalListener, 0 );
+    assertEntityAddedEventCount( typeListener, 0 );
+    assertEntityAddedEventCount( parentTypeListener, 0 );
+    assertEntityAddedEventCount( instanceListener, 0 );
+
+    broker.entityAdded( entity );
+
+    assertEntityAddedEventCount( globalListener, 1 );
+    assertEntityAddedEvent( globalListener.getEntityAddedEvents().get( 0 ), entity );
+
+    assertEntityAddedEventCount( typeListener, 1 );
+    assertEntityAddedEvent( typeListener.getEntityAddedEvents().get( 0 ), entity );
+
+    assertEntityAddedEventCount( parentTypeListener, 1 );
+    assertEntityAddedEvent( parentTypeListener.getEntityAddedEvents().get( 0 ), entity );
+
+    assertEntityAddedEventCount( subTypeListener, 0 );
+
+    assertEntityAddedEventCount( differentTypeListener, 0 );
+
+    assertEntityAddedEventCount( instanceListener, 1 );
+    assertEntityAddedEvent( instanceListener.getEntityAddedEvents().get( 0 ), entity );
+
+    globalListener.clear();
+    typeListener.clear();
+    parentTypeListener.clear();
+    subTypeListener.clear();
+    differentTypeListener.clear();
+    instanceListener.clear();
+
     //Attr changed
     assertAttributeChangeEventCount( globalListener, 0 );
     assertAttributeChangeEventCount( typeListener, 0 );
@@ -638,6 +668,12 @@ public class EntityChangeBrokerTest
     assertTrue( listener.hasNoRecordedEvents() );
   }
 
+  private void assertEntityAddedEventCount( final RecordingListener listener, final int eventCount )
+  {
+    final ArrayList<EntityChangeEvent> events = listener.getEntityAddedEvents();
+    assertChangeCount( eventCount, events );
+  }
+
   private void assertAttributeChangeEventCount( final RecordingListener listener, final int eventCount )
   {
     final ArrayList<EntityChangeEvent> events = listener.getAttributeChangedEvents();
@@ -709,6 +745,13 @@ public class EntityChangeBrokerTest
     assertEquals( EntityChangeType.ENTITY_REMOVED, event.getType() );
   }
 
+  private static void assertEntityAddedEvent( final EntityChangeEvent event, final Object entity )
+  {
+    assertEquals( entity, event.getObject() );
+    assertNull( event.getName() );
+    assertNull( event.getValue() );
+    assertEquals( EntityChangeType.ENTITY_ADDED, event.getType() );
+  }
 
   public static class A
   {

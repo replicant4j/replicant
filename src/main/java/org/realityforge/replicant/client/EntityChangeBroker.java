@@ -110,6 +110,13 @@ public interface EntityChangeBroker
   void attributeChanged( @Nonnull Object entity, @Nonnull String name, @Nonnull Object value );
 
   /**
+   * Notify listeners that an entity was added.
+   *
+   * @param entity the entity added.
+   */
+  void entityAdded( @Nonnull Object entity );
+
+  /**
    * Notify listeners that an entity was removed.
    *
    * @param entity the entity removed.
