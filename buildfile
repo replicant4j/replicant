@@ -19,9 +19,7 @@ define 'replicant' do
 
   compile.with PROVIDED_DEPS
 
-  test.with :jsonpath,
-            :json,
-            :json_smart
+  test.with :json
 
   package(:jar).include("#{_(:source, :main, :java)}/*")
   package(:sources)

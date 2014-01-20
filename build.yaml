@@ -14,10 +14,6 @@ artifacts:
   # Encoding on the server
   json: org.json:json:jar:20090211
 
-  # Testing encoding on the server
-  jsonpath: com.jayway.jsonpath:json-path:jar:0.5.5
-  json_smart: net.minidev:json-smart:jar:1.0.9
-
   #
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.9.5
