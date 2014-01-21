@@ -1,4 +1,5 @@
 ## 0.5.3:
+* Introduce the Packet and PacketQueue to support creating the transport layer.
 * Add Gin module that defines EntityMessageBroker and EntityRepository instances.
 * Update EntityChangeListener to add a callback method that is called when
   and entity is added to the system.
