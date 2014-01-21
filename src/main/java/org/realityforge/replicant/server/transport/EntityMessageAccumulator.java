@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.transport.PacketQueue;
 
 /**
  * A simple class that collects EntityMessage instances and then

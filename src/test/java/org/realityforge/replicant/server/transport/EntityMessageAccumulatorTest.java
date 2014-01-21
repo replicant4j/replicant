@@ -2,8 +2,6 @@ package org.realityforge.replicant.server.transport;
 
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
-import org.realityforge.replicant.server.transport.EntityMessageAccumulator;
-import org.realityforge.replicant.server.transport.PacketQueue;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
