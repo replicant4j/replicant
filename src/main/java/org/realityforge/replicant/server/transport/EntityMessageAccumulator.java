@@ -15,14 +15,14 @@ public final class EntityMessageAccumulator
   private final Map<PacketQueue, LinkedList<EntityMessage>> _changeSets = new HashMap<>();
 
   /**
-   * Add a message to a client.
+   * Add a message destined for a particular packet queue.
    *
-   * @param client the client/
+   * @param queue the queue.
    * @param message the message.
    */
-  public void addEntityMessage( final PacketQueue client, final EntityMessage message )
+  public void addEntityMessage( final PacketQueue queue, final EntityMessage message )
   {
-    getChangeSet( client ).add( message );
+    getChangeSet( queue ).add( message );
   }
 
   /**
@@ -37,13 +37,13 @@ public final class EntityMessageAccumulator
     _changeSets.clear();
   }
 
-  private LinkedList<EntityMessage> getChangeSet( final PacketQueue info )
+  private LinkedList<EntityMessage> getChangeSet( final PacketQueue queue )
   {
-    LinkedList<EntityMessage> clientChangeSet = _changeSets.get( info );
+    LinkedList<EntityMessage> clientChangeSet = _changeSets.get( queue );
     if ( null == clientChangeSet )
     {
       clientChangeSet = new LinkedList<>();
-      _changeSets.put( info, clientChangeSet );
+      _changeSets.put( queue, clientChangeSet );
     }
     return clientChangeSet;
   }
