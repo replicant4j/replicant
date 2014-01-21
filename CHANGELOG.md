@@ -1,4 +1,6 @@
 ## 0.5.3:
+* Move EntityMessageAccumulator to the transport package and re-target it to
+  deliver messages to the PacketQueue.
 * Introduce the Packet and PacketQueue to support creating the transport layer.
 * Add Gin module that defines EntityMessageBroker and EntityRepository instances.
 * Update EntityChangeListener to add a callback method that is called when
