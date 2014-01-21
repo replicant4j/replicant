@@ -14,7 +14,7 @@ public interface ChangeSet
   int getSequence();
 
   /**
-   * @return the number of change in set. Must be &gt; 0.
+   * @return the number of changes in the set. Must be &gt; 0.
    */
   int getChangeCount();
 
