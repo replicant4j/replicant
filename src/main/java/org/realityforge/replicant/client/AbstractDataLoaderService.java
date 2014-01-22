@@ -25,7 +25,7 @@ public abstract class AbstractDataLoaderService
 
   private int _lastKnownChangeSet = Integer.MIN_VALUE;
 
-  private final LinkedList<DataLoadAction> _dataLoadActions = new LinkedList<DataLoadAction>();
+  private final LinkedList<DataLoadAction> _dataLoadActions = new LinkedList<>();
   private DataLoadAction _currentAction;
   private int _updateCount;
   private int _removeCount;

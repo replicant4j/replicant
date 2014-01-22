@@ -24,7 +24,7 @@ public final class EntityMessageSorter
 
   public static List<EntityMessage> sort( final Collection<EntityMessage> messages )
   {
-    final ArrayList<EntityMessage> sortedMessages = new ArrayList<EntityMessage>( messages );
+    final ArrayList<EntityMessage> sortedMessages = new ArrayList<>( messages );
     Collections.sort( sortedMessages, COMPARATOR );
     return sortedMessages;
   }

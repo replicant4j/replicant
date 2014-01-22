@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 
 public class EntityMessageSet
 {
-  private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<String, EntityMessage>();
+  private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<>();
 
   public void merge( final EntityMessage message )
   {

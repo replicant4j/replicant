@@ -111,7 +111,7 @@ public final class EntityMessage
     {
       if( null == _attributeValues )
       {
-        _attributeValues = new HashMap<String, Serializable>();
+        _attributeValues = new HashMap<>();
       }
       for( final Map.Entry<String, Serializable> entry : attributeValues.entrySet() )
       {

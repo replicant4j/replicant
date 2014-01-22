@@ -33,8 +33,8 @@ final class DataLoadAction
   @Nullable
   private final Runnable _runnable;
 
-  private LinkedList<Linkable> _updatedEntities = new LinkedList<Linkable>();
-  private HashSet<Linkable> _removedEntities = new HashSet<Linkable>();
+  private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
+  private HashSet<Linkable> _removedEntities = new HashSet<>();
   private LinkedList<Linkable> _entitiesToLink;
   private boolean _entityLinksCalculated;
   private boolean _worldNotified;
@@ -107,7 +107,7 @@ final class DataLoadAction
   public void calculateEntitiesToLink()
   {
     _entityLinksCalculated = true;
-    _entitiesToLink = new LinkedList<Linkable>();
+    _entitiesToLink = new LinkedList<>();
     for ( final Linkable entity : _updatedEntities )
     {
       // In some circumstances a create and remove can appear in same change set so guard against this

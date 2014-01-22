@@ -43,7 +43,7 @@ public final class JsonEncoderTest
     assertNotNull( values );
     values.put( "key3", date );
 
-    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
+    final ArrayList<EntityMessage> messages = new ArrayList<>();
     messages.add( message );
     final int lastChangeSetID = 1;
     final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
@@ -74,7 +74,7 @@ public final class JsonEncoderTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
-    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
+    final ArrayList<EntityMessage> messages = new ArrayList<>();
     messages.add( message );
     final int lastChangeSetID = 1;
     final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
