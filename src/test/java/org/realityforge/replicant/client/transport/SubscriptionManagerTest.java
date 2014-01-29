@@ -65,7 +65,6 @@ public class SubscriptionManagerTest
     assertNull( e4 );
   }
 
-
   static enum TestGraph
   {
     A, B
