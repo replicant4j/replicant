@@ -38,6 +38,7 @@ final class DataLoadAction
   private LinkedList<Linkable> _entitiesToLink;
   private boolean _entityLinksCalculated;
   private boolean _worldNotified;
+  private boolean _brokerPaused;
 
   public DataLoadAction( final boolean bulkLoad, final String rawJsonData, @Nullable final Runnable runnable )
   {
@@ -67,6 +68,16 @@ final class DataLoadAction
   public boolean areChangesPending()
   {
     return null != _changeSet && _changeIndex < _changeSet.getChangeCount();
+  }
+
+  public boolean needsBrokerPause()
+  {
+    return areChangesPending() && !_brokerPaused;
+  }
+
+  public void markBrokerPaused()
+  {
+    _brokerPaused = true;
   }
 
   public Change nextChange()

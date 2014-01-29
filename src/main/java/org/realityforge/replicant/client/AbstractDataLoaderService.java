@@ -93,20 +93,6 @@ public abstract class AbstractDataLoaderService
       {
         LOG.log( getLogLevel(), "Action Selected: " + _currentAction );
       }
-      if ( _currentAction.isBulkLoad() )
-      {
-        _changeBroker.disable();
-      }
-      else
-      {
-        _changeBroker.pause();
-      }
-      if ( LOG.isLoggable( Level.INFO ) )
-      {
-        _updateCount = 0;
-        _removeCount = 0;
-        _linkCount = 0;
-      }
       return true;
     }
 
@@ -121,6 +107,26 @@ public abstract class AbstractDataLoaderService
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       _currentAction.setChangeSet( changeSet );
       return true;
+    }
+
+    //Step: Setup the change recording state
+    if ( _currentAction.needsBrokerPause() )
+    {
+      _currentAction.markBrokerPaused();
+      if ( _currentAction.isBulkLoad() )
+      {
+        _changeBroker.disable();
+      }
+      else
+      {
+        _changeBroker.pause();
+      }
+      if ( LOG.isLoggable( Level.INFO ) )
+      {
+        _updateCount = 0;
+        _removeCount = 0;
+        _linkCount = 0;
+      }
     }
 
     //Step: Process a chunk of changes

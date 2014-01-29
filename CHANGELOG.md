@@ -1,4 +1,6 @@
 ## 0.5.4:
+* Ensure the AbstractDataLoaderService pauses or disables the broker after it
+  has parsed the changeset.
 * Initialize AbstractDataLoaderService._lastKnownChangeSet to 0 so sequence
   numbers are sequential.
 * Throw an exception if null is passed into rawJsonData parameter of the
