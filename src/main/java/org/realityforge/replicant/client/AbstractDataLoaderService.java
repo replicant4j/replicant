@@ -24,7 +24,7 @@ public abstract class AbstractDataLoaderService
   @Inject
   private EntityRepository _repository;
 
-  private int _lastKnownChangeSet = Integer.MIN_VALUE;
+  private int _lastKnownChangeSet;
 
   private final LinkedList<DataLoadAction> _dataLoadActions = new LinkedList<>();
   private DataLoadAction _currentAction;

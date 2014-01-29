@@ -1,4 +1,6 @@
 ## 0.5.4:
+* Initialize AbstractDataLoaderService._lastKnownChangeSet to 0 so sequence
+  numbers are sequential.
 * Throw an exception if null is passed into rawJsonData parameter of the
   AbstractDataLoaderService.enqueueDataLoad method.
 * Fix bug in Packet.isLessThan().

@@ -22,7 +22,7 @@ public class DataLoaderServiceTest
 
     // last known id is negative before initial process
     final int initialChangeSetID = service.getLastKnownChangeSet();
-    assertTrue( initialChangeSetID < 0 );
+    assertEquals( initialChangeSetID, 0 );
 
     final Runnable runnable = mock( Runnable.class );
 
@@ -78,7 +78,7 @@ public class DataLoaderServiceTest
 
     // last known id is negative before initial process
     final int initialChangeSetID = service.getLastKnownChangeSet();
-    assertTrue( initialChangeSetID < 0 );
+    assertEquals( initialChangeSetID, 0 );
 
     ensureEnqueueDataLoads( service, false, null );
 
