@@ -1,4 +1,6 @@
 ## 0.5.4:
+* Import AbstractSubscriptionManager and SubscriptionEntry to help manage
+  client-side representation of subscriptions.
 * Rework AbstractDataLoaderService so that incoming packets are only processed
   in sequence order.
 * Ensure the AbstractDataLoaderService pauses or disables the broker after it
