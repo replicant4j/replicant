@@ -105,7 +105,7 @@ public final class Packet
    */
   private boolean isLessThan( final int seq1, final int seq2 )
   {
-    return ( seq1 - seq2 ) < 0;
+    return seq1 < seq2;
   }
 
   /**

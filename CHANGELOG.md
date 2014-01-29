@@ -1,3 +1,6 @@
+## 0.5.4:
+* Fix bug in Packet.isLessThan().
+
 ## 0.5.3:
 * Move EntityMessageAccumulator to the transport package and re-target it to
   deliver messages to the PacketQueue.

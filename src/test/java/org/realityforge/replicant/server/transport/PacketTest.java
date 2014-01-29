@@ -40,5 +40,6 @@ public class PacketTest
     assertFalse( packet.isPrevious( 0 ) );
     assertFalse( packet.isPrevious( 2 ) );
 
+    assertFalse( packet.isLessThanOrEqual( Integer.MIN_VALUE ) );
   }
 }
