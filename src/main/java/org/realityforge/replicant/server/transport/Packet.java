@@ -116,7 +116,7 @@ public final class Packet
    */
   public final boolean isNext( final int sequence )
   {
-    final short next = (short) ( _sequence + 1 );
+    final int next =  _sequence + 1;
     return next == sequence;
   }
 
@@ -128,8 +128,7 @@ public final class Packet
    */
   public final boolean isPrevious( final int sequence )
   {
-    final short previous = (short) ( _sequence - 1 );
-    return previous == sequence;
+    return _sequence - 1 == sequence;
   }
 
   /**
