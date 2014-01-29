@@ -191,6 +191,7 @@ public abstract class AbstractDataLoaderService
       {
         LOG.log( getLogLevel(), "Finalizing action: " + _currentAction );
       }
+      _lastKnownChangeSet = set.getSequence();
       if ( _currentAction.isBulkLoad() )
       {
         _changeBroker.enable();
@@ -198,7 +199,6 @@ public abstract class AbstractDataLoaderService
       }
       else
       {
-        _lastKnownChangeSet = set.getSequence();
         _changeBroker.resume();
         onIncrementalLoadComplete();
       }

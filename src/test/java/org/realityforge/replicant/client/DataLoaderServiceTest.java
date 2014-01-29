@@ -31,8 +31,7 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 8 );
 
-    // Bulk loads will not change the changeSetID, only incrementals
-    assertEquals( service.getLastKnownChangeSet(), initialChangeSetID );
+    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( changeBroker ).disable();
