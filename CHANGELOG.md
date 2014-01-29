@@ -1,4 +1,6 @@
 ## 0.5.4:
+* Throw an exception if null is passed into rawJsonData parameter of the
+  AbstractDataLoaderService.enqueueDataLoad method.
 * Fix bug in Packet.isLessThan().
 
 ## 0.5.3:

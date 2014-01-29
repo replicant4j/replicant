@@ -3,6 +3,7 @@ package org.realityforge.replicant.client;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -60,10 +61,15 @@ public abstract class AbstractDataLoaderService
 
   protected abstract ChangeSet parseChangeSet( String rawJsonData );
 
+  @SuppressWarnings( "ConstantConditions" )
   protected final void enqueueDataLoad( final boolean isBulkLoad,
-                                        final String rawJsonData,
+                                        @Nonnull final String rawJsonData,
                                         @Nullable final Runnable runnable )
   {
+    if( null == rawJsonData )
+    {
+      throw new IllegalStateException( "null == rawJsonData" );
+    }
     _dataLoadActions.add( new DataLoadAction( isBulkLoad, rawJsonData, runnable ) );
     scheduleDataLoad();
   }
