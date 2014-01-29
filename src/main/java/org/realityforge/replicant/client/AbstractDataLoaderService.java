@@ -195,20 +195,16 @@ public abstract class AbstractDataLoaderService
       {
         _changeBroker.enable();
         onBulkLoadComplete();
-        if ( shouldValidateOnLoad() )
-        {
-          validateRepository();
-        }
       }
       else
       {
         _lastKnownChangeSet = set.getSequence();
         _changeBroker.resume();
         onIncrementalLoadComplete();
-        if ( shouldValidateOnLoad() )
-        {
-          validateRepository();
-        }
+      }
+      if ( shouldValidateOnLoad() )
+      {
+        validateRepository();
       }
       return true;
     }
