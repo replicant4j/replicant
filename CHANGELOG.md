@@ -1,4 +1,6 @@
 ## 0.5.4:
+* Rework AbstractDataLoaderService so that incoming packets are only processed
+  in sequence order.
 * Ensure the AbstractDataLoaderService pauses or disables the broker after it
   has parsed the changeset.
 * Initialize AbstractDataLoaderService._lastKnownChangeSet to 0 so sequence

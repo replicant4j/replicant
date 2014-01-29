@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
  * A simple class encapsulating the process of loading data from a json change set.
  */
 final class DataLoadAction
+  implements Comparable<DataLoadAction>
 {
   private final boolean _bulkLoad;
   /**
@@ -186,5 +187,15 @@ final class DataLoadAction
            ",EntitiesToLink.size=" + ( _entitiesToLink != null ? _entitiesToLink.size() : null) +
            ",EntityLinksCalculated=" + _entityLinksCalculated +
            "]";
+  }
+
+  @Override
+  public int compareTo( final DataLoadAction other )
+  {
+    final ChangeSet changeSet1 = getChangeSet();
+    assert null != changeSet1;
+    final ChangeSet changeSet2 = other.getChangeSet();
+    assert null != changeSet2;
+    return changeSet1.getSequence() - changeSet2.getSequence();
   }
 }

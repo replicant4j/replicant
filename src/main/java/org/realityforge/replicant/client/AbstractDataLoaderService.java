@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +27,15 @@ public abstract class AbstractDataLoaderService
 
   private int _lastKnownChangeSet;
 
-  private final LinkedList<DataLoadAction> _dataLoadActions = new LinkedList<>();
+  /**
+   * The set of data load actions that still need to have the json parsed.
+   */
+  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<>();
+  /**
+   * The set of data load actions that have their json parsed. They are inserted into
+   * this list according to their sequence.
+   */
+  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<>();
   private DataLoadAction _currentAction;
   private int _updateCount;
   private int _removeCount;
@@ -70,13 +79,30 @@ public abstract class AbstractDataLoaderService
     {
       throw new IllegalStateException( "null == rawJsonData" );
     }
-    _dataLoadActions.add( new DataLoadAction( isBulkLoad, rawJsonData, runnable ) );
+    _pendingActions.add( new DataLoadAction( isBulkLoad, rawJsonData, runnable ) );
     scheduleDataLoad();
   }
 
   protected final boolean progressDataLoad()
   {
-    if ( null == _currentAction && _dataLoadActions.isEmpty() )
+    //Step: Retrieve the action from the parsed queue if it is the next in the sequence
+    if ( null == _currentAction && !_parsedActions.isEmpty() )
+    {
+      final ChangeSet changeSet = _parsedActions.get( 0 ).getChangeSet();
+      assert null != changeSet;
+      if ( _lastKnownChangeSet + 1 == changeSet.getSequence() )
+      {
+        _currentAction = _parsedActions.remove();
+        if ( LOG.isLoggable( getLogLevel() ) )
+        {
+          LOG.log( getLogLevel(), "Parsed Action Selected: " + _currentAction );
+        }
+        return true;
+      }
+    }
+
+    // Abort if there is no pending data load actions to take
+    if ( null == _currentAction && _pendingActions.isEmpty() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
@@ -85,13 +111,13 @@ public abstract class AbstractDataLoaderService
       return false;
     }
 
-    //Step: Retrieve the action from the queue and notify the broker
+    //Step: Retrieve the action from the un-parsed queue
     if ( null == _currentAction )
     {
-      _currentAction = _dataLoadActions.remove();
+      _currentAction = _pendingActions.remove();
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Action Selected: " + _currentAction );
+        LOG.log( getLogLevel(), "Un-parsed Action Selected: " + _currentAction );
       }
       return true;
     }
@@ -106,6 +132,9 @@ public abstract class AbstractDataLoaderService
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       _currentAction.setChangeSet( changeSet );
+      _parsedActions.add( _currentAction );
+      Collections.sort( _parsedActions );
+      _currentAction = null;
       return true;
     }
 

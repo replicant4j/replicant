@@ -1,6 +1,9 @@
 package org.realityforge.replicant.client;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.LinkedList;
+import org.mockito.InOrder;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -20,16 +23,14 @@ public class DataLoaderServiceTest
 
     when( changeMapper.applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
-    // last known id is negative before initial process
-    final int initialChangeSetID = service.getLastKnownChangeSet();
-    assertEquals( initialChangeSetID, 0 );
+    assertEquals( service.getLastKnownChangeSet(), 0 );
 
     final Runnable runnable = mock( Runnable.class );
 
     ensureEnqueueDataLoads( service, true, runnable );
 
     final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 8 );
+    assertEquals( stepCount, 9 );
 
     assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
 
@@ -75,9 +76,7 @@ public class DataLoaderServiceTest
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
     final TestDataLoadService service = newService( changeSet, mock( ChangeMapper.class ), changeBroker, true );
 
-    // last known id is negative before initial process
-    final int initialChangeSetID = service.getLastKnownChangeSet();
-    assertEquals( initialChangeSetID, 0 );
+    assertEquals( service.getLastKnownChangeSet(), 0 );
 
     ensureEnqueueDataLoads( service, false, null );
 
@@ -100,7 +99,11 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet = new TestChangeSet( 1, new Change[]{ new TestChange( true ) } );
 
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
-    final TestDataLoadService service = newService( changeSet, mock( ChangeMapper.class ), changeBroker, false );
+    final TestDataLoadService service =
+      newService( new TestChangeSet[]{ changeSet, changeSet },
+                  mock( ChangeMapper.class ),
+                  changeBroker,
+                  false );
 
     ensureEnqueueDataLoads( service, false, null );
     service.enqueueDataLoad( true, "jsonData", null );
@@ -110,9 +113,58 @@ public class DataLoaderServiceTest
     verify( service.getRepository(), never() ).validate();
   }
 
+  @Test
+  public void verifyDataLoader_sequenceFollowed()
+    throws Exception
+  {
+    final Linkable entity = mock( Linkable.class );
+    final TestChangeSet changeSet1 = new TestChangeSet( 1, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet2 = new TestChangeSet( 2, new Change[]{ new TestChange( true ) } );
+    final ChangeMapper changeMapper = mock( ChangeMapper.class );
+    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
+
+    final TestDataLoadService service =
+      newService( new TestChangeSet[]{ changeSet2, changeSet1 },
+                  changeMapper,
+                  changeBroker,
+                  true );
+    when( changeMapper.applyChange( changeSet1.getChange( 0 ) ) ).thenReturn( entity );
+    when( changeMapper.applyChange( changeSet2.getChange( 0 ) ) ).thenReturn( entity );
+
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+
+    final Runnable runnable1 = mock( Runnable.class );
+    final Runnable runnable2 = mock( Runnable.class );
+
+    ensureEnqueueDataLoads( service, true, runnable1 );
+    final int stepCount = progressWorkTillDone( service );
+    assertEquals( stepCount, 3 );
+
+    //No progress should have been made other than parsing packet as out of sequence
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+    verifyPostActionNotRun( runnable1 );
+
+    service.enqueueDataLoad( true, "jsonData", runnable2 );
+    final int stepCount2 = progressWorkTillDone( service );
+    assertEquals( stepCount2, 15 );
+
+    //Progress should have been made as all sequence appears
+    assertEquals( service.getLastKnownChangeSet(), 2 );
+    final InOrder inOrder = inOrder( runnable1, runnable2 );
+    inOrder.verify( runnable2 ).run();
+    inOrder.verify( runnable1 ).run();
+    verifyPostActionRun( runnable1 );
+    verifyPostActionRun( runnable2 );
+  }
+
   private void verifyPostActionRun( final Runnable runnable )
   {
     verify( runnable ).run();
+  }
+
+  private void verifyPostActionNotRun( final Runnable runnable )
+  {
+    verify( runnable, never() ).run();
   }
 
   private void ensureEnqueueDataLoads( final TestDataLoadService service,
@@ -148,7 +200,27 @@ public class DataLoaderServiceTest
                                           final boolean validateOnLoad )
     throws NoSuchFieldException, IllegalAccessException
   {
-    final TestDataLoadService service = new TestDataLoadService( changeSet, validateOnLoad );
+    final TestDataLoadService service = new TestDataLoadService( validateOnLoad, changeSet );
+    configureService( changeMapper, changeBroker, service );
+    return service;
+  }
+
+  private TestDataLoadService newService( final TestChangeSet[] changeSets,
+                                          final ChangeMapper changeMapper,
+                                          final EntityChangeBroker changeBroker,
+                                          final boolean validateOnLoad )
+    throws NoSuchFieldException, IllegalAccessException
+  {
+    final TestDataLoadService service = new TestDataLoadService( validateOnLoad, changeSets );
+    configureService( changeMapper, changeBroker, service );
+    return service;
+  }
+
+  private void configureService( final ChangeMapper changeMapper,
+                                 final EntityChangeBroker changeBroker,
+                                 final TestDataLoadService service )
+    throws NoSuchFieldException, IllegalAccessException
+  {
     final Field field1 = AbstractDataLoaderService.class.getDeclaredField( "_changeMapper" );
     field1.setAccessible( true );
     field1.set( service, changeMapper );
@@ -160,7 +232,6 @@ public class DataLoaderServiceTest
     field3.set( service, mock( EntityRepository.class ) );
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );
-    return service;
   }
 
   static final class TestDataLoadService
@@ -170,11 +241,11 @@ public class DataLoaderServiceTest
     private boolean _bulkLoadCompleteCalled;
     private boolean _incrementalLoadCompleteCalled;
     private boolean _scheduleDataLoadCalled;
-    private ChangeSet _changeSet;
+    private LinkedList<ChangeSet> _changeSets;
 
-    TestDataLoadService( final ChangeSet changeSet, final boolean validateOnLoad )
+    TestDataLoadService( final boolean validateOnLoad, final ChangeSet... changeSets )
     {
-      _changeSet = changeSet;
+      _changeSets = new LinkedList<>( Arrays.asList( changeSets ) );
       _validateOnLoad = validateOnLoad;
     }
 
@@ -220,7 +291,7 @@ public class DataLoaderServiceTest
     @Override
     protected ChangeSet parseChangeSet( final String rawJsonData )
     {
-      return _changeSet;
+      return _changeSets.pop();
     }
   }
 }
