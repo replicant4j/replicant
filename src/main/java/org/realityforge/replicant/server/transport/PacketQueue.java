@@ -28,7 +28,7 @@ public class PacketQueue
   /**
    * @return the number of packets in queue.
    */
-  public int size()
+  public synchronized int size()
   {
     return _packets.size();
   }
@@ -38,13 +38,13 @@ public class PacketQueue
    *
    * @param sequence the sequence.
    */
-  public void ack( final int sequence )
+  public synchronized void ack( final int sequence )
   {
     removePacketsLessThanOrEqual( sequence );
     _lastSequenceAcked = sequence;
   }
 
-  public Packet nextPacketToProcess()
+  public synchronized Packet nextPacketToProcess()
   {
     if ( 0 == _packets.size() )
     {
@@ -64,7 +64,7 @@ public class PacketQueue
     }
   }
 
-  public int getLastSequenceAcked()
+  public synchronized int getLastSequenceAcked()
   {
     return _lastSequenceAcked;
   }
@@ -74,7 +74,7 @@ public class PacketQueue
    *
    * @param changes the changes to create packet from.
    */
-  public void addPacket( @Nonnull final List<EntityMessage> changes )
+  public synchronized void addPacket( @Nonnull final List<EntityMessage> changes )
   {
     final Packet packet = new Packet( _nextSequence++, changes );
     if ( !_packets.contains( packet ) )
@@ -114,7 +114,7 @@ public class PacketQueue
    * @param sequence the sequence.
    * @return the packet with sequence or null if no such packet.
    */
-  public Packet getPacket( final int sequence )
+  public synchronized Packet getPacket( final int sequence )
   {
     for ( final Packet packet : _packets )
     {

@@ -1,4 +1,5 @@
 ## 0.5.4:
+* Add synchronized modifier to several methods of PacketQueue.
 * Import AbstractSubscriptionManager and SubscriptionEntry to help manage
   client-side representation of subscriptions.
 * Rework AbstractDataLoaderService so that incoming packets are only processed
