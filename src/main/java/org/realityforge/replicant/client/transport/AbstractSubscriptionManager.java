@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -14,8 +15,28 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
 {
   //Graph => InstanceID
   private final HashMap<T, Map<Object, SubscriptionEntry<T>>> _instanceSubscriptions = new HashMap<>();
+  private final Map<T, Map<Object, SubscriptionEntry<T>>> _roInstanceSubscriptions =
+    Collections.unmodifiableMap( _instanceSubscriptions );
+
   //Graph => Type
   private final HashMap<T, SubscriptionEntry<T>> _typeSubscriptions = new HashMap<>();
+  private final Map<T, SubscriptionEntry<T>> _roTypeSubscriptions = Collections.unmodifiableMap( _typeSubscriptions );
+
+  /**
+   * @return read-only map of instance subscriptions.
+   */
+  protected final Map<T, Map<Object, SubscriptionEntry<T>>> getInstanceSubscriptions()
+  {
+    return _roInstanceSubscriptions;
+  }
+
+  /**
+   * @return read-only map of type subscriptions.
+   */
+  protected final Map<T, SubscriptionEntry<T>> getTypeSubscriptions()
+  {
+    return _roTypeSubscriptions;
+  }
 
   /**
    * Subscribe to graph containing types.
@@ -43,7 +64,7 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
    * Subscribe to graph rooted at an instance.
    *
    * @param graph the graph to subscribe to.
-   * @param id the id of the root object.
+   * @param id    the id of the root object.
    * @return the subscription entry if this was the first subscription for graph, null otherwise.
    */
   @Nullable
@@ -92,7 +113,7 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
    * Unsubscribe from graph rooted at an instance.
    *
    * @param graph the graph to unsubscribe from.
-   * @param id the id of the root object.
+   * @param id    the id of the root object.
    * @return the subscription entry if subscribed, null otherwise.
    */
   protected final SubscriptionEntry<T> unsubscribeFromInstanceGraph( @Nonnull final T graph, @Nonnull final Object id )

@@ -19,6 +19,9 @@ public class SubscriptionManagerTest
     assertEquals( e1.isPresent(), false );
     assertEquals( e1.isRegistered(), true );
 
+    assertNotNull( sm.getTypeSubscriptions().get( TestGraph.A ) );
+    assertNull( sm.getTypeSubscriptions().get( TestGraph.B ) );
+
     // Already subscribed so don't subscribe
     final SubscriptionEntry<TestGraph> e2 = sm.subscribeToTypeGraph( TestGraph.A );
     assertNull( e2 );
@@ -46,6 +49,9 @@ public class SubscriptionManagerTest
     assertEquals( e1.isPresent(), false );
     assertEquals( e1.isRegistered(), true );
 
+    assertNotNull( sm.getInstanceSubscriptions().get( TestGraph.A ).get( 1 ) );
+    assertNull( sm.getInstanceSubscriptions().get( TestGraph.A ).get( 2 ) );
+
     // Already subscribed so don't subscribe
     final SubscriptionEntry<TestGraph> e2 = sm.subscribeToInstanceGraph( TestGraph.A, 1 );
     assertNull( e2 );
@@ -62,7 +68,7 @@ public class SubscriptionManagerTest
 
   static enum TestGraph
   {
-    A
+    A, B
   }
 
   static class TestSubscriptionManager
