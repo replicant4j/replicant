@@ -14,10 +14,10 @@ public class PacketQueueTest
     assertEquals( queue.getLastSequenceAcked(), 0 );
     assertEquals( queue.size(), 0 );
 
-    queue.addPacket( newChanges() );
-    queue.addPacket( newChanges() );
-    queue.addPacket( newChanges() );
-    queue.addPacket( newChanges() );
+    queue.addPacket( null, newChanges() );
+    queue.addPacket( null, newChanges() );
+    queue.addPacket( null, newChanges() );
+    queue.addPacket( null, newChanges() );
 
     assertEquals( queue.size(), 4 );
     assertEquals( queue.nextPacketToProcess().getSequence(), 1 );

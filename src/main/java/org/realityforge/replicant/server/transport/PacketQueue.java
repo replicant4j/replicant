@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.server.EntityMessage;
 
 /**
@@ -73,10 +74,12 @@ public class PacketQueue
    * Add packet to queue.
    *
    * @param changes the changes to create packet from.
+   * @param jobID the opaque identifier indicating the job that caused the changes if the owning session initiated the changes.
    */
-  public synchronized void addPacket( @Nonnull final List<EntityMessage> changes )
+  public synchronized void addPacket( @Nullable final String jobID,
+                                      @Nonnull final List<EntityMessage> changes )
   {
-    final Packet packet = new Packet( _nextSequence++, changes );
+    final Packet packet = new Packet( _nextSequence++, jobID, changes );
     if ( !_packets.contains( packet ) )
     {
       _packets.add( packet );

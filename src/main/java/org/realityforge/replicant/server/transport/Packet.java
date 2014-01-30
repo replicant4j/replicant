@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.transport;
 
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.server.EntityMessage;
 
 /**
@@ -11,12 +12,17 @@ public final class Packet
   implements Comparable
 {
   private final int _sequence;
+  @Nullable
+  private final String _jobID;
   @Nonnull
   private final List<EntityMessage> _changes;
 
-  public Packet( final int sequence, @Nonnull final List<EntityMessage> changes )
+  public Packet( final int sequence,
+                 @Nullable final String jobID,
+                 @Nonnull final List<EntityMessage> changes )
   {
     _sequence = sequence;
+    _jobID = jobID;
     _changes = changes;
   }
 
@@ -25,12 +31,17 @@ public final class Packet
     return _sequence;
   }
 
+  @Nullable
+  public String getJobID()
+  {
+    return _jobID;
+  }
+
   @Nonnull
   public List<EntityMessage> getChanges()
   {
     return _changes;
   }
-
 
   /**
    * {@inheritDoc}
@@ -116,7 +127,7 @@ public final class Packet
    */
   public final boolean isNext( final int sequence )
   {
-    final int next =  _sequence + 1;
+    final int next = _sequence + 1;
     return next == sequence;
   }
 
