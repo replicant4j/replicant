@@ -1,4 +1,5 @@
 ## 0.5.5:
+* Introduce ReplicantSession an base class from which sessions should extend.
 * Rework AbstractReplicationInterceptor so that it retrieves the session and job
   context information from the ReplicantContextHolder and passes it along to the
   EntityMessageEndpoint.

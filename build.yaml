@@ -27,3 +27,5 @@ artifacts:
 
   # JEE7 json library
   javax_json: org.glassfish:javax.json:jar:1.0.3
+
+  simple_session_filter: org.realityforge.ssf:simple-session-filter:jar:0.2
