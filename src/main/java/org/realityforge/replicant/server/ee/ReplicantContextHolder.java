@@ -37,6 +37,20 @@ public final class ReplicantContextHolder
   }
 
   /**
+   * Remove some context data for a particular key.
+   *
+   * @param key  the key.
+   */
+  public static void remove( @Nonnull final String key )
+  {
+    final Map<String, Serializable> map = c_context.get();
+    if ( null != map )
+    {
+      map.remove( key );
+    }
+  }
+
+  /**
    * Retrieve context data specified for key.
    *
    * @param key the key.
