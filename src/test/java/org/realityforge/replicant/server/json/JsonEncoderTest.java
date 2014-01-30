@@ -45,14 +45,14 @@ public final class JsonEncoderTest
     final ArrayList<EntityMessage> messages = new ArrayList<>();
     messages.add( message );
     final int lastChangeSetID = 1;
-    final String jobID = "j1";
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, jobID, messages );
+    final String requestID = "j1";
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, requestID, messages );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
-    assertEquals( changeSet.getString( TransportConstants.JOB_ID ), jobID );
+    assertEquals( changeSet.getString( TransportConstants.REQUEST_ID ), requestID );
 
     final JSONObject object = changeSet.getJSONArray( TransportConstants.CHANGES ).getJSONObject( 0 );
 

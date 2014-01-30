@@ -14,9 +14,9 @@ public interface ChangeSet
   int getSequence();
 
   /**
-   * @return the id of the job that generated the changes. Null if not the originating session.
+   * @return the id of the request that generated the changes. Null if not the originating session.
    */
-  String getJobID();
+  String getRequestID();
 
   /**
    * @return the number of changes in the set. Must be &gt; 0.

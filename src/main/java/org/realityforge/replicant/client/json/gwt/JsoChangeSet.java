@@ -22,8 +22,8 @@ public final class JsoChangeSet
   }-*/;
 
   @Override
-  public final native String getJobID()/*-{
-    return this.job_id;
+  public final native String getRequestID()/*-{
+    return this.request_id;
   }-*/;
 
   @Override

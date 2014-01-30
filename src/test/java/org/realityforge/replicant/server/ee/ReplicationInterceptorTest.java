@@ -65,7 +65,7 @@ public class ReplicationInterceptorTest
 
     when( em.isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( ReplicantContext.JOB_ID_KEY, "r1" );
+    ReplicantContextHolder.put( ReplicantContext.REQUEST_ID_KEY, "r1" );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -75,7 +75,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
     assertEquals( interceptor._sessionID, "s1" );
-    assertEquals( interceptor._jobID, "r1" );
+    assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
   }
@@ -102,7 +102,7 @@ public class ReplicationInterceptorTest
         innerInterceptor.businessIntercept( innerContext );
         assertTrue( innerContext.isInvoked() );
         assertNull( interceptor._sessionID );
-        assertNull( interceptor._jobID );
+        assertNull( interceptor._requestID );
         assertNull( innerInterceptor._messages );
         return super.proceed();
       }
@@ -110,7 +110,7 @@ public class ReplicationInterceptorTest
 
     when( em.isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( ReplicantContext.JOB_ID_KEY, "r1" );
+    ReplicantContextHolder.put( ReplicantContext.REQUEST_ID_KEY, "r1" );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -120,7 +120,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
     assertEquals( interceptor._sessionID, "s1" );
-    assertEquals( interceptor._jobID, "r1" );
+    assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
   }
@@ -157,7 +157,7 @@ public class ReplicationInterceptorTest
 
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionID );
-    assertNull( interceptor._jobID );
+    assertNull( interceptor._requestID );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
   }
@@ -187,7 +187,7 @@ public class ReplicationInterceptorTest
 
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionID );
-    assertNull( interceptor._jobID );
+    assertNull( interceptor._requestID );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
   }
@@ -210,7 +210,7 @@ public class ReplicationInterceptorTest
 
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionID );
-    assertNull( interceptor._jobID );
+    assertNull( interceptor._requestID );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
   }
@@ -239,7 +239,7 @@ public class ReplicationInterceptorTest
     implements EntityMessageEndpoint
   {
     String _sessionID;
-    String _jobID;
+    String _requestID;
     Collection<EntityMessage> _messages;
     EntityManager _entityManager;
 
@@ -256,7 +256,7 @@ public class ReplicationInterceptorTest
 
     @Override
     public void saveEntityMessages( @Nullable final String sessionID,
-                                    @Nullable final String jobID,
+                                    @Nullable final String requestID,
                                     @Nonnull final Collection<EntityMessage> messages )
     {
       if ( null != _messages )
@@ -264,7 +264,7 @@ public class ReplicationInterceptorTest
         fail( "saveEntityMessages called multiple times" );
       }
       _sessionID = sessionID;
-      _jobID = jobID;
+      _requestID = requestID;
       _messages = messages;
     }
 

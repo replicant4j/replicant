@@ -6,13 +6,13 @@ final class TestChangeSet
   implements ChangeSet
 {
   private final int _sequence;
-  private final String _jobID;
+  private final String _requestID;
   private final Change[] _changes;
 
-  TestChangeSet( final int sequence, @Nullable final String jobID, final Change[] changes )
+  TestChangeSet( final int sequence, @Nullable final String requestID, final Change[] changes )
   {
     _sequence = sequence;
-    _jobID = jobID;
+    _requestID = requestID;
     _changes = changes;
   }
 
@@ -23,9 +23,9 @@ final class TestChangeSet
   }
 
   @Override
-  public String getJobID()
+  public String getRequestID()
   {
-    return _jobID;
+    return _requestID;
   }
 
   @Override

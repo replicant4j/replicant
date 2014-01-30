@@ -1,10 +1,10 @@
 ## 0.5.5:
 * Cache the JsonGeneratorFactory in JsonEncoder for performance reasons.
-* Rework the transport system so that each packet can record the job id which
+* Rework the transport system so that each packet can record the request id which
   generated the change set. This is only done when the packet is for the session
   which initiated the job.
 * Introduce ReplicantSession an base class from which sessions should extend.
-* Rework AbstractReplicationInterceptor so that it retrieves the session and job
+* Rework AbstractReplicationInterceptor so that it retrieves the session and request
   context information from the ReplicantContextHolder and passes it along to the
   EntityMessageEndpoint.
 * Introduce ReplicantContextHolder to ease passing of context information between

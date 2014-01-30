@@ -13,16 +13,16 @@ public final class Packet
 {
   private final int _sequence;
   @Nullable
-  private final String _jobID;
+  private final String _requestID;
   @Nonnull
   private final List<EntityMessage> _changes;
 
   public Packet( final int sequence,
-                 @Nullable final String jobID,
+                 @Nullable final String requestID,
                  @Nonnull final List<EntityMessage> changes )
   {
     _sequence = sequence;
-    _jobID = jobID;
+    _requestID = requestID;
     _changes = changes;
   }
 
@@ -32,9 +32,9 @@ public final class Packet
   }
 
   @Nullable
-  public String getJobID()
+  public String getRequestID()
   {
-    return _jobID;
+    return _requestID;
   }
 
   @Nonnull

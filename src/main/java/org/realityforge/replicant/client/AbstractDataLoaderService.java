@@ -259,7 +259,7 @@ public abstract class AbstractDataLoaderService
     {
       runnable.run();
     }
-    onDataLoadComplete( _currentAction.isBulkLoad(), set.getJobID() );
+    onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );
     _currentAction = null;
     return true;
   }
@@ -268,9 +268,9 @@ public abstract class AbstractDataLoaderService
    * Invoked when a change set has been completely processed.
    *
    * @param bulkLoad true if the change set was processed as a bulk load, false otherwise.
-   * @param jobID the local job id that initiated the changes.
+   * @param requestID the local request id that initiated the changes.
    */
-  protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String jobID )
+  protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String requestID )
   {
   }
 

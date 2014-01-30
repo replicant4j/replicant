@@ -74,12 +74,12 @@ public class PacketQueue
    * Add packet to queue.
    *
    * @param changes the changes to create packet from.
-   * @param jobID the opaque identifier indicating the job that caused the changes if the owning session initiated the changes.
+   * @param requestID the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
    */
-  public synchronized void addPacket( @Nullable final String jobID,
+  public synchronized void addPacket( @Nullable final String requestID,
                                       @Nonnull final List<EntityMessage> changes )
   {
-    final Packet packet = new Packet( _nextSequence++, jobID, changes );
+    final Packet packet = new Packet( _nextSequence++, requestID, changes );
     if ( !_packets.contains( packet ) )
     {
       _packets.add( packet );

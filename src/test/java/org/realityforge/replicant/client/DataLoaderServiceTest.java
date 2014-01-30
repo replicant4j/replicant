@@ -43,7 +43,7 @@ public class DataLoaderServiceTest
 
     assertTrue( service.isDataLoadComplete() );
     assertTrue( service.isBulkLoad() );
-    assertEquals( service.getJobID(), "j1" );
+    assertEquals( service.getRequestID(), "j1" );
 
     verify( changeMapper ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
@@ -249,7 +249,7 @@ public class DataLoaderServiceTest
     private LinkedList<ChangeSet> _changeSets;
     private boolean _dataLoadComplete;
     private boolean _bulkLoad;
-    private String _jobID;
+    private String _requestID;
 
     TestDataLoadService( final boolean validateOnLoad, final ChangeSet... changeSets )
     {
@@ -273,11 +273,11 @@ public class DataLoaderServiceTest
     }
 
     @Override
-    protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String jobID )
+    protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String requestID )
     {
       _dataLoadComplete = true;
       _bulkLoad = bulkLoad;
-      _jobID = jobID;
+      _requestID = requestID;
     }
 
     public boolean isDataLoadComplete()
@@ -290,9 +290,9 @@ public class DataLoaderServiceTest
       return _bulkLoad;
     }
 
-    public String getJobID()
+    public String getRequestID()
     {
-      return _jobID;
+      return _requestID;
     }
 
     @Override

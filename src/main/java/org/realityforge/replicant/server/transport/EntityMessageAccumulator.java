@@ -31,14 +31,14 @@ public final class EntityMessageAccumulator
    * Complete the collection of messages and forward them to the clients.
    *
    * @param sessionID the session that initiated the changes.
-   * @param jobID the opaque identifier indicating the job that caused the changes.
+   * @param requestID the opaque identifier indicating the request that caused the changes.
    */
-  public void complete( @Nullable final String sessionID, @Nullable final String jobID )
+  public void complete( @Nullable final String sessionID, @Nullable final String requestID )
   {
     for ( final Entry<ReplicantSession, LinkedList<EntityMessage>> entry : _changeSets.entrySet() )
     {
       final ReplicantSession session = entry.getKey();
-      session.getQueue().addPacket( session.getSessionID().equals( sessionID ) ? jobID : null, entry.getValue() );
+      session.getQueue().addPacket( session.getSessionID().equals( sessionID ) ? requestID : null, entry.getValue() );
     }
     _changeSets.clear();
   }

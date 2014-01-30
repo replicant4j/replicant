@@ -37,14 +37,14 @@ public abstract class AbstractReplicationInterceptor
       {
         _registry.putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
       }
-      final String jobID = (String) ReplicantContextHolder.get( ReplicantContext.JOB_ID_KEY );
-      if ( null != jobID )
+      final String requestID = (String) ReplicantContextHolder.get( ReplicantContext.REQUEST_ID_KEY );
+      if ( null != requestID )
       {
-        _registry.putResource( ReplicantContext.JOB_ID_KEY, jobID );
+        _registry.putResource( ReplicantContext.REQUEST_ID_KEY, requestID );
       }
     }
     final String sessionID = (String) _registry.getResource( ReplicantContext.SESSION_ID_KEY );
-    final String jobID = (String) _registry.getResource( ReplicantContext.JOB_ID_KEY );
+    final String requestID = (String) _registry.getResource( ReplicantContext.REQUEST_ID_KEY );
     _registry.putResource( REPLICATION_TX_DEPTH, ( null == depth ? 1 : depth + 1 ) );
     try
     {
@@ -64,7 +64,7 @@ public abstract class AbstractReplicationInterceptor
             final Collection<EntityMessage> messages = messageSet.getEntityMessages();
             if( messages.size() > 0 )
             {
-              getEndpoint().saveEntityMessages( sessionID, jobID, messages );
+              getEndpoint().saveEntityMessages( sessionID, requestID, messages );
             }
           }
         }

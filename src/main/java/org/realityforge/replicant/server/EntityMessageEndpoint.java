@@ -12,6 +12,6 @@ public interface EntityMessageEndpoint
    * @param messages the messages.
    */
   void saveEntityMessages( @Nullable String sessionID,
-                           @Nullable String jobID,
+                           @Nullable String requestID,
                            @Nonnull Collection<EntityMessage> messages );
 }

@@ -34,14 +34,14 @@ public class EntityMessageAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     assertEquals( packet.getChanges().get( 0 ).getID(), id );
-    assertEquals( packet.getJobID(), "j1" );
+    assertEquals( packet.getRequestID(), "j1" );
 
     accumulator.complete( null, null );
     assertEquals( c.getQueue().size(), 1 );
   }
 
   @Test
-  public void basicOperation_whereJobIDDifferent()
+  public void basicOperation_whereRequestIDDifferent()
   {
     final TestSession c = new TestSession( "s1" );
     final EntityMessageAccumulator accumulator = new EntityMessageAccumulator();
@@ -52,6 +52,6 @@ public class EntityMessageAccumulatorTest
     accumulator.complete( "s2", "j1" );
 
     assertEquals( c.getQueue().size(), 1 );
-    assertNull( c.getQueue().nextPacketToProcess().getJobID() );
+    assertNull( c.getQueue().nextPacketToProcess().getRequestID() );
   }
 }

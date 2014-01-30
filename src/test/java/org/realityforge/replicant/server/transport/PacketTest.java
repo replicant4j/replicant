@@ -15,7 +15,7 @@ public class PacketTest
     final Packet other = new Packet( 3, null, changes );
 
     assertEquals( packet.getSequence(), 2 );
-    assertEquals( packet.getJobID(), "r1" );
+    assertEquals( packet.getRequestID(), "r1" );
     assertEquals( packet.getChanges(), changes );
 
     assertTrue( packet.equals( packet ) );
