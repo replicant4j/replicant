@@ -57,6 +57,7 @@ public abstract class AbstractReplicationInterceptor
       _registry.putResource( REPLICATION_TX_DEPTH, depth );
       if( null == depth )
       {
+        boolean requestComplete = true;
         if( getEntityManager().isOpen() )
         {
           getEntityManager().flush();
@@ -66,10 +67,11 @@ public abstract class AbstractReplicationInterceptor
             final Collection<EntityMessage> messages = messageSet.getEntityMessages();
             if( messages.size() > 0 )
             {
-              getEndpoint().saveEntityMessages( sessionID, requestID, messages );
+              requestComplete = !getEndpoint().saveEntityMessages( sessionID, requestID, messages );
             }
           }
         }
+        ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, requestComplete ? "1" : "0" );
       }
     }
   }

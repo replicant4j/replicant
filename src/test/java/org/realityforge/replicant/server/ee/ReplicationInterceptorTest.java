@@ -57,6 +57,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
     assertNull( interceptor._messages );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "1" );
   }
 
   @Test
@@ -85,6 +86,26 @@ public class ReplicationInterceptorTest
     assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
+  }
+
+  @Test
+  public void ensureChanges_willBeCompleteIfNotRoutedToInitiatingSession()
+    throws Exception
+  {
+    final TestInvocationContext context = new TestInvocationContext();
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+    final EntityManager em = mock( EntityManager.class );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry, em, false );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
+
+    when( em.isOpen() ).thenReturn( true );
+
+    interceptor.businessIntercept( context );
+
+    assertTrue( context.isInvoked() );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "1" );
   }
 
   @Test
@@ -111,6 +132,7 @@ public class ReplicationInterceptorTest
         assertNull( interceptor._sessionID );
         assertNull( interceptor._requestID );
         assertNull( innerInterceptor._messages );
+        assertNull( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ) );
         return super.proceed();
       }
     };
@@ -129,6 +151,7 @@ public class ReplicationInterceptorTest
     assertEquals( interceptor._sessionID, "s1" );
     assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
     assertTrue( interceptor._messages.contains( message ) );
   }
 
@@ -167,6 +190,7 @@ public class ReplicationInterceptorTest
     assertNull( interceptor._requestID );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test
@@ -197,6 +221,7 @@ public class ReplicationInterceptorTest
     assertNull( interceptor._requestID );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "1" );
   }
 
   @Test
@@ -219,6 +244,7 @@ public class ReplicationInterceptorTest
     assertNull( interceptor._sessionID );
     assertNull( interceptor._requestID );
     assertNull( interceptor._messages );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "1" );
     assertEquals( result, TestInvocationContext.RESULT );
   }
 
@@ -226,7 +252,15 @@ public class ReplicationInterceptorTest
                                                         final EntityManager entityManager )
     throws Exception
   {
-    final TestReplicationInterceptor interceptor = new TestReplicationInterceptor(entityManager);
+    return createInterceptor( registry, entityManager, true );
+  }
+
+  private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry,
+                                                        final EntityManager entityManager,
+                                                        final boolean routeToSession )
+    throws Exception
+  {
+    final TestReplicationInterceptor interceptor = new TestReplicationInterceptor( entityManager, routeToSession );
     setField( interceptor, "_registry", registry );
     return interceptor;
   }
@@ -249,10 +283,12 @@ public class ReplicationInterceptorTest
     String _requestID;
     Collection<EntityMessage> _messages;
     EntityManager _entityManager;
+    private final boolean _routeToSession;
 
-    TestReplicationInterceptor( final EntityManager entityManager )
+    TestReplicationInterceptor( final EntityManager entityManager, final boolean routeToSession )
     {
       _entityManager = entityManager;
+      _routeToSession = routeToSession;
     }
 
     @Override
@@ -262,9 +298,9 @@ public class ReplicationInterceptorTest
     }
 
     @Override
-    public void saveEntityMessages( @Nullable final String sessionID,
-                                    @Nullable final String requestID,
-                                    @Nonnull final Collection<EntityMessage> messages )
+    public boolean saveEntityMessages( @Nullable final String sessionID,
+                                       @Nullable final String requestID,
+                                       @Nonnull final Collection<EntityMessage> messages )
     {
       if ( null != _messages )
       {
@@ -273,6 +309,7 @@ public class ReplicationInterceptorTest
       _sessionID = sessionID;
       _requestID = requestID;
       _messages = messages;
+      return _routeToSession;
     }
 
     @Override

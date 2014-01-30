@@ -10,8 +10,9 @@ public interface EntityMessageEndpoint
    * Queue the specified messages to be saved as a change set.
    *
    * @param messages the messages.
+   * @return true if any messages were routed to the initiating session.
    */
-  void saveEntityMessages( @Nullable String sessionID,
-                           @Nullable String requestID,
-                           @Nonnull Collection<EntityMessage> messages );
+  boolean saveEntityMessages( @Nullable String sessionID,
+                              @Nullable String requestID,
+                              @Nonnull Collection<EntityMessage> messages );
 }

@@ -6,7 +6,8 @@
 * Introduce ReplicantSession an base class from which sessions should extend.
 * Rework AbstractReplicationInterceptor so that it retrieves the session and request
   context information from the ReplicantContextHolder and passes it along to the
-  EntityMessageEndpoint.
+  EntityMessageEndpoint. The EntityMessageEndpoint will return true if the messages
+  impact the initiating session.
 * Introduce ReplicantContextHolder to ease passing of context information between
   tiers.
 
