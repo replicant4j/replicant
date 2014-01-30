@@ -1,6 +1,6 @@
 package org.realityforge.replicant.shared.transport;
 
-public class ReplicantContext
+public final class ReplicantContext
 {
   /**
    * Key used to retrieve an opaque identifier for the session from the ReplicantContextHolder.
@@ -30,4 +30,8 @@ public class ReplicantContext
    * HTTP response header to indicate the whether the request is complete or a change set is expected.
    */
   public static final String REQUEST_COMPLETE_HEADER = "X-GWT-RequestComplete";
+
+  private ReplicantContext()
+  {
+  }
 }
