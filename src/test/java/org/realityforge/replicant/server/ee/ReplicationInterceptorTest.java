@@ -3,11 +3,13 @@ package org.realityforge.replicant.server.ee;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
+import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -62,11 +64,18 @@ public class ReplicationInterceptorTest
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
 
     when( em.isOpen() ).thenReturn( true );
+    ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ReplicantContext.JOB_ID_KEY, "r1" );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
+    // Make sure clear is called
+    assertNull( ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY ) );
+
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
+    assertEquals( interceptor._sessionID, "s1" );
+    assertEquals( interceptor._jobID, "r1" );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
   }
@@ -92,17 +101,26 @@ public class ReplicationInterceptorTest
         when( em.isOpen() ).thenReturn( true );
         innerInterceptor.businessIntercept( innerContext );
         assertTrue( innerContext.isInvoked() );
+        assertNull( interceptor._sessionID );
+        assertNull( interceptor._jobID );
         assertNull( innerInterceptor._messages );
         return super.proceed();
       }
     };
 
     when( em.isOpen() ).thenReturn( true );
+    ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ReplicantContext.JOB_ID_KEY, "r1" );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
+    // Make sure clear is called
+    assertNull( ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY ) );
+
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
+    assertEquals( interceptor._sessionID, "s1" );
+    assertEquals( interceptor._jobID, "r1" );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
   }
@@ -138,6 +156,8 @@ public class ReplicationInterceptorTest
     }
 
     assertTrue( context.isInvoked() );
+    assertNull( interceptor._sessionID );
+    assertNull( interceptor._jobID );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
   }
@@ -166,6 +186,8 @@ public class ReplicationInterceptorTest
     verify( em ).flush();
 
     assertTrue( context.isInvoked() );
+    assertNull( interceptor._sessionID );
+    assertNull( interceptor._jobID );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
   }
@@ -187,6 +209,8 @@ public class ReplicationInterceptorTest
     verify( em ).flush();
 
     assertTrue( context.isInvoked() );
+    assertNull( interceptor._sessionID );
+    assertNull( interceptor._jobID );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
   }
@@ -214,6 +238,8 @@ public class ReplicationInterceptorTest
     extends AbstractReplicationInterceptor
     implements EntityMessageEndpoint
   {
+    String _sessionID;
+    String _jobID;
     Collection<EntityMessage> _messages;
     EntityManager _entityManager;
 
@@ -228,12 +254,17 @@ public class ReplicationInterceptorTest
       return this;
     }
 
-    public void saveEntityMessages( @Nonnull final Collection<EntityMessage> messages )
+    @Override
+    public void saveEntityMessages( @Nullable final String sessionID,
+                                    @Nullable final String jobID,
+                                    @Nonnull final Collection<EntityMessage> messages )
     {
       if ( null != _messages )
       {
         fail( "saveEntityMessages called multiple times" );
       }
+      _sessionID = sessionID;
+      _jobID = jobID;
       _messages = messages;
     }
 

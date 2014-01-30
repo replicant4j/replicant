@@ -9,6 +9,7 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
  * A base class for an interceptor that should be applied to all services that need to send out EntityChange messages
@@ -26,9 +27,24 @@ public abstract class AbstractReplicationInterceptor
 
   @AroundInvoke
   public Object businessIntercept( final InvocationContext context )
-      throws Exception
+    throws Exception
   {
     final Integer depth = (Integer) _registry.getResource( REPLICATION_TX_DEPTH );
+    if ( null == depth )
+    {
+      final String sessionID = (String) ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY );
+      if ( null != sessionID )
+      {
+        _registry.putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
+      }
+      final String jobID = (String) ReplicantContextHolder.get( ReplicantContext.JOB_ID_KEY );
+      if ( null != jobID )
+      {
+        _registry.putResource( ReplicantContext.JOB_ID_KEY, jobID );
+      }
+    }
+    final String sessionID = (String) _registry.getResource( ReplicantContext.SESSION_ID_KEY );
+    final String jobID = (String) _registry.getResource( ReplicantContext.JOB_ID_KEY );
     _registry.putResource( REPLICATION_TX_DEPTH, ( null == depth ? 1 : depth + 1 ) );
     try
     {
@@ -48,10 +64,11 @@ public abstract class AbstractReplicationInterceptor
             final Collection<EntityMessage> messages = messageSet.getEntityMessages();
             if( messages.size() > 0 )
             {
-              getEndpoint().saveEntityMessages( messages );
+              getEndpoint().saveEntityMessages( sessionID, jobID, messages );
             }
           }
         }
+        ReplicantContextHolder.clean();
       }
     }
   }

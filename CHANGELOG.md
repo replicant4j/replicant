@@ -1,4 +1,7 @@
 ## 0.5.5:
+* Rework AbstractReplicationInterceptor so that it retrieves the session and job
+  context information from the ReplicantContextHolder and passes it along to the
+  EntityMessageEndpoint.
 * Introduce ReplicantContextHolder to ease passing of context information between
   tiers.
 

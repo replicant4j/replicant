@@ -2,6 +2,7 @@ package org.realityforge.replicant.server;
 
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface EntityMessageEndpoint
 {
@@ -10,5 +11,7 @@ public interface EntityMessageEndpoint
    *
    * @param messages the messages.
    */
-  void saveEntityMessages( @Nonnull Collection<EntityMessage> messages );
+  void saveEntityMessages( @Nullable String sessionID,
+                           @Nullable String jobID,
+                           @Nonnull Collection<EntityMessage> messages );
 }
