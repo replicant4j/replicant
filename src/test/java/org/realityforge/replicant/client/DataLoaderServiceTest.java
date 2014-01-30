@@ -3,6 +3,7 @@ package org.realityforge.replicant.client;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.LinkedList;
+import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -15,7 +16,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, "j1", new Change[]{ new TestChange( true ) } );
     final ChangeMapper changeMapper = mock( ChangeMapper.class );
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
@@ -39,6 +40,10 @@ public class DataLoaderServiceTest
     verify( changeBroker ).enable();
     assertTrue( service.isBulkLoadCompleteCalled() );
     assertFalse( service.isIncrementalLoadCompleteCalled() );
+
+    assertTrue( service.isDataLoadComplete() );
+    assertTrue( service.isBulkLoad() );
+    assertEquals( service.getJobID(), "j1" );
 
     verify( changeMapper ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
@@ -242,6 +247,9 @@ public class DataLoaderServiceTest
     private boolean _incrementalLoadCompleteCalled;
     private boolean _scheduleDataLoadCalled;
     private LinkedList<ChangeSet> _changeSets;
+    private boolean _dataLoadComplete;
+    private boolean _bulkLoad;
+    private String _jobID;
 
     TestDataLoadService( final boolean validateOnLoad, final ChangeSet... changeSets )
     {
@@ -262,6 +270,29 @@ public class DataLoaderServiceTest
     protected boolean isScheduleDataLoadCalled()
     {
       return _scheduleDataLoadCalled;
+    }
+
+    @Override
+    protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String jobID )
+    {
+      _dataLoadComplete = true;
+      _bulkLoad = bulkLoad;
+      _jobID = jobID;
+    }
+
+    public boolean isDataLoadComplete()
+    {
+      return _dataLoadComplete;
+    }
+
+    public boolean isBulkLoad()
+    {
+      return _bulkLoad;
+    }
+
+    public String getJobID()
+    {
+      return _jobID;
     }
 
     @Override
