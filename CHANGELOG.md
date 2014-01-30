@@ -1,4 +1,5 @@
 ## 0.5.5:
+* Cache the JsonGeneratorFactory in JsonEncoder for performance reasons.
 * Rework the transport system so that each packet can record the job id which
   generated the change set. This is only done when the packet is for the session
   which initiated the job.

@@ -19,6 +19,9 @@ import org.realityforge.replicant.shared.json.TransportConstants;
  */
 public final class JsonEncoder
 {
+  // Use constant to avoid slow filesystem access when serializing a message.
+  public static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
+
   private JsonEncoder()
   {
   }
@@ -34,9 +37,8 @@ public final class JsonEncoder
   public static String encodeChangeSetFromEntityMessages( final int lastChangeSetID,
                                                           @Nonnull final Collection<EntityMessage> messages )
   {
-    final JsonGeneratorFactory factory = Json.createGeneratorFactory( null );
     final StringWriter writer = new StringWriter();
-    final JsonGenerator generator = factory.createGenerator( writer );
+    final JsonGenerator generator = FACTORY.createGenerator( writer );
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject().
