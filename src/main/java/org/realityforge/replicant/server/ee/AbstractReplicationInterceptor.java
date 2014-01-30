@@ -36,11 +36,13 @@ public abstract class AbstractReplicationInterceptor
       if ( null != sessionID )
       {
         _registry.putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
+        ReplicantContextHolder.remove( ReplicantContext.SESSION_ID_KEY );
       }
       final String requestID = (String) ReplicantContextHolder.get( ReplicantContext.REQUEST_ID_KEY );
       if ( null != requestID )
       {
         _registry.putResource( ReplicantContext.REQUEST_ID_KEY, requestID );
+        ReplicantContextHolder.remove( ReplicantContext.REQUEST_ID_KEY );
       }
     }
     final String sessionID = (String) _registry.getResource( ReplicantContext.SESSION_ID_KEY );
@@ -68,7 +70,6 @@ public abstract class AbstractReplicationInterceptor
             }
           }
         }
-        ReplicantContextHolder.clean();
       }
     }
   }
