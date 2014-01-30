@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
@@ -30,20 +31,32 @@ public final class JsonEncoder
    * Encode the change set with the EntityMessages.
    *
    * @param lastChangeSetID the last change set ID.
+   * @param jobID           the jobID that initiated the change. Only set if packet is destined for originating session.
    * @param messages        the messages encoded as EntityMessage objects.
    * @return the encoded change set.
    */
   @Nonnull
   public static String encodeChangeSetFromEntityMessages( final int lastChangeSetID,
+                                                          @Nullable final String jobID,
                                                           @Nonnull final Collection<EntityMessage> messages )
   {
     final StringWriter writer = new StringWriter();
     final JsonGenerator generator = FACTORY.createGenerator( writer );
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
-    generator.writeStartObject().
-      write( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID ).
-      writeStartArray( TransportConstants.CHANGES );
+    generator.
+      writeStartObject().
+      write( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID );
+    if ( null == jobID )
+    {
+      generator.writeNull( TransportConstants.JOB_ID );
+    }
+    else
+    {
+      generator.write( TransportConstants.JOB_ID, jobID );
+    }
+
+    generator.writeStartArray( TransportConstants.CHANGES );
 
     for ( final EntityMessage message : messages )
     {

@@ -6,6 +6,7 @@ package org.realityforge.replicant.shared.json;
 public interface TransportConstants
 {
   String LAST_CHANGE_SET_ID = "last_id";
+  String JOB_ID = "job_id";
   String CHANGES = "changes";
   String ENTITY_ID = "id";
   String TYPE_ID = "type";

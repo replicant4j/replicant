@@ -22,6 +22,11 @@ public final class JsoChangeSet
   }-*/;
 
   @Override
+  public final native String getJobID()/*-{
+    return this.job_id;
+  }-*/;
+
+  @Override
   public final native int getChangeCount()/*-{
     return this.changes.length;
   }-*/;

@@ -1,14 +1,18 @@
 package org.realityforge.replicant.client;
 
+import javax.annotation.Nullable;
+
 final class TestChangeSet
   implements ChangeSet
 {
   private final int _sequence;
+  private final String _jobID;
   private final Change[] _changes;
 
-  TestChangeSet( final int sequence, final Change[] changes )
+  TestChangeSet( final int sequence, @Nullable final String jobID, final Change[] changes )
   {
     _sequence = sequence;
+    _jobID = jobID;
     _changes = changes;
   }
 
@@ -16,6 +20,12 @@ final class TestChangeSet
   public int getSequence()
   {
     return _sequence;
+  }
+
+  @Override
+  public String getJobID()
+  {
+    return _jobID;
   }
 
   @Override

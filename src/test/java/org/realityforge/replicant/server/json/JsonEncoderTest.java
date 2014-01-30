@@ -46,12 +46,14 @@ public final class JsonEncoderTest
     final ArrayList<EntityMessage> messages = new ArrayList<>();
     messages.add( message );
     final int lastChangeSetID = 1;
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
+    final String jobID = "j1";
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, jobID, messages );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
+    assertEquals( changeSet.getString( TransportConstants.JOB_ID ), jobID );
 
     final JSONObject object = changeSet.getJSONArray( TransportConstants.CHANGES ).getJSONObject( 0 );
 
@@ -77,7 +79,7 @@ public final class JsonEncoderTest
     final ArrayList<EntityMessage> messages = new ArrayList<>();
     messages.add( message );
     final int lastChangeSetID = 1;
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, messages );
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, null, messages );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
