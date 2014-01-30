@@ -10,12 +10,19 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicationInterceptorTest
 {
+  @BeforeMethod
+  public void setup()
+  {
+    ReplicantContextHolder.clean();
+  }
+
   @Test
   public void ensureNoChangesDoesNotResultInSave()
     throws Exception
