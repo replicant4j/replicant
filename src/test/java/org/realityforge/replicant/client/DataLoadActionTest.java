@@ -12,11 +12,11 @@ public class DataLoadActionTest
   {
     final MockRunner runnable = new MockRunner();
     final String jsonData = "DATA";
-    final TestChangeSet updateChangeSet = new TestChangeSet( 42, new Change[]{ new TestChange( true ) } );
-    final TestChangeSet removeChangeSet = new TestChangeSet( 42, new Change[]{ new TestChange( false ) } );
+    final TestChangeSet updateChangeSet = new TestChangeSet( 42, null, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet removeChangeSet = new TestChangeSet( 42, null, new Change[]{ new TestChange( false ) } );
 
     final TestChangeSet updateAndRemoveChangeSet =
-      new TestChangeSet( 42, new Change[]{ new TestChange( true ), new TestChange( false ) } );
+      new TestChangeSet( 42, null, new Change[]{ new TestChange( true ), new TestChange( false ) } );
 
     final Object entity = new Object();
     final MockLinkable linkableEntity = new MockLinkable();

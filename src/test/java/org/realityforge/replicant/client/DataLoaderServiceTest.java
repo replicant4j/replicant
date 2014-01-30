@@ -15,7 +15,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet = new TestChangeSet( 1, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
     final ChangeMapper changeMapper = mock( ChangeMapper.class );
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
@@ -51,7 +51,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet = new TestChangeSet( 1, new Change[]{ new TestChange( false ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( false ) } );
     final ChangeMapper changeMapper = mock( ChangeMapper.class );
 
     final TestDataLoadService service = newService( changeSet, changeMapper, mock( EntityChangeBroker.class ), true );
@@ -71,7 +71,7 @@ public class DataLoaderServiceTest
   public void verifyIncrementalChangeInvokesCorrectMethods()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
 
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
     final TestDataLoadService service = newService( changeSet, mock( ChangeMapper.class ), changeBroker, true );
@@ -96,7 +96,7 @@ public class DataLoaderServiceTest
   public void verifyValidateIsNotCalled()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
 
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
     final TestDataLoadService service =
@@ -118,8 +118,8 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet1 = new TestChangeSet( 1, new Change[]{ new TestChange( true ) } );
-    final TestChangeSet changeSet2 = new TestChangeSet( 2, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet1 = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet2 = new TestChangeSet( 2, null, new Change[]{ new TestChange( true ) } );
     final ChangeMapper changeMapper = mock( ChangeMapper.class );
     final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
