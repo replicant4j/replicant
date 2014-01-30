@@ -19,6 +19,10 @@ public class ReplicantContext
   public static final String REQUEST_COMPLETE_KEY = "RequestComplete";
 
   /**
+   * HTTP request header to indicate the session id.
+   */
+  public static final String SESSION_ID_HEADER = "X-GWT-SessionID";
+  /**
    * HTTP request header to indicate the request id.
    */
   public static final String REQUEST_ID_HEADER = "X-GWT-RequestID";
@@ -26,8 +30,4 @@ public class ReplicantContext
    * HTTP response header to indicate the whether the request is complete or a change set is expected.
    */
   public static final String REQUEST_COMPLETE_HEADER = "X-GWT-RequestComplete";
-  /**
-   * HTTP request header to indicate the session id.
-   */
-  public static final String SESSION_ID_HEADER = "X-GWT-SessionID";
 }
