@@ -36,7 +36,6 @@ public final class JsonEncoderTest
     calendar.set( Calendar.MILLISECOND, 0 );
 
     final Date date = calendar.getTime();
-    System.out.println( "date = " + date );
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final Map<String,Serializable> values = message.getAttributeValues();
