@@ -52,6 +52,40 @@ public class DataLoaderServiceTest
   }
 
   @Test
+  public void verifyDataLoader_dataLoadWithZeroChanges()
+    throws Exception
+  {
+    final TestChangeSet changeSet = new TestChangeSet( 1, "j1", new Change[ 0 ] );
+    final ChangeMapper changeMapper = mock( ChangeMapper.class );
+    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
+
+    final TestDataLoadService service = newService( changeSet, changeMapper, changeBroker, true );
+
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+
+    final Runnable runnable = mock( Runnable.class );
+
+    ensureEnqueueDataLoads( service, true, runnable );
+
+    final int stepCount = progressWorkTillDone( service );
+    assertEquals( stepCount, 7 );
+
+    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+
+    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( changeBroker, never() ).disable();
+    verify( changeBroker, never() ).enable();
+    assertTrue( service.isBulkLoadCompleteCalled() );
+    assertFalse( service.isIncrementalLoadCompleteCalled() );
+
+    assertTrue( service.isDataLoadComplete() );
+    assertTrue( service.isBulkLoad() );
+    assertEquals( service.getRequestID(), "j1" );
+
+    verifyPostActionRun( runnable );
+  }
+
+  @Test
   public void verifyDeletedEntityIsNotLinked()
     throws Exception
   {

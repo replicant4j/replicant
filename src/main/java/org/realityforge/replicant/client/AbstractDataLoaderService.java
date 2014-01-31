@@ -229,12 +229,18 @@ public abstract class AbstractDataLoaderService
       _lastKnownChangeSet = set.getSequence();
       if ( _currentAction.isBulkLoad() )
       {
-        _changeBroker.enable();
+        if ( _currentAction.hasBrokerBeenPaused() )
+        {
+          _changeBroker.enable();
+        }
         onBulkLoadComplete();
       }
       else
       {
-        _changeBroker.resume();
+        if ( _currentAction.hasBrokerBeenPaused() )
+        {
+          _changeBroker.resume();
+        }
         onIncrementalLoadComplete();
       }
       if ( shouldValidateOnLoad() )

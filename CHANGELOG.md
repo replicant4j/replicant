@@ -1,4 +1,7 @@
 ## 0.5.5:
+* In the AbstractDataLoaderService avoid resume-ing or re-enabling the broker if
+  it was never disabled. This is possible if the server sends a change set with
+  zero changes.
 * Cache the JsonGeneratorFactory in JsonEncoder for performance reasons.
 * Rework the transport system so that each packet can record the request id which
   generated the change set. This is only done when the packet is for the session

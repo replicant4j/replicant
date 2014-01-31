@@ -76,6 +76,11 @@ final class DataLoadAction
     return areChangesPending() && !_brokerPaused;
   }
 
+  public boolean hasBrokerBeenPaused()
+  {
+    return _brokerPaused;
+  }
+
   public void markBrokerPaused()
   {
     _brokerPaused = true;
