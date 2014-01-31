@@ -80,11 +80,8 @@ public class PacketQueue
                                       @Nonnull final List<EntityMessage> changes )
   {
     final Packet packet = new Packet( _nextSequence++, requestID, changes );
-    if ( !_packets.contains( packet ) )
-    {
-      _packets.add( packet );
-      Collections.sort( _packets );
-    }
+    _packets.add( packet );
+    Collections.sort( _packets );
   }
 
   /**
