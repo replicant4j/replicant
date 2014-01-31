@@ -1,4 +1,3 @@
-/* DO NOT EDIT: File is auto-generated */
 package org.realityforge.replicant.client.transport.gwt;
 
 import com.google.gwt.http.client.Request;
