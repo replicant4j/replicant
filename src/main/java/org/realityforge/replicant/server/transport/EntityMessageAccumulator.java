@@ -32,15 +32,21 @@ public final class EntityMessageAccumulator
    *
    * @param sessionID the session that initiated the changes.
    * @param requestID the opaque identifier indicating the request that caused the changes.
+   * @return true if a change set was send to the originating session
    */
-  public void complete( @Nullable final String sessionID, @Nullable final String requestID )
+  public boolean complete( @Nullable final String sessionID, @Nullable final String requestID )
   {
+    boolean impactsInitiator = false;
     for ( final Entry<ReplicantSession, LinkedList<EntityMessage>> entry : _changeSets.entrySet() )
     {
       final ReplicantSession session = entry.getKey();
-      session.getQueue().addPacket( session.getSessionID().equals( sessionID ) ? requestID : null, entry.getValue() );
+      final boolean isInitiator = session.getSessionID().equals( sessionID );
+      impactsInitiator |= isInitiator;
+      session.getQueue().addPacket( isInitiator ? requestID : null, entry.getValue() );
     }
     _changeSets.clear();
+
+    return impactsInitiator;
   }
 
   private LinkedList<EntityMessage> getChangeSet( @Nonnull final ReplicantSession session )
