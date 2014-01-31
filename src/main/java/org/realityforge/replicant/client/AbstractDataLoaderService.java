@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.RequestManager;
+import org.realityforge.replicant.client.transport.SessionContext;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
@@ -51,6 +52,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   protected void setSession( final T session )
   {
     _session = session;
+    // This should probably be moved elsewhere ... but where?
+    SessionContext.setSession( session );
   }
 
   protected final T getSession()
