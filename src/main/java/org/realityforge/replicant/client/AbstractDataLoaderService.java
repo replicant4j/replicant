@@ -56,7 +56,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     SessionContext.setSession( session );
   }
 
-  protected final T getSession()
+  public final T getSession()
   {
     return _session;
   }
