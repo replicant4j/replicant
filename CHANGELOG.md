@@ -2,7 +2,8 @@
 * Cache the JsonGeneratorFactory in JsonEncoder for performance reasons.
 * Rework the transport system so that each packet can record the request id which
   generated the change set. This is only done when the packet is for the session
-  which initiated the job.
+  which initiated the job. Support this via ReplicantRpcRequestBuilder that is
+  integrated into GWT-RPC.
 * Introduce ReplicantSession an base class from which sessions should extend.
 * Rework AbstractReplicationInterceptor so that it retrieves the session and request
   context information from the ReplicantContextHolder and passes it along to the
