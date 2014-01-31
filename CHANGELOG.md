@@ -1,4 +1,7 @@
 ## 0.5.5:
+* Move responsibility for the determination of which change sets are bulk loads
+  from the DataLoaderService to the code that creates requests on with the
+  RequestManager.
 * In the AbstractDataLoaderService avoid resume-ing or re-enabling the broker if
   it was never disabled. This is possible if the server sends a change set with
   zero changes.

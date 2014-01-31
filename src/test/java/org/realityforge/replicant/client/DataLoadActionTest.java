@@ -1,6 +1,10 @@
 package org.realityforge.replicant.client;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.transport.RequestEntry;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -10,53 +14,55 @@ public class DataLoadActionTest
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
   {
-    final MockRunner runnable = new MockRunner();
-    final String jsonData = "DATA";
-    final TestChangeSet updateChangeSet = new TestChangeSet( 42, null, new Change[]{ new TestChange( true ) } );
-    final TestChangeSet removeChangeSet = new TestChangeSet( 42, null, new Change[]{ new TestChange( false ) } );
+    final List<Boolean> flags = Arrays.asList( Boolean.TRUE, Boolean.FALSE );
 
-    final TestChangeSet updateAndRemoveChangeSet =
-      new TestChangeSet( 42, null, new Change[]{ new TestChange( true ), new TestChange( false ) } );
+    final ArrayList<Object[]> objects = new ArrayList<>();
+    for ( final boolean normalCompletion : flags )
+    {
+      for ( final boolean bulkChange : flags )
+      {
+        for ( final boolean useRunnable : flags )
+        {
+          for ( final boolean isLinkableEntity : flags )
+          {
+            for ( final boolean update : flags )
+            {
+              final boolean expectLink = isLinkableEntity && update;
+              final TestChangeSet changeSet =
+                new TestChangeSet( 42,
+                                   useRunnable ? new MockRunner() : null,
+                                   bulkChange,
+                                   new Change[]{ new TestChange( update ) } );
+              final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
+              objects.add( new Object[]{ normalCompletion, changeSet, entity, expectLink } );
+            }
+            final boolean expectLink = false;
+            final TestChangeSet changeSet =
+              new TestChangeSet( 42,
+                                 useRunnable ? new MockRunner() : null,
+                                 bulkChange,
+                                 new Change[]{ new TestChange( true ), new TestChange( false ) } );
+            final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
+            objects.add( new Object[]{ normalCompletion, changeSet, entity, expectLink } );
+          }
+        }
+      }
+    }
 
-    final Object entity = new Object();
-    final MockLinkable linkableEntity = new MockLinkable();
-
-
-    return new Object[][]{
-      { runnable, jsonData, true, updateChangeSet, entity, false },
-      { runnable, jsonData, true, removeChangeSet, entity, false },
-      { runnable, jsonData, false, updateChangeSet, entity, false },
-      { runnable, jsonData, false, removeChangeSet, entity, false },
-      { null, jsonData, true, updateChangeSet, entity, false },
-      { null, jsonData, true, removeChangeSet, entity, false },
-      { null, jsonData, false, updateChangeSet, entity, false },
-      { null, jsonData, false, removeChangeSet, entity, false },
-      { runnable, jsonData, true, updateChangeSet, linkableEntity, true },
-      { runnable, jsonData, true, removeChangeSet, linkableEntity, false },
-      { runnable, jsonData, false, updateChangeSet, linkableEntity, true },
-      { runnable, jsonData, false, removeChangeSet, linkableEntity, false },
-      { null, jsonData, true, updateChangeSet, linkableEntity, true },
-      { null, jsonData, true, removeChangeSet, linkableEntity, false },
-      { null, jsonData, false, updateChangeSet, linkableEntity, true },
-      { null, jsonData, false, removeChangeSet, linkableEntity, false },
-      { null, jsonData, false, updateAndRemoveChangeSet, linkableEntity, false }
-    };
+    return objects.toArray( new Object[ objects.size() ][] );
   }
 
   @Test( dataProvider = "actionDescriptions" )
-  public void verifyActionLifecycle( final MockRunner runnable,
-                                     final String jsonData,
-                                     final boolean bulkLoad,
-                                     final ChangeSet changeSet,
+  public void verifyActionLifecycle( final boolean normalCompletion,
+                                     final TestChangeSet changeSet,
                                      final Object entity,
                                      final boolean expectedLink )
   {
-    final DataLoadAction action = new DataLoadAction( bulkLoad, jsonData, runnable );
+    final MockRunner runnable = (MockRunner) changeSet.getRunnable();
+    final DataLoadAction action = new DataLoadAction( "BLAH" );
 
     //Ensure the initial state is as expected
-    assertEquals( action.isBulkLoad(), bulkLoad );
-    assertEquals( action.getRawJsonData(), jsonData );
-    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getRawJsonData(), "BLAH" );
     assertEquals( action.getChangeSet(), null );
     assertRunCount( runnable, 0 );
 
@@ -65,7 +71,18 @@ public class DataLoadActionTest
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    action.setChangeSet( changeSet );
+    final RequestEntry request = new RequestEntry( changeSet.getRequestID(), changeSet.isBulkChange() );
+    if ( normalCompletion )
+    {
+      request.setNormalCompletionAction( runnable );
+    }
+    else
+    {
+      request.setNonNormalCompletionAction( runnable );
+    }
+    action.setChangeSet( changeSet, request );
+    assertEquals( action.isBulkLoad(), changeSet.isBulkChange() );
+    assertEquals( action.getRunnable(), runnable );
 
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRawJsonData(), null );

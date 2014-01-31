@@ -6,14 +6,40 @@ final class TestChangeSet
   implements ChangeSet
 {
   private final int _sequence;
-  private final String _requestID;
+  private final boolean _bulkChange;
+  private final Runnable _runnable;
+  private String _requestID;
   private final Change[] _changes;
 
-  TestChangeSet( final int sequence, @Nullable final String requestID, final Change[] changes )
+  TestChangeSet( final int sequence,
+                 @Nullable final Runnable runnable,
+                 final boolean bulkChange,
+                 final Change[] changes )
   {
     _sequence = sequence;
-    _requestID = requestID;
+    _runnable = runnable;
+    _bulkChange = bulkChange;
     _changes = changes;
+  }
+
+  public void setRequestID( final String requestID )
+  {
+    _requestID = requestID;
+  }
+
+  public boolean isResponseToRequest()
+  {
+    return null != _runnable;
+  }
+
+  public Runnable getRunnable()
+  {
+    return _runnable;
+  }
+
+  public boolean isBulkChange()
+  {
+    return _bulkChange;
   }
 
   @Override
@@ -41,8 +67,8 @@ final class TestChangeSet
   }
 
   @Override
-    public String toString()
-    {
-      return "ChangeSet:" + System.identityHashCode( this );
-    }
+  public String toString()
+  {
+    return "ChangeSet:" + System.identityHashCode( this );
+  }
 }

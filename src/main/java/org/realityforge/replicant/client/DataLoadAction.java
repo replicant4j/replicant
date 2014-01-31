@@ -3,6 +3,7 @@ package org.realityforge.replicant.client;
 import java.util.HashSet;
 import java.util.LinkedList;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.transport.RequestEntry;
 
 /**
  * A simple class encapsulating the process of loading data from a json change set.
@@ -10,7 +11,6 @@ import javax.annotation.Nullable;
 final class DataLoadAction
   implements Comparable<DataLoadAction>
 {
-  private final boolean _bulkLoad;
   /**
    * The raw data string data prior to parsing. Null-ed after parsing.
    */
@@ -28,29 +28,22 @@ final class DataLoadAction
    */
   private int _changeIndex;
 
-  /**
-   * The code to execute at the end of the load action if any.
-   */
-  @Nullable
-  private final Runnable _runnable;
-
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
   private HashSet<Linkable> _removedEntities = new HashSet<>();
   private LinkedList<Linkable> _entitiesToLink;
   private boolean _entityLinksCalculated;
   private boolean _worldNotified;
   private boolean _brokerPaused;
+  private RequestEntry _request;
 
-  public DataLoadAction( final boolean bulkLoad, final String rawJsonData, @Nullable final Runnable runnable )
+  public DataLoadAction( final String rawJsonData )
   {
-    _bulkLoad = bulkLoad;
     _rawJsonData = rawJsonData;
-    _runnable = runnable;
   }
 
   public boolean isBulkLoad()
   {
-    return _bulkLoad;
+    return null != _request && _request.isBulkLoad();
   }
 
   @Nullable
@@ -59,11 +52,17 @@ final class DataLoadAction
     return _rawJsonData;
   }
 
-  public void setChangeSet( @Nullable final ChangeSet changeSet )
+  public void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
+    _request = request;
     _changeSet = changeSet;
     _rawJsonData = null;
     _changeIndex = 0;
+  }
+
+  public RequestEntry getRequest()
+  {
+    return _request;
   }
 
   public boolean areChangesPending()
@@ -165,7 +164,15 @@ final class DataLoadAction
   @Nullable
   public Runnable getRunnable()
   {
-    return _runnable;
+    if( null == _request )
+    {
+      return null;
+    }
+    else
+    {
+      assert _request.isCompletionDataPresent();
+      return _request.getRunnable();
+    }
   }
 
   public void markWorldAsNotified()
@@ -182,11 +189,11 @@ final class DataLoadAction
   public String toString()
   {
     return "DataLoad[" +
-           "IsBulk=" + _bulkLoad +
+           "IsBulk=" + isBulkLoad() +
            ",RawJson.null?=" + ( _rawJsonData == null ) +
            ",ChangeSet.null?=" + ( _changeSet == null ) +
            ",ChangeIndex=" + _changeIndex +
-           ",Runnable.null?=" + ( _runnable == null ) +
+           ",Runnable.null?=" + ( getRunnable() == null ) +
            ",UpdatedEntities.size=" + ( _updatedEntities != null ? _updatedEntities.size() : null ) +
            ",RemovedEntities.size=" + ( _removedEntities != null ? _removedEntities.size() : null ) +
            ",EntitiesToLink.size=" + ( _entitiesToLink != null ? _entitiesToLink.size() : null ) +

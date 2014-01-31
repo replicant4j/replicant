@@ -20,16 +20,4 @@ public class RequestManagerTest
 
     assertEquals( rm.getRequest( e.getRequestID() ), null );
   }
-
-  @Test
-  public void completedMarksAsReturned()
-  {
-    final RequestEntry e = new RequestEntry( "a1", true );
-
-    assertEquals( e.hasReturned(), false );
-    assertEquals( e.isCompleted(), false );
-    e.complete();
-    assertEquals( e.hasReturned(), true );
-    assertEquals( e.isCompleted(), true );
-  }
 }

@@ -36,14 +36,8 @@ public final class ReplicantRpcRequestBuilder
         @Override
         public void onResponseReceived( final Request request, final Response response )
         {
-          if ( "1".equals( response.getHeader( ReplicantContext.REQUEST_COMPLETE_HEADER ) ) )
-          {
-            entry.complete();
-          }
-          else
-          {
-            entry.returned();
-          }
+          final boolean messageComplete = "1".equals( response.getHeader( ReplicantContext.REQUEST_COMPLETE_HEADER ) );
+          entry.setExpectingResults( !messageComplete );
           if ( null != callback )
           {
             callback.onResponseReceived( request, response );
@@ -53,7 +47,7 @@ public final class ReplicantRpcRequestBuilder
         @Override
         public void onError( final Request request, final Throwable exception )
         {
-          entry.complete();
+          entry.setExpectingResults( false );
           if ( null != callback )
           {
             callback.onError( request, exception );

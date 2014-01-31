@@ -7,13 +7,16 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.RequestEntry;
+import org.realityforge.replicant.client.transport.RequestManager;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
  * Data can be loaded by bulk or incrementally and the load can be broken up into several
  * steps to avoid locking a thread such as in GWT.
  */
-public abstract class AbstractDataLoaderService
+public abstract class AbstractDataLoaderService<T extends ClientSession>
 {
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
@@ -43,6 +46,18 @@ public abstract class AbstractDataLoaderService
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
+  private T _session;
+
+  protected void setSession( final T session )
+  {
+    _session = session;
+  }
+
+  protected final T getSession()
+  {
+    return _session;
+  }
+
   protected void onBulkLoadComplete()
   {
   }
@@ -71,15 +86,13 @@ public abstract class AbstractDataLoaderService
   protected abstract ChangeSet parseChangeSet( String rawJsonData );
 
   @SuppressWarnings( "ConstantConditions" )
-  protected final void enqueueDataLoad( final boolean isBulkLoad,
-                                        @Nonnull final String rawJsonData,
-                                        @Nullable final Runnable runnable )
+  protected final void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
     if( null == rawJsonData )
     {
       throw new IllegalStateException( "null == rawJsonData" );
     }
-    _pendingActions.add( new DataLoadAction( isBulkLoad, rawJsonData, runnable ) );
+    _pendingActions.add( new DataLoadAction( rawJsonData ) );
     scheduleDataLoad();
   }
 
@@ -131,7 +144,9 @@ public abstract class AbstractDataLoaderService
         LOG.log( getLogLevel(), "Parsing JSON: " + _currentAction );
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
-      _currentAction.setChangeSet( changeSet );
+      final RequestManager requestManager = getSession().getRequestManager();
+      final RequestEntry request = requestManager.getRequest( changeSet.getRequestID() );
+      _currentAction.setChangeSet( changeSet, request );
       _parsedActions.add( _currentAction );
       Collections.sort( _parsedActions );
       _currentAction = null;
