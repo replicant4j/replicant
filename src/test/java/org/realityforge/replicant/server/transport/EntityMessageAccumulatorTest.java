@@ -41,7 +41,7 @@ public class EntityMessageAccumulatorTest
   }
 
   @Test
-  public void basicOperation_whereRequestIDDifferent()
+  public void basicOperation_whereSessionIDDifferent()
   {
     final TestSession c = new TestSession( "s1" );
     final EntityMessageAccumulator accumulator = new EntityMessageAccumulator();
