@@ -48,6 +48,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( request.haveResultsArrived() );
+    assertNull( service.getSession().getRequestManager().getRequest( changeSet.getRequestID() ) );
     assertTrue( service.isDataLoadComplete() );
     assertTrue( service.isBulkLoad() );
     assertNotNull( service.getRequestID() );

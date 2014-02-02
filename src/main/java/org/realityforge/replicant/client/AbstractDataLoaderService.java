@@ -287,6 +287,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     if ( null != runnable )
     {
       runnable.run();
+      // We can remove the request because this side ran second and the
+      // RPC channel has already returned.
+      assert null != request;
+      getSession().getRequestManager().removeRequest( request.getRequestID() );
     }
     onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );
     _currentAction = null;
