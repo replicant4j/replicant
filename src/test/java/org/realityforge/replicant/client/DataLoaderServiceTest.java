@@ -60,6 +60,34 @@ public class DataLoaderServiceTest
   }
 
   @Test
+  public void verifyDataLoader_doesNotRemoveRequestIfNotYethandled()
+    throws Exception
+  {
+    final Runnable runnable = mock( Runnable.class );
+    final TestChangeSet changeSet =
+      new TestChangeSet( 1, runnable, true, new Change[ 0 ] );
+
+    final TestDataLoadService service =
+      newService( changeSet,
+                  mock( ChangeMapper.class ),
+                  mock( EntityChangeBroker.class ),
+                  true );
+
+    final RequestEntry requestEntry =
+      service.getSession().getRequestManager().newRequestRegistration( changeSet.isBulkChange() );
+    changeSet.setRequestID( requestEntry.getRequestID() );
+    service.enqueueDataLoad( "blah" );
+
+    progressWorkTillDone( service );
+
+    assertTrue( requestEntry.haveResultsArrived() );
+    assertNotNull( service.getSession().getRequestManager().getRequest( changeSet.getRequestID() ) );
+    assertNotNull( service.getRequestID() );
+
+    verifyPostActionNotRun( runnable );
+  }
+
+  @Test
   public void verifyDataLoader_dataLoadWithZeroChanges()
     throws Exception
   {

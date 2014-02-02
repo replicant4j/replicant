@@ -164,13 +164,12 @@ final class DataLoadAction
   @Nullable
   public Runnable getRunnable()
   {
-    if( null == _request )
+    if( null == _request || !_request.isCompletionDataPresent() )
     {
       return null;
     }
     else
     {
-      assert _request.isCompletionDataPresent();
       return _request.getRunnable();
     }
   }

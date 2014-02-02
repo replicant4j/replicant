@@ -1,4 +1,6 @@
 ## 0.5.6:
+* In the DataLoaderService, do not execute runnable unless the RequestEntry has
+  been successfully processed.
 * In the DataLoaderService, remove the RequestEntry if it has been successfully
   processed.
 * Support recording on the RequestEntry that the results have arrived to counter
