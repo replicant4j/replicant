@@ -216,22 +216,13 @@ public class DataLoaderServiceTest
 
   private void ensureEnqueueDataLoads( final TestDataLoadService service )
   {
-    ensureEnqueueDataLoads( service, true );
-  }
-
-  private void ensureEnqueueDataLoads( final TestDataLoadService service, final boolean doEnqueue )
-  {
     setupRequests( service, service._changeSets );
     assertFalse( service.isScheduleDataLoadCalled() );
-    if ( doEnqueue )
+    for ( final TestChangeSet cs : service._changeSets )
     {
-      final int size = service._changeSets.size();
-      for ( int i = 0; i < size; i++ )
-      {
-        service.enqueueDataLoad( "jsonData" );
-      }
-      assertTrue( service.isScheduleDataLoadCalled() );
+      service.enqueueDataLoad( "BLAH:" + cs.getRequestID() );
     }
+    assertTrue( service.isScheduleDataLoadCalled() );
   }
 
   private void setupRequests( final TestDataLoadService service, final LinkedList<TestChangeSet> changeSets )
