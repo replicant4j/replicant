@@ -12,7 +12,7 @@ public class RequestEntry
   private final boolean _bulkLoad;
   private Boolean _normalCompletion;
   private boolean _expectingResults;
-  private boolean _completed;
+  private boolean _resultsArrived;
   private Runnable _runnable;
 
   public RequestEntry( @Nonnull final String requestID, final boolean bulkLoad )
@@ -31,9 +31,9 @@ public class RequestEntry
     return _bulkLoad;
   }
 
-  public boolean isCompleted()
+  public boolean haveResultsArrived()
   {
-    return _completed;
+    return _resultsArrived;
   }
 
   public void setNormalCompletionAction( @Nullable final Runnable runnable )
@@ -78,8 +78,8 @@ public class RequestEntry
     _expectingResults = expectingResults;
   }
 
-  public void complete()
+  public void markResultsAsArrived()
   {
-    _completed = true;
+    _resultsArrived = true;
   }
 }

@@ -18,8 +18,8 @@ public class RequestEntryTest
     assertEquals( e.isCompletionDataPresent(), true );
     assertEquals( e.isNormalCompletion(), true );
 
-    assertEquals( e.isCompleted(), false );
-    e.complete();
-    assertEquals( e.isCompleted(), true );
+    assertEquals( e.haveResultsArrived(), false );
+    e.markResultsAsArrived();
+    assertEquals( e.haveResultsArrived(), true );
   }
 }

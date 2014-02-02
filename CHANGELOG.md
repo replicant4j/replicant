@@ -1,3 +1,8 @@
+## 0.5.6:
+* Support recording on the RequestEntry that the results have arrived to counter
+  the race scenario where the change set arrives prior to the the request
+  returning.
+
 ## 0.5.5:
 * Move responsibility for the determination of which change sets are bulk loads
   from the DataLoaderService to the code that creates requests on with the

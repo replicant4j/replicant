@@ -278,6 +278,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     {
       LOG.log( getLogLevel(), "Running post action and cleaning action: " + _currentAction );
     }
+    final RequestEntry request = _currentAction.getRequest();
+    if( null != request )
+    {
+      request.markResultsAsArrived();
+    }
     final Runnable runnable = _currentAction.getRunnable();
     if ( null != runnable )
     {
