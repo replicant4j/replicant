@@ -18,6 +18,7 @@ public interface ChangeSet
   /**
    * @return the id of the request that generated the changes. Null if not the originating session.
    */
+  @Nullable
   String getRequestID();
 
   /**

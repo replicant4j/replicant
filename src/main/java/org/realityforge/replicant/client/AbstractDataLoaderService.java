@@ -148,7 +148,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       final RequestManager requestManager = getSession().getRequestManager();
-      final RequestEntry request = requestManager.getRequest( changeSet.getRequestID() );
+      final String requestID = changeSet.getRequestID();
+      final RequestEntry request = null != requestID ? requestManager.getRequest( requestID ) : null;
       _currentAction.setChangeSet( changeSet, request );
       _parsedActions.add( _currentAction );
       Collections.sort( _parsedActions );
