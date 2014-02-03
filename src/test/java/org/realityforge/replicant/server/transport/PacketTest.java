@@ -11,11 +11,12 @@ public class PacketTest
   public void basicOperation()
   {
     final ArrayList<EntityMessage> changes = new ArrayList<>();
-    final Packet packet = new Packet( 2, "r1", changes );
-    final Packet other = new Packet( 3, null, changes );
+    final Packet packet = new Packet( 2, "r1", "e1", changes );
+    final Packet other = new Packet( 3, null, null, changes );
 
     assertEquals( packet.getSequence(), 2 );
     assertEquals( packet.getRequestID(), "r1" );
+    assertEquals( packet.getETag(), "e1" );
     assertEquals( packet.getChanges(), changes );
 
     assertTrue( packet.equals( packet ) );

@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client;
 
+import javax.annotation.Nullable;
+
 /**
  * The interface representing the set of changes to be applied to the EntityRepository.
  *
@@ -17,6 +19,12 @@ public interface ChangeSet
    * @return the id of the request that generated the changes. Null if not the originating session.
    */
   String getRequestID();
+
+  /**
+   * @return the version under which this can be cached.
+   */
+  @Nullable
+  String getETag();
 
   /**
    * @return the number of changes in the set. Must be &gt; 0.

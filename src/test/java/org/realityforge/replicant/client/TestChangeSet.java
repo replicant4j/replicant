@@ -9,6 +9,7 @@ final class TestChangeSet
   private final boolean _bulkChange;
   private final Runnable _runnable;
   private String _requestID;
+  private String _etag;
   private final Change[] _changes;
 
   TestChangeSet( final int sequence,
@@ -25,6 +26,18 @@ final class TestChangeSet
   public void setRequestID( final String requestID )
   {
     _requestID = requestID;
+  }
+
+  public void setEtag( final String etag )
+  {
+    _etag = etag;
+  }
+
+  @Nullable
+  @Override
+  public String getETag()
+  {
+    return _etag;
   }
 
   public boolean isResponseToRequest()

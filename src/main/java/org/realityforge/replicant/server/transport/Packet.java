@@ -13,16 +13,20 @@ public final class Packet
 {
   private final int _sequence;
   @Nullable
+  private final String _etag;
+  @Nullable
   private final String _requestID;
   @Nonnull
   private final List<EntityMessage> _changes;
 
   public Packet( final int sequence,
                  @Nullable final String requestID,
+                 @Nullable final String etag,
                  @Nonnull final List<EntityMessage> changes )
   {
     _sequence = sequence;
     _requestID = requestID;
+    _etag = etag;
     _changes = changes;
   }
 
@@ -35,6 +39,12 @@ public final class Packet
   public String getRequestID()
   {
     return _requestID;
+  }
+
+  @Nullable
+  public String getETag()
+  {
+    return _etag;
   }
 
   @Nonnull

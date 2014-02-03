@@ -42,7 +42,7 @@ public final class EntityMessageAccumulator
       final ReplicantSession session = entry.getKey();
       final boolean isInitiator = session.getSessionID().equals( sessionID );
       impactsInitiator |= isInitiator;
-      session.getQueue().addPacket( isInitiator ? requestID : null, entry.getValue() );
+      session.getQueue().addPacket( isInitiator ? requestID : null, null, entry.getValue() );
     }
     _changeSets.clear();
 

@@ -32,12 +32,14 @@ public final class JsonEncoder
    *
    * @param lastChangeSetID the last change set ID.
    * @param requestID       the requestID that initiated the change. Only set if packet is destined for originating session.
+   * @param etag            the associated etag.
    * @param messages        the messages encoded as EntityMessage objects.
    * @return the encoded change set.
    */
   @Nonnull
   public static String encodeChangeSetFromEntityMessages( final int lastChangeSetID,
                                                           @Nullable final String requestID,
+                                                          @Nullable final String etag,
                                                           @Nonnull final Collection<EntityMessage> messages )
   {
     final StringWriter writer = new StringWriter();
@@ -54,6 +56,14 @@ public final class JsonEncoder
     else
     {
       generator.write( TransportConstants.REQUEST_ID, requestID );
+    }
+    if ( null == etag )
+    {
+      generator.writeNull( TransportConstants.ETAG );
+    }
+    else
+    {
+      generator.write( TransportConstants.ETAG, etag );
     }
 
     generator.writeStartArray( TransportConstants.CHANGES );

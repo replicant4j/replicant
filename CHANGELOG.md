@@ -1,3 +1,7 @@
+## 0.5.7:
+* Start to provide mechanisms for marking change sets with pseudo etags. This
+  would support client-side caching of data.
+
 ## 0.5.6:
 * In the DataLoaderService, do not execute runnable unless the RequestEntry has
   been successfully processed.

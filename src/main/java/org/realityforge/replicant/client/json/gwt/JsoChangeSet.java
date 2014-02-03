@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.json.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeSet;
 
@@ -24,6 +25,12 @@ public final class JsoChangeSet
   @Override
   public final native String getRequestID()/*-{
     return this.request_id;
+  }-*/;
+
+  @Nullable
+  @Override
+  public final native String getETag()/*-{
+    return this.etag;
   }-*/;
 
   @Override
