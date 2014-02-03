@@ -1,4 +1,5 @@
 ## 0.5.7:
+* Define and implement a CacheService interface and associated implementation.
 * Start to provide mechanisms for marking change sets with pseudo etags. This
   would support client-side caching of data.
 
