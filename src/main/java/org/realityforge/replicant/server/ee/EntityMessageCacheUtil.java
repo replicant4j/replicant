@@ -23,29 +23,44 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static EntityMessageSet getEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    EntityMessageSet messageSet = lookupEntityMessageSet( r );
-    if( null == messageSet )
-    {
-      messageSet = new EntityMessageSet();
-      r.putResource( KEY, messageSet );
-    }
-    return messageSet;
+    return getEntityMessageSet( r, KEY );
   }
 
   @Nullable
   public static EntityMessageSet lookupEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return (EntityMessageSet) r.getResource( KEY );
+    return lookupEntityMessageSet( r, KEY );
   }
 
   @Nullable
   public static EntityMessageSet removeEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    final EntityMessageSet messageSet = (EntityMessageSet) r.getResource( KEY );
+    return removeEntityMessageSet( r, KEY );
+  }
+
+  private static EntityMessageSet removeEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
+  {
+    final EntityMessageSet messageSet = lookupEntityMessageSet( r, key );
     if( null != messageSet )
     {
-      r.putResource( KEY, null );
+      r.putResource( key, null );
     }
     return messageSet;
+  }
+
+  private static EntityMessageSet getEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
+  {
+    EntityMessageSet messageSet = lookupEntityMessageSet( r, key );
+    if( null == messageSet )
+    {
+      messageSet = new EntityMessageSet();
+      r.putResource( key, messageSet );
+    }
+    return messageSet;
+  }
+
+  private static EntityMessageSet lookupEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
+  {
+    return (EntityMessageSet) r.getResource( key );
   }
 }
