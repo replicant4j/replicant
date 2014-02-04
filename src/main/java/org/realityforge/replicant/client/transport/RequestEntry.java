@@ -91,4 +91,10 @@ public class RequestEntry
   {
     _resultsArrived = true;
   }
+
+  @Override
+  public String toString()
+  {
+    return "Request[ID=" + _requestID+ ",Cache=" + _cacheKey + ",Bulk=" + _bulkLoad + "]";
+  }
 }
