@@ -71,7 +71,9 @@ public class DataLoadActionTest
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    final RequestEntry request = new RequestEntry( changeSet.getRequestID(), changeSet.isBulkChange() );
+    final String requestID = changeSet.getRequestID();
+    assertNotNull( requestID );
+    final RequestEntry request = new RequestEntry( requestID, changeSet.isBulkChange() );
     if ( normalCompletion )
     {
       request.setNormalCompletionAction( runnable );
