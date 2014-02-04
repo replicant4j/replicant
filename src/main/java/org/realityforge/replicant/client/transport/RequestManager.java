@@ -13,9 +13,9 @@ public class RequestManager
   private int _requestID;
 
   @Nonnull
-  public final RequestEntry newRequestRegistration( final boolean bulkLoad )
+  public final RequestEntry newRequestRegistration( @Nullable final String cacheKey, final boolean bulkLoad )
   {
-    final RequestEntry entry = new RequestEntry( newRequestID(), bulkLoad );
+    final RequestEntry entry = new RequestEntry( newRequestID(), cacheKey, bulkLoad );
     _requests.put( entry.getRequestID(), entry );
     return entry;
   }

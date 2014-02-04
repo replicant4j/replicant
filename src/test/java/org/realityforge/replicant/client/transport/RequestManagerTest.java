@@ -9,8 +9,9 @@ public class RequestManagerTest
   public void basicWorkflow()
   {
     final RequestManager rm = new RequestManager();
-    final RequestEntry e = rm.newRequestRegistration( true );
+    final RequestEntry e = rm.newRequestRegistration( "X", true );
     assertEquals( e.isBulkLoad(), true );
+    assertEquals( e.getCacheKey(), "X" );
 
     assertEquals( rm.getRequest( e.getRequestID() ), e );
     assertEquals( rm.getRequests().get( e.getRequestID() ), e );
