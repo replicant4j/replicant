@@ -9,21 +9,30 @@ import javax.annotation.Nullable;
 public class RequestEntry
 {
   private final String _requestID;
+  @Nullable
+  private final String _cacheKey;
   private final boolean _bulkLoad;
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
   private Runnable _runnable;
 
-  public RequestEntry( @Nonnull final String requestID, final boolean bulkLoad )
+  public RequestEntry( @Nonnull final String requestID, @Nullable final String cacheKey, final boolean bulkLoad )
   {
     _requestID = requestID;
+    _cacheKey = cacheKey;
     _bulkLoad = bulkLoad;
   }
 
   public String getRequestID()
   {
     return _requestID;
+  }
+
+  @Nullable
+  public String getCacheKey()
+  {
+    return _cacheKey;
   }
 
   public boolean isBulkLoad()

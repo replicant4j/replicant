@@ -8,9 +8,10 @@ public class RequestEntryTest
   @Test
   public void basicWorkflow()
   {
-    final RequestEntry e = new RequestEntry( "a1", true );
+    final RequestEntry e = new RequestEntry( "a1", "X", true );
 
     assertEquals( e.getRequestID(), "a1" );
+    assertEquals( e.getCacheKey(), "X" );
     assertEquals( e.isBulkLoad(), true );
 
     assertEquals( e.isCompletionDataPresent(), false );
