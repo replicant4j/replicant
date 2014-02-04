@@ -33,7 +33,9 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    final RequestEntry request = service.getSession().getRequestManager().getRequest( changeSet.getRequestID() );
+    final String requestID = changeSet.getRequestID();
+    assertNotNull( requestID );
+    final RequestEntry request = service.getSession().getRequestManager().getRequest( requestID );
     assertNotNull( request );
 
     final int stepCount = progressWorkTillDone( service );
@@ -48,7 +50,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( request.haveResultsArrived() );
-    assertNull( service.getSession().getRequestManager().getRequest( changeSet.getRequestID() ) );
+    assertNull( service.getSession().getRequestManager().getRequest( requestID ) );
     assertTrue( service.isDataLoadComplete() );
     assertTrue( service.isBulkLoad() );
     assertNotNull( service.getRequestID() );
@@ -81,7 +83,9 @@ public class DataLoaderServiceTest
     progressWorkTillDone( service );
 
     assertTrue( requestEntry.haveResultsArrived() );
-    assertNotNull( service.getSession().getRequestManager().getRequest( changeSet.getRequestID() ) );
+    final String requestID = changeSet.getRequestID();
+    assertNotNull( requestID );
+    assertNotNull( service.getSession().getRequestManager().getRequest( requestID ) );
     assertNotNull( service.getRequestID() );
 
     verifyPostActionNotRun( runnable );
