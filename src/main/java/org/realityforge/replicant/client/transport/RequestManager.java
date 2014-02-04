@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -8,6 +9,7 @@ import javax.annotation.Nullable;
 public class RequestManager
 {
   private final Map<String, RequestEntry> _requests = new HashMap<>();
+  private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
   private int _requestID;
 
   @Nonnull
@@ -22,6 +24,11 @@ public class RequestManager
   public final RequestEntry getRequest( @Nonnull final String requestID )
   {
     return _requests.get( requestID );
+  }
+
+  public Map<String, RequestEntry> getRequests()
+  {
+    return _requests;
   }
 
   public final boolean removeRequest( @Nonnull final String requestID )
