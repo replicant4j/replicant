@@ -24,6 +24,18 @@ final class DataLoadAction
   private ChangeSet _changeSet;
 
   /**
+   * The runnable action that may have been explicitly set for oob message.
+   */
+  @Nullable
+  private Runnable _runnable;
+
+  /**
+   * The bulk load flag may have been explicitly set for oob message.
+   */
+  @Nullable
+  private Boolean _bulkLoad;
+
+  /**
    * The current index into changes.
    */
   private int _changeIndex;
@@ -41,9 +53,14 @@ final class DataLoadAction
     _rawJsonData = rawJsonData;
   }
 
+  public void setBulkLoad( @Nullable final Boolean bulkLoad )
+  {
+    _bulkLoad = bulkLoad;
+  }
+
   public boolean isBulkLoad()
   {
-    return null != _request && _request.isBulkLoad();
+    return ( null != _bulkLoad && _bulkLoad ) || ( null != _request && _request.isBulkLoad() );
   }
 
   @Nullable
@@ -161,10 +178,19 @@ final class DataLoadAction
     return _changeSet;
   }
 
+  public void setRunnable( @Nullable final Runnable runnable )
+  {
+    _runnable = runnable;
+  }
+
   @Nullable
   public Runnable getRunnable()
   {
-    if( null == _request || !_request.isCompletionDataPresent() )
+    if( null != _runnable )
+    {
+      return _runnable;
+    }
+    else if( null == _request || !_request.isCompletionDataPresent() )
     {
       return null;
     }

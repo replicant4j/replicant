@@ -278,10 +278,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     if ( null != runnable )
     {
       runnable.run();
-      // We can remove the request because this side ran second and the
-      // RPC channel has already returned.
-      assert null != request;
-      getSession().getRequestManager().removeRequest( request.getRequestID() );
+      //Request can be null for an out of band action with runnable
+      if ( null != request )
+      {
+        // We can remove the request because this side ran second and the
+        // RPC channel has already returned.
+        getSession().getRequestManager().removeRequest( request.getRequestID() );
+      }
     }
     onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );
     _currentAction = null;

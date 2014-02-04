@@ -11,7 +11,7 @@ import static org.testng.Assert.*;
 
 public class DataLoadActionTest
 {
-  @DataProvider( name = "actionDescriptions" )
+  @DataProvider(name = "actionDescriptions")
   public Object[][] actionDescriptions()
   {
     final List<Boolean> flags = Arrays.asList( Boolean.TRUE, Boolean.FALSE );
@@ -25,27 +25,28 @@ public class DataLoadActionTest
         {
           for ( final boolean isLinkableEntity : flags )
           {
-            for ( final boolean update : flags )
+            for ( final boolean oob : flags )
             {
-              final boolean expectLink = isLinkableEntity && update;
+              for ( final boolean update : flags )
+              {
+                final boolean expectLink = isLinkableEntity && update;
+                final TestChangeSet changeSet =
+                  new TestChangeSet( 42,
+                                     useRunnable ? new MockRunner() : null,
+                                     bulkChange,
+                                     new Change[]{ new TestChange( update ) } );
+                final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
+                objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
+              }
+              final boolean expectLink = false;
               final TestChangeSet changeSet =
                 new TestChangeSet( 42,
                                    useRunnable ? new MockRunner() : null,
                                    bulkChange,
-                                   new Change[]{ new TestChange( update ) } );
-              changeSet.setRequestID( "X" );
+                                   new Change[]{ new TestChange( true ), new TestChange( false ) } );
               final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
-              objects.add( new Object[]{ normalCompletion, changeSet, entity, expectLink } );
+              objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
             }
-            final boolean expectLink = false;
-            final TestChangeSet changeSet =
-              new TestChangeSet( 42,
-                                 useRunnable ? new MockRunner() : null,
-                                 bulkChange,
-                                 new Change[]{ new TestChange( true ), new TestChange( false ) } );
-            changeSet.setRequestID( "X" );
-            final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
-            objects.add( new Object[]{ normalCompletion, changeSet, entity, expectLink } );
           }
         }
       }
@@ -56,6 +57,7 @@ public class DataLoadActionTest
 
   @Test( dataProvider = "actionDescriptions" )
   public void verifyActionLifecycle( final boolean normalCompletion,
+                                     final boolean oob,
                                      final TestChangeSet changeSet,
                                      final Object entity,
                                      final boolean expectedLink )
@@ -73,18 +75,28 @@ public class DataLoadActionTest
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    final String requestID = changeSet.getRequestID();
-    assertNotNull( requestID );
-    final RequestEntry request = new RequestEntry( requestID, null, changeSet.isBulkChange() );
-    if ( normalCompletion )
+    if ( oob )
     {
-      request.setNormalCompletionAction( runnable );
+      action.setRunnable( changeSet.getRunnable() );
+      action.setBulkLoad( changeSet.isBulkChange() );
+      action.setChangeSet( changeSet, null );
     }
     else
     {
-      request.setNonNormalCompletionAction( runnable );
+      changeSet.setRequestID( "X" );
+      final String requestID = changeSet.getRequestID();
+      assertNotNull( requestID );
+      final RequestEntry request = new RequestEntry( requestID, null, changeSet.isBulkChange() );
+      if ( normalCompletion )
+      {
+        request.setNormalCompletionAction( runnable );
+      }
+      else
+      {
+        request.setNonNormalCompletionAction( runnable );
+      }
+      action.setChangeSet( changeSet, request );
     }
-    action.setChangeSet( changeSet, request );
     assertEquals( action.isBulkLoad(), changeSet.isBulkChange() );
     assertEquals( action.getRunnable(), runnable );
 
