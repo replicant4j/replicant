@@ -321,12 +321,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     if ( null != runnable )
     {
       runnable.run();
-      //Request can be null for an out of band action with runnable
-      if ( null != request )
+      // OOB messages are not in response to requests as such
+      final String requestID = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestID();
+      if ( null != requestID )
       {
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
-        getSession().getRequestManager().removeRequest( request.getRequestID() );
+
+        getSession().getRequestManager().removeRequest( requestID );
       }
     }
     onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );
