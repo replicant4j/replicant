@@ -33,6 +33,7 @@ public class DataLoadActionTest
                                    useRunnable ? new MockRunner() : null,
                                    bulkChange,
                                    new Change[]{ new TestChange( update ) } );
+              changeSet.setRequestID( "X" );
               final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
               objects.add( new Object[]{ normalCompletion, changeSet, entity, expectLink } );
             }
@@ -42,6 +43,7 @@ public class DataLoadActionTest
                                  useRunnable ? new MockRunner() : null,
                                  bulkChange,
                                  new Change[]{ new TestChange( true ), new TestChange( false ) } );
+            changeSet.setRequestID( "X" );
             final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
             objects.add( new Object[]{ normalCompletion, changeSet, entity, expectLink } );
           }
