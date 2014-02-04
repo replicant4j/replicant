@@ -261,7 +261,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getLastKnownChangeSet(), 0 );
 
-    setupRequests( service, service._changeSets );
+    configureRequests( service, service._changeSets );
     service.enqueueDataLoad( "jsonData" );
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 3 );
@@ -295,7 +295,7 @@ public class DataLoaderServiceTest
 
   private void ensureEnqueueDataLoads( final TestDataLoadService service )
   {
-    setupRequests( service, service._changeSets );
+    configureRequests( service, service._changeSets );
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service._changeSets )
     {
@@ -304,18 +304,23 @@ public class DataLoaderServiceTest
     assertTrue( service.isScheduleDataLoadCalled() );
   }
 
-  private void setupRequests( final TestDataLoadService service, final LinkedList<TestChangeSet> changeSets )
+  private void configureRequests( final TestDataLoadService service, final LinkedList<TestChangeSet> changeSets )
   {
     for ( final TestChangeSet changeSet : changeSets )
     {
-      if ( changeSet.isResponseToRequest() )
-      {
-        final RequestEntry requestEntry =
-          service.getSession().getRequestManager().
-            newRequestRegistration( changeSet.getCacheKey(), changeSet.isBulkChange() );
-        requestEntry.setNormalCompletionAction( changeSet.getRunnable() );
-        changeSet.setRequestID( requestEntry.getRequestID() );
-      }
+      configureRequest( changeSet, service );
+    }
+  }
+
+  private void configureRequest( final TestChangeSet changeSet, final TestDataLoadService service )
+  {
+    if ( changeSet.isResponseToRequest() )
+    {
+      final RequestEntry requestEntry =
+        service.getSession().getRequestManager().
+          newRequestRegistration( changeSet.getCacheKey(), changeSet.isBulkChange() );
+      requestEntry.setNormalCompletionAction( changeSet.getRunnable() );
+      changeSet.setRequestID( requestEntry.getRequestID() );
     }
   }
 
