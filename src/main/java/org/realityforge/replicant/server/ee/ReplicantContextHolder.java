@@ -71,6 +71,18 @@ public final class ReplicantContextHolder
   }
 
   /**
+   * Return true if the context contains data for specified key.
+   *
+   * @param key the key.
+   * @return true if the context contains key.
+   */
+  @Nullable
+  public static boolean contains( @Nonnull final String key )
+  {
+    return null != get( key );
+  }
+
+  /**
    * Cleanup and remove any context data associated with the current request.
    * This should be invoked by the outer interceptor.
    */

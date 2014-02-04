@@ -1,4 +1,5 @@
 ## 0.5.7:
+* Add ReplicantContextHolder.contains() utility function.
 * Remove the onBulkLoadComplete() and onIncrementalLoadComplete() extension
   points in AbstractDataLoaderService as they are subsumed by onDataLoadComplete()
 * Define and implement a CacheService interface and associated implementation.

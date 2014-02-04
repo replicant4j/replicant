@@ -36,10 +36,15 @@ public class ReplicantContextHolderTest
 
     ReplicantContextHolder.remove( key );
     assertNull( ReplicantContextHolder.get( key ) );
+    assertFalse( ReplicantContextHolder.contains( key ) );
 
     ReplicantContextHolder.put( key, value );
     assertNotNull( ReplicantContextHolder.get( key ) );
+    assertTrue( ReplicantContextHolder.contains( key ) );
+
     ReplicantContextHolder.clean();
+
     assertNull( ReplicantContextHolder.get( key ) );
+    assertFalse( ReplicantContextHolder.contains( key ) );
   }
 }
