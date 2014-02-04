@@ -90,7 +90,7 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 9 );
 
-    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+    assertEquals( service.getLastKnownChangeSet(), 0 );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( changeBroker ).disable();

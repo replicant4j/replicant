@@ -276,7 +276,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       {
         LOG.log( getLogLevel(), "Finalizing action: " + _currentAction );
       }
-      _lastKnownChangeSet = set.getSequence();
+      // OOB messages are not sequenced
+      if ( !_currentAction.isOob() )
+      {
+        _lastKnownChangeSet = set.getSequence();
+      }
       if ( _currentAction.isBulkLoad() )
       {
         if ( _currentAction.hasBrokerBeenPaused() )
