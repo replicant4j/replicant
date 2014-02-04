@@ -61,14 +61,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     return _session;
   }
 
-  protected void onBulkLoadComplete()
-  {
-  }
-
-  protected void onIncrementalLoadComplete()
-  {
-  }
-
   protected abstract void scheduleDataLoad();
 
   protected final void setChangesToProcessPerTick( final int changesToProcessPerTick )
@@ -252,7 +244,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         {
           _changeBroker.enable();
         }
-        onBulkLoadComplete();
       }
       else
       {
@@ -260,7 +251,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         {
           _changeBroker.resume();
         }
-        onIncrementalLoadComplete();
       }
       if ( shouldValidateOnLoad() )
       {

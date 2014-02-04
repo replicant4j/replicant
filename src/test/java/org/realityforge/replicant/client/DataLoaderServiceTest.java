@@ -341,12 +341,10 @@ public class DataLoaderServiceTest
     extends AbstractDataLoaderService
   {
     private final boolean _validateOnLoad;
-    private boolean _bulkLoadCompleteCalled;
-    private boolean _incrementalLoadCompleteCalled;
     private boolean _scheduleDataLoadCalled;
     private LinkedList<TestChangeSet> _changeSets;
     private boolean _dataLoadComplete;
-    private boolean _bulkLoad;
+    private Boolean _bulkLoad;
     private String _requestID;
 
     TestDataLoadService( final boolean validateOnLoad, final TestChangeSet... changeSets )
@@ -357,12 +355,12 @@ public class DataLoaderServiceTest
 
     protected boolean isBulkLoadCompleteCalled()
     {
-      return _bulkLoadCompleteCalled;
+      return null != _bulkLoad && _bulkLoad;
     }
 
     protected boolean isIncrementalLoadCompleteCalled()
     {
-      return _incrementalLoadCompleteCalled;
+      return null != _bulkLoad && !_bulkLoad;
     }
 
     protected boolean isScheduleDataLoadCalled()
@@ -391,18 +389,6 @@ public class DataLoaderServiceTest
     public String getRequestID()
     {
       return _requestID;
-    }
-
-    @Override
-    protected void onBulkLoadComplete()
-    {
-      _bulkLoadCompleteCalled = true;
-    }
-
-    @Override
-    protected void onIncrementalLoadComplete()
-    {
-      _incrementalLoadCompleteCalled = true;
     }
 
     @Override
