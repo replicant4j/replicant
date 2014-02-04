@@ -28,7 +28,7 @@ public class RequestManager
 
   public Map<String, RequestEntry> getRequests()
   {
-    return _requests;
+    return _roRequests;
   }
 
   public final boolean removeRequest( @Nonnull final String requestID )
