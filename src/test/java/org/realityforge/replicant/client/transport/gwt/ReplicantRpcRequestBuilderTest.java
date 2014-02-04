@@ -53,7 +53,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndComplete()
   {
     final TestClientSession session = new TestClientSession( "1" );
-    final RequestEntry requestEntry = session.getRequestManager().newRequestRegistration( true );
+    final RequestEntry requestEntry = session.getRequestManager().newRequestRegistration( null, true );
     SessionContext.setSession( session );
     SessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
@@ -84,7 +84,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndIncomplete()
   {
     final TestClientSession session = new TestClientSession( "1" );
-    final RequestEntry requestEntry = session.getRequestManager().newRequestRegistration( true );
+    final RequestEntry requestEntry = session.getRequestManager().newRequestRegistration( null, true );
     SessionContext.setSession( session );
     SessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
@@ -116,7 +116,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withFailure()
   {
     final TestClientSession session = new TestClientSession( "1" );
-    final RequestEntry requestEntry = session.getRequestManager().newRequestRegistration( true );
+    final RequestEntry requestEntry = session.getRequestManager().newRequestRegistration( null, true );
     SessionContext.setSession( session );
     SessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
