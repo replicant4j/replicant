@@ -33,10 +33,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    final String requestID = changeSet.getRequestID();
-    assertNotNull( requestID );
-    final RequestEntry request = service.getSession().getRequestManager().getRequest( requestID );
-    assertNotNull( request );
+    final RequestEntry request = ensureRequest( service, changeSet );
 
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 9 );
@@ -50,7 +47,8 @@ public class DataLoaderServiceTest
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( request.haveResultsArrived() );
-    assertNull( service.getSession().getRequestManager().getRequest( requestID ) );
+    assertInRequestManager( service, request );
+    assertNotInRequestManager( service, request );
     assertTrue( service.isDataLoadComplete() );
     assertTrue( service.isBulkLoad() );
     assertNotNull( service.getRequestID() );
@@ -138,17 +136,16 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet, true );
 
-    final RequestEntry requestEntry =
-      service.getSession().getRequestManager().newRequestRegistration( null, changeSet.isBulkChange() );
-    changeSet.setRequestID( requestEntry.getRequestID() );
+    final RequestEntry request = ensureRequest( service, changeSet );
+    changeSet.setRequestID( request.getRequestID() );
     service.enqueueDataLoad( "blah" );
 
     progressWorkTillDone( service );
 
-    assertTrue( requestEntry.haveResultsArrived() );
+    assertTrue( request.haveResultsArrived() );
     final String requestID = changeSet.getRequestID();
     assertNotNull( requestID );
-    assertNotNull( service.getSession().getRequestManager().getRequest( requestID ) );
+    assertInRequestManager( service, request );
     assertNotNull( service.getRequestID() );
 
     verifyPostActionNotRun( runnable );
@@ -376,6 +373,25 @@ public class DataLoaderServiceTest
     final Field field5 = clazz.getDeclaredField( fieldName );
     field5.setAccessible( true );
     field5.set( instance, value );
+  }
+
+  private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
+  {
+    assertNull( service.getSession().getRequestManager().getRequest( request.getRequestID() ) );
+  }
+
+  private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
+  {
+    assertNotNull( service.getSession().getRequestManager().getRequest( request.getRequestID() ) );
+  }
+
+  private RequestEntry ensureRequest( final TestDataLoadService service, final TestChangeSet changeSet )
+  {
+    final String requestID = changeSet.getRequestID();
+    assertNotNull( requestID );
+    final RequestEntry request = service.getSession().getRequestManager().getRequest( requestID );
+    assertNotNull( request );
+    return request;
   }
 
   static class TestClientSession
