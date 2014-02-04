@@ -76,7 +76,7 @@ public class DataLoaderServiceTest
                   true );
 
     final RequestEntry requestEntry =
-      service.getSession().getRequestManager().newRequestRegistration( changeSet.isBulkChange() );
+      service.getSession().getRequestManager().newRequestRegistration( null, changeSet.isBulkChange() );
     changeSet.setRequestID( requestEntry.getRequestID() );
     service.enqueueDataLoad( "blah" );
 
@@ -264,7 +264,7 @@ public class DataLoaderServiceTest
       if ( changeSet.isResponseToRequest() )
       {
         final RequestEntry requestEntry =
-          service.getSession().getRequestManager().newRequestRegistration( changeSet.isBulkChange() );
+          service.getSession().getRequestManager().newRequestRegistration( null, changeSet.isBulkChange() );
         requestEntry.setNormalCompletionAction( changeSet.getRunnable() );
         changeSet.setRequestID( requestEntry.getRequestID() );
       }
