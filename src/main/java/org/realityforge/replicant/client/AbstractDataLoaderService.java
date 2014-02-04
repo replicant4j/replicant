@@ -61,6 +61,16 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     SessionContext.setSession( session );
   }
 
+  protected final EntityChangeBroker getChangeBroker()
+  {
+    return _changeBroker;
+  }
+
+  protected final ChangeMapper getChangeMapper()
+  {
+    return _changeMapper;
+  }
+
   public final T getSession()
   {
     return _session;
@@ -184,11 +194,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       _currentAction.markBrokerPaused();
       if ( _currentAction.isBulkLoad() )
       {
-        _changeBroker.disable();
+        getChangeBroker().disable();
       }
       else
       {
-        _changeBroker.pause();
+        getChangeBroker().pause();
       }
       if ( LOG.isLoggable( Level.INFO ) )
       {
@@ -208,7 +218,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       Change change;
       for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
       {
-        final Object entity = _changeMapper.applyChange( change );
+        final Object entity = getChangeMapper().applyChange( change );
         if ( LOG.isLoggable( Level.INFO ) )
         {
           if ( change.isUpdate() )
@@ -271,14 +281,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       {
         if ( _currentAction.hasBrokerBeenPaused() )
         {
-          _changeBroker.enable();
+          getChangeBroker().enable();
         }
       }
       else
       {
         if ( _currentAction.hasBrokerBeenPaused() )
         {
-          _changeBroker.resume();
+          getChangeBroker().resume();
         }
       }
       if ( shouldValidateOnLoad() )
