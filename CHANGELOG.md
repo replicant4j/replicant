@@ -1,4 +1,6 @@
 ## 0.5.7:
+* Define mechanisms for executing out-of-band messages. These are of particular
+  relevance when reloading cached content.
 * Add ReplicantContextHolder.contains() utility function.
 * Remove the onBulkLoadComplete() and onIncrementalLoadComplete() extension
   points in AbstractDataLoaderService as they are subsumed by onDataLoadComplete()
