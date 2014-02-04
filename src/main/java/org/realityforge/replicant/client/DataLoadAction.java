@@ -18,6 +18,11 @@ final class DataLoadAction
   private String _rawJsonData;
 
   /**
+   * Is the message out-of-band ?
+   */
+  private final boolean _oob;
+
+  /**
    * The array of changes after parsing. Null prior to parsing.
    */
   @Nullable
@@ -48,13 +53,20 @@ final class DataLoadAction
   private boolean _brokerPaused;
   private RequestEntry _request;
 
-  public DataLoadAction( final String rawJsonData )
+  public DataLoadAction( final String rawJsonData, final boolean oob )
   {
     _rawJsonData = rawJsonData;
+    _oob = oob;
+  }
+
+  public boolean isOob()
+  {
+    return _oob;
   }
 
   public void setBulkLoad( @Nullable final Boolean bulkLoad )
   {
+    assert isOob();
     _bulkLoad = bulkLoad;
   }
 
@@ -71,6 +83,7 @@ final class DataLoadAction
 
   public void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
+    assert !isOob() || null == request;
     _request = request;
     _changeSet = changeSet;
     _rawJsonData = null;
@@ -180,6 +193,7 @@ final class DataLoadAction
 
   public void setRunnable( @Nullable final Runnable runnable )
   {
+    assert isOob();
     _runnable = runnable;
   }
 

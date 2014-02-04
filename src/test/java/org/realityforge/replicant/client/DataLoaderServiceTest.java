@@ -62,6 +62,51 @@ public class DataLoaderServiceTest
   }
 
   @Test
+  public void enqueueOOB()
+    throws Exception
+  {
+    final Linkable entity = mock( Linkable.class );
+    final Runnable runnable = mock( Runnable.class );
+    final TestChangeSet changeSet =
+      new TestChangeSet( 1, runnable, true, new Change[]{ new TestChange( true ) } );
+    final ChangeMapper changeMapper = mock( ChangeMapper.class );
+    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
+
+    final TestDataLoadService service = newService( changeSet, changeMapper, changeBroker, true );
+
+    when( changeMapper.applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
+
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+
+    assertFalse( service.isScheduleDataLoadCalled() );
+    for ( final TestChangeSet cs : service._changeSets )
+    {
+      service.enqueueOOB( "BLAH:" + cs.getSequence(), runnable, changeSet.isBulkChange() );
+    }
+    assertTrue( service.isScheduleDataLoadCalled() );
+
+    final int stepCount = progressWorkTillDone( service );
+    assertEquals( stepCount, 9 );
+
+    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+
+    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( changeBroker ).disable();
+    verify( changeBroker ).enable();
+    assertTrue( service.isBulkLoadCompleteCalled() );
+    assertFalse( service.isIncrementalLoadCompleteCalled() );
+
+    assertTrue( service.isDataLoadComplete() );
+    assertTrue( service.isBulkLoad() );
+    assertNull( service.getRequestID() );
+
+    verify( changeMapper ).applyChange( changeSet.getChange( 0 ) );
+    verify( entity ).link();
+
+    verifyPostActionRun( runnable );
+  }
+
+  @Test
   public void verifyDataLoader_doesNotRemoveRequestIfNotYethandled()
     throws Exception
   {

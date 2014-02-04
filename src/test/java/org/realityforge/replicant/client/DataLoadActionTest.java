@@ -63,7 +63,7 @@ public class DataLoadActionTest
                                      final boolean expectedLink )
   {
     final MockRunner runnable = (MockRunner) changeSet.getRunnable();
-    final DataLoadAction action = new DataLoadAction( "BLAH" );
+    final DataLoadAction action = new DataLoadAction( "BLAH", oob );
 
     //Ensure the initial state is as expected
     assertEquals( action.getRawJsonData(), "BLAH" );

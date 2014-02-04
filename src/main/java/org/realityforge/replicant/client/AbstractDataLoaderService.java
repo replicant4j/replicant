@@ -40,6 +40,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
    * this list according to their sequence.
    */
   private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<>();
+  /**
+   * Sometimes a data load action occurs that is not initiated by the server. These do not
+   * typically need to be sequenced and are prioritized above other actions.
+   */
+  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
   private DataLoadAction _currentAction;
   private int _updateCount;
   private int _removeCount;
@@ -83,22 +88,46 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   @SuppressWarnings( "ConstantConditions" )
   protected final void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
-    if( null == rawJsonData )
+    if ( null == rawJsonData )
     {
       throw new IllegalStateException( "null == rawJsonData" );
     }
-    _pendingActions.add( new DataLoadAction( rawJsonData ) );
+    _pendingActions.add( new DataLoadAction( rawJsonData, false ) );
+    scheduleDataLoad();
+  }
+
+  @SuppressWarnings( "ConstantConditions" )
+  protected final void enqueueOOB( @Nonnull final String rawJsonData,
+                                   @Nullable final Runnable runnable,
+                                   final boolean bulkLoad )
+  {
+    if ( null == rawJsonData )
+    {
+      throw new IllegalStateException( "null == rawJsonData" );
+    }
+    final DataLoadAction action = new DataLoadAction( rawJsonData, true );
+    action.setRunnable( runnable );
+    action.setBulkLoad( bulkLoad );
+    _oobActions.add( action );
     scheduleDataLoad();
   }
 
   protected final boolean progressDataLoad()
   {
+    // Step: Retrieve any out of band actions
+    if ( null == _currentAction && !_oobActions.isEmpty() )
+    {
+      _currentAction = _oobActions.removeFirst();
+      return true;
+    }
+
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
     if ( null == _currentAction && !_parsedActions.isEmpty() )
     {
-      final ChangeSet changeSet = _parsedActions.get( 0 ).getChangeSet();
+      final DataLoadAction action = _parsedActions.get( 0 );
+      final ChangeSet changeSet = action.getChangeSet();
       assert null != changeSet;
-      if ( _lastKnownChangeSet + 1 == changeSet.getSequence() )
+      if ( action.isOob() || _lastKnownChangeSet + 1 == changeSet.getSequence() )
       {
         _currentAction = _parsedActions.remove();
         if ( LOG.isLoggable( getLogLevel() ) )
@@ -270,7 +299,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       LOG.log( getLogLevel(), "Running post action and cleaning action: " + _currentAction );
     }
     final RequestEntry request = _currentAction.getRequest();
-    if( null != request )
+    if ( null != request )
     {
       request.markResultsAsArrived();
     }
@@ -294,7 +323,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   /**
    * Invoked when a change set has been completely processed.
    *
-   * @param bulkLoad true if the change set was processed as a bulk load, false otherwise.
+   * @param bulkLoad  true if the change set was processed as a bulk load, false otherwise.
    * @param requestID the local request id that initiated the changes.
    */
   protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String requestID )
