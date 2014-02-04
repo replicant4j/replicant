@@ -335,7 +335,8 @@ public class DataLoaderServiceTest
       if ( changeSet.isResponseToRequest() )
       {
         final RequestEntry requestEntry =
-          service.getSession().getRequestManager().newRequestRegistration( null, changeSet.isBulkChange() );
+          service.getSession().getRequestManager().
+            newRequestRegistration( changeSet.getCacheKey(), changeSet.isBulkChange() );
         requestEntry.setNormalCompletionAction( changeSet.getRunnable() );
         changeSet.setRequestID( requestEntry.getRequestID() );
       }
