@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.RequestManager;
@@ -28,6 +29,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   private EntityChangeBroker _changeBroker;
   @Inject
   private EntityRepository _repository;
+  @Inject
+  private CacheService _cacheService;
 
   private int _lastKnownChangeSet;
 
@@ -59,6 +62,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     _session = session;
     // This should probably be moved elsewhere ... but where?
     SessionContext.setSession( session );
+  }
+
+  protected final CacheService getCacheService()
+  {
+    return _cacheService;
   }
 
   protected final EntityChangeBroker getChangeBroker()
@@ -178,9 +186,55 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         LOG.log( getLogLevel(), "Parsing JSON: " + _currentAction );
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
-      final RequestManager requestManager = getSession().getRequestManager();
-      final String requestID = changeSet.getRequestID();
-      final RequestEntry request = null != requestID ? requestManager.getRequest( requestID ) : null;
+      // OOB messages are not in response to requests as such
+      final String requestID = _currentAction.isOob() ? null : changeSet.getRequestID();
+      // OOB messages have no etags as from local cache or generated locally
+      final String eTag = _currentAction.isOob() ? null : changeSet.getETag();
+      final int sequence = _currentAction.isOob() ? 0 : changeSet.getSequence();
+      if ( LOG.isLoggable( getLogLevel() ) )
+      {
+        LOG.log( getLogLevel(),
+                 "Parsed ChangeSet:" +
+                 " oob=" + _currentAction.isOob() +
+                 " seq=" + sequence +
+                 " requestID=" + requestID +
+                 " eTag=" + eTag +
+                 " changeCount=" + changeSet.getChangeCount() );
+      }
+      final RequestEntry request;
+      if ( _currentAction.isOob() )
+      {
+        request = null;
+      }
+      else
+      {
+        final RequestManager requestManager = getSession().getRequestManager();
+        request = null != requestID ? requestManager.getRequest( requestID ) : null;
+        if ( null == request && null != requestID )
+        {
+            final String message =
+              "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
+              " Existing Requests: " + requestManager.getRequests();
+          if ( LOG.isLoggable( Level.WARNING ) )
+          {
+            LOG.warning( message );
+          }
+          throw new IllegalStateException( message );
+        }
+        else if ( null != request )
+        {
+          final String cacheKey = request.getCacheKey();
+          if ( null != eTag && null != cacheKey )
+          {
+            if ( LOG.isLoggable( getLogLevel() ) )
+            {
+              LOG.log( getLogLevel(), "Caching ChangeSet: seq=" + sequence + " cacheKey=" + cacheKey );
+            }
+            getCacheService().store( cacheKey, eTag, rawJsonData );
+          }
+        }
+      }
+
       _currentAction.setChangeSet( changeSet, request );
       _parsedActions.add( _currentAction );
       Collections.sort( _parsedActions );

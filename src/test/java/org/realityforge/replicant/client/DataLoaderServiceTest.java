@@ -8,6 +8,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
+import org.realityforge.replicant.client.transport.CacheEntry;
+import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.testng.annotations.Test;
@@ -52,6 +54,60 @@ public class DataLoaderServiceTest
     verify( entity ).link();
 
     assertRequestProcessed( service, request );
+  }
+
+  @Test
+  public void cache_requestWithCacheKeyAndETag()
+    throws Exception
+  {
+    final TestChangeSet changeSet =
+      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
+    changeSet.setCacheKey( "MetaData" );
+    changeSet.setEtag( "1 Jan 2020" );
+
+    final TestDataLoadService service = newService( changeSet, true );
+    final CacheService cacheService = service.getCacheService();
+
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+
+    service.enqueueDataLoad( "Data" );
+    final RequestEntry request = configureRequest( changeSet, service );
+    assertNotNull( request );
+
+    final int stepCount = progressWorkTillDone( service );
+    assertEquals( stepCount, 7 );
+
+    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+
+    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( cacheService ).store( "MetaData", "1 Jan 2020", "Data" );
+
+    assertRequestProcessed( service, request );
+  }
+
+  @Test
+  public void cache_withOOB()
+    throws Exception
+  {
+    final TestChangeSet changeSet =
+      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
+    changeSet.setCacheKey( "MetaData" );
+    changeSet.setEtag( "1 Jan 2020" );
+
+    final TestDataLoadService service = newService( changeSet, true );
+    final CacheService cacheService = service.getCacheService();
+
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+
+    service.enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
+
+    final int stepCount = progressWorkTillDone( service );
+    assertEquals( stepCount, 7 );
+
+    assertEquals( service.getLastKnownChangeSet(), 0 );
+
+    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( cacheService, never() ).store( anyString(), anyString(), anyString() );
   }
 
   private void assertRequestProcessed( final TestDataLoadService service, final RequestEntry request )
