@@ -243,10 +243,25 @@ final class DataLoadAction
   @Override
   public int compareTo( final DataLoadAction other )
   {
-    final ChangeSet changeSet1 = getChangeSet();
-    assert null != changeSet1;
-    final ChangeSet changeSet2 = other.getChangeSet();
-    assert null != changeSet2;
-    return changeSet1.getSequence() - changeSet2.getSequence();
+    if ( isOob() && other.isOob() )
+    {
+      return 0;
+    }
+    else if ( isOob() )
+    {
+      return -1;
+    }
+    else if ( other.isOob() )
+    {
+      return 1;
+    }
+    else
+    {
+      final ChangeSet changeSet1 = getChangeSet();
+      assert null != changeSet1;
+      final ChangeSet changeSet2 = other.getChangeSet();
+      assert null != changeSet2;
+      return changeSet1.getSequence() - changeSet2.getSequence();
+    }
   }
 }

@@ -2,7 +2,9 @@ package org.realityforge.replicant.client;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
@@ -104,6 +106,30 @@ public class DataLoaderServiceTest
     verify( entity ).link();
 
     verifyPostActionRun( runnable );
+  }
+
+  @Test
+  public void ordering()
+    throws Exception
+  {
+    final TestChangeSet cs1 = new TestChangeSet( 1, null, true, new Change[ 0 ] );
+    final TestChangeSet cs2 = new TestChangeSet( 2, null, true, new Change[ 0 ] );
+    final TestChangeSet cs3 = new TestChangeSet( 3, null, true, new Change[ 0 ] );
+
+    final DataLoadAction oob1 = new DataLoadAction( "oob1", true );
+    final DataLoadAction oob2 = new DataLoadAction( "oob2", true );
+    final DataLoadAction oob3 = new DataLoadAction( "oob3", true );
+
+    final DataLoadAction s1 = new DataLoadAction( "s1", false );
+    s1.setChangeSet( cs1, null );
+    final DataLoadAction s2 = new DataLoadAction( "s2", false );
+    s2.setChangeSet( cs2, null );
+    final DataLoadAction s3 = new DataLoadAction( "s3", false );
+    s3.setChangeSet( cs3, null );
+
+    final List<DataLoadAction> l1 = Arrays.asList( s2, s3, s1, oob1, oob2, oob3 );
+    Collections.sort( l1 );
+    assertEquals( l1, Arrays.asList( oob1, oob2, oob3, s1, s2, s3 ) );
   }
 
   @Test
