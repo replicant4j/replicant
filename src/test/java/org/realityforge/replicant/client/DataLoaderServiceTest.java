@@ -24,12 +24,10 @@ public class DataLoaderServiceTest
     final Runnable runnable = mock( Runnable.class );
     final TestChangeSet changeSet =
       new TestChangeSet( 1, runnable, true, new Change[]{ new TestChange( true ) } );
-    final ChangeMapper changeMapper = mock( ChangeMapper.class );
-    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
-    final TestDataLoadService service = newService( changeSet, changeMapper, changeBroker, true );
+    final TestDataLoadService service = newService( changeSet, true );
 
-    when( changeMapper.applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
+    when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
     assertEquals( service.getLastKnownChangeSet(), 0 );
 
@@ -46,8 +44,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
 
     verify( service.getRepository(), times( 1 ) ).validate();
-    verify( changeBroker ).disable();
-    verify( changeBroker ).enable();
+    verify( service.getChangeBroker() ).disable();
+    verify( service.getChangeBroker() ).enable();
     assertTrue( service.isBulkLoadCompleteCalled() );
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
@@ -57,7 +55,7 @@ public class DataLoaderServiceTest
     assertTrue( service.isBulkLoad() );
     assertNotNull( service.getRequestID() );
 
-    verify( changeMapper ).applyChange( changeSet.getChange( 0 ) );
+    verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
 
     verifyPostActionRun( runnable );
@@ -71,12 +69,10 @@ public class DataLoaderServiceTest
     final Runnable runnable = mock( Runnable.class );
     final TestChangeSet changeSet =
       new TestChangeSet( 1, runnable, true, new Change[]{ new TestChange( true ) } );
-    final ChangeMapper changeMapper = mock( ChangeMapper.class );
-    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
-    final TestDataLoadService service = newService( changeSet, changeMapper, changeBroker, true );
+    final TestDataLoadService service = newService( changeSet, true );
 
-    when( changeMapper.applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
+    when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
     assertEquals( service.getLastKnownChangeSet(), 0 );
 
@@ -93,8 +89,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getLastKnownChangeSet(), 0 );
 
     verify( service.getRepository(), times( 1 ) ).validate();
-    verify( changeBroker ).disable();
-    verify( changeBroker ).enable();
+    verify( service.getChangeBroker() ).disable();
+    verify( service.getChangeBroker() ).enable();
     assertTrue( service.isBulkLoadCompleteCalled() );
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
@@ -102,7 +98,7 @@ public class DataLoaderServiceTest
     assertTrue( service.isBulkLoad() );
     assertNull( service.getRequestID() );
 
-    verify( changeMapper ).applyChange( changeSet.getChange( 0 ) );
+    verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
 
     verifyPostActionRun( runnable );
@@ -133,18 +129,14 @@ public class DataLoaderServiceTest
   }
 
   @Test
-  public void verifyDataLoader_doesNotRemoveRequestIfNotYethandled()
+  public void verifyDataLoader_doesNotRemoveRequestIfNotYetHandled()
     throws Exception
   {
     final Runnable runnable = mock( Runnable.class );
     final TestChangeSet changeSet =
       new TestChangeSet( 1, runnable, true, new Change[ 0 ] );
 
-    final TestDataLoadService service =
-      newService( changeSet,
-                  mock( ChangeMapper.class ),
-                  mock( EntityChangeBroker.class ),
-                  true );
+    final TestDataLoadService service = newService( changeSet, true );
 
     final RequestEntry requestEntry =
       service.getSession().getRequestManager().newRequestRegistration( null, changeSet.isBulkChange() );
@@ -168,10 +160,8 @@ public class DataLoaderServiceTest
   {
     final Runnable runnable = mock( Runnable.class );
     final TestChangeSet changeSet = new TestChangeSet( 1, runnable, false, new Change[ 0 ] );
-    final ChangeMapper changeMapper = mock( ChangeMapper.class );
-    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
-    final TestDataLoadService service = newService( changeSet, changeMapper, changeBroker, true );
+    final TestDataLoadService service = newService( changeSet, true );
 
     assertEquals( service.getLastKnownChangeSet(), 0 );
 
@@ -183,8 +173,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
 
     verify( service.getRepository(), times( 1 ) ).validate();
-    verify( changeBroker, never() ).disable();
-    verify( changeBroker, never() ).enable();
+    verify( service.getChangeBroker(), never() ).disable();
+    verify( service.getChangeBroker(), never() ).enable();
     assertFalse( service.isBulkLoadCompleteCalled() );
     assertTrue( service.isIncrementalLoadCompleteCalled() );
 
@@ -201,18 +191,17 @@ public class DataLoaderServiceTest
   {
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet = new TestChangeSet( 1, null, true, new Change[]{ new TestChange( false ) } );
-    final ChangeMapper changeMapper = mock( ChangeMapper.class );
 
-    final TestDataLoadService service = newService( changeSet, changeMapper, mock( EntityChangeBroker.class ), true );
+    final TestDataLoadService service = newService( changeSet, true );
 
-    when( changeMapper.applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
+    when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
     ensureEnqueueDataLoads( service );
 
     progressWorkTillDone( service );
 
     verify( service.getRepository(), times( 1 ) ).validate();
-    verify( changeMapper ).applyChange( changeSet.getChange( 0 ) );
+    verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity, never() ).link();
   }
 
@@ -222,8 +211,7 @@ public class DataLoaderServiceTest
   {
     final TestChangeSet changeSet = new TestChangeSet( 1, null, false, new Change[]{ new TestChange( true ) } );
 
-    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
-    final TestDataLoadService service = newService( changeSet, mock( ChangeMapper.class ), changeBroker, true );
+    final TestDataLoadService service = newService( changeSet, true );
 
     assertEquals( service.getLastKnownChangeSet(), 0 );
 
@@ -235,6 +223,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
 
+    final EntityChangeBroker changeBroker = service.getChangeBroker();
     verify( changeBroker ).pause();
     verify( changeBroker ).resume();
     assertFalse( service.isBulkLoadCompleteCalled() );
@@ -247,12 +236,7 @@ public class DataLoaderServiceTest
   {
     final TestChangeSet changeSet = new TestChangeSet( 1, null, false, new Change[]{ new TestChange( true ) } );
 
-    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
-    final TestDataLoadService service =
-      newService( new TestChangeSet[]{ changeSet, changeSet },
-                  mock( ChangeMapper.class ),
-                  changeBroker,
-                  false );
+    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet, changeSet }, false );
 
     ensureEnqueueDataLoads( service );
 
@@ -272,14 +256,9 @@ public class DataLoaderServiceTest
       new TestChangeSet( 1, runnable2, true, new Change[]{ new TestChange( true ) } );
     final TestChangeSet changeSet2 =
       new TestChangeSet( 2, runnable1, true, new Change[]{ new TestChange( true ) } );
-    final ChangeMapper changeMapper = mock( ChangeMapper.class );
-    final EntityChangeBroker changeBroker = mock( EntityChangeBroker.class );
 
-    final TestDataLoadService service =
-      newService( new TestChangeSet[]{ changeSet2, changeSet1 },
-                  changeMapper,
-                  changeBroker,
-                  true );
+    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet2, changeSet1 }, true );
+    final ChangeMapper changeMapper = service.getChangeMapper();
     when( changeMapper.applyChange( changeSet1.getChange( 0 ) ) ).thenReturn( entity );
     when( changeMapper.applyChange( changeSet2.getChange( 0 ) ) ).thenReturn( entity );
 
@@ -362,46 +341,41 @@ public class DataLoaderServiceTest
   }
 
   private TestDataLoadService newService( final TestChangeSet changeSet,
-                                          final ChangeMapper changeMapper,
-                                          final EntityChangeBroker changeBroker,
                                           final boolean validateOnLoad )
-    throws NoSuchFieldException, IllegalAccessException
+    throws Exception
   {
     final TestDataLoadService service = new TestDataLoadService( validateOnLoad, changeSet );
-    configureService( changeMapper, changeBroker, service );
+    configureService( service );
     return service;
   }
 
-  private TestDataLoadService newService( final TestChangeSet[] changeSets,
-                                          final ChangeMapper changeMapper,
-                                          final EntityChangeBroker changeBroker,
-                                          final boolean validateOnLoad )
-    throws NoSuchFieldException, IllegalAccessException
+  private TestDataLoadService newService( final TestChangeSet[] changeSets, final boolean validateOnLoad )
+    throws Exception
   {
     final TestDataLoadService service = new TestDataLoadService( validateOnLoad, changeSets );
-    configureService( changeMapper, changeBroker, service );
+    configureService( service );
     return service;
   }
 
-  private void configureService( final ChangeMapper changeMapper,
-                                 final EntityChangeBroker changeBroker,
-                                 final TestDataLoadService service )
-    throws NoSuchFieldException, IllegalAccessException
+  private void configureService( final TestDataLoadService service )
+    throws Exception
   {
-    final Field field1 = AbstractDataLoaderService.class.getDeclaredField( "_changeMapper" );
-    field1.setAccessible( true );
-    field1.set( service, changeMapper );
-    final Field field2 = AbstractDataLoaderService.class.getDeclaredField( "_changeBroker" );
-    field2.setAccessible( true );
-    field2.set( service, changeBroker );
-    final Field field3 = AbstractDataLoaderService.class.getDeclaredField( "_repository" );
-    field3.setAccessible( true );
-    field3.set( service, mock( EntityRepository.class ) );
-    final Field field4 = AbstractDataLoaderService.class.getDeclaredField( "_session" );
-    field4.setAccessible( true );
-    field4.set( service, new TestClientSession( "1" ) );
+    set( service, AbstractDataLoaderService.class, "_changeMapper", mock( ChangeMapper.class ) );
+    set( service, AbstractDataLoaderService.class, "_changeBroker", mock( EntityChangeBroker.class ) );
+    set( service, AbstractDataLoaderService.class, "_repository", mock( EntityRepository.class ) );
+    set( service, AbstractDataLoaderService.class, "_cacheService", mock( CacheService.class ) );
+    set( service, AbstractDataLoaderService.class, "_session", new TestClientSession( "1" ) );
+
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );
+  }
+
+  private void set( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
+    throws Exception
+  {
+    final Field field5 = clazz.getDeclaredField( fieldName );
+    field5.setAccessible( true );
+    field5.set( instance, value );
   }
 
   static class TestClientSession
