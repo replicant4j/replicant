@@ -45,7 +45,7 @@ public class EntityMessageCacheUtilTest
     assertNull( EntityMessageCacheUtil.lookupSessionEntityMessageSet() );
 
     //Now we force the creation of EntityMessageSet
-    final EntityMessageSet messageSet = EntityMessageCacheUtil.getSessionEntityMessageSet( );
+    final EntityMessageSet messageSet = EntityMessageCacheUtil.getSessionEntityMessageSet();
 
     assertNotNull( messageSet );
     assertEquals( messageSet, EntityMessageCacheUtil.lookupSessionEntityMessageSet() );

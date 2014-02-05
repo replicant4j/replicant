@@ -18,7 +18,7 @@ public interface EntityChangeBroker
   /**
    * Add an EntityChangeListener that receives all change messages for models of a particular type and all sub-types.
    *
-   * @param clazz the type to subscribe to.
+   * @param clazz    the type to subscribe to.
    * @param listener the EntityChangeListener
    */
   void addChangeListener( @Nonnull Class clazz, @Nonnull EntityChangeListener listener );
@@ -26,7 +26,7 @@ public interface EntityChangeBroker
   /**
    * Add an EntityChangeListener that receives all change messages for a particular entity.
    *
-   * @param entity the entity to subscribe to.
+   * @param entity   the entity to subscribe to.
    * @param listener the EntityChangeListener
    */
   void addChangeListener( @Nonnull Object entity, @Nonnull EntityChangeListener listener );
@@ -41,7 +41,7 @@ public interface EntityChangeBroker
   /**
    * Remove an EntityChangeListener that receives all change messages for models of a particular type and all sub-types.
    *
-   * @param clazz the type to subscribe to.
+   * @param clazz    the type to subscribe to.
    * @param listener the EntityChangeListener
    */
   void removeChangeListener( @Nonnull Class clazz, @Nonnull EntityChangeListener listener );
@@ -49,7 +49,7 @@ public interface EntityChangeBroker
   /**
    * Remove an EntityChangeListener that receives all change messages for a particular entity.
    *
-   * @param entity the entity to subscribe to.
+   * @param entity   the entity to subscribe to.
    * @param listener the EntityChangeListener
    */
   void removeChangeListener( @Nonnull Object entity, @Nonnull EntityChangeListener listener );
@@ -63,14 +63,14 @@ public interface EntityChangeBroker
 
   /**
    * Pause the broker.
-   *
+   * <p/>
    * <p>Changes sent to the broker while it is paused will be cached and transmitted when it is resumed.</p>
    */
   void pause();
 
   /**
    * Resume the broker.
-   *
+   * <p/>
    * <p>Any changes that have been delivered since pause has been invoked will be delivered on resume.</p>
    */
   void resume();
@@ -82,9 +82,9 @@ public interface EntityChangeBroker
 
   /**
    * Disable the transmission of changes to listeners.
-   *
+   * <p/>
    * <p>Changes sent to the broker while it is disabled will be discarded.</p>
-   *
+   * <p/>
    * <p>Typically the broker is disabled before a bulk load of an EntityRepository and re-enabled
    * after the fact.</p>
    */
@@ -104,8 +104,8 @@ public interface EntityChangeBroker
    * Notify listeners that an attribute has changed.
    *
    * @param entity the entity on which the change occurred.
-   * @param name the key used to identify the property that changed.
-   * @param value the value that the property changed to.
+   * @param name   the key used to identify the property that changed.
+   * @param value  the value that the property changed to.
    */
   void attributeChanged( @Nonnull Object entity, @Nonnull String name, @Nonnull Object value );
 
@@ -127,8 +127,8 @@ public interface EntityChangeBroker
    * Notify listeners that the specified entity gained a relationship to the "other" entity.
    *
    * @param entity the entity on which the relationship was updated.
-   * @param name the key used to identify the relationship that changed.
-   * @param other the entity that updated to relate to this entity.
+   * @param name   the key used to identify the relationship that changed.
+   * @param other  the entity that updated to relate to this entity.
    */
   void relatedAdded( @Nonnull Object entity, @Nonnull String name, @Nonnull Object other );
 
@@ -136,8 +136,8 @@ public interface EntityChangeBroker
    * Notify listeners that the specified entity lost a relationship to the "other" entity.
    *
    * @param entity the entity on which the relationship was updated.
-   * @param name the key used to identify the relationship that changed.
-   * @param other the entity that updated to no longer relate to this entity.
+   * @param name   the key used to identify the relationship that changed.
+   * @param other  the entity that updated to no longer relate to this entity.
    */
   void relatedRemoved( @Nonnull Object entity, @Nonnull String name, @Nonnull Object other );
 

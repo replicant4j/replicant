@@ -3,8 +3,8 @@ package org.realityforge.replicant.client.json.gwt;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.transport.ClientSession;
 
 public abstract class GwtDataLoaderService<T extends ClientSession>

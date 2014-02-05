@@ -123,7 +123,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     throws BadSessionException
   {
     final T session = getSession();
-    if( null == session )
+    if ( null == session )
     {
       throw new BadSessionException( "Missing session." );
     }
@@ -253,9 +253,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         request = null != requestID ? requestManager.getRequest( requestID ) : null;
         if ( null == request && null != requestID )
         {
-            final String message =
-              "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
-              " Existing Requests: " + requestManager.getRequests();
+          final String message =
+            "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
+            " Existing Requests: " + requestManager.getRequests();
           if ( LOG.isLoggable( Level.WARNING ) )
           {
             LOG.warning( message );
@@ -424,6 +424,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     }
     onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );
     _currentAction = null;
+    if ( null != _resetAction )
+    {
+      _resetAction.run();
+      _resetAction = null;
+    }
     return true;
   }
 

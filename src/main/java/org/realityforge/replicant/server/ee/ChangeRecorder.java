@@ -48,7 +48,7 @@ public abstract class ChangeRecorder
    * @param object the entity removed.
    */
   @PreRemove
-  public void preRemove(final Object object)
+  public void preRemove( final Object object )
   {
     queueEntityMessageForObject( object, false );
   }
@@ -72,7 +72,7 @@ public abstract class ChangeRecorder
 
   private TransactionSynchronizationRegistry getRegistry()
   {
-    if( null == _registry )
+    if ( null == _registry )
     {
       _registry = lookupTransactionSynchronizationRegistry();
     }
@@ -85,10 +85,10 @@ public abstract class ChangeRecorder
     {
       return (TransactionSynchronizationRegistry) new InitialContext().lookup( REGISTRY_KEY );
     }
-    catch( final NamingException ne )
+    catch ( final NamingException ne )
     {
       final String message =
-          "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
+        "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
       throw new IllegalStateException( message, ne );
     }
   }

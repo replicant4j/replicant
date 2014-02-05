@@ -18,8 +18,8 @@ public interface CacheService
   /**
    * Store resource in cache.
    *
-   * @param key the key under which to store resource.
-   * @param eTag the pseudo eTag for resource.
+   * @param key     the key under which to store resource.
+   * @param eTag    the pseudo eTag for resource.
    * @param content the content of resource.
    * @return true if successfully cached, false otherwise.
    */

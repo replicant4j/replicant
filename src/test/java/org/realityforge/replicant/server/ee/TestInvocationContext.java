@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.interceptor.InvocationContext;
 
 public class TestInvocationContext
-    implements InvocationContext
+  implements InvocationContext
 {
   public static final Object RESULT = new Object();
   private Runnable _runnable;
@@ -47,10 +47,10 @@ public class TestInvocationContext
   }
 
   public Object proceed()
-      throws Exception
+    throws Exception
   {
     _invoked = true;
-    if( null != _runnable )
+    if ( null != _runnable )
     {
       _runnable.run();
     }

@@ -39,51 +39,62 @@ public final class JsoChange
 
   @Override
   public final native boolean isNull( final String key )/*-{
-    if (this.data) {
+    if ( this.data )
+    {
       return this.data[key] == null;
     }
-    else {
+    else
+    {
       return null;
     }
   }-*/;
 
   @Override
   public final native int getIntegerValue( String key ) /*-{
-    if (this.data && (typeof this.data[key] == "number")) {
+    if ( this.data && (typeof this.data[key] == "number") )
+    {
       return this.data[key];
     }
-    else {
+    else
+    {
       return null;
     }
   }-*/;
 
   @Override
   public final native Date getDateValue( String key ) /*-{
-    if (this.data && (typeof this.data[key] == "string")) {
-      var d = new Date(this.data[key] );
-      return @java.util.Date::new(IIIIII)( d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds() );
+    if ( this.data && (typeof this.data[key] == "string") )
+    {
+      var d = new Date( this.data[key] );
+      return @java.util.Date::new(IIIIII)( d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(),
+                                           d.getSeconds() );
     }
-    else {
+    else
+    {
       return null;
     }
   }-*/;
 
   @Override
   public final native String getStringValue( String key ) /*-{
-    if (this.data && (typeof this.data[key] == "string")) {
+    if ( this.data && (typeof this.data[key] == "string") )
+    {
       return this.data[key];
     }
-    else {
+    else
+    {
       return null;
     }
   }-*/;
 
   @Override
   public final native boolean getBooleanValue( String key ) /*-{
-    if (this.data && (typeof this.data[key] == "boolean")) {
+    if ( this.data && (typeof this.data[key] == "boolean") )
+    {
       return this.data[key];
     }
-    else {
+    else
+    {
       return null;
     }
   }-*/;

@@ -236,11 +236,11 @@ final class DataLoadAction
   @Nullable
   public Runnable getRunnable()
   {
-    if( null != _runnable )
+    if ( null != _runnable )
     {
       return _runnable;
     }
-    else if( null == _request || !_request.isCompletionDataPresent() )
+    else if ( null == _request || !_request.isCompletionDataPresent() )
     {
       return null;
     }

@@ -38,7 +38,7 @@ public final class JsonEncoderTest
     final Date date = calendar.getTime();
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final Map<String,Serializable> values = message.getAttributeValues();
+    final Map<String, Serializable> values = message.getAttributeValues();
     assertNotNull( values );
     values.put( "key3", date );
 

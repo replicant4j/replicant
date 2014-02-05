@@ -56,10 +56,10 @@ public abstract class AbstractReplicationInterceptor
     finally
     {
       _registry.putResource( REPLICATION_TX_DEPTH, depth );
-      if( null == depth )
+      if ( null == depth )
       {
         boolean requestComplete = true;
-        if( getEntityManager().isOpen() )
+        if ( getEntityManager().isOpen() )
         {
           getEntityManager().flush();
           final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
@@ -70,7 +70,7 @@ public abstract class AbstractReplicationInterceptor
               null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
             final Collection<EntityMessage> sessionMessages =
               null == sessionMessageSet ? Collections.<EntityMessage>emptySet() : sessionMessageSet.getEntityMessages();
-            if( sessionMessages.size() > 0 || messages.size() > 0 )
+            if ( sessionMessages.size() > 0 || messages.size() > 0 )
             {
               requestComplete = !getEndpoint().saveEntityMessages( sessionID, requestID, messages, sessionMessages );
             }

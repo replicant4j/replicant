@@ -12,7 +12,7 @@ public interface Change
    */
   int getDesignatorAsInt();
 
-    /**
+  /**
    * @return the unique discriminator or designator for the entity. Typically this is the primary key of the entity in the database.
    */
   String getDesignatorAsString();

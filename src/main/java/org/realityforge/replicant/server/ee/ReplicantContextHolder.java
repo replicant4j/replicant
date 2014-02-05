@@ -39,7 +39,7 @@ public final class ReplicantContextHolder
   /**
    * Remove some context data for a particular key.
    *
-   * @param key  the key.
+   * @param key the key.
    */
   public static void remove( @Nonnull final String key )
   {

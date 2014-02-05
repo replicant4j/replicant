@@ -26,22 +26,22 @@ public final class MessageTestUtil
                                              @Nullable final String a2 )
   {
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
-    if( null != r1 )
+    if ( null != r1 )
     {
       routingKeys.put( ROUTING_KEY1, r1 );
     }
-    if( null != r2 )
+    if ( null != r2 )
     {
       routingKeys.put( ROUTING_KEY2, r2 );
     }
 
     final HashMap<String, Serializable> attributeValues =
-        ( null == a1 && null == a2 ) ? null : new HashMap<String, Serializable>();
-    if( null != a1 )
+      ( null == a1 && null == a2 ) ? null : new HashMap<String, Serializable>();
+    if ( null != a1 )
     {
       attributeValues.put( ATTR_KEY1, a1 );
     }
-    if( null != a2 )
+    if ( null != a2 )
     {
       attributeValues.put( ATTR_KEY2, a2 );
     }

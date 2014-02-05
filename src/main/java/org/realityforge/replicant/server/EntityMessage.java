@@ -94,7 +94,7 @@ public final class EntityMessage
   private void mergeRoutingKeys( final EntityMessage message )
   {
     final Map<String, Serializable> routingKeys = message.getRoutingKeys();
-    for( final Map.Entry<String, Serializable> entry : routingKeys.entrySet() )
+    for ( final Map.Entry<String, Serializable> entry : routingKeys.entrySet() )
     {
       getRoutingKeys().put( entry.getKey(), entry.getValue() );
     }
@@ -103,17 +103,17 @@ public final class EntityMessage
   private void mergeAttributeValues( final EntityMessage message )
   {
     final Map<String, Serializable> attributeValues = message.getAttributeValues();
-    if( null == attributeValues )
+    if ( null == attributeValues )
     {
       _attributeValues = null;
     }
     else
     {
-      if( null == _attributeValues )
+      if ( null == _attributeValues )
       {
         _attributeValues = new HashMap<>();
       }
-      for( final Map.Entry<String, Serializable> entry : attributeValues.entrySet() )
+      for ( final Map.Entry<String, Serializable> entry : attributeValues.entrySet() )
       {
         _attributeValues.put( entry.getKey(), entry.getValue() );
       }

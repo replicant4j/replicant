@@ -7,20 +7,20 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EntityRepositoryImpl
-    implements EntityRepository
+  implements EntityRepository
 {
   private final HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<>();
 
   public <T> void registerEntity( final Class<T> type, final Object id, final T entity )
   {
     final HashMap<Object, T> objectMap = getObjectMap( type );
-    if( objectMap.containsKey( id ) )
+    if ( objectMap.containsKey( id ) )
     {
       throw new IllegalStateException( "Attempting to register duplicate " + describeEntity( type, id ) );
     }
     objectMap.put( id, entity );
     final Class<? super T> superclass = type.getSuperclass();
-    if( Object.class != superclass )
+    if ( Object.class != superclass )
     {
       registerEntity( superclass, id, entity );
     }
@@ -30,7 +30,7 @@ public class EntityRepositoryImpl
   public <T> T deregisterEntity( final Class<T> type, final Object id )
   {
     final T existing = doDeregisterEntity( type, id );
-    if( existing instanceof Linkable )
+    if ( existing instanceof Linkable )
     {
       final Linkable linkable = (Linkable) existing;
       linkable.delink();
@@ -44,12 +44,12 @@ public class EntityRepositoryImpl
   {
     final HashMap<Object, T> objectMap = getObjectMap( type );
     final T existing = objectMap.remove( id );
-    if( null == existing )
+    if ( null == existing )
     {
       throw new IllegalStateException( "Attempting to de-register non existent " + describeEntity( type, id ) );
     }
     final Class<? super T> superclass = type.getSuperclass();
-    if( Object.class != superclass )
+    if ( Object.class != superclass )
     {
       doDeregisterEntity( superclass, id );
     }
@@ -60,7 +60,7 @@ public class EntityRepositoryImpl
   public <T> T getByID( final Class<T> type, final Object id )
   {
     final T entity = findByID( type, id );
-    if( null == entity )
+    if ( null == entity )
     {
       throw new IllegalStateException( "Unable to locate " + describeEntity( type, id ) );
     }
@@ -92,7 +92,7 @@ public class EntityRepositoryImpl
     final HashMap<Object, T> map = getObjectMap( type );
     final ArrayList<T> results = new ArrayList<>( map.size() );
     results.addAll( map.values() );
-    for( final T result : results )
+    for ( final T result : results )
     {
       linkEntity( result );
     }
@@ -108,7 +108,7 @@ public class EntityRepositoryImpl
       for ( final Entry<Object, ?> entityEntry : entry.getValue().entrySet() )
       {
         final Object entity = entityEntry.getValue();
-        if( entity instanceof Linkable )
+        if ( entity instanceof Linkable )
         {
           if ( !( (Linkable) entity ).isValid() )
           {
@@ -121,11 +121,11 @@ public class EntityRepositoryImpl
     }
   }
 
-  @SuppressWarnings( { "unchecked" } )
+  @SuppressWarnings({ "unchecked" })
   private <T> HashMap<Object, T> getObjectMap( final Class<T> type )
   {
     HashMap<Object, T> objectMap = (HashMap<Object, T>) _dataStore.get( type );
-    if( null == objectMap )
+    if ( null == objectMap )
     {
       objectMap = new HashMap<>();
       _dataStore.put( type, objectMap );
@@ -135,7 +135,7 @@ public class EntityRepositoryImpl
 
   private void linkEntity( final Object t )
   {
-    if( t instanceof Linkable )
+    if ( t instanceof Linkable )
     {
       final Linkable linkable = (Linkable) t;
       assert linkable.isValid();

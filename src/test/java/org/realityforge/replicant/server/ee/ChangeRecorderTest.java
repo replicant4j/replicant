@@ -16,17 +16,17 @@ public class ChangeRecorderTest
 
   @Test
   public void postRemoveGeneratesMessage()
-      throws Exception
+    throws Exception
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final ChangeRecorder changeRecorder = createChangeRecorder( registry );
-    changeRecorder.preRemove(ENTITY);
+    changeRecorder.preRemove( ENTITY );
     assertMessageGenerated( registry, false );
   }
 
   @Test
   public void postUpdateGeneratesMessage()
-      throws Exception
+    throws Exception
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final ChangeRecorder changeRecorder = createChangeRecorder( registry );
@@ -36,7 +36,7 @@ public class ChangeRecorderTest
 
   @Test
   public void excludedEntityDoesNotGenerateMessage()
-      throws Exception
+    throws Exception
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final ChangeRecorder changeRecorder = createChangeRecorder( registry );
@@ -62,7 +62,7 @@ public class ChangeRecorderTest
   }
 
   private ChangeRecorder createChangeRecorder( final TestTransactionSynchronizationRegistry registry )
-      throws Exception
+    throws Exception
   {
     final ChangeRecorder changeRecorder = new TestChangeRecorder();
     final Field field = ChangeRecorder.class.getDeclaredField( "_registry" );
@@ -72,8 +72,8 @@ public class ChangeRecorderTest
   }
 
   static class TestChangeRecorder
-      extends ChangeRecorder
-      implements EntityMessageGenerator
+    extends ChangeRecorder
+    implements EntityMessageGenerator
   {
     @Override
     protected EntityMessageGenerator getEntityMessageGenerator()
@@ -84,7 +84,7 @@ public class ChangeRecorderTest
     @Override
     public EntityMessage convertToEntityMessage( final Object object, final boolean isUpdate )
     {
-      if( object.equals( ENTITY ) )
+      if ( object.equals( ENTITY ) )
       {
         return MessageTestUtil.createMessage( ENTITY,
                                               1,

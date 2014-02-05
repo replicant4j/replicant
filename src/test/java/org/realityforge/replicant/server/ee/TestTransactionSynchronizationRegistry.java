@@ -5,7 +5,7 @@ import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 
 public class TestTransactionSynchronizationRegistry
-    implements TransactionSynchronizationRegistry
+  implements TransactionSynchronizationRegistry
 {
   private final HashMap<Object, Object> _resources = new HashMap<>();
 

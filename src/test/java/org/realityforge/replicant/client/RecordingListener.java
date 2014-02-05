@@ -3,7 +3,7 @@ package org.realityforge.replicant.client;
 import java.util.ArrayList;
 
 class RecordingListener
-    implements EntityChangeListener
+  implements EntityChangeListener
 {
   private final ArrayList<EntityChangeEvent> _entityAddedEvents = new ArrayList<>();
   private final ArrayList<EntityChangeEvent> _entityRemovedEvents = new ArrayList<>();

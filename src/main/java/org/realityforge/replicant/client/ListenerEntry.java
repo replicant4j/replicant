@@ -68,7 +68,7 @@ public final class ListenerEntry
 
   public ListenerEntry dup()
   {
-    final ListenerEntry entry = new ListenerEntry(_listener );
+    final ListenerEntry entry = new ListenerEntry( _listener );
     entry.setGlobalListener( isGlobalListener() );
     for ( final Class type : _interestedTypes )
     {

@@ -13,9 +13,9 @@ import org.realityforge.replicant.client.DeferredListenerAction.ActionType;
 /**
  * A single threaded in-memory EntityChangeBroker implementation.
  */
-@SuppressWarnings( { "JavaDoc" } )
+@SuppressWarnings({ "JavaDoc" })
 public class EntityChangeBrokerImpl
-    implements EntityChangeBroker
+  implements EntityChangeBroker
 {
   private static final Logger LOG = Logger.getLogger( EntityChangeBrokerImpl.class.getName() );
 
@@ -58,7 +58,7 @@ public class EntityChangeBrokerImpl
   @Override
   public final void addChangeListener( @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( null, listener, ActionType.ADD ) );
     }
@@ -77,7 +77,7 @@ public class EntityChangeBrokerImpl
   public final void addChangeListener( @Nonnull final Class clazz,
                                        @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( clazz, listener, ActionType.ADD ) );
     }
@@ -95,7 +95,7 @@ public class EntityChangeBrokerImpl
   @Override
   public final void addChangeListener( @Nonnull final Object object, @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( object, listener, ActionType.ADD ) );
     }
@@ -113,7 +113,7 @@ public class EntityChangeBrokerImpl
   @Override
   public final void removeChangeListener( @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( null, listener, ActionType.REMOVE ) );
     }
@@ -134,7 +134,7 @@ public class EntityChangeBrokerImpl
   @Override
   public final void removeChangeListener( @Nonnull final Object object, @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( object, listener, ActionType.REMOVE ) );
     }
@@ -157,7 +157,7 @@ public class EntityChangeBrokerImpl
   public final void removeChangeListener( @Nonnull final Class clazz,
                                           @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( clazz, listener, ActionType.REMOVE ) );
     }
@@ -179,7 +179,7 @@ public class EntityChangeBrokerImpl
   @Override
   public void purgeChangeListener( @Nonnull final EntityChangeListener listener )
   {
-    if( isSending() )
+    if ( isSending() )
     {
       _deferredListenerActions.add( new DeferredListenerAction( null, listener, ActionType.PURGE ) );
     }
@@ -259,7 +259,7 @@ public class EntityChangeBrokerImpl
   @Override
   public final void resume()
   {
-    if( !_paused )
+    if ( !_paused )
     {
       throw new IllegalStateException( "Attempting to resume already resumed broker" );
     }
@@ -273,7 +273,7 @@ public class EntityChangeBrokerImpl
   @Override
   public final void pause()
   {
-    if( _paused )
+    if ( _paused )
     {
       throw new IllegalStateException( "Attempting to pause already paused broker" );
     }
@@ -295,7 +295,7 @@ public class EntityChangeBrokerImpl
   @Override
   public void disable()
   {
-    if( _disabled )
+    if ( _disabled )
     {
       throw new IllegalStateException( "Attempting to disable already disabled broker" );
     }
@@ -308,7 +308,7 @@ public class EntityChangeBrokerImpl
   @Override
   public void enable()
   {
-    if( !_disabled )
+    if ( !_disabled )
     {
       throw new IllegalStateException( "Attempting to enable already enabled broker" );
     }
@@ -341,11 +341,11 @@ public class EntityChangeBrokerImpl
    */
   private void sendEvent( final EntityChangeEvent event )
   {
-    if( isEnabled() )
+    if ( isEnabled() )
     {
-      if( isPaused() || isSending() )
+      if ( isPaused() || isSending() )
       {
-        if( null == _deferredEvents )
+        if ( null == _deferredEvents )
         {
           _deferredEvents = new LinkedList<>();
         }
@@ -365,9 +365,9 @@ public class EntityChangeBrokerImpl
   {
     LinkedList<EntityChangeEvent> deferredEvents = _deferredEvents;
     _deferredEvents = null;
-    if( null != deferredEvents )
+    if ( null != deferredEvents )
     {
-      for( final EntityChangeEvent event : deferredEvents )
+      for ( final EntityChangeEvent event : deferredEvents )
       {
         doSendEvent( event );
       }
@@ -390,7 +390,7 @@ public class EntityChangeBrokerImpl
     doSendEvent( getListeners( _objectListeners, object ), event );
 
     Class clazz = object.getClass();
-    while( clazz != Object.class )
+    while ( clazz != Object.class )
     {
       doSendEvent( getListeners( _classListeners, clazz ), event );
       clazz = clazz.getSuperclass();
@@ -408,7 +408,7 @@ public class EntityChangeBrokerImpl
    */
   protected void logEventSend( final EntityChangeEvent event )
   {
-    if( LOG.isLoggable( Level.FINE ) )
+    if ( LOG.isLoggable( Level.FINE ) )
     {
       LOG.fine( "Sending event " + event );
     }
@@ -419,17 +419,17 @@ public class EntityChangeBrokerImpl
    */
   private void applyDeferredListenerActions()
   {
-    for( final DeferredListenerAction action : _deferredListenerActions )
+    for ( final DeferredListenerAction action : _deferredListenerActions )
     {
       final Object key = action.getKey();
       final EntityChangeListener listener = action.getListener();
-      if( action.isRemove() )
+      if ( action.isRemove() )
       {
-        if( null == key )
+        if ( null == key )
         {
           removeChangeListener( listener );
         }
-        else if( key instanceof Class )
+        else if ( key instanceof Class )
         {
           removeChangeListener( (Class) key, listener );
         }
@@ -438,13 +438,13 @@ public class EntityChangeBrokerImpl
           removeChangeListener( key, listener );
         }
       }
-      else if( action.isAdd() )
+      else if ( action.isAdd() )
       {
-        if( null == key )
+        if ( null == key )
         {
           addChangeListener( listener );
         }
-        else if( key instanceof Class )
+        else if ( key instanceof Class )
         {
           addChangeListener( (Class) key, listener );
         }
@@ -466,17 +466,17 @@ public class EntityChangeBrokerImpl
    * Send the event to each listener in the array of listeners.
    *
    * @param listeners the listeners.
-   * @param event the event.
+   * @param event     the event.
    */
   private void doSendEvent( final ListenerEntry[] listeners, final EntityChangeEvent event )
   {
-    for( final ListenerEntry entry : listeners )
+    for ( final ListenerEntry entry : listeners )
     {
       final EntityChangeListener listener = entry.getListener();
       final EntityChangeType type = event.getType();
       try
       {
-        switch( type )
+        switch ( type )
         {
           case ATTRIBUTE_CHANGED:
             listener.attributeChanged( event );
@@ -497,7 +497,7 @@ public class EntityChangeBrokerImpl
             throw new IllegalStateException( "Unknown type: " + type );
         }
       }
-      catch( final Throwable t )
+      catch ( final Throwable t )
       {
         logEventHandlingError( listener, t );
       }
@@ -509,7 +509,7 @@ public class EntityChangeBrokerImpl
    * Can be overridden by sub-classes.
    *
    * @param listener the listener that generated the exception.
-   * @param t the exception.
+   * @param t        the exception.
    */
   protected void logEventHandlingError( final EntityChangeListener listener, final Throwable t )
   {
@@ -532,7 +532,7 @@ public class EntityChangeBrokerImpl
   private <T> ListenerEntry[] getListeners( final Map<T, ListenerEntry[]> map, final T key )
   {
     final ListenerEntry[] listeners = map.get( key );
-    if( null == listeners )
+    if ( null == listeners )
     {
       return _emptyListenerSet;
     }
@@ -545,10 +545,10 @@ public class EntityChangeBrokerImpl
   /**
    * Remove the listener from the list of listeners accessed by specified key.
    *
-   * @param map the map of listener lists.
-   * @param key the key to access the map.
+   * @param map      the map of listener lists.
+   * @param key      the key to access the map.
    * @param listener the listener to remove.
-   * @param <T> the type of the key. (Either a Class or Object type)
+   * @param <T>      the type of the key. (Either a Class or Object type)
    */
   private <T> void removeChangeListener( final Map<T, ListenerEntry[]> map,
                                          final T key,
@@ -556,7 +556,7 @@ public class EntityChangeBrokerImpl
   {
     final ListenerEntry[] listenersSet = getListeners( map, key );
     final ListenerEntry[] listeners = doRemoveChangeListener( listenersSet, listener );
-    if( 0 == listeners.length )
+    if ( 0 == listeners.length )
     {
       map.remove( key );
     }
@@ -571,14 +571,14 @@ public class EntityChangeBrokerImpl
    * If the listener is not present in the array the original will be returned.
    *
    * @param listeners the array of listeners.
-   * @param listener the listener to remove.
+   * @param listener  the listener to remove.
    * @return the new listener array sans the specified listener.
    */
   private ListenerEntry[] doRemoveChangeListener( final ListenerEntry[] listeners, final ListenerEntry listener )
   {
-    for( int i = 0; i < listeners.length; i++ )
+    for ( int i = 0; i < listeners.length; i++ )
     {
-      if( listener == listeners[ i ] )
+      if ( listener == listeners[ i ] )
       {
         if ( 1 == listeners.length )
         {
@@ -602,10 +602,10 @@ public class EntityChangeBrokerImpl
   /**
    * Add the listener to the list of listeners accessed by specified key.
    *
-   * @param map the map of listener lists.
-   * @param key the key to access the map.
+   * @param map      the map of listener lists.
+   * @param key      the key to access the map.
    * @param listener the listener to add.
-   * @param <T> the type of the key. (Either a Class or Object type)
+   * @param <T>      the type of the key. (Either a Class or Object type)
    */
   private <T> void addChangeListener( final Map<T, ListenerEntry[]> map,
                                       final T key,
@@ -621,14 +621,14 @@ public class EntityChangeBrokerImpl
    * If the listener is already present in the array the original array will be returned.
    *
    * @param listeners the array of listeners.
-   * @param listener the listener to add.
+   * @param listener  the listener to add.
    * @return the new listener array with the specified listener added.
    */
   private ListenerEntry[] doAddChangeListener( final ListenerEntry[] listeners, final ListenerEntry listener )
   {
     for ( final ListenerEntry candidate : listeners )
     {
-      if( listener == candidate )
+      if ( listener == candidate )
       {
         return listeners;
       }
@@ -676,7 +676,7 @@ public class EntityChangeBrokerImpl
    */
   private void removeEntryIfEmpty( final ListenerEntry entry )
   {
-    if( entry.isEmpty() )
+    if ( entry.isEmpty() )
     {
       _listenerEntries.remove( entry.getListener() );
     }
