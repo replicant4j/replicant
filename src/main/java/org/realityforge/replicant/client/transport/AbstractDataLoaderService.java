@@ -49,9 +49,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
    */
   private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
   private DataLoadAction _currentAction;
-  private int _updateCount;
-  private int _removeCount;
-  private int _linkCount;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
@@ -266,12 +263,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       {
         getChangeBroker().pause();
       }
-      if ( LOG.isLoggable( Level.INFO ) )
-      {
-        _updateCount = 0;
-        _removeCount = 0;
-        _linkCount = 0;
-      }
     }
 
     //Step: Process a chunk of changes
@@ -289,11 +280,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         {
           if ( change.isUpdate() )
           {
-            _updateCount++;
+            _currentAction.incUpdateCount();
           }
           else
           {
-            _removeCount++;
+            _currentAction.incRemoveCount();
           }
         }
         _currentAction.changeProcessed( change.isUpdate(), entity );
@@ -325,7 +316,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         linkable.link();
         if ( LOG.isLoggable( Level.INFO ) )
         {
-          _linkCount++;
+          _currentAction.incLinkCount();
         }
       }
       return true;
@@ -369,8 +360,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     }
     if ( LOG.isLoggable( Level.INFO ) )
     {
-      LOG.info( "ChangeSet " + set.getSequence() + " involved " + _updateCount + " updates, " + _removeCount +
-                " removes and " + _linkCount + " links." );
+      LOG.info( "ChangeSet " + set.getSequence() + " involved " +
+                _currentAction.getUpdateCount() + " updates, " +
+                _currentAction.getRemoveCount() + " removes and " +
+                _currentAction.getLinkCount() + " links." );
     }
 
     //Step: Run the post actions

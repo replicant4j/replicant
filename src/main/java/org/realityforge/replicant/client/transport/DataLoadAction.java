@@ -55,10 +55,44 @@ final class DataLoadAction
   private boolean _brokerPaused;
   private RequestEntry _request;
 
+  private int _updateCount;
+  private int _removeCount;
+  private int _linkCount;
+
   public DataLoadAction( final String rawJsonData, final boolean oob )
   {
     _rawJsonData = rawJsonData;
     _oob = oob;
+  }
+
+  public int getUpdateCount()
+  {
+    return _updateCount;
+  }
+
+  public int getRemoveCount()
+  {
+    return _removeCount;
+  }
+
+  public int getLinkCount()
+  {
+    return _linkCount;
+  }
+
+  public void incUpdateCount()
+  {
+    _updateCount++;
+  }
+
+  public void incRemoveCount()
+  {
+    _removeCount++;
+  }
+
+  public void incLinkCount()
+  {
+    _linkCount++;
   }
 
   public boolean isOob()
