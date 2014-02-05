@@ -18,7 +18,7 @@ public final class EntityMessageCacheUtil
   /**
    * Key used to lookup client specific changes. Should not be routed.
    */
-  private static final String CLIENT_KEY = KEY + "/Client";
+  private static final String SESSION_KEY = KEY + "/Session";
 
   private EntityMessageCacheUtil()
   {
@@ -43,21 +43,21 @@ public final class EntityMessageCacheUtil
   }
 
   @Nonnull
-  public static EntityMessageSet getClientEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static EntityMessageSet getSessionEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return getEntityMessageSet( r, CLIENT_KEY );
+    return getEntityMessageSet( r, SESSION_KEY );
   }
 
   @Nullable
-  public static EntityMessageSet lookupClientEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static EntityMessageSet lookupSessionEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return lookupEntityMessageSet( r, CLIENT_KEY );
+    return lookupEntityMessageSet( r, SESSION_KEY );
   }
 
   @Nullable
-  public static EntityMessageSet removeClientEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static EntityMessageSet removeSessionEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return removeEntityMessageSet( r, CLIENT_KEY );
+    return removeEntityMessageSet( r, SESSION_KEY );
   }
 
   private static EntityMessageSet removeEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
