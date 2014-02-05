@@ -21,6 +21,10 @@ artifacts:
   # Encoding on the server
   json: org.json:json:jar:20090211
 
+  # Test deps
+  jndikit: org.realityforge.jndikit:jndikit:jar:1.4
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.28
+
   #
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.9.5

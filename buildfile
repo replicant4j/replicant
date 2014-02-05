@@ -30,5 +30,5 @@ define 'replicant' do
   package(:javadoc)
 
   test.using :testng
-  test.compile.with :mockito
+  test.compile.with :mockito, :jndikit, :guiceyloops
 end
