@@ -1,4 +1,5 @@
 ## 0.5.8:
+* Move AbstractDataLoaderService into the transport package.
 * Provide an implementation of GwtDataLoaderService.scheduleDataLoad().
 * Introduce abstract ReplicantSessionManager to simplify creation of session
   managers.
