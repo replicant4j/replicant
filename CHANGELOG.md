@@ -1,4 +1,6 @@
 ## 0.5.8:
+* Enhance AbstractDataLoaderService.setSession so that it resets state on
+  change. The state reset is deferred until the current action is completed.
 * Move AbstractDataLoaderService into the transport package.
 * Provide an implementation of GwtDataLoaderService.scheduleDataLoad().
 * Introduce abstract ReplicantSessionManager to simplify creation of session

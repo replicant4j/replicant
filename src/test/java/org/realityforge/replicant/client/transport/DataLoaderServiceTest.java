@@ -21,6 +21,38 @@ import static org.testng.Assert.*;
 public class DataLoaderServiceTest
 {
   @Test
+  public void setSession()
+    throws Exception
+  {
+    final TestChangeSet changeSet =
+      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
+    final TestDataLoadService service = newService( changeSet, true );
+    final Runnable runnable1 = mock( Runnable.class );
+    final TestClientSession session1 = new TestClientSession( "X" );
+
+    service.enqueueOOB( "X", null, false );
+
+    assertEquals( SessionContext.getSession(), null );
+
+    service.setSession( session1, runnable1 );
+
+    assertEquals( SessionContext.getSession(), session1 );
+    assertEquals( service.getSession(), session1 );
+    verify( runnable1, times( 1 ) ).run();
+    verify( service.getChangeBroker(), times( 1 ) ).disable();
+    verify( service.getChangeBroker(), times( 1 ) ).enable();
+
+    // Should be no oob actions left
+    assertEquals( progressWorkTillDone( service ), 1 );
+
+    service.setSession( session1, runnable1 );
+    verify( runnable1, times( 2 ) ).run();
+    // The following should not run as session is the same
+    verify( service.getChangeBroker(), times( 1 ) ).disable();
+    verify( service.getChangeBroker(), times( 1 ) ).enable();
+  }
+
+  @Test
   public void verifyDataLoader_bulkDataLoad()
     throws Exception
   {

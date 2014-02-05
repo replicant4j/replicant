@@ -53,12 +53,44 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
   private T _session;
+  /**
+   * Action invoked after current action completes to reset session state.
+   */
+  private Runnable _resetAction;
 
-  protected void setSession( final T session )
+  protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
-    _session = session;
-    // This should probably be moved elsewhere ... but where?
-    SessionContext.setSession( session );
+    final Runnable runnable = new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        if ( session != _session )
+        {
+          _session = session;
+          _parsedActions.clear();
+          _pendingActions.clear();
+          _oobActions.clear();
+          // This should probably be moved elsewhere ... but where?
+          SessionContext.setSession( session );
+          _changeBroker.disable();
+          //TODO: Purge repository
+          _changeBroker.enable();
+        }
+        if ( null != postAction )
+        {
+          postAction.run();
+        }
+      }
+    };
+    if ( null == _currentAction )
+    {
+      runnable.run();
+    }
+    else
+    {
+      _resetAction = runnable;
+    }
   }
 
   protected final CacheService getCacheService()
