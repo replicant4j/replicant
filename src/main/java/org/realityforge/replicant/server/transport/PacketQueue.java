@@ -74,16 +74,18 @@ public class PacketQueue
    * Add packet to queue.
    *
    * @param requestID the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
-   * @param etag the opaque identifier identifying the version. May be null if packet is not cache-able
-   * @param messages the changes to create packet from.
+   * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
+   * @param messages  the changes to create packet from.
+   * @return the packet.
    */
-  public synchronized void addPacket( @Nullable final String requestID,
-                                      @Nullable final String etag,
-                                      @Nonnull final List<EntityMessage> messages )
+  public synchronized Packet addPacket( @Nullable final String requestID,
+                                        @Nullable final String etag,
+                                        @Nonnull final List<EntityMessage> messages )
   {
     final Packet packet = new Packet( _nextSequence++, requestID, etag, messages );
     _packets.add( packet );
     Collections.sort( _packets );
+    return packet;
   }
 
   /**

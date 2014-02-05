@@ -1,4 +1,5 @@
 ## 0.5.8:
+* Refactor PacketQueue.addPacket to return newly created packet.
 * Add support for AbstractDataLoaderService.getSessionID() utility function.
 
 ## 0.5.7:
