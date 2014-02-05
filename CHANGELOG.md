@@ -1,4 +1,7 @@
 ## 0.5.7:
+* Enhance EntityMessageSet to support merging collections of EntityMessage.
+* Enhance EntityMessageSet to support optional cloning of EntityMessage instances
+  on initial merge.
 * Define mechanisms for executing out-of-band messages. These are of particular
   relevance when reloading cached content.
 * Add ReplicantContextHolder.contains() utility function.
