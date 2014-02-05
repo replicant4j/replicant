@@ -76,7 +76,10 @@ public abstract class AbstractReplicationInterceptor
             }
           }
         }
-        ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, requestComplete ? "1" : "0" );
+        if ( !ReplicantContextHolder.contains( ReplicantContext.REQUEST_COMPLETE_KEY ) )
+        {
+          ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, requestComplete ? "1" : "0" );
+        }
       }
     }
   }

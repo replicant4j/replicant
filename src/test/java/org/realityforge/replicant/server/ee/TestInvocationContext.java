@@ -8,7 +8,18 @@ public class TestInvocationContext
     implements InvocationContext
 {
   public static final Object RESULT = new Object();
+  private Runnable _runnable;
   private boolean _invoked;
+
+  public Runnable getRunnable()
+  {
+    return _runnable;
+  }
+
+  public void setRunnable( final Runnable runnable )
+  {
+    _runnable = runnable;
+  }
 
   public Object getTarget()
   {
@@ -39,6 +50,10 @@ public class TestInvocationContext
       throws Exception
   {
     _invoked = true;
+    if( null != _runnable )
+    {
+      _runnable.run();
+    }
     return RESULT;
   }
 

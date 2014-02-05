@@ -90,6 +90,31 @@ public class ReplicationInterceptorTest
   }
 
   @Test
+  public void ensureUserCanOverrideRequestCompleteFlag()
+    throws Exception
+  {
+    final TestInvocationContext context = new TestInvocationContext();
+    context.setRunnable( new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
+      }
+    } );
+    final TestReplicationInterceptor interceptor =
+      createInterceptor( new TestTransactionSynchronizationRegistry(), mock( EntityManager.class ) );
+
+    ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ReplicantContext.REQUEST_ID_KEY, "r1" );
+
+    interceptor.businessIntercept( context );
+
+    assertTrue( context.isInvoked() );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
+  }
+
+  @Test
   public void ensureSessionChangesResultInSave()
     throws Exception
   {

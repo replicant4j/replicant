@@ -1,4 +1,5 @@
 ## 0.5.7:
+* Make it possible for the user to set explicitly set REQUEST_COMPLETE_KEY.
 * Enhance EntityMessageAccumulator to support adding collections of EntityMessages.
 * Enhance EntityMessageCacheUtil to support variants of method that lookup
   TransactionSynchronizationRegistry in JNDI.
