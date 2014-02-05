@@ -1,3 +1,6 @@
+## 0.5.8:
+* Add support for AbstractDataLoaderService.getSessionID() utility function.
+
 ## 0.5.7:
 * Make it possible for the user to set explicitly set REQUEST_COMPLETE_KEY.
 * Enhance EntityMessageAccumulator to support adding collections of EntityMessages.

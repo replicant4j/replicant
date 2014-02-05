@@ -56,6 +56,14 @@ public class DataLoaderServiceTest
   }
 
   @Test
+  public void getSessionID()
+    throws Exception
+  {
+    final TestDataLoadService service = newService( new TestChangeSet[ 0 ], true );
+    assertEquals( service.getSessionID(), service.getSession().getSessionID() );
+  }
+
+  @Test
   public void cache_requestWithCacheKeyAndETag()
     throws Exception
   {

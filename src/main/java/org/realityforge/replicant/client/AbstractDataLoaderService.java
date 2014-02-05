@@ -12,6 +12,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.RequestManager;
 import org.realityforge.replicant.client.transport.SessionContext;
+import org.realityforge.replicant.server.transport.BadSessionException;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
@@ -82,6 +83,16 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   public final T getSession()
   {
     return _session;
+  }
+
+  protected final String getSessionID()
+  {
+    final T session = getSession();
+    if( null == session )
+    {
+      throw new BadSessionException( "Missing session." );
+    }
+    return session.getSessionID();
   }
 
   protected abstract void scheduleDataLoad();
