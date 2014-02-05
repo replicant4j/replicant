@@ -34,25 +34,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   @Inject
   private CacheService _cacheService;
 
-  /**
-   * The set of data load actions that still need to have the json parsed.
-   */
-  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<>();
-  /**
-   * The set of data load actions that have their json parsed. They are inserted into
-   * this list according to their sequence.
-   */
-  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<>();
-  /**
-   * Sometimes a data load action occurs that is not initiated by the server. These do not
-   * typically need to be sequenced and are prioritized above other actions.
-   */
-  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
   private DataLoadAction _currentAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
   private T _session;
+
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -68,9 +55,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         if ( session != _session )
         {
           _session = session;
-          _parsedActions.clear();
-          _pendingActions.clear();
-          _oobActions.clear();
           // This should probably be moved elsewhere ... but where?
           SessionContext.setSession( session );
           _changeBroker.disable();
@@ -151,7 +135,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     {
       throw new IllegalStateException( "null == rawJsonData" );
     }
-    _pendingActions.add( new DataLoadAction( rawJsonData, false ) );
+    getSession().getPendingActions().add( new DataLoadAction( rawJsonData, false ) );
     scheduleDataLoad();
   }
 
@@ -167,28 +151,30 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     final DataLoadAction action = new DataLoadAction( rawJsonData, true );
     action.setRunnable( runnable );
     action.setBulkLoad( bulkLoad );
-    _oobActions.add( action );
+    getSession().getOobActions().add( action );
     scheduleDataLoad();
   }
 
   protected final boolean progressDataLoad()
   {
     // Step: Retrieve any out of band actions
-    if ( null == _currentAction && !_oobActions.isEmpty() )
+    final LinkedList<DataLoadAction> oobActions = getSession().getOobActions();
+    if ( null == _currentAction && !oobActions.isEmpty() )
     {
-      _currentAction = _oobActions.removeFirst();
+      _currentAction = oobActions.removeFirst();
       return true;
     }
 
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
-    if ( null == _currentAction && !_parsedActions.isEmpty() )
+    final LinkedList<DataLoadAction> parsedActions = getSession().getParsedActions();
+    if ( null == _currentAction && !parsedActions.isEmpty() )
     {
-      final DataLoadAction action = _parsedActions.get( 0 );
+      final DataLoadAction action = parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
       assert null != changeSet;
       if ( action.isOob() || getSession().getLastRxSequence() + 1 == changeSet.getSequence() )
       {
-        _currentAction = _parsedActions.remove();
+        _currentAction = parsedActions.remove();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(), "Parsed Action Selected: " + _currentAction );
@@ -198,7 +184,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     }
 
     // Abort if there is no pending data load actions to take
-    if ( null == _currentAction && _pendingActions.isEmpty() )
+    final LinkedList<DataLoadAction> pendingActions = getSession().getPendingActions();
+    if ( null == _currentAction && pendingActions.isEmpty() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
@@ -210,7 +197,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     //Step: Retrieve the action from the un-parsed queue
     if ( null == _currentAction )
     {
-      _currentAction = _pendingActions.remove();
+      _currentAction = pendingActions.remove();
       if ( LOG.isLoggable( getLogLevel() ) )
       {
         LOG.log( getLogLevel(), "Un-parsed Action Selected: " + _currentAction );
@@ -277,8 +264,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       }
 
       _currentAction.setChangeSet( changeSet, request );
-      _parsedActions.add( _currentAction );
-      Collections.sort( _parsedActions );
+      parsedActions.add( _currentAction );
+      Collections.sort( parsedActions );
       _currentAction = null;
       return true;
     }

@@ -1,4 +1,5 @@
 ## 0.5.8:
+* Move remaining client specific state in AbstractDataLoaderService to ClientSession.
 * Enhance AbstractDataLoaderService.setSession so that it resets state on
   change. The state reset is deferred until the current action is completed.
 * Move AbstractDataLoaderService into the transport package.
