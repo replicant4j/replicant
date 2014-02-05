@@ -34,8 +34,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   @Inject
   private CacheService _cacheService;
 
-  private int _lastKnownChangeSet;
-
   /**
    * The set of data load actions that still need to have the json parsed.
    */
@@ -115,11 +113,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     _linksToProcessPerTick = linksToProcessPerTick;
   }
 
-  protected final int getLastKnownChangeSet()
-  {
-    return _lastKnownChangeSet;
-  }
-
   protected abstract ChangeSet parseChangeSet( String rawJsonData );
 
   @SuppressWarnings( "ConstantConditions" )
@@ -164,7 +157,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       final DataLoadAction action = _parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
       assert null != changeSet;
-      if ( action.isOob() || _lastKnownChangeSet + 1 == changeSet.getSequence() )
+      if ( action.isOob() || getSession().getLastRxSequence() + 1 == changeSet.getSequence() )
       {
         _currentAction = _parsedActions.remove();
         if ( LOG.isLoggable( getLogLevel() ) )
@@ -352,7 +345,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       // OOB messages are not sequenced
       if ( !_currentAction.isOob() )
       {
-        _lastKnownChangeSet = set.getSequence();
+        getSession().setLastRxSequence( set.getSequence() );
       }
       if ( _currentAction.isBulkLoad() )
       {

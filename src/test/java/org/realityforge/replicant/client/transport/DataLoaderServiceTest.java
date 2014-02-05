@@ -32,7 +32,7 @@ public class DataLoaderServiceTest
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
@@ -41,7 +41,7 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 9 );
 
-    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( service.getChangeBroker() ).disable();
@@ -78,7 +78,7 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
     final CacheService cacheService = service.getCacheService();
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     service.enqueueDataLoad( "Data" );
     final RequestEntry request = configureRequest( changeSet, service );
@@ -87,7 +87,7 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 7 );
 
-    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( cacheService ).store( "MetaData", "1 Jan 2020", "Data" );
@@ -107,14 +107,14 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
     final CacheService cacheService = service.getCacheService();
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     service.enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
 
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 7 );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( cacheService, never() ).store( anyString(), anyString(), anyString() );
@@ -142,7 +142,7 @@ public class DataLoaderServiceTest
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service._changeSets )
@@ -154,7 +154,7 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 9 );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( service.getChangeBroker() ).disable();
@@ -229,14 +229,14 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet, true );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 7 );
 
-    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( service.getChangeBroker(), never() ).disable();
@@ -279,7 +279,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet, true );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
@@ -287,7 +287,7 @@ public class DataLoaderServiceTest
 
     verify( service.getRepository(), times( 1 ) ).validate();
 
-    assertEquals( service.getLastKnownChangeSet(), changeSet.getSequence() );
+    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     final EntityChangeBroker changeBroker = service.getChangeBroker();
     verify( changeBroker ).pause();
@@ -326,7 +326,7 @@ public class DataLoaderServiceTest
     when( changeMapper.applyChange( changeSet1.getChange( 0 ) ) ).thenReturn( entity );
     when( changeMapper.applyChange( changeSet2.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     configureRequests( service, service._changeSets );
     service.enqueueDataLoad( "jsonData" );
@@ -334,7 +334,7 @@ public class DataLoaderServiceTest
     assertEquals( stepCount, 3 );
 
     //No progress should have been made other than parsing packet as out of sequence
-    assertEquals( service.getLastKnownChangeSet(), 0 );
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
     verifyPostActionNotRun( changeSet2.getRunnable() );
     verifyPostActionNotRun( changeSet1.getRunnable() );
 
@@ -343,7 +343,7 @@ public class DataLoaderServiceTest
     assertEquals( stepCount2, 15 );
 
     //Progress should have been made as all sequence appears
-    assertEquals( service.getLastKnownChangeSet(), 2 );
+    assertEquals( service.getSession().getLastRxSequence(), 2 );
     final InOrder inOrder = inOrder( changeSet2.getRunnable(), changeSet1.getRunnable() );
     inOrder.verify( changeSet1.getRunnable() ).run();
     inOrder.verify( changeSet2.getRunnable() ).run();

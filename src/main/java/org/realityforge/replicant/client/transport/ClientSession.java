@@ -11,6 +11,8 @@ public abstract class ClientSession
   private final String _sessionID;
   private final RequestManager _requestManager;
 
+  private int _lastRxSequence;
+
   public ClientSession( @Nonnull final String sessionID )
   {
     _sessionID = sessionID;
@@ -32,5 +34,15 @@ public abstract class ClientSession
   protected RequestManager newRequestManager()
   {
     return new RequestManager();
+  }
+
+  public int getLastRxSequence()
+  {
+    return _lastRxSequence;
+  }
+
+  public void setLastRxSequence( final int lastRxSequence )
+  {
+    _lastRxSequence = lastRxSequence;
   }
 }
