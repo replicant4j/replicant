@@ -7,12 +7,12 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import org.realityforge.replicant.client.transport.BadSessionException;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.RequestManager;
 import org.realityforge.replicant.client.transport.SessionContext;
-import org.realityforge.replicant.server.transport.BadSessionException;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
