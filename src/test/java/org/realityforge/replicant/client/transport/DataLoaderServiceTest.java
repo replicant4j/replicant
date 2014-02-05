@@ -479,7 +479,7 @@ public class DataLoaderServiceTest
   }
 
   static final class TestDataLoadService
-    extends AbstractDataLoaderService
+    extends AbstractDataLoaderService<TestClientSession>
   {
     private final boolean _validateOnLoad;
     private boolean _scheduleDataLoadCalled;
