@@ -1,4 +1,6 @@
 ## 0.5.8:
+* Introduce abstract ReplicantSessionManager to simplify creation of session
+  managers.
 * Refactor PacketQueue.addPacket to return newly created packet.
 * Fix bug in PacketQueue.ack to ignore attempt to ack past acked sequence, and to
   raise an exception if attempting to ack a future packet sequence.
