@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -25,6 +26,21 @@ public final class EntityMessageAccumulator
   public void addEntityMessage( final ReplicantSession session, final EntityMessage message )
   {
     getChangeSet( session ).add( message );
+  }
+
+  /**
+   * Add messages destined for a particular session.
+   *
+   * @param session the session.
+   * @param messages the messages.
+   */
+  public void addEntityMessages( final ReplicantSession session, final Collection<EntityMessage> messages )
+  {
+    final LinkedList<EntityMessage> changeSet = getChangeSet( session );
+    for ( final EntityMessage message : messages )
+    {
+      changeSet.add( message );
+    }
   }
 
   /**

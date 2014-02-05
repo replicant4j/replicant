@@ -1,4 +1,5 @@
 ## 0.5.7:
+* Enhance EntityMessageAccumulator to support adding collections of EntityMessages.
 * Enhance EntityMessageCacheUtil to support variants of method that lookup
   TransactionSynchronizationRegistry in JNDI.
 * Enhance EntityMessageSet to support merging collections of EntityMessage.

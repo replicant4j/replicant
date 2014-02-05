@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
@@ -29,6 +30,30 @@ public class EntityMessageAccumulatorTest
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addEntityMessage( c, message );
+    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+
+    assertTrue( impactsInitiator );
+    assertEquals( c.getQueue().size(), 1 );
+    final Packet packet = c.getQueue().nextPacketToProcess();
+    assertEquals( packet.getChanges().get( 0 ).getID(), id );
+    assertEquals( packet.getRequestID(), "j1" );
+
+    accumulator.complete( null, null );
+    assertEquals( c.getQueue().size(), 1 );
+  }
+
+  @Test
+  public void addEntityMessages()
+  {
+    final TestSession c = new TestSession( "s1" );
+    final EntityMessageAccumulator accumulator = new EntityMessageAccumulator();
+
+    final String id = "myID";
+    final int typeID = 42;
+
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+
+    accumulator.addEntityMessages( c, Arrays.asList( message ) );
     final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
 
     assertTrue( impactsInitiator );
