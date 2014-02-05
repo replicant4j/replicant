@@ -8,7 +8,7 @@ import static org.testng.Assert.*;
 public class PacketQueueTest
 {
   @Test
-  public void x()
+  public void basicFlow()
   {
     final PacketQueue queue = new PacketQueue();
     assertEquals( queue.getLastSequenceAcked(), 0 );
