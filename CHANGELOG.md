@@ -1,4 +1,5 @@
 ## 0.5.8:
+* Provide an implementation of GwtDataLoaderService.scheduleDataLoad().
 * Introduce abstract ReplicantSessionManager to simplify creation of session
   managers.
 * Refactor PacketQueue.addPacket to return newly created packet.
