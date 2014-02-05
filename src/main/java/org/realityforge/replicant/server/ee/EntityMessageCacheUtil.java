@@ -15,6 +15,10 @@ public final class EntityMessageCacheUtil
    * Key used to reference the set of changes in the TransactionSynchronizationRegistry.
    */
   private static final String KEY = EntityMessageSet.class.getName();
+  /**
+   * Key used to lookup client specific changes. Should not be routed.
+   */
+  private static final String CLIENT_KEY = KEY + "/Client";
 
   private EntityMessageCacheUtil()
   {
@@ -36,6 +40,24 @@ public final class EntityMessageCacheUtil
   public static EntityMessageSet removeEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
     return removeEntityMessageSet( r, KEY );
+  }
+
+  @Nonnull
+  public static EntityMessageSet getClientEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  {
+    return getEntityMessageSet( r, CLIENT_KEY );
+  }
+
+  @Nullable
+  public static EntityMessageSet lookupClientEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  {
+    return lookupEntityMessageSet( r, CLIENT_KEY );
+  }
+
+  @Nullable
+  public static EntityMessageSet removeClientEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  {
+    return removeEntityMessageSet( r, CLIENT_KEY );
   }
 
   private static EntityMessageSet removeEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
