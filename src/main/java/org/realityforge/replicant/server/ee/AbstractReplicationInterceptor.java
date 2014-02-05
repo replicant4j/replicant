@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.ee;
 
 import java.util.Collection;
+import java.util.Collections;
 import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
@@ -62,12 +63,16 @@ public abstract class AbstractReplicationInterceptor
         {
           getEntityManager().flush();
           final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
-          if( null != messageSet && !_registry.getRollbackOnly() )
+          final EntityMessageSet sessionMessageSet = EntityMessageCacheUtil.removeSessionEntityMessageSet( _registry );
+          if ( ( null != messageSet || null != sessionMessageSet ) && !_registry.getRollbackOnly() )
           {
-            final Collection<EntityMessage> messages = messageSet.getEntityMessages();
-            if( messages.size() > 0 )
+            final Collection<EntityMessage> messages =
+              null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
+            final Collection<EntityMessage> sessionMessages =
+              null == sessionMessageSet ? Collections.<EntityMessage>emptySet() : sessionMessageSet.getEntityMessages();
+            if( sessionMessages.size() > 0 || messages.size() > 0 )
             {
-              requestComplete = !getEndpoint().saveEntityMessages( sessionID, requestID, messages );
+              requestComplete = !getEndpoint().saveEntityMessages( sessionID, requestID, messages, sessionMessages );
             }
           }
         }

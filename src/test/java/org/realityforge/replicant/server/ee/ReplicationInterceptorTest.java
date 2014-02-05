@@ -90,6 +90,35 @@ public class ReplicationInterceptorTest
   }
 
   @Test
+  public void ensureSessionChangesResultInSave()
+    throws Exception
+  {
+    final TestInvocationContext context = new TestInvocationContext();
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+    final EntityManager em = mock( EntityManager.class );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    EntityMessageCacheUtil.getSessionEntityMessageSet( registry ).merge( message );
+
+    when( em.isOpen() ).thenReturn( true );
+    ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ReplicantContext.REQUEST_ID_KEY, "r1" );
+    final Object result = interceptor.businessIntercept( context );
+    verify( em ).flush();
+
+    // Make sure clear is called
+    assertNull( ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY ) );
+
+    assertTrue( context.isInvoked() );
+    assertEquals( result, TestInvocationContext.RESULT );
+    assertEquals( interceptor._sessionID, "s1" );
+    assertEquals( interceptor._requestID, "r1" );
+    assertNotNull( interceptor._messages );
+    assertTrue( interceptor._sessionMessages.contains( message ) );
+    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
+  }
+
+  @Test
   public void ensureChanges_willBeCompleteIfNotRoutedToInitiatingSession()
     throws Exception
   {
@@ -282,6 +311,7 @@ public class ReplicationInterceptorTest
     String _sessionID;
     String _requestID;
     Collection<EntityMessage> _messages;
+    Collection<EntityMessage> _sessionMessages;
     EntityManager _entityManager;
     private final boolean _routeToSession;
 
@@ -300,7 +330,8 @@ public class ReplicationInterceptorTest
     @Override
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,
-                                       @Nonnull final Collection<EntityMessage> messages )
+                                       @Nonnull final Collection<EntityMessage> messages,
+                                       @Nonnull final Collection<EntityMessage> sessionMessages )
     {
       if ( null != _messages )
       {
@@ -309,6 +340,7 @@ public class ReplicationInterceptorTest
       _sessionID = sessionID;
       _requestID = requestID;
       _messages = messages;
+      _sessionMessages = sessionMessages;
       return _routeToSession;
     }
 
