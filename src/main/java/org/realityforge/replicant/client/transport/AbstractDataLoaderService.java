@@ -21,9 +21,10 @@ import org.realityforge.replicant.client.Linkable;
  */
 public abstract class AbstractDataLoaderService<T extends ClientSession>
 {
+  protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
+
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
-  protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
   @Inject
   private ChangeMapper _changeMapper;
   @Inject
