@@ -1,5 +1,7 @@
 ## 0.5.8:
 * Refactor PacketQueue.addPacket to return newly created packet.
+* Fix bug in PacketQueue.ack to ignore attempt to ack past acked sequence, and to
+  raise an exception if attempting to ack a future packet sequence.
 * Add support for AbstractDataLoaderService.getSessionID() utility function.
 
 ## 0.5.7:

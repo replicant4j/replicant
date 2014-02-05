@@ -41,8 +41,16 @@ public class PacketQueue
    */
   public synchronized void ack( final int sequence )
   {
-    removePacketsLessThanOrEqual( sequence );
-    _lastSequenceAcked = sequence;
+    if ( sequence >= _nextSequence )
+    {
+      final String message = "Attempting to ack sequence " + sequence + " when next sequence is " + _nextSequence;
+      throw new IllegalStateException( message );
+    }
+    else if ( _lastSequenceAcked < sequence )
+    {
+      removePacketsLessThanOrEqual( sequence );
+      _lastSequenceAcked = sequence;
+    }
   }
 
   public synchronized Packet nextPacketToProcess()
