@@ -85,7 +85,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     return _session;
   }
 
+  /**
+   * Return the id of the session associated with the service.
+   *
+   * @return the id of the session associated with the service.
+   * @throws BadSessionException if the service is not currently associated with the session.
+   */
   protected final String getSessionID()
+    throws BadSessionException
   {
     final T session = getSession();
     if( null == session )
