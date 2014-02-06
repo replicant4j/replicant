@@ -91,7 +91,9 @@ public class DataLoaderServiceTest
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 9 );
 
-    assertEquals( service.getTerminateCount(), 1 );
+    // Termination count is actually 2 as progressWorkTillDone will attempt to progress
+    // once after it is initially terminates
+    assertEquals( service.getTerminateCount(), 2 );
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
