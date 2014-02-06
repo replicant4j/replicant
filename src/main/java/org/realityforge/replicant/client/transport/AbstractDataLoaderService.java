@@ -191,6 +191,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       {
         LOG.log( getLogLevel(), "No data to load. Terminating incremental load process." );
       }
+      onTerminatingIncrementalDataLoadProcess();
       return false;
     }
 
@@ -417,6 +418,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       _resetAction = null;
     }
     return true;
+  }
+
+  /**
+   * Template method invoked when progressDataLoad() is about to return false and terminate load process.
+   */
+  protected void onTerminatingIncrementalDataLoadProcess()
+  {
   }
 
   /**

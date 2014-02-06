@@ -53,6 +53,24 @@ public class DataLoaderServiceTest
   }
 
   @Test
+  public void getTerminateCount()
+    throws Exception
+  {
+    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), true, new Change[0] );
+    final TestDataLoadService service = newService( changeSet, true );
+    ensureEnqueueDataLoads( service );
+
+    for( int i = 0; i < 6; i++)
+    {
+    assertTrue( service.progressDataLoad() );
+    assertEquals( service.getTerminateCount(), 0 );
+    }
+
+    assertFalse( service.progressDataLoad() );
+    assertEquals( service.getTerminateCount(), 1 );
+  }
+
+  @Test
   public void verifyDataLoader_bulkDataLoad()
     throws Exception
   {
@@ -72,6 +90,8 @@ public class DataLoaderServiceTest
 
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 9 );
+
+    assertEquals( service.getTerminateCount(), 1 );
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
@@ -519,11 +539,23 @@ public class DataLoaderServiceTest
     private boolean _dataLoadComplete;
     private Boolean _bulkLoad;
     private String _requestID;
+    private int _terminateCount;
 
     TestDataLoadService( final boolean validateOnLoad, final TestChangeSet... changeSets )
     {
       _changeSets = new LinkedList<>( Arrays.asList( changeSets ) );
       _validateOnLoad = validateOnLoad;
+    }
+
+    @Override
+    protected void onTerminatingIncrementalDataLoadProcess()
+    {
+      _terminateCount++;
+    }
+
+    protected int getTerminateCount()
+    {
+      return _terminateCount;
     }
 
     protected boolean isBulkLoadCompleteCalled()

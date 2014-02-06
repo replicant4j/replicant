@@ -12,6 +12,8 @@
 * Add support for AbstractDataLoaderService.getSessionID() utility function.
 
 ## 0.5.7:
+* Add AbstractDataLoaderService.onTerminatingIncrementalDataLoadProcess() template
+  method to provide a useful extension point for subclasses.
 * Make it possible for the user to set explicitly set REQUEST_COMPLETE_KEY.
 * Enhance EntityMessageAccumulator to support adding collections of EntityMessages.
 * Enhance EntityMessageCacheUtil to support variants of method that lookup
