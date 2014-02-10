@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.json;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -106,6 +107,10 @@ public final class JsonEncoder
     else if ( serializable instanceof Integer )
     {
       generator.write( key, ( (Integer) serializable ).intValue() );
+    }
+    else if ( serializable instanceof Long )
+    {
+      generator.write( key, new BigDecimal( (Long) serializable ).toString() );
     }
     else if ( null == serializable )
     {

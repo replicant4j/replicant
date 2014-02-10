@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,5 +95,30 @@ public final class JsonEncoderTest
 
     final JSONObject data = object.optJSONObject( TransportConstants.DATA );
     assertNull( data );
+  }
+
+  @Test
+  public void encodeLong()
+    throws JSONException, ParseException
+  {
+    final String id = "myID";
+    final int typeID = 42;
+    final HashMap<String, Serializable> routingKeys = new HashMap<>();
+    final HashMap<String, Serializable> attributeData = new HashMap<>();
+    attributeData.put( "X", 1392061102056L );
+    final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData );
+    final ArrayList<EntityMessage> messages = new ArrayList<>();
+    messages.add( message );
+
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( 0, null, null, messages );
+
+    final String value =
+      new JSONObject( encoded ).
+        getJSONArray( TransportConstants.CHANGES ).
+        getJSONObject( 0 ).
+        getJSONObject( TransportConstants.DATA ).
+        getString( "X" );
+    assertNotNull( value );
+    assertEquals( value, "1392061102056" );
   }
 }

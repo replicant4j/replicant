@@ -1,3 +1,6 @@
+## 0.5.9:
+* Support encoding of Longs as strings in change sets.
+
 ## 0.5.8:
 * Move remaining client specific state in AbstractDataLoaderService to ClientSession.
 * Enhance AbstractDataLoaderService.setSession so that it resets state on
