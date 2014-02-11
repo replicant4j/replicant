@@ -1,3 +1,6 @@
+## 0.5.10:
+* Restore compatibility with JDK 6.
+
 ## 0.5.9:
 * Support encoding of Longs as strings in change sets.
 

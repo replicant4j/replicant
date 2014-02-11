@@ -14,17 +14,17 @@ public abstract class ClientSession
   /**
    * The set of data load actions that still need to have the json parsed.
    */
-  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<>();
+  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<DataLoadAction>();
   /**
    * The set of data load actions that have their json parsed. They are inserted into
    * this list according to their sequence.
    */
-  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<>();
+  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<DataLoadAction>();
   /**
    * Sometimes a data load action occurs that is not initiated by the server. These do not
    * typically need to be sequenced and are prioritized above other actions.
    */
-  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
+  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<DataLoadAction>();
 
   private int _lastRxSequence;
 

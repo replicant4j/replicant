@@ -81,6 +81,6 @@ public class PacketQueueTest
 
   private ArrayList<EntityMessage> newChanges()
   {
-    return new ArrayList<>();
+    return new ArrayList<EntityMessage>();
   }
 }

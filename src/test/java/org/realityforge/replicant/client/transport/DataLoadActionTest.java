@@ -17,7 +17,7 @@ public class DataLoadActionTest
   {
     final List<Boolean> flags = Arrays.asList( Boolean.TRUE, Boolean.FALSE );
 
-    final ArrayList<Object[]> objects = new ArrayList<>();
+    final ArrayList<Object[]> objects = new ArrayList<Object[]>();
     for ( final boolean normalCompletion : flags )
     {
       for ( final boolean bulkChange : flags )

@@ -43,7 +43,7 @@ public final class JsonEncoderTest
     assertNotNull( values );
     values.put( "key3", date );
 
-    final ArrayList<EntityMessage> messages = new ArrayList<>();
+    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
     final int lastChangeSetID = 1;
     final String requestID = "j1";
@@ -78,7 +78,7 @@ public final class JsonEncoderTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
-    final ArrayList<EntityMessage> messages = new ArrayList<>();
+    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
     final int lastChangeSetID = 1;
     final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, null, null, messages );
@@ -103,11 +103,11 @@ public final class JsonEncoderTest
   {
     final String id = "myID";
     final int typeID = 42;
-    final HashMap<String, Serializable> routingKeys = new HashMap<>();
-    final HashMap<String, Serializable> attributeData = new HashMap<>();
+    final HashMap<String, Serializable> routingKeys = new HashMap<String, Serializable>();
+    final HashMap<String, Serializable> attributeData = new HashMap<String, Serializable>();
     attributeData.put( "X", 1392061102056L );
     final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData );
-    final ArrayList<EntityMessage> messages = new ArrayList<>();
+    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
     messages.add( message );
 
     final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( 0, null, null, messages );

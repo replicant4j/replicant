@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 public class RequestManager
 {
-  private final Map<String, RequestEntry> _requests = new HashMap<>();
+  private final Map<String, RequestEntry> _requests = new HashMap<String, RequestEntry>();
   private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
   private int _requestID;
 

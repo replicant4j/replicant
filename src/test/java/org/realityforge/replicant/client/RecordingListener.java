@@ -5,11 +5,11 @@ import java.util.ArrayList;
 class RecordingListener
   implements EntityChangeListener
 {
-  private final ArrayList<EntityChangeEvent> _entityAddedEvents = new ArrayList<>();
-  private final ArrayList<EntityChangeEvent> _entityRemovedEvents = new ArrayList<>();
-  private final ArrayList<EntityChangeEvent> _attributeChangedEvents = new ArrayList<>();
-  private final ArrayList<EntityChangeEvent> _relatedAddedEvents = new ArrayList<>();
-  private final ArrayList<EntityChangeEvent> _relatedRemovedEvents = new ArrayList<>();
+  private final ArrayList<EntityChangeEvent> _entityAddedEvents = new ArrayList<EntityChangeEvent>();
+  private final ArrayList<EntityChangeEvent> _entityRemovedEvents = new ArrayList<EntityChangeEvent>();
+  private final ArrayList<EntityChangeEvent> _attributeChangedEvents = new ArrayList<EntityChangeEvent>();
+  private final ArrayList<EntityChangeEvent> _relatedAddedEvents = new ArrayList<EntityChangeEvent>();
+  private final ArrayList<EntityChangeEvent> _relatedRemovedEvents = new ArrayList<EntityChangeEvent>();
 
   public boolean hasRecordedEvents()
   {

@@ -15,7 +15,7 @@ import org.realityforge.replicant.server.EntityMessage;
  */
 public final class EntityMessageAccumulator
 {
-  private final Map<ReplicantSession, LinkedList<EntityMessage>> _changeSets = new HashMap<>();
+  private final Map<ReplicantSession, LinkedList<EntityMessage>> _changeSets = new HashMap<ReplicantSession, LinkedList<EntityMessage>>();
 
   /**
    * Add a message destined for a particular packet queue.
@@ -70,7 +70,7 @@ public final class EntityMessageAccumulator
     LinkedList<EntityMessage> clientChangeSet = _changeSets.get( session );
     if ( null == clientChangeSet )
     {
-      clientChangeSet = new LinkedList<>();
+      clientChangeSet = new LinkedList<EntityMessage>();
       _changeSets.put( session, clientChangeSet );
     }
     return clientChangeSet;

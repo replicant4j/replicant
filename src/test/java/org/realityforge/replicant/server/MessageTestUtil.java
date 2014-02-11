@@ -25,7 +25,7 @@ public final class MessageTestUtil
                                              @Nullable final String a1,
                                              @Nullable final String a2 )
   {
-    final HashMap<String, Serializable> routingKeys = new HashMap<>();
+    final HashMap<String, Serializable> routingKeys = new HashMap<String, Serializable>();
     if ( null != r1 )
     {
       routingKeys.put( ROUTING_KEY1, r1 );

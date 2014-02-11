@@ -545,7 +545,7 @@ public class DataLoaderServiceTest
 
     TestDataLoadService( final boolean validateOnLoad, final TestChangeSet... changeSets )
     {
-      _changeSets = new LinkedList<>( Arrays.asList( changeSets ) );
+      _changeSets = new LinkedList<TestChangeSet>( Arrays.asList( changeSets ) );
       _validateOnLoad = validateOnLoad;
     }
 

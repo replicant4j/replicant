@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 public class EntityRepositoryImpl
   implements EntityRepository
 {
-  private final HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<>();
+  private final HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<Class, HashMap<Object, ?>>();
 
   public <T> void registerEntity( final Class<T> type, final Object id, final T entity )
   {
@@ -90,7 +90,7 @@ public class EntityRepositoryImpl
   public <T> ArrayList<T> findAll( final Class<T> type )
   {
     final HashMap<Object, T> map = getObjectMap( type );
-    final ArrayList<T> results = new ArrayList<>( map.size() );
+    final ArrayList<T> results = new ArrayList<T>( map.size() );
     results.addAll( map.values() );
     for ( final T result : results )
     {
@@ -127,7 +127,7 @@ public class EntityRepositoryImpl
     HashMap<Object, T> objectMap = (HashMap<Object, T>) _dataStore.get( type );
     if ( null == objectMap )
     {
-      objectMap = new HashMap<>();
+      objectMap = new HashMap<Object, T>();
       _dataStore.put( type, objectMap );
     }
     return objectMap;

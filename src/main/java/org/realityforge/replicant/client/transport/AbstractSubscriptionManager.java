@@ -14,12 +14,12 @@ import javax.annotation.Nullable;
 public abstract class AbstractSubscriptionManager<T extends Enum>
 {
   //Graph => InstanceID
-  private final HashMap<T, Map<Object, SubscriptionEntry<T>>> _instanceSubscriptions = new HashMap<>();
+  private final HashMap<T, Map<Object, SubscriptionEntry<T>>> _instanceSubscriptions = new HashMap<T, Map<Object, SubscriptionEntry<T>>>();
   private final Map<T, Map<Object, SubscriptionEntry<T>>> _roInstanceSubscriptions =
     Collections.unmodifiableMap( _instanceSubscriptions );
 
   //Graph => Type
-  private final HashMap<T, SubscriptionEntry<T>> _typeSubscriptions = new HashMap<>();
+  private final HashMap<T, SubscriptionEntry<T>> _typeSubscriptions = new HashMap<T, SubscriptionEntry<T>>();
   private final Map<T, SubscriptionEntry<T>> _roTypeSubscriptions = Collections.unmodifiableMap( _typeSubscriptions );
 
   /**
@@ -50,7 +50,7 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
     SubscriptionEntry<T> typeMap = _typeSubscriptions.get( graph );
     if ( null == typeMap )
     {
-      final SubscriptionEntry<T> entry = new SubscriptionEntry<>( graph, null );
+      final SubscriptionEntry<T> entry = new SubscriptionEntry<T>( graph, null );
       _typeSubscriptions.put( graph, entry );
       return entry;
     }
@@ -73,12 +73,12 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
     Map<Object, SubscriptionEntry<T>> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
     {
-      instanceMap = new HashMap<>();
+      instanceMap = new HashMap<Object, SubscriptionEntry<T>>();
       _instanceSubscriptions.put( graph, instanceMap );
     }
     if ( !instanceMap.containsKey( id ) )
     {
-      final SubscriptionEntry<T> entry = new SubscriptionEntry<>( graph, id );
+      final SubscriptionEntry<T> entry = new SubscriptionEntry<T>( graph, id );
       instanceMap.put( id, entry );
       return entry;
     }

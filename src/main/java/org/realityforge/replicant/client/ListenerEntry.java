@@ -13,8 +13,8 @@ public final class ListenerEntry
 {
   private final EntityChangeListener _listener;
   private boolean _globalListener;
-  private final HashSet<Class> _interestedTypes = new HashSet<>();
-  private final HashSet<Object> _interestedInstances = new HashSet<>();
+  private final HashSet<Class> _interestedTypes = new HashSet<Class>();
+  private final HashSet<Object> _interestedInstances = new HashSet<Object>();
 
   public ListenerEntry( final EntityChangeListener listener )
   {
