@@ -1,4 +1,5 @@
 ## 0.5.11:
+* Add support for recording arbitrary data in SubscriptionEntry.
 * Add AbstractSubscriptionManager.find(Instance|Type)GraphSubscription methods.
 
 ## 0.5.10:

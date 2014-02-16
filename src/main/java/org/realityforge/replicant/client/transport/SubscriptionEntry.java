@@ -14,11 +14,17 @@ public class SubscriptionEntry<T extends Enum>
   private final T _graph;
   @Nullable
   private final Object _id;
+  @Nullable
+  private Object _subscriptionData;
 
   /**
    * True if the initial load of data for entity has been downloaded and is local.
    */
   private boolean _present;
+  /**
+   * True if the subscription is being updated.
+   */
+  private boolean _subscriptionUpdateInProgress;
   /**
    * True if the subscription is part way through being cancelled.
    */
@@ -33,6 +39,17 @@ public class SubscriptionEntry<T extends Enum>
     _graph = graph;
     _id = id;
     _registered = true;
+  }
+
+  public void setSubscriptionData( @Nullable final Object subscriptionData )
+  {
+    _subscriptionData = subscriptionData;
+  }
+
+  @Nullable
+  public Object getSubscriptionData()
+  {
+    return _subscriptionData;
   }
 
   public T getGraph()
@@ -54,6 +71,16 @@ public class SubscriptionEntry<T extends Enum>
   public void markAsPresent()
   {
     _present = true;
+  }
+
+  public boolean isSubscriptionUpdateInProgress()
+  {
+    return _subscriptionUpdateInProgress;
+  }
+
+  public void setSubscriptionUpdateInProgress( final boolean subscriptionUpdateInProgress )
+  {
+    _subscriptionUpdateInProgress = subscriptionUpdateInProgress;
   }
 
   public boolean isDeregisterInProgress()
