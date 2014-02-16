@@ -47,7 +47,7 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
   @Nullable
   protected final SubscriptionEntry<T> subscribeToTypeGraph( @Nonnull final T graph )
   {
-    SubscriptionEntry<T> typeMap = _typeSubscriptions.get( graph );
+    SubscriptionEntry<T> typeMap = findTypeGraphSubscription( graph );
     if ( null == typeMap )
     {
       final SubscriptionEntry<T> entry = new SubscriptionEntry<T>( graph, null );
@@ -58,6 +58,18 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
     {
       return null;
     }
+  }
+
+  /**
+   * Find subscription for type graph if it exists.
+   *
+   * @param graph the graph.
+   * @return the subscription entry if it exists, null otherwise.
+   */
+  @Nullable
+  protected final SubscriptionEntry<T> findTypeGraphSubscription( @Nonnull final T graph )
+  {
+    return _typeSubscriptions.get( graph );
   }
 
   /**
@@ -85,6 +97,27 @@ public abstract class AbstractSubscriptionManager<T extends Enum>
     else
     {
       return null;
+    }
+  }
+
+  /**
+   * Find a graph rooted at an instance.
+   *
+   * @param graph the graph to look for.
+   * @param id    the id of the root object.
+   * @return the subscription entry if it exists, null otherwise.
+   */
+  @Nullable
+  protected final SubscriptionEntry<T> findInstanceGraphSubscription( @Nonnull final T graph, @Nonnull final Object id )
+  {
+    Map<Object, SubscriptionEntry<T>> instanceMap = _instanceSubscriptions.get( graph );
+    if ( null == instanceMap )
+    {
+      return null;
+    }
+    else
+    {
+      return instanceMap.get( id );
     }
   }
 

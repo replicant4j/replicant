@@ -10,8 +10,10 @@ public class SubscriptionManagerTest
   {
     final TestSubscriptionManager sm = new TestSubscriptionManager();
 
+    assertNull( sm.findTypeGraphSubscription( TestGraph.A ) );
     final SubscriptionEntry<TestGraph> e1 = sm.subscribeToTypeGraph( TestGraph.A );
     assertNotNull( e1 );
+    assertEquals( sm.findTypeGraphSubscription( TestGraph.A ), e1 );
 
     assertEquals( e1.getGraph(), TestGraph.A );
     assertEquals( e1.getId(), null );
@@ -40,8 +42,10 @@ public class SubscriptionManagerTest
   {
     final TestSubscriptionManager sm = new TestSubscriptionManager();
 
+    assertNull( sm.findInstanceGraphSubscription( TestGraph.A, 1 ) );
     final SubscriptionEntry<TestGraph> e1 = sm.subscribeToInstanceGraph( TestGraph.A, 1 );
     assertNotNull( e1 );
+    assertEquals( sm.findInstanceGraphSubscription( TestGraph.A, 1 ), e1 );
 
     assertEquals( e1.getGraph(), TestGraph.A );
     assertEquals( e1.getId(), 1 );

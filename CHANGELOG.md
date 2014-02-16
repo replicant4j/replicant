@@ -1,3 +1,6 @@
+## 0.5.11:
+* Add AbstractSubscriptionManager.find(Instance|Type)GraphSubscription methods.
+
 ## 0.5.10:
 * Restore compatibility with JDK 6.
 
