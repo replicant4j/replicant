@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javax.annotation.Nonnull;
 
-public class EntityMessageSet
+public final class EntityMessageSet
 {
   private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<String, EntityMessage>();
 

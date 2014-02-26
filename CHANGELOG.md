@@ -1,4 +1,5 @@
 ## 0.5.12:
+* Mark the EntityMessageSet class as final.
 * Add EntityMessageSet.containsEntityMessage(...) to test whether the set
   contains a message.
 
