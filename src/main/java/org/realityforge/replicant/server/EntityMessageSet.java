@@ -4,10 +4,16 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import javax.annotation.Nonnull;
 
 public class EntityMessageSet
 {
   private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<String, EntityMessage>();
+
+  public boolean containsEntityMessage( final int typeID, @Nonnull final Serializable id )
+  {
+    return _entities.containsKey( toKey( typeID, id ) );
+  }
 
   public void mergeAll( final Collection<EntityMessage> messages )
   {
@@ -29,7 +35,7 @@ public class EntityMessageSet
 
   public void merge( final EntityMessage message, final boolean copyOnMerge )
   {
-    final String key = message.getTypeID() + "#" + message.getID();
+    final String key = toKey( message.getTypeID(), message.getID() );
     final EntityMessage existing = _entities.get( key );
     if ( null != existing )
     {
@@ -58,5 +64,10 @@ public class EntityMessageSet
   public Collection<EntityMessage> getEntityMessages()
   {
     return _entities.values();
+  }
+
+  private String toKey( final int typeID, final Serializable id )
+  {
+    return typeID + "#" + id;
   }
 }

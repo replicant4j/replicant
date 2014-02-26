@@ -1,6 +1,8 @@
 package org.realityforge.replicant.server;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -105,5 +107,18 @@ public class EntityMessageSetTest
     MessageTestUtil.assertAttributeValue( inserted, MessageTestUtil.ATTR_KEY2, "a4" );
     MessageTestUtil.assertRouteValue( inserted, MessageTestUtil.ROUTING_KEY1, "r3" );
     MessageTestUtil.assertRouteValue( inserted, MessageTestUtil.ROUTING_KEY2, "r4" );
+  }
+
+  @Test
+  public void isMessagePresent()
+  {
+    final EntityMessage message =
+      new EntityMessage( "a", 42, 0, new HashMap<String, Serializable>(), new HashMap<String, Serializable>() );
+
+    final EntityMessageSet set = new EntityMessageSet();
+
+    assertFalse( set.containsEntityMessage( message.getTypeID(), message.getID() ) );
+    set.merge( message );
+    assertTrue( set.containsEntityMessage( message.getTypeID(), message.getID() ) );
   }
 }

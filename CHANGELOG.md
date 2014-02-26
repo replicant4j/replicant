@@ -1,3 +1,7 @@
+## 0.5.12:
+* Add EntityMessageSet.containsEntityMessage(...) to test whether the set
+  contains a message.
+
 ## 0.5.11:
 * Add support for recording arbitrary data in SubscriptionEntry.
 * Add AbstractSubscriptionManager.find(Instance|Type)GraphSubscription methods.
