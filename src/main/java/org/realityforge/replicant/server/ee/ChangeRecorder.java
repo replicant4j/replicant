@@ -10,6 +10,7 @@ import javax.persistence.PreRemove;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageGenerator;
+import org.realityforge.replicant.server.EntityMessageSet;
 
 /**
  * Abstract class to extend to collect changes to entities so that they can be replicated by the library.
@@ -35,7 +36,7 @@ public abstract class ChangeRecorder
   @PostPersist
   public void postUpdate( final Object object )
   {
-    queueEntityMessageForObject( object, true );
+    recordEntityMessagesForEntity( object, true );
   }
 
   /**
@@ -50,19 +51,46 @@ public abstract class ChangeRecorder
   @PreRemove
   public void preRemove( final Object object )
   {
-    queueEntityMessageForObject( object, false );
+    recordEntityMessagesForEntity( object, false );
   }
 
-  private void queueEntityMessageForObject( @Nonnull final Object object, final boolean update )
+  /**
+   * Record the EntityMessage for the specified entity and dependent entities in the transactions EntityMessageSet.
+   *
+   * @param entity the entity to record.
+   * @param isUpdate true if change is an update, false if it is a delete.
+   */
+  protected final void recordEntityMessagesForEntity( @Nonnull final Object entity, final boolean isUpdate )
   {
     if ( !getRegistry().getRollbackOnly() )
     {
-      final EntityMessage entityMessage = getEntityMessageGenerator().convertToEntityMessage( object, update );
-      if ( null != entityMessage )
-      {
-        EntityMessageCacheUtil.getEntityMessageSet( getRegistry() ).merge( entityMessage );
-      }
+      recordEntityMessageForEntity( entity, isUpdate );
     }
+  }
+
+  /**
+   * Record the EntityMessage for specified entity in the transactions EntityMessageSet.
+   *
+   * @param entity the entity to record.
+   * @param isUpdate true if change is an update, false if it is a delete.
+   */
+  protected final void recordEntityMessageForEntity( final Object entity, final boolean isUpdate )
+  {
+    final EntityMessage entityMessage = getEntityMessageGenerator().convertToEntityMessage( entity, isUpdate );
+    if ( null != entityMessage )
+    {
+      getEntityMessageSet().merge( entityMessage );
+    }
+  }
+
+  /**
+   * Return the EntityMessageSet used to collect messages for the current transaction.
+   *
+   * @return the EntityMessageSet used to collect messages for the current transaction.
+   */
+  protected final EntityMessageSet getEntityMessageSet()
+  {
+    return EntityMessageCacheUtil.getEntityMessageSet( getRegistry() );
   }
 
   /**
