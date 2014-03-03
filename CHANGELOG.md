@@ -1,4 +1,5 @@
 ## 0.5.13:
+* Support registration of interfaces in EntityRepository.
 * Add support for detecting whether an entity has been lined via Linkable.isLinked().
 * Reconfigure the Linkable interface so that implementations no longer implement
   delink and instead rely on the repository invoking invalidate.

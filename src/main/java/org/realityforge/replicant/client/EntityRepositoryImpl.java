@@ -20,7 +20,7 @@ public class EntityRepositoryImpl
     }
     objectMap.put( id, entity );
     final Class<? super T> superclass = type.getSuperclass();
-    if ( Object.class != superclass )
+    if ( null != superclass && Object.class != superclass )
     {
       registerEntity( superclass, id, entity );
     }
