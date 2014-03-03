@@ -32,11 +32,28 @@ public abstract class ChangeRecorder
   @Resource
   private TransactionSynchronizationRegistry _registry;
 
+  private static TransactionSynchronizationRegistry lookupTransactionSynchronizationRegistry()
+  {
+    try
+    {
+      return (TransactionSynchronizationRegistry) new InitialContext().lookup( REGISTRY_KEY );
+    }
+    catch ( final NamingException ne )
+    {
+      final String message =
+        "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
+      throw new IllegalStateException( message, ne );
+    }
+  }
+
   @PostUpdate
   @PostPersist
   public void postUpdate( final Object object )
   {
-    recordEntityMessagesForEntity( object, true );
+    if ( !inRollback() )
+    {
+      recordEntityMessagesForEntity( object, true );
+    }
   }
 
   /**
@@ -51,27 +68,35 @@ public abstract class ChangeRecorder
   @PreRemove
   public void preRemove( final Object object )
   {
-    recordEntityMessagesForEntity( object, false );
+    if ( !inRollback() )
+    {
+      recordEntityMessagesForEntity( object, false );
+    }
+  }
+
+  /**
+   * @return true if transaction is in rollback.
+   */
+  protected final boolean inRollback()
+  {
+    return getRegistry().getRollbackOnly();
   }
 
   /**
    * Record the EntityMessage for the specified entity and dependent entities in the transactions EntityMessageSet.
    *
-   * @param entity the entity to record.
+   * @param entity   the entity to record.
    * @param isUpdate true if change is an update, false if it is a delete.
    */
   protected final void recordEntityMessagesForEntity( @Nonnull final Object entity, final boolean isUpdate )
   {
-    if ( !getRegistry().getRollbackOnly() )
-    {
-      recordEntityMessageForEntity( entity, isUpdate );
-    }
+    recordEntityMessageForEntity( entity, isUpdate );
   }
 
   /**
    * Record the EntityMessage for specified entity in the transactions EntityMessageSet.
    *
-   * @param entity the entity to record.
+   * @param entity   the entity to record.
    * @param isUpdate true if change is an update, false if it is a delete.
    */
   protected final void recordEntityMessageForEntity( final Object entity, final boolean isUpdate )
@@ -105,20 +130,6 @@ public abstract class ChangeRecorder
       _registry = lookupTransactionSynchronizationRegistry();
     }
     return _registry;
-  }
-
-  private static TransactionSynchronizationRegistry lookupTransactionSynchronizationRegistry()
-  {
-    try
-    {
-      return (TransactionSynchronizationRegistry) new InitialContext().lookup( REGISTRY_KEY );
-    }
-    catch ( final NamingException ne )
-    {
-      final String message =
-        "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
-      throw new IllegalStateException( message, ne );
-    }
   }
 }
 
