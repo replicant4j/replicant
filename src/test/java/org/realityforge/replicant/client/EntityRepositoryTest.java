@@ -233,6 +233,12 @@ public class EntityRepositoryTest
     }
 
     @Override
+    public boolean isLinked()
+    {
+      return _linked && isValid();
+    }
+
+    @Override
     public void invalidate()
     {
       assertFalse( _invalidated );

@@ -181,6 +181,12 @@ public class DataLoadActionTest
     implements Linkable
   {
     @Override
+    public boolean isLinked()
+    {
+      return false;
+    }
+
+    @Override
     public void link()
     {
     }

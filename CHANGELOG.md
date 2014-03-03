@@ -1,4 +1,5 @@
 ## 0.5.13:
+* Add support for detecting whether an entity has been lined via Linkable.isLinked().
 * Reconfigure the Linkable interface so that implementations no longer implement
   delink and instead rely on the repository invoking invalidate.
 * Rework ChangeRecorder to make it easier to sub-class and customize behaviour.
