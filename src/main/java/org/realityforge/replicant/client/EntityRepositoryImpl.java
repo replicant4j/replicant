@@ -33,7 +33,6 @@ public class EntityRepositoryImpl
     if ( existing instanceof Linkable )
     {
       final Linkable linkable = (Linkable) existing;
-      linkable.delink();
       linkable.invalidate();
     }
     return existing;

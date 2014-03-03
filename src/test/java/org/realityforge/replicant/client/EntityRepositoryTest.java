@@ -36,7 +36,6 @@ public class EntityRepositoryTest
     r.deregisterEntity( type, id );
 
     // entity is de-linked after de-registration
-    assertNotLinked( entity );
     assertInvalidated( entity );
 
     assertNotPresent( r, type, id );
@@ -231,12 +230,6 @@ public class EntityRepositoryTest
     public final void link()
     {
       _linked = true;
-    }
-
-    public final void delink()
-    {
-      assertTrue( _linked );
-      _linked = false;
     }
 
     @Override

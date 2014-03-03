@@ -186,11 +186,6 @@ public class DataLoadActionTest
     }
 
     @Override
-    public void delink()
-    {
-    }
-
-    @Override
     public void invalidate()
     {
     }

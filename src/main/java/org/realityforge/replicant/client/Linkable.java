@@ -13,18 +13,14 @@ public interface Linkable
   void link();
 
   /**
-   * Remove direct references to related entities and mark as unresolved.
+   * Invalidating the entity will delink the entity from related entities and remove the references to the
+   * repository and change broker. After invoking this method the entity is no longer valid and should not
+   * be used. This is called by the repository during delinking.
    */
-  void delink();
+  void invalidate();
 
   /**
    * @return false if invalidate has been invoked on entity, true otherwise.
    */
   boolean isValid();
-
-  /**
-   * Invalidating the entity will remove the references to this entity from the repository and change broker.
-   * This makes this entity no longer usable.
-   */
-  void invalidate();
 }

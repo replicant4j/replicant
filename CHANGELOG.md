@@ -1,4 +1,6 @@
 ## 0.5.13:
+* Reconfigure the Linkable interface so that implementations no longer implement
+  delink and instead rely on the repository invoking invalidate.
 * Rework ChangeRecorder to make it easier to sub-class and customize behaviour.
 
 ## 0.5.12:
