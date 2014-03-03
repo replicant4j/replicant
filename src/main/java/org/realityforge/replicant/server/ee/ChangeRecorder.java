@@ -88,7 +88,7 @@ public abstract class ChangeRecorder
    * @param entity   the entity to record.
    * @param isUpdate true if change is an update, false if it is a delete.
    */
-  protected final void recordEntityMessagesForEntity( @Nonnull final Object entity, final boolean isUpdate )
+  protected void recordEntityMessagesForEntity( @Nonnull final Object entity, final boolean isUpdate )
   {
     recordEntityMessageForEntity( entity, isUpdate );
   }
