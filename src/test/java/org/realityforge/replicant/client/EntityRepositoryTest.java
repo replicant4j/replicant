@@ -2,6 +2,7 @@ package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class EntityRepositoryTest
@@ -63,37 +64,82 @@ public class EntityRepositoryTest
   }
 
   @Test
-  public void validate()
+  public void validate_LinkableThatReturnsTrueFor_isValid()
     throws Exception
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final Class<A> type = A.class;
-    final A entity = new A();
+    assertValidated( r );
 
-    r.registerEntity( type, "1", entity );
+    final Linkable linkable = mock( Linkable.class );
+    when( linkable.isValid() ).thenReturn( true );
 
-    r.validate();
+    r.registerEntity( Linkable.class, "2", linkable );
 
-    //Ensure non linkables can be validated
+    assertValidated( r );
+  }
+
+  @Test
+  public void validate_LinkableThatReturnsFalseFor_isValid()
+    throws Exception
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    assertValidated( r );
+
+    final Linkable linkable = mock( Linkable.class );
+    when( linkable.isValid() ).thenReturn( false );
+
+    r.registerEntity( Linkable.class, "2", linkable );
+
+    assertFailedToValidate( r );
+  }
+
+  @Test
+  public void validate_VerifiableRaisesException()
+    throws Exception
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    assertValidated( r );
+
+    final Verifiable verifiable = mock( Verifiable.class );
+    doThrow( new Exception() ).when( verifiable ).verify();
+
+    r.registerEntity( Verifiable.class, "3", verifiable );
+    assertFailedToValidate( r );
+  }
+
+  @Test
+  public void validate_nonLinkable()
+    throws Exception
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    assertValidated( r );
     r.registerEntity( String.class, "foo", "foo" );
+    assertValidated( r );
+  }
 
-    r.validate();
+  private void assertValidated( final EntityRepository r )
+  {
+    try
+    {
+      r.validate();
+    }
+    catch ( final Exception e )
+    {
+      fail( "Expected to validate but failed due to : " + e );
+    }
+  }
 
-    final A entity2 = new A();
-    entity2.invalidate();
-
-    r.registerEntity( type, "2", entity2 );
-
+  private void assertFailedToValidate( final EntityRepository r )
+  {
     boolean invalid = false;
     try
     {
       r.validate();
     }
-    catch ( Exception e )
+    catch ( final Exception e )
     {
       invalid = true;
     }
-
     if ( !invalid )
     {
       fail( "Expected invalid object to raise exception in validate method" );

@@ -116,6 +116,10 @@ public class EntityRepositoryImpl
             throw new Exception( message );
           }
         }
+        if ( entity instanceof Verifiable )
+        {
+          ( (Verifiable) entity ).verify();
+        }
       }
     }
   }

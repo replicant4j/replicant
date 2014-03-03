@@ -1,4 +1,5 @@
 ## 0.5.13:
+* Add support for Verifiable interface for entities that can validate their own state.
 * Support registration of interfaces in EntityRepository.
 * Add support for detecting whether an entity has been lined via Linkable.isLinked().
 * Reconfigure the Linkable interface so that implementations no longer implement
