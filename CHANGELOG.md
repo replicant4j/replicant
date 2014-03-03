@@ -1,3 +1,6 @@
+## 0.5.13:
+* Rework ChangeRecorder to make it easier to sub-class and customize behaviour.
+
 ## 0.5.12:
 * Mark the EntityMessageSet class as final.
 * Add EntityMessageSet.containsEntityMessage(...) to test whether the set
