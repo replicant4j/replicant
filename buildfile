@@ -21,7 +21,7 @@ define 'replicant' do
   pom.provided_dependencies.concat PROVIDED_DEPS
   pom.optional_dependencies.concat OPTIONAL_DEPS
 
-  compile.with PROVIDED_DEPS, OPTIONAL_DEPS, :simple_session_filter
+  compile.with PROVIDED_DEPS, OPTIONAL_DEPS, :simple_session_filter, :gwt_property_source
 
   test.with :json
 

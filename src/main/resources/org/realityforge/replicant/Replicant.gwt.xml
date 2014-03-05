@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
+  <inherits name="org.realityforge.gwt.propertysource.PropertySource"/>
+
   <source path='client'/>
   <source path='shared'/>
+
+  <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
+  <set-property name="replicant.shouldValidateRepositoryOnLoad" value="false"/>
 </module>

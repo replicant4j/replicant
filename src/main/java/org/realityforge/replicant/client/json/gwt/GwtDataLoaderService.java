@@ -10,12 +10,14 @@ import org.realityforge.replicant.client.transport.ClientSession;
 public abstract class GwtDataLoaderService<T extends ClientSession>
   extends AbstractDataLoaderService<T>
 {
+  private static final ReplicantConfig CONFIG = GWT.create( ReplicantConfig.class );
+
   private boolean _incrementalDataLoadInProgress;
 
   @Override
   protected boolean shouldValidateOnLoad()
   {
-    return !GWT.isProdMode();
+    return CONFIG.shouldValidateRepositoryOnLoad();
   }
 
   @Override
