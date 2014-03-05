@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.replicant.client.Change;
@@ -520,15 +519,6 @@ public class DataLoaderServiceTest
     final RequestEntry request = service.getSession().getRequest( requestID );
     assertNotNull( request );
     return request;
-  }
-
-  static class TestClientSession
-    extends ClientSession
-  {
-    TestClientSession( @Nonnull final String sessionID )
-    {
-      super( sessionID );
-    }
   }
 
   static final class TestDataLoadService
