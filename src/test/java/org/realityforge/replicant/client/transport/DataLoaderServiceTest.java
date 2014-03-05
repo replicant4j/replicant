@@ -260,7 +260,7 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
 
     final RequestEntry request =
-      service.getSession().getRequestManager().newRequestRegistration( null, changeSet.isBulkChange() );
+      service.getSession().newRequestRegistration( null, changeSet.isBulkChange() );
     changeSet.setRequestID( request.getRequestID() );
     service.enqueueDataLoad( "blah" );
 
@@ -439,8 +439,7 @@ public class DataLoaderServiceTest
     if ( changeSet.isResponseToRequest() )
     {
       final RequestEntry request =
-        service.getSession().getRequestManager().
-          newRequestRegistration( changeSet.getCacheKey(), changeSet.isBulkChange() );
+        service.getSession().newRequestRegistration( changeSet.getCacheKey(), changeSet.isBulkChange() );
       request.setNormalCompletionAction( changeSet.getRunnable() );
       changeSet.setRequestID( request.getRequestID() );
       return request;
@@ -506,19 +505,19 @@ public class DataLoaderServiceTest
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNull( service.getSession().getRequestManager().getRequest( request.getRequestID() ) );
+    assertNull( service.getSession().getRequest( request.getRequestID() ) );
   }
 
   private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNotNull( service.getSession().getRequestManager().getRequest( request.getRequestID() ) );
+    assertNotNull( service.getSession().getRequest( request.getRequestID() ) );
   }
 
   private RequestEntry ensureRequest( final TestDataLoadService service, final TestChangeSet changeSet )
   {
     final String requestID = changeSet.getRequestID();
     assertNotNull( requestID );
-    final RequestEntry request = service.getSession().getRequestManager().getRequest( requestID );
+    final RequestEntry request = service.getSession().getRequest( requestID );
     assertNotNull( request );
     return request;
   }

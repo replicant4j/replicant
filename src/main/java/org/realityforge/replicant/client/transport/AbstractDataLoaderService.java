@@ -237,13 +237,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
       }
       else
       {
-        final RequestManager requestManager = getSession().getRequestManager();
-        request = null != requestID ? requestManager.getRequest( requestID ) : null;
+        request = null != requestID ? getSession().getRequest( requestID ) : null;
         if ( null == request && null != requestID )
         {
           final String message =
             "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
-            " Existing Requests: " + requestManager.getRequests();
+            " Existing Requests: " + getSession().getRequests();
           if ( LOG.isLoggable( Level.WARNING ) )
           {
             LOG.warning( message );
@@ -407,7 +406,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
 
-        getSession().getRequestManager().removeRequest( requestID );
+        getSession().removeRequest( requestID );
       }
     }
     onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );

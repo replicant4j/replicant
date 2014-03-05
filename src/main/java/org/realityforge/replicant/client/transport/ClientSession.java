@@ -1,7 +1,11 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Abstract representation of client session.
@@ -9,7 +13,9 @@ import javax.annotation.Nonnull;
 public abstract class ClientSession
 {
   private final String _sessionID;
-  private final RequestManager _requestManager;
+  private final Map<String, RequestEntry> _requests = new HashMap<String, RequestEntry>();
+  private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
+  private int _requestID;
 
   /**
    * The set of data load actions that still need to have the json parsed.
@@ -31,19 +37,12 @@ public abstract class ClientSession
   public ClientSession( @Nonnull final String sessionID )
   {
     _sessionID = sessionID;
-    _requestManager = newRequestManager();
   }
 
   @Nonnull
   public String getSessionID()
   {
     return _sessionID;
-  }
-
-  @Nonnull
-  public RequestManager getRequestManager()
-  {
-    return _requestManager;
   }
 
   final LinkedList<DataLoadAction> getPendingActions()
@@ -61,11 +60,6 @@ public abstract class ClientSession
     return _oobActions;
   }
 
-  protected RequestManager newRequestManager()
-  {
-    return new RequestManager();
-  }
-
   public int getLastRxSequence()
   {
     return _lastRxSequence;
@@ -74,5 +68,34 @@ public abstract class ClientSession
   public void setLastRxSequence( final int lastRxSequence )
   {
     _lastRxSequence = lastRxSequence;
+  }
+
+  @Nonnull
+  public final RequestEntry newRequestRegistration( @Nullable final String cacheKey, final boolean bulkLoad )
+  {
+    final RequestEntry entry = new RequestEntry( newRequestID(), cacheKey, bulkLoad );
+    _requests.put( entry.getRequestID(), entry );
+    return entry;
+  }
+
+  @Nullable
+  public final RequestEntry getRequest( @Nonnull final String requestID )
+  {
+    return _requests.get( requestID );
+  }
+
+  public Map<String, RequestEntry> getRequests()
+  {
+    return _roRequests;
+  }
+
+  public final boolean removeRequest( @Nonnull final String requestID )
+  {
+    return null != _requests.remove( requestID );
+  }
+
+  protected String newRequestID()
+  {
+    return String.valueOf( ++_requestID );
   }
 }
