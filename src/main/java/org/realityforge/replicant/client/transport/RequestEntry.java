@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 public class RequestEntry
 {
   private final String _requestID;
+  private final String _requestKey;
   @Nullable
   private final String _cacheKey;
   private final boolean _bulkLoad;
@@ -17,16 +18,24 @@ public class RequestEntry
   private boolean _resultsArrived;
   private Runnable _runnable;
 
-  public RequestEntry( @Nonnull final String requestID, @Nullable final String cacheKey, final boolean bulkLoad )
+  public RequestEntry( @Nonnull final String requestID, @Nonnull final String requestKey, @Nullable final String cacheKey, final boolean bulkLoad )
   {
     _requestID = requestID;
+    _requestKey = requestKey;
     _cacheKey = cacheKey;
     _bulkLoad = bulkLoad;
   }
 
+  @Nonnull
   public String getRequestID()
   {
     return _requestID;
+  }
+
+  @Nonnull
+  public String getRequestKey()
+  {
+    return _requestKey;
   }
 
   @Nullable
@@ -95,6 +104,6 @@ public class RequestEntry
   @Override
   public String toString()
   {
-    return "Request[ID=" + _requestID + ",Cache=" + _cacheKey + ",Bulk=" + _bulkLoad + "]";
+    return "Request(" + _requestKey + ")[ID=" + _requestID + ",Cache=" + _cacheKey + ",Bulk=" + _bulkLoad + "]";
   }
 }

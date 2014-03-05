@@ -85,9 +85,9 @@ public abstract class ClientSession<T extends Enum>
   }
 
   @Nonnull
-  public final RequestEntry newRequestRegistration( @Nullable final String cacheKey, final boolean bulkLoad )
+  public final RequestEntry newRequestRegistration( @Nonnull final String requestKey, @Nullable final String cacheKey, final boolean bulkLoad )
   {
-    final RequestEntry entry = new RequestEntry( newRequestID(), cacheKey, bulkLoad );
+    final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey, bulkLoad );
     _requests.put( entry.getRequestID(), entry );
     return entry;
   }

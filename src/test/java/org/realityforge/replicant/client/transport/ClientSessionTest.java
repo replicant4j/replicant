@@ -9,8 +9,9 @@ public class ClientSessionTest
   public void basicRequestManagementWorkflow()
   {
     final ClientSession rm = new TestClientSession();
-    final RequestEntry e = rm.newRequestRegistration( "X", true );
+    final RequestEntry e = rm.newRequestRegistration( "Y", "X", true );
     assertEquals( e.isBulkLoad(), true );
+    assertEquals( e.getRequestKey(), "Y" );
     assertEquals( e.getCacheKey(), "X" );
 
     assertEquals( rm.getRequest( e.getRequestID() ), e );

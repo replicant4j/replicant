@@ -259,7 +259,7 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
 
     final RequestEntry request =
-      service.getSession().newRequestRegistration( null, changeSet.isBulkChange() );
+      service.getSession().newRequestRegistration( "", null, changeSet.isBulkChange() );
     changeSet.setRequestID( request.getRequestID() );
     service.enqueueDataLoad( "blah" );
 
@@ -438,7 +438,7 @@ public class DataLoaderServiceTest
     if ( changeSet.isResponseToRequest() )
     {
       final RequestEntry request =
-        service.getSession().newRequestRegistration( changeSet.getCacheKey(), changeSet.isBulkChange() );
+        service.getSession().newRequestRegistration( "", changeSet.getCacheKey(), changeSet.isBulkChange() );
       request.setNormalCompletionAction( changeSet.getRunnable() );
       changeSet.setRequestID( request.getRequestID() );
       return request;

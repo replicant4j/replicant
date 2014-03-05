@@ -87,7 +87,7 @@ public class DataLoadActionTest
       changeSet.setRequestID( "X" );
       final String requestID = changeSet.getRequestID();
       assertNotNull( requestID );
-      final RequestEntry request = new RequestEntry( requestID, null, changeSet.isBulkChange() );
+      final RequestEntry request = new RequestEntry( requestID, "MyOperation", null, changeSet.isBulkChange() );
       if ( normalCompletion )
       {
         request.setNormalCompletionAction( runnable );
