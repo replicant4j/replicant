@@ -1,3 +1,10 @@
+## 0.5.14:
+* Associate a key with each request that corresponds to the operation being performed.
+* Merge RequestManager and AbstractSessionManager into ClientSession.
+* Add dependency on gwt-property-source library so that the choice on whether to
+  validate repository after loads is controlled using a compile time configuration
+  property.
+
 ## 0.5.13:
 * Add support for Verifiable interface for entities that can validate their own state.
 * Support registration of interfaces in EntityRepository.
