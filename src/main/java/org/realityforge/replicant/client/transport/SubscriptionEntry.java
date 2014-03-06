@@ -15,7 +15,7 @@ public class SubscriptionEntry<T extends Enum>
   @Nullable
   private final Object _id;
   @Nullable
-  private Object _subscriptionData;
+  private Object _filterParameter;
 
   /**
    * True if the initial load of data for entity has been downloaded and is local.
@@ -41,15 +41,15 @@ public class SubscriptionEntry<T extends Enum>
     _registered = true;
   }
 
-  public void setSubscriptionData( @Nullable final Object subscriptionData )
+  public void setFilterParameter( @Nullable final Object filterParameter )
   {
-    _subscriptionData = subscriptionData;
+    _filterParameter = filterParameter;
   }
 
   @Nullable
-  public Object getSubscriptionData()
+  public Object getFilterParameter()
   {
-    return _subscriptionData;
+    return _filterParameter;
   }
 
   public T getGraph()
