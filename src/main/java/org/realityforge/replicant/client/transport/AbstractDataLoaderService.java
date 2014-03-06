@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
@@ -25,20 +24,27 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
 
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
-  @Inject
-  private ChangeMapper _changeMapper;
-  @Inject
-  private EntityChangeBroker _changeBroker;
-  @Inject
-  private EntityRepository _repository;
-  @Inject
-  private CacheService _cacheService;
+  private final ChangeMapper _changeMapper;
+  private final EntityChangeBroker _changeBroker;
+  private final EntityRepository _repository;
+  private final CacheService _cacheService;
 
   private DataLoadAction _currentAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
   private T _session;
+
+  protected AbstractDataLoaderService( final ChangeMapper changeMapper,
+                                       final EntityChangeBroker changeBroker,
+                                       final EntityRepository repository,
+                                       final CacheService cacheService )
+  {
+    _changeMapper = changeMapper;
+    _changeBroker = changeBroker;
+    _repository = repository;
+    _cacheService = cacheService;
+  }
 
   /**
    * Action invoked after current action completes to reset session state.
