@@ -5,12 +5,11 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import javax.annotation.Nonnull;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
+import org.realityforge.replicant.client.transport.TestClientSession;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -140,14 +139,5 @@ public class ReplicantRpcRequestBuilderTest
     verify( rb ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
-  }
-
-  static class TestClientSession
-    extends ClientSession
-  {
-    TestClientSession( @Nonnull final String sessionID )
-    {
-      super( sessionID );
-    }
   }
 }

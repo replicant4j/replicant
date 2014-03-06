@@ -2,16 +2,22 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 
-class TestClientSession
-  extends ClientSession<TestGraph>
+public class TestClientSession
+  extends ClientSession<TestClientSession, TestGraph>
 {
-  TestClientSession()
+  public TestClientSession()
   {
     this( "MySessionID" );
   }
 
-  TestClientSession( @Nonnull final String sessionID )
+  public TestClientSession( @Nonnull final AbstractDataLoaderService<TestClientSession, TestGraph> dataLoaderService,
+                     @Nonnull final String sessionID )
   {
-    super( sessionID );
+    super( dataLoaderService, sessionID );
+  }
+
+  public TestClientSession( @Nonnull final String sessionID )
+  {
+    this( new TestDataLoadService(), sessionID );
   }
 }
