@@ -67,7 +67,8 @@ public class ClientSessionTest
     assertEquals( sm.findInstanceGraphSubscription( TestGraph.A, 1 ), e1 );
 
     assertEquals( e1.getGraph(), TestGraph.A );
-    assertEquals( e1.getId(), 1 );
+    final Integer id = 1;
+    assertEquals( e1.getId(), id );
     assertEquals( e1.isDeregisterInProgress(), false );
     assertEquals( e1.isPresent(), false );
     assertEquals( e1.isRegistered(), true );
