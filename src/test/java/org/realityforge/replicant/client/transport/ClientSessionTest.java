@@ -30,7 +30,7 @@ public class ClientSessionTest
     final TestClientSession sm = new TestClientSession();
 
     assertNull( sm.findTypeGraphSubscription( TestGraph.A ) );
-    final SubscriptionEntry<TestGraph> e1 = sm.subscribeToTypeGraph( TestGraph.A );
+    final SubscriptionEntry<TestGraph> e1 = sm.newTypeGraphSubscription( TestGraph.A );
     assertNotNull( e1 );
     assertEquals( sm.findTypeGraphSubscription( TestGraph.A ), e1 );
 
@@ -44,7 +44,7 @@ public class ClientSessionTest
     assertNull( sm.getTypeSubscriptions().get( TestGraph.B ) );
 
     // Already subscribed so don't subscribe
-    final SubscriptionEntry<TestGraph> e2 = sm.subscribeToTypeGraph( TestGraph.A );
+    final SubscriptionEntry<TestGraph> e2 = sm.newTypeGraphSubscription( TestGraph.A );
     assertNull( e2 );
 
     final SubscriptionEntry<TestGraph> e3 = sm.unsubscribeFromTypeGraph( TestGraph.A );
@@ -62,7 +62,7 @@ public class ClientSessionTest
     final TestClientSession sm = new TestClientSession();
 
     assertNull( sm.findInstanceGraphSubscription( TestGraph.A, 1 ) );
-    final SubscriptionEntry<TestGraph> e1 = sm.subscribeToInstanceGraph( TestGraph.A, 1 );
+    final SubscriptionEntry<TestGraph> e1 = sm.newInstanceGraphSubscription( TestGraph.A, 1 );
     assertNotNull( e1 );
     assertEquals( sm.findInstanceGraphSubscription( TestGraph.A, 1 ), e1 );
 
@@ -77,7 +77,7 @@ public class ClientSessionTest
     assertNull( sm.getInstanceSubscriptions().get( TestGraph.A ).get( 2 ) );
 
     // Already subscribed so don't subscribe
-    final SubscriptionEntry<TestGraph> e2 = sm.subscribeToInstanceGraph( TestGraph.A, 1 );
+    final SubscriptionEntry<TestGraph> e2 = sm.newInstanceGraphSubscription( TestGraph.A, 1 );
     assertNull( e2 );
 
     final SubscriptionEntry<TestGraph> e3 = sm.unsubscribeFromInstanceGraph( TestGraph.A, 1 );

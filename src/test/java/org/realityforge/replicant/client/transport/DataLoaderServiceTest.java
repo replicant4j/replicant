@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
-import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.Linkable;
@@ -29,7 +28,7 @@ public class DataLoaderServiceTest
     final Runnable runnable1 = mock( Runnable.class );
     final TestClientSession session1 = new TestClientSession( "X" );
 
-    service.enqueueOOB( "X", null, false );
+    session1.enqueueOOB( "X", null, false );
 
     assertEquals( SessionContext.getSession(), null );
 
@@ -133,7 +132,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
-    service.enqueueDataLoad( "Data" );
+    service.getSession().enqueueDataLoad( "Data" );
     final RequestEntry request = configureRequest( changeSet, service );
     assertNotNull( request );
 
@@ -162,7 +161,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
-    service.enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
+    service.getSession().enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
 
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 7 );
@@ -198,9 +197,9 @@ public class DataLoaderServiceTest
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     assertFalse( service.isScheduleDataLoadCalled() );
-    for ( final TestChangeSet cs : service._changeSets )
+    for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
+      service.getSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
 
@@ -261,7 +260,7 @@ public class DataLoaderServiceTest
     final RequestEntry request =
       service.getSession().newRequestRegistration( "", null, changeSet.isBulkChange() );
     changeSet.setRequestID( request.getRequestID() );
-    service.enqueueDataLoad( "blah" );
+    service.getSession().enqueueDataLoad( "blah" );
 
     progressWorkTillDone( service );
 
@@ -381,8 +380,8 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
-    configureRequests( service, service._changeSets );
-    service.enqueueDataLoad( "jsonData" );
+    configureRequests( service, service.getChangeSets() );
+    service.getSession().enqueueDataLoad( "jsonData" );
     final int stepCount = progressWorkTillDone( service );
     assertEquals( stepCount, 3 );
 
@@ -391,7 +390,7 @@ public class DataLoaderServiceTest
     verifyPostActionNotRun( changeSet2.getRunnable() );
     verifyPostActionNotRun( changeSet1.getRunnable() );
 
-    service.enqueueDataLoad( "jsonData" );
+    service.getSession().enqueueDataLoad( "jsonData" );
     final int stepCount2 = progressWorkTillDone( service );
     assertEquals( stepCount2, 15 );
 
@@ -415,11 +414,11 @@ public class DataLoaderServiceTest
 
   private void ensureEnqueueDataLoads( final TestDataLoadService service )
   {
-    configureRequests( service, service._changeSets );
+    configureRequests( service, service.getChangeSets() );
     assertFalse( service.isScheduleDataLoadCalled() );
-    for ( final TestChangeSet cs : service._changeSets )
+    for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.enqueueDataLoad( "BLAH:" + cs.getRequestID() );
+      service.getSession().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
   }
