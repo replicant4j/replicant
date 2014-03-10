@@ -1,6 +1,10 @@
 package org.realityforge.replicant.server.ee;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -87,10 +91,27 @@ public abstract class ChangeRecorder
    *
    * @param entity   the entity to record.
    * @param isUpdate true if change is an update, false if it is a delete.
+   * @return the EntityMessage for specified entity if any was recorded
    */
-  protected void recordEntityMessagesForEntity( @Nonnull final Object entity, final boolean isUpdate )
+  @Nullable
+  protected final EntityMessage recordEntityMessagesForEntity( @Nonnull final Object entity, final boolean isUpdate )
   {
-    recordEntityMessageForEntity( entity, isUpdate );
+    return recordEntityMessagesForEntity( entity, isUpdate, Collections.<String, Serializable>emptyMap() );
+  }
+
+  /**
+   * Record the EntityMessage for the specified entity and dependent entities in the transactions EntityMessageSet.
+   *
+   * @param entity   the entity to record.
+   * @param isUpdate true if change is an update, false if it is a delete.
+   * @return the EntityMessage for specified entity if any was recorded
+   */
+  @Nullable
+  protected EntityMessage recordEntityMessagesForEntity( @Nonnull final Object entity,
+                                                         final boolean isUpdate,
+                                                         @Nonnull final Map<String, Serializable> extraRoutingKeys )
+  {
+    return recordEntityMessageForEntity( entity, isUpdate, extraRoutingKeys );
   }
 
   /**
@@ -98,14 +119,20 @@ public abstract class ChangeRecorder
    *
    * @param entity   the entity to record.
    * @param isUpdate true if change is an update, false if it is a delete.
+   * @return the EntityMessage for specified entity if any was recorded
    */
-  protected final void recordEntityMessageForEntity( final Object entity, final boolean isUpdate )
+  @Nullable
+  protected final EntityMessage recordEntityMessageForEntity( @Nonnull final Object entity,
+                                                              final boolean isUpdate,
+                                                              @Nonnull final Map<String, Serializable> extraRoutingKeys )
   {
     final EntityMessage entityMessage = getEntityMessageGenerator().convertToEntityMessage( entity, isUpdate );
     if ( null != entityMessage )
     {
+      entityMessage.getRoutingKeys().putAll( extraRoutingKeys );
       getEntityMessageSet().merge( entityMessage );
     }
+    return entityMessage;
   }
 
   /**

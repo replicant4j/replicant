@@ -1,3 +1,6 @@
+## 0.5.15:
+* Rework ChangeRecorder to make sub-classing easier.
+
 ## 0.5.14:
 * Associate a key with each request that corresponds to the operation being performed.
 * Merge RequestManager and AbstractSessionManager into ClientSession.
