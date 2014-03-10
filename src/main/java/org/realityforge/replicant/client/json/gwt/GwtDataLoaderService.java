@@ -11,8 +11,8 @@ import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 
-public abstract class GwtDataLoaderService<T extends ClientSession>
-  extends AbstractDataLoaderService<T>
+public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G extends Enum>
+  extends AbstractDataLoaderService<T, G>
 {
   private static final ReplicantConfig CONFIG = GWT.create( ReplicantConfig.class );
 
@@ -53,7 +53,9 @@ public abstract class GwtDataLoaderService<T extends ClientSession>
         {
           try
           {
-            _incrementalDataLoadInProgress = progressDataLoad();
+            final boolean aoiActionProgressed = progressAreaOfInterestActions();
+            final boolean dataActionProgressed = progressDataLoad();
+            _incrementalDataLoadInProgress = aoiActionProgressed || dataActionProgressed;
           }
           catch ( final Exception e )
           {

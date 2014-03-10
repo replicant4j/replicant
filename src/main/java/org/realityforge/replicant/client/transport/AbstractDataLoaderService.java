@@ -12,13 +12,14 @@ import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.Linkable;
+import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
  * Data can be loaded by bulk or incrementally and the load can be broken up into several
  * steps to avoid locking a thread such as in GWT.
  */
-public abstract class AbstractDataLoaderService<T extends ClientSession>
+public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
@@ -30,6 +31,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
   private final CacheService _cacheService;
 
   private DataLoadAction _currentAction;
+  private AreaOfInterestAction<G> _currentAoiAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
@@ -120,6 +122,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
     return session.getSessionID();
   }
 
+  /**
+   * Ugly hack, should split into two (schedule subscribe, schedule data)
+   */
   protected abstract void scheduleDataLoad();
 
   protected final void setChangesToProcessPerTick( final int changesToProcessPerTick )
@@ -134,32 +139,214 @@ public abstract class AbstractDataLoaderService<T extends ClientSession>
 
   protected abstract ChangeSet parseChangeSet( String rawJsonData );
 
-  @SuppressWarnings( "ConstantConditions" )
-  protected final void enqueueDataLoad( @Nonnull final String rawJsonData )
+  protected final boolean progressAreaOfInterestActions()
   {
-    if ( null == rawJsonData )
+    if ( null == _currentAoiAction )
     {
-      throw new IllegalStateException( "null == rawJsonData" );
+      final LinkedList<AreaOfInterestAction<G>> actions = getSession().getPendingAreaOfInterestActions();
+      if ( 0 == actions.size() )
+      {
+        return false;
+      }
+      _currentAoiAction = actions.removeFirst();
     }
-    getSession().getPendingActions().add( new DataLoadAction( rawJsonData, false ) );
-    scheduleDataLoad();
+    if ( _currentAoiAction.isInProgress() )
+    {
+      return false;
+    }
+    else
+    {
+      _currentAoiAction.markAsInProgress();
+      final G graph = _currentAoiAction.getGraph();
+      final Object id = _currentAoiAction.getId();
+      final Object filterParameter = _currentAoiAction.getFilterParameter();
+      final String label =
+        graph.name() +
+        ( null == id ? "" : "(" + id + ")" ) +
+        ( null == filterParameter ? "" : "[" + filterParameter + "]" );
+      final Runnable userAction = _currentAoiAction.getUserAction();
+      final String cacheKey = _currentAoiAction.getCacheKey();
+      final Action action = _currentAoiAction.getAction();
+      if ( action == Action.ADD )
+      {
+        final SubscriptionEntry<G> entry;
+        if ( null == id )
+        {
+          entry = getSession().newTypeGraphSubscription( graph );
+        }
+        else
+        {
+          entry = getSession().newInstanceGraphSubscription( graph, id );
+        }
+        //Already subscribed
+        if ( null == entry )
+        {
+          LOG.warning( "Subscription to " + label + " requested but already subscribed." );
+          completeAoiAction( userAction );
+          return true;
+        }
+        final Runnable cacheAction;
+        final String eTag;
+        if ( null != cacheKey )
+        {
+          final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
+          eTag = null != cacheEntry ? cacheEntry.getETag() : null;
+          final String content = null != cacheEntry ? cacheEntry.getContent() : null;
+          if ( null != content )
+          {
+            final String message =
+              "Found locally cached data for graph " + label + " with etag " + eTag + ".";
+            LOG.info( message );
+            cacheAction = new Runnable()
+            {
+              public void run()
+              {
+                LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
+                //TODO: Figure out how to make the bulkLoad configurable
+                final Runnable runnable = new Runnable()
+                {
+                  @Override
+                  public void run()
+                  {
+                    completeAoiAction( userAction );
+                  }
+                };
+                getSession().enqueueOOB( content, runnable, true );
+              }
+            };
+          }
+          else
+          {
+            cacheAction = null;
+          }
+        }
+        else
+        {
+          eTag = null;
+          cacheAction = null;
+        }
+        final Runnable runnable = new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            entry.markAsPresent();
+            LOG.info( "Subscription to " + label + " completed." );
+            completeAoiAction( userAction );
+          }
+        };
+        LOG.info( "Subscription to " + label + " requested." );
+        subscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
+        return false;
+      }
+      else if ( action == Action.REMOVE )
+      {
+        final SubscriptionEntry<G> entry;
+        if ( null == id )
+        {
+          entry = getSession().unsubscribeFromTypeGraph( graph );
+        }
+        else
+        {
+          entry = getSession().unsubscribeFromInstanceGraph( graph, id );
+        }
+        //Not subscribed
+        if ( null == entry )
+        {
+          LOG.warning( "Unsubscribe from " + label + " requested but not subscribed." );
+          completeAoiAction( userAction );
+          return true;
+        }
+
+        LOG.info( "Unsubscribe from " + label + " requested." );
+        entry.markDeregisterInProgress();
+        final Runnable runnable = new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            entry.markAsDeregistered();
+            unloadGraph( graph, id );
+
+            LOG.info( "Unsubscribe from " + label + " completed." );
+            completeAoiAction( userAction );
+          }
+        };
+        unsubscribeFromGraph( graph, id, runnable );
+        return false;
+      }
+      else
+      {
+        final SubscriptionEntry<G> entry;
+        if ( null == id )
+        {
+          entry = getSession().findTypeGraphSubscription( graph );
+        }
+        else
+        {
+          entry = getSession().findInstanceGraphSubscription( graph, id );
+        }
+        //Not subscribed
+        if ( null == entry )
+        {
+          LOG.warning( "Subscription update of " + label + " requested but not subscribed." );
+          completeAoiAction( userAction );
+          return true;
+        }
+
+        final Runnable runnable = new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            entry.setSubscriptionUpdateInProgress( false );
+            updateGraph( graph, id, filterParameter, entry.getFilterParameter() );
+            entry.setFilterParameter( filterParameter );
+            LOG.warning( "Subscription update of " + label + " completed." );
+            completeAoiAction( userAction );
+          }
+        };
+        LOG.warning( "Subscription update of " + label + " requested." );
+        entry.setSubscriptionUpdateInProgress( true );
+        updateSubscription( graph, id, filterParameter, runnable );
+        return false;
+      }
+    }
   }
 
-  @SuppressWarnings( "ConstantConditions" )
-  protected final void enqueueOOB( @Nonnull final String rawJsonData,
-                                   @Nullable final Runnable runnable,
-                                   final boolean bulkLoad )
+  private void completeAoiAction( final Runnable userAction )
   {
-    if ( null == rawJsonData )
-    {
-      throw new IllegalStateException( "null == rawJsonData" );
-    }
-    final DataLoadAction action = new DataLoadAction( rawJsonData, true );
-    action.setRunnable( runnable );
-    action.setBulkLoad( bulkLoad );
-    getSession().getOobActions().add( action );
     scheduleDataLoad();
+    if ( null != userAction )
+    {
+      userAction.run();
+    }
+    _currentAoiAction.markAsComplete();
+    _currentAoiAction = null;
   }
+
+  protected abstract void updateGraph( @Nonnull G graph,
+                                       @Nullable Object id,
+                                       @Nullable Object filterParameter,
+                                       @Nullable Object originalFilterParameter );
+
+  protected abstract void subscribeToGraph( @Nonnull G graph,
+                                            @Nullable Object id,
+                                            @Nullable Object filterParameter,
+                                            @Nullable String eTag,
+                                            @Nullable Runnable cacheAction,
+                                            @Nonnull Runnable completionAction );
+
+  protected abstract void unsubscribeFromGraph( @Nonnull G graph,
+                                                @Nullable Object id,
+                                                @Nonnull Runnable runnable );
+
+  protected abstract void unloadGraph( @Nonnull G graph, @Nullable Object id );
+
+  protected abstract void updateSubscription( @Nonnull G graph,
+                                              @Nullable Object id,
+                                              @Nullable Object filterParameter,
+                                              @Nonnull Runnable completionAction );
 
   protected final boolean progressDataLoad()
   {

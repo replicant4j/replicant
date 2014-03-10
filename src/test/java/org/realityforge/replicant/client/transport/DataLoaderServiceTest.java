@@ -23,10 +23,10 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
     final TestDataLoadService service = newService( changeSet, true );
     final Runnable runnable1 = mock( Runnable.class );
-    final TestClientSession session1 = new TestClientSession( "X" );
+    final TestClientSession session1 = new TestClientSession( service, "X" );
 
     session1.enqueueOOB( "X", null, false );
 
@@ -41,7 +41,7 @@ public class DataLoaderServiceTest
     verify( service.getChangeBroker(), times( 1 ) ).enable();
 
     // Should be no oob actions left
-    assertEquals( progressWorkTillDone( service ), 1 );
+    assertEquals( progressWorkTillDone( service ), 7 );
 
     service.setSession( session1, runnable1 );
     verify( runnable1, times( 2 ) ).run();
@@ -54,14 +54,14 @@ public class DataLoaderServiceTest
   public void getTerminateCount()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), true, new Change[0] );
+    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
     final TestDataLoadService service = newService( changeSet, true );
     ensureEnqueueDataLoads( service );
 
-    for( int i = 0; i < 6; i++)
+    for ( int i = 0; i < 6; i++ )
     {
-    assertTrue( service.progressDataLoad() );
-    assertEquals( service.getTerminateCount(), 0 );
+      assertTrue( service.progressDataLoad() );
+      assertEquals( service.getTerminateCount(), 0 );
     }
 
     assertFalse( service.progressDataLoad() );
@@ -487,7 +487,7 @@ public class DataLoaderServiceTest
     set( service, AbstractDataLoaderService.class, "_changeBroker", mock( EntityChangeBroker.class ) );
     set( service, AbstractDataLoaderService.class, "_repository", mock( EntityRepository.class ) );
     set( service, AbstractDataLoaderService.class, "_cacheService", mock( CacheService.class ) );
-    set( service, AbstractDataLoaderService.class, "_session", new TestClientSession( "1" ) );
+    set( service, AbstractDataLoaderService.class, "_session", new TestClientSession( service, "1" ) );
 
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );
