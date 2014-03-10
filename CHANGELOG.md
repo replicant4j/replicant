@@ -1,5 +1,8 @@
 ## 0.5.15:
 * Rework ChangeRecorder to make sub-classing easier.
+* Rename SubscriptionEntry.subscriptionData to filterParameter to match domgen conventions.
+* Use constructor based injection for DataLoaders.
+* Extract a separate queue of actions to control subscription in the DataLoaders.
 
 ## 0.5.14:
 * Associate a key with each request that corresponds to the operation being performed.
