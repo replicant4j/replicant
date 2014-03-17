@@ -66,7 +66,11 @@ public final class JsoChange
     if ( this.data && (typeof this.data[key] == "string") )
     {
       var d = new Date( this.data[key] );
-      return @java.util.Date::new(IIIIII)( d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(),
+      return @java.util.Date::new(IIIIII)( d.getFullYear(),
+                                           d.getMonth(),
+                                           d.getDate(),
+                                           d.getHours(),
+                                           d.getMinutes(),
                                            d.getSeconds() );
     }
     else
