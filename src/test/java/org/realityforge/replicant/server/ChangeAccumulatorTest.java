@@ -9,7 +9,6 @@ import static org.testng.Assert.*;
 
 public class ChangeAccumulatorTest
 {
-
   @Test
   public void basicOperation()
   {
@@ -35,7 +34,7 @@ public class ChangeAccumulatorTest
     assertEquals( change.getEntityMessage().getID(), id );
     assertEquals( change.getEntityMessage().getTypeID(), typeID );
     assertEquals( packet.getRequestID(), "j1" );
-    final Map<Integer,Serializable> channels = change.getChannels();
+    final Map<Integer, Serializable> channels = change.getChannels();
     assertEquals( channels.size(), 1 );
     assertEquals( channels.get( channelID ), subChannelID );
 
