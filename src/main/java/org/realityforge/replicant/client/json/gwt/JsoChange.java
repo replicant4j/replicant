@@ -102,4 +102,52 @@ public final class JsoChange
       return null;
     }
   }-*/;
+
+  @Override
+  public final native int getChannelCount() /*-{
+    if ( this.channels )
+    {
+      return this.channels.length;
+    }
+    else
+    {
+      return null;
+    }
+  }-*/;
+
+  @Override
+  public final native int getChannelID( final int index ) /*-{
+    if ( this.channels && index < this.channels.length )
+    {
+      return this.channels[index].cid;
+    }
+    else
+    {
+      return 0;
+    }
+  }-*/;
+
+  @Override
+  public final native int getSubChannelIDAsInt( final int index ) /*-{
+    if ( this.channels && index < this.channels.length )
+    {
+      return this.channels[index].scid;
+    }
+    else
+    {
+      return 0;
+    }
+  }-*/;
+
+  @Override
+  public final native String getSubChannelIDAsString( final int index ) /*-{
+    if ( this.channels && index < this.channels.length )
+    {
+      return this.channels[index].scid;
+    }
+    else
+    {
+      return null;
+    }
+  }-*/;
 }

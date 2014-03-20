@@ -50,4 +50,29 @@ public interface Change
   String getStringValue( String key );
 
   boolean getBooleanValue( String key );
+
+  /**
+   * @return the number of channels on which the change is sent. Must be &gt; 1.
+   */
+  int getChannelCount();
+
+  /**
+   * Return the channel id at specific index.
+   *
+   * @param index the index of the channel.
+   * @return the channel id.
+   */
+  int getChannelID( int index );
+
+  /**
+   * @param index the index of the channel.
+   * @return the sub-channel id.
+   */
+  int getSubChannelIDAsInt( int index );
+
+  /**
+   * @param index the index of the subscription.
+   * @return the sub-channel id.
+   */
+  String getSubChannelIDAsString( int index );
 }
