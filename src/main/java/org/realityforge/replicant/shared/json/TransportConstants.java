@@ -12,6 +12,10 @@ public interface TransportConstants
   String ENTITY_ID = "id";
   String TYPE_ID = "type";
   String DATA = "data";
+  String CHANNEL_ACTIONS = "channel_actions";
+  String ACTION = "action";
+  String ACTION_ADD = "add";
+  String ACTION_REMOVE = "remove";
   String CHANNELS = "channels";
   String CHANNEL_ID = "cid";
   String SUBCHANNEL_ID = "scid";

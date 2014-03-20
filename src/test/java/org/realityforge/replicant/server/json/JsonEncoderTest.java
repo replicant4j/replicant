@@ -11,11 +11,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
+import org.realityforge.replicant.server.ChannelAction;
+import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.shared.json.TransportConstants;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 /**
  * Utility class used when encoding EntityMessage into JSON payload.
@@ -23,7 +26,7 @@ import static org.testng.Assert.*;
 public final class JsonEncoderTest
 {
   @Test
-  public void encodeChangeSetFromEntityMessages_updateMessage()
+  public void encodeAllData()
     throws JSONException, ParseException
   {
     final String id = "myID";
@@ -54,6 +57,7 @@ public final class JsonEncoderTest
     change.getChannels().put( 3, "Blah" );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
+    cs.addAction( new ChannelAction( 45, "X", Action.REMOVE ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
     final JSONObject changeSet = new JSONObject( encoded );
 
@@ -62,6 +66,11 @@ public final class JsonEncoderTest
     assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
     assertEquals( changeSet.getString( TransportConstants.REQUEST_ID ), requestID );
     assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
+
+    final JSONObject action = changeSet.getJSONArray( TransportConstants.CHANNEL_ACTIONS ).getJSONObject( 0 );
+    assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
+    assertEquals( action.getString( TransportConstants.SUBCHANNEL_ID ), "X" );
+    assertEquals( action.getString( TransportConstants.ACTION ), "remove" );
 
     final JSONObject object = changeSet.getJSONArray( TransportConstants.CHANGES ).getJSONObject( 0 );
 
@@ -119,6 +128,21 @@ public final class JsonEncoderTest
 
     final JSONObject data = object.optJSONObject( TransportConstants.DATA );
     assertNull( data );
+  }
+
+@Test
+  public void action_WithNull()
+    throws JSONException, ParseException
+  {
+    final ChangeSet cs = new ChangeSet();
+    cs.addAction( new ChannelAction( 45, null, Action.ADD ) );
+    final JSONObject changeSet = new JSONObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
+    assertNotNull( changeSet );
+
+    final JSONObject action = changeSet.getJSONArray( TransportConstants.CHANNEL_ACTIONS ).getJSONObject( 0 );
+    assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
+    assertNull( action.opt( TransportConstants.SUBCHANNEL_ID ) );
+    assertEquals( action.getString( TransportConstants.ACTION ), "add" );
   }
 
   @Test
