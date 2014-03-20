@@ -7,6 +7,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.server.transport.ChangeSet;
 
 /**
  * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityMessageSet.
@@ -35,7 +36,7 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static EntityMessageSet getEntityMessageSet()
   {
-    return getEntityMessageSet( lookupTransactionSynchronizationRegistry(), KEY );
+    return getEntityMessageSet( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nonnull
@@ -47,76 +48,77 @@ public final class EntityMessageCacheUtil
   @Nullable
   public static EntityMessageSet lookupEntityMessageSet()
   {
-    return lookupEntityMessageSet( lookupTransactionSynchronizationRegistry(), KEY );
+    return lookupEntityMessageSet( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nullable
   public static EntityMessageSet lookupEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return lookupEntityMessageSet( r, KEY );
+    return lookup( r, KEY );
   }
 
   @Nullable
   public static EntityMessageSet removeEntityMessageSet()
   {
-    return removeEntityMessageSet( lookupTransactionSynchronizationRegistry(), KEY );
+    return removeEntityMessageSet( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nullable
   public static EntityMessageSet removeEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return removeEntityMessageSet( r, KEY );
+    return remove( r, KEY );
   }
 
   @Nonnull
-  public static EntityMessageSet getSessionEntityMessageSet()
+  public static ChangeSet getSessionChanges()
   {
-    return getEntityMessageSet( lookupTransactionSynchronizationRegistry(), SESSION_KEY );
+    return getSessionChanges( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nonnull
-  public static EntityMessageSet getSessionEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static ChangeSet getSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return getEntityMessageSet( r, SESSION_KEY );
+    return getChanges( r, SESSION_KEY );
   }
 
   @Nullable
-  public static EntityMessageSet lookupSessionEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static ChangeSet lookupSessionChanges()
   {
-    return lookupEntityMessageSet( r, SESSION_KEY );
+    return lookupSessionChanges( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nullable
-  public static EntityMessageSet lookupSessionEntityMessageSet()
+  public static ChangeSet lookupSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return lookupEntityMessageSet( lookupTransactionSynchronizationRegistry(), SESSION_KEY );
+    return lookup( r, SESSION_KEY );
   }
 
   @Nullable
-  public static EntityMessageSet removeSessionEntityMessageSet()
+  public static ChangeSet removeSessionChanges()
   {
-    return removeEntityMessageSet( lookupTransactionSynchronizationRegistry(), SESSION_KEY );
+    return removeSessionChanges( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nullable
-  public static EntityMessageSet removeSessionEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static ChangeSet removeSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return removeEntityMessageSet( r, SESSION_KEY );
+    return remove( r, SESSION_KEY );
   }
 
-  private static EntityMessageSet removeEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
+  private static ChangeSet getChanges( final TransactionSynchronizationRegistry r, final String key )
   {
-    final EntityMessageSet messageSet = lookupEntityMessageSet( r, key );
-    if ( null != messageSet )
+    ChangeSet changes = lookup( r, key );
+    if ( null == changes )
     {
-      r.putResource( key, null );
+      changes = new ChangeSet();
+      r.putResource( key, changes );
     }
-    return messageSet;
+    return changes;
   }
 
   private static EntityMessageSet getEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
   {
-    EntityMessageSet messageSet = lookupEntityMessageSet( r, key );
+    EntityMessageSet messageSet = lookup( r, key );
     if ( null == messageSet )
     {
       messageSet = new EntityMessageSet();
@@ -125,9 +127,20 @@ public final class EntityMessageCacheUtil
     return messageSet;
   }
 
-  private static EntityMessageSet lookupEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
+  private static <T> T remove( final TransactionSynchronizationRegistry r, final String key )
   {
-    return (EntityMessageSet) r.getResource( key );
+    final T messageSet = lookup( r, key );
+    if ( null != messageSet )
+    {
+      r.putResource( key, null );
+    }
+    return messageSet;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
+  {
+    return (T) r.getResource( key );
   }
 
   @Nonnull

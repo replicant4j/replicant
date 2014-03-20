@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.ee;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import javax.annotation.Nonnull;
@@ -9,6 +10,7 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
+import org.realityforge.replicant.server.transport.Change;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -123,7 +125,7 @@ public class ReplicationInterceptorTest
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
     final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
-    EntityMessageCacheUtil.getSessionEntityMessageSet( registry ).merge( message );
+    EntityMessageCacheUtil.getSessionChanges( registry ).merge( new Change( message, 44, 77 ) );
 
     when( em.isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
@@ -139,7 +141,11 @@ public class ReplicationInterceptorTest
     assertEquals( interceptor._sessionID, "s1" );
     assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
-    assertTrue( interceptor._sessionMessages.contains( message ) );
+    assertEquals( interceptor._sessionMessages.size(), 1 );
+    final Change change = interceptor._sessionMessages.iterator().next();
+    assertEquals( change.getEntityMessage().getID(), message.getID() );
+    final Serializable expected = 77;
+    assertEquals( change.getChannels().get( 44 ), expected );
     assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
   }
 
@@ -336,7 +342,7 @@ public class ReplicationInterceptorTest
     String _sessionID;
     String _requestID;
     Collection<EntityMessage> _messages;
-    Collection<EntityMessage> _sessionMessages;
+    Collection<Change> _sessionMessages;
     EntityManager _entityManager;
     private final boolean _routeToSession;
 
@@ -356,7 +362,7 @@ public class ReplicationInterceptorTest
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,
                                        @Nonnull final Collection<EntityMessage> messages,
-                                       @Nonnull final Collection<EntityMessage> sessionMessages )
+                                       @Nullable final Collection<Change> sessionMessages )
     {
       if ( null != _messages )
       {

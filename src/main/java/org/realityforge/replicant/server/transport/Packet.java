@@ -3,7 +3,6 @@ package org.realityforge.replicant.server.transport;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.EntityMessage;
 
 /**
  * The server-side representation of a ChangeSet.
@@ -17,12 +16,12 @@ public final class Packet
   @Nullable
   private final String _requestID;
   @Nonnull
-  private final List<EntityMessage> _changes;
+  private final List<Change> _changes;
 
   public Packet( final int sequence,
                  @Nullable final String requestID,
                  @Nullable final String etag,
-                 @Nonnull final List<EntityMessage> changes )
+                 @Nonnull final List<Change> changes )
   {
     _sequence = sequence;
     _requestID = requestID;
@@ -48,7 +47,7 @@ public final class Packet
   }
 
   @Nonnull
-  public List<EntityMessage> getChanges()
+  public List<Change> getChanges()
   {
     return _changes;
   }

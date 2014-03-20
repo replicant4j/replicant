@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.server.ee.TestTransactionSynchronizationRegistry;
-import org.realityforge.replicant.server.transport.EntityMessageAccumulatorTest.TestSession;
+import org.realityforge.replicant.server.transport.ChangeAccumulatorTest.TestSession;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -26,7 +26,7 @@ public class ReplicantSessionManagerTest
 
     sm.getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, "r1" );
 
-    final Packet packet = sm.sendPacket( session, "X", new ArrayList<EntityMessage>() );
+    final Packet packet = sm.sendPacket( session, "X", new ArrayList<Change>() );
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestID(), "r1" );
     assertEquals( packet.getChanges().size(), 0 );
@@ -39,9 +39,9 @@ public class ReplicantSessionManagerTest
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final TestSession session = sm.createSession();
-    final Packet p1 = session.getQueue().addPacket( null, null, new ArrayList<EntityMessage>() );
-    final Packet p2 = session.getQueue().addPacket( null, null, new ArrayList<EntityMessage>() );
-    final Packet p3 = session.getQueue().addPacket( null, null, new ArrayList<EntityMessage>() );
+    final Packet p1 = session.getQueue().addPacket( null, null, new ArrayList<Change>() );
+    final Packet p2 = session.getQueue().addPacket( null, null, new ArrayList<Change>() );
+    final Packet p3 = session.getQueue().addPacket( null, null, new ArrayList<Change>() );
 
     assertEquals( sm.poll( session, 0 ), p1 );
     assertEquals( sm.poll( session, 0 ), p1 );
@@ -84,7 +84,7 @@ public class ReplicantSessionManagerTest
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,
                                        @Nonnull final Collection<EntityMessage> messages,
-                                       @Nullable final Collection<EntityMessage> sessionMessages )
+                                       @Nullable final Collection<Change> sessionMessages )
     {
       return false;
     }

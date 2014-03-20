@@ -5,7 +5,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import javax.transaction.TransactionSynchronizationRegistry;
-import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
@@ -28,16 +27,16 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
    *
    * @param session  the session.
    * @param etag     the etag for message if any.
-   * @param messages the messages to be sent along to the client.
+   * @param changes the messages to be sent along to the client.
    * @return the packet created.
    */
   protected final Packet sendPacket( final T session,
                                      @Nullable final String etag,
-                                     @Nonnull final List<EntityMessage> messages )
+                                     @Nonnull final List<Change> changes )
   {
     final String requestID = (String) getRegistry().getResource( ReplicantContext.REQUEST_ID_KEY );
     ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
-    return session.getQueue().addPacket( requestID, etag, messages );
+    return session.getQueue().addPacket( requestID, etag, changes );
   }
 
   /**

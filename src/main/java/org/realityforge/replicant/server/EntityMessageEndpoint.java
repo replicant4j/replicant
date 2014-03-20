@@ -3,6 +3,7 @@ package org.realityforge.replicant.server;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.server.transport.Change;
 
 public interface EntityMessageEndpoint
 {
@@ -18,5 +19,5 @@ public interface EntityMessageEndpoint
   boolean saveEntityMessages( @Nullable String sessionID,
                               @Nullable String requestID,
                               @Nonnull Collection<EntityMessage> messages,
-                              @Nullable Collection<EntityMessage> sessionMessages );
+                              @Nullable Collection<Change> sessionMessages );
 }

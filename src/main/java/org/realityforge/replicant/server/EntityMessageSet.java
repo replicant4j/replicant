@@ -2,7 +2,6 @@ package org.realityforge.replicant.server;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javax.annotation.Nonnull;
 
@@ -43,21 +42,7 @@ public final class EntityMessageSet
     }
     else
     {
-      final EntityMessage messageToInsert;
-      if ( copyOnMerge )
-      {
-        messageToInsert = new EntityMessage( message.getID(),
-                                             message.getTypeID(),
-                                             message.getTimestamp(),
-                                             new HashMap<String, Serializable>(),
-                                             new HashMap<String, Serializable>() );
-        messageToInsert.merge( message );
-      }
-      else
-      {
-        messageToInsert = message;
-      }
-      _entities.put( key, messageToInsert );
+      _entities.put( key, copyOnMerge ? message.duplicate() : message );
     }
   }
 

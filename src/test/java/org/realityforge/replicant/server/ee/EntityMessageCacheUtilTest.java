@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.ee;
 import javax.naming.Context;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.server.transport.ChangeSet;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -41,21 +42,21 @@ public class EntityMessageCacheUtilTest
   @Test
   public void clientEntityMessageSet()
   {
-    assertNull( EntityMessageCacheUtil.lookupSessionEntityMessageSet() );
+    assertNull( EntityMessageCacheUtil.lookupSessionChanges() );
 
     //Now we force the creation of EntityMessageSet
-    final EntityMessageSet messageSet = EntityMessageCacheUtil.getSessionEntityMessageSet();
+    final ChangeSet messageSet = EntityMessageCacheUtil.getSessionChanges();
 
     assertNotNull( messageSet );
-    assertEquals( messageSet, EntityMessageCacheUtil.lookupSessionEntityMessageSet() );
-    assertEquals( messageSet, EntityMessageCacheUtil.getSessionEntityMessageSet() );
+    assertEquals( messageSet, EntityMessageCacheUtil.lookupSessionChanges() );
+    assertEquals( messageSet, EntityMessageCacheUtil.getSessionChanges() );
 
     //Now we remove EntityMessageSet
-    assertEquals( messageSet, EntityMessageCacheUtil.removeSessionEntityMessageSet() );
-    assertNull( EntityMessageCacheUtil.lookupSessionEntityMessageSet() );
+    assertEquals( messageSet, EntityMessageCacheUtil.removeSessionChanges() );
+    assertNull( EntityMessageCacheUtil.lookupSessionChanges() );
 
     //Duplicate remove returns null
-    assertNull( EntityMessageCacheUtil.removeSessionEntityMessageSet() );
+    assertNull( EntityMessageCacheUtil.removeSessionChanges() );
 
     // Ensure that it works with regular changes
     assertNull( EntityMessageCacheUtil.removeEntityMessageSet() );

@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
 import java.util.ArrayList;
-import org.realityforge.replicant.server.EntityMessage;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -79,8 +78,8 @@ public class PacketQueueTest
     }
   }
 
-  private ArrayList<EntityMessage> newChanges()
+  private ArrayList<Change> newChanges()
   {
-    return new ArrayList<EntityMessage>();
+    return new ArrayList<Change>();
   }
 }

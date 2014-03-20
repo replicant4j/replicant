@@ -10,7 +10,7 @@ public class PacketTest
   @Test
   public void basicOperation()
   {
-    final ArrayList<EntityMessage> changes = new ArrayList<EntityMessage>();
+    final ArrayList<Change> changes = new ArrayList<Change>();
     final Packet packet = new Packet( 2, "r1", "e1", changes );
     final Packet other = new Packet( 3, null, null, changes );
 
