@@ -74,6 +74,30 @@ final class TestChange
   }
 
   @Override
+  public int getChannelCount()
+  {
+    return 0;
+  }
+
+  @Override
+  public int getChannelID( final int index )
+  {
+    return 0;
+  }
+
+  @Override
+  public int getSubChannelIDAsInt( final int index )
+  {
+    return 0;
+  }
+
+  @Override
+  public String getSubChannelIDAsString( final int index )
+  {
+    return null;
+  }
+
+  @Override
   public String toString()
   {
     return "Change:" + System.identityHashCode( this );

@@ -12,4 +12,7 @@ public interface TransportConstants
   String ENTITY_ID = "id";
   String TYPE_ID = "type";
   String DATA = "data";
+  String CHANNELS = "channels";
+  String CHANNEL_ID = "cid";
+  String SUBCHANNEL_ID = "scid";
 }

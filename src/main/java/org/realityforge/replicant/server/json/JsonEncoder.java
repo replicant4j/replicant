@@ -14,6 +14,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.transport.Change;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
 /**
@@ -34,14 +35,14 @@ public final class JsonEncoder
    * @param lastChangeSetID the last change set ID.
    * @param requestID       the requestID that initiated the change. Only set if packet is destined for originating session.
    * @param etag            the associated etag.
-   * @param messages        the messages encoded as EntityMessage objects.
+   * @param changes         the messages encoded as EntityMessage objects.
    * @return the encoded change set.
    */
   @Nonnull
   public static String encodeChangeSetFromEntityMessages( final int lastChangeSetID,
                                                           @Nullable final String requestID,
                                                           @Nullable final String etag,
-                                                          @Nonnull final Collection<EntityMessage> messages )
+                                                          @Nonnull final Collection<Change> changes )
   {
     final StringWriter writer = new StringWriter();
     final JsonGenerator generator = FACTORY.createGenerator( writer );
@@ -69,16 +70,32 @@ public final class JsonEncoder
 
     generator.writeStartArray( TransportConstants.CHANGES );
 
-    for ( final EntityMessage message : messages )
+    for ( final Change change : changes )
     {
-      generator.writeStartObject();
-      writeField( generator, TransportConstants.ENTITY_ID, message.getID(), dateFormat );
-      generator.write( TransportConstants.TYPE_ID, message.getTypeID() );
+      final EntityMessage entityMessage = change.getEntityMessage();
 
-      if ( message.isUpdate() )
+      generator.writeStartObject();
+      writeField( generator, TransportConstants.ENTITY_ID, entityMessage.getID(), dateFormat );
+      generator.write( TransportConstants.TYPE_ID, entityMessage.getTypeID() );
+
+      final Map<Integer, Serializable> channels = change.getChannels();
+      if ( channels.size() > 0 )
+      {
+        generator.writeStartArray( TransportConstants.CHANNELS );
+        for ( final Entry<Integer, Serializable> entry : channels.entrySet() )
+        {
+          generator.writeStartObject();
+          generator.write( TransportConstants.CHANNEL_ID, entry.getKey() );
+          writeSubChannel( generator, entry.getValue() );
+          generator.writeEnd();
+        }
+        generator.writeEnd();
+      }
+
+      if ( entityMessage.isUpdate() )
       {
         generator.writeStartObject( TransportConstants.DATA );
-        final Map<String, Serializable> values = message.getAttributeValues();
+        final Map<String, Serializable> values = entityMessage.getAttributeValues();
         assert null != values;
         for ( final Entry<String, Serializable> entry : values.entrySet() )
         {
@@ -127,6 +144,28 @@ public final class JsonEncoder
     else if ( serializable instanceof Boolean )
     {
       generator.write( key, (Boolean) serializable );
+    }
+    else
+    {
+      throw new IllegalStateException( "Unable to encode: " + serializable );
+    }
+  }
+
+  private static void writeSubChannel( final JsonGenerator generator,
+                                       final Serializable serializable )
+  {
+    if ( serializable instanceof String )
+    {
+      generator.write( TransportConstants.SUBCHANNEL_ID, (String) serializable );
+    }
+    else if ( serializable instanceof Integer )
+    {
+
+      final Integer value = (Integer) serializable;
+      if ( 0 != value )
+      {
+        generator.write( TransportConstants.SUBCHANNEL_ID, value.intValue() );
+      }
     }
     else
     {

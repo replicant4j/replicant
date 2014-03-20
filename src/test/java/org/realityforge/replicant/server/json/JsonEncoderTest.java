@@ -2,15 +2,18 @@ package org.realityforge.replicant.server.json;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
+import org.realityforge.replicant.server.transport.Change;
 import org.realityforge.replicant.shared.json.TransportConstants;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -43,12 +46,15 @@ public final class JsonEncoderTest
     assertNotNull( values );
     values.put( "key3", date );
 
-    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
-    messages.add( message );
     final int lastChangeSetID = 1;
     final String requestID = "j1";
     final String etag = "#1";
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, requestID, etag, messages );
+    final Change change = new Change( message );
+    change.getChannels().put( 1, 0 );
+    change.getChannels().put( 2, 42 );
+    change.getChannels().put( 3, "Blah" );
+    final List<Change> changes = Arrays.asList( change );
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, requestID, etag, changes );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
@@ -67,6 +73,24 @@ public final class JsonEncoderTest
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
     assertTrue( data.getString( "key3" ).startsWith( "2001-07-05T05:08:56.000" ) );
+
+    final JSONArray channels = object.getJSONArray( TransportConstants.CHANNELS );
+    assertNotNull( channels );
+    assertEquals( channels.length(), 3 );
+    final JSONObject channel1 = channels.getJSONObject( 0 );
+    assertNotNull( channel1 );
+    final JSONObject channel2 = channels.getJSONObject( 1 );
+    assertNotNull( channel2 );
+    final JSONObject channel3 = channels.getJSONObject( 2 );
+    assertNotNull( channel3 );
+
+    assertEquals( channel1.getInt( TransportConstants.CHANNEL_ID ), 1 );
+    assertEquals( channel2.getInt( TransportConstants.CHANNEL_ID ), 2 );
+    assertEquals( channel3.getInt( TransportConstants.CHANNEL_ID ), 3 );
+
+    assertNull( channel1.opt( TransportConstants.SUBCHANNEL_ID ) );
+    assertEquals( channel2.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
+    assertEquals( channel3.getString( TransportConstants.SUBCHANNEL_ID ), "Blah" );
   }
 
   @Test
@@ -78,10 +102,9 @@ public final class JsonEncoderTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
-    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
-    messages.add( message );
+    final List<Change> changes = Arrays.asList( new Change( message ) );
     final int lastChangeSetID = 1;
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, null, null, messages );
+    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, null, null, changes );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
@@ -107,8 +130,7 @@ public final class JsonEncoderTest
     final HashMap<String, Serializable> attributeData = new HashMap<String, Serializable>();
     attributeData.put( "X", 1392061102056L );
     final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData );
-    final ArrayList<EntityMessage> messages = new ArrayList<EntityMessage>();
-    messages.add( message );
+    final List<Change> messages = Arrays.asList( new Change( message ) );
 
     final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( 0, null, null, messages );
 
