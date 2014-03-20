@@ -65,6 +65,19 @@ public final class EntityMessage
     return _routingKeys;
   }
 
+  @Nonnull
+  public EntityMessage duplicate()
+  {
+    final EntityMessage message =
+      new EntityMessage( getID(),
+                         getTypeID(),
+                         getTimestamp(),
+                         new HashMap<String, Serializable>(),
+                         new HashMap<String, Serializable>() );
+    message.merge( this );
+    return message;
+  }
+
   @Override
   public String toString()
   {
