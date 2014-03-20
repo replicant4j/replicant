@@ -89,7 +89,7 @@ public final class EntityMessage
            ")";
   }
 
-  void merge( final EntityMessage message )
+  public void merge( final EntityMessage message )
   {
     mergeTimestamp( message );
     mergeRoutingKeys( message );
