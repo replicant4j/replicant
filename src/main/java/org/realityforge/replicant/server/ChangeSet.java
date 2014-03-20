@@ -2,10 +2,23 @@ package org.realityforge.replicant.server;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import javax.annotation.Nonnull;
 
 public final class ChangeSet
 {
+  private final LinkedList<ChannelAction> _channelActions = new LinkedList<ChannelAction>();
   private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<String, Change>();
+
+  public void addAction( @Nonnull final ChannelAction action )
+  {
+    _channelActions.add( action );
+  }
+
+  public LinkedList<ChannelAction> getChannelActions()
+  {
+    return _channelActions;
+  }
 
   public void mergeAll( final Collection<Change> changes )
   {

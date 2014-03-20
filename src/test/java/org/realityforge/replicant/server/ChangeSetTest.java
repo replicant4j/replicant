@@ -1,7 +1,9 @@
 package org.realityforge.replicant.server;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import org.realityforge.replicant.server.ChannelAction.Action;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -48,6 +50,24 @@ public class ChangeSetTest
     changeSet.merge( change3 );
 
     assertEquals( changeSet.getChanges().size(), 2 );
+  }
+
+  @Test
+  public void actions()
+  {
+    final ChangeSet changeSet = new ChangeSet();
+
+    assertEquals( changeSet.getChannelActions().size(), 0 );
+
+    changeSet.addAction( new ChannelAction( 1, 2, Action.ADD ) );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+
+    final ChannelAction action = changeSet.getChannelActions().get( 0 );
+    assertEquals( action.getID(), 1 );
+    final Serializable subChannelID = 1;
+    assertEquals( action.getSubChannelID(), subChannelID );
+    assertEquals( action.getAction(), Action.ADD );
   }
 
   @Test
