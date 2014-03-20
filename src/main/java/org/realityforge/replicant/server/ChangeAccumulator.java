@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +14,20 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
 public final class ChangeAccumulator
 {
   private final Map<ReplicantSession, ChangeSet> _changeSets = new HashMap<ReplicantSession, ChangeSet>();
+
+  public void addAction( @Nonnull final ReplicantSession session, @Nonnull final ChannelAction action )
+  {
+    getChangeSet( session ).addAction( action );
+  }
+
+  public void addActions( @Nonnull final ReplicantSession session, @Nonnull final Collection<ChannelAction> actions )
+  {
+    final ChangeSet changeSet = getChangeSet( session );
+    for ( final ChannelAction action : actions )
+    {
+      changeSet.addAction( action );
+    }
+  }
 
   /**
    * Add a message destined for a particular packet queue.
@@ -53,9 +66,8 @@ public final class ChangeAccumulator
       final ReplicantSession session = entry.getKey();
       final boolean isInitiator = session.getSessionID().equals( sessionID );
       impactsInitiator |= isInitiator;
-      session.getQueue().addPacket( isInitiator ? requestID : null,
-                                    null,
-                                    new ArrayList<Change>( entry.getValue().getChanges() ) );
+      final ChangeSet changeSet = entry.getValue();
+      session.getQueue().addPacket( isInitiator ? requestID : null, null, changeSet );
     }
     _changeSets.clear();
 

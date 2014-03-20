@@ -3,6 +3,7 @@ package org.realityforge.replicant.server;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
+import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.transport.Packet;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -60,6 +61,27 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getID(), id );
+    assertEquals( packet.getRequestID(), "j1" );
+
+    accumulator.complete( null, null );
+    assertEquals( c.getQueue().size(), 1 );
+  }
+
+  @Test
+  public void addActions()
+  {
+    final TestSession c = new TestSession( "s1" );
+    final ChangeAccumulator accumulator = new ChangeAccumulator();
+
+    accumulator.addActions( c, Arrays.asList( new ChannelAction( 1, 2, Action.ADD ) ) );
+    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+
+    assertTrue( impactsInitiator );
+    assertEquals( c.getQueue().size(), 1 );
+    final Packet packet = c.getQueue().nextPacketToProcess();
+    final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
+    assertEquals( action.getID(), 1 );
+    assertEquals( action.getAction(), Action.ADD );
     assertEquals( packet.getRequestID(), "j1" );
 
     accumulator.complete( null, null );
