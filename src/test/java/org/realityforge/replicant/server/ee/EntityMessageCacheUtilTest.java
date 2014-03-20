@@ -21,7 +21,6 @@ public class EntityMessageCacheUtilTest
   @Test
   public void ensureCacheBehavesAsExpected()
   {
-    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     assertNull( EntityMessageCacheUtil.lookupEntityMessageSet() );
 
     //Now we force the creation of EntityMessageSet
