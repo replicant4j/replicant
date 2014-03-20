@@ -22,7 +22,7 @@ public final class ChangeAccumulator
    * @param session the session.
    * @param message the message.
    */
-  public void addChange( final ReplicantSession session, final Change message )
+  public void addChange( @Nonnull final ReplicantSession session, @Nonnull final Change message )
   {
     getChangeSet( session ).merge( message );
   }
@@ -33,7 +33,7 @@ public final class ChangeAccumulator
    * @param session  the session.
    * @param messages the messages.
    */
-  public void addChanges( final ReplicantSession session, final Collection<Change> messages )
+  public void addChanges( @Nonnull final ReplicantSession session, @Nonnull final Collection<Change> messages )
   {
     getChangeSet( session ).mergeAll( messages );
   }
