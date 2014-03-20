@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.ChannelAction;
 
 final class TestChangeSet
   implements ChangeSet
@@ -90,6 +91,18 @@ final class TestChangeSet
   public Change getChange( final int index )
   {
     return _changes[ index ];
+  }
+
+  @Override
+  public int getChannelActionCount()
+  {
+    return 0;
+  }
+
+  @Override
+  public ChannelAction getChannelAction( final int index )
+  {
+    return null;
   }
 
   @Override

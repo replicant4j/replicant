@@ -5,6 +5,7 @@ import com.google.gwt.core.client.JsonUtils;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.ChannelAction;
 
 /**
  * An overlay type representing the change set received from the client.
@@ -54,6 +55,28 @@ public final class JsoChangeSet
 
   private native JsoChange getChange0( final int index )/*-{
     return this.changes[ index ];
+  }-*/;
+
+  @Override
+  public native final int getChannelActionCount()/*-{
+    if ( this.channel_actions )
+    {
+      return this.channel_actions.length;
+    }
+    else
+    {
+      return 0;
+    }
+  }-*/;
+
+  @Override
+  public ChannelAction getChannelAction( final int index )
+  {
+    return getChannelAction0( index );
+  }
+
+  private native JsoChannelAction getChannelAction0( final int index )/*-{
+    return this.channel_actions[ index ];
   }-*/;
 
   public static ChangeSet asChangeSet( final String json )

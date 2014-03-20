@@ -28,7 +28,7 @@ public interface ChangeSet
   String getETag();
 
   /**
-   * @return the number of changes in the set. Must be &gt; 0.
+   * @return the number of changes in the set.
    */
   int getChangeCount();
 
@@ -39,4 +39,18 @@ public interface ChangeSet
    * @return the change.
    */
   Change getChange( int index );
+
+
+  /**
+   * @return the number of channel actions in the set.
+   */
+  int getChannelActionCount();
+
+  /**
+   * Return the changaction with specific index.
+   *
+   * @param index the index of the action.
+   * @return the action.
+   */
+  ChannelAction getChannelAction( int index );
 }
