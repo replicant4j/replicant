@@ -7,11 +7,10 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
-import org.realityforge.replicant.server.Change;
-import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
@@ -65,16 +64,14 @@ public abstract class AbstractReplicationInterceptor
         {
           getEntityManager().flush();
           final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
-          final ChangeSet sessionChanges = EntityMessageCacheUtil.removeSessionChanges( _registry );
-          if ( ( null != messageSet || null != sessionChanges ) && !_registry.getRollbackOnly() )
+          final ChangeSet changeSet = EntityMessageCacheUtil.removeSessionChanges( _registry );
+          if ( ( null != messageSet || null != changeSet ) && !_registry.getRollbackOnly() )
           {
             final Collection<EntityMessage> messages =
               null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
-            final Collection<Change> sessionMessages =
-              null == sessionChanges ? Collections.<Change>emptySet() : sessionChanges.getChanges();
-            if ( sessionMessages.size() > 0 || messages.size() > 0 )
+            if ( null != changeSet || messages.size() > 0 )
             {
-              requestComplete = !getEndpoint().saveEntityMessages( sessionID, requestID, messages, sessionMessages );
+              requestComplete = !getEndpoint().saveEntityMessages( sessionID, requestID, messages, changeSet );
             }
           }
         }

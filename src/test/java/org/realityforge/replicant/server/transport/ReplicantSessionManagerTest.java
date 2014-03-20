@@ -1,12 +1,11 @@
 package org.realityforge.replicant.server.transport;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.TestSession;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
@@ -27,10 +26,10 @@ public class ReplicantSessionManagerTest
 
     sm.getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, "r1" );
 
-    final Packet packet = sm.sendPacket( session, "X", new ArrayList<Change>() );
+    final Packet packet = sm.sendPacket( session, "X", new ChangeSet() );
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestID(), "r1" );
-    assertEquals( packet.getChanges().size(), 0 );
+    assertEquals( packet.getChangeSet().getChanges().size(), 0 );
     assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
   }
 
@@ -40,9 +39,9 @@ public class ReplicantSessionManagerTest
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final TestSession session = sm.createSession();
-    final Packet p1 = session.getQueue().addPacket( null, null, new ArrayList<Change>() );
-    final Packet p2 = session.getQueue().addPacket( null, null, new ArrayList<Change>() );
-    final Packet p3 = session.getQueue().addPacket( null, null, new ArrayList<Change>() );
+    final Packet p1 = session.getQueue().addPacket( null, null, new ChangeSet() );
+    final Packet p2 = session.getQueue().addPacket( null, null, new ChangeSet() );
+    final Packet p3 = session.getQueue().addPacket( null, null, new ChangeSet() );
 
     assertEquals( sm.poll( session, 0 ), p1 );
     assertEquals( sm.poll( session, 0 ), p1 );
@@ -85,7 +84,7 @@ public class ReplicantSessionManagerTest
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,
                                        @Nonnull final Collection<EntityMessage> messages,
-                                       @Nullable final Collection<Change> sessionMessages )
+                                       @Nullable final ChangeSet changeSet )
     {
       return false;
     }

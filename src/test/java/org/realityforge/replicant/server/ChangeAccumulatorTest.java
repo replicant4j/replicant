@@ -3,22 +3,12 @@ package org.realityforge.replicant.server;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.transport.Packet;
-import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ChangeAccumulatorTest
 {
-  static class TestSession
-    extends ReplicantSession
-  {
-    TestSession( @Nonnull final String sessionID )
-    {
-      super( sessionID );
-    }
-  }
 
   @Test
   public void basicOperation()
@@ -40,7 +30,7 @@ public class ChangeAccumulatorTest
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
-    final Change change = packet.getChanges().get( 0 );
+    final Change change = packet.getChangeSet().getChanges().iterator().next();
     assertEquals( change.getID(), "42#myID" );
     assertEquals( change.getEntityMessage().getID(), id );
     assertEquals( change.getEntityMessage().getTypeID(), typeID );
@@ -70,7 +60,7 @@ public class ChangeAccumulatorTest
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
-    assertEquals( packet.getChanges().get( 0 ).getEntityMessage().getID(), id );
+    assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getID(), id );
     assertEquals( packet.getRequestID(), "j1" );
 
     accumulator.complete( null, null );

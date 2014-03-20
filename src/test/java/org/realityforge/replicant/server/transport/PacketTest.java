@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
-import java.util.ArrayList;
-import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -10,14 +9,14 @@ public class PacketTest
   @Test
   public void basicOperation()
   {
-    final ArrayList<Change> changes = new ArrayList<Change>();
-    final Packet packet = new Packet( 2, "r1", "e1", changes );
-    final Packet other = new Packet( 3, null, null, changes );
+    final ChangeSet changeSet = new ChangeSet();
+    final Packet packet = new Packet( 2, "r1", "e1", changeSet );
+    final Packet other = new Packet( 3, null, null, changeSet );
 
     assertEquals( packet.getSequence(), 2 );
     assertEquals( packet.getRequestID(), "r1" );
     assertEquals( packet.getETag(), "e1" );
-    assertEquals( packet.getChanges(), changes );
+    assertEquals( packet.getChangeSet(), changeSet );
 
     assertTrue( packet.equals( packet ) );
     assertFalse( packet.equals( other ) );

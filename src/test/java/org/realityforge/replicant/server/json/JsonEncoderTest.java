@@ -2,16 +2,15 @@ package org.realityforge.replicant.server.json;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.shared.json.TransportConstants;
@@ -53,8 +52,9 @@ public final class JsonEncoderTest
     change.getChannels().put( 1, 0 );
     change.getChannels().put( 2, 42 );
     change.getChannels().put( 3, "Blah" );
-    final List<Change> changes = Arrays.asList( change );
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, requestID, etag, changes );
+    final ChangeSet cs = new ChangeSet();
+    cs.merge( change );
+    final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
@@ -102,9 +102,10 @@ public final class JsonEncoderTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
-    final List<Change> changes = Arrays.asList( new Change( message ) );
     final int lastChangeSetID = 1;
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( lastChangeSetID, null, null, changes );
+    final ChangeSet cs = new ChangeSet();
+    cs.merge( new Change( message ) );
+    final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, null, null, cs );
     final JSONObject changeSet = new JSONObject( encoded );
 
     assertNotNull( changeSet );
@@ -130,9 +131,10 @@ public final class JsonEncoderTest
     final HashMap<String, Serializable> attributeData = new HashMap<String, Serializable>();
     attributeData.put( "X", 1392061102056L );
     final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData );
-    final List<Change> messages = Arrays.asList( new Change( message ) );
+    final ChangeSet cs = new ChangeSet();
+    cs.merge( new Change( message ) );
 
-    final String encoded = JsonEncoder.encodeChangeSetFromEntityMessages( 0, null, null, messages );
+    final String encoded = JsonEncoder.encodeChangeSet( 0, null, null, cs );
 
     final String value =
       new JSONObject( encoded ).

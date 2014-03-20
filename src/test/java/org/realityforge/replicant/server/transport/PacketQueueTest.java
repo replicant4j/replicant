@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
-import java.util.ArrayList;
-import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -14,10 +13,10 @@ public class PacketQueueTest
     assertEquals( queue.getLastSequenceAcked(), 0 );
     assertEquals( queue.size(), 0 );
 
-    final Packet p1 = queue.addPacket( null, null, newChanges() );
-    final Packet p2 = queue.addPacket( null, null, newChanges() );
-    final Packet p3 = queue.addPacket( null, null, newChanges() );
-    final Packet p4 = queue.addPacket( null, null, newChanges() );
+    final Packet p1 = queue.addPacket( null, null, new ChangeSet() );
+    final Packet p2 = queue.addPacket( null, null, new ChangeSet() );
+    final Packet p3 = queue.addPacket( null, null, new ChangeSet() );
+    final Packet p4 = queue.addPacket( null, null, new ChangeSet() );
 
     assertEquals( queue.size(), 4 );
 
@@ -49,10 +48,10 @@ public class PacketQueueTest
     assertEquals( queue.getLastSequenceAcked(), 0 );
     assertEquals( queue.size(), 0 );
 
-    queue.addPacket( null, null, newChanges() );
-    queue.addPacket( null, null, newChanges() );
-    queue.addPacket( null, null, newChanges() );
-    queue.addPacket( null, null, newChanges() );
+    queue.addPacket( null, null, new ChangeSet() );
+    queue.addPacket( null, null, new ChangeSet() );
+    queue.addPacket( null, null, new ChangeSet() );
+    queue.addPacket( null, null, new ChangeSet() );
 
     assertEquals( queue.size(), 4 );
 
@@ -77,10 +76,5 @@ public class PacketQueueTest
     {
       //Ignored
     }
-  }
-
-  private ArrayList<Change> newChanges()
-  {
-    return new ArrayList<Change>();
   }
 }

@@ -4,6 +4,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
+import org.realityforge.replicant.server.ChannelAction;
 
 /**
  * The server-side representation of a ChangeSet.
@@ -17,17 +19,17 @@ public final class Packet
   @Nullable
   private final String _requestID;
   @Nonnull
-  private final List<Change> _changes;
+  private final ChangeSet _changeSet;
 
   public Packet( final int sequence,
                  @Nullable final String requestID,
                  @Nullable final String etag,
-                 @Nonnull final List<Change> changes )
+                 @Nonnull final ChangeSet changeSet )
   {
     _sequence = sequence;
     _requestID = requestID;
     _etag = etag;
-    _changes = changes;
+    _changeSet = changeSet;
   }
 
   public int getSequence()
@@ -48,9 +50,9 @@ public final class Packet
   }
 
   @Nonnull
-  public List<Change> getChanges()
+  public ChangeSet getChangeSet()
   {
-    return _changes;
+    return _changeSet;
   }
 
   /**

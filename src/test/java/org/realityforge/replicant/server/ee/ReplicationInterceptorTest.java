@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
@@ -141,8 +142,8 @@ public class ReplicationInterceptorTest
     assertEquals( interceptor._sessionID, "s1" );
     assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
-    assertEquals( interceptor._sessionMessages.size(), 1 );
-    final Change change = interceptor._sessionMessages.iterator().next();
+    assertEquals( interceptor._changeSet.getChanges().size(), 1 );
+    final Change change = interceptor._changeSet.getChanges().iterator().next();
     assertEquals( change.getEntityMessage().getID(), message.getID() );
     final Serializable expected = 77;
     assertEquals( change.getChannels().get( 44 ), expected );
@@ -342,9 +343,9 @@ public class ReplicationInterceptorTest
     String _sessionID;
     String _requestID;
     Collection<EntityMessage> _messages;
-    Collection<Change> _sessionMessages;
     EntityManager _entityManager;
     private final boolean _routeToSession;
+    private ChangeSet _changeSet;
 
     TestReplicationInterceptor( final EntityManager entityManager, final boolean routeToSession )
     {
@@ -362,7 +363,7 @@ public class ReplicationInterceptorTest
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,
                                        @Nonnull final Collection<EntityMessage> messages,
-                                       @Nullable final Collection<Change> sessionMessages )
+                                       @Nullable final ChangeSet changeSet )
     {
       if ( null != _messages )
       {
@@ -371,7 +372,7 @@ public class ReplicationInterceptorTest
       _sessionID = sessionID;
       _requestID = requestID;
       _messages = messages;
-      _sessionMessages = sessionMessages;
+      _changeSet = changeSet;
       return _routeToSession;
     }
 

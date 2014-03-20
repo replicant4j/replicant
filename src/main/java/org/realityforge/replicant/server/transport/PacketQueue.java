@@ -3,10 +3,9 @@ package org.realityforge.replicant.server.transport;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 
 /**
  * A queue of packets for session.
@@ -83,14 +82,14 @@ public class PacketQueue
    *
    * @param requestID the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
    * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
-   * @param changes   the changes to create packet from.
+   * @param changeSet the changeSet to create packet from.
    * @return the packet.
    */
   public synchronized Packet addPacket( @Nullable final String requestID,
                                         @Nullable final String etag,
-                                        @Nonnull final List<Change> changes )
+                                        @Nonnull final ChangeSet changeSet )
   {
-    final Packet packet = new Packet( _nextSequence++, requestID, etag, changes );
+    final Packet packet = new Packet( _nextSequence++, requestID, etag, changeSet );
     _packets.add( packet );
     Collections.sort( _packets );
     return packet;
