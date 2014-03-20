@@ -5,6 +5,8 @@ import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityChangeBrokerImpl;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntityRepositoryImpl;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 
 /**
  * A simple GIN module that defines the repository and change broker services.
@@ -17,5 +19,6 @@ public class ReplicantGinModule
   {
     bind( EntityRepository.class ).to( EntityRepositoryImpl.class ).asEagerSingleton();
     bind( EntityChangeBroker.class ).to( EntityChangeBrokerImpl.class ).asEagerSingleton();
+    bind( EntitySubscriptionManager.class ).to( EntitySubscriptionManagerImpl.class ).asEagerSingleton();
   }
 }
