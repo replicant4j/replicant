@@ -36,7 +36,14 @@ public final class JsoChangeSet
 
   @Override
   public final native int getChangeCount()/*-{
-    return this.changes.length;
+    if ( this.changes )
+    {
+      return this.changes.length;
+    }
+    else
+    {
+      return 0;
+    }
   }-*/;
 
   @Override
