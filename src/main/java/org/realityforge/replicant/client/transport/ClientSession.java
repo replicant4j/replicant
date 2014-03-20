@@ -71,7 +71,7 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
 
   protected void subscribe( @Nonnull final G graph,
                             @Nullable final Object id,
-                            @Nonnull final String cacheKey,
+                            @Nullable final String cacheKey,
                             @Nullable final Object filterParameter,
                             @Nullable final Runnable userAction )
   {
