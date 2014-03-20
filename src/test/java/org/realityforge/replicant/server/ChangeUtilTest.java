@@ -2,10 +2,6 @@ package org.realityforge.replicant.server;
 
 import java.util.Arrays;
 import java.util.List;
-import org.realityforge.replicant.server.Change;
-import org.realityforge.replicant.server.ChangeUtil;
-import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.MessageTestUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

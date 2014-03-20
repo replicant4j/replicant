@@ -2,8 +2,8 @@ package org.realityforge.replicant.server.ee;
 
 import javax.naming.Context;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
-import org.realityforge.replicant.server.EntityMessageSet;
 import org.realityforge.replicant.server.ChangeSet;
+import org.realityforge.replicant.server.EntityMessageSet;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;

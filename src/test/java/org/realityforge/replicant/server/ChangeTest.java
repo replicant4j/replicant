@@ -1,8 +1,5 @@
 package org.realityforge.replicant.server;
 
-import org.realityforge.replicant.server.Change;
-import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.MessageTestUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
