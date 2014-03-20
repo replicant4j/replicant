@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import javax.transaction.TransactionSynchronizationRegistry;
+import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.shared.transport.ReplicantContext;

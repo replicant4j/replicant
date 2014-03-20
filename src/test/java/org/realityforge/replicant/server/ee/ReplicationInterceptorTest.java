@@ -10,7 +10,7 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
-import org.realityforge.replicant.server.transport.Change;
+import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

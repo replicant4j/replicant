@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
 import java.util.ArrayList;
-import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.Change;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

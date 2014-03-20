@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.server.Change;
 
 /**
  * A queue of packets for session.

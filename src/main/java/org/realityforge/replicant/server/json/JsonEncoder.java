@@ -14,7 +14,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.transport.Change;
+import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
 /**

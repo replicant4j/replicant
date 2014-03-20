@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.server.Change;
 
 /**
  * The server-side representation of a ChangeSet.

@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
-import org.realityforge.replicant.server.transport.Change;
+import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.shared.json.TransportConstants;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;

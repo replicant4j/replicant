@@ -10,8 +10,8 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
-import org.realityforge.replicant.server.transport.Change;
-import org.realityforge.replicant.server.transport.ChangeSet;
+import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**

@@ -3,7 +3,6 @@ package org.realityforge.replicant.server;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.transport.Change;
 
 public interface EntityMessageEndpoint
 {
