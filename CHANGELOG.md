@@ -1,3 +1,10 @@
+## 0.5.16:
+* Associated with each change, the channel(s)  (a.k.a. subscription(s)) which resulted in
+  the change replicating to the client.
+* Replicate record of subscription changes to the client.
+
+NOTE: This is a large change and further details are in the souerce control system.
+
 ## 0.5.15:
 * Rework ChangeRecorder to make sub-classing easier.
 * Rename SubscriptionEntry.subscriptionData to filterParameter to match domgen conventions.
