@@ -9,16 +9,16 @@ import javax.annotation.Nullable;
  */
 public interface EntityRepository
 {
-  <T> void registerEntity( Class<T> type, Object id, T entity );
+  <T> void registerEntity( @Nonnull Class<T> type, @Nonnull Object id, @Nonnull T entity );
 
   @Nonnull
-  <T> T deregisterEntity( Class<T> type, Object id );
+  <T> T deregisterEntity( @Nonnull Class<T> type, @Nonnull Object id );
 
   @Nonnull
-  <T> T getByID( Class<T> type, Object id );
+  <T> T getByID( @Nonnull Class<T> type, @Nonnull Object id );
 
   @Nullable
-  <T> T findByID( Class<T> type, Object id );
+  <T> T findByID( @Nonnull Class<T> type, @Nonnull Object id );
 
   /**
    * Lookup an entity of specified type with specified id, returning null if not present.
@@ -31,10 +31,10 @@ public interface EntityRepository
    * @return the entity or null if no such entity.
    */
   @Nullable
-  <T> T findByID( Class<T> type, Object id, boolean forceLink );
+  <T> T findByID( @Nonnull Class<T> type, @Nonnull Object id, boolean forceLink );
 
   @Nonnull
-  <T> ArrayList<T> findAll( Class<T> type );
+  <T> ArrayList<T> findAll( @Nonnull Class<T> type );
 
   /**
    * Iterate through all of th entities in the repository and raise an exception if any invalid entities are found.
