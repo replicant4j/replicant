@@ -65,7 +65,7 @@ public class ChangeSetTest
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
     assertEquals( action.getID(), 1 );
-    final Serializable subChannelID = 1;
+    final Serializable subChannelID = 2;
     assertEquals( action.getSubChannelID(), subChannelID );
     assertEquals( action.getAction(), Action.ADD );
   }
