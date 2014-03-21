@@ -134,7 +134,7 @@ public class EntitySubscriptionManagerImpl
     final GraphSubscriptionEntry subscription = findSubscription( graph, id );
     if ( null == subscription )
     {
-      throw new IllegalStateException( "Graph not subscribed: " + graph );
+      throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
     return subscription;
   }
@@ -165,12 +165,12 @@ public class EntitySubscriptionManagerImpl
     final Map<Object, GraphSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
     {
-      throw new IllegalStateException( "Graph not subscribed: " + graph );
+      throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
     final GraphSubscriptionEntry entry = instanceMap.remove( id );
     if ( null == entry )
     {
-      throw new IllegalStateException( "Graph not subscribed: " + graph );
+      throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
     deregisterUnOwnedEntities( entry );
   }
