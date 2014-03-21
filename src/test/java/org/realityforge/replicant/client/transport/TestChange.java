@@ -86,13 +86,7 @@ final class TestChange
   }
 
   @Override
-  public int getSubChannelIDAsInt( final int index )
-  {
-    return 0;
-  }
-
-  @Override
-  public String getSubChannelIDAsString( final int index )
+  public Object getSubChannelID( final int index )
   {
     return null;
   }
