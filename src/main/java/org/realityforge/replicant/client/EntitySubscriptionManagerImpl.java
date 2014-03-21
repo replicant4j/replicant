@@ -200,7 +200,7 @@ public class EntitySubscriptionManagerImpl
   public EntitySubscriptionEntry getSubscription( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     final EntitySubscriptionEntry entityEntry = findSubscription( type, id );
-    if( null == entityEntry )
+    if ( null == entityEntry )
     {
       throw new IllegalStateException( "Entity not subscribed: " + type.getSimpleName() + "/" + id );
     }
