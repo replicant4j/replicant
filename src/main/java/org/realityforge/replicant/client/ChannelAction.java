@@ -9,9 +9,7 @@ public interface ChannelAction
 
   int getChannelID();
 
-  String getSubChannelIDAsString();
-
-  int getSubChannelIDAsInt();
+  Object getSubChannelID();
 
   Action getAction();
 }

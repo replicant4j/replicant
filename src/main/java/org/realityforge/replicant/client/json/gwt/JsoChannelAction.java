@@ -17,13 +17,19 @@ public class JsoChannelAction
   }-*/;
 
   @Override
-  public final native String getSubChannelIDAsString() /*-{
-    return this.scid;
-  }-*/;
-
-  @Override
-  public final native int getSubChannelIDAsInt() /*-{
-    return this.scid;
+  public final native Object getSubChannelID() /*-{
+    if ( typeof(this.scid) == 'number' )
+    {
+      return new @java.lang.Integer::new(I)( this.scid );
+    }
+    else if ( typeof(this.scid) == 'String' )
+    {
+      return this.scid;
+    }
+    else
+    {
+      return null;
+    }
   }-*/;
 
   @Override

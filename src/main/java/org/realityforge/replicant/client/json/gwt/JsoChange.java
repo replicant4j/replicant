@@ -128,26 +128,18 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native int getSubChannelIDAsInt( final int index ) /*-{
+  public final native Object getSubChannelID( final int index ) /*-{
     if ( this.channels && index < this.channels.length )
     {
-      return this.channels[index].scid;
+      if ( typeof(this.channels[index].scid) == 'number' )
+      {
+        return new @java.lang.Integer::new(I)( this.channels[index].scid );
+      }
+      else if ( typeof(this.channels[index].scid) == 'string' )
+      {
+        return this.channels[index].scid;
+      }
     }
-    else
-    {
-      return 0;
-    }
-  }-*/;
-
-  @Override
-  public final native String getSubChannelIDAsString( final int index ) /*-{
-    if ( this.channels && index < this.channels.length )
-    {
-      return this.channels[index].scid;
-    }
-    else
-    {
-      return null;
-    }
+    return null;
   }-*/;
 }

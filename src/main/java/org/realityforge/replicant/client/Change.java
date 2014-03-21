@@ -68,11 +68,5 @@ public interface Change
    * @param index the index of the channel.
    * @return the sub-channel id.
    */
-  int getSubChannelIDAsInt( int index );
-
-  /**
-   * @param index the index of the subscription.
-   * @return the sub-channel id.
-   */
-  String getSubChannelIDAsString( int index );
+  Object getSubChannelID( int index );
 }
