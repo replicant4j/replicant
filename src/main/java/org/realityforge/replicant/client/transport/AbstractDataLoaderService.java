@@ -11,6 +11,7 @@ import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
@@ -29,6 +30,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private final EntityChangeBroker _changeBroker;
   private final EntityRepository _repository;
   private final CacheService _cacheService;
+  private final EntitySubscriptionManager _subscriptionManager;
 
   private DataLoadAction _currentAction;
   private AreaOfInterestAction<G> _currentAoiAction;
@@ -40,12 +42,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected AbstractDataLoaderService( final ChangeMapper changeMapper,
                                        final EntityChangeBroker changeBroker,
                                        final EntityRepository repository,
-                                       final CacheService cacheService )
+                                       final CacheService cacheService,
+                                       final EntitySubscriptionManager subscriptionManager )
   {
     _changeMapper = changeMapper;
     _changeBroker = changeBroker;
     _repository = repository;
     _cacheService = cacheService;
+    _subscriptionManager = subscriptionManager;
   }
 
   /**

@@ -8,6 +8,7 @@ import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
 import static org.mockito.Mockito.*;
 
 final class TestDataLoadService
@@ -32,7 +33,8 @@ final class TestDataLoadService
     super( mock( ChangeMapper.class ),
            mock( EntityChangeBroker.class ),
            mock( EntityRepository.class ),
-           mock( CacheService.class ) );
+           mock( CacheService.class ),
+           mock( EntitySubscriptionManager.class ) );
     _validateOnLoad = validateOnLoad;
     _changeSets = new LinkedList<TestChangeSet>( Arrays.asList( changeSets ) );
   }

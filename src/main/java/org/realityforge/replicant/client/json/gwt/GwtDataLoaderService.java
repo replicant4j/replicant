@@ -7,6 +7,7 @@ import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
@@ -21,9 +22,10 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G exten
   protected GwtDataLoaderService( final ChangeMapper changeMapper,
                                   final EntityChangeBroker changeBroker,
                                   final EntityRepository repository,
-                                  final CacheService cacheService )
+                                  final CacheService cacheService,
+                                  final EntitySubscriptionManager subscriptionManager )
   {
-    super( changeMapper, changeBroker, repository, cacheService );
+    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager );
   }
 
   @Override
