@@ -509,7 +509,7 @@ public class DataLoaderServiceTest
                                                            final int expectedStepCount,
                                                            final int expectedActions )
   {
-    final LinkedList<DataLoadAction> actionsProcessed = new LinkedList<>();
+    final LinkedList<DataLoadAction> actionsProcessed = new LinkedList<DataLoadAction>();
     int count = 0;
     while ( true )
     {
