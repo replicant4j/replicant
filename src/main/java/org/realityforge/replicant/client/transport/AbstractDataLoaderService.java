@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -435,7 +436,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                  " seq=" + sequence +
                  " requestID=" + requestID +
                  " eTag=" + eTag +
-                 " changeCount=" + changeSet.getChangeCount() );
+                 " changeCount=" + changeSet.getChangeCount()
+        );
       }
       final RequestEntry request;
       if ( _currentAction.isOob() )
@@ -489,6 +491,54 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       {
         getChangeBroker().pause();
       }
+      return true;
+    }
+
+    if ( _currentAction.needsChannelActionsProcessed() )
+    {
+      _currentAction.markChannelActionsProcessed();
+      final ChangeSet changeSet = _currentAction.getChangeSet();
+      assert null != changeSet;
+      final int channelActionCount = changeSet.getChannelActionCount();
+      for ( int i = 0; i < channelActionCount; i++ )
+      {
+        final ChannelAction action = changeSet.getChannelAction( i );
+        final int channel = action.getChannelID();
+        final Object subChannelID = action.getSubChannelID();
+        if ( LOG.isLoggable( getLogLevel() ) )
+        {
+          final String message = "ChannelAction:: " + action.getAction().name() +
+                                 " " + channel + ( null == subChannelID ? "" : ( "-" + subChannelID ) );
+          LOG.log( getLogLevel(), message );
+        }
+
+        final G graph = channelToGraph( channel );
+        if ( action.getAction() == ChannelAction.Action.ADD )
+        {
+          _currentAction.incChannelSubscribeCount();
+          if ( null == subChannelID )
+          {
+            _subscriptionManager.subscribe( graph );
+          }
+          else
+          {
+            _subscriptionManager.subscribe( graph, subChannelID );
+          }
+        }
+        else
+        {
+          _currentAction.incChannelUnsubscribeCount();
+          if ( null == subChannelID )
+          {
+            _subscriptionManager.unsubscribe( graph );
+          }
+          else
+          {
+            _subscriptionManager.unsubscribe( graph, subChannelID );
+          }
+        }
+      }
+        return true;
     }
 
     //Step: Process a chunk of changes
@@ -587,6 +637,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( "ChangeSet " + set.getSequence() + " involved " +
+                _currentAction.getChannelSubscribeCount() + " subscribes, " +
+                _currentAction.getChannelUnsubscribeCount() + " un-subscribes, " +
                 _currentAction.getUpdateCount() + " updates, " +
                 _currentAction.getRemoveCount() + " removes and " +
                 _currentAction.getLinkCount() + " links." );
@@ -625,6 +677,17 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
     return true;
   }
+
+  /**
+   * Return the graph for specified channel.
+   *
+   * @param channel the channel code.
+   * @return the graph enum associated with channel.
+   * @throws IllegalArgumentException if no such channel
+   */
+  @Nonnull
+  protected abstract G channelToGraph( int channel )
+    throws IllegalArgumentException;
 
   /**
    * Template method invoked when progressDataLoad() is about to return false and terminate load process.

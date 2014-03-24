@@ -39,6 +39,14 @@ final class TestDataLoadService
     _changeSets = new LinkedList<TestChangeSet>( Arrays.asList( changeSets ) );
   }
 
+  @Nonnull
+  @Override
+  protected TestGraph channelToGraph( final int channel )
+    throws IllegalArgumentException
+  {
+    return TestGraph.values()[ channel ];
+  }
+
   LinkedList<TestChangeSet> getChangeSets()
   {
     return _changeSets;

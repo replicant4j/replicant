@@ -52,9 +52,12 @@ final class DataLoadAction
   private LinkedList<Linkable> _entitiesToLink;
   private boolean _entityLinksCalculated;
   private boolean _worldNotified;
+  private boolean _channelActionsProcessed;
   private boolean _brokerPaused;
   private RequestEntry _request;
 
+  private int _channelSubscribeCount;
+  private int _channelUnsubscribeCount;
   private int _updateCount;
   private int _removeCount;
   private int _linkCount;
@@ -63,6 +66,16 @@ final class DataLoadAction
   {
     _rawJsonData = rawJsonData;
     _oob = oob;
+  }
+
+  public int getChannelSubscribeCount()
+  {
+    return _channelSubscribeCount;
+  }
+
+  public int getChannelUnsubscribeCount()
+  {
+    return _channelUnsubscribeCount;
   }
 
   public int getUpdateCount()
@@ -78,6 +91,16 @@ final class DataLoadAction
   public int getLinkCount()
   {
     return _linkCount;
+  }
+
+  public void incChannelSubscribeCount()
+  {
+    _channelSubscribeCount++;
+  }
+
+  public void incChannelUnsubscribeCount()
+  {
+    _channelUnsubscribeCount ++;
   }
 
   public void incUpdateCount()
@@ -134,6 +157,16 @@ final class DataLoadAction
   public boolean areChangesPending()
   {
     return null != _changeSet && _changeIndex < _changeSet.getChangeCount();
+  }
+
+  final boolean needsChannelActionsProcessed()
+  {
+    return null != _changeSet && 0 != _changeSet.getChannelActionCount() && !_channelActionsProcessed;
+  }
+
+  public void markChannelActionsProcessed()
+  {
+    _channelActionsProcessed = true;
   }
 
   public boolean needsBrokerPause()

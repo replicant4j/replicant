@@ -11,6 +11,7 @@ final class TestChangeSet
   private final int _sequence;
   private final boolean _bulkChange;
   private final Runnable _runnable;
+  private final ChannelAction[] _actions;
   private String _requestID;
   private String _cacheKey;
   private String _etag;
@@ -21,10 +22,21 @@ final class TestChangeSet
                  final boolean bulkChange,
                  final Change[] changes )
   {
+    this( sequence, runnable, bulkChange, changes, new ChannelAction[ 0 ] );
+  }
+
+
+  TestChangeSet( final int sequence,
+                 @Nullable final Runnable runnable,
+                 final boolean bulkChange,
+                 final Change[] changes,
+                 final ChannelAction[] actions )
+  {
     _sequence = sequence;
     _runnable = runnable;
     _bulkChange = bulkChange;
     _changes = changes;
+    _actions = actions;
   }
 
   public String getCacheKey()
@@ -96,13 +108,13 @@ final class TestChangeSet
   @Override
   public int getChannelActionCount()
   {
-    return 0;
+    return _actions.length;
   }
 
   @Override
   public ChannelAction getChannelAction( final int index )
   {
-    return null;
+    return _actions[ index ];
   }
 
   @Override

@@ -9,6 +9,8 @@ import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
+import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.ChannelAction.Action;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.Linkable;
@@ -41,7 +43,7 @@ public class DataLoaderServiceTest
     verify( service.getChangeBroker(), times( 1 ) ).enable();
 
     // Should be no oob actions left
-    assertEquals( progressWorkTillDone( service ), 7 );
+    progressWorkTillDone( service, 7, 1 );
 
     service.setSession( session1, runnable1 );
     verify( runnable1, times( 2 ) ).run();
@@ -86,8 +88,7 @@ public class DataLoaderServiceTest
 
     final RequestEntry request = ensureRequest( service, changeSet );
 
-    final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 9 );
+    progressWorkTillDone( service, 10, 1 );
 
     // Termination count is actually 2 as progressWorkTillDone will attempt to progress
     // once after it is initially terminates
@@ -136,8 +137,7 @@ public class DataLoaderServiceTest
     final RequestEntry request = configureRequest( changeSet, service );
     assertNotNull( request );
 
-    final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 7 );
+    progressWorkTillDone( service, 7, 1 );
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
@@ -163,8 +163,7 @@ public class DataLoaderServiceTest
 
     service.getSession().enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
 
-    final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 7 );
+    progressWorkTillDone( service, 7, 1 );
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
@@ -203,8 +202,7 @@ public class DataLoaderServiceTest
     }
     assertTrue( service.isScheduleDataLoadCalled() );
 
-    final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 9 );
+    progressWorkTillDone( service, 10, 1 );
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
@@ -262,7 +260,7 @@ public class DataLoaderServiceTest
     changeSet.setRequestID( request.getRequestID() );
     service.getSession().enqueueDataLoad( "blah" );
 
-    progressWorkTillDone( service );
+    progressWorkTillDone( service, 7, 1 );
 
     assertTrue( request.haveResultsArrived() );
     final String requestID = changeSet.getRequestID();
@@ -285,8 +283,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 7 );
+    progressWorkTillDone( service, 7, 1 );
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
@@ -316,7 +313,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    progressWorkTillDone( service );
+    progressWorkTillDone( service, 9, 1 );
 
     verify( service.getRepository(), times( 1 ) ).validate();
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
@@ -335,7 +332,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    progressWorkTillDone( service );
+    progressWorkTillDone( service, 9, 1 );
 
     verify( service.getRepository(), times( 1 ) ).validate();
 
@@ -358,7 +355,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    progressWorkTillDone( service );
+    progressWorkTillDone( service, 11, 2 );
 
     verify( service.getRepository(), never() ).validate();
   }
@@ -382,8 +379,7 @@ public class DataLoaderServiceTest
 
     configureRequests( service, service.getChangeSets() );
     service.getSession().enqueueDataLoad( "jsonData" );
-    final int stepCount = progressWorkTillDone( service );
-    assertEquals( stepCount, 3 );
+    progressWorkTillDone( service, 3, 1 );
 
     //No progress should have been made other than parsing packet as out of sequence
     assertEquals( service.getSession().getLastRxSequence(), 0 );
@@ -391,8 +387,7 @@ public class DataLoaderServiceTest
     verifyPostActionNotRun( changeSet1.getRunnable() );
 
     service.getSession().enqueueDataLoad( "jsonData" );
-    final int stepCount2 = progressWorkTillDone( service );
-    assertEquals( stepCount2, 15 );
+    progressWorkTillDone( service, 17, 2 );
 
     //Progress should have been made as all sequence appears
     assertEquals( service.getSession().getLastRxSequence(), 2 );
@@ -402,6 +397,71 @@ public class DataLoaderServiceTest
     inOrder.verifyNoMoreInteractions();
   }
 
+  @Test
+  public void channelUpdates()
+    throws Exception
+  {
+    final TestChangeSet changeSet1 =
+      new TestChangeSet( 1,
+                         mock( Runnable.class ),
+                         true,
+                         new Change[ 0 ],
+                         new ChannelAction[]{ new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD ) } );
+
+    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
+
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
+
+    configureRequests( service, service.getChangeSets() );
+    service.getSession().enqueueDataLoad( "jsonData" );
+    service.scheduleDataLoad();
+
+    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
+    verify( service.getSubscriptionManager() ).subscribe( TestGraph.B, "S" );
+
+    final DataLoadAction action = actions.getLast();
+
+    assertEquals( action.getChannelSubscribeCount(), 1 );
+    assertEquals( action.getChannelUnsubscribeCount(), 0 );
+  }
+
+  @Test
+  public void multipleChannelUpdates()
+    throws Exception
+  {
+    final TestChannelAction a1 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.ADD );
+    final TestChannelAction a2 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.REMOVE );
+    final TestChannelAction a3 = new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD );
+    final TestChannelAction a4 = new TestChannelAction( TestGraph.B.ordinal(), 33, Action.REMOVE );
+    final TestChangeSet changeSet1 =
+      new TestChangeSet( 1,
+                         mock( Runnable.class ),
+                         true,
+                         new Change[ 0 ],
+                         new ChannelAction[]{ a1, a2, a3, a4 } );
+
+    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
+
+    assertEquals( service.getSession().getLastRxSequence(), 0 );
+
+    configureRequests( service, service.getChangeSets() );
+    service.getSession().enqueueDataLoad( "jsonData" );
+    service.scheduleDataLoad();
+
+    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
+
+    final DataLoadAction action = actions.getLast();
+
+    assertEquals( action.getChannelSubscribeCount(), 2 );
+    assertEquals( action.getChannelUnsubscribeCount(), 2 );
+
+    final InOrder inOrder = inOrder( service.getSubscriptionManager() );
+    inOrder.verify( service.getSubscriptionManager() ).subscribe( TestGraph.A );
+    inOrder.verify( service.getSubscriptionManager() ).unsubscribe( TestGraph.A );
+    inOrder.verify( service.getSubscriptionManager() ).subscribe( TestGraph.B, "S" );
+    inOrder.verify( service.getSubscriptionManager() ).unsubscribe( TestGraph.B, 33 );
+    inOrder.verifyNoMoreInteractions();
+  }
   private void verifyPostActionRun( final Runnable runnable )
   {
     verify( runnable ).run();
@@ -445,13 +505,21 @@ public class DataLoaderServiceTest
     return null;
   }
 
-  private int progressWorkTillDone( final TestDataLoadService service )
+  private LinkedList<DataLoadAction> progressWorkTillDone( final TestDataLoadService service,
+                                                           final int expectedStepCount,
+                                                           final int expectedActions )
   {
+    final LinkedList<DataLoadAction> actionsProcessed = new LinkedList<>();
     int count = 0;
     while ( true )
     {
       count++;
       final boolean moreWork = service.progressDataLoad();
+      final DataLoadAction currentAction = service.getCurrentAction();
+      if ( null != currentAction && !actionsProcessed.contains( currentAction ) )
+      {
+        actionsProcessed.add( currentAction );
+      }
       if ( !moreWork )
       {
         break;
@@ -459,8 +527,10 @@ public class DataLoaderServiceTest
     }
 
     assertFalse( service.progressDataLoad() );
+    assertEquals( count, expectedStepCount );
+    assertEquals( actionsProcessed.size(), expectedActions );
 
-    return count;
+    return actionsProcessed;
   }
 
   private TestDataLoadService newService( final TestChangeSet changeSet,
