@@ -538,7 +538,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           }
         }
       }
-        return true;
+      return true;
     }
 
     //Step: Process a chunk of changes
