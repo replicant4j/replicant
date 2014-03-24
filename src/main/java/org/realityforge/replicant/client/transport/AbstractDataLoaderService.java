@@ -357,6 +357,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                               @Nullable Object filterParameter,
                                               @Nonnull Runnable completionAction );
 
+  final DataLoadAction getCurrentAction()
+  {
+    return _currentAction;
+  }
+
   protected final boolean progressDataLoad()
   {
     // Step: Retrieve any out of band actions
