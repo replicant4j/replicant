@@ -104,6 +104,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return _changeMapper;
   }
 
+  protected final EntitySubscriptionManager getSubscriptionManager()
+  {
+    return _subscriptionManager;
+  }
+
   public final T getSession()
   {
     return _session;
