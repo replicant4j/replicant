@@ -246,7 +246,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           }
         };
         LOG.info( "Subscription to " + label + " requested." );
-        subscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
+        requestSubscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
         return false;
       }
       else if ( action == Action.REMOVE )
@@ -282,7 +282,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
             completeAoiAction( userAction );
           }
         };
-        unsubscribeFromGraph( graph, id, runnable );
+        requestUnsubscribeFromGraph( graph, id, runnable );
         return false;
       }
       else
@@ -310,15 +310,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           public void run()
           {
             entry.setSubscriptionUpdateInProgress( false );
-            updateGraph( graph, id, filterParameter, entry.getFilterParameter() );
             entry.setFilterParameter( filterParameter );
             LOG.warning( "Subscription update of " + label + " completed." );
             completeAoiAction( userAction );
           }
         };
         LOG.warning( "Subscription update of " + label + " requested." );
+        requestUpdateSubscription( graph, id, filterParameter, runnable );
         entry.setSubscriptionUpdateInProgress( true );
-        updateSubscription( graph, id, filterParameter, runnable );
         return false;
       }
     }
@@ -335,28 +334,24 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     _currentAoiAction = null;
   }
 
-  protected abstract void updateGraph( @Nonnull G graph,
-                                       @Nullable Object id,
-                                       @Nullable Object filterParameter,
-                                       @Nullable Object originalFilterParameter );
+  protected abstract void requestSubscribeToGraph( @Nonnull G graph,
+                                                   @Nullable Object id,
+                                                   @Nullable Object filterParameter,
+                                                   @Nullable String eTag,
+                                                   @Nullable Runnable cacheAction,
+                                                   @Nonnull Runnable completionAction );
 
-  protected abstract void subscribeToGraph( @Nonnull G graph,
-                                            @Nullable Object id,
-                                            @Nullable Object filterParameter,
-                                            @Nullable String eTag,
-                                            @Nullable Runnable cacheAction,
-                                            @Nonnull Runnable completionAction );
+  protected abstract void requestUnsubscribeFromGraph( @Nonnull G graph,
+                                                       @Nullable Object id,
+                                                       @Nonnull Runnable completionAction );
 
-  protected abstract void unsubscribeFromGraph( @Nonnull G graph,
-                                                @Nullable Object id,
-                                                @Nonnull Runnable runnable );
+  protected abstract void requestUpdateSubscription( @Nonnull G graph,
+                                                     @Nullable Object id,
+                                                     @Nullable Object filterParameter,
+                                                     @Nonnull Runnable completionAction );
 
   protected abstract void unloadGraph( @Nonnull G graph, @Nullable Object id );
 
-  protected abstract void updateSubscription( @Nonnull G graph,
-                                              @Nullable Object id,
-                                              @Nullable Object filterParameter,
-                                              @Nonnull Runnable completionAction );
 
   final DataLoadAction getCurrentAction()
   {

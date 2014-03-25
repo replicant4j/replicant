@@ -120,40 +120,32 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void updateGraph( @Nonnull final TestGraph graph,
-                              @Nullable final Object id,
-                              @Nullable final Object filterParameter,
-                              @Nullable final Object originalFilterParameter )
+  protected void requestSubscribeToGraph( @Nonnull final TestGraph graph,
+                                          @Nullable final Object id,
+                                          @Nullable final Object filterParameter,
+                                          @Nullable final String eTag,
+                                          @Nullable final Runnable cacheAction,
+                                          @Nonnull final Runnable completionAction )
   {
   }
 
   @Override
-  protected void subscribeToGraph( @Nonnull final TestGraph graph,
-                                   @Nullable final Object id,
-                                   @Nullable final Object filterParameter,
-                                   @Nullable final String eTag,
-                                   @Nullable final Runnable cacheAction,
-                                   @Nonnull final Runnable completionAction )
+  protected void requestUnsubscribeFromGraph( @Nonnull final TestGraph graph,
+                                              @Nullable final Object id,
+                                              @Nonnull final Runnable runnable )
   {
   }
 
   @Override
-  protected void unsubscribeFromGraph( @Nonnull final TestGraph graph,
-                                       @Nullable final Object id,
-                                       @Nonnull final Runnable runnable )
-  {
-  }
-
+  protected void requestUpdateSubscription( @Nonnull final TestGraph graph,
+                                            @Nullable final Object id,
+                                            @Nullable final Object filterParameter,
+                                            @Nonnull final Runnable completionAction )
   @Override
   protected void unloadGraph( @Nonnull final TestGraph graph, @Nullable final Object id )
   {
   }
 
-  @Override
-  protected void updateSubscription( @Nonnull final TestGraph graph,
-                                     @Nullable final Object id,
-                                     @Nullable final Object filterParameter,
-                                     @Nonnull final Runnable completionAction )
   {
   }
 }
