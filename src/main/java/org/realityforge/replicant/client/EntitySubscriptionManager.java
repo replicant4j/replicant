@@ -75,7 +75,6 @@ public interface EntitySubscriptionManager
    * @param graph the graph to unsubscribe from.
    * @throws IllegalStateException if graph not subscribed to.
    */
-  @Nonnull
   void unsubscribe( @Nonnull Enum graph )
     throws IllegalStateException;
 
