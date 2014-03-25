@@ -276,8 +276,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           public void run()
           {
             entry.markAsDeregistered();
-            unloadGraph( graph, id );
-
             LOG.info( "Unsubscribe from " + label + " completed." );
             completeAoiAction( userAction );
           }
@@ -350,7 +348,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                      @Nullable Object filterParameter,
                                                      @Nonnull Runnable completionAction );
 
-  protected abstract void unloadGraph( @Nonnull G graph, @Nullable Object id );
 
 
   final DataLoadAction getCurrentAction()

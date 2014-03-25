@@ -141,11 +141,6 @@ final class TestDataLoadService
                                             @Nullable final Object id,
                                             @Nullable final Object filterParameter,
                                             @Nonnull final Runnable completionAction )
-  @Override
-  protected void unloadGraph( @Nonnull final TestGraph graph, @Nullable final Object id )
-  {
-  }
-
   {
   }
 }
