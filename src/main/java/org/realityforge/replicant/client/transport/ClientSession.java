@@ -15,7 +15,7 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
  *
  * @param <G> The enum type representing the different graphs.
  */
-public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum>
+public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enum>
 {
   @Nonnull
   private final AbstractDataLoaderService<T, G> _dataLoaderService;
@@ -23,16 +23,6 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
   private final Map<String, RequestEntry> _requests = new HashMap<String, RequestEntry>();
   private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
   private int _requestID;
-
-  //Graph => InstanceID
-  private final HashMap<G, Map<Object, SubscriptionEntry<G>>> _instanceSubscriptions =
-    new HashMap<G, Map<Object, SubscriptionEntry<G>>>();
-  private final Map<G, Map<Object, SubscriptionEntry<G>>> _roInstanceSubscriptions =
-    Collections.unmodifiableMap( _instanceSubscriptions );
-
-  //Graph => Type
-  private final HashMap<G, SubscriptionEntry<G>> _typeSubscriptions = new HashMap<G, SubscriptionEntry<G>>();
-  private final Map<G, SubscriptionEntry<G>> _roTypeSubscriptions = Collections.unmodifiableMap( _typeSubscriptions );
 
   /**
    * Pending actions that will change the area of interest.
@@ -69,26 +59,26 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
     return _sessionID;
   }
 
-  protected void subscribe( @Nonnull final G graph,
-                            @Nullable final Object id,
-                            @Nullable final String cacheKey,
-                            @Nullable final Object filterParameter,
-                            @Nullable final Runnable userAction )
+  protected void requestSubscribe( @Nonnull final G graph,
+                                   @Nullable final Object id,
+                                   @Nullable final String cacheKey,
+                                   @Nullable final Object filterParameter,
+                                   @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, Action.ADD, cacheKey, id, filterParameter, userAction );
   }
 
-  protected void updateSubscription( @Nonnull final G graph,
-                                     @Nullable final Object id,
-                                     @Nullable final Object filterParameter,
-                                     @Nullable final Runnable userAction )
+  protected void requestSubscriptionUpdate( @Nonnull final G graph,
+                                            @Nullable final Object id,
+                                            @Nullable final Object filterParameter,
+                                            @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, Action.UPDATE, null, id, filterParameter, userAction );
   }
 
-  protected void unsubscribe( @Nonnull final G graph,
-                              @Nullable final Object id,
-                              @Nullable final Runnable userAction )
+  protected void requestUnsubscribe( @Nonnull final G graph,
+                                     @Nullable final Object id,
+                                     @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, Action.REMOVE, null, id, null, userAction );
   }
@@ -105,7 +95,7 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
     _dataLoaderService.scheduleDataLoad();
   }
 
-  @SuppressWarnings( "ConstantConditions" )
+  @SuppressWarnings("ConstantConditions")
   public final void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
     if ( null == rawJsonData )
@@ -116,7 +106,7 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
     _dataLoaderService.scheduleDataLoad();
   }
 
-  @SuppressWarnings( "ConstantConditions" )
+  @SuppressWarnings("ConstantConditions")
   protected final void enqueueOOB( @Nonnull final String rawJsonData,
                                    @Nullable final Runnable runnable,
                                    final boolean bulkLoad )
@@ -130,6 +120,16 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
     action.setBulkLoad( bulkLoad );
     getOobActions().add( action );
     _dataLoaderService.scheduleDataLoad();
+  }
+
+  protected final boolean isSubscribed( @Nonnull final G graph )
+  {
+    return _dataLoaderService.isSubscribed( graph );
+  }
+
+  protected final boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
+  {
+    return _dataLoaderService.isSubscribed( graph, id );
   }
 
   final LinkedList<AreaOfInterestAction<G>> getPendingAreaOfInterestActions()
@@ -191,153 +191,5 @@ public abstract class ClientSession<T extends ClientSession<T,G>, G extends Enum
   protected String newRequestID()
   {
     return String.valueOf( ++_requestID );
-  }
-
-
-  /**
-   * @return read-only map of instance subscriptions.
-   */
-  protected final Map<G, Map<Object, SubscriptionEntry<G>>> getInstanceSubscriptions()
-  {
-    return _roInstanceSubscriptions;
-  }
-
-  /**
-   * @return read-only map of type subscriptions.
-   */
-  protected final Map<G, SubscriptionEntry<G>> getTypeSubscriptions()
-  {
-    return _roTypeSubscriptions;
-  }
-
-  /**
-   * Subscribe to graph containing types.
-   *
-   * @param graph the graph to subscribe to.
-   * @return the subscription entry if this was the first subscription for graph, null otherwise.
-   */
-  @Nullable
-  final SubscriptionEntry<G> newTypeGraphSubscription( @Nonnull final G graph )
-  {
-    SubscriptionEntry<G> typeMap = findTypeGraphSubscription( graph );
-    if ( null == typeMap )
-    {
-      final SubscriptionEntry<G> entry = new SubscriptionEntry<G>( graph, null );
-      _typeSubscriptions.put( graph, entry );
-      return entry;
-    }
-    else
-    {
-      return null;
-    }
-  }
-
-  /**
-   * Find subscription for type graph if it exists.
-   *
-   * @param graph the graph.
-   * @return the subscription entry if it exists, null otherwise.
-   */
-  @Nullable
-  protected final SubscriptionEntry<G> findTypeGraphSubscription( @Nonnull final G graph )
-  {
-    return _typeSubscriptions.get( graph );
-  }
-
-  /**
-   * Subscribe to graph rooted at an instance.
-   *
-   * @param graph the graph to subscribe to.
-   * @param id    the id of the root object.
-   * @return the subscription entry if this was the first subscription for graph, null otherwise.
-   */
-  @Nullable
-  final SubscriptionEntry<G> newInstanceGraphSubscription( @Nonnull final G graph, @Nonnull final Object id )
-  {
-    Map<Object, SubscriptionEntry<G>> instanceMap = _instanceSubscriptions.get( graph );
-    if ( null == instanceMap )
-    {
-      instanceMap = new HashMap<Object, SubscriptionEntry<G>>();
-      _instanceSubscriptions.put( graph, instanceMap );
-    }
-    if ( !instanceMap.containsKey( id ) )
-    {
-      final SubscriptionEntry<G> entry = new SubscriptionEntry<G>( graph, id );
-      instanceMap.put( id, entry );
-      return entry;
-    }
-    else
-    {
-      return null;
-    }
-  }
-
-  /**
-   * Find a graph rooted at an instance.
-   *
-   * @param graph the graph to look for.
-   * @param id    the id of the root object.
-   * @return the subscription entry if it exists, null otherwise.
-   */
-  @Nullable
-  protected final SubscriptionEntry<G> findInstanceGraphSubscription( @Nonnull final G graph,
-                                                                      @Nonnull final Object id )
-  {
-    Map<Object, SubscriptionEntry<G>> instanceMap = _instanceSubscriptions.get( graph );
-    if ( null == instanceMap )
-    {
-      return null;
-    }
-    else
-    {
-      return instanceMap.get( id );
-    }
-  }
-
-  /**
-   * Unsubscribe from graph containing types.
-   *
-   * @param graph the graph to unsubscribe from.
-   * @return the subscription entry if subscribed, null otherwise.
-   */
-  @Nullable
-  final SubscriptionEntry<G> unsubscribeFromTypeGraph( @Nonnull final G graph )
-  {
-    final SubscriptionEntry<G> entry = _typeSubscriptions.remove( graph );
-    if ( null != entry )
-    {
-      entry.markDeregisterInProgress();
-      return entry;
-    }
-    else
-    {
-      return null;
-    }
-  }
-
-  /**
-   * Unsubscribe from graph rooted at an instance.
-   *
-   * @param graph the graph to unsubscribe from.
-   * @param id    the id of the root object.
-   * @return the subscription entry if subscribed, null otherwise.
-   */
-  final SubscriptionEntry<G> unsubscribeFromInstanceGraph( @Nonnull final G graph, @Nonnull final Object id )
-  {
-    final Map<Object, SubscriptionEntry<G>> instanceMap = _instanceSubscriptions.get( graph );
-    if ( null == instanceMap )
-    {
-      return null;
-    }
-    final SubscriptionEntry<G> entry = instanceMap.remove( id );
-    if ( null != entry )
-    {
-      entry.markDeregisterInProgress();
-      return entry;
-    }
-    else
-    {
-      return null;
-    }
   }
 }

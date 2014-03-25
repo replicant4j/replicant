@@ -13,6 +13,7 @@ import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.GraphSubscriptionEntry;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
@@ -179,17 +180,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       final Action action = _currentAoiAction.getAction();
       if ( action == Action.ADD )
       {
-        final SubscriptionEntry<G> entry;
-        if ( null == id )
-        {
-          entry = getSession().newTypeGraphSubscription( graph );
-        }
-        else
-        {
-          entry = getSession().newInstanceGraphSubscription( graph, id );
-        }
+        final GraphSubscriptionEntry entry = findSubscription( graph, id );
         //Already subscribed
-        if ( null == entry )
+        if ( null != entry )
         {
           LOG.warning( "Subscription to " + label + " requested but already subscribed." );
           completeAoiAction( userAction );
@@ -240,7 +233,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           @Override
           public void run()
           {
-            entry.markAsPresent();
             LOG.info( "Subscription to " + label + " completed." );
             completeAoiAction( userAction );
           }
@@ -251,15 +243,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       else if ( action == Action.REMOVE )
       {
-        final SubscriptionEntry<G> entry;
-        if ( null == id )
-        {
-          entry = getSession().unsubscribeFromTypeGraph( graph );
-        }
-        else
-        {
-          entry = getSession().unsubscribeFromInstanceGraph( graph, id );
-        }
+        final GraphSubscriptionEntry entry = findSubscription( graph, id );
         //Not subscribed
         if ( null == entry )
         {
@@ -269,13 +253,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         }
 
         LOG.info( "Unsubscribe from " + label + " requested." );
-        entry.markDeregisterInProgress();
         final Runnable runnable = new Runnable()
         {
           @Override
           public void run()
           {
-            entry.markAsDeregistered();
             LOG.info( "Unsubscribe from " + label + " completed." );
             completeAoiAction( userAction );
           }
@@ -285,15 +267,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       else
       {
-        final SubscriptionEntry<G> entry;
-        if ( null == id )
-        {
-          entry = getSession().findTypeGraphSubscription( graph );
-        }
-        else
-        {
-          entry = getSession().findInstanceGraphSubscription( graph, id );
-        }
+        final GraphSubscriptionEntry entry = findSubscription( graph, id );
         //Not subscribed
         if ( null == entry )
         {
@@ -307,18 +281,29 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           @Override
           public void run()
           {
-            entry.setSubscriptionUpdateInProgress( false );
-            entry.setFilterParameter( filterParameter );
             LOG.warning( "Subscription update of " + label + " completed." );
             completeAoiAction( userAction );
           }
         };
         LOG.warning( "Subscription update of " + label + " requested." );
         requestUpdateSubscription( graph, id, filterParameter, runnable );
-        entry.setSubscriptionUpdateInProgress( true );
         return false;
       }
     }
+  }
+
+  private GraphSubscriptionEntry findSubscription( final G graph, final Object id )
+  {
+    final GraphSubscriptionEntry entry;
+    if ( null == id )
+    {
+      entry = _subscriptionManager.findSubscription( graph );
+    }
+    else
+    {
+      entry = _subscriptionManager.findSubscription( graph, id );
+    }
+    return entry;
   }
 
   private void completeAoiAction( final Runnable userAction )
@@ -348,7 +333,15 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                      @Nullable Object filterParameter,
                                                      @Nonnull Runnable completionAction );
 
+  protected final boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
+  {
+    return null != _subscriptionManager.findSubscription( graph, id );
+  }
 
+  protected final boolean isSubscribed( @Nonnull final G graph )
+  {
+    return null != _subscriptionManager.findSubscription( graph );
+  }
 
   final DataLoadAction getCurrentAction()
   {
