@@ -275,7 +275,6 @@ public class ReplicationInterceptorTest
 
     when( em.isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
-    verify( em ).flush();
 
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionID );

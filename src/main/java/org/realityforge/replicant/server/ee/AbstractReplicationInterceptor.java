@@ -60,12 +60,12 @@ public abstract class AbstractReplicationInterceptor
       if ( null == depth )
       {
         boolean requestComplete = true;
-        if ( getEntityManager().isOpen() )
+        if ( getEntityManager().isOpen() && !_registry.getRollbackOnly() )
         {
           getEntityManager().flush();
           final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
           final ChangeSet changeSet = EntityMessageCacheUtil.removeSessionChanges( _registry );
-          if ( ( null != messageSet || null != changeSet ) && !_registry.getRollbackOnly() )
+          if ( null != messageSet || null != changeSet )
           {
             final Collection<EntityMessage> messages =
               null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
