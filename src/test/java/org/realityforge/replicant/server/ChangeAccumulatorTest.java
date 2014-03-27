@@ -73,14 +73,14 @@ public class ChangeAccumulatorTest
     final TestSession c = new TestSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    accumulator.addActions( c, Arrays.asList( new ChannelAction( 1, 2, Action.ADD ) ) );
+    accumulator.addActions( c, Arrays.asList( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD ) ) );
     final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
 
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
-    assertEquals( action.getID(), 1 );
+    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( packet.getRequestID(), "j1" );
 

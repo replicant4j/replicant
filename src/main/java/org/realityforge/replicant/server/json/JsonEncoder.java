@@ -79,8 +79,8 @@ public final class JsonEncoder
       for ( final ChannelAction action : actions )
       {
         generator.writeStartObject();
-        generator.write( TransportConstants.CHANNEL_ID, action.getID() );
-        writeSubChannel( generator, action.getSubChannelID() );
+        generator.write( TransportConstants.CHANNEL_ID, action.getChannelDescriptor().getChannelID() );
+        writeSubChannel( generator, action.getChannelDescriptor().getSubChannelID() );
         final String actionValue =
           action.getAction() == Action.ADD ? TransportConstants.ACTION_ADD : TransportConstants.ACTION_REMOVE;
         generator.write( TransportConstants.ACTION, actionValue );

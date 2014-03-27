@@ -13,6 +13,7 @@ import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAction.Action;
+import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.shared.json.TransportConstants;
@@ -57,7 +58,7 @@ public final class JsonEncoderTest
     change.getChannels().put( 3, "Blah" );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
-    cs.addAction( new ChannelAction( 45, "X", Action.REMOVE ) );
+    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, "X" ), Action.REMOVE ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
     final JSONObject changeSet = new JSONObject( encoded );
 
@@ -135,7 +136,7 @@ public final class JsonEncoderTest
     throws JSONException, ParseException
   {
     final ChangeSet cs = new ChangeSet();
-    cs.addAction( new ChannelAction( 45, null, Action.ADD ) );
+    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, null ), Action.ADD ) );
     final JSONObject changeSet = new JSONObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
     assertNotNull( changeSet );
 
