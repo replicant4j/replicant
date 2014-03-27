@@ -16,18 +16,30 @@ public class EntityMessageTest
     assertEquals( message.getID(), id );
     assertEquals( message.getTypeID(), typeID );
     assertEquals( message.getTimestamp(), 0 );
+    assertNull( message.getLinks() );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a1" );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY2, "a2" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r1" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY2, "r2" );
 
-    final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
+    final EntityMessage message2 =
+      MessageTestUtil.createMessage( id,
+                                     typeID,
+                                     2,
+                                     new ChannelLink( new ChannelDescriptor( 47, 66 ) ),
+                                     "r3",
+                                     null,
+                                     "a3",
+                                     null );
 
     message.merge( message2 );
 
     assertEquals( message.getID(), id );
     assertEquals( message.getTypeID(), typeID );
     assertEquals( message.getTimestamp(), 2 );
+    assertNotNull( message.getLinks() );
+    assertEquals( message.getLinks().size(), 1 );
+    assertEquals( message.getLinks().iterator().next().getTargetChannel().getChannelID(), 47 );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a3" );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY2, "a2" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r3" );

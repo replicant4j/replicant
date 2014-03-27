@@ -19,7 +19,6 @@ import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.shared.json.TransportConstants;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertEquals;
 
 /**
  * Utility class used when encoding EntityMessage into JSON payload.
@@ -155,7 +154,7 @@ public final class JsonEncoderTest
     final HashMap<String, Serializable> routingKeys = new HashMap<String, Serializable>();
     final HashMap<String, Serializable> attributeData = new HashMap<String, Serializable>();
     attributeData.put( "X", 1392061102056L );
-    final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData );
+    final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData, null );
     final ChangeSet cs = new ChangeSet();
     cs.merge( new Change( message ) );
 

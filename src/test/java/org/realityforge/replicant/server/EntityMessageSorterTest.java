@@ -82,7 +82,8 @@ public class EntityMessageSorterTest
                               typeID,
                               timestamp,
                               new HashMap<String, Serializable>(),
-                              isDelete ? null : new HashMap<String, Serializable>() );
+                              isDelete ? null : new HashMap<String, Serializable>(),
+                              null );
   }
 
   @Test
@@ -174,8 +175,12 @@ public class EntityMessageSorterTest
 
   private EntityMessage createUpdateMessage( final int typeID, final long time )
   {
-    return new EntityMessage( _nextID++, typeID, time, new HashMap<String, Serializable>(),
-                              new HashMap<String, Serializable>() );
+    return new EntityMessage( _nextID++,
+                              typeID,
+                              time,
+                              new HashMap<String, Serializable>(),
+                              new HashMap<String, Serializable>(),
+                              null );
   }
 
   private EntityMessage createDeletionMessage( final int typeID )
@@ -185,7 +190,12 @@ public class EntityMessageSorterTest
 
   private EntityMessage createDeletionMessage( final int typeID, final long time )
   {
-    return new EntityMessage( _nextID++, typeID, time, new HashMap<String, Serializable>(), null );
+    return new EntityMessage( _nextID++,
+                              typeID,
+                              time,
+                              new HashMap<String, Serializable>(),
+                              null,
+                              null );
   }
 
   private void assertDeletion( final EntityMessage message )

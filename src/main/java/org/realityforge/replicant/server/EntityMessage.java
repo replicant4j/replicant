@@ -2,7 +2,9 @@ package org.realityforge.replicant.server;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -11,6 +13,7 @@ public final class EntityMessage
   private final Serializable _id;
   private final int _typeID;
   private final Map<String, Serializable> _routingKeys;
+  private Set<ChannelLink> _links;
   private Map<String, Serializable> _attributeValues;
   private long _timestamp;
 
@@ -18,13 +21,15 @@ public final class EntityMessage
                         final int typeID,
                         final long timestamp,
                         @Nonnull final Map<String, Serializable> routingKeys,
-                        @Nullable final Map<String, Serializable> attributeValues )
+                        @Nullable final Map<String, Serializable> attributeValues,
+                        @Nullable final Set<ChannelLink> links )
   {
     _id = id;
     _typeID = typeID;
     _timestamp = timestamp;
     _routingKeys = routingKeys;
     _attributeValues = attributeValues;
+    _links = links;
   }
 
   public int getTypeID()
@@ -65,6 +70,12 @@ public final class EntityMessage
     return _routingKeys;
   }
 
+  @Nullable
+  public Set<ChannelLink> getLinks()
+  {
+    return _links;
+  }
+
   @Nonnull
   public EntityMessage duplicate()
   {
@@ -73,7 +84,8 @@ public final class EntityMessage
                          getTypeID(),
                          getTimestamp(),
                          new HashMap<String, Serializable>(),
-                         new HashMap<String, Serializable>() );
+                         new HashMap<String, Serializable>(),
+                         null );
     message.merge( this );
     return message;
   }
@@ -86,6 +98,7 @@ public final class EntityMessage
            ",ID=" + getID() +
            ",RoutingKeys=" + getRoutingKeys() +
            ( !isDelete() ? ",Data=" + getAttributeValues() : "" ) +
+           ",Links=" + getLinks() +
            ")";
   }
 
@@ -94,6 +107,7 @@ public final class EntityMessage
     mergeTimestamp( message );
     mergeRoutingKeys( message );
     mergeAttributeValues( message );
+    mergeLinks( message );
   }
 
   private void mergeTimestamp( final EntityMessage message )
@@ -130,6 +144,19 @@ public final class EntityMessage
       {
         _attributeValues.put( entry.getKey(), entry.getValue() );
       }
+    }
+  }
+
+  private void mergeLinks( final EntityMessage message )
+  {
+    final Set<ChannelLink> links = message.getLinks();
+    if ( null != links )
+    {
+      if ( null == _links )
+      {
+        _links = new HashSet<ChannelLink>();
+      }
+      _links.addAll( links );
     }
   }
 }

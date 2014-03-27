@@ -2,6 +2,7 @@ package org.realityforge.replicant.server;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +21,18 @@ public final class MessageTestUtil
   public static EntityMessage createMessage( @Nonnull final Serializable id,
                                              final int typeID,
                                              final long timestamp,
+                                             @Nullable final String r1,
+                                             @Nullable final String r2,
+                                             @Nullable final String a1,
+                                             @Nullable final String a2 )
+  {
+    return createMessage( id, typeID, timestamp, null, r1, r2, a1, a2 );
+  }
+
+  public static EntityMessage createMessage( @Nonnull final Serializable id,
+                                             final int typeID,
+                                             final long timestamp,
+                                             @Nullable final ChannelLink link,
                                              @Nullable final String r1,
                                              @Nullable final String r2,
                                              @Nullable final String a1,
@@ -46,7 +59,18 @@ public final class MessageTestUtil
       attributeValues.put( ATTR_KEY2, a2 );
     }
 
-    return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues );
+    final HashSet<ChannelLink> links;
+    if ( null != link )
+    {
+      links = new HashSet<ChannelLink>();
+      links.add( link );
+    }
+    else
+    {
+      links = null;
+    }
+
+    return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues, links );
   }
 
   public static void assertAttributeValue( final EntityMessage message,
