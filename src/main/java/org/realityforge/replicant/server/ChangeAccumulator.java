@@ -77,7 +77,14 @@ public final class ChangeAccumulator
     return impactsInitiator;
   }
 
-  private ChangeSet getChangeSet( @Nonnull final ReplicantSession session )
+  /**
+   * Return a changeset for specified session, creating one if none yet exists.
+   *
+   * @param session the session.
+   * @return the changeSet.
+   */
+  @Nonnull
+  public final ChangeSet getChangeSet( @Nonnull final ReplicantSession session )
   {
     ChangeSet changeSet = _changeSets.get( session );
     if ( null == changeSet )

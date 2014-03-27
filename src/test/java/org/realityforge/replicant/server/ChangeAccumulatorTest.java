@@ -55,7 +55,12 @@ public class ChangeAccumulatorTest
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChanges( c, Arrays.asList( new Change( message, 1, 0 ) ) );
+
+    assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 1 );
+
     final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+
+    assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 0 );
 
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
@@ -74,7 +79,12 @@ public class ChangeAccumulatorTest
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.addActions( c, Arrays.asList( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD ) ) );
+
+    assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
+
     final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+
+    assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 0 );
 
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
@@ -84,6 +94,7 @@ public class ChangeAccumulatorTest
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( packet.getRequestID(), "j1" );
 
+    assertEquals( c.getQueue().size(), 1 );
     accumulator.complete( null, null );
     assertEquals( c.getQueue().size(), 1 );
   }
