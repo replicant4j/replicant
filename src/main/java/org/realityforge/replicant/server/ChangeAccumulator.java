@@ -67,7 +67,10 @@ public final class ChangeAccumulator
       final boolean isInitiator = session.getSessionID().equals( sessionID );
       impactsInitiator |= isInitiator;
       final ChangeSet changeSet = entry.getValue();
-      session.getQueue().addPacket( isInitiator ? requestID : null, null, changeSet );
+      if ( !changeSet.getChannelActions().isEmpty() || !changeSet.getChanges().isEmpty() )
+      {
+        session.getQueue().addPacket( isInitiator ? requestID : null, null, changeSet );
+      }
     }
     _changeSets.clear();
 
