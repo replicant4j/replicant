@@ -143,7 +143,6 @@ public class EntitySubscriptionManagerImpl
    * {@inheritDoc}
    */
   @Override
-  @Nonnull
   public final void unsubscribe( @Nonnull final Enum graph )
     throws IllegalStateException
   {
