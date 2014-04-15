@@ -1,8 +1,11 @@
 package org.realityforge.replicant.client;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -31,6 +34,35 @@ public class EntitySubscriptionManagerImpl
   public EntitySubscriptionManagerImpl( @Nonnull final EntityRepository repository )
   {
     _repository = repository;
+  }
+
+  @Nonnull
+  @Override
+  public Set<Enum> getTypeSubscriptions()
+  {
+    return Collections.unmodifiableSet( _typeSubscriptions.keySet() );
+  }
+
+  @Nonnull
+  @Override
+  public Set<Enum> getInstanceSubscriptionKeys()
+  {
+    return Collections.unmodifiableSet( _instanceSubscriptions.keySet() );
+  }
+
+  @Nonnull
+  @Override
+  public Set<Object> getInstanceSubscriptions( @Nonnull final Enum graph )
+  {
+    final Map<Object, GraphSubscriptionEntry> map = _instanceSubscriptions.get( graph );
+    if ( null == map )
+    {
+      return Collections.emptySet();
+    }
+    else
+    {
+      return Collections.unmodifiableSet( map.keySet() );
+    }
   }
 
   /**

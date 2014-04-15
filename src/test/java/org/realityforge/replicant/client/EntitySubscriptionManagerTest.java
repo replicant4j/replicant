@@ -11,7 +11,14 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
+
+    assertEquals( sm.getTypeSubscriptions().size(), 0 );
+    assertFalse( sm.getTypeSubscriptions().contains( G.G1 ) );
+
     sm.subscribe( G.G1 );
+
+    assertEquals( sm.getTypeSubscriptions().size(), 1 );
+    assertTrue( sm.getTypeSubscriptions().contains( G.G1 ) );
 
     final GraphSubscriptionEntry s = sm.findSubscription( G.G1 );
     assertNotNull( s );
@@ -29,7 +36,14 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
+
+    assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
+    assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 0 );
+
     sm.subscribe( G.G2, 1 );
+
+    assertEquals( sm.getInstanceSubscriptionKeys().size(), 1 );
+    assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 1 );
 
     assertNull( sm.findSubscription( G.G2, 2 ) );
     final GraphSubscriptionEntry s = sm.findSubscription( G.G2, 1 );

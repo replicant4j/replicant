@@ -1,10 +1,33 @@
 package org.realityforge.replicant.client;
 
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface EntitySubscriptionManager
 {
+  /**
+   * Return the collection of current type subscriptions.
+   * These keys can be directly used to unsubscribe from the graph.
+   */
+  @Nonnull
+  Set<Enum> getTypeSubscriptions();
+
+  /**
+   * Return the collection of enums that represent instance subscriptions.
+   * These can be used to further interrogate the EntitySubscriptionManager
+   * to retrieve the set of instance subscriptions.
+   */
+  @Nonnull
+  Set<Enum> getInstanceSubscriptionKeys();
+
+
+  /**
+   * Return the collection of instance subscriptions for graph.
+   */
+  @Nonnull
+  Set<Object> getInstanceSubscriptions( @Nonnull Enum graph );
+
   /**
    * Record a subscription to a graph containing types.
    *
