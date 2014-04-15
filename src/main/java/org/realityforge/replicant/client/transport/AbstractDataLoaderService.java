@@ -239,7 +239,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         };
         LOG.info( "Subscription to " + label + " requested." );
         requestSubscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
-        return false;
+        return true;
       }
       else if ( action == Action.REMOVE )
       {
@@ -263,7 +263,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           }
         };
         requestUnsubscribeFromGraph( graph, id, runnable );
-        return false;
+        return true;
       }
       else
       {
@@ -287,7 +287,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         };
         LOG.warning( "Subscription update of " + label + " requested." );
         requestUpdateSubscription( graph, id, filterParameter, runnable );
-        return false;
+        return true;
       }
     }
   }
