@@ -3,7 +3,7 @@
   the change replicating to the client.
 * Replicate record of subscription changes to the client.
 
-NOTE: This is a large change and further details are in the souerce control system.
+NOTE: This is a large change and further details are in the source control system.
 
 ## 0.5.15:
 * Rework ChangeRecorder to make sub-classing easier.
