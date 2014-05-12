@@ -1,3 +1,6 @@
+## 0.5.17:
+* Correct the namespace in ReplicantConfig so that the property is read correctly.
+
 ## 0.5.16:
 * Associated with each change, the channel(s)  (a.k.a. subscription(s)) which resulted in
   the change replicating to the client.
