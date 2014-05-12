@@ -1,4 +1,5 @@
 ## 0.5.17:
+* Avoid using Class.getSimpleName() in EntitySubscriptionManagerImpl to support GWT 2.5.1.
 * Correct the namespace in ReplicantConfig so that the property is read correctly.
 * Pass ReplicantConfig through the constructor to make it easier to test.
 

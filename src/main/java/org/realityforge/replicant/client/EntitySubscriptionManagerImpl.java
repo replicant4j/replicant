@@ -291,8 +291,11 @@ public class EntitySubscriptionManagerImpl
       final EntitySubscriptionEntry removed = entry.getRwEntities().get( type ).remove( id );
       if ( null == removed )
       {
+        //TODO: The following should be used when we upgrade to GWT 2.6.0+
+        //final String name = type.getSimpleName();
+        final String name = type.getName();
         final String message =
-          "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getDescriptor();
+          "Unable to remove entity " + name + "/" + id + " from " + entry.getDescriptor();
         throw new IllegalStateException( message );
       }
     }
