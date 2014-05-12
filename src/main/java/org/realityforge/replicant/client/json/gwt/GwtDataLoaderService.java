@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.json.gwt;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChangeMapper;
@@ -15,7 +14,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G extends Enum>
   extends AbstractDataLoaderService<T, G>
 {
-  private static final ReplicantConfig CONFIG = GWT.create( ReplicantConfig.class );
+  private final ReplicantConfig _replicantConfig;
 
   private boolean _incrementalDataLoadInProgress;
 
@@ -23,15 +22,17 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G exten
                                   final EntityChangeBroker changeBroker,
                                   final EntityRepository repository,
                                   final CacheService cacheService,
-                                  final EntitySubscriptionManager subscriptionManager )
+                                  final EntitySubscriptionManager subscriptionManager,
+                                  final ReplicantConfig replicantConfig )
   {
     super( changeMapper, changeBroker, repository, cacheService, subscriptionManager );
+    _replicantConfig = replicantConfig;
   }
 
   @Override
   protected boolean shouldValidateOnLoad()
   {
-    return CONFIG.shouldValidateRepositoryOnLoad();
+    return _replicantConfig.shouldValidateRepositoryOnLoad();
   }
 
   @Override

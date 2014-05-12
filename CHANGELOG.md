@@ -1,5 +1,6 @@
 ## 0.5.17:
 * Correct the namespace in ReplicantConfig so that the property is read correctly.
+* Pass ReplicantConfig through the constructor to make it easier to test.
 
 ## 0.5.16:
 * Associated with each change, the channel(s)  (a.k.a. subscription(s)) which resulted in
