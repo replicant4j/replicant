@@ -46,4 +46,10 @@ public final class ChannelLink
   {
     return _targetChannel.hashCode();
   }
+
+  @Override
+  public String toString()
+  {
+    return _targetChannel.toString();
+  }
 }

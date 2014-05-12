@@ -50,4 +50,10 @@ public final class ChannelDescriptor
     result = 31 * result + ( _subChannelID != null ? _subChannelID.hashCode() : 0 );
     return result;
   }
+
+  @Override
+  public String toString()
+  {
+    return "#" + _channelID + ( null == _subChannelID ? "" : "." + _subChannelID ) + "#";
+  }
 }
