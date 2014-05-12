@@ -22,7 +22,7 @@ public class JsoChannelAction
     {
       return new @java.lang.Integer::new(I)( this.scid );
     }
-    else if ( typeof(this.scid) == 'String' )
+    else if ( typeof(this.scid) == 'string' )
     {
       return this.scid;
     }
