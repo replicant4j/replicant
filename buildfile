@@ -1,5 +1,6 @@
 require 'buildr/git_auto_version'
 require 'buildr/jacoco'
+require 'buildr/custom_pom'
 
 GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin]
 
