@@ -13,4 +13,3 @@ Notes
 There exists several implementations of this strategy including one derived from a client-server Swing application and one extracted from a GWT application. This library aims at centralizing the code in one location and extracting the best parts of both libraries.
 
 There is also plans to expand the library to save state into HTML5 client side stores such as Web Storage (a.k.a. Local Storage) or Indexed DB.
-

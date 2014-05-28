@@ -125,4 +125,3 @@ public abstract class ChangeRecorder
     return _registry;
   }
 }
-
