@@ -15,7 +15,7 @@ public class EntitySubscriptionManagerTest
     assertEquals( sm.getTypeSubscriptions().size(), 0 );
     assertFalse( sm.getTypeSubscriptions().contains( G.G1 ) );
 
-    sm.subscribe( G.G1 );
+    sm.subscribe( G.G1, null );
 
     assertEquals( sm.getTypeSubscriptions().size(), 1 );
     assertTrue( sm.getTypeSubscriptions().contains( G.G1 ) );
@@ -40,7 +40,7 @@ public class EntitySubscriptionManagerTest
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
     assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 0 );
 
-    sm.subscribe( G.G2, 1 );
+    sm.subscribe( G.G2, 1, null );
 
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 1 );
     assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 1 );
@@ -65,7 +65,7 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
-    sm.subscribe( G.G1 );
+    sm.subscribe( G.G1, null );
 
     r.registerEntity( type, id, new A() );
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
@@ -96,7 +96,7 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
-    sm.subscribe( G.G1 );
+    sm.subscribe( G.G1, null );
 
     r.registerEntity( type, id, new A() );
     sm.updateEntity( type,
@@ -131,7 +131,7 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
-    sm.subscribe( G.G2, 1 );
+    sm.subscribe( G.G2, 1, null );
 
     r.registerEntity( type, id, new A() );
     assertEntityNotSubscribed( sm, G.G2, 1, type, id );
@@ -154,6 +154,42 @@ public class EntitySubscriptionManagerTest
   }
 
   @Test
+  public void entitySubscriptionAndUpdateInInstanceGraph()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    assertNull( sm.findSubscription( G.G2, 1 ) );
+
+    final GraphSubscriptionEntry e1 = sm.subscribe( G.G2, 1, "F1" );
+
+    assertEquals( sm.getSubscription( G.G2, 1 ).getFilter(), "F1" );
+
+    final GraphSubscriptionEntry e2 = sm.updateSubscription( G.G2, 1, "F2" );
+
+    assertEquals( sm.getSubscription( G.G2, 1 ).getFilter(), "F2" );
+
+    assertEquals( e1, e2 );
+  }
+
+  @Test
+  public void entitySubscriptionAndUpdateInTypeGraph()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    assertNull( sm.findSubscription( G.G1 ) );
+
+    final GraphSubscriptionEntry e1 = sm.subscribe( G.G1, "F1" );
+
+    assertEquals( sm.getSubscription( G.G1 ).getFilter(), "F1" );
+
+    final GraphSubscriptionEntry e2 = sm.updateSubscription( G.G1, "F2" );
+
+    assertEquals( sm.getSubscription( G.G1 ).getFilter(), "F2" );
+
+    assertEquals( e1, e2 );
+  }
+
+  @Test
   public void entitySubscriptionInInstanceGraph_removeEntity()
   {
     final Class<A> type = A.class;
@@ -162,7 +198,7 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
-    sm.subscribe( G.G2, 1 );
+    sm.subscribe( G.G2, 1, null );
 
     r.registerEntity( type, id, new A() );
     sm.updateEntity( type,
@@ -198,8 +234,8 @@ public class EntitySubscriptionManagerTest
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
     assertNull( sm.findSubscription( G.G2, 1 ) );
-    sm.subscribe( G.G1 );
-    sm.subscribe( G.G2, 1 );
+    sm.subscribe( G.G1, null );
+    sm.subscribe( G.G2, 1, null );
 
     r.registerEntity( type, id, new A() );
 
@@ -282,8 +318,8 @@ public class EntitySubscriptionManagerTest
   {
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
-    sm.subscribe( G.G1 );
-    sm.subscribe( G.G1 );
+    sm.subscribe( G.G1, null );
+    sm.subscribe( G.G1, null );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -310,8 +346,8 @@ public class EntitySubscriptionManagerTest
   {
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
-    sm.subscribe( G.G1, "1" );
-    sm.subscribe( G.G1, "1" );
+    sm.subscribe( G.G1, "1", null );
+    sm.subscribe( G.G1, "1", null );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,

@@ -1,4 +1,5 @@
 ## 0.5.17:
+* Start to record filter on EntitySubscriptionManager on the client-side.
 * Move to GWT 2.6.1.
 * Move to Java 7.
 * Add toString to ChannelLink and ChannelDescriptor to ease debugging.

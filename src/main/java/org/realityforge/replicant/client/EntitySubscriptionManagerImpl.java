@@ -69,13 +69,14 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final GraphSubscriptionEntry subscribe( @Nonnull final Enum graph )
+  public final GraphSubscriptionEntry subscribe( @Nonnull final Enum graph,
+                                                 @Nullable final Object filter )
     throws IllegalStateException
   {
     GraphSubscriptionEntry typeMap = findSubscription( graph );
     if ( null == typeMap )
     {
-      final GraphSubscriptionEntry entry = new GraphSubscriptionEntry( new GraphDescriptor( graph, null ) );
+      final GraphSubscriptionEntry entry = new GraphSubscriptionEntry( new GraphDescriptor( graph, null ), filter );
       _typeSubscriptions.put( graph, entry );
       return entry;
     }
@@ -90,7 +91,9 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final GraphSubscriptionEntry subscribe( @Nonnull final Enum graph, @Nonnull final Object id )
+  public final GraphSubscriptionEntry subscribe( @Nonnull final Enum graph,
+                                                 @Nonnull final Object id,
+                                                 @Nullable final Object filter )
   {
     Map<Object, GraphSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
@@ -100,7 +103,7 @@ public class EntitySubscriptionManagerImpl
     }
     if ( !instanceMap.containsKey( id ) )
     {
-      final GraphSubscriptionEntry entry = new GraphSubscriptionEntry( new GraphDescriptor( graph, id ) );
+      final GraphSubscriptionEntry entry = new GraphSubscriptionEntry( new GraphDescriptor( graph, id ), filter );
       instanceMap.put( id, entry );
       return entry;
     }
@@ -108,6 +111,30 @@ public class EntitySubscriptionManagerImpl
     {
       throw new IllegalStateException( "Graph already subscribed: " + graph + ":" + id );
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nonnull
+  public GraphSubscriptionEntry updateSubscription( @Nonnull final Enum graph, @Nonnull final Object filter )
+    throws IllegalStateException
+  {
+    final GraphSubscriptionEntry subscription = getSubscription( graph );
+    subscription.setFilter( filter );
+    return subscription;
+  }
+
+  @Nonnull
+  @Override
+  public GraphSubscriptionEntry updateSubscription( @Nonnull final Enum graph,
+                                                    @Nonnull final Object id,
+                                                    @Nonnull final Object filter )
+  {
+    final GraphSubscriptionEntry subscription = getSubscription( graph, id );
+    subscription.setFilter( filter );
+    return subscription;
   }
 
   /**
@@ -202,6 +229,7 @@ public class EntitySubscriptionManagerImpl
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
+    //TODO: Consider moving this method to DataLoaderService and having unsubscribe return entry
     deregisterUnOwnedEntities( entry );
   }
 

@@ -32,11 +32,12 @@ public interface EntitySubscriptionManager
    * Record a subscription to a graph containing types.
    *
    * @param graph the graph to subscribe to.
+   * @param filter the filter if subscription is update-able.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  GraphSubscriptionEntry subscribe( @Nonnull Enum graph )
+  GraphSubscriptionEntry subscribe( @Nonnull Enum graph, @Nullable Object filter )
     throws IllegalStateException;
 
   /**
@@ -44,11 +45,36 @@ public interface EntitySubscriptionManager
    *
    * @param graph the graph to subscribe to.
    * @param id    the id of the root object.
+   * @param filter the filter if subscription is update-able.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  GraphSubscriptionEntry subscribe( @Nonnull Enum graph, @Nonnull Object id );
+  GraphSubscriptionEntry subscribe( @Nonnull Enum graph, @Nonnull Object id, @Nullable Object filter );
+
+  /**
+   * Update subscription to a graph containing types.
+   *
+   * @param graph the graph to subscribe to.
+   * @param filter the filter being updated.
+   * @return the subscription entry.
+   * @throws IllegalStateException if graph already subscribed to.
+   */
+  @Nonnull
+  GraphSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object filter )
+    throws IllegalStateException;
+
+  /**
+   * Update subscription to graph rooted at an instance.
+   *
+   * @param graph the graph to subscribe to.
+   * @param id    the id of the root object.
+   * @param filter the filter being updated.
+   * @return the subscription entry.
+   * @throws IllegalStateException if graph already subscribed to.
+   */
+  @Nonnull
+  GraphSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object id, @Nonnull Object filter );
 
   /**
    * Return the subscription for type graph.
