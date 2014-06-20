@@ -24,12 +24,10 @@ define 'replicant' do
 
   compile.with PROVIDED_DEPS, OPTIONAL_DEPS, :simple_session_filter, :gwt_property_source
 
-  test.with :json
+  test.using :testng
+  test.compile.with :mockito, :jndikit, :guiceyloops, :json
 
   package(:jar).include("#{_(:source, :main, :java)}/*")
   package(:sources)
   package(:javadoc)
-
-  test.using :testng
-  test.compile.with :mockito, :jndikit, :guiceyloops
 end
