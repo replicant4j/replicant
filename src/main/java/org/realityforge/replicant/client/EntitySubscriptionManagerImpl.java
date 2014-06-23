@@ -313,13 +313,18 @@ public class EntitySubscriptionManagerImpl
     }
     for ( final GraphSubscriptionEntry entry : entityEntry.getRwGraphSubscriptions().values() )
     {
-      final EntitySubscriptionEntry removed = entry.getRwEntities().get( type ).remove( id );
-      if ( null == removed )
-      {
-        final String message =
-          "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getDescriptor();
-        throw new IllegalStateException( message );
-      }
+      removeEntityFromGraph( type, id, entry );
+    }
+  }
+
+  private void removeEntityFromGraph( final Class<?> type, final Object id, final GraphSubscriptionEntry entry )
+  {
+    final EntitySubscriptionEntry removed = entry.getRwEntities().get( type ).remove( id );
+    if ( null == removed )
+    {
+      final String message =
+        "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getDescriptor();
+      throw new IllegalStateException( message );
     }
   }
 
