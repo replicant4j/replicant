@@ -36,4 +36,10 @@ class TestChannelAction
   {
     return _action;
   }
+
+  @Override
+  public Object getChannelFilter()
+  {
+    return null;
+  }
 }
