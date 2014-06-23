@@ -10,10 +10,10 @@ import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.GraphSubscriptionEntry;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
@@ -180,7 +180,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       final Action action = _currentAoiAction.getAction();
       if ( action == Action.ADD )
       {
-        final GraphSubscriptionEntry entry = findSubscription( graph, id );
+        final ChannelSubscriptionEntry entry = findSubscription( graph, id );
         //Already subscribed
         if ( null != entry )
         {
@@ -243,7 +243,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       else if ( action == Action.REMOVE )
       {
-        final GraphSubscriptionEntry entry = findSubscription( graph, id );
+        final ChannelSubscriptionEntry entry = findSubscription( graph, id );
         //Not subscribed
         if ( null == entry )
         {
@@ -267,7 +267,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       else
       {
-        final GraphSubscriptionEntry entry = findSubscription( graph, id );
+        final ChannelSubscriptionEntry entry = findSubscription( graph, id );
         //Not subscribed
         if ( null == entry )
         {
@@ -292,9 +292,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private GraphSubscriptionEntry findSubscription( final G graph, final Object id )
+  private ChannelSubscriptionEntry findSubscription( final G graph, final Object id )
   {
-    final GraphSubscriptionEntry entry;
+    final ChannelSubscriptionEntry entry;
     if ( null == id )
     {
       entry = _subscriptionManager.findSubscription( graph );

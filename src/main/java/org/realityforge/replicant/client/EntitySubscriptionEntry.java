@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
  */
 public class EntitySubscriptionEntry
 {
-  private final Map<GraphDescriptor, GraphSubscriptionEntry> _graphSubscriptions = new HashMap<>();
-  private final Map<GraphDescriptor, GraphSubscriptionEntry> _roGraphSubscriptions =
+  private final Map<ChannelDescriptor, ChannelSubscriptionEntry> _graphSubscriptions = new HashMap<>();
+  private final Map<ChannelDescriptor, ChannelSubscriptionEntry> _roGraphSubscriptions =
     Collections.unmodifiableMap( _graphSubscriptions );
   private final Class<?> _type;
   private final Object _id;
@@ -34,12 +34,12 @@ public class EntitySubscriptionEntry
     return _id;
   }
 
-  public Map<GraphDescriptor, GraphSubscriptionEntry> getGraphSubscriptions()
+  public Map<ChannelDescriptor, ChannelSubscriptionEntry> getGraphSubscriptions()
   {
     return _roGraphSubscriptions;
   }
 
-  final Map<GraphDescriptor, GraphSubscriptionEntry> getRwGraphSubscriptions()
+  final Map<ChannelDescriptor, ChannelSubscriptionEntry> getRwGraphSubscriptions()
   {
     return _graphSubscriptions;
   }

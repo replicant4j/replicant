@@ -16,10 +16,10 @@ public class EntitySubscriptionManagerImpl
   implements EntitySubscriptionManager
 {
   //Graph => InstanceID
-  private final HashMap<Enum, Map<Object, GraphSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
+  private final HashMap<Enum, Map<Object, ChannelSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
 
   //Graph => Type
-  private final HashMap<Enum, GraphSubscriptionEntry> _typeSubscriptions = new HashMap<>();
+  private final HashMap<Enum, ChannelSubscriptionEntry> _typeSubscriptions = new HashMap<>();
 
   // Entity map: Type => ID
   private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
@@ -51,7 +51,7 @@ public class EntitySubscriptionManagerImpl
   @Override
   public Set<Object> getInstanceSubscriptions( @Nonnull final Enum graph )
   {
-    final Map<Object, GraphSubscriptionEntry> map = _instanceSubscriptions.get( graph );
+    final Map<Object, ChannelSubscriptionEntry> map = _instanceSubscriptions.get( graph );
     if ( null == map )
     {
       return Collections.emptySet();
@@ -67,14 +67,14 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final GraphSubscriptionEntry subscribe( @Nonnull final Enum graph,
+  public final ChannelSubscriptionEntry subscribe( @Nonnull final Enum graph,
                                                  @Nullable final Object filter )
     throws IllegalStateException
   {
-    GraphSubscriptionEntry typeMap = findSubscription( graph );
+    ChannelSubscriptionEntry typeMap = findSubscription( graph );
     if ( null == typeMap )
     {
-      final GraphSubscriptionEntry entry = new GraphSubscriptionEntry( new GraphDescriptor( graph, null ), filter );
+      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( new ChannelDescriptor( graph, null ), filter );
       _typeSubscriptions.put( graph, entry );
       return entry;
     }
@@ -89,11 +89,11 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final GraphSubscriptionEntry subscribe( @Nonnull final Enum graph,
+  public final ChannelSubscriptionEntry subscribe( @Nonnull final Enum graph,
                                                  @Nonnull final Object id,
                                                  @Nullable final Object filter )
   {
-    Map<Object, GraphSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
+    Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
     {
       instanceMap = new HashMap<>();
@@ -101,7 +101,7 @@ public class EntitySubscriptionManagerImpl
     }
     if ( !instanceMap.containsKey( id ) )
     {
-      final GraphSubscriptionEntry entry = new GraphSubscriptionEntry( new GraphDescriptor( graph, id ), filter );
+      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( new ChannelDescriptor( graph, id ), filter );
       instanceMap.put( id, entry );
       return entry;
     }
@@ -116,21 +116,21 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public GraphSubscriptionEntry updateSubscription( @Nonnull final Enum graph, @Nonnull final Object filter )
+  public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph, @Nonnull final Object filter )
     throws IllegalStateException
   {
-    final GraphSubscriptionEntry subscription = getSubscription( graph );
+    final ChannelSubscriptionEntry subscription = getSubscription( graph );
     subscription.setFilter( filter );
     return subscription;
   }
 
   @Nonnull
   @Override
-  public GraphSubscriptionEntry updateSubscription( @Nonnull final Enum graph,
+  public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph,
                                                     @Nonnull final Object id,
                                                     @Nonnull final Object filter )
   {
-    final GraphSubscriptionEntry subscription = getSubscription( graph, id );
+    final ChannelSubscriptionEntry subscription = getSubscription( graph, id );
     subscription.setFilter( filter );
     return subscription;
   }
@@ -140,7 +140,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nullable
-  public final GraphSubscriptionEntry findSubscription( @Nonnull final Enum graph )
+  public final ChannelSubscriptionEntry findSubscription( @Nonnull final Enum graph )
   {
     return _typeSubscriptions.get( graph );
   }
@@ -150,9 +150,9 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nullable
-  public final GraphSubscriptionEntry findSubscription( @Nonnull final Enum graph, @Nonnull final Object id )
+  public final ChannelSubscriptionEntry findSubscription( @Nonnull final Enum graph, @Nonnull final Object id )
   {
-    Map<Object, GraphSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
+    Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
     {
       return null;
@@ -168,10 +168,10 @@ public class EntitySubscriptionManagerImpl
    */
   @Nonnull
   @Override
-  public GraphSubscriptionEntry getSubscription( @Nonnull final Enum graph )
+  public ChannelSubscriptionEntry getSubscription( @Nonnull final Enum graph )
     throws IllegalArgumentException
   {
-    final GraphSubscriptionEntry subscription = findSubscription( graph );
+    final ChannelSubscriptionEntry subscription = findSubscription( graph );
     if ( null == subscription )
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph );
@@ -184,10 +184,10 @@ public class EntitySubscriptionManagerImpl
    */
   @Nonnull
   @Override
-  public GraphSubscriptionEntry getSubscription( @Nonnull final Enum graph, @Nonnull final Object id )
+  public ChannelSubscriptionEntry getSubscription( @Nonnull final Enum graph, @Nonnull final Object id )
     throws IllegalArgumentException
   {
-    final GraphSubscriptionEntry subscription = findSubscription( graph, id );
+    final ChannelSubscriptionEntry subscription = findSubscription( graph, id );
     if ( null == subscription )
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
@@ -202,7 +202,7 @@ public class EntitySubscriptionManagerImpl
   public final void unsubscribe( @Nonnull final Enum graph )
     throws IllegalStateException
   {
-    final GraphSubscriptionEntry entry = _typeSubscriptions.remove( graph );
+    final ChannelSubscriptionEntry entry = _typeSubscriptions.remove( graph );
     if ( null == entry )
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph );
@@ -217,12 +217,12 @@ public class EntitySubscriptionManagerImpl
   public final void unsubscribe( @Nonnull final Enum graph, @Nonnull final Object id )
     throws IllegalStateException
   {
-    final Map<Object, GraphSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
+    final Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
-    final GraphSubscriptionEntry entry = instanceMap.remove( id );
+    final ChannelSubscriptionEntry entry = instanceMap.remove( id );
     if ( null == entry )
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
@@ -231,7 +231,7 @@ public class EntitySubscriptionManagerImpl
     deregisterUnOwnedEntities( entry );
   }
 
-  private void deregisterUnOwnedEntities( final GraphSubscriptionEntry entry )
+  private void deregisterUnOwnedEntities( final ChannelSubscriptionEntry entry )
   {
     for ( final Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entitySet : entry.getEntities().entrySet() )
     {
@@ -240,9 +240,9 @@ public class EntitySubscriptionManagerImpl
       {
         final Object entityID = entityEntry.getKey();
         final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
-        final Map<GraphDescriptor, GraphSubscriptionEntry> graphSubscriptions =
+        final Map<ChannelDescriptor, ChannelSubscriptionEntry> graphSubscriptions =
           entitySubscription.getRwGraphSubscriptions();
-        final GraphSubscriptionEntry element = graphSubscriptions.remove( entry.getDescriptor() );
+        final ChannelSubscriptionEntry element = graphSubscriptions.remove( entry.getDescriptor() );
         if ( null != element && 0 == graphSubscriptions.size() )
         {
           _repository.deregisterEntity( type, entityID );
@@ -273,12 +273,12 @@ public class EntitySubscriptionManagerImpl
   @Override
   public void updateEntity( @Nonnull final Class<?> type,
                             @Nonnull final Object id,
-                            @Nonnull final GraphDescriptor[] graphs )
+                            @Nonnull final ChannelDescriptor[] graphs )
   {
     final EntitySubscriptionEntry entityEntry = getEntitySubscriptions( type, id );
-    for ( final GraphDescriptor graph : graphs )
+    for ( final ChannelDescriptor graph : graphs )
     {
-      GraphSubscriptionEntry entry = entityEntry.getRwGraphSubscriptions().get( graph );
+      ChannelSubscriptionEntry entry = entityEntry.getRwGraphSubscriptions().get( graph );
       if ( null == entry )
       {
         final Enum g = graph.getGraph();
@@ -302,12 +302,12 @@ public class EntitySubscriptionManagerImpl
   @Override
   public EntitySubscriptionEntry removeEntityFromGraph( @Nonnull final Class<?> type,
                                                         @Nonnull final Object id,
-                                                        @Nonnull final GraphDescriptor graph )
+                                                        @Nonnull final ChannelDescriptor graph )
     throws IllegalStateException
   {
     final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
-    final Map<GraphDescriptor, GraphSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
-    final GraphSubscriptionEntry graphEntry = subscriptions.remove( graph );
+    final Map<ChannelDescriptor, ChannelSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
+    final ChannelSubscriptionEntry graphEntry = subscriptions.remove( graph );
     if( null == graphEntry )
     {
       final String message = "Unable to locate graph " + graph + " for entity " + type.getSimpleName() + "/" + id;
@@ -330,13 +330,13 @@ public class EntitySubscriptionManagerImpl
     {
       return;
     }
-    for ( final GraphSubscriptionEntry entry : entityEntry.getRwGraphSubscriptions().values() )
+    for ( final ChannelSubscriptionEntry entry : entityEntry.getRwGraphSubscriptions().values() )
     {
       removeEntityFromGraph( type, id, entry );
     }
   }
 
-  private void removeEntityFromGraph( final Class<?> type, final Object id, final GraphSubscriptionEntry entry )
+  private void removeEntityFromGraph( final Class<?> type, final Object id, final ChannelSubscriptionEntry entry )
   {
     final EntitySubscriptionEntry removed = entry.getRwEntities().get( type ).remove( id );
     if ( null == removed )

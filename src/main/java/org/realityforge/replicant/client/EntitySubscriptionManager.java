@@ -37,7 +37,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  GraphSubscriptionEntry subscribe( @Nonnull Enum graph, @Nullable Object filter )
+  ChannelSubscriptionEntry subscribe( @Nonnull Enum graph, @Nullable Object filter )
     throws IllegalStateException;
 
   /**
@@ -50,7 +50,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  GraphSubscriptionEntry subscribe( @Nonnull Enum graph, @Nonnull Object id, @Nullable Object filter );
+  ChannelSubscriptionEntry subscribe( @Nonnull Enum graph, @Nonnull Object id, @Nullable Object filter );
 
   /**
    * Update subscription to a graph containing types.
@@ -61,7 +61,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  GraphSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object filter )
+  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object filter )
     throws IllegalStateException;
 
   /**
@@ -74,7 +74,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  GraphSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object id, @Nonnull Object filter );
+  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object id, @Nonnull Object filter );
 
   /**
    * Return the subscription for type graph.
@@ -84,7 +84,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  GraphSubscriptionEntry getSubscription( @Nonnull Enum graph )
+  ChannelSubscriptionEntry getSubscription( @Nonnull Enum graph )
     throws IllegalArgumentException;
 
   /**
@@ -96,7 +96,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  GraphSubscriptionEntry getSubscription( @Nonnull Enum graph, @Nonnull Object id )
+  ChannelSubscriptionEntry getSubscription( @Nonnull Enum graph, @Nonnull Object id )
     throws IllegalArgumentException;
 
   /**
@@ -106,7 +106,7 @@ public interface EntitySubscriptionManager
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  GraphSubscriptionEntry findSubscription( @Nonnull Enum graph );
+  ChannelSubscriptionEntry findSubscription( @Nonnull Enum graph );
 
   /**
    * Find a graph rooted at an instance.
@@ -116,7 +116,7 @@ public interface EntitySubscriptionManager
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  GraphSubscriptionEntry findSubscription( @Nonnull Enum graph, @Nonnull Object id );
+  ChannelSubscriptionEntry findSubscription( @Nonnull Enum graph, @Nonnull Object id );
 
   /**
    * Unsubscribe from graph containing types.
@@ -168,7 +168,7 @@ public interface EntitySubscriptionManager
    * @param id     the id of the entity.
    * @param graphs the graphs that the entity is part of.
    */
-  void updateEntity( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull GraphDescriptor[] graphs );
+  void updateEntity( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull ChannelDescriptor[] graphs );
 
   /**
    * Disassociate entity from specified graph.
@@ -183,7 +183,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if no such entity or the entity is not associated with the graph.
    */
   @Nonnull
-  EntitySubscriptionEntry removeEntityFromGraph( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull GraphDescriptor graph )
+  EntitySubscriptionEntry removeEntityFromGraph( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull ChannelDescriptor graph )
     throws IllegalStateException;
 
   /**
