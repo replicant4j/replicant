@@ -310,7 +310,7 @@ final class DataLoadAction
   }
 
   @Override
-  public int compareTo( final DataLoadAction other )
+  public int compareTo( @Nonnull final DataLoadAction other )
   {
     if ( isOob() && other.isOob() )
     {
