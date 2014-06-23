@@ -271,7 +271,56 @@ public class EntitySubscriptionManagerTest
     assertEntityNotPresent( type, id, r );
   }
 
-  private void assertEntitySubscribed( final EntitySubscriptionManagerImpl sm,
+  @Test
+  public void removeEntityFromGraph()
+  {
+    final Class<A> type = A.class;
+    final Object id = 1;
+
+    final EntityRepository r = new EntityRepositoryImpl();
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    assertNull( sm.findSubscription( G.G1 ) );
+    assertNull( sm.findSubscription( G.G2 ) );
+
+    final GraphSubscriptionEntry s1 = sm.subscribe( G.G1, "X" );
+    assertEquals( s1.getFilter(), "X" );
+    final GraphSubscriptionEntry s2 = sm.subscribe( G.G2, null );
+    assertEquals( s2.getFilter(), null );
+
+    r.registerEntity( type, id, new A() );
+
+    assertEntityNotSubscribed( sm, G.G1, null, type, id );
+    assertEntityNotSubscribed( sm, G.G2, null, type, id );
+
+    sm.updateEntity( type,
+                     id,
+                     new GraphDescriptor[]{ new GraphDescriptor( G.G1, null ) } );
+    assertEntitySubscribed( sm, G.G1, null, type, id );
+    assertEntityNotSubscribed( sm, G.G2, null, type, id );
+
+    sm.updateEntity( type,
+                     id,
+                     new GraphDescriptor[]{ new GraphDescriptor( G.G1, null ),
+                                            new GraphDescriptor( G.G2, null ) } );
+
+    assertEntitySubscribed( sm, G.G1, null, type, id );
+    assertEntitySubscribed( sm, G.G2, null, type, id );
+
+    sm.removeEntityFromGraph( type, id, new GraphDescriptor( G.G1, null ) );
+
+    assertEntityNotSubscribed( sm, G.G1, null, type, id );
+    assertEntitySubscribed( sm, G.G2, null, type, id );
+
+    final EntitySubscriptionEntry e =
+      sm.removeEntityFromGraph( type, id, new GraphDescriptor( G.G2, null ) );
+
+    assertEntityNotSubscribed( sm, G.G1, null, type, id );
+    assertEntityNotSubscribed( sm, G.G2, null, type, id );
+
+    assertEquals( e.getGraphSubscriptions().size(), 0 );
+  }
+
+  private void assertEntitySubscribed( final EntitySubscriptionManager sm,
                                        final G graph,
                                        final Object graphID,
                                        final Class<A> type,
@@ -284,7 +333,7 @@ public class EntitySubscriptionManagerTest
       sm.getSubscription( type, id ).getGraphSubscriptions().get( new GraphDescriptor( graph, graphID ) ) );
   }
 
-  private void assertEntityNotSubscribed( final EntitySubscriptionManagerImpl sm,
+  private void assertEntityNotSubscribed( final EntitySubscriptionManager sm,
                                           final G graph,
                                           final Object graphID,
                                           final Class<A> type,

@@ -171,6 +171,22 @@ public interface EntitySubscriptionManager
   void updateEntity( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull GraphDescriptor[] graphs );
 
   /**
+   * Disassociate entity from specified graph.
+   * <p/>
+   * Note: It is assumed that the caller will remove the entity from the subscription manager and
+   * repository if there are no more subscriptions.
+   *
+   * @param type   the type of the entity.
+   * @param id     the id of the entity.
+   * @param graph the graph that the entity is to be disassociated from.
+   * @return the entry representing entities subscription state.
+   * @throws IllegalStateException if no such entity or the entity is not associated with the graph.
+   */
+  @Nonnull
+  EntitySubscriptionEntry removeEntityFromGraph( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull GraphDescriptor graph )
+    throws IllegalStateException;
+
+  /**
    * Remove entity and all associated subscriptions.
    *
    * @param type the type of the entity.

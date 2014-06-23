@@ -298,6 +298,25 @@ public class EntitySubscriptionManagerImpl
     }
   }
 
+  @Nonnull
+  @Override
+  public EntitySubscriptionEntry removeEntityFromGraph( @Nonnull final Class<?> type,
+                                                        @Nonnull final Object id,
+                                                        @Nonnull final GraphDescriptor graph )
+    throws IllegalStateException
+  {
+    final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
+    final Map<GraphDescriptor, GraphSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
+    final GraphSubscriptionEntry graphEntry = subscriptions.remove( graph );
+    if( null == graphEntry )
+    {
+      final String message = "Unable to locate graph " + graph + " for entity " + type.getSimpleName() + "/" + id;
+      throw  new IllegalStateException( message );
+    }
+    removeEntityFromGraph( type, id, graphEntry );
+    return entry;
+  }
+
   @Override
   public void removeEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
