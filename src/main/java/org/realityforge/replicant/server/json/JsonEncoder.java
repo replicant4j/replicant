@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 import org.realityforge.replicant.server.Change;
@@ -82,8 +83,15 @@ public final class JsonEncoder
         generator.write( TransportConstants.CHANNEL_ID, action.getChannelDescriptor().getChannelID() );
         writeSubChannel( generator, action.getChannelDescriptor().getSubChannelID() );
         final String actionValue =
-          action.getAction() == Action.ADD ? TransportConstants.ACTION_ADD : TransportConstants.ACTION_REMOVE;
+          action.getAction() == Action.ADD ? TransportConstants.ACTION_ADD :
+          action.getAction() == Action.REMOVE ? TransportConstants.ACTION_REMOVE :
+          TransportConstants.ACTION_UPDATE;
         generator.write( TransportConstants.ACTION, actionValue );
+        final JsonObject filter = action.getFilter();
+        if ( null != filter )
+        {
+          generator.write( TransportConstants.CHANNEL_FILTER, filter );
+        }
         generator.writeEnd();
       }
       generator.writeEnd();

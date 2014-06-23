@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.json.Json;
+import javax.json.JsonObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,13 +53,15 @@ public final class JsonEncoderTest
     final int lastChangeSetID = 1;
     final String requestID = "j1";
     final String etag = "#1";
+    final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
+
     final Change change = new Change( message );
     change.getChannels().put( 1, 0 );
     change.getChannels().put( 2, 42 );
     change.getChannels().put( 3, "Blah" );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
-    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, "X" ), Action.REMOVE ) );
+    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, "X" ), Action.UPDATE, filter ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
     final JSONObject changeSet = new JSONObject( encoded );
 
@@ -70,7 +74,8 @@ public final class JsonEncoderTest
     final JSONObject action = changeSet.getJSONArray( TransportConstants.CHANNEL_ACTIONS ).getJSONObject( 0 );
     assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
     assertEquals( action.getString( TransportConstants.SUBCHANNEL_ID ), "X" );
-    assertEquals( action.getString( TransportConstants.ACTION ), "remove" );
+    assertEquals( action.getString( TransportConstants.ACTION ), "update" );
+    assertEquals( action.getJSONObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
 
     final JSONObject object = changeSet.getJSONArray( TransportConstants.CHANGES ).getJSONObject( 0 );
 
@@ -135,7 +140,7 @@ public final class JsonEncoderTest
     throws JSONException, ParseException
   {
     final ChangeSet cs = new ChangeSet();
-    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, null ), Action.ADD ) );
+    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, null ), Action.ADD, null ) );
     final JSONObject changeSet = new JSONObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
     assertNotNull( changeSet );
 
@@ -143,6 +148,7 @@ public final class JsonEncoderTest
     assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
     assertNull( action.opt( TransportConstants.SUBCHANNEL_ID ) );
     assertEquals( action.getString( TransportConstants.ACTION ), "add" );
+    assertNull( action.optJSONObject( TransportConstants.CHANNEL_FILTER ) );
   }
 
   @Test

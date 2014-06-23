@@ -3,6 +3,8 @@ package org.realityforge.replicant.server;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import javax.json.Json;
+import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -59,7 +61,8 @@ public class ChangeSetTest
 
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
-    changeSet.addAction( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD ) );
+    final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
+    changeSet.addAction( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
@@ -68,6 +71,7 @@ public class ChangeSetTest
     final Serializable subChannelID = 2;
     assertEquals( action.getChannelDescriptor().getSubChannelID(), subChannelID );
     assertEquals( action.getAction(), Action.ADD );
+    assertEquals( action.getFilter(), filter );
   }
 
   @Test

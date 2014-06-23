@@ -3,6 +3,8 @@ package org.realityforge.replicant.server;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
+import javax.json.Json;
+import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.transport.Packet;
 import org.testng.annotations.Test;
@@ -78,7 +80,9 @@ public class ChangeAccumulatorTest
     final TestSession c = new TestSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    accumulator.addActions( c, Arrays.asList( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD ) ) );
+    final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
+    accumulator.addActions( c,
+                            Arrays.asList( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) ) );
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
 
@@ -92,6 +96,7 @@ public class ChangeAccumulatorTest
     final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
     assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
     assertEquals( action.getAction(), Action.ADD );
+    assertEquals( action.getFilter(), filter );
     assertEquals( packet.getRequestID(), "j1" );
 
     assertEquals( c.getQueue().size(), 1 );
