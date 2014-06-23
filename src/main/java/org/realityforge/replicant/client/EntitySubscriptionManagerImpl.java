@@ -16,15 +16,13 @@ public class EntitySubscriptionManagerImpl
   implements EntitySubscriptionManager
 {
   //Graph => InstanceID
-  private final HashMap<Enum, Map<Object, GraphSubscriptionEntry>> _instanceSubscriptions =
-    new HashMap<Enum, Map<Object, GraphSubscriptionEntry>>();
+  private final HashMap<Enum, Map<Object, GraphSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
 
   //Graph => Type
-  private final HashMap<Enum, GraphSubscriptionEntry> _typeSubscriptions = new HashMap<Enum, GraphSubscriptionEntry>();
+  private final HashMap<Enum, GraphSubscriptionEntry> _typeSubscriptions = new HashMap<>();
 
   // Entity map: Type => ID
-  private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping =
-    new HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>>();
+  private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
 
   @Nonnull
   private final EntityRepository _repository;
@@ -98,7 +96,7 @@ public class EntitySubscriptionManagerImpl
     Map<Object, GraphSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
     {
-      instanceMap = new HashMap<Object, GraphSubscriptionEntry>();
+      instanceMap = new HashMap<>();
       _instanceSubscriptions.put( graph, instanceMap );
     }
     if ( !instanceMap.containsKey( id ) )
@@ -290,7 +288,7 @@ public class EntitySubscriptionManagerImpl
       Map<Object, EntitySubscriptionEntry> typeMap = entry.getEntities().get( type );
       if ( null == typeMap )
       {
-        typeMap = new HashMap<Object, EntitySubscriptionEntry>();
+        typeMap = new HashMap<>();
         entry.getRwEntities().put( type, typeMap );
       }
       if ( !typeMap.containsKey( id ) )
@@ -343,7 +341,7 @@ public class EntitySubscriptionManagerImpl
     Map<Object, EntitySubscriptionEntry> typeMap = _entityMapping.get( type );
     if ( null == typeMap )
     {
-      typeMap = new HashMap<Object, EntitySubscriptionEntry>();
+      typeMap = new HashMap<>();
       _entityMapping.put( type, typeMap );
     }
     return typeMap;
