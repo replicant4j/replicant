@@ -10,8 +10,7 @@ import javax.annotation.Nonnull;
  */
 public class EntitySubscriptionEntry
 {
-  private final Map<GraphDescriptor, GraphSubscriptionEntry> _graphSubscriptions =
-    new HashMap<GraphDescriptor, GraphSubscriptionEntry>();
+  private final Map<GraphDescriptor, GraphSubscriptionEntry> _graphSubscriptions = new HashMap<>();
   private final Map<GraphDescriptor, GraphSubscriptionEntry> _roGraphSubscriptions =
     Collections.unmodifiableMap( _graphSubscriptions );
   private final Class<?> _type;
