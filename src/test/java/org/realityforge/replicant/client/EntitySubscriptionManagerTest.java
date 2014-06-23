@@ -9,7 +9,7 @@ public class EntitySubscriptionManagerTest
   public void typeGraphRegistrations()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
 
     assertEquals( sm.getTypeSubscriptions().size(), 0 );
@@ -34,7 +34,7 @@ public class EntitySubscriptionManagerTest
   public void instanceGraphRegistrations()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
 
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
@@ -63,7 +63,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
     sm.subscribe( G.G1, null );
 
@@ -94,7 +94,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
     sm.subscribe( G.G1, null );
 
@@ -129,7 +129,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
     sm.subscribe( G.G2, 1, null );
 
@@ -157,7 +157,7 @@ public class EntitySubscriptionManagerTest
   public void entitySubscriptionAndUpdateInInstanceGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
 
     final GraphSubscriptionEntry e1 = sm.subscribe( G.G2, 1, "F1" );
@@ -175,7 +175,7 @@ public class EntitySubscriptionManagerTest
   public void entitySubscriptionAndUpdateInTypeGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
 
     final GraphSubscriptionEntry e1 = sm.subscribe( G.G1, "F1" );
@@ -196,7 +196,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G2, 1 ) );
     sm.subscribe( G.G2, 1, null );
 
@@ -231,7 +231,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     assertNull( sm.findSubscription( G.G1 ) );
     assertNull( sm.findSubscription( G.G2, 1 ) );
     sm.subscribe( G.G1, null );
@@ -366,7 +366,7 @@ public class EntitySubscriptionManagerTest
   public void subscribe_nonExistentTypeGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.subscribe( G.G1, null );
     sm.subscribe( G.G1, null );
   }
@@ -376,7 +376,7 @@ public class EntitySubscriptionManagerTest
   public void getSubscription_nonExistentTypeGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.getSubscription( G.G1 );
   }
 
@@ -385,7 +385,7 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentTypeGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.unsubscribe( G.G1 );
   }
 
@@ -394,7 +394,7 @@ public class EntitySubscriptionManagerTest
   public void subscribe_nonExistentInstanceGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.subscribe( G.G1, "1", null );
     sm.subscribe( G.G1, "1", null );
   }
@@ -404,7 +404,7 @@ public class EntitySubscriptionManagerTest
   public void getSubscription_nonExistentInstanceGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.getSubscription( G.G1, "1" );
   }
 
@@ -413,7 +413,7 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentInstanceGraph()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.unsubscribe( G.G1, "1" );
   }
 
@@ -422,7 +422,7 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
   {
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManagerImpl sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
     sm.subscribe( G.G1, "1" );
     sm.unsubscribe( G.G1, "2" );
   }
