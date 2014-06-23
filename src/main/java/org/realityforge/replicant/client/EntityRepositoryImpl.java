@@ -11,7 +11,7 @@ public class EntityRepositoryImpl
 {
   private final HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<Class, HashMap<Object, ?>>();
 
-  public <T> void registerEntity( final Class<T> type, final Object id, final T entity )
+  public <T> void registerEntity( @Nonnull final Class<T> type, @Nonnull final Object id, @Nonnull final T entity )
   {
     final HashMap<Object, T> objectMap = getObjectMap( type );
     if ( objectMap.containsKey( id ) )
@@ -27,7 +27,7 @@ public class EntityRepositoryImpl
   }
 
   @Nonnull
-  public <T> T deregisterEntity( final Class<T> type, final Object id )
+  public <T> T deregisterEntity( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     final T existing = doDeregisterEntity( type, id );
     if ( existing instanceof Linkable )
@@ -56,7 +56,7 @@ public class EntityRepositoryImpl
   }
 
   @Nonnull
-  public <T> T getByID( final Class<T> type, final Object id )
+  public <T> T getByID( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     final T entity = findByID( type, id );
     if ( null == entity )
@@ -68,13 +68,13 @@ public class EntityRepositoryImpl
 
   @Override
   @Nullable
-  public <T> T findByID( final Class<T> type, final Object id )
+  public <T> T findByID( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     return findByID( type, id, true );
   }
 
   @Override
-  public <T> T findByID( final Class<T> type, final Object id, final boolean forceLink )
+  public <T> T findByID( @Nonnull final Class<T> type, @Nonnull final Object id, final boolean forceLink )
   {
     final T t = getObjectMap( type ).get( id );
     if ( forceLink )
@@ -86,7 +86,7 @@ public class EntityRepositoryImpl
 
   @Override
   @Nonnull
-  public <T> ArrayList<T> findAll( final Class<T> type )
+  public <T> ArrayList<T> findAll( @Nonnull final Class<T> type )
   {
     final HashMap<Object, T> map = getObjectMap( type );
     final ArrayList<T> results = new ArrayList<T>( map.size() );
