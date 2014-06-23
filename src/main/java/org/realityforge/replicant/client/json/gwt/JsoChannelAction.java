@@ -42,4 +42,13 @@ public class JsoChannelAction
     return this.action;
   }-*/;
 
+  @Override
+  public final native Object getChannelFilter() /*-{
+
+    if ( typeof(this.filter) == 'object' )
+    {
+      return this.filter;
+    }
+    return null;
+  }-*/;
 }
