@@ -36,7 +36,7 @@ final class TestDataLoadService
            mock( CacheService.class ),
            mock( EntitySubscriptionManager.class ) );
     _validateOnLoad = validateOnLoad;
-    _changeSets = new LinkedList<TestChangeSet>( Arrays.asList( changeSets ) );
+    _changeSets = new LinkedList<>( Arrays.asList( changeSets ) );
   }
 
   @Nonnull
