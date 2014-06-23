@@ -16,7 +16,9 @@ public interface TransportConstants
   String ACTION = "action";
   String ACTION_ADD = "add";
   String ACTION_REMOVE = "remove";
+  String ACTION_UPDATE = "update";
   String CHANNELS = "channels";
   String CHANNEL_ID = "cid";
   String SUBCHANNEL_ID = "scid";
+  String CHANNEL_FILTER = "filter";
 }
