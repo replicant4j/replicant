@@ -27,11 +27,6 @@ public final class GraphSubscriptionEntry
     _filter = filter;
   }
 
-  public GraphSubscriptionEntry( final GraphDescriptor descriptor )
-  {
-    this( descriptor, null );
-  }
-
   public GraphDescriptor getDescriptor()
   {
     return _descriptor;
