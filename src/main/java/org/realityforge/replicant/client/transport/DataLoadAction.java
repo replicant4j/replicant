@@ -222,7 +222,7 @@ final class DataLoadAction
   public void calculateEntitiesToLink()
   {
     _entityLinksCalculated = true;
-    _entitiesToLink = new LinkedList<Linkable>();
+    _entitiesToLink = new LinkedList<>();
     for ( final Linkable entity : _updatedEntities )
     {
       // In some circumstances a create and remove can appear in same change set so guard against this
