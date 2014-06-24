@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelAction;
 
@@ -11,12 +12,25 @@ class TestChannelAction
   @Nullable
   private final Object _subChannelID;
   private final Action _action;
+  @Nullable
+  private final Object _filter;
 
-  TestChannelAction( final int channelID, final Object subChannelID, final Action action )
+  TestChannelAction( final int channelID,
+                     @Nullable final Object subChannelID,
+                     @Nonnull final Action action,
+                     @Nullable final Object filter )
   {
     _channelID = channelID;
     _subChannelID = subChannelID;
     _action = action;
+    _filter = filter;
+  }
+
+  TestChannelAction( final int channelID,
+                     @Nullable final Object subChannelID,
+                     @Nonnull final Action action )
+  {
+    this( channelID, subChannelID, action, null );
   }
 
   @Override
@@ -31,15 +45,17 @@ class TestChannelAction
     return _subChannelID;
   }
 
+  @Nonnull
   @Override
   public Action getAction()
   {
     return _action;
   }
 
+  @Nullable
   @Override
   public Object getChannelFilter()
   {
-    return null;
+    return _filter;
   }
 }

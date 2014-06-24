@@ -103,7 +103,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( service.isDataLoadComplete() );
-    assertTrue( service.isBulkLoad() );
+    assertTrue( service.getStatus().isBulkLoad() );
 
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
@@ -176,7 +176,7 @@ public class DataLoaderServiceTest
     assertTrue( request.haveResultsArrived() );
     assertNotInRequestManager( service, request );
     assertTrue( service.isDataLoadComplete() );
-    assertNotNull( service.getRequestID() );
+    assertNotNull( service.getStatus().getRequestID() );
 
     verifyPostActionRun( request.getRunnable() );
   }
@@ -213,8 +213,8 @@ public class DataLoaderServiceTest
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( service.isDataLoadComplete() );
-    assertTrue( service.isBulkLoad() );
-    assertNull( service.getRequestID() );
+    assertTrue( service.getStatus().isBulkLoad() );
+    assertNull( service.getStatus().getRequestID() );
 
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
@@ -266,7 +266,7 @@ public class DataLoaderServiceTest
     final String requestID = changeSet.getRequestID();
     assertNotNull( requestID );
     assertInRequestManager( service, request );
-    assertNotNull( service.getRequestID() );
+    assertNotNull( service.getStatus().getRequestID() );
 
     verifyPostActionNotRun( changeSet.getRunnable() );
   }
@@ -294,8 +294,8 @@ public class DataLoaderServiceTest
     assertTrue( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( service.isDataLoadComplete() );
-    assertFalse( service.isBulkLoad() );
-    assertNotNull( service.getRequestID() );
+    assertFalse( service.getStatus().isBulkLoad() );
+    assertNotNull( service.getStatus().getRequestID() );
 
     verifyPostActionRun( changeSet.getRunnable() );
   }
@@ -398,7 +398,7 @@ public class DataLoaderServiceTest
   }
 
   @Test
-  public void channelUpdates()
+  public void channelActions()
     throws Exception
   {
     final TestChangeSet changeSet1 =
@@ -417,16 +417,16 @@ public class DataLoaderServiceTest
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
-    verify( service.getSubscriptionManager() ).subscribe( TestGraph.B, "S" );
+    verify( service.getSubscriptionManager() ).subscribe( TestGraph.B, "S", null );
 
     final DataLoadAction action = actions.getLast();
 
-    assertEquals( action.getChannelSubscribeCount(), 1 );
-    assertEquals( action.getChannelUnsubscribeCount(), 0 );
+    assertEquals( action.getChannelAddCount(), 1 );
+    assertEquals( action.getChannelRemoveCount(), 0 );
   }
 
   @Test
-  public void multipleChannelUpdates()
+  public void multipleChannelActions()
     throws Exception
   {
     final TestChannelAction a1 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.ADD );
@@ -452,16 +452,17 @@ public class DataLoaderServiceTest
 
     final DataLoadAction action = actions.getLast();
 
-    assertEquals( action.getChannelSubscribeCount(), 2 );
-    assertEquals( action.getChannelUnsubscribeCount(), 2 );
+    assertEquals( action.getChannelAddCount(), 2 );
+    assertEquals( action.getChannelRemoveCount(), 2 );
 
     final InOrder inOrder = inOrder( service.getSubscriptionManager() );
-    inOrder.verify( service.getSubscriptionManager() ).subscribe( TestGraph.A );
+    inOrder.verify( service.getSubscriptionManager() ).subscribe( TestGraph.A, null );
     inOrder.verify( service.getSubscriptionManager() ).unsubscribe( TestGraph.A );
-    inOrder.verify( service.getSubscriptionManager() ).subscribe( TestGraph.B, "S" );
+    inOrder.verify( service.getSubscriptionManager() ).subscribe( TestGraph.B, "S", null );
     inOrder.verify( service.getSubscriptionManager() ).unsubscribe( TestGraph.B, 33 );
     inOrder.verifyNoMoreInteractions();
   }
+
   private void verifyPostActionRun( final Runnable runnable )
   {
     verify( runnable ).run();

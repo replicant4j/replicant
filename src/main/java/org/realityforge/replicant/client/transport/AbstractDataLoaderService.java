@@ -2,6 +2,8 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -10,9 +12,11 @@ import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
@@ -490,29 +494,33 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         final ChannelAction action = changeSet.getChannelAction( i );
         final int channel = action.getChannelID();
         final Object subChannelID = action.getSubChannelID();
+        final Object filter = action.getChannelFilter();
+        final ChannelAction.Action actionType = action.getAction();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
-          final String message = "ChannelAction:: " + action.getAction().name() +
-                                 " " + channel + ( null == subChannelID ? "" : ( "-" + subChannelID ) );
+          final String message =
+            "ChannelAction:: " + actionType.name() + " " +
+            channel + ( null == subChannelID ? "" : ( "-" + subChannelID ) ) +
+            " filter=" + filter;
           LOG.log( getLogLevel(), message );
         }
 
         final G graph = channelToGraph( channel );
-        if ( action.getAction() == ChannelAction.Action.ADD )
+        final ChannelDescriptor descriptor = new ChannelDescriptor( graph, subChannelID );
+        if ( ChannelAction.Action.ADD == actionType )
         {
-          _currentAction.incChannelSubscribeCount();
+          _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
           if ( null == subChannelID )
           {
-            _subscriptionManager.subscribe( graph );
+            _subscriptionManager.subscribe( graph, filter );
           }
           else
           {
-            _subscriptionManager.subscribe( graph, subChannelID );
+            _subscriptionManager.subscribe( graph, subChannelID, filter );
           }
         }
-        else
+        else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          _currentAction.incChannelUnsubscribeCount();
           if ( null == subChannelID )
           {
             _subscriptionManager.unsubscribe( graph );
@@ -521,6 +529,27 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           {
             _subscriptionManager.unsubscribe( graph, subChannelID );
           }
+          //TODO: -1 is wrong but wont calculate correctly until the code is imported into this class
+          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, -1 ) );
+        }
+        else if ( ChannelAction.Action.UPDATE == actionType )
+        {
+          final ChannelSubscriptionEntry entry;
+          if ( null == subChannelID )
+          {
+            entry = _subscriptionManager.updateSubscription( graph, filter );
+          }
+          else
+          {
+            entry = _subscriptionManager.updateSubscription( graph, subChannelID, filter );
+          }
+          final int removedEntities = updateSubscriptionForFilteredEntities( graph, subChannelID, filter, entry );
+          final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter, removedEntities );
+          _currentAction.recordChannelSubscriptionUpdate( status );
+        }
+        else
+        {
+          throw new IllegalStateException();
         }
       }
       return true;
@@ -619,14 +648,28 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       return true;
     }
+    final DataLoadStatus status = _currentAction.toStatus();
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( "ChangeSet " + set.getSequence() + " involved " +
-                _currentAction.getChannelSubscribeCount() + " subscribes, " +
-                _currentAction.getChannelUnsubscribeCount() + " un-subscribes, " +
-                _currentAction.getUpdateCount() + " updates, " +
-                _currentAction.getRemoveCount() + " removes and " +
-                _currentAction.getLinkCount() + " links." );
+                status.getChannelAdds().size() + " subscribes, " +
+                status.getChannelUpdates().size() + " subscription updates, " +
+                status.getChannelRemoves().size() + " un-subscribes, " +
+                status.getEntityUpdateCount() + " updates, " +
+                status.getEntityRemoveCount() + " removes and " +
+                status.getEntityLinkCount() + " links." );
+      for ( final ChannelChangeStatus changeStatus : status.getChannelUpdates() )
+      {
+        LOG.info( "ChangeSet " + set.getSequence() + " subscription update " +
+                  changeStatus.getDescriptor() + " caused " +
+                  changeStatus.getEntityRemoveCount() + " entity removes." );
+      }
+      for ( final ChannelChangeStatus changeStatus : status.getChannelRemoves() )
+      {
+        LOG.info( "ChangeSet " + set.getSequence() + " un-subscribe " +
+                  changeStatus.getDescriptor() + " caused " +
+                  changeStatus.getEntityRemoveCount() + " entity removes." );
+      }
     }
 
     //Step: Run the post actions
@@ -653,7 +696,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         getSession().removeRequest( requestID );
       }
     }
-    onDataLoadComplete( _currentAction.isBulkLoad(), set.getRequestID() );
+    onDataLoadComplete( status );
     _currentAction = null;
     if ( null != _resetAction )
     {
@@ -662,6 +705,51 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
     return true;
   }
+
+  private int updateSubscriptionForFilteredEntities( final G graph,
+                                                     final Object subChannelID,
+                                                     final Object filter,
+                                                     final ChannelSubscriptionEntry graphEntry )
+  {
+    int removedEntities = 0;
+    final ChannelDescriptor descriptor = new ChannelDescriptor( graph, subChannelID );
+    for ( final Map<Object, EntitySubscriptionEntry> typeMap : graphEntry.getEntities().values() )
+    {
+      for ( final Entry<Object, EntitySubscriptionEntry> e : typeMap.entrySet() )
+      {
+        final EntitySubscriptionEntry se = e.getValue();
+        final Class<?> entityType = se.getType();
+        final Object entityID = se.getID();
+        if ( !doesEntityMatchFilter( graph, subChannelID, filter, entityType, entityID ) )
+        {
+          final EntitySubscriptionEntry entityEntry =
+            _subscriptionManager.removeEntityFromGraph( entityType, entityID, descriptor );
+          final boolean deregisterEntity = 0 == entityEntry.getGraphSubscriptions().size();
+          if ( LOG.isLoggable( getLogLevel() ) )
+          {
+            LOG.warning( "Removed entity " + entityType.getSimpleName() + "/" + entityID +
+                         " from graph " + descriptor + " resulting in " +
+                         entityEntry.getGraphSubscriptions().size() + " subscriptions left for entity." +
+                         ( deregisterEntity ? " De-registering entity!" : "" ) );
+          }
+          // If there is only one subscriber then lets delete it
+          if ( deregisterEntity )
+          {
+            _subscriptionManager.removeEntity( entityType, entityID );
+            _repository.deregisterEntity( entityType, entityID );
+            removedEntities += 1;
+          }
+        }
+      }
+    }
+    return removedEntities;
+  }
+
+  protected abstract boolean doesEntityMatchFilter( @Nonnull G graph,
+                                                    @Nullable Object subChannelID,
+                                                    @Nullable Object filter,
+                                                    @Nonnull Class<?> entityType,
+                                                    @Nonnull Object entityID );
 
   /**
    * Return the graph for specified channel.
@@ -684,10 +772,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   /**
    * Invoked when a change set has been completely processed.
    *
-   * @param bulkLoad  true if the change set was processed as a bulk load, false otherwise.
-   * @param requestID the local request id that initiated the changes.
+   * @param status the status describing the results of data load.
    */
-  protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String requestID )
+  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
   }
 

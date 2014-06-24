@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeSet;
@@ -47,8 +48,11 @@ final class DataLoadAction
    */
   private int _changeIndex;
 
-  private LinkedList<Linkable> _updatedEntities = new LinkedList<Linkable>();
-  private HashSet<Linkable> _removedEntities = new HashSet<Linkable>();
+  private LinkedList<ChannelChangeStatus> _channelAdds = new LinkedList<>();
+  private LinkedList<ChannelChangeStatus> _channelUpdates = new LinkedList<>();
+  private LinkedList<ChannelChangeStatus> _channelRemoves = new LinkedList<>();
+  private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
+  private HashSet<Linkable> _removedEntities = new HashSet<>();
   private LinkedList<Linkable> _entitiesToLink;
   private boolean _entityLinksCalculated;
   private boolean _worldNotified;
@@ -56,8 +60,6 @@ final class DataLoadAction
   private boolean _brokerPaused;
   private RequestEntry _request;
 
-  private int _channelSubscribeCount;
-  private int _channelUnsubscribeCount;
   private int _updateCount;
   private int _removeCount;
   private int _linkCount;
@@ -68,14 +70,34 @@ final class DataLoadAction
     _oob = oob;
   }
 
-  public int getChannelSubscribeCount()
+  public int getChannelAddCount()
   {
-    return _channelSubscribeCount;
+    return _channelAdds.size();
   }
 
-  public int getChannelUnsubscribeCount()
+  public int getChannelUpdateCount()
   {
-    return _channelUnsubscribeCount;
+    return _channelUpdates.size();
+  }
+
+  public int getChannelRemoveCount()
+  {
+    return _channelRemoves.size();
+  }
+
+  public LinkedList<ChannelChangeStatus> getChannelAdds()
+  {
+    return _channelAdds;
+  }
+
+  public LinkedList<ChannelChangeStatus> getChannelUpdates()
+  {
+    return _channelUpdates;
+  }
+
+  public LinkedList<ChannelChangeStatus> getChannelRemoves()
+  {
+    return _channelRemoves;
   }
 
   public int getUpdateCount()
@@ -93,14 +115,19 @@ final class DataLoadAction
     return _linkCount;
   }
 
-  public void incChannelSubscribeCount()
+  public void recordChannelSubscribe( final ChannelChangeStatus descriptor )
   {
-    _channelSubscribeCount++;
+    _channelAdds.add( descriptor );
   }
 
-  public void incChannelUnsubscribeCount()
+  public void recordChannelUnsubscribe( final ChannelChangeStatus descriptor )
   {
-    _channelUnsubscribeCount ++;
+    _channelRemoves.add( descriptor );
+  }
+
+  public void recordChannelSubscriptionUpdate( final ChannelChangeStatus descriptor )
+  {
+    _channelUpdates.add( descriptor );
   }
 
   public void incUpdateCount()
@@ -291,6 +318,21 @@ final class DataLoadAction
   public boolean hasWorldBeenNotified()
   {
     return _worldNotified;
+  }
+
+  public DataLoadStatus toStatus()
+  {
+    final ChangeSet changeSet = getChangeSet();
+    assert null != changeSet;
+    return new DataLoadStatus( _changeSet.getSequence(),
+                               isBulkLoad(),
+                               changeSet.getRequestID(),
+                               getChannelAdds(),
+                               _channelUpdates,
+                               _channelRemoves,
+                               getUpdateCount(),
+                               getRemoveCount(),
+                               getLinkCount() );
   }
 
   @Override

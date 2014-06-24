@@ -1,4 +1,7 @@
 ## 0.5.17:
+* Support the replication of the filter between the server and client.
+* Update the client to unregister entities that are filtered after a channels
+  filter is updated.
 * Start to record filter on EntitySubscriptionManager on the client-side.
 * Move to GWT 2.6.1.
 * Move to Java 7.

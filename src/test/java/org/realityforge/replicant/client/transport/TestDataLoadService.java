@@ -17,10 +17,8 @@ final class TestDataLoadService
   private final boolean _validateOnLoad;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<TestChangeSet> _changeSets;
-  private boolean _dataLoadComplete;
-  private Boolean _bulkLoad;
-  private String _requestID;
   private int _terminateCount;
+  private DataLoadStatus _status;
 
   TestDataLoadService()
   {
@@ -65,12 +63,12 @@ final class TestDataLoadService
 
   protected boolean isBulkLoadCompleteCalled()
   {
-    return null != _bulkLoad && _bulkLoad;
+    return isDataLoadComplete() && getStatus().isBulkLoad();
   }
 
   protected boolean isIncrementalLoadCompleteCalled()
   {
-    return null != _bulkLoad && !_bulkLoad;
+    return isDataLoadComplete() && !getStatus().isBulkLoad();
   }
 
   protected boolean isScheduleDataLoadCalled()
@@ -79,26 +77,19 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void onDataLoadComplete( final boolean bulkLoad, @Nullable final String requestID )
+  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
-    _dataLoadComplete = true;
-    _bulkLoad = bulkLoad;
-    _requestID = requestID;
+    _status = status;
+  }
+
+  public DataLoadStatus getStatus()
+  {
+    return _status;
   }
 
   public boolean isDataLoadComplete()
   {
-    return _dataLoadComplete;
-  }
-
-  public boolean isBulkLoad()
-  {
-    return _bulkLoad;
-  }
-
-  public String getRequestID()
-  {
-    return _requestID;
+    return null != _status;
   }
 
   @Override
@@ -142,5 +133,15 @@ final class TestDataLoadService
                                             @Nullable final Object filterParameter,
                                             @Nonnull final Runnable completionAction )
   {
+  }
+
+  @Override
+  protected boolean doesEntityMatchFilter( @Nonnull final TestGraph graph,
+                                           @Nullable final Object subChannelID,
+                                           @Nullable final Object filter,
+                                           @Nonnull final Class<?> entityType,
+                                           @Nonnull final Object entityID )
+  {
+    return true;
   }
 }
