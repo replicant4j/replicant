@@ -9,9 +9,10 @@ import javax.annotation.Nullable;
  */
 public final class DataLoadStatus
 {
+  private final int _sequence;
   private final boolean _bulkLoad;
   @Nullable
-  private final String requestID;
+  private final String _requestID;
   @Nonnull
   private final List<ChannelChangeStatus> _channelAdds;
   @Nonnull
@@ -26,7 +27,8 @@ public final class DataLoadStatus
   // The number of entities where link() was invoked
   private final int _entityLinkCount;
 
-  public DataLoadStatus( final boolean bulkLoad,
+  public DataLoadStatus( final int sequence,
+                         final boolean bulkLoad,
                          final String requestID,
                          @Nonnull final List<ChannelChangeStatus> channelAdds,
                          @Nonnull final List<ChannelChangeStatus> channelUpdates,
@@ -35,14 +37,20 @@ public final class DataLoadStatus
                          final int entityRemoveCount,
                          final int entityLinkCount )
   {
+    _sequence = sequence;
     _bulkLoad = bulkLoad;
-    this.requestID = requestID;
+    _requestID = requestID;
     _channelAdds = channelAdds;
     _channelUpdates = channelUpdates;
     _channelRemoves = channelRemoves;
     _entityUpdateCount = entityUpdateCount;
     _entityRemoveCount = entityRemoveCount;
     _entityLinkCount = entityLinkCount;
+  }
+
+  public int getSequence()
+  {
+    return _sequence;
   }
 
   public boolean isBulkLoad()
@@ -53,7 +61,7 @@ public final class DataLoadStatus
   @Nullable
   public String getRequestID()
   {
-    return requestID;
+    return _requestID;
   }
 
   @Nonnull
