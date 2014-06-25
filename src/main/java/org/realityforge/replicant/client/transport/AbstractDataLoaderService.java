@@ -1,9 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -706,39 +705,43 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return true;
   }
 
-  private int updateSubscriptionForFilteredEntities( final G graph,
-                                                     final Object subChannelID,
-                                                     final Object filter,
-                                                     final ChannelSubscriptionEntry graphEntry )
+  protected abstract int updateSubscriptionForFilteredEntities( G graph,
+                                                                Object subChannelID,
+                                                                Object filter,
+                                                                ChannelSubscriptionEntry graphEntry );
+
+  protected final int updateSubscriptionForFilteredEntities( @Nonnull final G graph,
+                                                             @Nullable final Object subChannelID,
+                                                             @Nullable final Object filter,
+                                                             @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
     final ChannelDescriptor descriptor = new ChannelDescriptor( graph, subChannelID );
-    for ( final Map<Object, EntitySubscriptionEntry> typeMap : graphEntry.getEntities().values() )
+
+    for ( final EntitySubscriptionEntry entry : entities )
     {
-      for ( final Entry<Object, EntitySubscriptionEntry> e : typeMap.entrySet() )
+      final Class<?> entityType = entry.getType();
+      final Object entityID = entry.getID();
+
+      if ( !doesEntityMatchFilter( graph, subChannelID, filter, entityType, entityID ) )
       {
-        final EntitySubscriptionEntry se = e.getValue();
-        final Class<?> entityType = se.getType();
-        final Object entityID = se.getID();
-        if ( !doesEntityMatchFilter( graph, subChannelID, filter, entityType, entityID ) )
+        final EntitySubscriptionEntry entityEntry =
+          _subscriptionManager.removeEntityFromGraph( entityType, entityID, descriptor );
+        final boolean deregisterEntity = 0 == entityEntry.getGraphSubscriptions().size();
+        if ( LOG.isLoggable( getLogLevel() ) )
         {
-          final EntitySubscriptionEntry entityEntry =
-            _subscriptionManager.removeEntityFromGraph( entityType, entityID, descriptor );
-          final boolean deregisterEntity = 0 == entityEntry.getGraphSubscriptions().size();
-          if ( LOG.isLoggable( getLogLevel() ) )
-          {
-            LOG.warning( "Removed entity " + entityType.getSimpleName() + "/" + entityID +
-                         " from graph " + descriptor + " resulting in " +
-                         entityEntry.getGraphSubscriptions().size() + " subscriptions left for entity." +
-                         ( deregisterEntity ? " De-registering entity!" : "" ) );
-          }
-          // If there is only one subscriber then lets delete it
-          if ( deregisterEntity )
-          {
-            _subscriptionManager.removeEntity( entityType, entityID );
-            _repository.deregisterEntity( entityType, entityID );
-            removedEntities += 1;
-          }
+          LOG.log( getLogLevel(),
+                   "Removed entity " + entityType.getSimpleName() + "/" + entityID +
+                   " from graph " + descriptor + " resulting in " +
+                   entityEntry.getGraphSubscriptions().size() + " subscriptions left for entity." +
+                   ( deregisterEntity ? " De-registering entity!" : "" ) );
+        }
+        // If there is only one subscriber then lets delete it
+        if ( deregisterEntity )
+        {
+          _subscriptionManager.removeEntity( entityType, entityID );
+          _repository.deregisterEntity( entityType, entityID );
+          removedEntities += 1;
         }
       }
     }

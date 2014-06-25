@@ -145,6 +145,15 @@ final class TestDataLoadService
                                            @Nonnull final Class<?> entityType,
                                            @Nonnull final Object entityID )
   {
-    return true;
+    return String.valueOf( entityID ).startsWith( "X" );
+  }
+
+  @Override
+  protected int updateSubscriptionForFilteredEntities( final TestGraph graph,
+                                                       final Object subChannelID,
+                                                       final Object filter,
+                                                       final ChannelSubscriptionEntry graphEntry )
+  {
+    return 0;
   }
 }

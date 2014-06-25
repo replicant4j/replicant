@@ -1,3 +1,8 @@
+## 0.5.18:
+* Extract AbstractDataLoaderService.updateSubscriptionForFilteredEntities so that
+  subclasses can control the order in which types are unloaded due to a change in
+  filter.
+
 ## 0.5.17:
 * Support the replication of the filter between the server and client.
 * Update the client to unregister entities that are filtered after a channels
