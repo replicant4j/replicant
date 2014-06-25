@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -14,27 +15,29 @@ import static org.mockito.Mockito.*;
 final class TestDataLoadService
   extends AbstractDataLoaderService<TestClientSession, TestGraph>
 {
-  private final boolean _validateOnLoad;
+  private boolean _validateOnLoad;
   private boolean _scheduleDataLoadCalled;
-  private LinkedList<TestChangeSet> _changeSets;
+  private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
   private DataLoadStatus _status;
 
   TestDataLoadService()
-  {
-    this( false );
-  }
-
-  TestDataLoadService( final boolean validateOnLoad,
-                       final TestChangeSet... changeSets )
   {
     super( mock( ChangeMapper.class ),
            mock( EntityChangeBroker.class ),
            mock( EntityRepository.class ),
            mock( CacheService.class ),
            mock( EntitySubscriptionManager.class ) );
+  }
+
+  public void setValidateOnLoad( final boolean validateOnLoad )
+  {
     _validateOnLoad = validateOnLoad;
-    _changeSets = new LinkedList<>( Arrays.asList( changeSets ) );
+  }
+
+  public void setChangeSets( final TestChangeSet... changeSets )
+  {
+    _changeSets.addAll( Arrays.asList( changeSets ) );
   }
 
   @Nonnull

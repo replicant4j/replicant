@@ -538,16 +538,20 @@ public class DataLoaderServiceTest
                                           final boolean validateOnLoad )
     throws Exception
   {
-    final TestDataLoadService service = new TestDataLoadService( validateOnLoad, changeSet );
+    final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
+    service.setValidateOnLoad( validateOnLoad );
+    service.setChangeSets( changeSet );
     return service;
   }
 
   private TestDataLoadService newService( final TestChangeSet[] changeSets, final boolean validateOnLoad )
     throws Exception
   {
-    final TestDataLoadService service = new TestDataLoadService( validateOnLoad, changeSets );
+    final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
+    service.setValidateOnLoad( validateOnLoad );
+    service.setChangeSets( changeSets );
     return service;
   }
 
