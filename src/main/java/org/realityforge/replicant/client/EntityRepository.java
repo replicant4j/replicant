@@ -37,6 +37,15 @@ public interface EntityRepository
   <T> ArrayList<T> findAll( @Nonnull Class<T> type );
 
   /**
+   * Return the list of ids for entities of a particular type.
+   *
+   * @param type the entity type.
+   * @return the list of ids.
+   */
+  @Nonnull
+  <T> ArrayList<Object> findAllIDs( @Nonnull Class<T> type );
+
+  /**
    * Iterate through all of the entities in the repository and raise an exception if any invalid entities are found.
    *
    * @throws Exception if an invalid entity is in the repository.

@@ -101,6 +101,16 @@ public class EntityRepositoryImpl
     return results;
   }
 
+  @Nonnull
+  @Override
+  public <T> ArrayList<Object> findAllIDs( @Nonnull final Class<T> type )
+  {
+    final HashMap<Object, T> map = getObjectMap( type );
+    final ArrayList<Object> results = new ArrayList<>( map.size() );
+    results.addAll( map.keySet() );
+    return results;
+  }
+
   @Override
   public void validate()
     throws Exception

@@ -2,6 +2,7 @@
 * Extract AbstractDataLoaderService.updateSubscriptionForFilteredEntities so that
   subclasses can control the order in which types are unloaded due to a change in
   filter.
+* Add EntityRepository.findAllIDs method to get ids for entities.
 
 ## 0.5.17:
 * Support the replication of the filter between the server and client.

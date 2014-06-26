@@ -64,6 +64,18 @@ public class EntityRepositoryTest
   }
 
   @Test
+  public void findAllIDs()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+    final Class<A> type = A.class;
+    final String id = "A";
+
+    r.registerEntity( type, id, new A() );
+
+    assertTrue( r.findAllIDs( type ).contains( id ) );
+  }
+
+  @Test
   public void validate_LinkableThatReturnsTrueFor_isValid()
     throws Exception
   {
