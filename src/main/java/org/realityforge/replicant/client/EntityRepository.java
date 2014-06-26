@@ -37,7 +37,7 @@ public interface EntityRepository
   <T> ArrayList<T> findAll( @Nonnull Class<T> type );
 
   /**
-   * Iterate through all of th entities in the repository and raise an exception if any invalid entities are found.
+   * Iterate through all of the entities in the repository and raise an exception if any invalid entities are found.
    *
    * @throws Exception if an invalid entity is in the repository.
    */
