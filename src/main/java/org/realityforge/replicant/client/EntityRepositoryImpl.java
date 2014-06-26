@@ -111,6 +111,13 @@ public class EntityRepositoryImpl
     return results;
   }
 
+  @Nonnull
+  @Override
+  public ArrayList<Class> getTypes()
+  {
+    return new ArrayList<>( _dataStore.keySet() );
+  }
+
   @Override
   public void validate()
     throws Exception

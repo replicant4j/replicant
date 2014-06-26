@@ -46,6 +46,14 @@ public interface EntityRepository
   <T> ArrayList<Object> findAllIDs( @Nonnull Class<T> type );
 
   /**
+   * Return the list of types registered in repository.
+   *
+   * @return the list of types.
+   */
+  @Nonnull
+  ArrayList<Class> getTypes();
+
+  /**
    * Iterate through all of the entities in the repository and raise an exception if any invalid entities are found.
    *
    * @throws Exception if an invalid entity is in the repository.
