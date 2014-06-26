@@ -7,4 +7,7 @@
 
   <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
   <set-property name="replicant.shouldValidateRepositoryOnLoad" value="false"/>
+
+  <define-property name="replicant.repositoryDebugOutputEnabled" values="true,false"/>
+  <set-property name="replicant.repositoryDebugOutputEnabled" value="false"/>
 </module>

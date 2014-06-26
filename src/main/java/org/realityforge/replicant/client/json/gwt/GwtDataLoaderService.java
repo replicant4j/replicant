@@ -35,6 +35,20 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G exten
     return _replicantConfig.shouldValidateRepositoryOnLoad();
   }
 
+  //Static class to help check whether debug is enabled at the current time
+  private static class RepositoryDebugEnabledChecker
+  {
+    public static native boolean isEnabled() /*-{
+      return $wnd.imitRepositoryDebug == true;
+    }-*/;
+  }
+
+  @Override
+  protected boolean repositoryDebugOutputEnabled()
+  {
+    return _replicantConfig.repositoryDebugOutputEnabled() && RepositoryDebugEnabledChecker.isEnabled();
+  }
+
   @Override
   protected ChangeSet parseChangeSet( final String rawJsonData )
   {

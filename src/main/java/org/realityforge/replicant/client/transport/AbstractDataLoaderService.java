@@ -15,6 +15,7 @@ import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntityRepositoryDebugger;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
@@ -645,6 +646,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       {
         validateRepository();
       }
+      if( repositoryDebugOutputEnabled() )
+      {
+        outputRepositoryDebug();
+      }
       return true;
     }
     final DataLoadStatus status = _currentAction.toStatus();
@@ -812,5 +817,20 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     {
       throw new IllegalStateException( e.getMessage(), e );
     }
+  }
+
+  protected boolean repositoryDebugOutputEnabled()
+  {
+    return false;
+  }
+
+  protected void outputRepositoryDebug()
+  {
+    getEntityRepositoryDebugger().outputRepository( getRepository() );
+  }
+
+  protected EntityRepositoryDebugger getEntityRepositoryDebugger()
+  {
+    return new EntityRepositoryDebugger();
   }
 }

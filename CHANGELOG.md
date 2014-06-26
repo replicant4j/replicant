@@ -1,4 +1,6 @@
 ## 0.5.18:
+* Initial work to add debugging capability to the EntityRepository via a helper
+  class EntityRepositoryDebugger.
 * Extract AbstractDataLoaderService.updateSubscriptionForFilteredEntities so that
   subclasses can control the order in which types are unloaded due to a change in
   filter.

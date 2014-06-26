@@ -8,4 +8,6 @@ public interface ReplicantConfig
   extends PropertySource
 {
   boolean shouldValidateRepositoryOnLoad();
+
+  boolean repositoryDebugOutputEnabled();
 }
