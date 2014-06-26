@@ -11,6 +11,7 @@ public class EntityRepositoryImpl
 {
   private final HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<>();
 
+  @Override
   public <T> void registerEntity( @Nonnull final Class<T> type, @Nonnull final Object id, @Nonnull final T entity )
   {
     final HashMap<Object, T> objectMap = getObjectMap( type );
@@ -26,6 +27,7 @@ public class EntityRepositoryImpl
     }
   }
 
+  @Override
   @Nonnull
   public <T> T deregisterEntity( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
@@ -55,6 +57,7 @@ public class EntityRepositoryImpl
     return existing;
   }
 
+  @Override
   @Nonnull
   public <T> T getByID( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
