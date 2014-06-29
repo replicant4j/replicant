@@ -3,6 +3,8 @@ package org.realityforge.replicant.client.transport;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -521,16 +523,18 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
+          final ChannelSubscriptionEntry entry;
           if ( null == subChannelID )
           {
-            _subscriptionManager.unsubscribe( graph );
+            entry = _subscriptionManager.unsubscribe( graph );
           }
           else
           {
-            _subscriptionManager.unsubscribe( graph, subChannelID );
+            entry = _subscriptionManager.unsubscribe( graph, subChannelID );
           }
+          final int removedEntities = deregisterUnOwnedEntities( entry );
           //TODO: -1 is wrong but wont calculate correctly until the code is imported into this class
-          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, -1 ) );
+          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
@@ -543,7 +547,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           {
             entry = _subscriptionManager.updateSubscription( graph, subChannelID, filter );
           }
-          final int removedEntities = updateSubscriptionForFilteredEntities( graph, subChannelID, filter, entry );
+          final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter, removedEntities );
           _currentAction.recordChannelSubscriptionUpdate( status );
         }
@@ -710,25 +714,44 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return true;
   }
 
-  protected abstract int updateSubscriptionForFilteredEntities( G graph,
-                                                                Object subChannelID,
-                                                                Object filter,
-                                                                ChannelSubscriptionEntry graphEntry );
+  private int deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )
+  {
+    int removedEntities = 0;
+    for ( final Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entitySet : entry.getEntities().entrySet() )
+    {
+      final Class<?> type = entitySet.getKey();
+      for ( Entry<Object, EntitySubscriptionEntry> entityEntry : entitySet.getValue().entrySet() )
+      {
+        final Object entityID = entityEntry.getKey();
+        final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
+        final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getDescriptor() );
+        if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
+        {
+          removedEntities += 1;
+          _repository.deregisterEntity( type, entityID );
+        }
+      }
+    }
+    return removedEntities;
+  }
 
-  protected final int updateSubscriptionForFilteredEntities( @Nonnull final G graph,
-                                                             @Nullable final Object subChannelID,
+
+  protected abstract int updateSubscriptionForFilteredEntities( ChannelSubscriptionEntry graphEntry,
+                                                                Object filter );
+
+  protected final int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
                                                              @Nullable final Object filter,
                                                              @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
-    final ChannelDescriptor descriptor = new ChannelDescriptor( graph, subChannelID );
+    final ChannelDescriptor descriptor = graphEntry.getDescriptor();
 
     for ( final EntitySubscriptionEntry entry : entities )
     {
       final Class<?> entityType = entry.getType();
       final Object entityID = entry.getID();
 
-      if ( !doesEntityMatchFilter( graph, subChannelID, filter, entityType, entityID ) )
+      if ( !doesEntityMatchFilter( descriptor, filter, entityType, entityID ) )
       {
         final EntitySubscriptionEntry entityEntry =
           _subscriptionManager.removeEntityFromGraph( entityType, entityID, descriptor );
@@ -753,8 +776,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return removedEntities;
   }
 
-  protected abstract boolean doesEntityMatchFilter( @Nonnull G graph,
-                                                    @Nullable Object subChannelID,
+  protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelDescriptor descriptor,
                                                     @Nullable Object filter,
                                                     @Nonnull Class<?> entityType,
                                                     @Nonnull Object entityID );

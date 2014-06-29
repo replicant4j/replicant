@@ -3,11 +3,9 @@ package org.realityforge.replicant.client;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 /**
  * A class that records the subscriptions to entity graphs.
@@ -23,15 +21,6 @@ public class EntitySubscriptionManagerImpl
 
   // Entity map: Type => ID
   private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
-
-  @Nonnull
-  private final EntityRepository _repository;
-
-  @Inject
-  public EntitySubscriptionManagerImpl( @Nonnull final EntityRepository repository )
-  {
-    _repository = repository;
-  }
 
   @Nonnull
   @Override
@@ -198,8 +187,9 @@ public class EntitySubscriptionManagerImpl
   /**
    * {@inheritDoc}
    */
+  @Nonnull
   @Override
-  public final void unsubscribe( @Nonnull final Enum graph )
+  public final ChannelSubscriptionEntry unsubscribe( @Nonnull final Enum graph )
     throws IllegalStateException
   {
     final ChannelSubscriptionEntry entry = _typeSubscriptions.remove( graph );
@@ -207,14 +197,15 @@ public class EntitySubscriptionManagerImpl
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph );
     }
-    deregisterUnOwnedEntities( entry );
+    return entry;
   }
 
   /**
    * {@inheritDoc}
    */
+  @Nonnull
   @Override
-  public final void unsubscribe( @Nonnull final Enum graph, @Nonnull final Object id )
+  public final ChannelSubscriptionEntry unsubscribe( @Nonnull final Enum graph, @Nonnull final Object id )
     throws IllegalStateException
   {
     final Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
@@ -227,28 +218,7 @@ public class EntitySubscriptionManagerImpl
     {
       throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
-    //TODO: Consider moving this method to DataLoaderService and having unsubscribe return entry
-    deregisterUnOwnedEntities( entry );
-  }
-
-  private void deregisterUnOwnedEntities( final ChannelSubscriptionEntry entry )
-  {
-    for ( final Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entitySet : entry.getEntities().entrySet() )
-    {
-      final Class<?> type = entitySet.getKey();
-      for ( Entry<Object, EntitySubscriptionEntry> entityEntry : entitySet.getValue().entrySet() )
-      {
-        final Object entityID = entityEntry.getKey();
-        final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
-        final Map<ChannelDescriptor, ChannelSubscriptionEntry> graphSubscriptions =
-          entitySubscription.getRwGraphSubscriptions();
-        final ChannelSubscriptionEntry element = graphSubscriptions.remove( entry.getDescriptor() );
-        if ( null != element && 0 == graphSubscriptions.size() )
-        {
-          _repository.deregisterEntity( type, entityID );
-        }
-      }
-    }
+    return entry;
   }
 
   @Nonnull

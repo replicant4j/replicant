@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -139,8 +140,7 @@ final class TestDataLoadService
   }
 
   @Override
-  protected boolean doesEntityMatchFilter( @Nonnull final TestGraph graph,
-                                           @Nullable final Object subChannelID,
+  protected boolean doesEntityMatchFilter( @Nonnull final ChannelDescriptor descriptor,
                                            @Nullable final Object filter,
                                            @Nonnull final Class<?> entityType,
                                            @Nonnull final Object entityID )
@@ -149,10 +149,7 @@ final class TestDataLoadService
   }
 
   @Override
-  protected int updateSubscriptionForFilteredEntities( final TestGraph graph,
-                                                       final Object subChannelID,
-                                                       final Object filter,
-                                                       final ChannelSubscriptionEntry graphEntry )
+  protected int updateSubscriptionForFilteredEntities( final ChannelSubscriptionEntry graphEntry, final Object filter )
   {
     return 0;
   }

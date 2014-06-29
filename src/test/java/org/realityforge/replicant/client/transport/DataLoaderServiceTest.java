@@ -11,6 +11,8 @@ import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelAction.Action;
+import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.Linkable;
@@ -444,6 +446,10 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
+    when( service.getSubscriptionManager().unsubscribe( TestGraph.A ) ).
+      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, null ), null ) );
+    when( service.getSubscriptionManager().unsubscribe( TestGraph.B, 33 ) ).
+      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null ) );
     configureRequests( service, service.getChangeSets() );
     service.getSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();

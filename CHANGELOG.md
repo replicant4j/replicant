@@ -1,3 +1,7 @@
+## 0.5.19:
+* Move the responsibility for deleting the entities form the EntityRepository from
+  the EntitySubscriptionManager to the DataLoaderService.
+
 ## 0.5.18:
 * Initial work to add debugging capability to the EntityRepository via a helper
   class EntityRepositoryDebugger.

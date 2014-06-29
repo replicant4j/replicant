@@ -8,8 +8,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void typeGraphRegistrations()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G1 ) );
 
     assertEquals( sm.getTypeSubscriptions().size(), 0 );
@@ -33,8 +32,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void instanceGraphRegistrations()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G2, 1 ) );
 
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
@@ -62,12 +60,10 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G1 ) );
-    sm.subscribe( G.G1, null );
+    final ChannelSubscriptionEntry e1 = sm.subscribe( G.G1, null );
 
-    r.registerEntity( type, id, new A() );
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
 
     sm.updateEntity( type,
@@ -78,13 +74,11 @@ public class EntitySubscriptionManagerTest
                      id,
                      new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
 
-    assertEntityPresent( type, id, r );
-
-    sm.unsubscribe( G.G1 );
+    final ChannelSubscriptionEntry e2 = sm.unsubscribe( G.G1 );
 
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
 
-    assertEntityNotPresent( type, id, r );
+    assertEquals( e2, e1 );
   }
 
   @Test
@@ -93,12 +87,10 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G1 ) );
     sm.subscribe( G.G1, null );
 
-    r.registerEntity( type, id, new A() );
     sm.updateEntity( type,
                      id,
                      new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
@@ -114,12 +106,12 @@ public class EntitySubscriptionManagerTest
     sm.removeEntity( type, id );
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
 
-    assertEntityPresent( type, id, r );
+    //assertEntityPresent( type, id, r );
 
     sm.unsubscribe( G.G1 );
 
     // Entity still here as unsubscribe did not unload as removed from subscription manager
-    assertEntityPresent( type, id, r );
+    //assertEntityPresent( type, id, r );
   }
 
   @Test
@@ -129,7 +121,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G2, 1 ) );
     sm.subscribe( G.G2, 1, null );
 
@@ -144,20 +136,15 @@ public class EntitySubscriptionManagerTest
                      id,
                      new ChannelDescriptor[]{ new ChannelDescriptor( G.G2, 1 ) } );
 
-    assertEntityPresent( type, id, r );
-
     sm.unsubscribe( G.G2, 1 );
 
     assertEntityNotSubscribed( sm, G.G2, 1, type, id );
-
-    assertEntityNotPresent( type, id, r );
   }
 
   @Test
   public void entitySubscriptionAndUpdateInInstanceGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G2, 1 ) );
 
     final ChannelSubscriptionEntry e1 = sm.subscribe( G.G2, 1, "F1" );
@@ -174,8 +161,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void entitySubscriptionAndUpdateInTypeGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G1 ) );
 
     final ChannelSubscriptionEntry e1 = sm.subscribe( G.G1, "F1" );
@@ -196,7 +182,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G2, 1 ) );
     sm.subscribe( G.G2, 1, null );
 
@@ -216,12 +202,7 @@ public class EntitySubscriptionManagerTest
     sm.removeEntity( type, id );
     assertEntityNotSubscribed( sm, G.G2, 1, type, id );
 
-    assertEntityPresent( type, id, r );
-
     sm.unsubscribe( G.G2, 1 );
-
-    // Entity still here as unsubscribe did not unload as removed from subscription manager
-    assertEntityPresent( type, id, r );
   }
 
   @Test
@@ -231,7 +212,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G1 ) );
     assertNull( sm.findSubscription( G.G2, 1 ) );
     sm.subscribe( G.G1, null );
@@ -254,11 +235,7 @@ public class EntitySubscriptionManagerTest
     assertEntitySubscribed( sm, G.G1, null, type, id );
     assertEntitySubscribed( sm, G.G2, 1, type, id );
 
-    assertEntityPresent( type, id, r );
-
     sm.unsubscribe( G.G1 );
-
-    assertEntityPresent( type, id, r );
 
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
     assertEntitySubscribed( sm, G.G2, 1, type, id );
@@ -267,8 +244,6 @@ public class EntitySubscriptionManagerTest
 
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
     assertEntityNotSubscribed( sm, G.G2, 1, type, id );
-
-    assertEntityNotPresent( type, id, r );
   }
 
   @Test
@@ -278,7 +253,7 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( G.G1 ) );
     assertNull( sm.findSubscription( G.G2 ) );
 
@@ -335,28 +310,21 @@ public class EntitySubscriptionManagerTest
 
   private void assertEntityNotSubscribed( final EntitySubscriptionManager sm,
                                           final G graph,
-                                          final Object graphID,
+                                          final Object subChannelID,
                                           final Class<A> type,
                                           final Object id )
   {
-    boolean found = false;
+    boolean found;
     try
     {
-      assertNotNull( sm.getSubscription( graph ).getEntities().get( type ).get( id ) );
+      final ChannelSubscriptionEntry subscription =
+        null == subChannelID ? sm.getSubscription( graph ) :  sm.getSubscription( graph, subChannelID );
+      assertNotNull( subscription.getEntities().get( type ).get( id ) );
       found = true;
     }
     catch ( final Throwable t )
     {
-    }
-    assertFalse( found, "Found subscription unexpectedly" );
-    try
-    {
-      final EntitySubscriptionEntry subscription = sm.getSubscription( type, id );
-      assertNotNull( subscription.getGraphSubscriptions().get( new ChannelDescriptor( graph, graphID ) ) );
-      found = true;
-    }
-    catch ( final Throwable t )
-    {
+      found = false;
     }
     assertFalse( found, "Found subscription unexpectedly" );
   }
@@ -365,8 +333,7 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph already subscribed: .*" )
   public void subscribe_nonExistentTypeGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.subscribe( G.G1, null );
     sm.subscribe( G.G1, null );
   }
@@ -375,8 +342,7 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void getSubscription_nonExistentTypeGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.getSubscription( G.G1 );
   }
 
@@ -384,8 +350,7 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentTypeGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.unsubscribe( G.G1 );
   }
 
@@ -393,8 +358,7 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph already subscribed: .*:1" )
   public void subscribe_nonExistentInstanceGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.subscribe( G.G1, "1", null );
     sm.subscribe( G.G1, "1", null );
   }
@@ -403,8 +367,7 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void getSubscription_nonExistentInstanceGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.getSubscription( G.G1, "1" );
   }
 
@@ -412,8 +375,7 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceGraph()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.unsubscribe( G.G1, "1" );
   }
 
@@ -421,20 +383,9 @@ public class EntitySubscriptionManagerTest
          expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
   {
-    final EntityRepository r = new EntityRepositoryImpl();
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl( r );
+    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.subscribe( G.G1, "1" );
     sm.unsubscribe( G.G1, "2" );
-  }
-
-  private void assertEntityNotPresent( final Class<A> type, final Object id, final EntityRepository r )
-  {
-    assertNull( r.findByID( type, id ) );
-  }
-
-  private void assertEntityPresent( final Class<A> type, final Object id, final EntityRepository r )
-  {
-    assertNotNull( r.findByID( type, id ) );
   }
 
   static enum G

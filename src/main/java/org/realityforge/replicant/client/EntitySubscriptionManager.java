@@ -122,9 +122,11 @@ public interface EntitySubscriptionManager
    * Unsubscribe from graph containing types.
    *
    * @param graph the graph to unsubscribe from.
+   * @return the subscription entry.
    * @throws IllegalStateException if graph not subscribed to.
    */
-  void unsubscribe( @Nonnull Enum graph )
+  @Nonnull
+  ChannelSubscriptionEntry unsubscribe( @Nonnull Enum graph )
     throws IllegalStateException;
 
   /**
@@ -132,9 +134,11 @@ public interface EntitySubscriptionManager
    *
    * @param graph the graph to unsubscribe from.
    * @param id    the id of the root object.
+   * @return the subscription entry.
    * @throws IllegalStateException if graph not subscribed to.
    */
-  void unsubscribe( @Nonnull Enum graph, @Nonnull Object id )
+  @Nonnull
+  ChannelSubscriptionEntry unsubscribe( @Nonnull Enum graph, @Nonnull Object id )
     throws IllegalStateException;
 
   /**

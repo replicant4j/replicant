@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Representation of a subscriptions that impact entity.
@@ -42,5 +43,11 @@ public class EntitySubscriptionEntry
   final Map<ChannelDescriptor, ChannelSubscriptionEntry> getRwGraphSubscriptions()
   {
     return _graphSubscriptions;
+  }
+
+  @Nullable
+  public ChannelSubscriptionEntry deregisterGraph( @Nonnull final ChannelDescriptor descriptor )
+  {
+    return getRwGraphSubscriptions().remove( descriptor );
   }
 }
