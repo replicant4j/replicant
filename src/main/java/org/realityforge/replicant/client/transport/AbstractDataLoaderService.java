@@ -533,7 +533,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
             entry = _subscriptionManager.unsubscribe( graph, subChannelID );
           }
           final int removedEntities = deregisterUnOwnedEntities( entry );
-          //TODO: -1 is wrong but wont calculate correctly until the code is imported into this class
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
