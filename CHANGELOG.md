@@ -1,5 +1,5 @@
 ## 0.5.19:
-* Move the responsibility for deleting the entities form the EntityRepository from
+* Move the responsibility for deleting the entities from the EntityRepository from
   the EntitySubscriptionManager to the DataLoaderService.
 
 ## 0.5.18:
