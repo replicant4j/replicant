@@ -52,12 +52,4 @@ public interface EntityRepository
    */
   @Nonnull
   ArrayList<Class> getTypes();
-
-  /**
-   * Iterate through all of the entities in the repository and raise an exception if any invalid entities are found.
-   *
-   * @throws Exception if an invalid entity is in the repository.
-   */
-  void validate()
-    throws Exception;
 }

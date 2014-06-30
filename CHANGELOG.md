@@ -1,3 +1,7 @@
+## 0.5.20:
+* Move the responsibility for validating the entities in the EntityRepository to
+  the EntitySubscriptionValidator.
+
 ## 0.5.19:
 * Move the responsibility for deleting the entities from the EntityRepository from
   the EntitySubscriptionManager to the DataLoaderService.

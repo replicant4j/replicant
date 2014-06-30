@@ -18,6 +18,7 @@ import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntityRepositoryDebugger;
+import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
@@ -828,16 +829,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   /**
    * Perform a validation of the EntityRepository.
    */
-  protected final void validateRepository()
+  protected void validateRepository()
   {
-    try
-    {
-      _repository.validate();
-    }
-    catch ( final Exception e )
-    {
-      throw new IllegalStateException( e.getMessage(), e );
-    }
+    getEntityRepositoryValidator().validate( getRepository() );
+  }
+
+  protected EntityRepositoryValidator getEntityRepositoryValidator()
+  {
+    return new EntityRepositoryValidator();
   }
 
   protected boolean repositoryDebugOutputEnabled()

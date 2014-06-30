@@ -98,7 +98,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker() ).disable();
     verify( service.getChangeBroker() ).enable();
     assertTrue( service.isBulkLoadCompleteCalled() );
@@ -143,7 +143,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( cacheService ).store( "MetaData", "1 Jan 2020", "Data" );
 
     assertRequestProcessed( service, request );
@@ -169,7 +169,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( cacheService, never() ).store( anyString(), anyString(), anyString() );
   }
 
@@ -208,7 +208,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker() ).disable();
     verify( service.getChangeBroker() ).enable();
     assertTrue( service.isBulkLoadCompleteCalled() );
@@ -289,7 +289,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker(), never() ).disable();
     verify( service.getChangeBroker(), never() ).enable();
     assertFalse( service.isBulkLoadCompleteCalled() );
@@ -317,7 +317,7 @@ public class DataLoaderServiceTest
 
     progressWorkTillDone( service, 9, 1 );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity, never() ).link();
   }
@@ -336,7 +336,7 @@ public class DataLoaderServiceTest
 
     progressWorkTillDone( service, 9, 1 );
 
-    verify( service.getRepository(), times( 1 ) ).validate();
+    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
 
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
@@ -359,7 +359,7 @@ public class DataLoaderServiceTest
 
     progressWorkTillDone( service, 11, 2 );
 
-    verify( service.getRepository(), never() ).validate();
+    verify( service.getEntityRepositoryValidator(), never() ).validate( service.getRepository() );
   }
 
   @Test

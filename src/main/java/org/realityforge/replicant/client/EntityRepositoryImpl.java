@@ -2,7 +2,6 @@ package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -116,32 +115,6 @@ public class EntityRepositoryImpl
   public ArrayList<Class> getTypes()
   {
     return new ArrayList<>( _dataStore.keySet() );
-  }
-
-  @Override
-  public void validate()
-    throws Exception
-  {
-    for ( final Entry<Class, HashMap<Object, ?>> entry : _dataStore.entrySet() )
-    {
-      for ( final Entry<Object, ?> entityEntry : entry.getValue().entrySet() )
-      {
-        final Object entity = entityEntry.getValue();
-        if ( entity instanceof Linkable )
-        {
-          if ( !( (Linkable) entity ).isValid() )
-          {
-            final String message =
-              "Invalid " + describeEntity( entry.getKey(), entityEntry.getKey() ) + " found. Entity = " + entity;
-            throw new Exception( message );
-          }
-        }
-        if ( entity instanceof Verifiable )
-        {
-          ( (Verifiable) entity ).verify();
-        }
-      }
-    }
   }
 
   @SuppressWarnings({ "unchecked" })

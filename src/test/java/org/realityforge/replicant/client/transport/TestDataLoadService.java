@@ -10,12 +10,14 @@ import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import static org.mockito.Mockito.*;
 
 final class TestDataLoadService
   extends AbstractDataLoaderService<TestClientSession, TestGraph>
 {
+  private final EntityRepositoryValidator _validator;
   private boolean _validateOnLoad;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
@@ -29,6 +31,13 @@ final class TestDataLoadService
            mock( EntityRepository.class ),
            mock( CacheService.class ),
            mock( EntitySubscriptionManager.class ) );
+    _validator = mock( EntityRepositoryValidator.class );
+  }
+
+  @Override
+  protected EntityRepositoryValidator getEntityRepositoryValidator()
+  {
+    return _validator;
   }
 
   public void setValidateOnLoad( final boolean validateOnLoad )
