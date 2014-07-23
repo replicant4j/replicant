@@ -28,7 +28,7 @@ public class EntityChangeBrokerImpl
   /**
    * List of listeners that we either have to add or removed after message delivery completes.
    */
-  private final LinkedList<DeferredListenerAction> _deferredListenerActions = new LinkedList<DeferredListenerAction>();
+  private final LinkedList<DeferredListenerAction> _deferredListenerActions = new LinkedList<>();
 
   /**
    * Backlog of events we still have to send.
@@ -36,9 +36,9 @@ public class EntityChangeBrokerImpl
   private LinkedList<EntityChangeEvent> _deferredEvents;
 
   private ListenerEntry[] _globalListeners = _emptyListenerSet;
-  private final HashMap<EntityChangeListener, ListenerEntry> _listenerEntries = new HashMap<EntityChangeListener, ListenerEntry>();
-  private final Map<Object, ListenerEntry[]> _objectListeners = new HashMap<Object, ListenerEntry[]>();
-  private final Map<Class, ListenerEntry[]> _classListeners = new HashMap<Class, ListenerEntry[]>();
+  private final HashMap<EntityChangeListener, ListenerEntry> _listenerEntries = new HashMap<>();
+  private final Map<Object, ListenerEntry[]> _objectListeners = new HashMap<>();
+  private final Map<Class, ListenerEntry[]> _classListeners = new HashMap<>();
 
   private boolean _raiseErrorOnEventHandlerError = true;
 
@@ -193,13 +193,13 @@ public class EntityChangeBrokerImpl
           removeChangeListener( listener );
         }
         final HashSet<Class> types = entry.interestedTypeSet();
-        final HashSet<Class> typesToRemove = types.size() > 1 ? new HashSet<Class>( types ) : types;
+        final HashSet<Class> typesToRemove = types.size() > 1 ? new HashSet<>( types ) : types;
         for ( final Class type : typesToRemove )
         {
           removeChangeListener( type, listener );
         }
         final HashSet<Object> instances = entry.interestedInstanceSet();
-        final HashSet<Object> instancesToRemove = instances.size() > 1 ? new HashSet<Object>( instances ) : instances;
+        final HashSet<Object> instancesToRemove = instances.size() > 1 ? new HashSet<>( instances ) : instances;
         for ( final Object instance : instancesToRemove )
         {
           removeChangeListener( instance, listener );
@@ -347,7 +347,7 @@ public class EntityChangeBrokerImpl
       {
         if ( null == _deferredEvents )
         {
-          _deferredEvents = new LinkedList<EntityChangeEvent>();
+          _deferredEvents = new LinkedList<>();
         }
         _deferredEvents.add( event );
       }

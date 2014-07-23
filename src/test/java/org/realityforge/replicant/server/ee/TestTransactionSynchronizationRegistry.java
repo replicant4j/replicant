@@ -7,7 +7,7 @@ import javax.transaction.TransactionSynchronizationRegistry;
 public class TestTransactionSynchronizationRegistry
   implements TransactionSynchronizationRegistry
 {
-  private final HashMap<Object, Object> _resources = new HashMap<Object, Object>();
+  private final HashMap<Object, Object> _resources = new HashMap<>();
 
   private boolean _rollBackOnly;
 

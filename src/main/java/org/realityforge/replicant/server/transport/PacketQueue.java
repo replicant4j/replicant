@@ -15,7 +15,7 @@ public class PacketQueue
   /**
    * List of packets associated with session.
    */
-  private final LinkedList<Packet> _packets = new LinkedList<Packet>();
+  private final LinkedList<Packet> _packets = new LinkedList<>();
   /**
    * Sequence of last packet removed from queue.
    */

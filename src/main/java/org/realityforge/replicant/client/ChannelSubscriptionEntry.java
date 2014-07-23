@@ -16,7 +16,7 @@ public final class ChannelSubscriptionEntry
   private Object _filter;
 
   private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _entities =
-    new HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>>();
+    new HashMap<>();
   private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _roEntities =
     Collections.unmodifiableMap( _entities );
 

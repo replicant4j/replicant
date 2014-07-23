@@ -7,8 +7,8 @@ import javax.annotation.Nonnull;
 
 public final class ChangeSet
 {
-  private final LinkedList<ChannelAction> _channelActions = new LinkedList<ChannelAction>();
-  private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<String, Change>();
+  private final LinkedList<ChannelAction> _channelActions = new LinkedList<>();
+  private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<>();
 
   public void addAction( @Nonnull final ChannelAction action )
   {

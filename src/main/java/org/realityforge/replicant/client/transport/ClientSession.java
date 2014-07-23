@@ -20,7 +20,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
   @Nonnull
   private final AbstractDataLoaderService<T, G> _dataLoaderService;
   private final String _sessionID;
-  private final Map<String, RequestEntry> _requests = new HashMap<String, RequestEntry>();
+  private final Map<String, RequestEntry> _requests = new HashMap<>();
   private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
   private int _requestID;
 
@@ -28,21 +28,21 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
    * Pending actions that will change the area of interest.
    */
   private final LinkedList<AreaOfInterestAction<G>> _pendingAreaOfInterestActions =
-    new LinkedList<AreaOfInterestAction<G>>();
+    new LinkedList<>();
   /**
    * The set of data load actions that still need to have the json parsed.
    */
-  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<DataLoadAction>();
+  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<>();
   /**
    * The set of data load actions that have their json parsed. They are inserted into
    * this list according to their sequence.
    */
-  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<DataLoadAction>();
+  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<>();
   /**
    * Sometimes a data load action occurs that is not initiated by the server. These do not
    * typically need to be sequenced and are prioritized above other actions.
    */
-  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<DataLoadAction>();
+  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
 
   private int _lastRxSequence;
 
@@ -91,7 +91,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
                                  @Nullable final Runnable userAction )
   {
     _pendingAreaOfInterestActions.
-      add( new AreaOfInterestAction<G>( graph, action, cacheKey, id, filterParameter, userAction ) );
+      add( new AreaOfInterestAction<>( graph, action, cacheKey, id, filterParameter, userAction ) );
     _dataLoaderService.scheduleDataLoad();
   }
 

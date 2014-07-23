@@ -157,8 +157,8 @@ public final class JsonEncoderTest
   {
     final String id = "myID";
     final int typeID = 42;
-    final HashMap<String, Serializable> routingKeys = new HashMap<String, Serializable>();
-    final HashMap<String, Serializable> attributeData = new HashMap<String, Serializable>();
+    final HashMap<String, Serializable> routingKeys = new HashMap<>();
+    final HashMap<String, Serializable> attributeData = new HashMap<>();
     attributeData.put( "X", 1392061102056L );
     final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData, null );
     final ChangeSet cs = new ChangeSet();

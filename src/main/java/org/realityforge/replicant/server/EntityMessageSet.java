@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 
 public final class EntityMessageSet
 {
-  private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<String, EntityMessage>();
+  private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<>();
 
   public boolean containsEntityMessage( final int typeID, @Nonnull final Serializable id )
   {

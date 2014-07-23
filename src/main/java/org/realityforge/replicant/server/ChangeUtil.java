@@ -16,7 +16,7 @@ public final class ChangeUtil
                                         final int channelID,
                                         @Nullable final Serializable subChannelID )
   {
-    final ArrayList<Change> changes = new ArrayList<Change>( messages.size() );
+    final ArrayList<Change> changes = new ArrayList<>( messages.size() );
     for ( final EntityMessage message : messages )
     {
       changes.add( new Change( message, channelID, subChannelID ) );

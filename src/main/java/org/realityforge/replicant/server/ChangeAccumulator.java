@@ -13,7 +13,7 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
  */
 public final class ChangeAccumulator
 {
-  private final Map<ReplicantSession, ChangeSet> _changeSets = new HashMap<ReplicantSession, ChangeSet>();
+  private final Map<ReplicantSession, ChangeSet> _changeSets = new HashMap<>();
 
   public void addAction( @Nonnull final ReplicantSession session, @Nonnull final ChannelAction action )
   {

@@ -18,7 +18,7 @@ public class Change
   {
     _id = entityMessage.getTypeID() + "#" + entityMessage.getID();
     _entityMessage = entityMessage;
-    _channels = new LinkedHashMap<Integer, Serializable>();
+    _channels = new LinkedHashMap<>();
   }
 
   public Change( @Nonnull final EntityMessage entityMessage,
