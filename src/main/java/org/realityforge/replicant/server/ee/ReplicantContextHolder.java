@@ -76,7 +76,6 @@ public final class ReplicantContextHolder
    * @param key the key.
    * @return true if the context contains key.
    */
-  @Nullable
   public static boolean contains( @Nonnull final String key )
   {
     return null != get( key );
