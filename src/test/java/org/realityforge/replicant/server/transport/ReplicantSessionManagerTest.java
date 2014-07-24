@@ -51,24 +51,6 @@ public class ReplicantSessionManagerTest
     assertEquals( sm.poll( session, p3.getSequence() ), null );
   }
 
-  @Test
-  public void ensureSession()
-    throws Exception
-  {
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-    try
-    {
-      sm.ensureSession( "X" );
-      fail( "" );
-    }
-    catch ( final BadSessionException e )
-    {
-      //Ignore
-    }
-    final TestSession session = sm.createSession();
-    assertEquals( sm.ensureSession( session.getSessionID() ), session );
-  }
-
   private void set( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
     throws Exception
   {

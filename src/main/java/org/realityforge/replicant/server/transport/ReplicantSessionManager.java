@@ -62,23 +62,4 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
     queue.ack( lastSequenceAcked );
     return queue.nextPacketToProcess();
   }
-
-  /**
-   * Return the session associated with the specified id.
-   *
-   * @param sessionID the session id.
-   * @return the associated session.
-   * @throws BadSessionException if unable to locate session with specified id.
-   */
-  @Nonnull
-  protected final T ensureSession( @Nonnull final String sessionID )
-    throws BadSessionException
-  {
-    final T session = getSession( sessionID );
-    if ( null == session )
-    {
-      throw new BadSessionException();
-    }
-    return session;
-  }
 }
