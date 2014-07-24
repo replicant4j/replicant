@@ -1,3 +1,7 @@
+## 0.5.21:
+* Remove BadSessionException and associated ensureSession so domgen can generate
+  a customized implementation.
+
 ## 0.5.20:
 * Move the responsibility for validating the entities in the EntityRepository to
   the EntitySubscriptionValidator.
