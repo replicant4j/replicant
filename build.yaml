@@ -3,12 +3,9 @@ repositories:
    - http://repo1.maven.org/maven2
 
 artifacts:
-  javax_inject: javax.inject:javax.inject:jar:1
-  javax_transaction: javax.transaction:jta:jar:1.1
-  javax_interceptor: org.apache.geronimo.specs:geronimo-interceptor_1.1_spec:jar:1.0
-  javax_naming: geronimo:geronimo-naming:jar:1.1.1
-  javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
-  javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
+  javax_annotation: com.google.code.findbugs:jsr305:jar:3.0.0
+  javax_javaee: javax:javaee-api:jar:7.0
+
   gwt_user: com.google.gwt:gwt-user:jar:2.6.1
 
   #
@@ -23,14 +20,13 @@ artifacts:
 
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.28
+  javax_json_impl: org.glassfish:javax.json:jar:1.0.3
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.38
 
   #
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.9.5
 
-  # JEE7 json library
-  javax_json: org.glassfish:javax.json:jar:1.0.3
 
   simple_session_filter: org.realityforge.ssf:simple-session-filter:jar:0.2
 

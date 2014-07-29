@@ -1,3 +1,6 @@
+## 0.5.22 (Pending):
+* Move to EE7.
+
 ## 0.5.21:
 * Remove BadSessionException and associated ensureSession so domgen can generate
   a customized implementation.
