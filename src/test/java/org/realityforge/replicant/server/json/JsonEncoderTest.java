@@ -1,16 +1,14 @@
 package org.realityforge.replicant.server.json;
 
 import java.io.Serializable;
-import java.text.ParseException;
+import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
@@ -29,7 +27,7 @@ public final class JsonEncoderTest
 {
   @Test
   public void encodeAllData()
-    throws JSONException, ParseException
+    throws Exception
   {
     final String id = "myID";
     final int typeID = 42;
@@ -63,7 +61,7 @@ public final class JsonEncoderTest
     cs.merge( change );
     cs.addAction( new ChannelAction( new ChannelDescriptor( 45, "X" ), Action.UPDATE, filter ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
-    final JSONObject changeSet = new JSONObject( encoded );
+    final JsonObject changeSet = toJsonObject( encoded );
 
     assertNotNull( changeSet );
 
@@ -71,45 +69,45 @@ public final class JsonEncoderTest
     assertEquals( changeSet.getString( TransportConstants.REQUEST_ID ), requestID );
     assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
 
-    final JSONObject action = changeSet.getJSONArray( TransportConstants.CHANNEL_ACTIONS ).getJSONObject( 0 );
+    final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );
     assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
     assertEquals( action.getString( TransportConstants.SUBCHANNEL_ID ), "X" );
     assertEquals( action.getString( TransportConstants.ACTION ), "update" );
-    assertEquals( action.getJSONObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
+    assertEquals( action.getJsonObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
 
-    final JSONObject object = changeSet.getJSONArray( TransportConstants.CHANGES ).getJSONObject( 0 );
+    final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
     assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
-    final JSONObject data = object.getJSONObject( TransportConstants.DATA );
+    final JsonObject data = object.getJsonObject( TransportConstants.DATA );
     assertNotNull( data );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
     assertTrue( data.getString( "key3" ).startsWith( "2001-07-05T05:08:56.000" ) );
 
-    final JSONArray channels = object.getJSONArray( TransportConstants.CHANNELS );
+    final JsonArray channels = object.getJsonArray( TransportConstants.CHANNELS );
     assertNotNull( channels );
-    assertEquals( channels.length(), 3 );
-    final JSONObject channel1 = channels.getJSONObject( 0 );
+    assertEquals( channels.size(), 3 );
+    final JsonObject channel1 = channels.getJsonObject( 0 );
     assertNotNull( channel1 );
-    final JSONObject channel2 = channels.getJSONObject( 1 );
+    final JsonObject channel2 = channels.getJsonObject( 1 );
     assertNotNull( channel2 );
-    final JSONObject channel3 = channels.getJSONObject( 2 );
+    final JsonObject channel3 = channels.getJsonObject( 2 );
     assertNotNull( channel3 );
 
     assertEquals( channel1.getInt( TransportConstants.CHANNEL_ID ), 1 );
     assertEquals( channel2.getInt( TransportConstants.CHANNEL_ID ), 2 );
     assertEquals( channel3.getInt( TransportConstants.CHANNEL_ID ), 3 );
 
-    assertNull( channel1.opt( TransportConstants.SUBCHANNEL_ID ) );
+    assertFalse( channel1.containsKey( TransportConstants.SUBCHANNEL_ID ) );
     assertEquals( channel2.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
     assertEquals( channel3.getString( TransportConstants.SUBCHANNEL_ID ), "Blah" );
   }
 
   @Test
   public void encodeChangeSetFromEntityMessages_deleteMessage()
-    throws JSONException, ParseException
+    throws Exception
   {
     final String id = "myID";
     final int typeID = 42;
@@ -120,40 +118,44 @@ public final class JsonEncoderTest
     final ChangeSet cs = new ChangeSet();
     cs.merge( new Change( message ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, null, null, cs );
-    final JSONObject changeSet = new JSONObject( encoded );
+    final JsonObject changeSet = toJsonObject( encoded );
 
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
 
-    final JSONObject object = changeSet.getJSONArray( TransportConstants.CHANGES ).getJSONObject( 0 );
+    final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
     assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
-    final JSONObject data = object.optJSONObject( TransportConstants.DATA );
-    assertNull( data );
+    assertFalse( object.containsKey( TransportConstants.DATA ) );
   }
 
-@Test
+  private JsonObject toJsonObject( final String encoded )
+  {
+    return Json.createReader( new StringReader( encoded ) ).readObject();
+  }
+
+  @Test
   public void action_WithNull()
-    throws JSONException, ParseException
+    throws Exception
   {
     final ChangeSet cs = new ChangeSet();
     cs.addAction( new ChannelAction( new ChannelDescriptor( 45, null ), Action.ADD, null ) );
-    final JSONObject changeSet = new JSONObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
+    final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
     assertNotNull( changeSet );
 
-    final JSONObject action = changeSet.getJSONArray( TransportConstants.CHANNEL_ACTIONS ).getJSONObject( 0 );
+    final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );
     assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
-    assertNull( action.opt( TransportConstants.SUBCHANNEL_ID ) );
+    assertFalse( action.containsKey( TransportConstants.SUBCHANNEL_ID ) );
     assertEquals( action.getString( TransportConstants.ACTION ), "add" );
-    assertNull( action.optJSONObject( TransportConstants.CHANNEL_FILTER ) );
+    assertFalse( action.containsKey( TransportConstants.CHANNEL_FILTER ) );
   }
 
   @Test
   public void encodeLong()
-    throws JSONException, ParseException
+    throws Exception
   {
     final String id = "myID";
     final int typeID = 42;
@@ -167,10 +169,10 @@ public final class JsonEncoderTest
     final String encoded = JsonEncoder.encodeChangeSet( 0, null, null, cs );
 
     final String value =
-      new JSONObject( encoded ).
-        getJSONArray( TransportConstants.CHANGES ).
-        getJSONObject( 0 ).
-        getJSONObject( TransportConstants.DATA ).
+      toJsonObject( encoded ).
+        getJsonArray( TransportConstants.CHANGES ).
+        getJsonObject( 0 ).
+        getJsonObject( TransportConstants.DATA ).
         getString( "X" );
     assertNotNull( value );
     assertEquals( value, "1392061102056" );

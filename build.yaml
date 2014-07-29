@@ -15,9 +15,6 @@ artifacts:
   google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
   aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
 
-  # Encoding on the server
-  json: org.json:json:jar:20090211
-
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
   javax_json_impl: org.glassfish:javax.json:jar:1.0.3
