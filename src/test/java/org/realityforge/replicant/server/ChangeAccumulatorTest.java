@@ -120,4 +120,18 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     assertNull( c.getQueue().nextPacketToProcess().getRequestID() );
   }
+
+  @Test
+  public void basicOperation_whereNoMessagesSentToInitiator()
+  {
+    final TestSession c = new TestSession( "s1" );
+    final ChangeAccumulator accumulator = new ChangeAccumulator();
+
+    accumulator.getChangeSet( c );
+    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+
+    assertFalse( impactsInitiator );
+
+    assertEquals( c.getQueue().size(), 0 );
+  }
 }

@@ -1,5 +1,8 @@
 ## 0.5.22 (Pending):
 * Move to EE7.
+* Fix bug in ChangeAccumulator where change initiator can be incorrectly identified
+  as having been routed to if a changeset was was accessed via getChangeSet()
+  but no message was ever added to ChangeSet.
 
 ## 0.5.21:
 * Remove BadSessionException and associated ensureSession so domgen can generate
