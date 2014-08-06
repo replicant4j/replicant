@@ -1,4 +1,4 @@
-## 0.5.22 (Pending):
+## 0.5.22:
 * Move to EE7.
 * Fix bug in ChangeAccumulator where change initiator can be incorrectly identified
   as having been routed to if a changeset was was accessed via getChangeSet()
