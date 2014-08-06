@@ -1,3 +1,5 @@
+## 0.5.23 (Pending):
+
 ## 0.5.22:
 * Move to EE7.
 * Fix bug in ChangeAccumulator where change initiator can be incorrectly identified
