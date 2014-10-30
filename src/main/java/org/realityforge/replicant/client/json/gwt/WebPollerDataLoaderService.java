@@ -84,6 +84,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
     setSession( null, null );
   }
 
+  @Nonnull
   protected abstract String getPollURL();
 
   final void handlePollSuccess( final String rawJsonData )
