@@ -1,4 +1,4 @@
-## 0.5.23 (Pending):
+## 0.5.23:
 * Implement WebPollerDataLoaderService to simplify construction of polling based data loaders.
 * Implement purging of subscriptions when the session changes.
 
