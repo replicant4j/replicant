@@ -328,6 +328,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           }
         };
         LOG.warning( "Subscription update of " + label + " requested." );
+        assert null != filterParameter;
         requestUpdateSubscription( graph, id, filterParameter, runnable );
         return true;
       }
@@ -372,7 +373,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected abstract void requestUpdateSubscription( @Nonnull G graph,
                                                      @Nullable Object id,
-                                                     @Nullable Object filterParameter,
+                                                     @Nonnull Object filterParameter,
                                                      @Nonnull Runnable completionAction );
 
   protected final boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
