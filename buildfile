@@ -5,7 +5,7 @@ require 'buildr/gpg'
 
 GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin]
 
-GWT_DEPS = [:gwt_user, :gwt_property_source] + GIN_DEPS
+GWT_DEPS = [:gwt_user, :gwt_property_source, :gwt_webpoller] + GIN_DEPS
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee]
 COMPILE_DEPS = [:simple_session_filter]
 OPTIONAL_DEPS = GWT_DEPS

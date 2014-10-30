@@ -27,3 +27,5 @@ artifacts:
   simple_session_filter: org.realityforge.ssf:simple-session-filter:jar:0.4
 
   gwt_property_source: org.realityforge.gwt.property-source:gwt-property-source:jar:0.2
+
+  gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.8
