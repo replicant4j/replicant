@@ -1,10 +1,12 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -66,6 +68,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   private Runnable _resetAction;
 
+  protected boolean shouldPurgeOnSessionChange()
+  {
+    return true;
+  }
+
   protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
     final Runnable runnable = new Runnable()
@@ -78,9 +85,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           _session = session;
           // This should probably be moved elsewhere ... but where?
           SessionContext.setSession( session );
-          _changeBroker.disable();
-          //TODO: Purge repository
-          _changeBroker.enable();
+          if ( shouldPurgeOnSessionChange() )
+          {
+            _changeBroker.disable();
+            purgeSubscriptions();
+            _changeBroker.enable();
+          }
         }
         if ( null != postAction )
         {
@@ -138,6 +148,31 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       throw new BadSessionException( "Missing session." );
     }
     return session.getSessionID();
+  }
+
+  protected void purgeSubscriptions()
+  {
+    final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
+    for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
+    {
+      final Set<Object> instanceSubscriptions = subscriptionManager.getInstanceSubscriptions( graph );
+      for ( final Object id : instanceSubscriptions )
+      {
+        subscriptionManager.unsubscribe( graph, id );
+      }
+    }
+    for ( final Enum graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
+    {
+      subscriptionManager.unsubscribe( graph );
+    }
+  }
+
+  private ArrayList<Enum> sortGraphs( final Set<Enum> enums )
+  {
+    final ArrayList<Enum> list = new ArrayList<>( enums );
+    Collections.sort( list );
+    Collections.reverse( list );
+    return list;
   }
 
   /**

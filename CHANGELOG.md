@@ -1,4 +1,5 @@
 ## 0.5.23 (Pending):
+* Implement purging of subscriptions when the session changes.
 
 ## 0.5.22:
 * Move to EE7.

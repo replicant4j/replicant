@@ -3,6 +3,8 @@ package org.realityforge.replicant.client.transport;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -15,6 +17,7 @@ import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -22,6 +25,51 @@ import static org.testng.Assert.*;
 
 public class DataLoaderServiceTest
 {
+  enum SimpleGraph
+  {
+    A, B, C, D
+  }
+
+  @Test
+  public void purgeSubscriptions()
+    throws Exception
+  {
+    final TestDataLoadService service = new TestDataLoadService();
+    configureService( service );
+    final EntitySubscriptionManager sm = service.getSubscriptionManager();
+
+    //LinkedHashSet means keys come out in "wrong" order
+    // and will need to be resorted in purgeSubscriptions
+    final HashSet<Enum> instanceGraphs = new LinkedHashSet<>();
+    instanceGraphs.add( SimpleGraph.B );
+    instanceGraphs.add( SimpleGraph.A );
+
+    //LinkedHashSet means keys come out in "wrong" order
+    // and will need to be resorted in purgeSubscriptions
+    final HashSet<Enum> typeGraphs = new LinkedHashSet<>();
+    typeGraphs.add( SimpleGraph.D );
+    typeGraphs.add( SimpleGraph.C );
+
+    final HashSet<Object> aGraph = new HashSet<>();
+    aGraph.add( "1" );
+    final HashSet<Object> bGraph = new HashSet<>();
+    bGraph.add( "2" );
+
+    when( sm.getInstanceSubscriptionKeys() ).thenReturn( instanceGraphs );
+    when( sm.getInstanceSubscriptions( SimpleGraph.A ) ).thenReturn( aGraph );
+    when( sm.getInstanceSubscriptions( SimpleGraph.B ) ).thenReturn( bGraph );
+    when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
+
+    service.purgeSubscriptions();
+
+    final InOrder inOrder = inOrder( sm );
+    inOrder.verify( sm ).unsubscribe( SimpleGraph.B, "2" );
+    inOrder.verify( sm ).unsubscribe( SimpleGraph.A, "1" );
+    inOrder.verify( sm ).unsubscribe( SimpleGraph.D );
+    inOrder.verify( sm ).unsubscribe( SimpleGraph.C );
+    inOrder.verifyNoMoreInteractions();
+  }
+
   @Test
   public void setSession()
     throws Exception
