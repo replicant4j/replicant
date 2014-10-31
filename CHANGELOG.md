@@ -1,4 +1,6 @@
 ## 0.5.25 (Pending):
+* Backport, test and generalize ReplicantPollResource from downstream libraries. This class
+  makes it easy to setup polling for replicant based systems.
 
 ## 0.5.24:
 * Extract utility method AbstractDataLoaderService.unsubscribeInstanceGraphs().

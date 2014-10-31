@@ -30,6 +30,10 @@ public final class ReplicantContext
    * HTTP response header to indicate the whether the request is complete or a change set is expected.
    */
   public static final String REQUEST_COMPLETE_HEADER = "X-GWT-RequestComplete";
+  /**
+   * The url relative to base from which replicant event stream data is retrieved.
+   */
+  public static final String REPLICANT_URL_FRAGMENT = "/replicant";
 
   private ReplicantContext()
   {
