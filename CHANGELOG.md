@@ -1,4 +1,9 @@
-## 0.5.24 (Pending):
+## 0.5.24:
+* Extract utility method AbstractDataLoaderService.unsubscribeInstanceGraphs().
+* Add close handler in WebPollerDataLoaderService that disconnects WebPoller
+  when the windows closes.
+* Correct nullability annotation for filterParameter in
+  AbstractDataLoaderService.requestUpdateSubscription().
 
 ## 0.5.23:
 * Implement WebPollerDataLoaderService to simplify construction of polling based data loaders.
