@@ -155,15 +155,20 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
     {
-      final Set<Object> instanceSubscriptions = subscriptionManager.getInstanceSubscriptions( graph );
-      for ( final Object id : instanceSubscriptions )
-      {
-        subscriptionManager.unsubscribe( graph, id );
-      }
+      unsubscribeInstanceGraphs( graph );
     }
     for ( final Enum graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
     {
       subscriptionManager.unsubscribe( graph );
+    }
+  }
+
+  protected void unsubscribeInstanceGraphs( final Enum graph )
+  {
+    final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
+    for ( final Object id : subscriptionManager.getInstanceSubscriptions( graph ) )
+    {
+      subscriptionManager.unsubscribe( graph, id );
     }
   }
 
