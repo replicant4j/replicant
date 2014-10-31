@@ -1,3 +1,5 @@
+## 0.5.25 (Pending):
+
 ## 0.5.24:
 * Extract utility method AbstractDataLoaderService.unsubscribeInstanceGraphs().
 * Add close handler in WebPollerDataLoaderService that disconnects WebPoller
