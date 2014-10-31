@@ -43,12 +43,12 @@ public class ReplicantSessionManagerTest
     final Packet p2 = session.getQueue().addPacket( null, null, new ChangeSet() );
     final Packet p3 = session.getQueue().addPacket( null, null, new ChangeSet() );
 
-    assertEquals( sm.poll( session, 0 ), p1 );
-    assertEquals( sm.poll( session, 0 ), p1 );
+    assertEquals( sm.pollPacket( session, 0 ), p1 );
+    assertEquals( sm.pollPacket( session, 0 ), p1 );
 
-    assertEquals( sm.poll( session, p1.getSequence() ), p2 );
-    assertEquals( sm.poll( session, p2.getSequence() ), p3 );
-    assertEquals( sm.poll( session, p3.getSequence() ), null );
+    assertEquals( sm.pollPacket( session, p1.getSequence() ), p2 );
+    assertEquals( sm.pollPacket( session, p2.getSequence() ), p3 );
+    assertEquals( sm.pollPacket( session, p3.getSequence() ), null );
   }
 
   private void set( final Object instance, final Class<?> clazz, final String fieldName, final Object value )

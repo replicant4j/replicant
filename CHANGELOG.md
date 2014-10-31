@@ -1,4 +1,5 @@
 ## 0.5.25 (Pending):
+* Rename ReplicantSessionManager.poll() to pollPacket to make it easier to sub-class.
 * Backport, test and generalize ReplicantPollResource from downstream libraries. This class
   makes it easy to setup polling for replicant based systems.
 

@@ -56,7 +56,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
    * @return the packet or null if no packet is ready.
    */
   @Nullable
-  protected final Packet poll( @Nonnull final T session, final int lastSequenceAcked )
+  protected final Packet pollPacket( @Nonnull final T session, final int lastSequenceAcked )
   {
     final PacketQueue queue = session.getQueue();
     queue.ack( lastSequenceAcked );
