@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.json.gwt;
 
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.user.client.Window;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -57,6 +58,20 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
         handleSystemFailure( exception, "Failed to poll" );
       }
     } );
+    setupCloseHandler();
+  }
+
+  protected void setupCloseHandler()
+  {
+    final Window.ClosingHandler handler = new Window.ClosingHandler()
+    {
+      @Override
+      public void onWindowClosing( final Window.ClosingEvent event )
+      {
+        disconnect();
+      }
+    };
+    Window.addWindowClosingHandler( handler );
   }
 
   @Nonnull
