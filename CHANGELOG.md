@@ -3,7 +3,8 @@
   transport layer.
 * Rename ReplicantSessionManager.poll() to pollPacket to make it easier to sub-class.
 * Backport, test and generalize ReplicantPollResource from downstream libraries. This class
-  makes it easy to setup polling for replicant based systems.
+  makes it easy to setup polling for replicant based systems. Derive the default poll
+  url in the WebPollerDataLoaderService assuming the ReplicantPollResource implementation.
 
 ## 0.5.24:
 * Extract utility method AbstractDataLoaderService.unsubscribeInstanceGraphs().
