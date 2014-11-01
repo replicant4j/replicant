@@ -6,6 +6,7 @@ import com.google.gwt.user.client.Window;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
@@ -113,7 +114,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
   /**
    * Set the base url at which the replicant jaxrs resource is anchored.
    */
-  public void setBasePollURL( @Nonnull final String basePollURL )
+  public void setBasePollURL( @Nullable final String basePollURL )
   {
     _basePollURL = basePollURL;
   }
