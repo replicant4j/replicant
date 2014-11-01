@@ -1,9 +1,8 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,8 +29,7 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 @Singleton
 public class ReplicantPollResource
 {
-  private final Map<AsyncResponse, SuspendedRequest> _requests =
-    Collections.synchronizedMap( new HashMap<AsyncResponse, SuspendedRequest>() );
+  private final Map<AsyncResponse, SuspendedRequest> _requests = new ConcurrentHashMap<>();
   private final ScheduledExecutorService _scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
   @Inject
   private ReplicantPollSource _source;
@@ -180,33 +178,30 @@ public class ReplicantPollResource
     @Override
     public void run()
     {
-      synchronized ( _requests )
+      final Iterator<SuspendedRequest> iterator = _requests.values().iterator();
+      while ( iterator.hasNext() )
       {
-        final Iterator<SuspendedRequest> iterator = _requests.values().iterator();
-        while ( iterator.hasNext() )
-        {
-          final SuspendedRequest request = iterator.next();
+        final SuspendedRequest request = iterator.next();
 
-          if ( !request.getResponse().isSuspended() || request.getResponse().isCancelled() )
+        if ( !request.getResponse().isSuspended() || request.getResponse().isCancelled() )
+        {
+          iterator.remove();
+        }
+        else
+        {
+          try
           {
-            iterator.remove();
-          }
-          else
-          {
-            try
+            final String data = _source.poll( request.getSessionID(), request.getRxSequence() );
+            if ( null != data )
             {
-              final String data = _source.poll( request.getSessionID(), request.getRxSequence() );
-              if ( null != data )
-              {
-                request.getResponse().resume( data );
-                iterator.remove();
-              }
-            }
-            catch ( final Exception e )
-            {
-              request.getResponse().resume( e );
+              request.getResponse().resume( data );
               iterator.remove();
             }
+          }
+          catch ( final Exception e )
+          {
+            request.getResponse().resume( e );
+            iterator.remove();
           }
         }
       }
