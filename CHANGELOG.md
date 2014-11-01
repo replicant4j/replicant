@@ -1,4 +1,9 @@
 ## 0.5.26 (Pending):
+* Remove the usage of a Synchronized map and replace with ConcurrentHashMap in
+  ReplicantPollResource as the version if jersey in GlassFish 4.1.0 can result in deadlocks
+  when timeouts are triggered.
+* Remove final qualifier for method in ReplicantPollResource as CDI attempts to intercept
+  method in GlassFish 4.1.0.
 * Refactor SessionContext is not static, thus allowing multiple contexts within a single
   application.
 
