@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.json.gwt;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.user.client.Window;
 import java.util.Map;
@@ -21,6 +22,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
   extends GwtDataLoaderService<T, G>
 {
   private final WebPoller _webPoller = WebPoller.newWebPoller();
+  private String _basePollURL;
 
   class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
@@ -59,6 +61,15 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
       }
     } );
     setupCloseHandler();
+    _basePollURL = deriveDefaultPollURL();
+  }
+
+  protected String deriveDefaultPollURL()
+  {
+    final String moduleBaseURL = GWT.getModuleBaseURL();
+    final String moduleName = GWT.getModuleName();
+    final String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.length() - moduleName.length() - 1 );
+    return contextURL + "api";
   }
 
   protected void setupCloseHandler()
@@ -99,8 +110,31 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
     setSession( null, null );
   }
 
+  /**
+   * Set the base url at which the replicant jaxrs resource is anchored.
+   */
+  public void setBasePollURL( @Nonnull final String basePollURL )
+  {
+    _basePollURL = basePollURL;
+  }
+
+  /**
+   * Return the base url at which the replicant jaxrs resource is anchored.
+   */
   @Nonnull
-  protected abstract String getPollURL();
+  protected String getBasePollURL()
+  {
+    return _basePollURL;
+  }
+
+  /**
+   * Return the url to poll for replicant data stream, derived from getBasePollURL().
+   */
+  @Nonnull
+  protected String getPollURL()
+  {
+    return getBasePollURL() + ReplicantContext.REPLICANT_URL_FRAGMENT + "?rx=" + getSession().getLastRxSequence();
+  }
 
   final void handlePollSuccess( final String rawJsonData )
   {
