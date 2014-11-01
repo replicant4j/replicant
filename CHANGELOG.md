@@ -1,4 +1,4 @@
-## 0.5.25 (Pending):
+## 0.5.25:
 * Introduce ReplicantJsonSessionManager as all downstream projects use json as their
   transport layer.
 * Rename ReplicantSessionManager.poll() to pollPacket to make it easier to sub-class.
