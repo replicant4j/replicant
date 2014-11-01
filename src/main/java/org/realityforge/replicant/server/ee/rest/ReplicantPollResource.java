@@ -100,7 +100,7 @@ public class ReplicantPollResource
   /**
    * Return a map of pending requests.
    */
-  protected final Map<AsyncResponse, SuspendedRequest> getRequests()
+  protected Map<AsyncResponse, SuspendedRequest> getRequests()
   {
     return _requests;
   }
