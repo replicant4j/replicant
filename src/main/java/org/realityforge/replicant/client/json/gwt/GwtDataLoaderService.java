@@ -10,6 +10,7 @@ import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.SessionContext;
 
 public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G extends Enum>
   extends AbstractDataLoaderService<T, G>
@@ -18,14 +19,15 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G exten
 
   private boolean _incrementalDataLoadInProgress;
 
-  protected GwtDataLoaderService( final ChangeMapper changeMapper,
-                                  final EntityChangeBroker changeBroker,
-                                  final EntityRepository repository,
-                                  final CacheService cacheService,
-                                  final EntitySubscriptionManager subscriptionManager,
-                                  final ReplicantConfig replicantConfig )
+  protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext,
+                                  @Nonnull final ChangeMapper changeMapper,
+                                  @Nonnull final EntityChangeBroker changeBroker,
+                                  @Nonnull final EntityRepository repository,
+                                  @Nonnull final CacheService cacheService,
+                                  @Nonnull final EntitySubscriptionManager subscriptionManager,
+                                  @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager );
+    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager );
     _replicantConfig = replicantConfig;
   }
 

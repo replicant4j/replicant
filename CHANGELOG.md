@@ -1,3 +1,7 @@
+## 0.5.26 (Pending):
+* Refactor SessionContext is not static, thus allowing multiple contexts within a single
+  application.
+
 ## 0.5.25:
 * Introduce ReplicantJsonSessionManager as all downstream projects use json as their
   transport layer.

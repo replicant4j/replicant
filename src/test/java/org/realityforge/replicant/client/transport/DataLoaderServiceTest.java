@@ -82,11 +82,11 @@ public class DataLoaderServiceTest
 
     session1.enqueueOOB( "X", null, false );
 
-    assertEquals( SessionContext.getSession(), null );
+    assertEquals( service.getSessionContext().getSession(), null );
 
     service.setSession( session1, runnable1 );
 
-    assertEquals( SessionContext.getSession(), session1 );
+    assertEquals( service.getSessionContext().getSession(), session1 );
     assertEquals( service.getSession(), session1 );
     verify( runnable1, times( 1 ) ).run();
     verify( service.getChangeBroker(), times( 1 ) ).disable();

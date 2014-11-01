@@ -11,26 +11,19 @@ import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.TestClientSession;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantRpcRequestBuilderTest
 {
-  @BeforeMethod
-  public void setup()
-  {
-    SessionContext.setSession( null );
-    SessionContext.setRequest( null );
-  }
-
   @Test
   public void noContext()
   {
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
-    ReplicantRpcRequestBuilder.INSTANCE.doSetCallback( rb, callback );
+    final SessionContext sessionContext = new SessionContext();
+    new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
     verify( rb, never() ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), anyString() );
     verify( rb, never() ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), anyString() );
@@ -39,10 +32,11 @@ public class ReplicantRpcRequestBuilderTest
   @Test
   public void sessionIDSet()
   {
-    SessionContext.setSession( new TestClientSession( "1" ) );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
-    ReplicantRpcRequestBuilder.INSTANCE.doSetCallback( rb, callback );
+    final SessionContext sessionContext = new SessionContext();
+    sessionContext.setSession( new TestClientSession( "1" ) );
+    new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
     verify( rb ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), refEq( "1" ) );
     verify( rb, never() ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), anyString() );
@@ -53,8 +47,9 @@ public class ReplicantRpcRequestBuilderTest
   {
     final TestClientSession session = new TestClientSession( "1" );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
-    SessionContext.setSession( session );
-    SessionContext.setRequest( requestEntry );
+    final SessionContext sessionContext = new SessionContext();
+    sessionContext.setSession( session );
+    sessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final Request request = mock( Request.class );
@@ -71,7 +66,7 @@ public class ReplicantRpcRequestBuilderTest
         return null;
       }
     } ).when( rb ).setCallback( any( RequestCallback.class ) );
-    ReplicantRpcRequestBuilder.INSTANCE.doSetCallback( rb, callback );
+    new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
     verify( rb ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
@@ -84,8 +79,9 @@ public class ReplicantRpcRequestBuilderTest
   {
     final TestClientSession session = new TestClientSession( "1" );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
-    SessionContext.setSession( session );
-    SessionContext.setRequest( requestEntry );
+    final SessionContext sessionContext = new SessionContext();
+    sessionContext.setSession( session );
+    sessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final Request request = mock( Request.class );
@@ -102,7 +98,7 @@ public class ReplicantRpcRequestBuilderTest
         return null;
       }
     } ).when( rb ).setCallback( any( RequestCallback.class ) );
-    ReplicantRpcRequestBuilder.INSTANCE.doSetCallback( rb, callback );
+    new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
     verify( rb ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
@@ -116,8 +112,9 @@ public class ReplicantRpcRequestBuilderTest
   {
     final TestClientSession session = new TestClientSession( "1" );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
-    SessionContext.setSession( session );
-    SessionContext.setRequest( requestEntry );
+    final SessionContext sessionContext = new SessionContext();
+    sessionContext.setSession( session );
+    sessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final Request request = mock( Request.class );
@@ -133,7 +130,7 @@ public class ReplicantRpcRequestBuilderTest
         return null;
       }
     } ).when( rb ).setCallback( any( RequestCallback.class ) );
-    ReplicantRpcRequestBuilder.INSTANCE.doSetCallback( rb, callback );
+    new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onError( request, exception );
     verify( rb ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );

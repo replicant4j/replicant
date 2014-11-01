@@ -17,6 +17,7 @@ import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
+import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G extends Enum>
@@ -37,14 +38,15 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
     }
   }
 
-  public WebPollerDataLoaderService( final ChangeMapper changeMapper,
-                                     final EntityChangeBroker changeBroker,
-                                     final EntityRepository repository,
-                                     final CacheService cacheService,
-                                     final EntitySubscriptionManager subscriptionManager,
-                                     final ReplicantConfig replicantConfig )
+  public WebPollerDataLoaderService( @Nonnull final SessionContext sessionContext,
+                                     @Nonnull final ChangeMapper changeMapper,
+                                     @Nonnull final EntityChangeBroker changeBroker,
+                                     @Nonnull final EntityRepository repository,
+                                     @Nonnull final CacheService cacheService,
+                                     @Nonnull final EntitySubscriptionManager subscriptionManager,
+                                     @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager, replicantConfig );
+    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager, replicantConfig );
     _webPoller.setListener( new WebPollerListenerAdapter()
     {
       @Override

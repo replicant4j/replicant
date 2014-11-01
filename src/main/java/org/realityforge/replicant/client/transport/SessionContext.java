@@ -4,32 +4,28 @@ import javax.annotation.Nullable;
 
 public final class SessionContext
 {
-  private SessionContext()
-  {
-  }
-
-  private static ClientSession c_session;
-  private static RequestEntry c_request;
+  private ClientSession _session;
+  private RequestEntry _request;
 
   @Nullable
-  public static ClientSession getSession()
+  public ClientSession getSession()
   {
-    return c_session;
+    return _session;
   }
 
-  public static void setSession( @Nullable final ClientSession session )
+  public void setSession( @Nullable final ClientSession session )
   {
-    c_session = session;
+    _session = session;
   }
 
   @Nullable
-  public static RequestEntry getRequest()
+  public RequestEntry getRequest()
   {
-    return c_request;
+    return _request;
   }
 
-  public static void setRequest( @Nullable final RequestEntry request )
+  public void setRequest( @Nullable final RequestEntry request )
   {
-    c_request = request;
+    _request = request;
   }
 }

@@ -42,6 +42,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private final EntityRepository _repository;
   private final CacheService _cacheService;
   private final EntitySubscriptionManager _subscriptionManager;
+  private final SessionContext _sessionContext;
 
   private DataLoadAction _currentAction;
   private AreaOfInterestAction<G> _currentAoiAction;
@@ -50,17 +51,24 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   private T _session;
 
-  protected AbstractDataLoaderService( final ChangeMapper changeMapper,
-                                       final EntityChangeBroker changeBroker,
-                                       final EntityRepository repository,
-                                       final CacheService cacheService,
-                                       final EntitySubscriptionManager subscriptionManager )
+  protected AbstractDataLoaderService( @Nonnull final SessionContext sessionContext,
+                                       @Nonnull final ChangeMapper changeMapper,
+                                       @Nonnull final EntityChangeBroker changeBroker,
+                                       @Nonnull final EntityRepository repository,
+                                       @Nonnull final CacheService cacheService,
+                                       @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
+    _sessionContext = sessionContext;
     _changeMapper = changeMapper;
     _changeBroker = changeBroker;
     _repository = repository;
     _cacheService = cacheService;
     _subscriptionManager = subscriptionManager;
+  }
+
+  protected SessionContext getSessionContext()
+  {
+    return _sessionContext;
   }
 
   /**
@@ -84,7 +92,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         {
           _session = session;
           // This should probably be moved elsewhere ... but where?
-          SessionContext.setSession( session );
+          _sessionContext.setSession( session );
           if ( shouldPurgeOnSessionChange() )
           {
             _changeBroker.disable();
