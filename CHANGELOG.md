@@ -1,4 +1,4 @@
-## 0.5.26 (Pending):
+## 0.5.26:
 * Remove the usage of a Synchronized map and replace with ConcurrentHashMap in
   ReplicantPollResource as the version if jersey in GlassFish 4.1.0 can result in deadlocks
   when timeouts are triggered.
