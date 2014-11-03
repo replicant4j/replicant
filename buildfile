@@ -35,7 +35,6 @@ define 'replicant' do
                 :draft_compile => (ENV['FAST_GWT'] == 'true'),
                 :dependencies => [:javax_validation, :javax_validation_sources] + project.compile.dependencies)
 
-
   test.using :testng
   test.compile.with TEST_DEPS
 
