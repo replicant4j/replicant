@@ -1,4 +1,5 @@
 ## 0.5.28 (Pending):
+* Exclude test classes form GWT compiler's path.
 
 ## 0.5.27:
 * Introduce AbstractClientTest to help write client-side tests.
