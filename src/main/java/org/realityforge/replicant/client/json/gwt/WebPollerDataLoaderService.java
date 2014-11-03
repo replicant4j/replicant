@@ -189,7 +189,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     handleSystemFailure( e, "Failed to progress data load" );
   }
 
-  protected abstract void handleSystemFailure( @Nonnull Throwable caught, @Nonnull String message );
+  protected abstract void handleSystemFailure( @Nullable Throwable caught, @Nonnull String message );
 
   private void startPolling()
   {
