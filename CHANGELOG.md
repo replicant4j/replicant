@@ -1,4 +1,4 @@
-## 0.5.27 (Pending):
+## 0.5.27:
 * Introduce AbstractClientTest to help write client-side tests.
 
 ## 0.5.26:
