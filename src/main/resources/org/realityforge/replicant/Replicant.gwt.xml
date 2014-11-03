@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
   <inherits name="org.realityforge.gwt.propertysource.PropertySource"/>
+  <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
+  <inherits name="com.google.gwt.inject.Inject"/>
+  <inherits name="com.google.gwt.storage.Storage"/>
+  <inherits name="com.google.gwt.user.Window"/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+  <inherits name="com.google.gwt.rpc.RPC"/>
 
   <source path='client'>
     <exclude name='**/test/**'/>
