@@ -2,6 +2,7 @@ require 'buildr/git_auto_version'
 require 'buildr/jacoco'
 require 'buildr/custom_pom'
 require 'buildr/gpg'
+require 'buildr/gwt'
 
 GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin]
 
@@ -29,6 +30,12 @@ define 'replicant' do
 
   compile.with PROVIDED_DEPS, COMPILE_DEPS, OPTIONAL_DEPS
 
+  gwt(['org.realityforge.replicant.Replicant'],
+                :java_args => ['-Xms512M', '-Xmx1024M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M'],
+                :draft_compile => (ENV['FAST_GWT'] == 'true'),
+                :dependencies => [:javax_validation, :javax_validation_sources] + project.compile.dependencies)
+
+
   test.using :testng
   test.compile.with TEST_DEPS
 
@@ -37,4 +44,7 @@ define 'replicant' do
   package(:javadoc)
 
   iml.add_jruby_facet
+  iml.add_gwt_facet({'org.realityforge.replicant.Replicant' => true},
+                    :settings => {:compilerMaxHeapSize => '1024'},
+                    :gwt_dev_artifact => :gwt_dev)
 end
