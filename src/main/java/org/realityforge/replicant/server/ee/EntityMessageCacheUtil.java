@@ -136,7 +136,7 @@ public final class EntityMessageCacheUtil
     return messageSet;
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings("unchecked")
   private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
   {
     return (T) r.getResource( key );

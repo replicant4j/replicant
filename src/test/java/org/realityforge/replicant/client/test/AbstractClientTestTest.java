@@ -71,6 +71,6 @@ public class AbstractClientTestTest
 
     verify( eventBus, never() ).addHandler( any( Type.class ), any() );
     t.addHandler( FakeEvent.TYPE, mock( Handler.class ) );
-    verify( eventBus, times( 1 ) ).addHandler( (Event.Type)refEq( FakeEvent.TYPE ), any( Handler.class ) );
+    verify( eventBus, times( 1 ) ).addHandler( (Event.Type) refEq( FakeEvent.TYPE ), any( Handler.class ) );
   }
 }

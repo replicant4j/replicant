@@ -12,7 +12,7 @@ import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.SessionContext;
 
-public abstract class GwtDataLoaderService<T extends ClientSession<T,G>, G extends Enum>
+public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends AbstractDataLoaderService<T, G>
 {
   private final ReplicantConfig _replicantConfig;

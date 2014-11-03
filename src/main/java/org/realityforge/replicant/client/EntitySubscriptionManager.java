@@ -31,7 +31,7 @@ public interface EntitySubscriptionManager
   /**
    * Record a subscription to a graph containing types.
    *
-   * @param graph the graph to subscribe to.
+   * @param graph  the graph to subscribe to.
    * @param filter the filter if subscription is update-able.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
@@ -43,8 +43,8 @@ public interface EntitySubscriptionManager
   /**
    * Subscribe to graph rooted at an instance.
    *
-   * @param graph the graph to subscribe to.
-   * @param id    the id of the root object.
+   * @param graph  the graph to subscribe to.
+   * @param id     the id of the root object.
    * @param filter the filter if subscription is update-able.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
@@ -55,7 +55,7 @@ public interface EntitySubscriptionManager
   /**
    * Update subscription to a graph containing types.
    *
-   * @param graph the graph to subscribe to.
+   * @param graph  the graph to subscribe to.
    * @param filter the filter being updated.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
@@ -67,8 +67,8 @@ public interface EntitySubscriptionManager
   /**
    * Update subscription to graph rooted at an instance.
    *
-   * @param graph the graph to subscribe to.
-   * @param id    the id of the root object.
+   * @param graph  the graph to subscribe to.
+   * @param id     the id of the root object.
    * @param filter the filter being updated.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
@@ -180,14 +180,16 @@ public interface EntitySubscriptionManager
    * Note: It is assumed that the caller will remove the entity from the subscription manager and
    * repository if there are no more subscriptions.
    *
-   * @param type   the type of the entity.
-   * @param id     the id of the entity.
+   * @param type  the type of the entity.
+   * @param id    the id of the entity.
    * @param graph the graph that the entity is to be disassociated from.
    * @return the entry representing entities subscription state.
    * @throws IllegalStateException if no such entity or the entity is not associated with the graph.
    */
   @Nonnull
-  EntitySubscriptionEntry removeEntityFromGraph( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull ChannelDescriptor graph )
+  EntitySubscriptionEntry removeEntityFromGraph( @Nonnull Class<?> type,
+                                                 @Nonnull Object id,
+                                                 @Nonnull ChannelDescriptor graph )
     throws IllegalStateException;
 
   /**

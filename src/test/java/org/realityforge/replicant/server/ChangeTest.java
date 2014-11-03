@@ -38,7 +38,7 @@ public class ChangeTest
     assertNotSame( duplicate.getChannels(), change.getChannels() );
   }
 
-  @SuppressWarnings( "ConstantConditions" )
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void merge_combinesChannels()
   {

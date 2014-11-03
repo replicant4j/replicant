@@ -699,7 +699,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       {
         validateRepository();
       }
-      if( repositoryDebugOutputEnabled() )
+      if ( repositoryDebugOutputEnabled() )
       {
         outputRepositoryDebug();
       }

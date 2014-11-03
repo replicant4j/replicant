@@ -12,7 +12,7 @@ public final class ChannelLink
 
   public ChannelLink( @Nonnull final ChannelDescriptor targetChannel )
   {
-    if( null == targetChannel.getSubChannelID() )
+    if ( null == targetChannel.getSubChannelID() )
     {
       throw new IllegalArgumentException( "Channel Link sub-channel id should not be null" );
     }

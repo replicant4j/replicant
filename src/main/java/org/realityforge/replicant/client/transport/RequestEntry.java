@@ -18,7 +18,10 @@ public class RequestEntry
   private boolean _resultsArrived;
   private Runnable _runnable;
 
-  public RequestEntry( @Nonnull final String requestID, @Nonnull final String requestKey, @Nullable final String cacheKey, final boolean bulkLoad )
+  public RequestEntry( @Nonnull final String requestID,
+                       @Nonnull final String requestKey,
+                       @Nullable final String cacheKey,
+                       final boolean bulkLoad )
   {
     _requestID = requestID;
     _requestKey = requestKey;

@@ -57,13 +57,14 @@ public class EntitySubscriptionManagerImpl
   @Override
   @Nonnull
   public final ChannelSubscriptionEntry subscribe( @Nonnull final Enum graph,
-                                                 @Nullable final Object filter )
+                                                   @Nullable final Object filter )
     throws IllegalStateException
   {
     ChannelSubscriptionEntry typeMap = findSubscription( graph );
     if ( null == typeMap )
     {
-      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( new ChannelDescriptor( graph, null ), filter );
+      final ChannelSubscriptionEntry entry =
+        new ChannelSubscriptionEntry( new ChannelDescriptor( graph, null ), filter );
       _typeSubscriptions.put( graph, entry );
       return entry;
     }
@@ -79,8 +80,8 @@ public class EntitySubscriptionManagerImpl
   @Override
   @Nonnull
   public final ChannelSubscriptionEntry subscribe( @Nonnull final Enum graph,
-                                                 @Nonnull final Object id,
-                                                 @Nullable final Object filter )
+                                                   @Nonnull final Object id,
+                                                   @Nullable final Object filter )
   {
     Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
     if ( null == instanceMap )
@@ -116,8 +117,8 @@ public class EntitySubscriptionManagerImpl
   @Nonnull
   @Override
   public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph,
-                                                    @Nonnull final Object id,
-                                                    @Nonnull final Object filter )
+                                                      @Nonnull final Object id,
+                                                      @Nonnull final Object filter )
   {
     final ChannelSubscriptionEntry subscription = getSubscription( graph, id );
     subscription.setFilter( filter );
@@ -278,10 +279,10 @@ public class EntitySubscriptionManagerImpl
     final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
     final Map<ChannelDescriptor, ChannelSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
     final ChannelSubscriptionEntry graphEntry = subscriptions.remove( graph );
-    if( null == graphEntry )
+    if ( null == graphEntry )
     {
       final String message = "Unable to locate graph " + graph + " for entity " + type.getSimpleName() + "/" + id;
-      throw  new IllegalStateException( message );
+      throw new IllegalStateException( message );
     }
     removeEntityFromGraph( type, id, graphEntry );
     return entry;

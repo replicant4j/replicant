@@ -13,7 +13,7 @@ public class ChannelLinkTest
     assertEquals( link.getTargetChannel().getSubChannelID(), "2" );
   }
 
-  @Test( expectedExceptions = IllegalArgumentException.class )
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void badDescriptor()
   {
     new ChannelLink( new ChannelDescriptor( 1, null ) );

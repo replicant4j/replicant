@@ -13,6 +13,7 @@ public final class ChannelAction
   {
     ADD, REMOVE, UPDATE
   }
+
   @Nonnull
   private final ChannelDescriptor _channelDescriptor;
   @Nonnull

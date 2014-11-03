@@ -54,7 +54,7 @@ public final class JsoChangeSet
   }
 
   private native JsoChange getChange0( final int index )/*-{
-    return this.changes[ index ];
+    return this.changes[index];
   }-*/;
 
   @Override
@@ -76,7 +76,7 @@ public final class JsoChangeSet
   }
 
   private native JsoChannelAction getChannelAction0( final int index )/*-{
-    return this.channel_actions[ index ];
+    return this.channel_actions[index];
   }-*/;
 
   public static ChangeSet asChangeSet( final String json )

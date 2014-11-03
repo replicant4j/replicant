@@ -20,7 +20,7 @@ import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G extends Enum>
+public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends GwtDataLoaderService<T, G>
 {
   private final WebPoller _webPoller = WebPoller.newWebPoller();
@@ -99,12 +99,12 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T,G>, G
   {
     setSession( createSession( sessionID ), new Runnable()
     {
-                  @Override
-                  public void run()
-                  {
-                    onSessionConnected();
-                  }
-                } );
+      @Override
+      public void run()
+      {
+        onSessionConnected();
+      }
+    } );
     scheduleDataLoad();
     startPolling();
   }
