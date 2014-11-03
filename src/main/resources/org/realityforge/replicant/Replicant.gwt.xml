@@ -2,7 +2,9 @@
 <module>
   <inherits name="org.realityforge.gwt.propertysource.PropertySource"/>
 
-  <source path='client'/>
+  <source path='client'>
+    <exclude name='**/test/**'/>
+  </source>
   <source path='shared'/>
 
   <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
