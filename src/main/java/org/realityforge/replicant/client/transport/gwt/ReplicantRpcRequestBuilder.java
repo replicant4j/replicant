@@ -11,7 +11,7 @@ import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public final class ReplicantRpcRequestBuilder
+public class ReplicantRpcRequestBuilder
   extends RpcRequestBuilder
 {
   @Nonnull
