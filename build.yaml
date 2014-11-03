@@ -18,7 +18,7 @@ artifacts:
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
   javax_json_impl: org.glassfish:javax.json:jar:1.0.3
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.38
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.42
 
   #
   # Mocking library

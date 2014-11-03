@@ -8,8 +8,9 @@ GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin]
 GWT_DEPS = [:gwt_user, :gwt_property_source, :gwt_webpoller] + GIN_DEPS
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee]
 COMPILE_DEPS = [:simple_session_filter]
-OPTIONAL_DEPS = GWT_DEPS
-TEST_DEPS = [:mockito, :jndikit, :guiceyloops, :javax_json_impl]
+TEST_INFRA_DEPS = [:mockito, :guiceyloops]
+OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
+TEST_DEPS = TEST_INFRA_DEPS + [:jndikit, :javax_json_impl]
 
 desc 'Replicant: Client-side state representation infrastructure'
 define 'replicant' do

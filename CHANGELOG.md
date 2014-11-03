@@ -1,4 +1,5 @@
 ## 0.5.27 (Pending):
+* Introduce AbstractClientTest to help write client-side tests.
 
 ## 0.5.26:
 * Remove the usage of a Synchronized map and replace with ConcurrentHashMap in
