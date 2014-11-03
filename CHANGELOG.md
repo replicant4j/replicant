@@ -1,4 +1,5 @@
 ## 0.5.29 (Pending):
+* Remove reference to unused module (com.google.gwt.rpc.RPC) that is not present in GWT 2.7.
 
 ## 0.5.28:
 * Exclude test classes form GWT compiler's path.
