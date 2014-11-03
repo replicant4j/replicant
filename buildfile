@@ -35,4 +35,6 @@ define 'replicant' do
   package(:jar).include("#{_(:source, :main, :java)}/*")
   package(:sources)
   package(:javadoc)
+
+  iml.add_jruby_facet
 end
