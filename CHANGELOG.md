@@ -1,4 +1,4 @@
-## 0.5.29 (Pending):
+## 0.5.29:
 * Update WebPollerDataLoaderService to annotate the exception in handleSystemFailure as nullable.
 * Make ReplicantRpcRequestBuilder a non final class.
 * Update SessionContext to have a per-session base url.
