@@ -17,4 +17,7 @@
 
   <define-property name="replicant.repositoryDebugOutputEnabled" values="true,false"/>
   <set-property name="replicant.repositoryDebugOutputEnabled" value="false"/>
+
+  <define-property name="replicant.subscriptionsDebugOutputEnabled" values="true,false"/>
+  <set-property name="replicant.subscriptionsDebugOutputEnabled" value="false"/>
 </module>

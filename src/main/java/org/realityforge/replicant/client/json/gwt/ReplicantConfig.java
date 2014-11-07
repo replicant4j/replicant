@@ -10,4 +10,6 @@ public interface ReplicantConfig
   boolean shouldValidateRepositoryOnLoad();
 
   boolean repositoryDebugOutputEnabled();
+
+  boolean subscriptionsDebugOutputEnabled();
 }

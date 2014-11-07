@@ -1,4 +1,5 @@
 ## 0.5.30 (Pending):
+* Add EntitySubscriptionDebugger to support debugging the set of subscriptions.
 * If repository debug output is enabled in application then print out a helper message
   when the GwtDataLoaderService is defined. Helps developers remember this feature is
   present.

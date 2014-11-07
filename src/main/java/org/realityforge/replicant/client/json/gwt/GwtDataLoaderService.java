@@ -15,6 +15,8 @@ import org.realityforge.replicant.client.transport.SessionContext;
 public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends AbstractDataLoaderService<T, G>
 {
+  private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
+  private static final String REPOSITORY_DEBUG = "imitRepositoryDebug";
   private final ReplicantConfig _replicantConfig;
 
   private boolean _incrementalDataLoadInProgress;
@@ -34,11 +36,27 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     {
       final String message =
         getSessionContext().getKey() + ".RepositoryDebugOutput module is enabled. Run the javascript " +
-        "'window.imitRepositoryDebug = true' to enable debug output when change messages arrive. To limit " +
-        "the debug output to just this data loader run the javascript 'window." +
-        getSessionContext().getKey() + " = {imitRepositoryDebug: true}'";
+        "'window." + REPOSITORY_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
+        "the debug output to just this data loader run the javascript '" +
+        toSessionSpecificJavascript( REPOSITORY_DEBUG ) + "'";
       LOG.info( message );
     }
+
+    if ( _replicantConfig.subscriptionsDebugOutputEnabled() )
+    {
+      final String message =
+        getSessionContext().getKey() + ".RepositoryDebugOutput module is enabled. Run the javascript " +
+        "'window." + SUBSCRIPTION_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
+        "the debug output to just this data loader run the javascript '" +
+        toSessionSpecificJavascript( SUBSCRIPTION_DEBUG ) + "'";
+      LOG.info( message );
+    }
+  }
+
+  private String toSessionSpecificJavascript( final String variable )
+  {
+    final String key = getSessionContext().getKey();
+    return "( window." + key + " ? window." + key + " : window." + key + " = {} )." + variable + " = true";
   }
 
   @Override
@@ -50,16 +68,22 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   //Static class to help check whether debug is enabled at the current time
   private static class RepositoryDebugEnabledChecker
   {
-    public static native boolean isEnabled( final String key ) /*-{
-      return $wnd.imitRepositoryDebug == true || ($wnd[key] && $wnd[key].imitRepositoryDebug == true);
+    public static native boolean isEnabled( String sessionKey, String feature ) /*-{
+      return $wnd[feature] == true || ($wnd[sessionKey] && $wnd[sessionKey][feature] == true);
     }-*/;
+  }
+
+  protected boolean subscriptionsDebugOutputEnabled()
+  {
+    return _replicantConfig.subscriptionsDebugOutputEnabled() &&
+           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), SUBSCRIPTION_DEBUG );
   }
 
   @Override
   protected boolean repositoryDebugOutputEnabled()
   {
     return _replicantConfig.repositoryDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey() );
+           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), REPOSITORY_DEBUG );
   }
 
   @Override

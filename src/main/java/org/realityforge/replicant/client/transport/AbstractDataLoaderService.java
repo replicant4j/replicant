@@ -703,6 +703,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       {
         outputRepositoryDebug();
       }
+      if ( subscriptionsDebugOutputEnabled() )
+      {
+        outputSubscriptionDebug();
+      }
       return true;
     }
     final DataLoadStatus status = _currentAction.toStatus();
@@ -888,6 +892,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return new EntityRepositoryValidator();
   }
 
+  protected boolean subscriptionsDebugOutputEnabled()
+  {
+    return false;
+  }
+
   protected boolean repositoryDebugOutputEnabled()
   {
     return false;
@@ -901,5 +910,15 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected EntityRepositoryDebugger getEntityRepositoryDebugger()
   {
     return new EntityRepositoryDebugger();
+  }
+
+  protected void outputSubscriptionDebug()
+  {
+    getSubscriptionDebugger().outputSubscriptionManager( getSubscriptionManager() );
+  }
+
+  protected EntitySubscriptionDebugger getSubscriptionDebugger()
+  {
+    return new EntitySubscriptionDebugger();
   }
 }
