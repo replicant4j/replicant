@@ -2,7 +2,8 @@
 * If repository debug output is enabled in application then print out a helper message
   when the GwtDataLoaderService is defined. Helps developers remember this feature is
   present.
-* Associate a symbolic key with each session context.
+* Associate a symbolic key with each session context. Prefix log messages using key and
+  use it to restrict debugging to a particular GwtDataLoaderService subclass.
 
 ## 0.5.29:
 * Update WebPollerDataLoaderService to annotate the exception in handleSystemFailure as nullable.

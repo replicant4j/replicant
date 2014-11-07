@@ -33,9 +33,10 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     if ( _replicantConfig.repositoryDebugOutputEnabled() )
     {
       final String message =
-        "RepositoryDebugOutput module is enabled. Run the javascript 'window.imitRepositoryDebug = true' " +
-        "to enable debug output when change messages arrive. To limit the debug output to just this " +
-        "data loader run the javascript 'window." + getSessionContext().getKey() + " = {imitRepositoryDebug: true}'";
+        getSessionContext().getKey() + ".RepositoryDebugOutput module is enabled. Run the javascript " +
+        "'window.imitRepositoryDebug = true' to enable debug output when change messages arrive. To limit " +
+        "the debug output to just this data loader run the javascript 'window." +
+        getSessionContext().getKey() + " = {imitRepositoryDebug: true}'";
       LOG.info( message );
     }
   }

@@ -165,7 +165,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
         0 != threshold && rawJsonData.length() > threshold ?
         rawJsonData.substring( 0, threshold ) + "..." :
         rawJsonData;
-      LOG.info( "Received data from poll: " + messageData );
+      LOG.info( getSessionContext().getKey() + ".Poll - Received data: " + messageData );
     }
   }
 
