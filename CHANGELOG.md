@@ -1,4 +1,4 @@
-## 0.5.30 (Pending):
+## 0.5.30:
 * Add support for debugging entity subscriptions and requests as well as local
   repository state.
 * If repository debug output is enabled in application then print out a helper message
