@@ -5,9 +5,26 @@ import javax.annotation.Nullable;
 
 public final class SessionContext
 {
+  @Nonnull
+  private final String _key;
   private String _baseURL;
   private ClientSession _session;
   private RequestEntry _request;
+
+  public SessionContext( @Nonnull final String key )
+  {
+    _key = key;
+  }
+
+  /**
+   * Symbolic key identifying session. Usually the name of the
+   * replicant session such as "Planner" or "Tyrell".
+   */
+  @Nonnull
+  public String getKey()
+  {
+    return _key;
+  }
 
   @Nonnull
   public String getBaseURL()
