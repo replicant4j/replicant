@@ -29,6 +29,14 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   {
     super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager );
     _replicantConfig = replicantConfig;
+
+    if ( _replicantConfig.repositoryDebugOutputEnabled() )
+    {
+      final String message =
+        "RepositoryDebugOutput module is enabled. Run the javascript 'window.imitRepositoryDebug = true' " +
+        "to enable debug output when change messages arrive.";
+      LOG.info( message );
+    }
   }
 
   @Override
