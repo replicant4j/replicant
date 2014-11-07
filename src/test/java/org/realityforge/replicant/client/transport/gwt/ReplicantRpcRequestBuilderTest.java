@@ -22,7 +22,7 @@ public class ReplicantRpcRequestBuilderTest
   {
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
-    final SessionContext sessionContext = new SessionContext();
+    final SessionContext sessionContext = new SessionContext( "X" );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
     verify( rb, never() ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), anyString() );
@@ -34,7 +34,7 @@ public class ReplicantRpcRequestBuilderTest
   {
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
-    final SessionContext sessionContext = new SessionContext();
+    final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( new TestClientSession( "1" ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
@@ -47,7 +47,7 @@ public class ReplicantRpcRequestBuilderTest
   {
     final TestClientSession session = new TestClientSession( "1" );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
-    final SessionContext sessionContext = new SessionContext();
+    final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
     sessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
@@ -79,7 +79,7 @@ public class ReplicantRpcRequestBuilderTest
   {
     final TestClientSession session = new TestClientSession( "1" );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
-    final SessionContext sessionContext = new SessionContext();
+    final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
     sessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
@@ -112,7 +112,7 @@ public class ReplicantRpcRequestBuilderTest
   {
     final TestClientSession session = new TestClientSession( "1" );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
-    final SessionContext sessionContext = new SessionContext();
+    final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
     sessionContext.setRequest( requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );

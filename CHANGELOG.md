@@ -1,4 +1,5 @@
 ## 0.5.30 (Pending):
+* Associate a symbolic key with each session context.
 
 ## 0.5.29:
 * Update WebPollerDataLoaderService to annotate the exception in handleSystemFailure as nullable.

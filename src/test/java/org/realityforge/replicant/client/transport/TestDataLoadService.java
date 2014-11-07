@@ -26,7 +26,7 @@ final class TestDataLoadService
 
   TestDataLoadService()
   {
-    super( new SessionContext(),
+    super( new SessionContext( "X" ),
            mock( ChangeMapper.class ),
            mock( EntityChangeBroker.class ),
            mock( EntityRepository.class ),
