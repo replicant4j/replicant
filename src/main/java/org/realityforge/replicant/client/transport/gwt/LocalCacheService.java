@@ -23,7 +23,7 @@ public class LocalCacheService
    * {@inheritDoc}
    */
   @Override
-  public CacheEntry lookup( final String key )
+  public CacheEntry lookup( @Nonnull final String key )
   {
     final Storage storage = getStorage();
     if ( null == storage )
@@ -42,7 +42,7 @@ public class LocalCacheService
    * {@inheritDoc}
    */
   @Override
-  public boolean store( final String key, final String eTag, final String content )
+  public boolean store( @Nonnull final String key, @Nonnull final String eTag, @Nonnull final String content )
   {
     final Storage storage = getStorage();
     if ( null == storage )
