@@ -754,7 +754,16 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
 
-        getSession().removeRequest( requestID );
+        final boolean removed = getSession().removeRequest( requestID );
+        if ( !removed )
+        {
+          LOG.severe( "ChangeSet " + set.getSequence() + " expected to complete request '" +
+                      requestID + "' but no request was registered with session." );
+        }
+        if ( requestDebugOutputEnabled() )
+        {
+          outputRequestDebug();
+        }
       }
     }
     onDataLoadComplete( status );
@@ -892,6 +901,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return new EntityRepositoryValidator();
   }
 
+  protected boolean requestDebugOutputEnabled()
+  {
+    return false;
+  }
+
   protected boolean subscriptionsDebugOutputEnabled()
   {
     return false;
@@ -920,5 +934,15 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected EntitySubscriptionDebugger getSubscriptionDebugger()
   {
     return new EntitySubscriptionDebugger();
+  }
+
+  protected void outputRequestDebug()
+  {
+    getRequestDebugger().outputRequests( getSessionContext().getKey() + ":", getSession() );
+  }
+
+  protected RequestDebugger getRequestDebugger()
+  {
+    return new RequestDebugger();
   }
 }

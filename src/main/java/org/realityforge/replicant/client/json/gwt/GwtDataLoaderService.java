@@ -15,6 +15,7 @@ import org.realityforge.replicant.client.transport.SessionContext;
 public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends AbstractDataLoaderService<T, G>
 {
+  private static final String REQUEST_DEBUG = "imitRequestDebug";
   private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
   private static final String REPOSITORY_DEBUG = "imitRepositoryDebug";
   private final ReplicantConfig _replicantConfig;
@@ -45,10 +46,20 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     if ( _replicantConfig.subscriptionsDebugOutputEnabled() )
     {
       final String message =
-        getSessionContext().getKey() + ".RepositoryDebugOutput module is enabled. Run the javascript " +
+        getSessionContext().getKey() + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
         "'window." + SUBSCRIPTION_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
         "the debug output to just this data loader run the javascript '" +
         toSessionSpecificJavascript( SUBSCRIPTION_DEBUG ) + "'";
+      LOG.info( message );
+    }
+
+    if ( _replicantConfig.requestDebugOutputEnabled() )
+    {
+      final String message =
+        getSessionContext().getKey() + ".RequestDebugOutput module is enabled. Run the javascript " +
+        "'window." + REQUEST_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
+        "the debug output to just this data loader run the javascript '" +
+        toSessionSpecificJavascript( REQUEST_DEBUG ) + "'";
       LOG.info( message );
     }
   }
@@ -73,6 +84,14 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     }-*/;
   }
 
+  @Override
+  protected boolean requestDebugOutputEnabled()
+  {
+    return _replicantConfig.requestDebugOutputEnabled() &&
+           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), REQUEST_DEBUG );
+  }
+
+  @Override
   protected boolean subscriptionsDebugOutputEnabled()
   {
     return _replicantConfig.subscriptionsDebugOutputEnabled() &&

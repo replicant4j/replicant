@@ -12,4 +12,6 @@ public interface ReplicantConfig
   boolean repositoryDebugOutputEnabled();
 
   boolean subscriptionsDebugOutputEnabled();
+
+  boolean requestDebugOutputEnabled();
 }

@@ -20,4 +20,7 @@
 
   <define-property name="replicant.subscriptionsDebugOutputEnabled" values="true,false"/>
   <set-property name="replicant.subscriptionsDebugOutputEnabled" value="false"/>
+
+  <define-property name="replicant.requestDebugOutputEnabled" values="true,false"/>
+  <set-property name="replicant.requestDebugOutputEnabled" value="false"/>
 </module>
