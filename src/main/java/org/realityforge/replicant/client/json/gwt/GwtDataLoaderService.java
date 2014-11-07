@@ -34,7 +34,8 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     {
       final String message =
         "RepositoryDebugOutput module is enabled. Run the javascript 'window.imitRepositoryDebug = true' " +
-        "to enable debug output when change messages arrive.";
+        "to enable debug output when change messages arrive. To limit the debug output to just this " +
+        "data loader run the javascript 'window." + getSessionContext().getKey() + " = {imitRepositoryDebug: true}'";
       LOG.info( message );
     }
   }
@@ -48,15 +49,16 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   //Static class to help check whether debug is enabled at the current time
   private static class RepositoryDebugEnabledChecker
   {
-    public static native boolean isEnabled() /*-{
-      return $wnd.imitRepositoryDebug == true;
+    public static native boolean isEnabled( final String key ) /*-{
+      return $wnd.imitRepositoryDebug == true || ($wnd[key] && $wnd[key].imitRepositoryDebug == true);
     }-*/;
   }
 
   @Override
   protected boolean repositoryDebugOutputEnabled()
   {
-    return _replicantConfig.repositoryDebugOutputEnabled() && RepositoryDebugEnabledChecker.isEnabled();
+    return _replicantConfig.repositoryDebugOutputEnabled() &&
+           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey() );
   }
 
   @Override
