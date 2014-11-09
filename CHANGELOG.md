@@ -1,4 +1,4 @@
-## 0.5.31 (Pending):
+## 0.5.31:
 * Default ReplicantPollResource to 30 seconds long polling before making another request.
 
 ## 0.5.30:
