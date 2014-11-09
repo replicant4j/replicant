@@ -1,4 +1,5 @@
 ## 0.5.32 (Pending):
+* Add source channel to ChannelLink.
 
 ## 0.5.31:
 * Default ReplicantPollResource to 30 seconds long polling before making another request.

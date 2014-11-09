@@ -26,7 +26,7 @@ public class EntityMessageTest
       MessageTestUtil.createMessage( id,
                                      typeID,
                                      2,
-                                     new ChannelLink( new ChannelDescriptor( 47, 66 ) ),
+                                     new ChannelLink( new ChannelDescriptor( 1, 2 ), new ChannelDescriptor( 47, 66 ) ),
                                      "r3",
                                      null,
                                      "a3",
@@ -39,7 +39,10 @@ public class EntityMessageTest
     assertEquals( message.getTimestamp(), 2 );
     assertNotNull( message.getLinks() );
     assertEquals( message.getLinks().size(), 1 );
-    assertEquals( message.getLinks().iterator().next().getTargetChannel().getChannelID(), 47 );
+    final ChannelLink channelLink = message.getLinks().iterator().next();
+    assertEquals( channelLink.getSourceChannel().getChannelID(), 1 );
+    assertEquals( channelLink.getSourceChannel().getSubChannelID(), 2 );
+    assertEquals( channelLink.getTargetChannel().getChannelID(), 47 );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a3" );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY2, "a2" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r3" );

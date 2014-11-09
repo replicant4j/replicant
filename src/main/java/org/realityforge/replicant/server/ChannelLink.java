@@ -8,15 +8,29 @@ import javax.annotation.Nonnull;
 public final class ChannelLink
 {
   @Nonnull
+  private final ChannelDescriptor _sourceChannel;
+  @Nonnull
   private final ChannelDescriptor _targetChannel;
 
-  public ChannelLink( @Nonnull final ChannelDescriptor targetChannel )
+  public ChannelLink( @Nonnull final ChannelDescriptor sourceChannel,
+                      @Nonnull final ChannelDescriptor targetChannel )
   {
+    if ( null == sourceChannel.getSubChannelID() )
+    {
+      throw new IllegalArgumentException( "Channel Link source sub-channel id should not be null" );
+    }
     if ( null == targetChannel.getSubChannelID() )
     {
-      throw new IllegalArgumentException( "Channel Link sub-channel id should not be null" );
+      throw new IllegalArgumentException( "Channel Link target sub-channel id should not be null" );
     }
+    _sourceChannel = sourceChannel;
     _targetChannel = targetChannel;
+  }
+
+  @Nonnull
+  public ChannelDescriptor getSourceChannel()
+  {
+    return _sourceChannel;
   }
 
   @Nonnull
