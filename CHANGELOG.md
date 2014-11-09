@@ -1,4 +1,4 @@
-## 0.5.32 (Pending):
+## 0.5.32:
 * Add source channel to ChannelLink.
 
 ## 0.5.31:
