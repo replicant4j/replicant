@@ -1,4 +1,5 @@
 ## 0.5.31 (Pending):
+* Default ReplicantPollResource to 30 seconds long polling before making another request.
 
 ## 0.5.30:
 * Add support for debugging entity subscriptions and requests as well as local

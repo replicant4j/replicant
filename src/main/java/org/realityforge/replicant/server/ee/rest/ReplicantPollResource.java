@@ -108,7 +108,7 @@ public class ReplicantPollResource
    */
   protected int getPollTime()
   {
-    return 2;
+    return 30;
   }
 
   /**
