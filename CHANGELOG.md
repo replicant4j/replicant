@@ -1,4 +1,4 @@
-## 0.5.33 (Pending):
+## 0.5.33:
 * Add Runnable parameters to the connect and disconnect methods in WebPollerDataLoaderService.
 
 ## 0.5.32:
