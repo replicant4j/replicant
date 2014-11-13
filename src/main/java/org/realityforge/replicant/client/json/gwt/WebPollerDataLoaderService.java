@@ -86,7 +86,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       @Override
       public void onWindowClosing( final Window.ClosingEvent event )
       {
-        disconnect();
+        disconnect( null );
       }
     };
     Window.addWindowClosingHandler( handler );
@@ -95,26 +95,17 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected abstract T createSession( @Nonnull String sessionID );
 
-  protected final void onSessionCreated( @Nonnull final String sessionID )
+  protected final void onSessionCreated( @Nonnull final String sessionID, @Nullable final Runnable runnable )
   {
-    setSession( createSession( sessionID ), new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        onSessionConnected();
-      }
-    } );
+    setSession( createSession( sessionID ), runnable );
     scheduleDataLoad();
     startPolling();
   }
 
-  protected abstract void onSessionConnected();
-
-  public void disconnect()
+  public void disconnect( @Nullable final Runnable runnable )
   {
     stopPolling();
-    setSession( null, null );
+    setSession( null, runnable );
   }
 
   /**

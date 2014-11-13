@@ -1,4 +1,5 @@
 ## 0.5.33 (Pending):
+* Add Runnable parameters to the connect and disconnect methods in WebPollerDataLoaderService.
 
 ## 0.5.32:
 * Add source channel to ChannelLink.
