@@ -808,7 +808,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     int removedEntities = 0;
     final ChannelDescriptor descriptor = graphEntry.getDescriptor();
 
-    for ( final EntitySubscriptionEntry entry : entities )
+    final EntitySubscriptionEntry[] subscriptionEntries =
+      entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );
+    for ( final EntitySubscriptionEntry entry : subscriptionEntries )
     {
       final Class<?> entityType = entry.getType();
       final Object entityID = entry.getID();

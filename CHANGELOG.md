@@ -1,3 +1,7 @@
+## 0.5.34:
+* Fix concurrency bug triggered in AbstractDataLoaderService.updateSubscriptionForFilteredEntities
+  when entities are removed from subscription.
+
 ## 0.5.33:
 * Add Runnable parameters to the connect and disconnect methods in WebPollerDataLoaderService.
 
