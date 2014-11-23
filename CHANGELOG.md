@@ -1,4 +1,4 @@
-## 0.5.35 (Pending):
+## 0.5.35:
 * Extract the handling of context management from AbstractReplicationInterceptor into
   ReplicationRequestManager and AbstractReplicationRequestManager.
 
