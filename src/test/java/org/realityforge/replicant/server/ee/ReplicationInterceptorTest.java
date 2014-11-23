@@ -321,24 +321,50 @@ public class ReplicationInterceptorTest
     throws Exception
   {
     final TestReplicationInterceptor interceptor = new TestReplicationInterceptor( entityManager, routeToSession );
-    setField( interceptor, "_registry", registry );
+    setField( interceptor._requestManager, "_registry", registry );
     return interceptor;
   }
 
-  private static void setField( final AbstractReplicationInterceptor interceptor,
+  private static void setField( final TestReplicationRequestManager interceptor,
                                 final String fieldName,
                                 final Object value )
     throws Exception
   {
-    final Field field = AbstractReplicationInterceptor.class.getDeclaredField( fieldName );
+    final Field field = interceptor.getClass().getSuperclass().getDeclaredField( fieldName );
     field.setAccessible( true );
     field.set( interceptor, value );
+  }
+
+  static class TestReplicationRequestManager
+    extends AbstractReplicationRequestManager
+  {
+    private final EntityManager _entityManager;
+    private final EntityMessageEndpoint _endpoint;
+
+    TestReplicationRequestManager( final EntityManager entityManager, final EntityMessageEndpoint endpoint )
+    {
+      _entityManager = entityManager;
+      _endpoint = endpoint;
+    }
+
+    @Override
+    protected EntityManager getEntityManager()
+    {
+      return _entityManager;
+    }
+
+    @Override
+    protected EntityMessageEndpoint getEndpoint()
+    {
+      return _endpoint;
+    }
   }
 
   static class TestReplicationInterceptor
     extends AbstractReplicationInterceptor
     implements EntityMessageEndpoint
   {
+    final TestReplicationRequestManager _requestManager;
     String _sessionID;
     String _requestID;
     Collection<EntityMessage> _messages;
@@ -349,13 +375,8 @@ public class ReplicationInterceptorTest
     TestReplicationInterceptor( final EntityManager entityManager, final boolean routeToSession )
     {
       _entityManager = entityManager;
+      _requestManager = new TestReplicationRequestManager( entityManager, this );
       _routeToSession = routeToSession;
-    }
-
-    @Override
-    protected EntityMessageEndpoint getEndpoint()
-    {
-      return this;
     }
 
     @Override
@@ -376,9 +397,9 @@ public class ReplicationInterceptorTest
     }
 
     @Override
-    protected EntityManager getEntityManager()
+    protected ReplicationRequestManager getRequestManager()
     {
-      return _entityManager;
+      return _requestManager;
     }
   }
 }
