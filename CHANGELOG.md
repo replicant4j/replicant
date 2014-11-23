@@ -1,3 +1,7 @@
+## 0.5.35 (Pending):
+* Extract the handling of context management from AbstractReplicationInterceptor into
+  ReplicationRequestManager and AbstractReplicationRequestManager.
+
 ## 0.5.34:
 * Fix concurrency bug triggered in AbstractDataLoaderService.updateSubscriptionForFilteredEntities
   when entities are removed from subscription.
