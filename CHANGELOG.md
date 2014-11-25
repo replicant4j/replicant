@@ -1,3 +1,7 @@
+## 0.5.36:
+* Avoid ConcurrentModificationException in AbstractDataLoaderService.unsubscribeInstanceGraphs
+  by duplicating list before unsubscribing.
+
 ## 0.5.35:
 * Extract the handling of context management from AbstractReplicationInterceptor into
   ReplicationRequestManager and AbstractReplicationRequestManager.

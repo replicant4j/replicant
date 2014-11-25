@@ -174,7 +174,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected void unsubscribeInstanceGraphs( final Enum graph )
   {
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Object id : subscriptionManager.getInstanceSubscriptions( graph ) )
+    for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
       subscriptionManager.unsubscribe( graph, id );
     }
