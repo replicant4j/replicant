@@ -1,3 +1,8 @@
+## 0.5.37:
+* Add AbstractDataLoaderService.supportMultipleDataLoaders() template method that should return
+  true if the data loader source loader should gracefully share common resources between data
+  loaders. Avoid Pausing already paused loader during data load processing when this return true.
+
 ## 0.5.36:
 * Avoid ConcurrentModificationException in AbstractDataLoaderService.unsubscribeInstanceGraphs
   by duplicating list before unsubscribing.

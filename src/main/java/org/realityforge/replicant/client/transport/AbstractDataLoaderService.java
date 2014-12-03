@@ -72,6 +72,15 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   /**
+   * Return true if the data loader is expected to support other simultaneous data loaders.
+   * This impacts how the DataLoader interacts with shared resources such as ChangeBroker.
+   */
+  protected boolean supportMultipleDataLoaders()
+  {
+    return true;
+  }
+
+  /**
    * Action invoked after current action completes to reset session state.
    */
   private Runnable _resetAction;
@@ -523,6 +532,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     //Step: Setup the change recording state
     if ( _currentAction.needsBrokerPause() )
     {
+      if( supportMultipleDataLoaders() && getChangeBroker().isPaused() )
+      {
+        // Another DataLoaderService has temporarily paused the broker. So we will
+        // just spin waiting for it to be released.
+        return true;
+      }
       _currentAction.markBrokerPaused();
       if ( _currentAction.isBulkLoad() )
       {
