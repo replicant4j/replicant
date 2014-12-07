@@ -1,7 +1,11 @@
 package org.realityforge.replicant.server.ee;
 
+import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
+import javax.persistence.EntityManager;
+import javax.transaction.TransactionSynchronizationRegistry;
+import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
@@ -10,11 +14,14 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  */
 public abstract class AbstractReplicationInterceptor
 {
+  @Resource
+  private TransactionSynchronizationRegistry _registry;
+
   @AroundInvoke
   public Object businessIntercept( final InvocationContext context )
     throws Exception
   {
-    final int depth = getRequestManager().getReplicationCallDepth();
+    final int depth = ReplicationRequestUtil.getReplicationCallDepth();
     if ( 0 == depth )
     {
       final String sessionID = (String) ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY );
@@ -28,19 +35,20 @@ public abstract class AbstractReplicationInterceptor
         ReplicantContextHolder.remove( ReplicantContext.REQUEST_ID_KEY );
       }
 
-      getRequestManager().startReplication( sessionID, requestID );
+      ReplicationRequestUtil.startReplication( _registry, sessionID, requestID );
     }
-    getRequestManager().setReplicationCallDepth( depth + 1 );
+    ReplicationRequestUtil.setReplicationCallDepth( depth + 1 );
     try
     {
       return context.proceed();
     }
     finally
     {
-      getRequestManager().setReplicationCallDepth( depth );
+      ReplicationRequestUtil.setReplicationCallDepth( depth );
       if ( 0 == depth )
       {
-        final boolean requestComplete = getRequestManager().completeReplication();
+        final boolean requestComplete =
+          ReplicationRequestUtil.completeReplication( _registry, getEntityManager(), getEndpoint() );
         if ( !ReplicantContextHolder.contains( ReplicantContext.REQUEST_COMPLETE_KEY ) )
         {
           ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, requestComplete ? "1" : "0" );
@@ -49,5 +57,7 @@ public abstract class AbstractReplicationInterceptor
     }
   }
 
-  protected abstract ReplicationRequestManager getRequestManager();
+  protected abstract EntityManager getEntityManager();
+
+  protected abstract EntityMessageEndpoint getEndpoint();
 }

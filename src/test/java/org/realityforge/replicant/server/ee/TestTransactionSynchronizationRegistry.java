@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.ee;
 
 import java.util.HashMap;
+import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 
@@ -35,7 +36,7 @@ public class TestTransactionSynchronizationRegistry
   @Override
   public int getTransactionStatus()
   {
-    throw new UnsupportedOperationException();
+    return _rollBackOnly ? Status.STATUS_MARKED_ROLLBACK : Status.STATUS_ACTIVE;
   }
 
   @Override

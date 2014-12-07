@@ -1,3 +1,8 @@
+## 0.5.38:
+* Remove the ReplicationRequestManager abstraction as it implies a transactional boundary crossing
+  which is not the intention. Implement the same functionality as a collection of static methods
+  in the ReplicationRequestUtil utility class.
+
 ## 0.5.37:
 * Add AbstractDataLoaderService.supportMultipleDataLoaders() template method that should return
   true if the data loader source loader should gracefully share common resources between data
