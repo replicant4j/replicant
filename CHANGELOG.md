@@ -1,3 +1,6 @@
+## 0.5.39:
+* Introduce EntityChangeListenerAdapter to make writing listeners easier.
+
 ## 0.5.38:
 * Remove the ReplicationRequestManager abstraction as it implies a transactional boundary crossing
   which is not the intention. Implement the same functionality as a collection of static methods
