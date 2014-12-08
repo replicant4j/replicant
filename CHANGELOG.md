@@ -1,3 +1,5 @@
+## 0.5.40 (Pending):
+
 ## 0.5.39:
 * Introduce EntityChangeListenerAdapter to make writing listeners easier.
 
