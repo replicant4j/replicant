@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -448,7 +449,7 @@ public class EntityChangeBrokerTest
 
     final RecordingListener addingListener = new RecordingListener()
     {
-      public void entityRemoved( final EntityChangeEvent event )
+      public void entityRemoved( @Nonnull final EntityChangeEvent event )
       {
         broker.addChangeListener( globalListener );
         broker.addChangeListener( B.class, classListener );
@@ -458,7 +459,7 @@ public class EntityChangeBrokerTest
 
     final RecordingListener removingListener = new RecordingListener()
     {
-      public void entityRemoved( final EntityChangeEvent event )
+      public void entityRemoved( @Nonnull final EntityChangeEvent event )
       {
         broker.removeChangeListener( globalListener );
         broker.removeChangeListener( B.class, classListener );
@@ -468,7 +469,7 @@ public class EntityChangeBrokerTest
 
     final RecordingListener purgingListener = new RecordingListener()
     {
-      public void entityRemoved( final EntityChangeEvent event )
+      public void entityRemoved( @Nonnull final EntityChangeEvent event )
       {
         broker.purgeChangeListener( globalListener );
       }
@@ -572,7 +573,7 @@ public class EntityChangeBrokerTest
     {
       private boolean _sent;
 
-      public void entityRemoved( final EntityChangeEvent event )
+      public void entityRemoved( @Nonnull final EntityChangeEvent event )
       {
         if ( !_sent )
         {

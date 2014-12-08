@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
+import javax.annotation.Nonnull;
 
 class RecordingListener
   implements EntityChangeListener
@@ -35,27 +36,27 @@ class RecordingListener
   }
 
   @Override
-  public void entityAdded( final EntityChangeEvent event )
+  public void entityAdded( @Nonnull final EntityChangeEvent event )
   {
     _entityAddedEvents.add( event );
   }
 
-  public void entityRemoved( final EntityChangeEvent event )
+  public void entityRemoved( @Nonnull final EntityChangeEvent event )
   {
     _entityRemovedEvents.add( event );
   }
 
-  public void attributeChanged( final EntityChangeEvent event )
+  public void attributeChanged( @Nonnull final EntityChangeEvent event )
   {
     _attributeChangedEvents.add( event );
   }
 
-  public void relatedAdded( final EntityChangeEvent event )
+  public void relatedAdded( @Nonnull final EntityChangeEvent event )
   {
     _relatedAddedEvents.add( event );
   }
 
-  public void relatedRemoved( final EntityChangeEvent event )
+  public void relatedRemoved( @Nonnull final EntityChangeEvent event )
   {
     _relatedRemovedEvents.add( event );
   }
