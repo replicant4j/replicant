@@ -30,8 +30,8 @@ define 'replicant' do
 
   compile.with PROVIDED_DEPS, COMPILE_DEPS, OPTIONAL_DEPS
 
-  gwt(['org.realityforge.replicant.Replicant','org.realityforge.replicant.ReplicantDev'],
-                :java_args => ['-Xms512M', '-Xmx1024M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M'],
+  gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
+      :java_args => %w(-Xms512M -Xmx1024M -XX:PermSize=128M -XX:MaxPermSize=256M),
       :draft_compile => 'true')
 
   test.using :testng
