@@ -7,6 +7,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.InvocationException;
+import com.google.web.bindery.event.shared.EventBus;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -27,6 +29,7 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends GwtDataLoaderService<T, G>
 {
+  private final EventBus _eventBus;
   private final WebPoller _webPoller = WebPoller.newWebPoller();
   private String _baseURL;
 
@@ -48,9 +51,11 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
                                      @Nonnull final EntityRepository repository,
                                      @Nonnull final CacheService cacheService,
                                      @Nonnull final EntitySubscriptionManager subscriptionManager,
+                                     @Nonnull final EventBus eventBus,
                                      @Nonnull final ReplicantConfig replicantConfig )
   {
     super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager, replicantConfig );
+    _eventBus = eventBus;
     _webPoller.setListener( new WebPollerListenerAdapter()
     {
       @Override
@@ -243,7 +248,12 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     handleSystemFailure( e, "Failed to progress data load" );
   }
 
-  protected abstract void handleSystemFailure( @Nullable Throwable caught, @Nonnull String message );
+  protected final void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
+  {
+    LOG.log( Level.SEVERE, "System Failure: " + message, caught );
+    final Throwable cause = ( caught instanceof InvocationException ) ? caught.getCause() : caught;
+    _eventBus.fireEvent( new SystemErrorEvent( message, cause ) );
+  }
 
   private void startPolling()
   {

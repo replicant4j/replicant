@@ -1,4 +1,5 @@
 ## 0.5.40 (Pending):
+* Send a SystemErrorEvent on the EventBus when a system error occurs.
 * Merge the WebPollerDataLoaderService.connect() method from downstream projects as they are all
   identical in their implementation.
 * Extract TokenRestService from downstream projects. The TokenRestService simply generates a new
