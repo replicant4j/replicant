@@ -28,6 +28,8 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
  * Jax-RS resource that responds to poll requests for replicant data stream.
+ *
+ * It is expected that this endpoint has already had security applied.
  */
 @Path( ReplicantContext.REPLICANT_URL_FRAGMENT )
 @Singleton
