@@ -34,6 +34,10 @@ public final class ReplicantContext
    * The url relative to base from which replicant event stream data is retrieved.
    */
   public static final String REPLICANT_URL_FRAGMENT = "/replicant";
+  /**
+   * The url relative to base from which initial token is generated and the replicant session created.
+   */
+  public static final String TOKEN_URL_FRAGMENT = "/token";
 
   private ReplicantContext()
   {

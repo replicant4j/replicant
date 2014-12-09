@@ -1,4 +1,6 @@
 ## 0.5.40 (Pending):
+* Extract TokenRestService from downstream projects. The TokenRestService simply generates a new
+  session and returns the token.
 
 ## 0.5.39:
 * Introduce EntityChangeListenerAdapter to make writing listeners easier.
