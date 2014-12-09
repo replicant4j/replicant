@@ -28,7 +28,6 @@ public final class SystemErrorEvent
 
     _message = message;
     _throwable = throwable;
-
   }
 
   @Nonnull
