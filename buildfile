@@ -43,8 +43,8 @@ define 'replicant' do
   package(:javadoc)
 
   iml.add_jruby_facet
-  iml.add_gwt_facet({'org.realityforge.replicant.Replicant' => true,
-                     'org.realityforge.replicant.ReplicantDev' => true},
+  iml.add_gwt_facet({'org.realityforge.replicant.Replicant' => false,
+                     'org.realityforge.replicant.ReplicantDev' => false},
                     :settings => {:compilerMaxHeapSize => '1024'},
                     :gwt_dev_artifact => :gwt_dev)
 end
