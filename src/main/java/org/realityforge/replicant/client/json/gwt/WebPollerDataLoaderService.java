@@ -202,15 +202,33 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT;
   }
 
+  /**
+   * Return the event bus associated with the service.
+   */
+  @Nonnull
+  protected final EventBus getEventBus()
+  {
+    return _eventBus;
+  }
+
+  /**
+   * Return the underlying Web Poller used by service.
+   */
+  @Nonnull
+  protected final WebPoller getWebPoller()
+  {
+    return _webPoller;
+  }
+
   final void handlePollSuccess( final String rawJsonData )
   {
     if ( null != rawJsonData )
     {
       logResponse( rawJsonData );
       getSession().enqueueDataLoad( rawJsonData );
-      if ( !_webPoller.isPaused() )
+      if ( !getWebPoller().isPaused() )
       {
-        _webPoller.pause();
+        getWebPoller().pause();
       }
     }
   }
@@ -236,9 +254,10 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Override
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
-    if ( _webPoller.isPaused() )
+    final WebPoller webPoller = getWebPoller();
+    if ( webPoller.isPaused() )
     {
-      _webPoller.resume();
+      webPoller.resume();
     }
   }
 
@@ -252,27 +271,28 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     LOG.log( Level.SEVERE, "System Failure: " + message, caught );
     final Throwable cause = ( caught instanceof InvocationException ) ? caught.getCause() : caught;
-    _eventBus.fireEvent( new SystemErrorEvent( message, cause ) );
+    getEventBus().fireEvent( new SystemErrorEvent( message, cause ) );
   }
 
   private void startPolling()
   {
     stopPolling();
-    _webPoller.setRequestFactory( new ReplicantRequestFactory() );
-    _webPoller.setInterRequestDuration( 0 );
-    _webPoller.start();
+    final WebPoller webPoller = getWebPoller();
+    webPoller.setRequestFactory( new ReplicantRequestFactory() );
+    webPoller.setInterRequestDuration( 0 );
+    webPoller.start();
   }
 
   private void stopPolling()
   {
     if ( isConnected() )
     {
-      _webPoller.stop();
+      getWebPoller().stop();
     }
   }
 
   public boolean isConnected()
   {
-    return _webPoller.isActive();
+    return getWebPoller().isActive();
   }
 }
