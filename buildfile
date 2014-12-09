@@ -32,8 +32,7 @@ define 'replicant' do
 
   gwt(['org.realityforge.replicant.Replicant','org.realityforge.replicant.ReplicantDev'],
                 :java_args => ['-Xms512M', '-Xmx1024M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M'],
-                :draft_compile => (ENV['FAST_GWT'] == 'true'),
-                :dependencies => [:javax_validation, :javax_validation_sources] + project.compile.dependencies)
+      :draft_compile => 'true')
 
   test.using :testng
   test.compile.with TEST_DEPS
