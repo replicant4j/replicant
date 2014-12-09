@@ -267,7 +267,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     handleSystemFailure( e, "Failed to progress data load" );
   }
 
-  protected final void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
+  protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
   {
     LOG.log( Level.SEVERE, "System Failure: " + message, caught );
     final Throwable cause = ( caught instanceof InvocationException ) ? caught.getCause() : caught;
