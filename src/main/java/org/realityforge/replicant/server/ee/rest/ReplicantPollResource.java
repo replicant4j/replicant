@@ -9,7 +9,11 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -27,6 +31,8 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  */
 @Path( ReplicantContext.REPLICANT_URL_FRAGMENT )
 @Singleton
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
+@TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
 public class ReplicantPollResource
 {
   private final Map<AsyncResponse, SuspendedRequest> _requests = new ConcurrentHashMap<>();
