@@ -71,11 +71,19 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     _baseURL = deriveDefaultURL();
   }
 
+  @Nonnull
   protected String deriveDefaultURL()
   {
-    return guessContextURL() + "api";
+    return guessContextURL() + getEndpointOffset();
   }
 
+  @Nonnull
+  protected String getEndpointOffset()
+  {
+    return "api";
+  }
+
+  @Nonnull
   protected String guessContextURL()
   {
     final String moduleBaseURL = GWT.getModuleBaseURL();
