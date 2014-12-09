@@ -126,7 +126,9 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   }
 
   /**
-   * Return the url to poll for replicant data stream, derived from getBaseURL().
+   * Return the url to poll for replicant data stream.
+   *
+   * The implementation derives the url from getBaseURL().
    */
   @Nonnull
   protected String getPollURL()
