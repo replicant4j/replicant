@@ -24,7 +24,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   extends GwtDataLoaderService<T, G>
 {
   private final WebPoller _webPoller = WebPoller.newWebPoller();
-  private String _basePollURL;
+  private String _baseURL;
 
   class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
@@ -64,10 +64,10 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       }
     } );
     setupCloseHandler();
-    _basePollURL = deriveDefaultPollURL();
+    _baseURL = deriveDefaultURL();
   }
 
-  protected String deriveDefaultPollURL()
+  protected String deriveDefaultURL()
   {
     return guessContextURL() + "api";
   }
@@ -111,27 +111,27 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   /**
    * Set the base url at which the replicant jaxrs resource is anchored.
    */
-  public void setBasePollURL( @Nullable final String basePollURL )
+  public void setBaseURL( @Nullable final String baseURL )
   {
-    _basePollURL = basePollURL;
+    _baseURL = baseURL;
   }
 
   /**
    * Return the base url at which the replicant jaxrs resource is anchored.
    */
   @Nonnull
-  protected String getBasePollURL()
+  protected String getBaseURL()
   {
-    return _basePollURL;
+    return _baseURL;
   }
 
   /**
-   * Return the url to poll for replicant data stream, derived from getBasePollURL().
+   * Return the url to poll for replicant data stream, derived from getBaseURL().
    */
   @Nonnull
   protected String getPollURL()
   {
-    return getBasePollURL() + ReplicantContext.REPLICANT_URL_FRAGMENT + "?rx=" + getSession().getLastRxSequence();
+    return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT + "?rx=" + getSession().getLastRxSequence();
   }
 
   final void handlePollSuccess( final String rawJsonData )
