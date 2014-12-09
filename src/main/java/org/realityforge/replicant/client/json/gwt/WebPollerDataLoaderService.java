@@ -1,7 +1,11 @@
 package org.realityforge.replicant.client.json.gwt;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import java.util.Map;
 import java.util.logging.Level;
@@ -102,6 +106,44 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     startPolling();
   }
 
+  public void connect( @Nullable final Runnable runnable )
+  {
+    final RequestBuilder rb = new RequestBuilder( RequestBuilder.GET, getTokenURL() );
+    try
+    {
+      rb.sendRequest( null, new RequestCallback()
+      {
+        @Override
+        public void onResponseReceived( final Request request, final Response response )
+        {
+          if ( Response.SC_OK == response.getStatusCode() )
+          {
+            onSessionCreated( response.getText(), runnable );
+          }
+          else
+          {
+            handleInvalidConnect( null );
+          }
+        }
+
+        @Override
+        public void onError( final Request request, final Throwable exception )
+        {
+          handleInvalidConnect( exception );
+        }
+      } );
+    }
+    catch ( final RequestException e )
+    {
+      handleInvalidConnect( e );
+    }
+  }
+
+  protected void handleInvalidConnect( @Nullable final Throwable exception )
+  {
+    handleSystemFailure( exception, "Failed to generate session token" );
+  }
+
   public void disconnect( @Nullable final Runnable runnable )
   {
     stopPolling();
@@ -134,6 +176,17 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   protected String getPollURL()
   {
     return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT + "?rx=" + getSession().getLastRxSequence();
+  }
+
+  /**
+   * Return the url to generate session token.
+   *
+   * The implementation derives the url from getBaseURL().
+   */
+  @Nonnull
+  protected String getTokenURL()
+  {
+    return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT;
   }
 
   final void handlePollSuccess( final String rawJsonData )

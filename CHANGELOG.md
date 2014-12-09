@@ -1,4 +1,6 @@
 ## 0.5.40 (Pending):
+* Merge the WebPollerDataLoaderService.connect() method from downstream projects as they are all
+  identical in their implementation.
 * Extract TokenRestService from downstream projects. The TokenRestService simply generates a new
   session and returns the token.
 
