@@ -204,7 +204,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected String getTokenURL()
   {
-    return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT;
+    return getBaseURL() + ReplicantContext.TOKEN_URL_FRAGMENT;
   }
 
   /**
