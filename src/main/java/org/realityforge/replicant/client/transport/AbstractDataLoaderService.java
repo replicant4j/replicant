@@ -889,6 +889,16 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
+    fireDataLoadCompleteEvent( status );
+  }
+
+  /**
+   * Invoked to fire an event when data load has completed.
+   */
+  protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
+  {
+    getEventBus().fireEvent( new DataLoadCompleteEvent( status ) );
+  }
 
   /**
    * Return the event bus associated with the service.

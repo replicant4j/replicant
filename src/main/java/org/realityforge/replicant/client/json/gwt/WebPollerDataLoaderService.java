@@ -255,6 +255,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     {
       webPoller.resume();
     }
+    super.onDataLoadComplete( status );
   }
 
   @Override
