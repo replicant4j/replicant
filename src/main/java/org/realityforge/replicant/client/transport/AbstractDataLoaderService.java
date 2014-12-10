@@ -817,8 +817,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
 
-  protected abstract int updateSubscriptionForFilteredEntities( ChannelSubscriptionEntry graphEntry,
-                                                                Object filter );
+  protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
+                                                                @Nonnull Object filter );
 
   protected final int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
                                                              @Nullable final Object filter,

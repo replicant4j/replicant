@@ -159,7 +159,8 @@ final class TestDataLoadService
   }
 
   @Override
-  protected int updateSubscriptionForFilteredEntities( final ChannelSubscriptionEntry graphEntry, final Object filter )
+  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
+                                                       @Nonnull final Object filter )
   {
     return 0;
   }
