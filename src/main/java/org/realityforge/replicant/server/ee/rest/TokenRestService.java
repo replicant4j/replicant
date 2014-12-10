@@ -1,6 +1,6 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import javax.inject.Inject;
+import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,7 +17,7 @@ import org.realityforge.ssf.SessionManager;
 @Produces( MediaType.TEXT_PLAIN )
 public class TokenRestService
 {
-  @Inject
+  @EJB
   private SessionManager _sessionManager;
 
   @GET
