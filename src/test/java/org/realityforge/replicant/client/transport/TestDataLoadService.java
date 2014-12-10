@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import com.google.web.bindery.event.shared.SimpleEventBus;
 import java.util.Arrays;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
@@ -31,7 +32,8 @@ final class TestDataLoadService
            mock( EntityChangeBroker.class ),
            mock( EntityRepository.class ),
            mock( CacheService.class ),
-           mock( EntitySubscriptionManager.class ) );
+           mock( EntitySubscriptionManager.class ),
+           new SimpleEventBus() );
     _validator = mock( EntityRepositoryValidator.class );
   }
 
