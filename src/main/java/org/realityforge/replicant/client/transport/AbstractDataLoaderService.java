@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import com.google.web.bindery.event.shared.EventBus;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +44,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private final CacheService _cacheService;
   private final EntitySubscriptionManager _subscriptionManager;
   private final SessionContext _sessionContext;
+  private final EventBus _eventBus;
 
   private DataLoadAction _currentAction;
   private AreaOfInterestAction<G> _currentAoiAction;
@@ -56,7 +58,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                        @Nonnull final EntityChangeBroker changeBroker,
                                        @Nonnull final EntityRepository repository,
                                        @Nonnull final CacheService cacheService,
-                                       @Nonnull final EntitySubscriptionManager subscriptionManager )
+                                       @Nonnull final EntitySubscriptionManager subscriptionManager,
+                                       @Nonnull final EventBus eventBus )
   {
     _sessionContext = sessionContext;
     _changeMapper = changeMapper;
@@ -64,6 +67,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     _repository = repository;
     _cacheService = cacheService;
     _subscriptionManager = subscriptionManager;
+    _eventBus = eventBus;
   }
 
   protected SessionContext getSessionContext()
@@ -885,6 +889,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
+
+  /**
+   * Return the event bus associated with the service.
+   */
+  @Nonnull
+  protected final EventBus getEventBus()
+  {
+    return _eventBus;
   }
 
   protected Level getLogLevel()

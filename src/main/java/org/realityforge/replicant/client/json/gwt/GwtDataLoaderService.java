@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.json.gwt;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
@@ -28,9 +29,10 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
                                   @Nonnull final EntityRepository repository,
                                   @Nonnull final CacheService cacheService,
                                   @Nonnull final EntitySubscriptionManager subscriptionManager,
+                                  @Nonnull final EventBus eventBus,
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager );
+    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager, eventBus );
     _replicantConfig = replicantConfig;
 
     if ( _replicantConfig.repositoryDebugOutputEnabled() )

@@ -29,7 +29,6 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends GwtDataLoaderService<T, G>
 {
-  private final EventBus _eventBus;
   private final WebPoller _webPoller = WebPoller.newWebPoller();
   private String _baseURL;
 
@@ -54,8 +53,14 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
                                      @Nonnull final EventBus eventBus,
                                      @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager, replicantConfig );
-    _eventBus = eventBus;
+    super( sessionContext,
+           changeMapper,
+           changeBroker,
+           repository,
+           cacheService,
+           subscriptionManager,
+           eventBus,
+           replicantConfig );
     _webPoller.setListener( new WebPollerListenerAdapter()
     {
       @Override
@@ -200,15 +205,6 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   protected String getTokenURL()
   {
     return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT;
-  }
-
-  /**
-   * Return the event bus associated with the service.
-   */
-  @Nonnull
-  protected final EventBus getEventBus()
-  {
-    return _eventBus;
   }
 
   /**
