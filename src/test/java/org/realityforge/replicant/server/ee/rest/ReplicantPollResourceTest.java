@@ -3,6 +3,8 @@ package org.realityforge.replicant.server.ee.rest;
 import java.lang.reflect.Field;
 import java.util.Map;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.core.Response;
+import org.mockito.ArgumentCaptor;
 import org.realityforge.replicant.server.ee.rest.ReplicantPollResource.SuspendedRequest;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -23,7 +25,20 @@ public class ReplicantPollResourceTest
 
     resource.poll( response, "X", 22 );
 
-    verify( response ).resume( "DATA!" );
+    final ArgumentCaptor<Response> captor = ArgumentCaptor.forClass( Response.class );
+    verify( response ).resume( captor.capture() );
+    assertResponse( "DATA!", captor.getValue() );
+  }
+
+  private void assertResponse( final Object content, final Response value )
+  {
+    assertEquals( value.getStatus(), Response.Status.OK.getStatusCode() );
+    assertEquals( value.getEntity(), content );
+    assertEquals( value.getHeaderString( "Pragma" ), "no-cache" );
+    assertEquals( value.getHeaderString( "Cache-control" ), "no-cache, must-revalidate, pre-check=0, post-check=0" );
+    assertEquals( value.getHeaderString( "Expires" ), "0" );
+    assertNotNull( value.getHeaderString( "Date" ) );
+    assertNotNull( value.getHeaderString( "Last-Modified" ) );
   }
 
   @Test
@@ -57,7 +72,10 @@ public class ReplicantPollResourceTest
 
     getChecker( resource ).run();
 
-    verify( response, times( 1 ) ).resume( "DATA" );
+    final ArgumentCaptor<Response> captor = ArgumentCaptor.forClass( Response.class );
+    verify( response ).resume( captor.capture() );
+    assertResponse( "DATA", captor.getValue() );
+
     assertEquals( requests.size(), 0 );
 
     getChecker( resource ).run();
@@ -96,7 +114,9 @@ public class ReplicantPollResourceTest
 
     getChecker( resource ).run();
 
-    verify( response, times( 1 ) ).resume( exception );
+    final ArgumentCaptor<Response> captor = ArgumentCaptor.forClass( Response.class );
+    verify( response, times( 1 ) ).resume( captor.capture() );
+    assertResponse( exception, captor.getValue() );
     assertEquals( requests.size(), 0 );
 
     getChecker( resource ).run();
@@ -117,7 +137,9 @@ public class ReplicantPollResourceTest
 
     resource.poll( response, "X", 22 );
 
-    verify( response ).resume( throwable );
+    final ArgumentCaptor<Response> captor = ArgumentCaptor.forClass( Response.class );
+    verify( response ).resume( captor.capture() );
+    assertResponse( throwable, captor.getValue() );
   }
 
   protected ReplicantPollResource newResource( final ReplicantPollSource source )

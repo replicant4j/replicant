@@ -20,7 +20,7 @@ artifacts:
 
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
-  javax_json_impl: org.glassfish:javax.json:jar:1.0.3
+  glassfish_embedded: org.glassfish.main.extras:glassfish-embedded-all:jar:4.0
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.42
 
   #

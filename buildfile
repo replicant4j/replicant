@@ -11,7 +11,7 @@ PROVIDED_DEPS = [:javax_annotation, :javax_javaee]
 COMPILE_DEPS = [:simple_session_filter]
 TEST_INFRA_DEPS = [:mockito, :guiceyloops]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
-TEST_DEPS = TEST_INFRA_DEPS + [:jndikit, :javax_json_impl]
+TEST_DEPS = TEST_INFRA_DEPS + [:jndikit, :glassfish_embedded]
 
 desc 'Replicant: Client-side state representation infrastructure'
 define 'replicant' do

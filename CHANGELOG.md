@@ -1,4 +1,5 @@
 ## 0.5.41 (Pending):
+* Ensure ReplicantPollResource sets HTTP headers to ensure IE performs no caching.
 
 ## 0.5.40:
 * Send a DataLoadCompleteEvent when a data load completes.
