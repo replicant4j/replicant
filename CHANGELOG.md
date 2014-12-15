@@ -1,4 +1,4 @@
-## 0.5.41 (Pending):
+## 0.5.41:
 * Ensure ReplicantPollResource sets HTTP headers to ensure IE performs no caching.
 * Extract out a constant for the query parameter used to identify the last received packet sequence.
 
