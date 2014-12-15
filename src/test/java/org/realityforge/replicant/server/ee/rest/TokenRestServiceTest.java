@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.ee.rest;
 
 import java.lang.reflect.Field;
+import javax.ws.rs.core.Response;
 import org.realityforge.replicant.server.TestSession;
 import org.realityforge.ssf.SessionManager;
 import org.testng.annotations.Test;
@@ -19,9 +20,9 @@ public class TokenRestServiceTest
     when( sessionManager.createSession() ).
       thenReturn( new TestSession( "2222" ) );
 
-    final String token = resource.generateToken();
+    final Response token = resource.generateToken();
 
-    assertEquals( token, "2222" );
+    assertEquals( token.getEntity(), "2222" );
   }
 
   protected TokenRestService newResource( final SessionManager sessionManager )

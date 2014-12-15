@@ -1,3 +1,6 @@
+## 0.5.42:
+* Ensure TokenRestService sets HTTP headers so IE performs no caching.
+
 ## 0.5.41:
 * Ensure ReplicantPollResource sets HTTP headers to ensure IE performs no caching.
 * Extract out a constant for the query parameter used to identify the last received packet sequence.
