@@ -1,3 +1,10 @@
+## 0.5.43:
+* Add abstract method AbstractDataLoaderService.getSystemKey() that helps identify which replication
+  system that the data loader is supporting. This is important when replicant is used with multiple
+  replication data sources.
+* Introduce an EntityBrokerTransaction structure that identifies the data loader that initiated the
+  "transaction" (a.k.a the disable or pause actions).
+
 ## 0.5.42:
 * Ensure TokenRestService sets HTTP headers so IE performs no caching.
 

@@ -20,16 +20,6 @@ public abstract class AbstractClientTest
     return s( EntityChangeBroker.class );
   }
 
-  protected void resumeBroker()
-  {
-    broker().resume();
-  }
-
-  protected void pauseBroker()
-  {
-    broker().pause();
-  }
-
   protected final <H> H addHandler( final Event.Type<H> type, final H handler )
   {
     eventBus().addHandler( type, handler );

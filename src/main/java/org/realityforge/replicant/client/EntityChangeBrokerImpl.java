@@ -13,7 +13,7 @@ import org.realityforge.replicant.client.DeferredListenerAction.ActionType;
 /**
  * A single threaded in-memory EntityChangeBroker implementation.
  */
-@SuppressWarnings({ "JavaDoc" })
+@SuppressWarnings( "JavaDoc" )
 public class EntityChangeBrokerImpl
   implements EntityChangeBroker
 {
@@ -21,8 +21,9 @@ public class EntityChangeBrokerImpl
 
   private final ListenerEntry[] _emptyListenerSet = new ListenerEntry[ 0 ];
 
-  private boolean _disabled;
-  private boolean _paused;
+  @Nullable
+  private EntityBrokerTransaction _transaction;
+
   private boolean _sending;
 
   /**
@@ -256,28 +257,56 @@ public class EntityChangeBrokerImpl
   /**
    * {@inheritDoc}
    */
+  @Nullable
   @Override
-  public final void resume()
+  public EntityBrokerTransaction getCurrentTransaction()
   {
-    if ( !_paused )
-    {
-      throw new IllegalStateException( "Attempting to resume already resumed broker" );
-    }
-    _paused = false;
-    deliverDeferredEvents();
+    return _transaction;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public final void pause()
+  public boolean isInTransaction()
   {
-    if ( _paused )
+    return null != _transaction;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void resume( @Nonnull final String key )
+    throws IllegalStateException
+  {
+    if ( null == _transaction || !_transaction.isPauseAction() )
     {
-      throw new IllegalStateException( "Attempting to pause already paused broker" );
+      throw new IllegalStateException( "Attempting to resume broker that is not paused" );
     }
-    _paused = true;
+    else if ( !_transaction.getKey().equals( key ) )
+    {
+      throw new IllegalStateException( "Attempting to resume broker in with transaction " +
+                                       "key '" + key + "' but broker is in transaction " +
+                                       "with key '" + _transaction.getKey() + "'" );
+    }
+    _transaction = null;
+    deliverDeferredEvents();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Nonnull
+  @Override
+  public final EntityBrokerTransaction pause( @Nonnull final String key )
+  {
+    if ( null != _transaction )
+    {
+      throw new IllegalStateException( "Attempting to pause broker that is in transaction " + _transaction );
+    }
+    _transaction = new EntityBrokerTransaction( key, false );
+    return _transaction;
   }
 
   /**
@@ -286,33 +315,49 @@ public class EntityChangeBrokerImpl
   @Override
   public boolean isPaused()
   {
-    return _paused;
+    return null != _transaction && _transaction.isPauseAction();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Nonnull
+  @Override
+  public EntityBrokerTransaction disable( @Nonnull final String key )
+  {
+    if ( null != _transaction )
+    {
+      throw new IllegalStateException( "Attempting to disable broker that is in transaction " + _transaction );
+    }
+    _transaction = new EntityBrokerTransaction( key, true );
+    return _transaction;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void disable()
+  public void enable( @Nonnull final String key )
   {
-    if ( _disabled )
+    if ( null == _transaction || !_transaction.isDisableAction() )
     {
-      throw new IllegalStateException( "Attempting to disable already disabled broker" );
+      throw new IllegalStateException( "Attempting to enable broker that is not disabled" );
     }
-    _disabled = true;
+    else if ( !_transaction.getKey().equals( key ) )
+    {
+      throw new IllegalStateException( "Attempting to resume broker in with transaction " +
+                                       "key '" + key + "' but broker is in transaction " +
+                                       "with key '" + _transaction.getKey() + "'" );
+    }
+    _transaction = null;
   }
 
   /**
    * {@inheritDoc}
    */
-  @Override
-  public void enable()
+  public final boolean isDisabled()
   {
-    if ( !_disabled )
-    {
-      throw new IllegalStateException( "Attempting to enable already enabled broker" );
-    }
-    _disabled = false;
+    return null != _transaction && _transaction.isDisableAction();
   }
 
   /**
@@ -321,7 +366,7 @@ public class EntityChangeBrokerImpl
   @Override
   public boolean isEnabled()
   {
-    return !_disabled;
+    return !isDisabled();
   }
 
   /**

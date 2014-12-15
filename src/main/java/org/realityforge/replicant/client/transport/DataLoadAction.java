@@ -320,11 +320,13 @@ final class DataLoadAction
     return _worldNotified;
   }
 
-  public DataLoadStatus toStatus()
+  @Nonnull
+  public DataLoadStatus toStatus( @Nonnull final String systemKey )
   {
     final ChangeSet changeSet = getChangeSet();
     assert null != changeSet;
-    return new DataLoadStatus( _changeSet.getSequence(),
+    return new DataLoadStatus( systemKey,
+                               changeSet.getSequence(),
                                isBulkLoad(),
                                changeSet.getRequestID(),
                                getChannelAdds(),

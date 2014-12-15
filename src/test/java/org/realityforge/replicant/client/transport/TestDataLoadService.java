@@ -37,6 +37,13 @@ final class TestDataLoadService
     _validator = mock( EntityRepositoryValidator.class );
   }
 
+  @Nonnull
+  @Override
+  protected String getSystemKey()
+  {
+    return "TEST";
+  }
+
   @Override
   protected EntityRepositoryValidator getEntityRepositoryValidator()
   {

@@ -62,18 +62,41 @@ public interface EntityChangeBroker
   void purgeChangeListener( @Nonnull EntityChangeListener listener );
 
   /**
+   * @return true if transaction is active.
+   */
+  boolean isInTransaction();
+
+  /**
+   * Return the current transaction if any.
+   *
+   * @return the transaction if any.
+   */
+  @Nullable
+  EntityBrokerTransaction getCurrentTransaction();
+
+  /**
    * Pause the broker.
    * <p/>
    * <p>Changes sent to the broker while it is paused will be cached and transmitted when it is resumed.</p>
+   *
+   * @param key the opaque identifier for transaction.
+   * @return the transaction created by action.
+   * @throws IllegalStateException if transaction is in process.
    */
-  void pause();
+  @Nonnull
+  EntityBrokerTransaction pause( @Nonnull String key )
+    throws IllegalStateException;
 
   /**
    * Resume the broker.
    * <p/>
    * <p>Any changes that have been delivered since pause has been invoked will be delivered on resume.</p>
+   *
+   * @param key the opaque identifier for transaction.
+   * @throws IllegalStateException if current transaction not a pause, or key does not match transaction key.
    */
-  void resume();
+  void resume( @Nonnull String key )
+    throws IllegalStateException;
 
   /**
    * @return true if the broker is paused.
@@ -87,13 +110,23 @@ public interface EntityChangeBroker
    * <p/>
    * <p>Typically the broker is disabled before a bulk load of an EntityRepository and re-enabled
    * after the fact.</p>
+   *
+   * @param key the opaque identifier for transaction.
+   * @return the transaction created by action.
+   * @throws IllegalStateException if transaction is in process.
    */
-  void disable();
+  @Nonnull
+  EntityBrokerTransaction disable( @Nonnull String key )
+    throws IllegalStateException;
 
   /**
    * Re-enable the transmission of changes to listeners after a disable.
+   *
+   * @param key the opaque identifier for transaction.
+   * @throws IllegalStateException if current transaction not a pause, or key does not match transaction key.
    */
-  void enable();
+  void enable( @Nonnull String key )
+    throws IllegalStateException;
 
   /**
    * @return true if the broker is enabled.

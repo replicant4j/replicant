@@ -76,15 +76,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   /**
-   * Return true if the data loader is expected to support other simultaneous data loaders.
-   * This impacts how the DataLoader interacts with shared resources such as ChangeBroker.
-   */
-  protected boolean supportMultipleDataLoaders()
-  {
-    return true;
-  }
-
-  /**
    * Action invoked after current action completes to reset session state.
    */
   private Runnable _resetAction;
@@ -108,9 +99,19 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           _sessionContext.setSession( session );
           if ( shouldPurgeOnSessionChange() )
           {
-            _changeBroker.disable();
+            final boolean enabled = _changeBroker.isEnabled();
+            if ( enabled )
+            {
+              _changeBroker.disable( getSystemKey() );
+            }
+            //TODO: else schedule action so that it runs in loop
+            // until it can disable broker. This will involve replacing _resetAction
+            // with something more like existing action setup.
             purgeSubscriptions();
-            _changeBroker.enable();
+            if ( enabled )
+            {
+              _changeBroker.enable( getSystemKey() );
+            }
           }
         }
         if ( null != postAction )
@@ -536,20 +537,20 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     //Step: Setup the change recording state
     if ( _currentAction.needsBrokerPause() )
     {
-      if( supportMultipleDataLoaders() && getChangeBroker().isPaused() )
+      if ( getChangeBroker().isInTransaction() )
       {
-        // Another DataLoaderService has temporarily paused the broker. So we will
+        // Another DataLoaderService has temporarily paused/disabled the broker. So we will
         // just spin waiting for it to be released.
         return true;
       }
       _currentAction.markBrokerPaused();
       if ( _currentAction.isBulkLoad() )
       {
-        getChangeBroker().disable();
+        getChangeBroker().disable( getSystemKey() );
       }
       else
       {
-        getChangeBroker().pause();
+        getChangeBroker().pause( getSystemKey() );
       }
       return true;
     }
@@ -704,14 +705,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       {
         if ( _currentAction.hasBrokerBeenPaused() )
         {
-          getChangeBroker().enable();
+          getChangeBroker().enable( getSystemKey() );
         }
       }
       else
       {
         if ( _currentAction.hasBrokerBeenPaused() )
         {
-          getChangeBroker().resume();
+          getChangeBroker().resume( getSystemKey() );
         }
       }
       if ( shouldValidateOnLoad() )
@@ -728,10 +729,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       return true;
     }
-    final DataLoadStatus status = _currentAction.toStatus();
+    final DataLoadStatus status = _currentAction.toStatus( getSystemKey() );
     if ( LOG.isLoggable( Level.INFO ) )
     {
-      LOG.info( "ChangeSet " + set.getSequence() + " involved " +
+      LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " involved " +
                 status.getChannelAdds().size() + " subscribes, " +
                 status.getChannelUpdates().size() + " subscription updates, " +
                 status.getChannelRemoves().size() + " un-subscribes, " +
@@ -740,13 +741,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                 status.getEntityLinkCount() + " links." );
       for ( final ChannelChangeStatus changeStatus : status.getChannelUpdates() )
       {
-        LOG.info( "ChangeSet " + set.getSequence() + " subscription update " +
+        LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " subscription update " +
                   changeStatus.getDescriptor() + " caused " +
                   changeStatus.getEntityRemoveCount() + " entity removes." );
       }
       for ( final ChannelChangeStatus changeStatus : status.getChannelRemoves() )
       {
-        LOG.info( "ChangeSet " + set.getSequence() + " un-subscribe " +
+        LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " un-subscribe " +
                   changeStatus.getDescriptor() + " caused " +
                   changeStatus.getEntityRemoveCount() + " entity removes." );
       }
@@ -816,6 +817,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return removedEntities;
   }
 
+  @Nonnull
+  protected abstract String getSystemKey();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nonnull Object filter );

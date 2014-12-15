@@ -201,14 +201,21 @@ public class EntityChangeBrokerTest
     //Attr changed
     assertAttributeChangeEventCount( globalListener, 0 );
 
-    broker.pause();
+    assertNoActiveTransaction( broker );
+
+    {
+      final EntityBrokerTransaction transaction = broker.pause( "TEST" );
+      assertTransactionMatches( transaction, "TEST", false );
+    }
 
     broker.attributeChanged( entity, ATTR_KEY, 42 );
 
     assertHasNoRecordedEvents( globalListener );
 
     //Allow the entities to flow
-    broker.resume();
+    broker.resume( "TEST" );
+
+    assertNoActiveTransaction( broker );
 
     assertAttributeChangeEventCount( globalListener, 1 );
     assertAttributeChangedEvent( globalListener.getAttributeChangedEvents().get( 0 ), entity, ATTR_KEY, 42 );
@@ -218,14 +225,19 @@ public class EntityChangeBrokerTest
     //Entity Removed
     assertEntityRemovedEventCount( globalListener, 0 );
 
-    broker.pause();
+    {
+      final EntityBrokerTransaction transaction = broker.pause( "TEST" );
+      assertTransactionMatches( transaction, "TEST", false );
+    }
+
 
     broker.entityRemoved( entity );
 
     assertHasNoRecordedEvents( globalListener );
 
-    broker.resume();
+    broker.resume( "TEST" );
 
+    assertNoActiveTransaction( broker );
     assertEntityRemovedEventCount( globalListener, 1 );
     assertEntityRemovedEvent( globalListener.getEntityRemovedEvents().get( 0 ), entity );
 
@@ -234,14 +246,18 @@ public class EntityChangeBrokerTest
     //Related Added
     assertRelatedAddedEventCount( globalListener, 0 );
 
-    broker.pause();
+    {
+      final EntityBrokerTransaction transaction = broker.pause( "TEST" );
+      assertTransactionMatches( transaction, "TEST", false );
+    }
 
     broker.relatedAdded( entity, REL_KEY, other );
 
     assertHasNoRecordedEvents( globalListener );
 
-    broker.resume();
+    broker.resume( "TEST" );
 
+    assertNoActiveTransaction( broker );
     assertRelatedAddedEventCount( globalListener, 1 );
     assertRelatedAddedEvent( globalListener.getRelatedAddedEvents().get( 0 ), entity, REL_KEY, other );
 
@@ -250,16 +266,26 @@ public class EntityChangeBrokerTest
     //Related Removed
     assertRelatedRemovedEventCount( globalListener, 0 );
 
-    broker.pause();
+    {
+      final EntityBrokerTransaction transaction = broker.pause( "TEST" );
+      assertTransactionMatches( transaction, "TEST", false );
+    }
 
     broker.relatedRemoved( entity, REL_KEY, other );
 
     assertHasNoRecordedEvents( globalListener );
 
-    broker.resume();
+    broker.resume( "TEST" );
 
+    assertNoActiveTransaction( broker );
     assertRelatedRemovedEventCount( globalListener, 1 );
     assertRelatedRemovedEvent( globalListener.getRelatedRemovedEvents().get( 0 ), entity, REL_KEY, other );
+  }
+
+  private void assertNoActiveTransaction( final EntityChangeBroker broker )
+  {
+    assertEquals( broker.getCurrentTransaction(), null );
+    assertEquals( broker.isInTransaction(), false );
   }
 
   @Test
@@ -276,7 +302,12 @@ public class EntityChangeBrokerTest
     //Attr changed
     assertAttributeChangeEventCount( globalListener, 0 );
 
-    broker.disable();
+    assertNoActiveTransaction( broker );
+
+    final EntityBrokerTransaction transaction = broker.disable( "TEST" );
+    assertTransactionMatches( transaction, "TEST", true );
+
+    assertActiveTransaction( broker, transaction );
 
     broker.attributeChanged( entity, ATTR_KEY, 42 );
     assertHasNoRecordedEvents( globalListener );
@@ -290,9 +321,26 @@ public class EntityChangeBrokerTest
     broker.relatedRemoved( entity, REL_KEY, other );
     assertHasNoRecordedEvents( globalListener );
 
-    broker.enable();
+    broker.enable( "TEST" );
 
+    assertNoActiveTransaction( broker );
     assertHasNoRecordedEvents( globalListener );
+  }
+
+  private void assertTransactionMatches( final EntityBrokerTransaction transaction,
+                                         final String key,
+                                         final boolean disabled )
+  {
+    assertNotNull( transaction );
+    assertEquals( transaction.getKey(), key );
+    assertEquals( transaction.isDisableAction(), disabled );
+    assertEquals( transaction.isPauseAction(), !disabled );
+  }
+
+  private void assertActiveTransaction( final EntityChangeBroker broker, final EntityBrokerTransaction transaction )
+  {
+    assertEquals( broker.getCurrentTransaction(), transaction );
+    assertEquals( broker.isInTransaction(), true );
   }
 
   @Test

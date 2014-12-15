@@ -9,6 +9,11 @@ import javax.annotation.Nullable;
  */
 public final class DataLoadStatus
 {
+  /**
+   * A key that uniquely identifies the data source that initiated the data load.
+   */
+  @Nonnull
+  private final String _systemKey;
   private final int _sequence;
   private final boolean _bulkLoad;
   @Nullable
@@ -27,9 +32,10 @@ public final class DataLoadStatus
   // The number of entities where link() was invoked
   private final int _entityLinkCount;
 
-  public DataLoadStatus( final int sequence,
+  public DataLoadStatus( @Nonnull final String systemKey,
+                         final int sequence,
                          final boolean bulkLoad,
-                         final String requestID,
+                         @Nullable final String requestID,
                          @Nonnull final List<ChannelChangeStatus> channelAdds,
                          @Nonnull final List<ChannelChangeStatus> channelUpdates,
                          @Nonnull final List<ChannelChangeStatus> channelRemoves,
@@ -37,6 +43,7 @@ public final class DataLoadStatus
                          final int entityRemoveCount,
                          final int entityLinkCount )
   {
+    _systemKey = systemKey;
     _sequence = sequence;
     _bulkLoad = bulkLoad;
     _requestID = requestID;
@@ -46,6 +53,12 @@ public final class DataLoadStatus
     _entityUpdateCount = entityUpdateCount;
     _entityRemoveCount = entityRemoveCount;
     _entityLinkCount = entityLinkCount;
+  }
+
+  @Nonnull
+  public String getSystemKey()
+  {
+    return _systemKey;
   }
 
   public int getSequence()

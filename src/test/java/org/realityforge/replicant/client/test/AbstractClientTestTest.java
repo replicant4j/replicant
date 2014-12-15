@@ -42,17 +42,17 @@ public class AbstractClientTestTest
 
     final EntityChangeBroker broker = t.broker();
 
-    verify( broker, never() ).pause();
-    verify( broker, never() ).resume();
-    t.pauseBroker();
-    verify( broker, never() ).resume();
-    verify( broker, times( 1 ) ).pause();
+    verify( broker, never() ).pause( "TEST" );
+    verify( broker, never() ).resume( "TEST" );
+    t.broker().pause( "TEST" );
+    verify( broker, never() ).resume( "TEST" );
+    verify( broker, times( 1 ) ).pause( "TEST" );
 
-    verify( broker, times( 1 ) ).pause();
-    verify( broker, never() ).resume();
-    t.resumeBroker();
-    verify( broker, times( 1 ) ).resume();
-    verify( broker, times( 1 ) ).pause();
+    verify( broker, times( 1 ) ).pause( "TEST" );
+    verify( broker, never() ).resume( "TEST" );
+    t.broker().resume( "TEST" );
+    verify( broker, times( 1 ) ).resume( "TEST" );
+    verify( broker, times( 1 ) ).pause( "TEST" );
   }
 
 
