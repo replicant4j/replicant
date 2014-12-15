@@ -38,6 +38,10 @@ public final class ReplicantContext
    * The url relative to base from which initial token is generated and the replicant session created.
    */
   public static final String TOKEN_URL_FRAGMENT = "/token";
+  /**
+   * The query parameter used to identify the last received packet sequence.
+   */
+  public static final String RECEIVE_SEQUENCE_PARAM = "rx";
 
   private ReplicantContext()
   {

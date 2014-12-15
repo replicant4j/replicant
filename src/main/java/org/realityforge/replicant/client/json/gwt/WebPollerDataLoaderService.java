@@ -193,7 +193,9 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected String getPollURL()
   {
-    return getBaseURL() + ReplicantContext.REPLICANT_URL_FRAGMENT + "?rx=" + getSession().getLastRxSequence();
+    return getBaseURL() +
+           ReplicantContext.REPLICANT_URL_FRAGMENT + "?" +
+           ReplicantContext.RECEIVE_SEQUENCE_PARAM + "=" + getSession().getLastRxSequence();
   }
 
   /**

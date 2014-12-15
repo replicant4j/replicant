@@ -67,7 +67,7 @@ public class ReplicantPollResource
   @Produces( "text/plain" )
   public void poll( @Suspended AsyncResponse response,
                     @Nonnull @HeaderParam( ReplicantContext.SESSION_ID_HEADER ) final String sessionID,
-                    @QueryParam( "rx" ) final int rxSequence )
+                    @QueryParam( ReplicantContext.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
   {
     response.setTimeout( getPollTime(), TimeUnit.SECONDS );
     response.register( new ConnectionCallback()

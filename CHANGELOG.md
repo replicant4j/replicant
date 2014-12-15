@@ -1,5 +1,6 @@
 ## 0.5.41 (Pending):
 * Ensure ReplicantPollResource sets HTTP headers to ensure IE performs no caching.
+* Extract out a constant for the query parameter used to identify the last received packet sequence.
 
 ## 0.5.40:
 * Send a DataLoadCompleteEvent when a data load completes.
