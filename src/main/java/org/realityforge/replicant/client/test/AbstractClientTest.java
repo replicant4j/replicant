@@ -26,6 +26,16 @@ public abstract class AbstractClientTest
     return handler;
   }
 
+  protected void resumeBroker()
+  {
+    broker().resume( "TEST" );
+  }
+
+  protected void pauseBroker()
+  {
+    broker().pause( "TEST" );
+  }
+
   protected final void fireEvent( final Event<?> event )
   {
     eventBus().fireEvent( event );

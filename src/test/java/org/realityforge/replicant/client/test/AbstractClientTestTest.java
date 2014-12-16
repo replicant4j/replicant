@@ -44,17 +44,16 @@ public class AbstractClientTestTest
 
     verify( broker, never() ).pause( "TEST" );
     verify( broker, never() ).resume( "TEST" );
-    t.broker().pause( "TEST" );
+    t.pauseBroker();
     verify( broker, never() ).resume( "TEST" );
     verify( broker, times( 1 ) ).pause( "TEST" );
 
     verify( broker, times( 1 ) ).pause( "TEST" );
     verify( broker, never() ).resume( "TEST" );
-    t.broker().resume( "TEST" );
+    t.resumeBroker();
     verify( broker, times( 1 ) ).resume( "TEST" );
     verify( broker, times( 1 ) ).pause( "TEST" );
   }
-
 
   @Test
   public void eventBusInteraction()
