@@ -1,3 +1,6 @@
+## 0.5.44 (Pending):
+* Add some minimal tests around how the WebPollerDataLoder will handle system failures
+
 ## 0.5.43:
 * Add abstract method AbstractDataLoaderService.getSystemKey() that helps identify which replication
   system that the data loader is supporting. This is important when replicant is used with multiple
