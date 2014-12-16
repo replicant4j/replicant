@@ -1,4 +1,4 @@
-## 0.5.44 (Pending):
+## 0.5.44:
 * Re-add inadvertently removed resumeBroker() and pauseBroker() to AbstractClientTest.
 * Add some minimal tests around how the WebPollerDataLoader will handle system failures
 
