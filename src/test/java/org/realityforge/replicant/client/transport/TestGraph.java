@@ -1,6 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
-enum TestGraph
+public enum TestGraph
 {
   A, B
 }
