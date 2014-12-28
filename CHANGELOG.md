@@ -1,3 +1,5 @@
+## 0.5.46 (Pending):
+
 ## 0.5.45:
 * Remove unused EntityMessageGenerator.
 * Remove ChangeRecorder as downstream projects no longer use the class and instead
