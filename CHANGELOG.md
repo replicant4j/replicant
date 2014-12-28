@@ -1,3 +1,7 @@
+## 0.5.45:
+* Remove ChangeRecorder as downstream projects no longer use the class and instead
+  generate the entire artifact.
+
 ## 0.5.44:
 * Re-add inadvertently removed resumeBroker() and pauseBroker() to AbstractClientTest.
 * Add some minimal tests around how the WebPollerDataLoader will handle system failures
