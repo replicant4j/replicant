@@ -1,4 +1,7 @@
 ## 0.5.46 (Pending):
+* Introduce ReplicantClientTestModule in the client-side test code that registers the standard set
+  of client-side dependencies. Update AbstractClientTest to add ReplicantClientTestModule to the
+  list of modules.
 
 ## 0.5.45:
 * Remove unused EntityMessageGenerator.

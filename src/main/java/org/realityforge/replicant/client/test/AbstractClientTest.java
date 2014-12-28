@@ -1,7 +1,10 @@
 package org.realityforge.replicant.client.test;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.inject.Module;
 import com.google.web.bindery.event.shared.Event;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.realityforge.guiceyloops.shared.AbstractSharedTest;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -10,6 +13,15 @@ import static org.mockito.Mockito.*;
 public abstract class AbstractClientTest
   extends AbstractSharedTest
 {
+  @Override
+  protected Module[] getModules()
+  {
+    final ArrayList<Module> modules = new ArrayList<>();
+    Collections.addAll( modules, super.getModules() );
+    addModule( modules, new ReplicantClientTestModule() );
+    return modules.toArray( new Module[ modules.size() ] );
+  }
+
   protected final EntityRepository repository()
   {
     return s( EntityRepository.class );

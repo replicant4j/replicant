@@ -5,6 +5,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Module;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.Event.Type;
+import java.util.ArrayList;
 import org.realityforge.guiceyloops.shared.AbstractModule;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -17,6 +18,14 @@ public class AbstractClientTestTest
   public static class MyTest
     extends AbstractClientTest
   {
+    @Override
+    protected Module[] getModules()
+    {
+      final ArrayList<Module> modules = new ArrayList<>();
+      addModule( modules, getTestModule() );
+      return modules.toArray( new Module[ modules.size() ] );
+    }
+
     @Override
     protected Module getDefaultTestModule()
     {
