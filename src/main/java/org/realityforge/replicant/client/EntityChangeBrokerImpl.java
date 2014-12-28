@@ -352,9 +352,6 @@ public class EntityChangeBrokerImpl
     _transaction = null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public final boolean isDisabled()
   {
     return null != _transaction && _transaction.isDisableAction();
