@@ -1,4 +1,4 @@
-## 0.5.46 (Pending):
+## 0.5.46:
 * Add CollectorEntityChangeListener that records entity change events, useful during testing.
 * Introduce ReplicantClientTestModule in the client-side test code that registers the standard set
   of client-side dependencies. Update AbstractClientTest to add ReplicantClientTestModule to the
