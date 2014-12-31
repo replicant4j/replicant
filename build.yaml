@@ -6,8 +6,6 @@ artifacts:
   javax_annotation: com.google.code.findbugs:jsr305:jar:3.0.0
   javax_javaee: javax:javaee-api:jar:7.0
 
-  javax_validation: javax.validation:validation-api:jar:1.0.0.GA
-  javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
   gwt_user: com.google.gwt:gwt-user:jar:2.7.0
   gwt_dev: com.google.gwt:gwt-dev:jar:2.7.0
 
