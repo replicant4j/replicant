@@ -1,5 +1,7 @@
 ## 0.5.47 (Pending):
 * Upgrade to compile and test against GWT 2.7.0.
+* Replace TokenRestService with enhanced SessionRestService that provides status details
+  about the session and other candidate sessions.
 * Add field_filter dependency to expand the capabilities of the token service.
 * Add a template method ReplicantSession.emitStatus() to make it possible for sub-classes
   to provide additional details about session status.

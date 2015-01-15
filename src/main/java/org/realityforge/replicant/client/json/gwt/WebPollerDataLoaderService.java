@@ -126,7 +126,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
 
   public void connect( @Nullable final Runnable runnable )
   {
-    final RequestBuilder rb = new RequestBuilder( RequestBuilder.GET, getTokenURL() );
+    final RequestBuilder rb = new RequestBuilder( RequestBuilder.POST, getTokenURL() );
     try
     {
       rb.sendRequest( null, new RequestCallback()
@@ -206,7 +206,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected String getTokenURL()
   {
-    return getBaseURL() + ReplicantContext.TOKEN_URL_FRAGMENT;
+    return getBaseURL() + ReplicantContext.SESSION_URL_FRAGMENT;
   }
 
   /**
