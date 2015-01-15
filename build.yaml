@@ -32,3 +32,5 @@ artifacts:
   gwt_property_source: org.realityforge.gwt.property-source:gwt-property-source:jar:0.2
 
   gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.8
+
+  field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.4

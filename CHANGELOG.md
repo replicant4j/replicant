@@ -1,5 +1,6 @@
 ## 0.5.47 (Pending):
 * Upgrade to compile ad test against GWT 2.7.0.
+* Add field_filter dependency to expand the capabilities of the token service.
 
 ## 0.5.46:
 * Add CollectorEntityChangeListener that records entity change events, useful during testing.
