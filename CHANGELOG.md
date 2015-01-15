@@ -1,6 +1,8 @@
 ## 0.5.47 (Pending):
 * Upgrade to compile and test against GWT 2.7.0.
 * Add field_filter dependency to expand the capabilities of the token service.
+* Add a template method ReplicantSession.emitStatus() to make it possible for sub-classes
+  to provide additional details about session status.
 
 ## 0.5.46:
 * Add CollectorEntityChangeListener that records entity change events, useful during testing.
