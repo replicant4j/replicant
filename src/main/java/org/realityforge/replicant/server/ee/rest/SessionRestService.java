@@ -39,7 +39,7 @@ import org.realityforge.ssf.SessionManager;
  * It is expected that this endpoint has already had security applied.
  */
 @Path( ReplicantContext.SESSION_URL_FRAGMENT )
-@Produces( MediaType.TEXT_PLAIN )
+@Produces( MediaType.APPLICATION_JSON )
 public class SessionRestService
 {
   private DatatypeFactory _datatypeFactory;
@@ -65,6 +65,7 @@ public class SessionRestService
   }
 
   @POST
+  @Produces( MediaType.TEXT_PLAIN )
   public Response generateToken()
   {
     final Response.ResponseBuilder builder = Response.ok();
@@ -99,7 +100,6 @@ public class SessionRestService
 
   @Path( "{sessionID}" )
   @GET
-  @Produces( MediaType.APPLICATION_JSON )
   public Response getSession( @PathParam( "sessionID" ) @NotNull final String sessionID,
                               @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
                               @Context @Nonnull final UriInfo uri )
