@@ -12,6 +12,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -71,6 +72,24 @@ public class SessionRestService
     final Response.ResponseBuilder builder = Response.ok();
     CacheUtil.configureNoCacheHeaders( builder );
     return builder.entity( _sessionManager.createSession().getSessionID() ).build();
+  }
+
+  @Path( "{sessionID}" )
+  @DELETE
+  public Response deleteSession(@PathParam( "sessionID" ) @NotNull final String sessionID)
+  {
+    final StringWriter writer = new StringWriter();
+    final JsonGenerator g = _factory.createGenerator( writer );
+      g.writeStartObject();
+      g.write( "code", Response.Status.OK.getStatusCode() );
+      g.write( "description", "Session removed." );
+      g.writeEnd();
+    g.close();
+
+    final Response.ResponseBuilder builder = Response.ok();
+    CacheUtil.configureNoCacheHeaders( builder );
+    _sessionManager.invalidateSession( sessionID );
+    return builder.entity( writer.toString() ).build();
   }
 
   @GET

@@ -165,7 +165,48 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   public void disconnect( @Nullable final Runnable runnable )
   {
     stopPolling();
-    setSession( null, runnable );
+    final T session = getSession();
+    if( null != session )
+    {
+      final RequestBuilder rb =
+        new RequestBuilder( RequestBuilder.DELETE, getTokenURL() + "/" + session.getSessionID() );
+      try
+      {
+        rb.sendRequest( null, new RequestCallback()
+        {
+          @Override
+          public void onResponseReceived( final Request request, final Response response )
+          {
+            if ( Response.SC_OK == response.getStatusCode() )
+            {
+              setSession( null, runnable );
+            }
+            else
+            {
+              setSession( null, runnable );
+              handleInvalidDisconnect( null );
+            }
+          }
+
+          @Override
+          public void onError( final Request request, final Throwable exception )
+          {
+            setSession( null, runnable );
+            handleInvalidDisconnect( exception );
+          }
+        } );
+      }
+      catch ( final RequestException e )
+      {
+        setSession( null, runnable );
+        handleInvalidDisconnect( e );
+      }
+    }
+  }
+
+  protected void handleInvalidDisconnect( @Nullable final Throwable exception )
+  {
+    handleSystemFailure( exception, "Failed to disconnect session" );
   }
 
   /**
