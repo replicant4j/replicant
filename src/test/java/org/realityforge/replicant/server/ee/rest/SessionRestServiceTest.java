@@ -20,7 +20,7 @@ public class SessionRestServiceTest
     when( sessionManager.createSession() ).
       thenReturn( new TestSession( "2222" ) );
 
-    final Response token = resource.generateToken();
+    final Response token = resource.createSession();
 
     assertEquals( token.getEntity(), "2222" );
   }

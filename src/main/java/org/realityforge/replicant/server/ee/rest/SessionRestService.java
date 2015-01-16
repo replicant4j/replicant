@@ -66,7 +66,7 @@ public class SessionRestService
 
   @POST
   @Produces( MediaType.TEXT_PLAIN )
-  public Response generateToken()
+  public Response createSession()
   {
     final Response.ResponseBuilder builder = Response.ok();
     CacheUtil.configureNoCacheHeaders( builder );
