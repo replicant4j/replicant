@@ -1,4 +1,4 @@
-## 0.5.47 (Pending):
+## 0.5.47:
 * When a client-side session is disocnnected, delete the server-side session.
 * Upgrade to compile and test against GWT 2.7.0.
 * Replace TokenRestService with enhanced SessionRestService that provides status details
