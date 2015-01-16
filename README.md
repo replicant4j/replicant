@@ -18,3 +18,4 @@ TODO
 ----
 
 * Test WebPollerDataLoaderService
+* Test SessionRestService
