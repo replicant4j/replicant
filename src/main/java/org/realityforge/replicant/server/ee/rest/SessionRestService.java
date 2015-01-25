@@ -171,10 +171,6 @@ public class SessionRestService
     {
       g.write( "lastAccessedAt", asDateTimeString( session.getLastAccessedAt() ) );
     }
-    if ( filter.allow( "lastAccessedAt" ) )
-    {
-      g.write( "lastAccessedAt", asDateTimeString( session.getLastAccessedAt() ) );
-    }
     if ( filter.allow( "attributes" ) )
     {
       final FieldFilter subFilter = filter.subFilter( "attributes" );
