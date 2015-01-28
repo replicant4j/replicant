@@ -30,13 +30,25 @@ public final class ReplicationRequestUtil
   /**
    * Start a replication context.
    *
+   * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
    * @param sessionID the id of the session that initiated change if any.
    * @param requestID the id of the request in the session that initiated change..
    */
   public static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
+                                       @Nonnull final String invocationKey,
                                        @Nullable final String sessionID,
                                        @Nullable final String requestID )
   {
+    final Object existingKey = registry.getResource( ReplicantContext.REPLICATION_INVOCATION_KEY );
+    if ( null != existingKey )
+    {
+      final String message =
+        "Attempted to invoke service method '" + invocationKey +
+        "' while there is an active replication '" + existingKey + "'";
+      throw new IllegalStateException( message );
+    }
+
+    registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, invocationKey );
     if ( null != sessionID )
     {
       registry.putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
@@ -60,6 +72,9 @@ public final class ReplicationRequestUtil
          entityManager.isOpen() &&
          !registry.getRollbackOnly() )
     {
+      // Remove invocation key to finalize replication context
+      registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, null );
+
       final String sessionID = (String) registry.getResource( ReplicantContext.SESSION_ID_KEY );
       final String requestID = (String) registry.getResource( ReplicantContext.REQUEST_ID_KEY );
       boolean requestComplete = true;

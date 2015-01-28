@@ -1,4 +1,7 @@
 ## 0.5.48 (Pending):
+* In ReplicationRequestUtil guard against overlapping replication contexts calls by
+  raising an exception if attempting to start a new replication context when one is
+  already active.
 * Fix bug in ReplicantSessionManager that attempted use ReplicantContextHolder to flag an
   incomplete request rather than the TransactionSynchronizationRegistry.
 * Update ReplicantContextHolder.remove() so that it returns the value that was removed.
