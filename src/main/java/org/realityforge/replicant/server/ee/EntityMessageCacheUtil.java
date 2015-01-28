@@ -143,7 +143,7 @@ public final class EntityMessageCacheUtil
   }
 
   @Nonnull
-  private static TransactionSynchronizationRegistry lookupTransactionSynchronizationRegistry()
+  static TransactionSynchronizationRegistry lookupTransactionSynchronizationRegistry()
   {
     try
     {
