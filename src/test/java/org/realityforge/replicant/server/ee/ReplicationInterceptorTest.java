@@ -208,7 +208,7 @@ public class ReplicationInterceptorTest
     {
       return;
     }
-    fail("Expected to generate session due to nested contexts");
+    fail( "Expected to generate session due to nested contexts" );
   }
 
   @Test
