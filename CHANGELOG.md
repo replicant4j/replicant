@@ -1,4 +1,5 @@
 ## 0.5.48 (Pending):
+* Update ReplicantContextHolder.remove() so that it returns the value that was removed.
 * Remove duplicated "lastAccessedAt" json key in output for SessionRestService.
 
 ## 0.5.47:
