@@ -18,11 +18,6 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  */
 public final class ReplicationRequestUtil
 {
-  /**
-   * The key used to access the registry to get the current call depth.
-   */
-  private static final String REPLICATION_TX_DEPTH = "ReplicationTxDepth";
-
   private ReplicationRequestUtil()
   {
   }
@@ -104,37 +99,6 @@ public final class ReplicationRequestUtil
     else
     {
       return true;
-    }
-  }
-
-  /**
-   * Set the current call depth in replication request.
-   */
-  public static void setReplicationCallDepth( final int depth )
-  {
-    if ( 0 == depth )
-    {
-      ReplicantContextHolder.remove( REPLICATION_TX_DEPTH );
-    }
-    else
-    {
-      ReplicantContextHolder.put( REPLICATION_TX_DEPTH, depth );
-    }
-  }
-
-  /**
-   * Return the current call depth in the replication request.
-   */
-  public static int getReplicationCallDepth()
-  {
-    final Integer depth = (Integer) ReplicantContextHolder.get( REPLICATION_TX_DEPTH );
-    if ( null == depth )
-    {
-      return 0;
-    }
-    else
-    {
-      return depth;
     }
   }
 }
