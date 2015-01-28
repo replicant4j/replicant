@@ -29,11 +29,20 @@ public final class ReplicantContextHolder
    */
   public static void put( @Nonnull final String key, @Nonnull final Serializable data )
   {
+    getContext().put( key, data );
+  }
+
+  /**
+   * Return a copy of the current ReplicantContext.
+   */
+  public static Map<String, Serializable> getContext()
+  {
     if ( null == c_context.get() )
     {
       c_context.set( new HashMap<String, Serializable>() );
     }
-    c_context.get().put( key, data );
+
+    return new HashMap<>( c_context.get() );
   }
 
   /**

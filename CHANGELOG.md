@@ -1,4 +1,5 @@
 ## 0.5.48 (Pending):
+* Add ReplicantContextHolder.getContext() to expose a copy of the current replication context.
 * In ReplicationRequestUtil guard against overlapping replication contexts calls by
   raising an exception if attempting to start a new replication context when one is
   already active.
