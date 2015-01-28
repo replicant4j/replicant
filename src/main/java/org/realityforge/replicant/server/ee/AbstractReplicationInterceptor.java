@@ -1,5 +1,9 @@
 package org.realityforge.replicant.server.ee;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
@@ -14,6 +18,8 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  */
 public abstract class AbstractReplicationInterceptor
 {
+  private static final Logger LOG = Logger.getLogger( AbstractReplicationInterceptor.class.getName() );
+
   @Resource
   private TransactionSynchronizationRegistry _registry;
 
@@ -21,38 +27,43 @@ public abstract class AbstractReplicationInterceptor
   public Object businessIntercept( final InvocationContext context )
     throws Exception
   {
-    final int depth = ReplicationRequestUtil.getReplicationCallDepth();
-    if ( 0 == depth )
-    {
-      final String sessionID = (String) ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY );
-      if ( null != sessionID )
-      {
-        ReplicantContextHolder.remove( ReplicantContext.SESSION_ID_KEY );
-      }
-      final String requestID = (String) ReplicantContextHolder.get( ReplicantContext.REQUEST_ID_KEY );
-      if ( null != requestID )
-      {
-        ReplicantContextHolder.remove( ReplicantContext.REQUEST_ID_KEY );
-      }
+    final String invocationKey = getInvocationKey( context );
+    final String sessionID = (String) ReplicantContextHolder.remove( ReplicantContext.SESSION_ID_KEY );
+    final String requestID = (String) ReplicantContextHolder.remove( ReplicantContext.REQUEST_ID_KEY );
 
-      ReplicationRequestUtil.startReplication( _registry, sessionID, requestID );
+    // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
+    ReplicantContextHolder.clean();
+
+    ReplicationRequestUtil.startReplication( _registry, invocationKey, sessionID, requestID );
+
+    if ( LOG.isLoggable( Level.FINE ) )
+    {
+      LOG.fine( "Starting invocation of " + invocationKey +
+                " ContextData: " + context.getContextData() +
+                " ReplicantContext: " + ReplicantContextHolder.getContext() +
+                " Thread: " + Thread.currentThread().getId() );
     }
-    ReplicationRequestUtil.setReplicationCallDepth( depth + 1 );
+
     try
     {
       return context.proceed();
     }
     finally
     {
-      ReplicationRequestUtil.setReplicationCallDepth( depth );
-      if ( 0 == depth )
+      final boolean requestComplete =
+        ReplicationRequestUtil.completeReplication( _registry, getEntityManager(), getEndpoint() );
+
+      // Clear the context completely to ensure it contains only the completion key.
+      ReplicantContextHolder.clean();
+
+      ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, requestComplete ? "1" : "0" );
+
+      if ( LOG.isLoggable( Level.FINE ) )
       {
-        final boolean requestComplete =
-          ReplicationRequestUtil.completeReplication( _registry, getEntityManager(), getEndpoint() );
-        if ( !ReplicantContextHolder.contains( ReplicantContext.REQUEST_COMPLETE_KEY ) )
-        {
-          ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, requestComplete ? "1" : "0" );
-        }
+        LOG.fine( "Completed invocation of " + invocationKey +
+                  " ContextData: " + context.getContextData() +
+                  " ReplicantContext: " + ReplicantContextHolder.getContext() +
+                  " Thread: " + Thread.currentThread().getId() );
       }
     }
   }
@@ -60,4 +71,20 @@ public abstract class AbstractReplicationInterceptor
   protected abstract EntityManager getEntityManager();
 
   protected abstract EntityMessageEndpoint getEndpoint();
+
+  @SuppressWarnings( "EjbProhibitedPackageUsageInspection" )
+  private String getInvocationKey( final InvocationContext context )
+  {
+    final Method method = context.getMethod();
+    if ( null != method )
+    {
+      return method.getDeclaringClass().getName() + "." + method.getName();
+    }
+    final Constructor constructor = context.getConstructor();
+    if ( null != constructor )
+    {
+      return constructor.getDeclaringClass().getName() + "." + constructor.getName();
+    }
+    return "Unknown";
+  }
 }

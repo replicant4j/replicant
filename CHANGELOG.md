@@ -1,4 +1,7 @@
 ## 0.5.48 (Pending):
+* Update AbstractReplicationInterceptor to add useful logging at FINE level.
+* Rework AbstractReplicationInterceptor so that it always starts and stops a replication context
+  and clears all state in ReplicantContextHolder when it is no longer required.
 * In ReplicationRequestUtil.startReplication() ensure that the registry is cleared of old values
   of SESSION_ID_KEY and REQUEST_ID_KEY in case multiple replication contexts occur within the
   scope of one transaction.
