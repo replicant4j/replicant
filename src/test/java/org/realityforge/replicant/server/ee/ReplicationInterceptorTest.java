@@ -96,20 +96,24 @@ public class ReplicationInterceptorTest
   public void ensureUserCanOverrideRequestCompleteFlag()
     throws Exception
   {
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestInvocationContext context = new TestInvocationContext();
     context.setRunnable( new Runnable()
     {
       @Override
       public void run()
       {
-        ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
+        registry.putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE );
       }
     } );
+    final EntityManager entityManager = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor =
-      createInterceptor( new TestTransactionSynchronizationRegistry(), mock( EntityManager.class ) );
+      createInterceptor( registry, entityManager );
 
     ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
     ReplicantContextHolder.put( ReplicantContext.REQUEST_ID_KEY, "r1" );
+
+    when( entityManager.isOpen() ).thenReturn( true );
 
     interceptor.businessIntercept( context );
 
@@ -170,7 +174,7 @@ public class ReplicationInterceptorTest
   }
 
   @Test
-  public void ensureNestedInvokationDoNotCauseSave()
+  public void ensureNestedInvocationsShouldExcept()
     throws Exception
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
@@ -189,11 +193,6 @@ public class ReplicationInterceptorTest
         final TestReplicationInterceptor innerInterceptor = createInterceptor( registry, em );
         when( em.isOpen() ).thenReturn( true );
         innerInterceptor.businessIntercept( innerContext );
-        assertTrue( innerContext.isInvoked() );
-        assertNull( interceptor._sessionID );
-        assertNull( interceptor._requestID );
-        assertNull( innerInterceptor._messages );
-        assertNull( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ) );
         return super.proceed();
       }
     };
@@ -201,19 +200,15 @@ public class ReplicationInterceptorTest
     when( em.isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ReplicantContext.SESSION_ID_KEY, "s1" );
     ReplicantContextHolder.put( ReplicantContext.REQUEST_ID_KEY, "r1" );
-    final Object result = interceptor.businessIntercept( context );
-    verify( em ).flush();
-
-    // Make sure clear is called
-    assertNull( ReplicantContextHolder.get( ReplicantContext.SESSION_ID_KEY ) );
-
-    assertTrue( context.isInvoked() );
-    assertEquals( result, TestInvocationContext.RESULT );
-    assertEquals( interceptor._sessionID, "s1" );
-    assertEquals( interceptor._requestID, "r1" );
-    assertNotNull( interceptor._messages );
-    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
-    assertTrue( interceptor._messages.contains( message ) );
+    try
+    {
+      interceptor.businessIntercept( context );
+    }
+    catch ( Exception e )
+    {
+      return;
+    }
+    fail("Expected to generate session due to nested contexts");
   }
 
   @Test
