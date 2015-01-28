@@ -109,4 +109,18 @@ public final class DataLoadStatus
   {
     return _entityLinkCount;
   }
+
+  @Override
+  public String toString()
+  {
+    return "[" +
+           getSystemKey() + ": ChangeSet " + getSequence() + " involved " +
+           getChannelAdds().size() + " subscribes, " +
+           getChannelUpdates().size() + " subscription updates, " +
+           getChannelRemoves().size() + " un-subscribes, " +
+           getEntityUpdateCount() + " updates, " +
+           getEntityRemoveCount() + " removes and " +
+           getEntityLinkCount() + " links" +
+           "]";
+  }
 }
