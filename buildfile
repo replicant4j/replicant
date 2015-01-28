@@ -32,7 +32,7 @@ define 'replicant' do
 
   gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
       :java_args => %w(-Xms512M -Xmx1024M -XX:PermSize=128M -XX:MaxPermSize=256M),
-      :draft_compile => 'true')
+      :draft_compile => 'true') unless ENV['GWT_COMPILE'] == 'no'
 
   test.using :testng
   test.compile.with TEST_DEPS
