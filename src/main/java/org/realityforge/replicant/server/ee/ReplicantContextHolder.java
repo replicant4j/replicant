@@ -40,7 +40,7 @@ public final class ReplicantContextHolder
    * Remove some context data for a particular key.
    *
    * @param key the key.
-   * @return  the value that was removed if any.
+   * @return the value that was removed if any.
    */
   @Nullable
   public static Object remove( @Nonnull final String key )
