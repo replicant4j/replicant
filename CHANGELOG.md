@@ -1,4 +1,4 @@
-## 0.5.48 (Pending):
+## 0.5.48:
 * Clear all state stored in TransactionSynchronizationRegistry in ReplicationRequestUtil.completeReplication()
   so that multiple replication contexts can be started in the scope of one transaction.
 * Update AbstractReplicationInterceptor to add useful logging at FINE level.
