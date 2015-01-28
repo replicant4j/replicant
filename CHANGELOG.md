@@ -1,4 +1,7 @@
 ## 0.5.48 (Pending):
+* In ReplicationRequestUtil.startReplication() ensure that the registry is cleared of old values
+  of SESSION_ID_KEY and REQUEST_ID_KEY in case multiple replication contexts occur within the
+  scope of one transaction.
 * Add ReplicantContextHolder.getContext() to expose a copy of the current replication context.
 * In ReplicationRequestUtil guard against overlapping replication contexts calls by
   raising an exception if attempting to start a new replication context when one is

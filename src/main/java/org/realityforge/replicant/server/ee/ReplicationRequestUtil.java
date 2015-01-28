@@ -53,9 +53,17 @@ public final class ReplicationRequestUtil
     {
       registry.putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
     }
+    else
+    {
+      registry.putResource( ReplicantContext.SESSION_ID_KEY, null );
+    }
     if ( null != requestID )
     {
       registry.putResource( ReplicantContext.REQUEST_ID_KEY, requestID );
+    }
+    else
+    {
+      registry.putResource( ReplicantContext.REQUEST_ID_KEY, null );
     }
   }
 
