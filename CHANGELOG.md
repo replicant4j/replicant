@@ -1,4 +1,6 @@
 ## 0.5.48 (Pending):
+* Fix bug in ReplicantSessionManager that attempted use ReplicantContextHolder to flag an
+  incomplete request rather than the TransactionSynchronizationRegistry.
 * Update ReplicantContextHolder.remove() so that it returns the value that was removed.
 * Remove duplicated "lastAccessedAt" json key in output for SessionRestService.
 

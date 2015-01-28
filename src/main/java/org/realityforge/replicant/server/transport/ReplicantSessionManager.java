@@ -6,7 +6,6 @@ import javax.annotation.Resource;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
-import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.ssf.InMemorySessionManager;
 
@@ -35,7 +34,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
                                      @Nonnull final ChangeSet changeSet )
   {
     final String requestID = (String) getRegistry().getResource( ReplicantContext.REQUEST_ID_KEY );
-    ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
+    getRegistry().putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE );
     return session.getQueue().addPacket( requestID, etag, changeSet );
   }
 
