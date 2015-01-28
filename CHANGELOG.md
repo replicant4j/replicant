@@ -1,3 +1,5 @@
+## 0.5.50 (Pending):
+
 ## 0.5.49:
 * Add a guard in EntityMessageCacheUtil so that if EntityMessageCacheUtil is accessed outside of a
   replication context, an exception is thrown. This forces all entity modifications to occur within
