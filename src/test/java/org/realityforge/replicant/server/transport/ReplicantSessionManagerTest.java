@@ -21,7 +21,8 @@ public class ReplicantSessionManagerTest
     throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-    set( sm, ReplicantSessionManager.class, "_registry", new TestTransactionSynchronizationRegistry() );
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+    set( sm, ReplicantSessionManager.class, "_registry", registry );
     final TestSession session = sm.createSession();
 
     sm.getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, "r1" );
@@ -30,7 +31,7 @@ public class ReplicantSessionManagerTest
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestID(), "r1" );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
-    assertEquals( ReplicantContextHolder.get( ReplicantContext.REQUEST_COMPLETE_KEY ), "0" );
+    assertEquals( registry.getResource( ReplicantContext.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }
 
   @Test
