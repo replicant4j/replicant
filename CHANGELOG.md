@@ -1,4 +1,5 @@
 ## 0.5.48 (Pending):
+* Remove duplicated "lastAccessedAt" json key in output for SessionRestService.
 
 ## 0.5.47:
 * When a client-side session is disconnected, delete the server-side session.
