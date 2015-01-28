@@ -94,6 +94,12 @@ public final class ReplicationRequestUtil
         }
       }
       final Boolean complete = (Boolean) registry.getResource( ReplicantContext.REQUEST_COMPLETE_KEY );
+
+      // Clear all state in case there is multiple replication contexts started in one transaction
+      registry.putResource( ReplicantContext.SESSION_ID_KEY, null );
+      registry.putResource( ReplicantContext.REQUEST_ID_KEY, null );
+      registry.putResource( ReplicantContext.REQUEST_COMPLETE_KEY, null );
+
       return !( null != complete && !complete ) && requestComplete;
     }
     else
