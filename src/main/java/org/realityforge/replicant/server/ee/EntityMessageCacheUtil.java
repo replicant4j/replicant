@@ -7,6 +7,7 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
  * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityMessageSet.
@@ -139,6 +140,15 @@ public final class EntityMessageCacheUtil
   @SuppressWarnings("unchecked")
   private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
   {
+    final Object invocationContext = r.getResource( ReplicantContext.REPLICATION_INVOCATION_KEY );
+    if( null == invocationContext )
+    {
+      final String message =
+        "Attempting to look up replication resource '" + key + "' but there is no active replication context. " +
+        "This probably means you are attempting to update replicated entities outside of a valid replication context. " +
+        "Make sure the entity is modified in a service surrounded by a replication interceptor.";
+      throw new IllegalStateException( message );
+    }
     return (T) r.getResource( key );
   }
 

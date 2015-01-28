@@ -75,9 +75,6 @@ public final class ReplicationRequestUtil
          entityManager.isOpen() &&
          !registry.getRollbackOnly() )
     {
-      // Remove invocation key to finalize replication context
-      registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, null );
-
       final String sessionID = (String) registry.getResource( ReplicantContext.SESSION_ID_KEY );
       final String requestID = (String) registry.getResource( ReplicantContext.REQUEST_ID_KEY );
       boolean requestComplete = true;
@@ -96,6 +93,7 @@ public final class ReplicationRequestUtil
       final Boolean complete = (Boolean) registry.getResource( ReplicantContext.REQUEST_COMPLETE_KEY );
 
       // Clear all state in case there is multiple replication contexts started in one transaction
+      registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, null );
       registry.putResource( ReplicantContext.SESSION_ID_KEY, null );
       registry.putResource( ReplicantContext.REQUEST_ID_KEY, null );
       registry.putResource( ReplicantContext.REQUEST_COMPLETE_KEY, null );

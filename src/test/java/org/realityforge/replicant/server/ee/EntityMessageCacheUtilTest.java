@@ -4,6 +4,7 @@ import javax.naming.Context;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -16,7 +17,9 @@ public class EntityMessageCacheUtilTest
   {
     TestInitialContextFactory.reset();
     final Context context = TestInitialContextFactory.getContext().createSubcontext( "java:comp" );
-    context.bind( "TransactionSynchronizationRegistry", new TestTransactionSynchronizationRegistry() );
+    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+    registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, "Ignored" );
+    context.bind( "TransactionSynchronizationRegistry", registry );
   }
 
   @Test
@@ -60,5 +63,14 @@ public class EntityMessageCacheUtilTest
 
     // Ensure that it works with regular changes
     assertNull( EntityMessageCacheUtil.removeEntityMessageSet() );
+  }
+
+  @Test( expectedExceptions = IllegalStateException.class )
+  public void lookupOfResourceOutsideReplicationContext()
+  {
+    EntityMessageCacheUtil.lookupTransactionSynchronizationRegistry().
+      putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, null );
+
+    EntityMessageCacheUtil.lookupSessionChanges();
   }
 }

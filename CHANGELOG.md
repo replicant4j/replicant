@@ -1,3 +1,8 @@
+## 0.5.49:
+* Add a guard in EntityMessageCacheUtil so that if EntityMessageCacheUtil is accessed outside of a
+  replication context, an exception is thrown. This forces all entity modifications to occur within
+  a replication context.
+
 ## 0.5.48:
 * Clear all state stored in TransactionSynchronizationRegistry in ReplicationRequestUtil.completeReplication()
   so that multiple replication contexts can be started in the scope of one transaction.
