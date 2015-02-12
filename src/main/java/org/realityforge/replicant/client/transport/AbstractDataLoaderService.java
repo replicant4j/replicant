@@ -92,32 +92,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       @Override
       public void run()
       {
-        if ( session != _session )
-        {
-          _session = session;
-          // This should probably be moved elsewhere ... but where?
-          _sessionContext.setSession( session );
-          if ( shouldPurgeOnSessionChange() )
-          {
-            final boolean enabled = _changeBroker.isEnabled();
-            if ( enabled )
-            {
-              _changeBroker.disable( getSystemKey() );
-            }
-            //TODO: else schedule action so that it runs in loop
-            // until it can disable broker. This will involve replacing _resetAction
-            // with something more like existing action setup.
-            purgeSubscriptions();
-            if ( enabled )
-            {
-              _changeBroker.enable( getSystemKey() );
-            }
-          }
-        }
-        if ( null != postAction )
-        {
-          postAction.run();
-        }
+        doSetSession( session, postAction );
       }
     };
     if ( null == _currentAction )
@@ -127,6 +102,36 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     else
     {
       _resetAction = runnable;
+    }
+  }
+
+  private void doSetSession( final T session, final Runnable postAction )
+  {
+    if ( session != _session )
+    {
+      _session = session;
+      // This should probably be moved elsewhere ... but where?
+      _sessionContext.setSession( session );
+      if ( shouldPurgeOnSessionChange() )
+      {
+        final boolean enabled = _changeBroker.isEnabled();
+        if ( enabled )
+        {
+          _changeBroker.disable( getSystemKey() );
+        }
+        //TODO: else schedule action so that it runs in loop
+        // until it can disable broker. This will involve replacing _resetAction
+        // with something more like existing action setup.
+        purgeSubscriptions();
+        if ( enabled )
+        {
+          _changeBroker.enable( getSystemKey() );
+        }
+      }
+    }
+    if ( null != postAction )
+    {
+      postAction.run();
     }
   }
 
