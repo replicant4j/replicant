@@ -119,7 +119,7 @@ public class DataLoaderServiceTest
       entities.put( type, typeMap );
     }
     final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
-    getRwGraphSubscriptions(entitySubscriptionEntry).put( entry.getDescriptor(), entry );
+    getRwGraphSubscriptions( entitySubscriptionEntry ).put( entry.getDescriptor(), entry );
     typeMap.put( id, entitySubscriptionEntry );
   }
 
@@ -220,8 +220,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker() ).disable("TEST");
-    verify( service.getChangeBroker() ).enable("TEST");
+    verify( service.getChangeBroker() ).disable( "TEST" );
+    verify( service.getChangeBroker() ).enable( "TEST" );
     assertTrue( service.isBulkLoadCompleteCalled() );
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
@@ -330,8 +330,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getSession().getLastRxSequence(), 0 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker() ).disable("TEST");
-    verify( service.getChangeBroker() ).enable("TEST");
+    verify( service.getChangeBroker() ).disable( "TEST" );
+    verify( service.getChangeBroker() ).enable( "TEST" );
     assertTrue( service.isBulkLoadCompleteCalled() );
     assertFalse( service.isIncrementalLoadCompleteCalled() );
 
@@ -411,8 +411,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker(), never() ).disable("TEST");
-    verify( service.getChangeBroker(), never() ).enable("TEST");
+    verify( service.getChangeBroker(), never() ).disable( "TEST" );
+    verify( service.getChangeBroker(), never() ).enable( "TEST" );
     assertFalse( service.isBulkLoadCompleteCalled() );
     assertTrue( service.isIncrementalLoadCompleteCalled() );
 
@@ -462,8 +462,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
 
     final EntityChangeBroker changeBroker = service.getChangeBroker();
-    verify( changeBroker ).pause("TEST");
-    verify( changeBroker ).resume("TEST");
+    verify( changeBroker ).pause( "TEST" );
+    verify( changeBroker ).resume( "TEST" );
     assertFalse( service.isBulkLoadCompleteCalled() );
     assertTrue( service.isIncrementalLoadCompleteCalled() );
   }
