@@ -809,7 +809,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     for ( final Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entitySet : entry.getEntities().entrySet() )
     {
       final Class<?> type = entitySet.getKey();
-      for ( Entry<Object, EntitySubscriptionEntry> entityEntry : entitySet.getValue().entrySet() )
+      for ( final Entry<Object, EntitySubscriptionEntry> entityEntry : entitySet.getValue().entrySet() )
       {
         final Object entityID = entityEntry.getKey();
         final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
