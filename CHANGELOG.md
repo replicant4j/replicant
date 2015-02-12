@@ -1,4 +1,5 @@
 ## 0.5.50 (Pending):
+* Add EntityChangeBroker.removeAllChangeListeners() to purge listeners for a specific entity.
 * Update EntitySubscriptionImpl to remove type map when empty.
 * Ensure that entities are unloaded from EntityRepository and listeners in the change broker
   are removed when subscriptions are removed as part of disconnect() method in AbstractDataLoaderService.

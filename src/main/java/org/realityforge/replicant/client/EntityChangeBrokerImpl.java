@@ -144,9 +144,40 @@ public class EntityChangeBrokerImpl
       final ListenerEntry entry = findEntryForListener( listener );
       if ( null != entry )
       {
-        removeChangeListener( _objectListeners, object, entry );
-        entry.interestedInstanceSet().remove( object );
-        removeEntryIfEmpty( entry );
+        doRemoveObjectChangeListener( object, entry );
+      }
+    }
+  }
+
+  /**
+   * Remove the object change listener associated with specified entry and object.
+   */
+  private void doRemoveObjectChangeListener( final Object object, final ListenerEntry entry )
+  {
+    removeChangeListener( _objectListeners, object, entry );
+    entry.interestedInstanceSet().remove( object );
+    removeEntryIfEmpty( entry );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void removeAllChangeListeners( @Nonnull final Object object )
+  {
+    if ( isSending() )
+    {
+      _deferredListenerActions.add( new DeferredListenerAction( object, null, ActionType.REMOVE ) );
+    }
+    else
+    {
+      final ListenerEntry[] listenerEntries = _objectListeners.get( object );
+      if ( null != listenerEntries )
+      {
+        for ( final ListenerEntry entry : listenerEntries )
+        {
+          doRemoveObjectChangeListener( object, entry );
+        }
       }
     }
   }
@@ -465,7 +496,13 @@ public class EntityChangeBrokerImpl
     {
       final Object key = action.getKey();
       final EntityChangeListener listener = action.getListener();
-      if ( action.isRemove() )
+      if( null == listener )
+      {
+        assert action.isRemove();
+        assert null != key;
+        removeAllChangeListeners( key );
+      }
+      else if ( action.isRemove() )
       {
         if ( null == key )
         {

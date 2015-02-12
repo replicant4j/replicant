@@ -49,6 +49,35 @@ public class EntityChangeBrokerTest
     assertTrue( true );
   }
 
+    @Test
+  public void removeAllChangeListeners()
+  {
+    final B entity = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBrokerImpl();
+    final RecordingListener instanceListener = new RecordingListener();
+
+    broker.addChangeListener( entity, instanceListener );
+
+    assertEntityAddedEventCount( instanceListener, 0 );
+
+    broker.entityAdded( entity );
+
+    assertEntityAddedEventCount( instanceListener, 1 );
+    assertEntityAddedEvent( instanceListener.getEntityAddedEvents().get( 0 ), entity );
+
+    instanceListener.clear();
+
+    broker.removeAllChangeListeners( entity );
+
+    assertEntityAddedEventCount( instanceListener, 0 );
+
+    broker.entityAdded( entity );
+
+    assertEntityAddedEventCount( instanceListener, 0 );
+
+  }
+
   @Test
   public void ensureSubscribedListenersReceiveAppropriateMessages()
   {

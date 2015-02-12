@@ -55,6 +55,13 @@ public interface EntityChangeBroker
   void removeChangeListener( @Nonnull Object entity, @Nonnull EntityChangeListener listener );
 
   /**
+   * Remove all the EntityChangeListener instances for a particular entity.
+   *
+   * @param entity the entity to remove listeners for.
+   */
+  void removeAllChangeListeners( @Nonnull Object entity );
+
+  /**
    * Remove listener from listening to any changes.
    *
    * @param listener the EntityChangeListener
