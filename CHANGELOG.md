@@ -1,4 +1,5 @@
 ## 0.5.50 (Pending):
+* Update EntityRepositoryDebugger to add methods to support debugging of subscriptions.
 
 ## 0.5.49:
 * Add a guard in EntityMessageCacheUtil so that if EntityMessageCacheUtil is accessed outside of a
