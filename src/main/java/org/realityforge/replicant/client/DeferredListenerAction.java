@@ -1,5 +1,8 @@
 package org.realityforge.replicant.client;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Container that defies a deferred action on listener set.
  */
@@ -14,18 +17,22 @@ final class DeferredListenerAction
   private final EntityChangeListener _listener;
   private final ActionType _actionType;
 
-  DeferredListenerAction( final Object key, final EntityChangeListener listener, final ActionType actionType )
+  DeferredListenerAction( @Nullable final Object key,
+                          @Nullable final EntityChangeListener listener,
+                          @Nonnull final ActionType actionType )
   {
     _key = key;
     _listener = listener;
     _actionType = actionType;
   }
 
+  @Nullable
   public Object getKey()
   {
     return _key;
   }
 
+  @Nullable
   public EntityChangeListener getListener()
   {
     return _listener;
