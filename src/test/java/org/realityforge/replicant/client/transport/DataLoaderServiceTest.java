@@ -42,6 +42,8 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
+    final EntityRepository repository = service.getRepository();
+    final EntityChangeBroker broker = service.getChangeBroker();
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
@@ -83,18 +85,26 @@ public class DataLoaderServiceTest
     when( sm.unsubscribe( SimpleGraph.C ) ).thenReturn( entryC );
     when( sm.unsubscribe( SimpleGraph.D ) ).thenReturn( entryD );
 
+    when( repository.deregisterEntity( String.class, "A1" ) ).thenReturn( "A1" );
+    when( repository.deregisterEntity( String.class, "B1" ) ).thenReturn( "B1" );
+    when( repository.deregisterEntity( String.class, "C1" ) ).thenReturn( "C1" );
+    when( repository.deregisterEntity( String.class, "D1" ) ).thenReturn( "D1" );
+
     service.purgeSubscriptions();
 
-    final EntityRepository repository = service.getRepository();
-    final InOrder inOrder = inOrder( repository, sm );
+    final InOrder inOrder = inOrder( repository, sm, broker );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.B, "2" );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "B1" );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.A, "1" );
     inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "A1" );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.D );
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "D1" );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.C );
     inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "C1" );
     inOrder.verifyNoMoreInteractions();
   }
 

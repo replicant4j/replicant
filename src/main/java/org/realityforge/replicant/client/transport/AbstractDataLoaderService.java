@@ -817,7 +817,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
           removedEntities += 1;
-          _repository.deregisterEntity( type, entityID );
+          final Object entity = _repository.deregisterEntity( type, entityID );
+          getChangeBroker().removeAllChangeListeners( entity );
         }
       }
     }
