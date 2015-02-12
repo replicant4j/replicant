@@ -309,7 +309,9 @@ public class EntitySubscriptionManagerImpl
 
   private void removeEntityFromGraph( final Class<?> type, final Object id, final ChannelSubscriptionEntry entry )
   {
-    final EntitySubscriptionEntry removed = entry.getRwEntities().get( type ).remove( id );
+    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> map = entry.getRwEntities();
+    final Map<Object, EntitySubscriptionEntry> typeMap = map.get( type );
+    final EntitySubscriptionEntry removed = null != typeMap ? typeMap.remove( id ) : null;
     if ( null == removed )
     {
       final String message =
