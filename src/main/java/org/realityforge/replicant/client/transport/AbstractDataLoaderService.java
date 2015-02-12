@@ -186,7 +186,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
     for ( final Enum graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
     {
-      subscriptionManager.unsubscribe( graph );
+      final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( graph );
+      deregisterUnOwnedEntities( entry );
     }
   }
 
@@ -195,7 +196,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
-      subscriptionManager.unsubscribe( graph, id );
+      final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( graph, id );
+      deregisterUnOwnedEntities( entry );
     }
   }
 

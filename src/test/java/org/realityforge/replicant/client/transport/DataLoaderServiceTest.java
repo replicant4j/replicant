@@ -1,12 +1,16 @@
 package org.realityforge.replicant.client.transport;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.replicant.client.Change;
@@ -17,6 +21,7 @@ import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.Test;
@@ -55,19 +60,75 @@ public class DataLoaderServiceTest
     final HashSet<Object> bGraph = new HashSet<>();
     bGraph.add( "2" );
 
+    final ChannelSubscriptionEntry entryA =
+      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.A, "1" ), null );
+    final ChannelSubscriptionEntry entryB =
+      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.B, "2" ), null );
+    final ChannelSubscriptionEntry entryC =
+      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.C, null ), null );
+    final ChannelSubscriptionEntry entryD =
+      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.D, null ), null );
+
+    insertSubscription( entryA, String.class, "A1" );
+    insertSubscription( entryB, String.class, "B1" );
+    insertSubscription( entryC, String.class, "C1" );
+    insertSubscription( entryD, String.class, "D1" );
+
     when( sm.getInstanceSubscriptionKeys() ).thenReturn( instanceGraphs );
     when( sm.getInstanceSubscriptions( SimpleGraph.A ) ).thenReturn( aGraph );
     when( sm.getInstanceSubscriptions( SimpleGraph.B ) ).thenReturn( bGraph );
     when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
+    when( sm.unsubscribe( SimpleGraph.A, "1" ) ).thenReturn( entryA );
+    when( sm.unsubscribe( SimpleGraph.B, "2" ) ).thenReturn( entryB );
+    when( sm.unsubscribe( SimpleGraph.C ) ).thenReturn( entryC );
+    when( sm.unsubscribe( SimpleGraph.D ) ).thenReturn( entryD );
 
     service.purgeSubscriptions();
 
-    final InOrder inOrder = inOrder( sm );
+    final EntityRepository repository = service.getRepository();
+    final InOrder inOrder = inOrder( repository, sm );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.B, "2" );
+    inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.A, "1" );
+    inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.D );
+    inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
     inOrder.verify( sm ).unsubscribe( SimpleGraph.C );
+    inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
     inOrder.verifyNoMoreInteractions();
+  }
+
+  private void insertSubscription( final ChannelSubscriptionEntry entry, final Class<?> type, final String id )
+    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+  {
+    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = getRwEntities( entry );
+    Map<Object, EntitySubscriptionEntry> typeMap = entities.get( type );
+    if ( null == typeMap )
+    {
+      typeMap = new HashMap<>();
+      entities.put( type, typeMap );
+    }
+    final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
+    getRwGraphSubscriptions(entitySubscriptionEntry).put( entry.getDescriptor(), entry );
+    typeMap.put( id, entitySubscriptionEntry );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private Map<ChannelDescriptor, ChannelSubscriptionEntry> getRwGraphSubscriptions( final EntitySubscriptionEntry entry )
+    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+  {
+    final Method method = entry.getClass().getDeclaredMethod( "getRwGraphSubscriptions" );
+    method.setAccessible( true );
+    return (Map<ChannelDescriptor, ChannelSubscriptionEntry>) method.invoke( entry );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private Map<Class<?>, Map<Object, EntitySubscriptionEntry>> getRwEntities( final ChannelSubscriptionEntry entry )
+    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+  {
+    final Method method = entry.getClass().getDeclaredMethod( "getRwEntities" );
+    method.setAccessible( true );
+    return (Map<Class<?>, Map<Object, EntitySubscriptionEntry>>) method.invoke( entry );
   }
 
   @Test

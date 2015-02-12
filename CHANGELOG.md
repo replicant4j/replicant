@@ -1,4 +1,5 @@
 ## 0.5.50 (Pending):
+* Ensure that entities are unloaded  when subscriptions are removed as part of disconnect.
 * Update EntityRepositoryDebugger to add methods to support debugging of subscriptions.
 
 ## 0.5.49:
