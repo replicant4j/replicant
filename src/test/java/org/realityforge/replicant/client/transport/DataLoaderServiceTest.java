@@ -30,11 +30,6 @@ import static org.testng.Assert.*;
 
 public class DataLoaderServiceTest
 {
-  enum SimpleGraph
-  {
-    A, B, C, D
-  }
-
   @Test
   public void purgeSubscriptions()
     throws Exception
@@ -48,14 +43,14 @@ public class DataLoaderServiceTest
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
     final HashSet<Enum> instanceGraphs = new LinkedHashSet<>();
-    instanceGraphs.add( SimpleGraph.B );
-    instanceGraphs.add( SimpleGraph.A );
+    instanceGraphs.add( TestGraph.B );
+    instanceGraphs.add( TestGraph.A );
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
     final HashSet<Enum> typeGraphs = new LinkedHashSet<>();
-    typeGraphs.add( SimpleGraph.D );
-    typeGraphs.add( SimpleGraph.C );
+    typeGraphs.add( TestGraph.D );
+    typeGraphs.add( TestGraph.C );
 
     final HashSet<Object> aGraph = new HashSet<>();
     aGraph.add( "1" );
@@ -63,13 +58,13 @@ public class DataLoaderServiceTest
     bGraph.add( "2" );
 
     final ChannelSubscriptionEntry entryA =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.A, "1" ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, "1" ), null );
     final ChannelSubscriptionEntry entryB =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.B, "2" ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, "2" ), null );
     final ChannelSubscriptionEntry entryC =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.C, null ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.C, null ), null );
     final ChannelSubscriptionEntry entryD =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( SimpleGraph.D, null ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D, null ), null );
 
     insertSubscription( entryA, String.class, "A1" );
     insertSubscription( entryB, String.class, "B1" );
@@ -77,13 +72,13 @@ public class DataLoaderServiceTest
     insertSubscription( entryD, String.class, "D1" );
 
     when( sm.getInstanceSubscriptionKeys() ).thenReturn( instanceGraphs );
-    when( sm.getInstanceSubscriptions( SimpleGraph.A ) ).thenReturn( aGraph );
-    when( sm.getInstanceSubscriptions( SimpleGraph.B ) ).thenReturn( bGraph );
+    when( sm.getInstanceSubscriptions( TestGraph.A ) ).thenReturn( aGraph );
+    when( sm.getInstanceSubscriptions( TestGraph.B ) ).thenReturn( bGraph );
     when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
-    when( sm.unsubscribe( SimpleGraph.A, "1" ) ).thenReturn( entryA );
-    when( sm.unsubscribe( SimpleGraph.B, "2" ) ).thenReturn( entryB );
-    when( sm.unsubscribe( SimpleGraph.C ) ).thenReturn( entryC );
-    when( sm.unsubscribe( SimpleGraph.D ) ).thenReturn( entryD );
+    when( sm.unsubscribe( TestGraph.A, "1" ) ).thenReturn( entryA );
+    when( sm.unsubscribe( TestGraph.B, "2" ) ).thenReturn( entryB );
+    when( sm.unsubscribe( TestGraph.C ) ).thenReturn( entryC );
+    when( sm.unsubscribe( TestGraph.D ) ).thenReturn( entryD );
 
     when( repository.deregisterEntity( String.class, "A1" ) ).thenReturn( "A1" );
     when( repository.deregisterEntity( String.class, "B1" ) ).thenReturn( "B1" );
@@ -93,16 +88,16 @@ public class DataLoaderServiceTest
     service.purgeSubscriptions();
 
     final InOrder inOrder = inOrder( repository, sm, broker );
-    inOrder.verify( sm ).unsubscribe( SimpleGraph.B, "2" );
+    inOrder.verify( sm ).unsubscribe( TestGraph.B, "2" );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
     inOrder.verify( broker ).removeAllChangeListeners( "B1" );
-    inOrder.verify( sm ).unsubscribe( SimpleGraph.A, "1" );
+    inOrder.verify( sm ).unsubscribe( TestGraph.A, "1" );
     inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
     inOrder.verify( broker ).removeAllChangeListeners( "A1" );
-    inOrder.verify( sm ).unsubscribe( SimpleGraph.D );
+    inOrder.verify( sm ).unsubscribe( TestGraph.D );
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
     inOrder.verify( broker ).removeAllChangeListeners( "D1" );
-    inOrder.verify( sm ).unsubscribe( SimpleGraph.C );
+    inOrder.verify( sm ).unsubscribe( TestGraph.C );
     inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
     inOrder.verify( broker ).removeAllChangeListeners( "C1" );
     inOrder.verifyNoMoreInteractions();
