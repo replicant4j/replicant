@@ -39,6 +39,13 @@ final class TestDataLoadService
 
   @Nonnull
   @Override
+  protected Class<TestGraph> getGraphType()
+  {
+    return TestGraph.class;
+  }
+
+  @Nonnull
+  @Override
   protected String getSystemKey()
   {
     return "TEST";

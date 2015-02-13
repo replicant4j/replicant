@@ -1,4 +1,6 @@
 ## 0.5.50 (Pending):
+* Update the AbstractDataLoaderService so that it only purges subscriptions that are "owned" by
+  the data loader service and ignores any subscriptions owned by other data loaders.
 * Add EntityChangeBroker.removeAllChangeListeners() to purge listeners for a specific entity.
 * Update EntitySubscriptionImpl to remove type map when empty.
 * Ensure that entities are unloaded from EntityRepository and listeners in the change broker

@@ -33,6 +33,13 @@ final class TestWebPollerDataLoaderService
 
   @Nonnull
   @Override
+  protected Class<TestGraph> getGraphType()
+  {
+    return TestGraph.class;
+  }
+
+  @Nonnull
+  @Override
   protected String deriveDefaultURL()
   {
     return "";

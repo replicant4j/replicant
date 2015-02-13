@@ -179,15 +179,25 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected void purgeSubscriptions()
   {
+    /*
+     * Ensure that we only purge subscriptions that are managed by this data loader.
+     */
+    final Class<G> graphClass = getGraphType();
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
     {
-      unsubscribeInstanceGraphs( graph );
+      if ( graph.getClass().equals( graphClass ) )
+      {
+        unsubscribeInstanceGraphs( graph );
+      }
     }
     for ( final Enum graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
     {
-      final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( graph );
-      deregisterUnOwnedEntities( entry );
+      if ( graph.getClass().equals( graphClass ) )
+      {
+        final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( graph );
+        deregisterUnOwnedEntities( entry );
+      }
     }
   }
 
@@ -827,6 +837,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   @Nonnull
   protected abstract String getSystemKey();
+
+  @Nonnull
+  protected abstract Class<G> getGraphType();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nonnull Object filter );
