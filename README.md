@@ -62,7 +62,8 @@ a type graph or an instance graph? Is the graph filtered or unfiltered?
  `EvaluationResult` entity via the `Accreditation` entity then all three would be included in the
  instance graph rooted at a particular person. When the client subscribes to the Person graph with
  the root set to the person "Bob", then they will receive all of Bob's `Accreditation`s and all of
- Bob's `EvaluationResult`s.
+ Bob's `EvaluationResult`s. The developer may also explicitly shape and prune the graph so include
+ or exclude entities from the instance graph.
 
 **Unfiltered Graph**: An unfiltered graph includes all entities in the _type graph_ or _instance graph_
  without further filtering.
@@ -91,6 +92,25 @@ For example, if the graph for "All alerts within a 50km radius of coordinate X" 
 parameter for X, then the only way to change X is to unsubscribe from the graph and re-subscribe
 supplying another value for parameter X. Immutable filter parameters are used to optimize routing
 and subscription mechanics.
+
+It is possible and expected that one client may be subscribed to more than one graph and the graphs
+may be overlapping. Often applications will be built such that one graph will link to another graph
+and automatically subscribe the client to the related graph.
+
+Consider a roster application. The developer may define one graph that includes assignment of people
+to activities on a single day. If the client was to subscribe to three days that shared people, then
+the subscription would send the same people data down to the client multiple times. To avoid this the
+developer can define another graph that contains details about people and **link** the day graph to
+zero or more person graphs.
+
+TODO: Insert diagram here
+
+It is also possible to define multiple instance graphs for a single entity. For example there could be
+one graph that includes a person and all their related accreditations, and another graph that includes
+a person and all their related contact details.
+
+The codebase often refers to the "Area of Interest" or AOI of a client. This essentially indicates
+whether an entity is contained within one of the graphs that client is subscribed to.
 
 NB: The codebase(s) for replicant map graphs to channels or data channels at the transport layer.
 The identifier for the root entity in instance graphs is used to name a sub-channel. This is useful
