@@ -122,7 +122,17 @@ Within the replicant system, it is expected that changes to entities occur on th
 are integrated with the replicant engine. The replicant client then has to make service calls to the
 server-side to initiate changes. At the completion of the service call, the server component collects
 all changes that were made to the server-side entities during the service call and passes them to the
-replicant engine. The replicant engine is then responsible for replicating changes out to the interested clients.
+replicant engine. The replicant engine is then responsible for replicating changes out to the interested
+clients.
+
+The service infrastructure within replicant is such that it is possible to treat services as either;
+
+**fire and forget**: The client does not need to be notified when the service call completes.
+**immediate return**: The client is notified when the service call returns, potentially receiving a result
+ from the server. Any changes made to entities on the service _may not_ be present on the client.
+**return when complete**: The client is notified when the service completes, potentially receiving a result
+ from the server. Any changes made to entities on the service _must_ be present on the client.
+
 
 # Old Documentation
 
