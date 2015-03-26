@@ -133,6 +133,20 @@ The service infrastructure within replicant is such that it is possible to treat
 **return when complete**: The client is notified when the service completes, potentially receiving a result
  from the server. Any changes made to entities on the service _must_ be present on the client.
 
+### Change Notifications
+
+Changes are replicated out to the clients in Change Sets. Each change set typically represents a unit
+of work, transaction or a single service call on the server-side. So all changes that occur within
+a single transaction are routed and packaged as a single change set when sent to the client. The change
+set is then applied atomically to the client-side replication. This is an attempt to provide some consistency
+guarantees around the client-side representation.
+
+After a change set is applied a `DataLoadComplete` message is fired on the client-side. To get fine-grain
+notification of changes, the developer can register listeners on the client-side broker and receive
+notification when an entity is added, removed or updated. This is only possible when the change set is
+marked as an _incremental load_ rather than as a _bulk load_. The vast majority of service calls result
+in _incremental load_ change sets, but sometimes for the sake of performance subscribe service calls and
+other calls that result in mass change may result in _bulk load_ change sets.
 
 # Old Documentation
 
