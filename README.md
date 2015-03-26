@@ -116,6 +116,14 @@ NB: The codebase(s) for replicant map graphs to channels or data channels at the
 The identifier for the root entity in instance graphs is used to name a sub-channel. This is useful
 to understand when monitoring the communication between replicant clients and the replicant engines.
 
+### Services
+
+Within the replicant system, it is expected that changes to entities occur on the server-side and
+are integrated with the replicant engine. The replicant client then has to make service calls to the
+server-side to initiate changes. At the completion of the service call, the server component collects
+all changes that were made to the server-side entities during the service call and passes them to the
+replicant engine. The replicant engine is then responsible for replicating changes out to the interested clients.
+
 # Old Documentation
 
 The Replicant library is a aimed at providing client-side state representation infrastructure for complex domain models that drive rich user experiences.
