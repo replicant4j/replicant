@@ -1,3 +1,5 @@
+## 0.5.52 (Pending):
+
 ## 0.5.51:
 * Add some documentation to README covering the basic concepts.
 * Eliminate BadSessionException and require AbstractDataLoaderService to implement ensureSession().
