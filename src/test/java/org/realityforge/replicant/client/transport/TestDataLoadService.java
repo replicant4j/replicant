@@ -39,6 +39,15 @@ final class TestDataLoadService
 
   @Nonnull
   @Override
+  protected TestClientSession ensureSession()
+  {
+    final TestClientSession session = getSession();
+    assert null != session;
+    return session;
+  }
+
+  @Nonnull
+  @Override
   protected Class<TestGraph> getGraphType()
   {
     return TestGraph.class;

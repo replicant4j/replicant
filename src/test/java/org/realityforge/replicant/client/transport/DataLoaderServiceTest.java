@@ -200,7 +200,7 @@ public class DataLoaderServiceTest
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
@@ -212,7 +212,7 @@ public class DataLoaderServiceTest
     // once after it is initially terminates
     assertEquals( service.getTerminateCount(), 2 );
 
-    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker() ).disable( "TEST" );
@@ -234,7 +234,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestDataLoadService service = newService( new TestChangeSet[ 0 ], true );
-    assertEquals( service.getSessionID(), service.getSession().getSessionID() );
+    assertEquals( service.getSessionID(), service.ensureSession().getSessionID() );
   }
 
   @Test
@@ -249,15 +249,15 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
     final CacheService cacheService = service.getCacheService();
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    service.getSession().enqueueDataLoad( "Data" );
+    service.ensureSession().enqueueDataLoad( "Data" );
     final RequestEntry request = configureRequest( changeSet, service );
     assertNotNull( request );
 
     progressWorkTillDone( service, 7, 1 );
 
-    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( cacheService ).store( "MetaData", "1 Jan 2020", "Data" );
@@ -277,13 +277,13 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
     final CacheService cacheService = service.getCacheService();
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    service.getSession().enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
+    service.ensureSession().enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
 
     progressWorkTillDone( service, 7, 1 );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( cacheService, never() ).store( anyString(), anyString(), anyString() );
@@ -311,18 +311,18 @@ public class DataLoaderServiceTest
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.getSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
+      service.ensureSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
 
     progressWorkTillDone( service, 10, 1 );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker() ).disable( "TEST" );
@@ -374,9 +374,9 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet, true );
 
     final RequestEntry request =
-      service.getSession().newRequestRegistration( "", null, changeSet.isBulkChange() );
+      service.ensureSession().newRequestRegistration( "", null, changeSet.isBulkChange() );
     changeSet.setRequestID( request.getRequestID() );
-    service.getSession().enqueueDataLoad( "blah" );
+    service.ensureSession().enqueueDataLoad( "blah" );
 
     progressWorkTillDone( service, 7, 1 );
 
@@ -397,13 +397,13 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet, true );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
     progressWorkTillDone( service, 7, 1 );
 
-    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker(), never() ).disable( "TEST" );
@@ -446,7 +446,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet, true );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
@@ -454,7 +454,7 @@ public class DataLoaderServiceTest
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
 
-    assertEquals( service.getSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
     final EntityChangeBroker changeBroker = service.getChangeBroker();
     verify( changeBroker ).pause( "TEST" );
@@ -493,22 +493,22 @@ public class DataLoaderServiceTest
     when( changeMapper.applyChange( changeSet1.getChange( 0 ) ) ).thenReturn( entity );
     when( changeMapper.applyChange( changeSet2.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     configureRequests( service, service.getChangeSets() );
-    service.getSession().enqueueDataLoad( "jsonData" );
+    service.ensureSession().enqueueDataLoad( "jsonData" );
     progressWorkTillDone( service, 3, 1 );
 
     //No progress should have been made other than parsing packet as out of sequence
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
     verifyPostActionNotRun( changeSet2.getRunnable() );
     verifyPostActionNotRun( changeSet1.getRunnable() );
 
-    service.getSession().enqueueDataLoad( "jsonData" );
+    service.ensureSession().enqueueDataLoad( "jsonData" );
     progressWorkTillDone( service, 17, 2 );
 
     //Progress should have been made as all sequence appears
-    assertEquals( service.getSession().getLastRxSequence(), 2 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 2 );
     final InOrder inOrder = inOrder( changeSet2.getRunnable(), changeSet1.getRunnable() );
     inOrder.verify( changeSet1.getRunnable() ).run();
     inOrder.verify( changeSet2.getRunnable() ).run();
@@ -528,10 +528,10 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     configureRequests( service, service.getChangeSets() );
-    service.getSession().enqueueDataLoad( "jsonData" );
+    service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
@@ -560,14 +560,14 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
 
-    assertEquals( service.getSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     when( service.getSubscriptionManager().unsubscribe( TestGraph.A ) ).
       thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, null ), null ) );
     when( service.getSubscriptionManager().unsubscribe( TestGraph.B, 33 ) ).
       thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null ) );
     configureRequests( service, service.getChangeSets() );
-    service.getSession().enqueueDataLoad( "jsonData" );
+    service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
@@ -601,7 +601,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.getSession().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
+      service.ensureSession().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
   }
@@ -620,7 +620,7 @@ public class DataLoaderServiceTest
     if ( changeSet.isResponseToRequest() )
     {
       final RequestEntry request =
-        service.getSession().newRequestRegistration( "", changeSet.getCacheKey(), changeSet.isBulkChange() );
+        service.ensureSession().newRequestRegistration( "", changeSet.getCacheKey(), changeSet.isBulkChange() );
       request.setNormalCompletionAction( changeSet.getRunnable() );
       changeSet.setRequestID( request.getRequestID() );
       return request;
@@ -700,19 +700,19 @@ public class DataLoaderServiceTest
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNull( service.getSession().getRequest( request.getRequestID() ) );
+    assertNull( service.ensureSession().getRequest( request.getRequestID() ) );
   }
 
   private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNotNull( service.getSession().getRequest( request.getRequestID() ) );
+    assertNotNull( service.ensureSession().getRequest( request.getRequestID() ) );
   }
 
   private RequestEntry ensureRequest( final TestDataLoadService service, final TestChangeSet changeSet )
   {
     final String requestID = changeSet.getRequestID();
     assertNotNull( requestID );
-    final RequestEntry request = service.getSession().getRequest( requestID );
+    final RequestEntry request = service.ensureSession().getRequest( requestID );
     assertNotNull( request );
     return request;
   }

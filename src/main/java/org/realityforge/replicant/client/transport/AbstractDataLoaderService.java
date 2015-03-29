@@ -135,46 +135,48 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
+  @Nonnull
   protected final CacheService getCacheService()
   {
     return _cacheService;
   }
 
+  @Nonnull
   protected final EntityChangeBroker getChangeBroker()
   {
     return _changeBroker;
   }
 
+  @Nonnull
   protected final ChangeMapper getChangeMapper()
   {
     return _changeMapper;
   }
 
+  @Nonnull
   protected final EntitySubscriptionManager getSubscriptionManager()
   {
     return _subscriptionManager;
   }
 
+  @Nullable
   public final T getSession()
   {
     return _session;
   }
 
+  @Nonnull
+  protected abstract T ensureSession();
+
   /**
    * Return the id of the session associated with the service.
    *
    * @return the id of the session associated with the service.
-   * @throws BadSessionException if the service is not currently associated with the session.
+   * @throws RuntimeException if the service is not currently associated with the session.
    */
   protected final String getSessionID()
-    throws BadSessionException
   {
-    final T session = getSession();
-    if ( null == session )
-    {
-      throw new BadSessionException( "Missing session." );
-    }
-    return session.getSessionID();
+    return ensureSession().getSessionID();
   }
 
   protected void purgeSubscriptions()
@@ -240,7 +242,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     if ( null == _currentAoiAction )
     {
-      final LinkedList<AreaOfInterestAction<G>> actions = getSession().getPendingAreaOfInterestActions();
+      final LinkedList<AreaOfInterestAction<G>> actions = ensureSession().getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
       {
         return false;
@@ -300,7 +302,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                     completeAoiAction( userAction );
                   }
                 };
-                getSession().enqueueOOB( content, runnable, true );
+                ensureSession().enqueueOOB( content, runnable, true );
               }
             };
           }
@@ -437,8 +439,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected final boolean progressDataLoad()
   {
+    final T session = ensureSession();
     // Step: Retrieve any out of band actions
-    final LinkedList<DataLoadAction> oobActions = getSession().getOobActions();
+    final LinkedList<DataLoadAction> oobActions = session.getOobActions();
     if ( null == _currentAction && !oobActions.isEmpty() )
     {
       _currentAction = oobActions.removeFirst();
@@ -446,13 +449,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
 
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
-    final LinkedList<DataLoadAction> parsedActions = getSession().getParsedActions();
+    final LinkedList<DataLoadAction> parsedActions = session.getParsedActions();
     if ( null == _currentAction && !parsedActions.isEmpty() )
     {
       final DataLoadAction action = parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
       assert null != changeSet;
-      if ( action.isOob() || getSession().getLastRxSequence() + 1 == changeSet.getSequence() )
+      if ( action.isOob() || session.getLastRxSequence() + 1 == changeSet.getSequence() )
       {
         _currentAction = parsedActions.remove();
         if ( LOG.isLoggable( getLogLevel() ) )
@@ -464,7 +467,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
 
     // Abort if there is no pending data load actions to take
-    final LinkedList<DataLoadAction> pendingActions = getSession().getPendingActions();
+    final LinkedList<DataLoadAction> pendingActions = session.getPendingActions();
     if ( null == _currentAction && pendingActions.isEmpty() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
@@ -518,12 +521,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       else
       {
-        request = null != requestID ? getSession().getRequest( requestID ) : null;
+        request = null != requestID ? session.getRequest( requestID ) : null;
         if ( null == request && null != requestID )
         {
           final String message =
             "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
-            " Existing Requests: " + getSession().getRequests();
+            " Existing Requests: " + session.getRequests();
           if ( LOG.isLoggable( Level.WARNING ) )
           {
             LOG.warning( message );
@@ -716,7 +719,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       // OOB messages are not sequenced
       if ( !_currentAction.isOob() )
       {
-        getSession().setLastRxSequence( set.getSequence() );
+        session.setLastRxSequence( set.getSequence() );
       }
       if ( _currentAction.isBulkLoad() )
       {
@@ -791,7 +794,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
 
-        final boolean removed = getSession().removeRequest( requestID );
+        final boolean removed = session.removeRequest( requestID );
         if ( !removed )
         {
           LOG.severe( "ChangeSet " + set.getSequence() + " expected to complete request '" +
@@ -1001,7 +1004,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected void outputRequestDebug()
   {
-    getRequestDebugger().outputRequests( getSessionContext().getKey() + ":", getSession() );
+    getRequestDebugger().outputRequests( getSessionContext().getKey() + ":", ensureSession() );
   }
 
   protected RequestDebugger getRequestDebugger()

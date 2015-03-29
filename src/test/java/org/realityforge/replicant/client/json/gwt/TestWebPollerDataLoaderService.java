@@ -66,6 +66,15 @@ final class TestWebPollerDataLoaderService
 
   @Nonnull
   @Override
+  protected TestClientSession ensureSession()
+  {
+    final TestClientSession session = getSession();
+    assert null != session;
+    return session;
+  }
+
+  @Nonnull
+  @Override
   protected TestGraph channelToGraph( final int channel )
     throws IllegalArgumentException
   {

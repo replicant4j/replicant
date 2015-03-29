@@ -1,4 +1,5 @@
 ## 0.5.51 (Pending):
+* Eliminate BadSessionException and require AbstractDataLoaderService to implement ensureSession().
 
 ## 0.5.50:
 * Update the AbstractDataLoaderService so that it only purges subscriptions that are "owned" by
