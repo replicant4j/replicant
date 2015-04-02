@@ -150,6 +150,68 @@ marked as an _incremental load_ rather than as a _bulk load_. The vast majority 
 in _incremental load_ change sets, but sometimes for the sake of performance subscribe service calls and
 other calls that result in mass change may result in _bulk load_ change sets.
 
+## Client-Side Developer Components
+
+There are several replicant components that developers directly interact with in client-side code.
+
+### EntityRepository
+
+The EntityRepository is the mechanism via which references to the client-side replica are obtained.
+At the current time, there is only one implementation of this service and it stores all replica's
+in memory.
+
+Typically it is used to access the root of an object graph, and then the code will traverse the
+ relationships from the replica. i.e.
+
+```java
+EntityRepository repository = ...;
+
+// Retrieve all the people in the repository
+List<Person> people = repository.findAll( Person.class );
+
+// Sample code to retrieve all the phone numbers
+ArrayList<String> phoneNumbers = new ArrayList<String>();
+for ( Person p : people )
+{
+  phoneNumbers.add( p.getContactDetails().getPhoneNumber() );
+}
+```
+
+### EntityChangeBroker
+
+The `EntityChangeBroker` is the class responsible for registering and un-registering listeners who want to
+receive notification of replica changes. The listener implements the interface `EntityChangeListener`
+and registers to receive notifications via `EntityChangeBroker`. ie.
+
+```java
+EntityChangeBroker broker = ...;
+
+// Receive notification of any change to any replica in the system
+broker.addChangeListener( new EntityChangeListener() {...} );
+
+// Receive notification of any change to any replica of type Person in the system
+broker.addChangeListener( Person.class, new EntityChangeListener() {...} );
+
+Person person ...;
+// Receive notification of any change to the specified person in the system
+broker.addChangeListener( person, new EntityChangeListener() {...} );
+```
+
+The notifications occur in the following scenarios:
+
+* a replica is added.
+* a replica is removed.
+* an attribute on a replica is updated.
+* a reference is added from one replica to another replica.
+* a reference is removed between one replica and another replica.
+
+### EntitySubscriptionManager
+
+The `EntitySubscriptionManager` records the state of subscriptions on the client-side. This includes
+which graphs are subscribed two and the mapping between client-side replicas and the graph(s) that
+caused the replica to be replicated to the client. The subscription state is typically managed by the
+server-side but it is not uncommon for clients to query which subscriptions state.
+
 # History
 
 Replicant is derived from several existing implementations of this strategy. It was initially based on code
