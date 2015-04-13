@@ -17,11 +17,11 @@ Swing application that used a custom application server.
 
 ### Entities and Replicas
 
-Replicant assumes that there a client-side representation of the domain model. Each entity within the
+Replicant assumes that there is a client-side representation of the domain model. Each entity within the
 server-side domain model that is to be replicated to the client-side should have a client-side entity
 that mirrors the server-side model. The client-side representation or replica, need not be identical
 to the server-side model but one replica should map to one entity on the server. The replica may also
-omit attributes and relationships that are not needed on the client. The state and lifecycle of of the
+omit attributes and relationships that are not needed on the client. The state and lifecycle of the
 replica's will be managed by the replicant system.
 
 NB: It should be noted that as replicant was extracted and derived from several existing systems that
@@ -46,8 +46,9 @@ the client will receive an initial message that contains the state of the world 
 subscription, that match the query. All subsequent changes to the world that match the query will be
 propagated to the subscribed clients until they unsubscribe or disconnect from the replicant system.
 
-There are two major dimensions on which graphs are defined within the replicant system. Is the graph
-a type graph or an instance graph? Is the graph filtered or unfiltered?
+There are two major dimensions on which graphs are defined within the replicant system:
+* Is the graph a type graph or an instance graph?
+* Is the graph filtered or unfiltered?
 
 **Type Graphs**: A type graph is used when you want to replicate instances in the domain model based on
  the type of the entity. It is common for applications to place common reference data in type graphs,
