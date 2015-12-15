@@ -22,7 +22,6 @@ final class CacheUtil
     builder.header( "Pragma", "no-cache" );
     // HTTP 1.1 (disable caching of any kind)
     // HTTP 1.1 'pre-check=0, post-check=0' => (Internet Explorer should always check)
-    //Note: no-store is not included here as it will disable offline application storage on Firefox
-    builder.header( "Cache-control", "no-cache, must-revalidate, pre-check=0, post-check=0" );
+    builder.header( "Cache-control", "private, no-store, no-cache, must-revalidate, max-age=0, pre-check=0, post-check=0" );
   }
 }
