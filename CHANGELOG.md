@@ -1,4 +1,4 @@
-## 0.5.52 (Pending):
+## 0.5.52:
 * Specify further header in CacheUtil to avoid caching.
 
 ## 0.5.51:
