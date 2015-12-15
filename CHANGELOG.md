@@ -1,4 +1,5 @@
 ## 0.5.52 (Pending):
+* Specify further header in CacheUtil to avoid caching.
 
 ## 0.5.51:
 * Add some documentation to README covering the basic concepts.
