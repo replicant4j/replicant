@@ -1,4 +1,5 @@
 ## 0.5.53 (Pending):
+* Generate a per request hash added to each poll request to punch through overly zealous caching proxy servers.
 * Revert to using @EJB rather than @Inject for ReplicantPollSource to work-around limitations when deploying to GlassFish.
 
 ## 0.5.52:
