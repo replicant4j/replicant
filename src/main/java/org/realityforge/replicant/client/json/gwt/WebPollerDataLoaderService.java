@@ -239,16 +239,16 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     return getBaseURL() +
            ReplicantContext.REPLICANT_URL_FRAGMENT + "?" +
            ReplicantContext.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence() + "&" +
-           ReplicantContext.REQUEST_ID_PARAM + "=" + getRequestHash();
+           ReplicantContext.REQUEST_ID_PARAM + "=" + getRequestID();
   }
 
   /**
    * Return a pseudo unique id for each request.
    */
   @Nonnull
-  protected String getRequestHash()
+  protected String getRequestID()
   {
-    return StringUtils.toHexString( ( new Date().toString() + ensureSession().getSessionID() ).getBytes() );
+    return getSessionID() + new Date().getTime();
   }
 
   /**
