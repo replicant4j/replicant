@@ -41,6 +41,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     {
       final RequestBuilder rb = new RequestBuilder( RequestBuilder.GET, getPollURL() );
       rb.setHeader( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+      rb.setHeader( "Pragma", "no-cache" );
       return rb;
     }
   }
