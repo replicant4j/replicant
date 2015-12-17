@@ -11,10 +11,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -40,7 +40,7 @@ public class ReplicantPollResource
 {
   private final Map<AsyncResponse, SuspendedRequest> _requests = new ConcurrentHashMap<>();
   private final ScheduledExecutorService _scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-  @Inject
+  @EJB
   private ReplicantPollSource _source;
   private PendingDataChecker _dataChecker;
 
