@@ -264,7 +264,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     if ( null != rawJsonData )
     {
       logResponse( rawJsonData );
-      getSession().enqueueDataLoad( rawJsonData );
+      ensureSession().enqueueDataLoad( rawJsonData );
       if ( !getWebPoller().isPaused() )
       {
         getWebPoller().pause();
