@@ -1,3 +1,5 @@
+## 0.5.54 (Pending):
+
 ## 0.5.53:
 * Set "Pragma: no-cache" header when polling for changes.
 * Generate a per request hash added to each poll request to punch through overly zealous caching proxy servers.
