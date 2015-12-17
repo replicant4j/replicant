@@ -168,7 +168,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     stopPolling();
     final T session = getSession();
-    if( null != session )
+    if ( null != session )
     {
       final RequestBuilder rb =
         new RequestBuilder( RequestBuilder.DELETE, getTokenURL() + "/" + session.getSessionID() );
@@ -239,7 +239,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     return getBaseURL() +
            ReplicantContext.REPLICANT_URL_FRAGMENT + "?" +
            ReplicantContext.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence() + "&" +
-      ReplicantContext.REQUEST_ID_PARAM + "=" + getRequestHash();
+           ReplicantContext.REQUEST_ID_PARAM + "=" + getRequestHash();
   }
 
   /**
