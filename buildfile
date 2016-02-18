@@ -41,6 +41,8 @@ define 'replicant' do
   package(:sources)
   package(:javadoc)
 
+  ipr.add_component_from_artifact(:idea_codestyle)
+
   iml.add_jruby_facet
   iml.add_gwt_facet({'org.realityforge.replicant.Replicant' => false,
                      'org.realityforge.replicant.ReplicantDev' => false},
