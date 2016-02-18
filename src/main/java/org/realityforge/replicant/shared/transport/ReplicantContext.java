@@ -47,10 +47,6 @@ public final class ReplicantContext
    * The query parameter used to identify the last received packet sequence.
    */
   public static final String RECEIVE_SEQUENCE_PARAM = "rx";
-  /**
-   * The request id. A unique value per request used to bust through caches.
-   */
-  public static final String REQUEST_ID_PARAM = "rq";
 
   private ReplicantContext()
   {

@@ -1,4 +1,5 @@
 ## 0.5.54 (Pending):
+* Remove per request hash as the "Pragma: no-cache" header gets around caching in proxy servers.
 
 ## 0.5.53:
 * Set "Pragma: no-cache" header when polling for changes.

@@ -9,7 +9,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.InvocationException;
 import com.google.web.bindery.event.shared.EventBus;
-import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -238,17 +237,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     return getBaseURL() +
            ReplicantContext.REPLICANT_URL_FRAGMENT + "?" +
-           ReplicantContext.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence() + "&" +
-           ReplicantContext.REQUEST_ID_PARAM + "=" + getRequestID();
-  }
-
-  /**
-   * Return a pseudo unique id for each request.
-   */
-  @Nonnull
-  protected String getRequestID()
-  {
-    return getSessionID() + new Date().getTime();
+           ReplicantContext.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence();
   }
 
   /**
