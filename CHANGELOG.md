@@ -1,5 +1,6 @@
 ## 0.5.54 (Pending):
 * Remove per request hash as the "Pragma: no-cache" header gets around caching in proxy servers.
+* Fix implementation of `JsoChange.containsKey` so that the method will return true even if the value is null.
 
 ## 0.5.53:
 * Set "Pragma: no-cache" header when polling for changes.

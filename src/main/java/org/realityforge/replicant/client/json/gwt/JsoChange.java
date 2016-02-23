@@ -34,7 +34,7 @@ public final class JsoChange
 
   @Override
   public final native boolean containsKey( String key ) /*-{
-    return this.data != null && this.data[key] != null;
+    return this.data != null && (key in this.data);
   }-*/;
 
   @Override
