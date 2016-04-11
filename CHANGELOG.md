@@ -1,4 +1,4 @@
-## 0.5.55 (Pending):
+## 0.5.55:
 * Update simple-session-filter dependency to enable CDI support for session managers.
 * Ensure ReplicantSessionManager and ReplicantJsonSessionManager can be CDI beans by removing final
   methods and adding tests to enforce this feature.
