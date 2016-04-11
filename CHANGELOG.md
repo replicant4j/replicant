@@ -1,4 +1,5 @@
 ## 0.5.55 (Pending):
+* Update simple-session-filter dependency to enable CDI support for session managers.
 
 ## 0.5.54:
 * Remove per request hash as the "Pragma: no-cache" header gets around caching in proxy servers.
