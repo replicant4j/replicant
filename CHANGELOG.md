@@ -2,6 +2,7 @@
 * Update simple-session-filter dependency to enable CDI support for session managers.
 * Ensure ReplicantSessionManager and ReplicantJsonSessionManager can be CDI beans by removing final
   methods and adding tests to enforce this feature.
+* Convert ReplicantPollResource to a CDI bean from an EJB.
 
 ## 0.5.54:
 * Remove per request hash as the "Pragma: no-cache" header gets around caching in proxy servers.

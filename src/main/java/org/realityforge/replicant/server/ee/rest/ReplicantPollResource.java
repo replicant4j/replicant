@@ -9,12 +9,9 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -33,14 +30,13 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  * It is expected that this endpoint has already had security applied.
  */
 @Path( ReplicantContext.REPLICANT_URL_FRAGMENT )
-@Singleton
-@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
-@TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
+@ApplicationScoped
+@Transactional( Transactional.TxType.NOT_SUPPORTED )
 public class ReplicantPollResource
 {
   private final Map<AsyncResponse, SuspendedRequest> _requests = new ConcurrentHashMap<>();
   private final ScheduledExecutorService _scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-  @EJB
+  @Inject
   private ReplicantPollSource _source;
   private PendingDataChecker _dataChecker;
 
