@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.guiceyloops.server.AssertUtil;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.TestSession;
-import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.server.ee.TestTransactionSynchronizationRegistry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.Test;
@@ -16,6 +16,13 @@ import static org.testng.Assert.*;
 
 public class ReplicantSessionManagerTest
 {
+  @Test
+  public void ensureCdiType()
+  {
+    AssertUtil.assertNoFinalMethodsForCDI( ReplicantSessionManager.class );
+    AssertUtil.assertNoFinalMethodsForCDI( ReplicantJsonSessionManager.class );
+  }
+
   @Test
   public void sendPacket()
     throws Exception

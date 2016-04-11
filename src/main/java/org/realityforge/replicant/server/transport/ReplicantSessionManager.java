@@ -29,9 +29,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
    * @param changeSet the messages to be sent along to the client.
    * @return the packet created.
    */
-  protected final Packet sendPacket( final T session,
-                                     @Nullable final String etag,
-                                     @Nonnull final ChangeSet changeSet )
+  protected Packet sendPacket( final T session, @Nullable final String etag, @Nonnull final ChangeSet changeSet )
   {
     final String requestID = (String) getRegistry().getResource( ReplicantContext.REQUEST_ID_KEY );
     getRegistry().putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE );
@@ -41,7 +39,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
   /**
    * @return the transaction synchronization registry.
    */
-  protected final TransactionSynchronizationRegistry getRegistry()
+  protected TransactionSynchronizationRegistry getRegistry()
   {
     return _registry;
   }
@@ -55,7 +53,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
    * @return the packet or null if no packet is ready.
    */
   @Nullable
-  protected final Packet pollPacket( @Nonnull final T session, final int lastSequenceAcked )
+  protected Packet pollPacket( @Nonnull final T session, final int lastSequenceAcked )
   {
     final PacketQueue queue = session.getQueue();
     queue.ack( lastSequenceAcked );
