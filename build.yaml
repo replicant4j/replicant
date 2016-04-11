@@ -24,7 +24,7 @@ artifacts:
 
   glassfish_embedded: org.glassfish.main.extras:glassfish-embedded-all:jar:4.1
 
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.55
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.67
 
   #
   # Mocking library
