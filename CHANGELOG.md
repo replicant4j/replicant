@@ -3,6 +3,8 @@
 * Ensure ReplicantSessionManager and ReplicantJsonSessionManager can be CDI beans by removing final
   methods and adding tests to enforce this feature.
 * Convert ReplicantPollResource to a CDI bean from an EJB.
+* Rework SessionRestService to an abstract class AbstractSessionRestService with a template method
+  to retrieve the SessionManager. Document how subclasses need to be defined.
 
 ## 0.5.54:
 * Remove per request hash as the "Pragma: no-cache" header gets around caching in proxy servers.

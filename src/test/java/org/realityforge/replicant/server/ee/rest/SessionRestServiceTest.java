@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import java.lang.reflect.Field;
 import javax.ws.rs.core.Response;
 import org.realityforge.replicant.server.TestSession;
 import org.realityforge.ssf.SessionManager;
@@ -15,7 +14,7 @@ public class SessionRestServiceTest
     throws Exception
   {
     final SessionManager sessionManager = mock( SessionManager.class );
-    final SessionRestService resource = newResource( sessionManager );
+    final AbstractSessionRestService resource = newResource( sessionManager );
 
     when( sessionManager.createSession() ).
       thenReturn( new TestSession( "2222" ) );
@@ -25,21 +24,16 @@ public class SessionRestServiceTest
     assertEquals( token.getEntity(), "2222" );
   }
 
-  protected SessionRestService newResource( final SessionManager sessionManager )
+  protected AbstractSessionRestService newResource( final SessionManager sessionManager )
     throws Exception
   {
-    final SessionRestService resource = new SessionRestService();
-    setField( resource, "_sessionManager", sessionManager );
-    return resource;
-  }
-
-  private void setField( final SessionRestService resource,
-                         final String fieldName,
-                         final Object value )
-    throws Exception
-  {
-    final Field field = SessionRestService.class.getDeclaredField( fieldName );
-    field.setAccessible( true );
-    field.set( resource, value );
+    return new AbstractSessionRestService()
+    {
+      @Override
+      protected SessionManager getSessionManager()
+      {
+        return sessionManager;
+      }
+    };
   }
 }
