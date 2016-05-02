@@ -1,4 +1,5 @@
 ## 0.5.56 (Pending):
+* In AbstractDataLoaderService, reorder actions so that validation of repository occurs after debug output.
 
 ## 0.5.55:
 * Update simple-session-filter dependency to enable CDI support for session managers.

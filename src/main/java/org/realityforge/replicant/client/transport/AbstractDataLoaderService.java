@@ -735,10 +735,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           getChangeBroker().resume( getSystemKey() );
         }
       }
-      if ( shouldValidateOnLoad() )
-      {
-        validateRepository();
-      }
       if ( repositoryDebugOutputEnabled() )
       {
         outputRepositoryDebug();
@@ -746,6 +742,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       if ( subscriptionsDebugOutputEnabled() )
       {
         outputSubscriptionDebug();
+      }
+      if ( shouldValidateOnLoad() )
+      {
+        validateRepository();
       }
       return true;
     }
