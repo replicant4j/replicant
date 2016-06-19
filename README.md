@@ -1,6 +1,7 @@
 # Replicant
 
 [![Build Status](https://secure.travis-ci.org/realityforge/replicant.png?branch=master)](http://travis-ci.org/realityforge/replicant)
+[<img src="https://img.shields.io/maven-central/v/org.realityforge.replicant/replicant.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.replicant%22%20a%3A%22replicant%22)
 
 The replicant library aims to provide infrastructure for replicating a portion of a complex server-side
 domain model to zero or more clients who have subscribed to the replication engine. When changes are
