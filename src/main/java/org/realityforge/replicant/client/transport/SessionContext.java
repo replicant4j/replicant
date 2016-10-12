@@ -7,6 +7,8 @@ public final class SessionContext
 {
   @Nonnull
   private final String _key;
+  @Nullable
+  private String _authenticationToken;
   private String _baseURL;
   @Nullable
   private ClientSession _session;
@@ -26,6 +28,23 @@ public final class SessionContext
   public String getKey()
   {
     return _key;
+  }
+
+  /**
+   * Return the authentication token.
+   * Typically passed as bearer authorization token when using http based transport.
+   */
+  public String getAuthenticationToken()
+  {
+    return _authenticationToken;
+  }
+
+  /**
+   * Set the authentication token.
+   */
+  public void setAuthenticationToken( @Nullable  final String authenticationToken )
+  {
+    _authenticationToken = authenticationToken;
   }
 
   @Nonnull

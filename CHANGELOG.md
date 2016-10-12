@@ -1,4 +1,5 @@
 ## 0.5.56 (Pending):
+* Make it possible to store authentication token in SessionContext.
 * In AbstractDataLoaderService, reorder actions so that validation of repository occurs after debug output.
 
 ## 0.5.55:
