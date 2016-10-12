@@ -8,7 +8,9 @@ public final class SessionContext
   @Nonnull
   private final String _key;
   private String _baseURL;
+  @Nullable
   private ClientSession _session;
+  @Nullable
   private RequestEntry _request;
 
   public SessionContext( @Nonnull final String key )
