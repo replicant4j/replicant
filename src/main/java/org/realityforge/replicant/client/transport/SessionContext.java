@@ -42,7 +42,7 @@ public final class SessionContext
   /**
    * Set the authentication token.
    */
-  public void setAuthenticationToken( @Nullable  final String authenticationToken )
+  public void setAuthenticationToken( @Nullable final String authenticationToken )
   {
     _authenticationToken = authenticationToken;
   }
