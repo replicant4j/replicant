@@ -1,4 +1,5 @@
 ## 0.5.57 (Pending):
+* Remove unused org.realityforge.replicant.client.json.gwt.StringUtils.
 
 ## 0.5.56:
 * Make it possible to store authentication token in SessionContext.
