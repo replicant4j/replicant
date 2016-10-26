@@ -1,3 +1,5 @@
+## 0.5.58 (Pending):
+
 ## 0.5.57:
 * Rename package `org.realityforge.replicant.client.json.gwt` to `org.realityforge.replicant.client.gwt`.
 * Extract the gwt specific functionality of AbstractClientTest to AbstractGwtClientTest and move
