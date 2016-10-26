@@ -32,6 +32,7 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
  * Data can be loaded by bulk or incrementally and the load can be broken up into several
  * steps to avoid locking a thread such as in GWT.
  */
+@SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
