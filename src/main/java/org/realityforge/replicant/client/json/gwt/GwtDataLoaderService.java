@@ -34,7 +34,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
                                   @Nonnull final EventBus eventBus,
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager, eventBus );
+    super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager );
     _eventBus = eventBus;
     _replicantConfig = replicantConfig;
 

@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import com.google.web.bindery.event.shared.EventBus;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,8 +57,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                        @Nonnull final EntityChangeBroker changeBroker,
                                        @Nonnull final EntityRepository repository,
                                        @Nonnull final CacheService cacheService,
-                                       @Nonnull final EntitySubscriptionManager subscriptionManager,
-                                       @Nonnull final EventBus eventBus )
+                                       @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
     _sessionContext = sessionContext;
     _changeMapper = changeMapper;
