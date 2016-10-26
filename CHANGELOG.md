@@ -1,4 +1,6 @@
 ## 0.5.57 (Pending):
+* Extract the gwt specific functionality of AbstractClientTest to AbstractGwtClientTest and move
+  to a separate directory.
 * Move LocalCacheService and ReplicantRpcRequestBuilder to org.realityforge.replicant.client.json.gwt package.
 * Move generation of DataLoadCompleteEvent event from and linkage against EventBus from
   AbstractDataLoaderService to GwtDataLoaderService and move DataLoadCompleteEvent to

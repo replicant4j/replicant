@@ -1,14 +1,11 @@
 package org.realityforge.replicant.client.test;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.inject.Module;
-import com.google.web.bindery.event.shared.Event;
 import java.util.ArrayList;
 import java.util.Collections;
 import org.realityforge.guiceyloops.shared.AbstractSharedTest;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
-import static org.mockito.Mockito.*;
 
 public abstract class AbstractClientTest
   extends AbstractSharedTest
@@ -32,12 +29,6 @@ public abstract class AbstractClientTest
     return s( EntityChangeBroker.class );
   }
 
-  protected final <H> H addHandler( final Event.Type<H> type, final H handler )
-  {
-    eventBus().addHandler( type, handler );
-    return handler;
-  }
-
   protected void resumeBroker()
   {
     broker().resume( "TEST" );
@@ -46,20 +37,5 @@ public abstract class AbstractClientTest
   protected void pauseBroker()
   {
     broker().pause( "TEST" );
-  }
-
-  protected final void fireEvent( final Event<?> event )
-  {
-    eventBus().fireEvent( event );
-  }
-
-  protected final EventBus eventBus()
-  {
-    return s( EventBus.class );
-  }
-
-  protected final <T extends Event<?>> T event( final T value )
-  {
-    return refEq( value, "source" );
   }
 }
