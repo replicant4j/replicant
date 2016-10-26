@@ -1,4 +1,7 @@
 ## 0.5.57 (Pending):
+* Move generation of DataLoadCompleteEvent event from and linkage against EventBus from
+  AbstractDataLoaderService to GwtDataLoaderService and move DataLoadCompleteEvent to
+  org.realityforge.replicant.client.json.gwt package.
 * Remove unused org.realityforge.replicant.client.json.gwt.StringUtils.
 
 ## 0.5.56:

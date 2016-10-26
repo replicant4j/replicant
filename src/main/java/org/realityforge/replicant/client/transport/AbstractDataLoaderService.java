@@ -44,7 +44,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private final CacheService _cacheService;
   private final EntitySubscriptionManager _subscriptionManager;
   private final SessionContext _sessionContext;
-  private final EventBus _eventBus;
 
   private DataLoadAction _currentAction;
   private AreaOfInterestAction<G> _currentAoiAction;
@@ -67,7 +66,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     _repository = repository;
     _cacheService = cacheService;
     _subscriptionManager = subscriptionManager;
-    _eventBus = eventBus;
   }
 
   protected SessionContext getSessionContext()
@@ -924,16 +922,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
-    getEventBus().fireEvent( new DataLoadCompleteEvent( status ) );
-  }
-
-  /**
-   * Return the event bus associated with the service.
-   */
-  @Nonnull
-  protected final EventBus getEventBus()
-  {
-    return _eventBus;
   }
 
   protected Level getLogLevel()

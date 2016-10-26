@@ -11,6 +11,7 @@ import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.SessionContext;
 
 public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
@@ -20,6 +21,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
   private static final String REPOSITORY_DEBUG = "imitRepositoryDebug";
   private final ReplicantConfig _replicantConfig;
+  private final EventBus _eventBus;
 
   private boolean _incrementalDataLoadInProgress;
 
@@ -33,6 +35,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
     super( sessionContext, changeMapper, changeBroker, repository, cacheService, subscriptionManager, eventBus );
+    _eventBus = eventBus;
     _replicantConfig = replicantConfig;
 
     if ( _replicantConfig.repositoryDebugOutputEnabled() )
@@ -145,4 +148,22 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   }
 
   protected abstract void progressDataLoadFailure( @Nonnull Exception e );
+
+  /**
+   * Invoked to fire an event when data load has completed.
+   */
+  @Override
+  protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
+  {
+    getEventBus().fireEvent( new DataLoadCompleteEvent( status ) );
+  }
+
+  /**
+   * Return the event bus associated with the service.
+   */
+  @Nonnull
+  protected final EventBus getEventBus()
+  {
+    return _eventBus;
+  }
 }
