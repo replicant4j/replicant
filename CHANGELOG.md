@@ -1,4 +1,5 @@
 ## 0.5.57 (Pending):
+* Rename package `org.realityforge.replicant.client.json.gwt` to `org.realityforge.replicant.client.gwt`.
 * Extract the gwt specific functionality of AbstractClientTest to AbstractGwtClientTest and move
   to a separate directory.
 * Move LocalCacheService and ReplicantRpcRequestBuilder to org.realityforge.replicant.client.json.gwt package.
