@@ -42,7 +42,6 @@ public interface ChangeSet
   @Nonnull
   Change getChange( int index );
 
-
   /**
    * @return the number of channel actions in the set.
    */
