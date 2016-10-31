@@ -61,7 +61,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object filter )
+  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nullable Object filter )
     throws IllegalStateException;
 
   /**
@@ -74,7 +74,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object id, @Nonnull Object filter );
+  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object id, @Nullable Object filter );
 
   /**
    * Return the subscription for type graph.

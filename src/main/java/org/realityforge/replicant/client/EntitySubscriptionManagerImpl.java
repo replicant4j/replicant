@@ -106,7 +106,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph, @Nonnull final Object filter )
+  public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph, @Nullable final Object filter )
     throws IllegalStateException
   {
     final ChannelSubscriptionEntry subscription = getSubscription( graph );
@@ -118,7 +118,7 @@ public class EntitySubscriptionManagerImpl
   @Override
   public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph,
                                                       @Nonnull final Object id,
-                                                      @Nonnull final Object filter )
+                                                      @Nullable final Object filter )
   {
     final ChannelSubscriptionEntry subscription = getSubscription( graph, id );
     subscription.setFilter( filter );

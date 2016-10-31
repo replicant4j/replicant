@@ -64,6 +64,7 @@ final class TestDataLoadService
     return "TEST";
   }
 
+  @Nonnull
   @Override
   protected EntityRepositoryValidator getEntityRepositoryValidator()
   {
@@ -152,8 +153,9 @@ final class TestDataLoadService
     return _validateOnLoad;
   }
 
+  @Nonnull
   @Override
-  protected ChangeSet parseChangeSet( final String rawJsonData )
+  protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
   {
     return _changeSets.pop();
   }

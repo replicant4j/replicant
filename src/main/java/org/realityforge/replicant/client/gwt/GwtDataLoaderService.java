@@ -107,8 +107,9 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
            RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), REPOSITORY_DEBUG );
   }
 
+  @Nonnull
   @Override
-  protected ChangeSet parseChangeSet( final String rawJsonData )
+  protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
   {
     return JsoChangeSet.asChangeSet( rawJsonData );
   }

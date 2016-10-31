@@ -70,6 +70,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   @Nonnull
   protected abstract ChangeMapper newChangeMapper();
 
+  @Nonnull
   protected SessionContext getSessionContext()
   {
     return _sessionContext;
@@ -105,7 +106,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private void doSetSession( final T session, final Runnable postAction )
+  private void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
     if ( session != _session )
     {
@@ -203,7 +204,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  protected void unsubscribeInstanceGraphs( final Enum graph )
+  protected void unsubscribeInstanceGraphs( @Nonnull final Enum graph )
   {
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
@@ -213,7 +214,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private ArrayList<Enum> sortGraphs( final Set<Enum> enums )
+  @Nonnull
+  private ArrayList<Enum> sortGraphs( @Nonnull final Set<Enum> enums )
   {
     final ArrayList<Enum> list = new ArrayList<>( enums );
     Collections.sort( list );
@@ -221,9 +223,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return list;
   }
 
-  /**
-   * Ugly hack, should split into two (schedule subscribe, schedule data)
-   */
   /**
    * Schedule data loads using incremental scheduler.
    */
@@ -276,7 +275,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     _linksToProcessPerTick = linksToProcessPerTick;
   }
 
-  protected abstract ChangeSet parseChangeSet( String rawJsonData );
+  @Nonnull
+  protected abstract ChangeSet parseChangeSet( @Nonnull String rawJsonData );
 
   protected boolean progressAreaOfInterestActions()
   {
@@ -421,7 +421,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private ChannelSubscriptionEntry findSubscription( final G graph, final Object id )
+  private ChannelSubscriptionEntry findSubscription( @Nonnull final G graph, @Nullable final Object id )
   {
     final ChannelSubscriptionEntry entry;
     if ( null == id )
@@ -435,7 +435,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return entry;
   }
 
-  private void completeAoiAction( final Runnable userAction )
+  private void completeAoiAction( @Nullable final Runnable userAction )
   {
     scheduleDataLoad();
     if ( null != userAction )
@@ -885,7 +885,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected abstract Class<G> getGraphType();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
-                                                                @Nonnull Object filter );
+                                                                @Nullable Object filter );
 
   protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
                                                        @Nullable final Object filter,
@@ -966,11 +966,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
   }
 
+  @Nonnull
   protected Level getLogLevel()
   {
     return Level.FINEST;
   }
 
+  @Nonnull
   protected EntityRepository getRepository()
   {
     return _repository;
@@ -992,6 +994,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     getEntityRepositoryValidator().validate( getRepository() );
   }
 
+  @Nonnull
   protected EntityRepositoryValidator getEntityRepositoryValidator()
   {
     return new EntityRepositoryValidator();
@@ -1017,6 +1020,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     getEntityRepositoryDebugger().outputRepository( getRepository() );
   }
 
+  @Nonnull
   protected EntityRepositoryDebugger getEntityRepositoryDebugger()
   {
     return new EntityRepositoryDebugger();
@@ -1027,6 +1031,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     getSubscriptionDebugger().outputSubscriptionManager( getSubscriptionManager() );
   }
 
+  @Nonnull
   protected EntitySubscriptionDebugger getSubscriptionDebugger()
   {
     return new EntitySubscriptionDebugger();
@@ -1037,6 +1042,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     getRequestDebugger().outputRequests( getSessionContext().getKey() + ":", ensureSession() );
   }
 
+  @Nonnull
   protected RequestDebugger getRequestDebugger()
   {
     return new RequestDebugger();
