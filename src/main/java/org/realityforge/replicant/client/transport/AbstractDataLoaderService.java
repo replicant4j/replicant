@@ -136,31 +136,31 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   @Nonnull
-  protected final CacheService getCacheService()
+  protected CacheService getCacheService()
   {
     return _cacheService;
   }
 
   @Nonnull
-  protected final EntityChangeBroker getChangeBroker()
+  protected EntityChangeBroker getChangeBroker()
   {
     return _changeBroker;
   }
 
   @Nonnull
-  protected final ChangeMapper getChangeMapper()
+  protected ChangeMapper getChangeMapper()
   {
     return _changeMapper;
   }
 
   @Nonnull
-  protected final EntitySubscriptionManager getSubscriptionManager()
+  protected EntitySubscriptionManager getSubscriptionManager()
   {
     return _subscriptionManager;
   }
 
   @Nullable
-  public final T getSession()
+  public T getSession()
   {
     return _session;
   }
@@ -174,7 +174,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    * @return the id of the session associated with the service.
    * @throws RuntimeException if the service is not currently associated with the session.
    */
-  protected final String getSessionID()
+  protected String getSessionID()
   {
     return ensureSession().getSessionID();
   }
@@ -266,19 +266,19 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected abstract void progressDataLoadFailure( @Nonnull Exception e );
 
-  protected final void setChangesToProcessPerTick( final int changesToProcessPerTick )
+  protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {
     _changesToProcessPerTick = changesToProcessPerTick;
   }
 
-  protected final void setLinksToProcessPerTick( final int linksToProcessPerTick )
+  protected void setLinksToProcessPerTick( final int linksToProcessPerTick )
   {
     _linksToProcessPerTick = linksToProcessPerTick;
   }
 
   protected abstract ChangeSet parseChangeSet( String rawJsonData );
 
-  protected final boolean progressAreaOfInterestActions()
+  protected boolean progressAreaOfInterestActions()
   {
     if ( null == _currentAoiAction )
     {
@@ -462,22 +462,22 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Runnable completionAction );
 
-  protected final boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
+  protected boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
   {
     return null != _subscriptionManager.findSubscription( graph, id );
   }
 
-  protected final boolean isSubscribed( @Nonnull final G graph )
+  protected boolean isSubscribed( @Nonnull final G graph )
   {
     return null != _subscriptionManager.findSubscription( graph );
   }
 
-  final DataLoadAction getCurrentAction()
+  DataLoadAction getCurrentAction()
   {
     return _currentAction;
   }
 
-  protected final boolean progressDataLoad()
+  protected boolean progressDataLoad()
   {
     final T session = ensureSession();
     // Step: Retrieve any out of band actions
@@ -887,9 +887,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nonnull Object filter );
 
-  protected final int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
-                                                             @Nullable final Object filter,
-                                                             @Nonnull final Collection<EntitySubscriptionEntry> entities )
+  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
+                                                       @Nullable final Object filter,
+                                                       @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
     final ChannelDescriptor descriptor = graphEntry.getDescriptor();
@@ -971,7 +971,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return Level.FINEST;
   }
 
-  protected final EntityRepository getRepository()
+  protected EntityRepository getRepository()
   {
     return _repository;
   }
