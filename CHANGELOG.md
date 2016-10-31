@@ -1,4 +1,6 @@
 ## 0.5.58 (Pending):
+* Migrate GwtDataLoaderService.scheduleDataLoad() implementation and supporting methods to 
+  AbstractDataLoaderService and introduce template methods for GWT specific functionality.
 
 ## 0.5.57:
 * Rename package `org.realityforge.replicant.client.json.gwt` to `org.realityforge.replicant.client.gwt`.

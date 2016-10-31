@@ -49,6 +49,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private AreaOfInterestAction<G> _currentAoiAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
+  private boolean _incrementalDataLoadInProgress;
 
   private T _session;
 
@@ -221,7 +222,47 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   /**
    * Ugly hack, should split into two (schedule subscribe, schedule data)
    */
-  protected abstract void scheduleDataLoad();
+  /**
+   * Schedule data loads using incremental scheduler.
+   */
+  protected void scheduleDataLoad()
+  {
+    if ( !_incrementalDataLoadInProgress )
+    {
+      _incrementalDataLoadInProgress = true;
+
+      doScheduleDataLoad();
+    }
+  }
+
+  /**
+   * Perform a single step in incremental data load process.
+   *
+   * @return true if more work is to be done.
+   */
+  protected boolean stepDataLoad()
+  {
+    try
+    {
+      final boolean aoiActionProgressed = progressAreaOfInterestActions();
+      final boolean dataActionProgressed = progressDataLoad();
+      _incrementalDataLoadInProgress = aoiActionProgressed || dataActionProgressed;
+    }
+    catch ( final Exception e )
+    {
+      progressDataLoadFailure( e );
+      _incrementalDataLoadInProgress = false;
+      return false;
+    }
+    return _incrementalDataLoadInProgress;
+  }
+
+  /**
+   * Actually perform the scheduling of the data load action.
+   */
+  protected abstract void doScheduleDataLoad();
+
+  protected abstract void progressDataLoadFailure( @Nonnull Exception e );
 
   protected final void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {

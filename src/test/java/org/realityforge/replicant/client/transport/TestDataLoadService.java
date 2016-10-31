@@ -130,9 +130,14 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void scheduleDataLoad()
+  protected void doScheduleDataLoad()
   {
     _scheduleDataLoadCalled = true;
+  }
+
+  @Override
+  protected void progressDataLoadFailure( @Nonnull final Exception e )
+  {
   }
 
   @Override

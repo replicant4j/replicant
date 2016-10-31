@@ -23,8 +23,6 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   private final ReplicantConfig _replicantConfig;
   private final EventBus _eventBus;
 
-  private boolean _incrementalDataLoadInProgress;
-
   protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext,
                                   @Nonnull final ChangeMapper changeMapper,
                                   @Nonnull final EntityChangeBroker changeBroker,
@@ -116,38 +114,17 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     return JsoChangeSet.asChangeSet( rawJsonData );
   }
 
-  /**
-   * Schedule data loads using incremental scheduler.
-   */
-  protected final void scheduleDataLoad()
+  protected void doScheduleDataLoad()
   {
-    if ( !_incrementalDataLoadInProgress )
+    Scheduler.get().scheduleIncremental( new Scheduler.RepeatingCommand()
     {
-      _incrementalDataLoadInProgress = true;
-      Scheduler.get().scheduleIncremental( new Scheduler.RepeatingCommand()
+      @Override
+      public boolean execute()
       {
-        @Override
-        public boolean execute()
-        {
-          try
-          {
-            final boolean aoiActionProgressed = progressAreaOfInterestActions();
-            final boolean dataActionProgressed = progressDataLoad();
-            _incrementalDataLoadInProgress = aoiActionProgressed || dataActionProgressed;
-          }
-          catch ( final Exception e )
-          {
-            progressDataLoadFailure( e );
-            _incrementalDataLoadInProgress = false;
-            return false;
-          }
-          return _incrementalDataLoadInProgress;
-        }
-      } );
-    }
+        return stepDataLoad();
+      }
+    } );
   }
-
-  protected abstract void progressDataLoadFailure( @Nonnull Exception e );
 
   /**
    * Invoked to fire an event when data load has completed.
