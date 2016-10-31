@@ -46,7 +46,7 @@ public final class JsoChange
     }
     else
     {
-      return null;
+      return false;
     }
   }-*/;
 
