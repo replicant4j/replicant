@@ -93,14 +93,14 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
 
   @Path( "{sessionID}" )
   @DELETE
-  public Response deleteSession(@PathParam( "sessionID" ) @NotNull final String sessionID)
+  public Response deleteSession( @PathParam( "sessionID" ) @NotNull final String sessionID )
   {
     final StringWriter writer = new StringWriter();
     final JsonGenerator g = _factory.createGenerator( writer );
-      g.writeStartObject();
-      g.write( "code", Response.Status.OK.getStatusCode() );
-      g.write( "description", "Session removed." );
-      g.writeEnd();
+    g.writeStartObject();
+    g.write( "code", Response.Status.OK.getStatusCode() );
+    g.write( "description", "Session removed." );
+    g.writeEnd();
     g.close();
 
     final Response.ResponseBuilder builder = Response.ok();
