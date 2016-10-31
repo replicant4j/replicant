@@ -22,13 +22,19 @@ final class TestWebPollerDataLoaderService
   public TestWebPollerDataLoaderService()
   {
     super( new SessionContext( "X" ),
-           mock( ChangeMapper.class ),
            mock( EntityChangeBroker.class ),
            mock( EntityRepository.class ),
            mock( CacheService.class ),
            mock( EntitySubscriptionManager.class ),
            new SimpleEventBus(),
            mock( ReplicantConfig.class ) );
+  }
+
+  @Nonnull
+  @Override
+  protected ChangeMapper newChangeMapper()
+  {
+    return mock( ChangeMapper.class );
   }
 
   @Nonnull

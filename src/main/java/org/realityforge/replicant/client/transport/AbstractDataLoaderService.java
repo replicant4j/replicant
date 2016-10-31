@@ -54,19 +54,21 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private T _session;
 
   protected AbstractDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                       @Nonnull final ChangeMapper changeMapper,
                                        @Nonnull final EntityChangeBroker changeBroker,
                                        @Nonnull final EntityRepository repository,
                                        @Nonnull final CacheService cacheService,
                                        @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
     _sessionContext = sessionContext;
-    _changeMapper = changeMapper;
     _changeBroker = changeBroker;
     _repository = repository;
     _cacheService = cacheService;
     _subscriptionManager = subscriptionManager;
+    _changeMapper = newChangeMapper();
   }
+
+  @Nonnull
+  protected abstract ChangeMapper newChangeMapper();
 
   protected SessionContext getSessionContext()
   {

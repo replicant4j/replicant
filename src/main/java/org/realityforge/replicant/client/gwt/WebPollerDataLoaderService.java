@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
-import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -46,7 +45,6 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   }
 
   public WebPollerDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                     @Nonnull final ChangeMapper changeMapper,
                                      @Nonnull final EntityChangeBroker changeBroker,
                                      @Nonnull final EntityRepository repository,
                                      @Nonnull final CacheService cacheService,
@@ -55,7 +53,6 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
                                      @Nonnull final ReplicantConfig replicantConfig )
   {
     super( sessionContext,
-           changeMapper,
            changeBroker,
            repository,
            cacheService,

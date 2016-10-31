@@ -1,4 +1,6 @@
 ## 0.5.58 (Pending):
+* Use a template method in AbstractDataLoaderService to create the ChangeMapper to avoid the
+  need to pass it in through the constructor.
 * Migrate GwtDataLoaderService.scheduleDataLoad() implementation and supporting methods to 
   AbstractDataLoaderService and introduce template methods for GWT specific functionality.
 

@@ -27,12 +27,18 @@ final class TestDataLoadService
   TestDataLoadService()
   {
     super( new SessionContext( "X" ),
-           mock( ChangeMapper.class ),
            mock( EntityChangeBroker.class ),
            mock( EntityRepository.class ),
            mock( CacheService.class ),
            mock( EntitySubscriptionManager.class ) );
     _validator = mock( EntityRepositoryValidator.class );
+  }
+
+  @Nonnull
+  @Override
+  protected ChangeMapper newChangeMapper()
+  {
+    return mock( ChangeMapper.class );
   }
 
   @Nonnull
