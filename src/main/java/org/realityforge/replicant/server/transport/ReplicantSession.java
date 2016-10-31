@@ -17,6 +17,7 @@ public abstract class ReplicantSession
     super( sessionID );
   }
 
+  @Nonnull
   public final PacketQueue getQueue()
   {
     return _queue;

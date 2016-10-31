@@ -39,6 +39,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
   /**
    * @return the transaction synchronization registry.
    */
+  @Nonnull
   protected TransactionSynchronizationRegistry getRegistry()
   {
     return _registry;

@@ -388,12 +388,14 @@ public class ReplicationInterceptorTest
       return _routeToSession;
     }
 
+    @Nonnull
     @Override
     protected EntityManager getEntityManager()
     {
       return _entityManager;
     }
 
+    @Nonnull
     @Override
     protected EntityMessageEndpoint getEndpoint()
     {

@@ -1,5 +1,8 @@
 package org.realityforge.replicant.client;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface ChannelAction
 {
   enum Action
@@ -9,8 +12,10 @@ public interface ChannelAction
 
   int getChannelID();
 
+  @Nullable
   Object getSubChannelID();
 
+  @Nonnull
   Action getAction();
 
   /**
@@ -19,5 +24,6 @@ public interface ChannelAction
    *
    * @return the filter object for channel if any.
    */
+  @Nullable
   Object getChannelFilter();
 }

@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChannelAction;
 
 public class JsoChannelAction
@@ -32,6 +33,7 @@ public class JsoChannelAction
     }
   }-*/;
 
+  @Nonnull
   @Override
   public final Action getAction()
   {

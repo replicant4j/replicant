@@ -35,6 +35,7 @@ public final class ReplicantContextHolder
   /**
    * Return a copy of the current ReplicantContext.
    */
+  @Nonnull
   public static Map<String, Serializable> getContext()
   {
     return new HashMap<>( getRawContext() );

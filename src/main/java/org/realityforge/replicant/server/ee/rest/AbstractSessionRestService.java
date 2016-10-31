@@ -248,11 +248,12 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     g.writeEnd();
   }
 
-  private String getSessionURL( final SessionInfo session, final UriInfo uri )
+  private String getSessionURL( @Nonnull final SessionInfo session, @Nonnull final UriInfo uri )
   {
     return uri.getBaseUri() + ReplicantContext.SESSION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
   }
 
+  @Nonnull
   private String asDateTimeString( final long timeInMillis )
   {
     final GregorianCalendar calendar = new GregorianCalendar();

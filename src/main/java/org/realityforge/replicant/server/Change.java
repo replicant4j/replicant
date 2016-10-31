@@ -41,6 +41,7 @@ public class Change
     return _entityMessage;
   }
 
+  @Nonnull
   public Map<Integer, Serializable> getChannels()
   {
     return _channels;

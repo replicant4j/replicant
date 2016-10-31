@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeSet;
@@ -47,6 +48,7 @@ public final class JsoChangeSet
     }
   }-*/;
 
+  @Nonnull
   @Override
   public final Change getChange( final int index )
   {
@@ -69,6 +71,7 @@ public final class JsoChangeSet
     }
   }-*/;
 
+  @Nonnull
   @Override
   public ChannelAction getChannelAction( final int index )
   {

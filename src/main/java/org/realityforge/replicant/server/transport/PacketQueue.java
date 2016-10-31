@@ -52,6 +52,7 @@ public class PacketQueue
     }
   }
 
+  @Nullable
   public synchronized Packet nextPacketToProcess()
   {
     if ( 0 == _packets.size() )
@@ -125,6 +126,7 @@ public class PacketQueue
    * @param sequence the sequence.
    * @return the packet with sequence or null if no such packet.
    */
+  @Nullable
   public synchronized Packet getPacket( final int sequence )
   {
     for ( final Packet packet : _packets )

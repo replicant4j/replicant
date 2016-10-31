@@ -23,6 +23,7 @@ public class LocalCacheService
    * {@inheritDoc}
    */
   @Override
+  @Nullable
   public CacheEntry lookup( @Nonnull final String key )
   {
     final Storage storage = getStorage();

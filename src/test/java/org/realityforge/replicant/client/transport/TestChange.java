@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import java.util.Date;
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.Change;
 
 final class TestChange
@@ -38,37 +39,40 @@ final class TestChange
   }
 
   @Override
-  public boolean containsKey( final String key )
+  public boolean containsKey( @Nonnull final String key )
   {
     return false;
   }
 
   @Override
-  public boolean isNull( final String key )
+  public boolean isNull( @Nonnull final String key )
   {
     return false;
   }
 
   @Override
-  public int getIntegerValue( final String key )
+  public int getIntegerValue( @Nonnull final String key )
   {
     return 0;
   }
 
+  @Nonnull
   @Override
-  public Date getDateValue( final String key )
+  public Date getDateValue( @Nonnull final String key )
   {
     return new Date();
   }
 
+  @Nonnull
   @Override
-  public String getStringValue( final String key )
+  public String getStringValue( @Nonnull final String key )
   {
     return null;
   }
 
+  @Nonnull
   @Override
-  public boolean getBooleanValue( final String key )
+  public boolean getBooleanValue( @Nonnull final String key )
   {
     return false;
   }

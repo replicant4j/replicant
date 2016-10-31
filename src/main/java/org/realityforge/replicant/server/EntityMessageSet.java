@@ -14,12 +14,12 @@ public final class EntityMessageSet
     return _entities.containsKey( toKey( typeID, id ) );
   }
 
-  public void mergeAll( final Collection<EntityMessage> messages )
+  public void mergeAll( @Nonnull final Collection<EntityMessage> messages )
   {
     mergeAll( messages, false );
   }
 
-  public void mergeAll( final Collection<EntityMessage> messages, final boolean copyOnMerge )
+  public void mergeAll( @Nonnull final Collection<EntityMessage> messages, final boolean copyOnMerge )
   {
     for ( final EntityMessage message : messages )
     {
@@ -27,12 +27,12 @@ public final class EntityMessageSet
     }
   }
 
-  public void merge( final EntityMessage message )
+  public void merge( @Nonnull final EntityMessage message )
   {
     merge( message, false );
   }
 
-  public void merge( final EntityMessage message, final boolean copyOnMerge )
+  public void merge( @Nonnull final EntityMessage message, final boolean copyOnMerge )
   {
     final String key = toKey( message.getTypeID(), message.getID() );
     final EntityMessage existing = _entities.get( key );
@@ -46,11 +46,13 @@ public final class EntityMessageSet
     }
   }
 
+  @Nonnull
   public Collection<EntityMessage> getEntityMessages()
   {
     return _entities.values();
   }
 
+  @Nonnull
   private String toKey( final int typeID, final Serializable id )
   {
     return typeID + "#" + id;

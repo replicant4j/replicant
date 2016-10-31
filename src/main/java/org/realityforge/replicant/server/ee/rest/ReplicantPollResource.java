@@ -103,6 +103,7 @@ public class ReplicantPollResource
   /**
    * Return a map of pending requests.
    */
+  @Nonnull
   protected Map<AsyncResponse, SuspendedRequest> getRequests()
   {
     return _requests;
@@ -119,18 +120,19 @@ public class ReplicantPollResource
   /**
    * Perform the timeout for pending response.
    */
-  private void doTimeout( final AsyncResponse response )
+  private void doTimeout( @Nonnull final AsyncResponse response )
   {
     doDisconnect( response );
     resume( response, "" );
   }
 
-  private static void resume( final AsyncResponse asyncResponse, final Object message )
+  private static void resume( @Nonnull final AsyncResponse asyncResponse, @Nonnull final Object message )
   {
     asyncResponse.resume( toResponse( message ) );
   }
 
-  private static Response toResponse( final Object message )
+  @Nonnull
+  private static Response toResponse( @Nonnull final Object message )
   {
     final Response.ResponseBuilder builder = Response.ok();
     CacheUtil.configureNoCacheHeaders( builder );
@@ -140,7 +142,7 @@ public class ReplicantPollResource
   /**
    * Perform the disconnection for pending response.
    */
-  private void doDisconnect( final AsyncResponse response )
+  private void doDisconnect( @Nonnull final AsyncResponse response )
   {
     _requests.remove( response );
   }
@@ -154,7 +156,9 @@ public class ReplicantPollResource
     private final int _rxSequence;
     private final AsyncResponse _response;
 
-    SuspendedRequest( final String sessionID, final int rxSequence, final AsyncResponse response )
+    SuspendedRequest( @Nonnull final String sessionID,
+                      final int rxSequence,
+                      @Nonnull final AsyncResponse response )
     {
       _sessionID = sessionID;
       _rxSequence = rxSequence;
@@ -186,7 +190,8 @@ public class ReplicantPollResource
     private final Map<AsyncResponse, SuspendedRequest> _requests;
     private final ReplicantPollSource _source;
 
-    PendingDataChecker( final Map<AsyncResponse, SuspendedRequest> requests, final ReplicantPollSource source )
+    PendingDataChecker( @Nonnull final Map<AsyncResponse, SuspendedRequest> requests,
+                        @Nonnull final ReplicantPollSource source )
     {
       _requests = requests;
       _source = source;

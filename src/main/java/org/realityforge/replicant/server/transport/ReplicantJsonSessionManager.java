@@ -1,5 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.server.json.JsonEncoder;
 
 /**
@@ -8,7 +10,8 @@ import org.realityforge.replicant.server.json.JsonEncoder;
 public abstract class ReplicantJsonSessionManager<T extends ReplicantSession>
   extends ReplicantSessionManager<T>
 {
-  protected String pollJsonData( final T session, final int lastSequenceAcked )
+  @Nullable
+  protected String pollJsonData( @Nonnull final T session, final int lastSequenceAcked )
   {
     final Packet packet = pollPacket( session, lastSequenceAcked );
     if ( null != packet )

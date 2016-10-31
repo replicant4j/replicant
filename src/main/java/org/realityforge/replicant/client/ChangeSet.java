@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -38,6 +39,7 @@ public interface ChangeSet
    * @param index the index of the change.
    * @return the change.
    */
+  @Nonnull
   Change getChange( int index );
 
 
@@ -52,5 +54,6 @@ public interface ChangeSet
    * @param index the index of the action.
    * @return the action.
    */
+  @Nonnull
   ChannelAction getChannelAction( int index );
 }

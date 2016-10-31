@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeSet;
@@ -99,6 +100,7 @@ final class TestChangeSet
     return _changes.length;
   }
 
+  @Nonnull
   @Override
   public Change getChange( final int index )
   {
@@ -111,6 +113,7 @@ final class TestChangeSet
     return _actions.length;
   }
 
+  @Nonnull
   @Override
   public ChannelAction getChannelAction( final int index )
   {

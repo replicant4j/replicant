@@ -1,4 +1,5 @@
 ## 0.5.58 (Pending):
+* Add many more Nullability annotations to make reuse of library easier.
 * Remove final methods from AbstractDataLoaderService to prepare it for being a CDI bean.
 * Use a template method in AbstractDataLoaderService to create the ChangeMapper to avoid the
   need to pass it in through the constructor.

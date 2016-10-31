@@ -15,17 +15,18 @@ public final class ChangeSet
     _channelActions.add( action );
   }
 
+  @Nonnull
   public LinkedList<ChannelAction> getChannelActions()
   {
     return _channelActions;
   }
 
-  public void mergeAll( final Collection<Change> changes )
+  public void mergeAll( @Nonnull final Collection<Change> changes )
   {
     mergeAll( changes, false );
   }
 
-  public void mergeAll( final Collection<Change> changes, final boolean copyOnMerge )
+  public void mergeAll( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
   {
     for ( final Change change : changes )
     {
@@ -33,12 +34,12 @@ public final class ChangeSet
     }
   }
 
-  public void merge( final Change change )
+  public void merge( @Nonnull final Change change )
   {
     merge( change, false );
   }
 
-  public void merge( final Change change, final boolean copyOnMerge )
+  public void merge( @Nonnull final Change change, final boolean copyOnMerge )
   {
     final Change existing = _changes.get( change.getID() );
     if ( null != existing )
@@ -51,6 +52,7 @@ public final class ChangeSet
     }
   }
 
+  @Nonnull
   public Collection<Change> getChanges()
   {
     return _changes.values();

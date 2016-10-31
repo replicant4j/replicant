@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.ee.rest;
 
 import java.util.Date;
+import javax.annotation.Nonnull;
 import javax.ws.rs.core.Response;
 
 final class CacheUtil
@@ -9,7 +10,7 @@ final class CacheUtil
   {
   }
 
-  static void configureNoCacheHeaders( final Response.ResponseBuilder builder )
+  static void configureNoCacheHeaders( @Nonnull final Response.ResponseBuilder builder )
   {
     final Date now = new Date();
     // set create date to current timestamp

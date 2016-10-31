@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Service for caching raw data downloaded from the server.
@@ -13,6 +14,7 @@ public interface CacheService
    * @param key the key.
    * @return the cached resource or null if not cached.
    */
+  @Nullable
   CacheEntry lookup( @Nonnull String key );
 
   /**

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nonnull;
 import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
@@ -68,12 +69,14 @@ public abstract class AbstractReplicationInterceptor
     }
   }
 
+  @Nonnull
   protected abstract EntityManager getEntityManager();
 
+  @Nonnull
   protected abstract EntityMessageEndpoint getEndpoint();
 
   @SuppressWarnings( "EjbProhibitedPackageUsageInspection" )
-  private String getInvocationKey( final InvocationContext context )
+  private String getInvocationKey( @Nonnull final InvocationContext context )
   {
     final Method method = context.getMethod();
     if ( null != method )

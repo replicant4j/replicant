@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client;
 
+import javax.annotation.Nonnull;
+
 /**
  * The ChangeMapper is responsible for applying changes to the world.
  * <p/>
@@ -23,5 +25,6 @@ public interface ChangeMapper
    * @param change the Change.
    * @return the entity that was created, updated or removed.
    */
-  Object applyChange( Change change );
+  @Nonnull
+  Object applyChange( @Nonnull Change change );
 }

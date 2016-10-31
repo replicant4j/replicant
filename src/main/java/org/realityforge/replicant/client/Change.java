@@ -1,6 +1,8 @@
 package org.realityforge.replicant.client;
 
 import java.util.Date;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A change to an entity.
@@ -33,7 +35,7 @@ public interface Change
    * @param key the attribute key.
    * @return true if the data is present.
    */
-  boolean containsKey( String key );
+  boolean containsKey( @Nonnull String key );
 
   /**
    * Return true if data for the attribute identified by the key is null.
@@ -41,15 +43,17 @@ public interface Change
    * @param key the attribute key.
    * @return true if the data is null.
    */
-  boolean isNull( String key );
+  boolean isNull( @Nonnull String key );
 
-  int getIntegerValue( String key );
+  int getIntegerValue( @Nonnull String key );
 
-  Date getDateValue( String key );
+  @Nonnull
+  Date getDateValue( @Nonnull String key );
 
-  String getStringValue( String key );
+  @Nonnull
+  String getStringValue( @Nonnull String key );
 
-  boolean getBooleanValue( String key );
+  boolean getBooleanValue( @Nonnull String key );
 
   /**
    * @return the number of channels on which the change is sent. Must be &gt; 1.
@@ -68,5 +72,6 @@ public interface Change
    * @param index the index of the channel.
    * @return the sub-channel id.
    */
+  @Nullable
   Object getSubChannelID( int index );
 }

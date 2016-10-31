@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import java.util.Date;
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.Change;
 
 public final class JsoChange
@@ -33,12 +34,12 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native boolean containsKey( String key ) /*-{
+  public final native boolean containsKey( @Nonnull String key ) /*-{
     return this.data != null && (key in this.data);
   }-*/;
 
   @Override
-  public final native boolean isNull( final String key )/*-{
+  public final native boolean isNull( @Nonnull final String key )/*-{
     if ( this.data )
     {
       return this.data[key] == null;
@@ -50,7 +51,7 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native int getIntegerValue( String key ) /*-{
+  public final native int getIntegerValue( @Nonnull String key ) /*-{
     if ( this.data && (typeof this.data[key] == "number") )
     {
       return this.data[key];
@@ -61,8 +62,9 @@ public final class JsoChange
     }
   }-*/;
 
+  @Nonnull
   @Override
-  public final native Date getDateValue( String key ) /*-{
+  public final native Date getDateValue( @Nonnull String key ) /*-{
     if ( this.data && (typeof this.data[key] == "string") )
     {
       var d = new Date( this.data[key] );
@@ -79,8 +81,9 @@ public final class JsoChange
     }
   }-*/;
 
+  @Nonnull
   @Override
-  public final native String getStringValue( String key ) /*-{
+  public final native String getStringValue( @Nonnull String key ) /*-{
     if ( this.data && (typeof this.data[key] == "string") )
     {
       return this.data[key];
@@ -91,8 +94,9 @@ public final class JsoChange
     }
   }-*/;
 
+  @Nonnull
   @Override
-  public final native boolean getBooleanValue( String key ) /*-{
+  public final native boolean getBooleanValue( @Nonnull String key ) /*-{
     if ( this.data && (typeof this.data[key] == "boolean") )
     {
       return this.data[key];
