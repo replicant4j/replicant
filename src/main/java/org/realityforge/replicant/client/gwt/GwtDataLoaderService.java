@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.gwt;
 import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
