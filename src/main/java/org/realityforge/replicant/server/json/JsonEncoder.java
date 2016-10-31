@@ -155,7 +155,7 @@ public final class JsonEncoder
     }
     else if ( serializable instanceof Integer )
     {
-      generator.write( key, ( (Integer) serializable ).intValue() );
+      generator.write( key, (Integer) serializable );
     }
     else if ( serializable instanceof Long )
     {
@@ -196,7 +196,7 @@ public final class JsonEncoder
       final Integer value = (Integer) serializable;
       if ( 0 != value )
       {
-        generator.write( TransportConstants.SUBCHANNEL_ID, value.intValue() );
+        generator.write( TransportConstants.SUBCHANNEL_ID, value );
       }
     }
     else if ( null != serializable )
