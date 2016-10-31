@@ -35,7 +35,8 @@ public class ReplicantPollResourceTest
     assertEquals( value.getStatus(), Response.Status.OK.getStatusCode() );
     assertEquals( value.getEntity(), content );
     assertEquals( value.getHeaderString( "Pragma" ), "no-cache" );
-    assertEquals( value.getHeaderString( "Cache-control" ), "private, no-store, no-cache, must-revalidate, max-age=0, pre-check=0, post-check=0" );
+    assertEquals( value.getHeaderString( "Cache-control" ),
+                  "private, no-store, no-cache, must-revalidate, max-age=0, pre-check=0, post-check=0" );
     assertEquals( value.getHeaderString( "Expires" ), "0" );
     assertNotNull( value.getHeaderString( "Date" ) );
     assertNotNull( value.getHeaderString( "Last-Modified" ) );

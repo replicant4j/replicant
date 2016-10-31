@@ -27,7 +27,7 @@ public abstract class ReplicantSession
    * Emit replication status of the session.
    * This should include details of subscriptions.
    *
-   * @param g the json generator in which to serialize details.
+   * @param g      the json generator in which to serialize details.
    * @param filter the filter to use when determining which details to emit.
    */
   public abstract void emitStatus( @Nonnull final JsonGenerator g, @Nonnull FieldFilter filter );

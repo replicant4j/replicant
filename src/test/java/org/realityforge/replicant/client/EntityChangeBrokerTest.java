@@ -49,7 +49,7 @@ public class EntityChangeBrokerTest
     assertTrue( true );
   }
 
-    @Test
+  @Test
   public void removeAllChangeListeners()
   {
     final B entity = new B();

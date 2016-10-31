@@ -26,8 +26,8 @@ public final class ReplicationRequestUtil
    * Start a replication context.
    *
    * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
-   * @param sessionID the id of the session that initiated change if any.
-   * @param requestID the id of the request in the session that initiated change..
+   * @param sessionID     the id of the session that initiated change if any.
+   * @param requestID     the id of the request in the session that initiated change..
    */
   public static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
                                        @Nonnull final String invocationKey,

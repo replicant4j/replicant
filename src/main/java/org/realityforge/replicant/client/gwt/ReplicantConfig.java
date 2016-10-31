@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.gwt;
 import org.realityforge.gwt.propertysource.client.PropertySource;
 import org.realityforge.gwt.propertysource.client.annotations.Namespace;
 
-@Namespace("replicant")
+@Namespace( "replicant" )
 public interface ReplicantConfig
   extends PropertySource
 {

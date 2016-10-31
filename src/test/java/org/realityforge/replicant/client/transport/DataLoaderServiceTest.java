@@ -316,7 +316,8 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
+      service.ensureSession()
+        .enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
 

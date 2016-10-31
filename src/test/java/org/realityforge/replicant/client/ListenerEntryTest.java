@@ -54,7 +54,7 @@ public class ListenerEntryTest
     assertEquals( clone.interestedInstanceSet(), entry.interestedInstanceSet() );
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test( expectedExceptions = UnsupportedOperationException.class )
   public void getInterestedTypeSet_raises_UnsupportedOperationException_on_modification()
   {
     final RecordingListener listener = new RecordingListener();
@@ -68,7 +68,7 @@ public class ListenerEntryTest
   }
 
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test( expectedExceptions = UnsupportedOperationException.class )
   public void getInterestedInstanceSet_raises_UnsupportedOperationException_on_modification()
   {
     final RecordingListener listener = new RecordingListener();

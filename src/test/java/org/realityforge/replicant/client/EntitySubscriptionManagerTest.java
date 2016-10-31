@@ -329,8 +329,8 @@ public class EntitySubscriptionManagerTest
     assertFalse( found, "Found subscription unexpectedly" );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph already subscribed: .*")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph already subscribed: .*" )
   public void subscribe_nonExistentTypeGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
@@ -338,24 +338,24 @@ public class EntitySubscriptionManagerTest
     sm.subscribe( G.G1, null );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void getSubscription_nonExistentTypeGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.getSubscription( G.G1 );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentTypeGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.unsubscribe( G.G1 );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph already subscribed: .*:1")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph already subscribed: .*:1" )
   public void subscribe_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
@@ -363,24 +363,24 @@ public class EntitySubscriptionManagerTest
     sm.subscribe( G.G1, "1", null );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void getSubscription_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.getSubscription( G.G1, "1" );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     sm.unsubscribe( G.G1, "1" );
   }
 
-  @Test(expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*")
+  @Test( expectedExceptions = IllegalStateException.class,
+    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();

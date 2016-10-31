@@ -117,7 +117,7 @@ public class EntityRepositoryImpl
     return new ArrayList<>( _dataStore.keySet() );
   }
 
-  @SuppressWarnings({ "unchecked" })
+  @SuppressWarnings( { "unchecked" } )
   private <T> HashMap<Object, T> getObjectMap( final Class<T> type )
   {
     HashMap<Object, T> objectMap = (HashMap<Object, T>) _dataStore.get( type );

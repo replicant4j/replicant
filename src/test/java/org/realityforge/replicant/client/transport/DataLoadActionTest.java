@@ -12,7 +12,7 @@ import static org.testng.Assert.*;
 
 public class DataLoadActionTest
 {
-  @DataProvider(name = "actionDescriptions")
+  @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
   {
     final List<Boolean> flags = Arrays.asList( Boolean.TRUE, Boolean.FALSE );
@@ -56,7 +56,7 @@ public class DataLoadActionTest
     return objects.toArray( new Object[ objects.size() ][] );
   }
 
-  @Test(dataProvider = "actionDescriptions")
+  @Test( dataProvider = "actionDescriptions" )
   public void verifyActionLifecycle( final boolean normalCompletion,
                                      final boolean oob,
                                      final TestChangeSet changeSet,

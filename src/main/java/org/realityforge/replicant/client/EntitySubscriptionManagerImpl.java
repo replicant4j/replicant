@@ -318,7 +318,7 @@ public class EntitySubscriptionManagerImpl
         "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getDescriptor();
       throw new IllegalStateException( message );
     }
-    if( typeMap.isEmpty() )
+    if ( typeMap.isEmpty() )
     {
       map.remove( type );
     }

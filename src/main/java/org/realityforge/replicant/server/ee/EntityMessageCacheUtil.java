@@ -137,11 +137,11 @@ public final class EntityMessageCacheUtil
     return messageSet;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
   {
     final Object invocationContext = r.getResource( ReplicantContext.REPLICATION_INVOCATION_KEY );
-    if( null == invocationContext )
+    if ( null == invocationContext )
     {
       final String message =
         "Attempting to look up replication resource '" + key + "' but there is no active replication context. " +

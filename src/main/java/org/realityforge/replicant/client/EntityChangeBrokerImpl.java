@@ -496,7 +496,7 @@ public class EntityChangeBrokerImpl
     {
       final Object key = action.getKey();
       final EntityChangeListener listener = action.getListener();
-      if( null == listener )
+      if ( null == listener )
       {
         assert action.isRemove();
         assert null != key;

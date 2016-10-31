@@ -95,7 +95,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
     _dataLoaderService.scheduleDataLoad();
   }
 
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings( "ConstantConditions" )
   public final void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
     if ( null == rawJsonData )
@@ -106,7 +106,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
     _dataLoaderService.scheduleDataLoad();
   }
 
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings( "ConstantConditions" )
   protected final void enqueueOOB( @Nonnull final String rawJsonData,
                                    @Nullable final Runnable runnable,
                                    final boolean bulkLoad )
