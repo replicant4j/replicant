@@ -1,4 +1,5 @@
 ## 0.5.58 (Pending):
+* Implement AbstractDataLoaderService.getSystemKey() to derive key from SessionContext.getKey().
 * Correctly return false from JsoChange.getBooleanValue if no such value exists rather than null.
 * Add many more Nullability annotations to make reuse of library easier.
 * Remove final methods from AbstractDataLoaderService to prepare it for being a CDI bean.

@@ -879,7 +879,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   @Nonnull
-  protected abstract String getSystemKey();
+  protected String getSystemKey()
+  {
+    return getSessionContext().getKey();
+  }
 
   @Nonnull
   protected abstract Class<G> getGraphType();
