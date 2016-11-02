@@ -7,14 +7,14 @@ import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.transport.AbstractDataLoaderService;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.SessionContext;
+import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
 public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
-  extends AbstractDataLoaderService<T, G>
+  extends WebPollerDataLoaderService<T, G>
 {
   private static final String REQUEST_DEBUG = "imitRequestDebug";
   private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
@@ -31,6 +31,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
     super( sessionContext, changeBroker, repository, cacheService, subscriptionManager );
+    setupWebPoller();
     _eventBus = eventBus;
     _replicantConfig = replicantConfig;
 

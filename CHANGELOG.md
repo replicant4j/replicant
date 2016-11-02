@@ -1,4 +1,6 @@
 ## 0.5.58 (Pending):
+* Rename WebPollerDataLoaderService to GwtWebPollerDataLoaderService and introduce a WebPollerDataLoaderService
+  that contains all the non-technology specific support for WebPoller library.
 * Set the Authorization header in WebPollerDataLoaderService if the SessionContext has authentication token.
 * Derive the baseURL of WebPollerDataLoaderService from SessionContext parameter rather than heuristics.
 * Change access level of WebPollerDataLoaderService.ReplicantRequestFactory to private.
