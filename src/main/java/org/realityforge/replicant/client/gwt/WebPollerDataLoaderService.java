@@ -257,7 +257,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     return _webPoller;
   }
 
-  final void handlePollSuccess( final String rawJsonData )
+  private void handlePollSuccess( final String rawJsonData )
   {
     if ( null != rawJsonData )
     {
