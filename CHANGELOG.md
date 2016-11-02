@@ -1,4 +1,5 @@
 ## 0.5.58 (Pending):
+* Set the Authorization header in WebPollerDataLoaderService if the SessionContext has authentication token.
 * Derive the baseURL of WebPollerDataLoaderService from SessionContext parameter rather than heuristics.
 * Change access level of WebPollerDataLoaderService.ReplicantRequestFactory to private.
 * Change access level of WebPollerDataLoaderService.handlePollSuccess() to private.
