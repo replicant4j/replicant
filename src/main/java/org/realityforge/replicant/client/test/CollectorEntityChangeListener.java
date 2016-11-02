@@ -48,26 +48,31 @@ public class CollectorEntityChangeListener
     _relatedRemovedEvents.add( event );
   }
 
+  @Nonnull
   public LinkedList<EntityChangeEvent> getEntityAddedEvents()
   {
     return _entityAddedEvents;
   }
 
+  @Nonnull
   public List<EntityChangeEvent> getEntityRemovedEvents()
   {
     return _entityRemovedEvents;
   }
 
+  @Nonnull
   public List<EntityChangeEvent> getAttributeChangedEvents()
   {
     return _attributeChangedEvents;
   }
 
+  @Nonnull
   public List<EntityChangeEvent> getRelatedAddedEvents()
   {
     return _relatedAddedEvents;
   }
 
+  @Nonnull
   public List<EntityChangeEvent> getRelatedRemovedEvents()
   {
     return _relatedRemovedEvents;
