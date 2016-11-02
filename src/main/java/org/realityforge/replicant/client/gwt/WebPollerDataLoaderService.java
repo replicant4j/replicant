@@ -31,7 +31,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   private final WebPoller _webPoller = WebPoller.newWebPoller();
   private String _baseURL;
 
-  class ReplicantRequestFactory
+  private class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
   {
     @Override
