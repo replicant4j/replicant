@@ -44,13 +44,6 @@ final class TestWebPollerDataLoaderService
     return TestGraph.class;
   }
 
-  @Nonnull
-  @Override
-  protected String deriveDefaultURL()
-  {
-    return "";
-  }
-
   @Override
   protected void setupCloseHandler()
   {

@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.gwt;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -76,27 +75,13 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       }
     } );
     setupCloseHandler();
-    _baseURL = deriveDefaultURL();
-  }
-
-  @Nonnull
-  protected String deriveDefaultURL()
-  {
-    return guessContextURL() + getEndpointOffset();
+    _baseURL = sessionContext.getBaseURL() + getEndpointOffset();
   }
 
   @Nonnull
   protected String getEndpointOffset()
   {
     return "api";
-  }
-
-  @Nonnull
-  protected String guessContextURL()
-  {
-    final String moduleBaseURL = GWT.getModuleBaseURL();
-    final String moduleName = GWT.getModuleName();
-    return moduleBaseURL.substring( 0, moduleBaseURL.length() - moduleName.length() - 1 );
   }
 
   protected void setupCloseHandler()
