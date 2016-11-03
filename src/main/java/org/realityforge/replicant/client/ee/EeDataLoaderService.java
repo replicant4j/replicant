@@ -34,28 +34,28 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected boolean shouldValidateOnLoad()
   {
-    return getFlag( "shouldValidateRepositoryOnLoad" );
+    return isFlagTrue( "shouldValidateRepositoryOnLoad" );
   }
 
   @Override
   protected boolean requestDebugOutputEnabled()
   {
-    return getFlag( "requestDebugOutputEnabled" );
+    return isFlagTrue( "requestDebugOutputEnabled" );
   }
 
   @Override
   protected boolean subscriptionsDebugOutputEnabled()
   {
-    return getFlag( "subscriptionsDebugOutputEnabled" );
+    return isFlagTrue( "subscriptionsDebugOutputEnabled" );
   }
 
   @Override
   protected boolean repositoryDebugOutputEnabled()
   {
-    return getFlag( "repositoryDebugOutputEnabled" );
+    return isFlagTrue( "repositoryDebugOutputEnabled" );
   }
 
-  private boolean getFlag( @Nonnull final String flag )
+  private boolean isFlagTrue( @Nonnull final String flag )
   {
     try
     {
