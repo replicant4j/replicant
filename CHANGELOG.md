@@ -1,4 +1,5 @@
 ## 0.5.59 (Pending):
+* Fix NullPointerException in WebPollerDataLoaderService.
 
 ## 0.5.58:
 * Update to `gwt-webpoller` 0.9.1.

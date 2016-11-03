@@ -29,7 +29,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
 
   protected void setupWebPoller()
   {
-    if ( null != _webPoller )
+    if ( null == _webPoller )
     {
       _webPoller = newWebPoller();
       _webPoller.setListener( new WebPollerListenerAdapter()
