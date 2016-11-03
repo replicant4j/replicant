@@ -9,7 +9,7 @@ public class ChangeDTOTest
   public void simpleChange()
     throws Exception
   {
-    String content =
+    final String content =
       "{\n" +
       "  \"id\": 2,\n" +
       "  \"type\": 11,\n" +
@@ -53,7 +53,7 @@ public class ChangeDTOTest
   public void deleteChange()
     throws Exception
   {
-    String content =
+    final String content =
       "{\n" +
       "  \"id\": 22,\n" +
       "  \"type\": 13,\n" +
@@ -76,7 +76,7 @@ public class ChangeDTOTest
   public void changeWithStringDesignator()
     throws Exception
   {
-    String content =
+    final String content =
       "{\n" +
       "  \"id\": \"MyID\",\n" +
       "  \"type\": 12,\n" +
