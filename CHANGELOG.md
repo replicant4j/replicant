@@ -1,4 +1,6 @@
 ## 0.5.59 (Pending):
+* Defer creation of WebPoller in WebPollerDataLoaderService till actually required. This allows
+  the EE client variant to be injected with resources prior to creating WebPoller.
 * Fix NullPointerException in WebPollerDataLoaderService.
 
 ## 0.5.58:

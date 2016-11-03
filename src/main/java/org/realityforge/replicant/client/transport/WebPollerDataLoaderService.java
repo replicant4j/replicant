@@ -24,7 +24,6 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
                                      @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
     super( sessionContext, changeBroker, repository, cacheService, subscriptionManager );
-    setupWebPoller();
   }
 
   protected void setupWebPoller()
