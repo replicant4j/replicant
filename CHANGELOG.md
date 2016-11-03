@@ -1,4 +1,6 @@
 ## 0.5.58 (Pending):
+* Introduce the package `org.realityforge.replicant.client.ee` to contain support required for client-side
+  enterprise java replicant clients.
 * Rename WebPollerDataLoaderService to GwtWebPollerDataLoaderService and introduce a WebPollerDataLoaderService
   that contains all the non-technology specific support for WebPoller library.
 * Set the Authorization header in WebPollerDataLoaderService if the SessionContext has authentication token.
