@@ -2,7 +2,8 @@ package org.realityforge.replicant.client.ee;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.enterprise.inject.spi.CDI;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -33,6 +34,9 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
       return newInvocationBuilder( getPollURL() ).header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
     }
   }
+
+  @Inject
+  private Event<SystemErrorEvent> _systemErrorEvent;
 
   public EeWebPollerDataLoaderService( @Nonnull final SessionContext sessionContext )
   {
@@ -144,6 +148,6 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
   protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
-    CDI.current().getBeanManager().fireEvent( new SystemErrorEvent( message, caught ) );
+    _systemErrorEvent.fire( new SystemErrorEvent( message, caught ) );
   }
 }

@@ -5,7 +5,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.enterprise.inject.spi.CDI;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.naming.InitialContext;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.EntityChangeBrokerImpl;
@@ -19,6 +20,9 @@ import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends WebPollerDataLoaderService<T, G>
 {
+  @Inject
+  private Event<DataLoadCompleteEvent> _dataLoadCompleteEvent;
+
   @Nullable
   private ScheduledFuture _future;
 
@@ -108,6 +112,6 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
-    CDI.current().getBeanManager().fireEvent( new DataLoadCompleteEvent( status ) );
+    _dataLoadCompleteEvent.fire( new DataLoadCompleteEvent( status ) );
   }
 }
