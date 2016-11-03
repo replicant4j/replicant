@@ -30,14 +30,14 @@ public class ChangeSetDTO
   @Nullable
   public String getRequestID()
   {
-    return _object.getString( TransportConstants.REQUEST_ID );
+    return _object.isNull( TransportConstants.REQUEST_ID ) ? null : _object.getString( TransportConstants.REQUEST_ID );
   }
 
   @Nullable
   @Override
   public String getETag()
   {
-    return _object.getString( TransportConstants.ETAG );
+    return _object.isNull( TransportConstants.ETAG ) ? null : _object.getString( TransportConstants.ETAG );
   }
 
   @Override
