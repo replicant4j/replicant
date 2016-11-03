@@ -30,11 +30,18 @@ public class ChannelActionDTO
   public Object getSubChannelID()
   {
     final JsonValue value = _object.get( TransportConstants.SUBCHANNEL_ID );
-    return value.getValueType() == JsonValue.ValueType.NUMBER ?
-           ( (JsonNumber) value ).intValue() :
-           value.getValueType() == JsonValue.ValueType.STRING ?
-           ( (JsonString) value ).getString() :
-           null;
+    if ( null == value )
+    {
+      return null;
+    }
+    else
+    {
+      return value.getValueType() == JsonValue.ValueType.NUMBER ?
+             ( (JsonNumber) value ).intValue() :
+             value.getValueType() == JsonValue.ValueType.STRING ?
+             ( (JsonString) value ).getString() :
+             null;
+    }
   }
 
   @Override
@@ -44,10 +51,31 @@ public class ChannelActionDTO
     return Action.valueOf( _object.getString( TransportConstants.ACTION ).toUpperCase() );
   }
 
+  @Nullable
   @Override
   public Object getChannelFilter()
   {
     final JsonValue value = _object.get( TransportConstants.CHANNEL_FILTER );
-    return value.getValueType() == JsonValue.ValueType.OBJECT ? ( (JsonObject) value ) : null;
+    if ( null == value || JsonValue.ValueType.NULL == value.getValueType() )
+    {
+      return null;
+    }
+    else if ( JsonValue.ValueType.NUMBER == value.getValueType() )
+    {
+      return ( (JsonNumber) value ).doubleValue();
+    }
+    else if ( JsonValue.ValueType.TRUE == value.getValueType() )
+    {
+      return true;
+    }
+    else if ( JsonValue.ValueType.FALSE == value.getValueType() )
+    {
+      return false;
+    }
+    else //JsonValue.ValueType.OBJECT == value.getValueType() || JsonValue.ValueType.ARRAY == value.getValueType()
+    {
+
+      return value;
+    }
   }
 }

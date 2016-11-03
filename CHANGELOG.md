@@ -2,6 +2,7 @@
 * Defer creation of WebPoller in WebPollerDataLoaderService till actually required. This allows
   the EE client variant to be injected with resources prior to creating WebPoller.
 * Fix NullPointerException in WebPollerDataLoaderService.
+* Fix several NullPointerExceptions in ChannelActionDTO.
 
 ## 0.5.58:
 * Update to `gwt-webpoller` 0.9.1.
