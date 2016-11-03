@@ -1,0 +1,113 @@
+package org.realityforge.replicant.client.ee;
+
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.enterprise.inject.spi.CDI;
+import javax.naming.InitialContext;
+import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.EntityChangeBrokerImpl;
+import org.realityforge.replicant.client.EntityRepositoryImpl;
+import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
+import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.DataLoadStatus;
+import org.realityforge.replicant.client.transport.SessionContext;
+import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
+
+public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
+  extends WebPollerDataLoaderService<T, G>
+{
+  @Nullable
+  private ScheduledFuture _future;
+
+  protected EeDataLoaderService( @Nonnull final SessionContext sessionContext )
+  {
+    super( sessionContext,
+           new EntityChangeBrokerImpl(),
+           new EntityRepositoryImpl(),
+           new InMemoryCacheService(),
+           new EntitySubscriptionManagerImpl() );
+  }
+
+  @Override
+  protected boolean shouldValidateOnLoad()
+  {
+    return getFlag( "shouldValidateRepositoryOnLoad" );
+  }
+
+  @Override
+  protected boolean requestDebugOutputEnabled()
+  {
+    return getFlag( "requestDebugOutputEnabled" );
+  }
+
+  @Override
+  protected boolean subscriptionsDebugOutputEnabled()
+  {
+    return getFlag( "subscriptionsDebugOutputEnabled" );
+  }
+
+  @Override
+  protected boolean repositoryDebugOutputEnabled()
+  {
+    return getFlag( "repositoryDebugOutputEnabled" );
+  }
+
+  private boolean getFlag( @Nonnull final String flag )
+  {
+    try
+    {
+      return (Boolean) new InitialContext().lookup( getJndiPrefix() + "/" + flag );
+    }
+    catch ( final Exception e )
+    {
+      return false;
+    }
+  }
+
+  @Nonnull
+  protected abstract ManagedScheduledExecutorService getManagedScheduledExecutorService();
+
+  @Override
+  @Nonnull
+  protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+  {
+    return ChangeSetDTO.asChangeSet( rawJsonData );
+  }
+
+  @Override
+  protected void doScheduleDataLoad()
+  {
+    _future = getManagedScheduledExecutorService().scheduleAtFixedRate( new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        if ( !stepDataLoad() && null != _future )
+        {
+          final ScheduledFuture future = _future;
+          _future = null;
+          future.cancel( false );
+        }
+      }
+    }, 0, 1, TimeUnit.SECONDS );
+  }
+
+  /**
+   * Return the JNDI prefix used to derive optional configuration.
+   * Typically it returns a string such as: "myapp/replicant/client"
+   */
+  @Nonnull
+  protected abstract String getJndiPrefix();
+
+  /**
+   * Invoked to fire an event when data load has completed.
+   */
+  @Override
+  protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
+  {
+    CDI.current().getBeanManager().fireEvent( new DataLoadCompleteEvent( status ) );
+  }
+}
