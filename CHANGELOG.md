@@ -1,4 +1,5 @@
 ## 0.5.58:
+* Update to `gwt-webpoller` 0.9.1.
 * Introduce the package `org.realityforge.replicant.client.ee` to contain support required for client-side
   enterprise java replicant clients.
 * Rename WebPollerDataLoaderService to GwtWebPollerDataLoaderService and introduce a WebPollerDataLoaderService
