@@ -1,4 +1,7 @@
 ## 0.5.59 (Pending):
+* Create a new WebPoller when polling starts to avoid reusing a WebPoller as pending calls may not
+  be handled correctly if they were cancelled when WebPoller was stopped but did not return until
+  the WebPoller was started again.
 * Define implementation of `WebPollerDataLoaderService.connect()` and `WebPollerDataLoaderService.disconnect()`
   that has template methods for subclasses to override.
 * Use more reasonable values for `ChangesToProcessPerTick` and `LinksToProcessPerTick` for ee client.

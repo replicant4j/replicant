@@ -26,28 +26,30 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     super( sessionContext, changeBroker, repository, cacheService, subscriptionManager );
   }
 
-  protected void setupWebPoller()
+  @Nonnull
+  protected WebPoller createWebPoller()
   {
-    if ( null == _webPoller )
+    WebPoller _webPoller;
+    _webPoller = newWebPoller();
+    _webPoller.setRequestFactory( newRequestFactory() );
+    _webPoller.setInterRequestDuration( 0 );
+    _webPoller.setListener( new WebPollerListenerAdapter()
     {
-      _webPoller = newWebPoller();
-      _webPoller.setListener( new WebPollerListenerAdapter()
+      @Override
+      public void onMessage( @Nonnull final WebPoller webPoller,
+                             @Nonnull final Map<String, String> context,
+                             @Nonnull final String data )
       {
-        @Override
-        public void onMessage( @Nonnull final WebPoller webPoller,
-                               @Nonnull final Map<String, String> context,
-                               @Nonnull final String data )
-        {
-          handlePollSuccess( data );
-        }
+        handlePollSuccess( data );
+      }
 
-        @Override
-        public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
-        {
-          handleSystemFailure( exception, "Failed to poll" );
-        }
-      } );
-    }
+      @Override
+      public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
+      {
+        handleSystemFailure( exception, "Failed to poll" );
+      }
+    } );
+    return _webPoller;
   }
 
   @Nonnull
@@ -137,7 +139,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     if ( null == _webPoller )
     {
-      setupWebPoller();
+      throw new NullPointerException( "_webPoller" );
     }
     return _webPoller;
   }
@@ -198,10 +200,8 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   protected void startPolling()
   {
     stopPolling();
-    final WebPoller webPoller = getWebPoller();
-    webPoller.setRequestFactory( newRequestFactory() );
-    webPoller.setInterRequestDuration( 0 );
-    webPoller.start();
+    _webPoller = createWebPoller();
+    _webPoller.start();
   }
 
   @Nonnull
@@ -211,12 +211,13 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     if ( isConnected() )
     {
-      getWebPoller().stop();
+      _webPoller.stop();
+      _webPoller = null;
     }
   }
 
   public boolean isConnected()
   {
-    return getWebPoller().isActive();
+    return null != _webPoller && getWebPoller().isActive();
   }
 }

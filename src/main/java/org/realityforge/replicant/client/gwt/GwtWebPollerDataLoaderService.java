@@ -57,7 +57,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
            subscriptionManager,
            eventBus,
            replicantConfig );
-    setupWebPoller();
+    createWebPoller();
     setupCloseHandler();
   }
 

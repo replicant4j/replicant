@@ -31,7 +31,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
     super( sessionContext, changeBroker, repository, cacheService, subscriptionManager );
-    setupWebPoller();
+    createWebPoller();
     _eventBus = eventBus;
     _replicantConfig = replicantConfig;
 
