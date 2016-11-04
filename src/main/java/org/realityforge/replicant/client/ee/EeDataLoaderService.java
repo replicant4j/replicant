@@ -101,7 +101,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
           future.cancel( false );
         }
       }
-    }, 0, 1, TimeUnit.SECONDS );
+    }, 0, 1, TimeUnit.MILLISECONDS );
   }
 
   /**
