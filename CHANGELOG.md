@@ -1,4 +1,6 @@
 ## 0.5.59 (Pending):
+* Define implementation of `WebPollerDataLoaderService.connect()` and `WebPollerDataLoaderService.disconnect()`
+  that has template methods for subclasses to override.
 * Use more reasonable values for `ChangesToProcessPerTick` and `LinksToProcessPerTick` for ee client.
 * Use a small repeat period for repeating scheduler in ee client.
 * Avoid the use of `javax.enterprise.inject.spi.CDI` as it is not always configured in EE apps.

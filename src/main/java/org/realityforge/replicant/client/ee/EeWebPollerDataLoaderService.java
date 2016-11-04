@@ -84,7 +84,8 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
     }
   }
 
-  public void connect( @Nullable final Runnable runnable )
+  @Override
+  protected void doConnect( final @Nullable Runnable runnable )
   {
     final Invocation.Builder builder = newInvocationBuilder( getTokenURL() );
     builder.async().post( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
@@ -111,38 +112,33 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
     } );
   }
 
-  public void disconnect( @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nonnull final T session, @Nullable final Runnable runnable )
   {
-    stopPolling();
-    final T session = getSession();
-    if ( null != session )
+    final Invocation.Builder builder =
+      newInvocationBuilder( getTokenURL() + "/" + session.getSessionID() );
+    builder.async().delete( new InvocationCallback<Response>()
     {
-      final Invocation.Builder builder =
-        newInvocationBuilder( getTokenURL() + "/" + session.getSessionID() );
-      builder.async().delete( new InvocationCallback<Response>()
+      @Override
+      public void completed( final Response response )
       {
-        @Override
-        public void completed( final Response response )
-        {
-          final int statusCode = response.getStatus();
-          if ( Response.Status.OK.getStatusCode() == statusCode )
-          {
-            setSession( null, runnable );
-          }
-          else
-          {
-            setSession( null, runnable );
-            handleInvalidDisconnect( null );
-          }
-        }
-
-        @Override
-        public void failed( final Throwable throwable )
+        final int statusCode = response.getStatus();
+        if ( Response.Status.OK.getStatusCode() == statusCode )
         {
           setSession( null, runnable );
         }
-      } );
-    }
+        else
+        {
+          setSession( null, runnable );
+          handleInvalidDisconnect( null );
+        }
+      }
+
+      @Override
+      public void failed( final Throwable throwable )
+      {
+        setSession( null, runnable );
+      }
+    } );
   }
 
   protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )

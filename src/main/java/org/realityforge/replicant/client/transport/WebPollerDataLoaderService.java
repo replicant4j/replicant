@@ -66,14 +66,30 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     startPolling();
   }
 
-  public abstract void connect( @Nullable Runnable runnable );
+  public void connect( @Nullable final Runnable runnable )
+  {
+    disconnect( null );
+    doConnect( runnable );
+  }
+
+  protected abstract void doConnect( @Nullable Runnable runnable );
 
   protected void handleInvalidConnect( @Nullable final Throwable exception )
   {
     handleSystemFailure( exception, "Failed to generate session token" );
   }
 
-  public abstract void disconnect( @Nullable Runnable runnable );
+  public void disconnect( @Nullable final Runnable runnable )
+  {
+    stopPolling();
+    final T session = getSession();
+    if ( null != session )
+    {
+      doDisconnect( session, runnable );
+    }
+  }
+
+  protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
 
   protected void handleInvalidDisconnect( @Nullable final Throwable exception )
   {
