@@ -1,4 +1,5 @@
 ## 0.5.59 (Pending):
+* Use more reasonable values for `ChangesToProcessPerTick` and `LinksToProcessPerTick` for ee client.
 * Avoid the use of `javax.enterprise.inject.spi.CDI` as it is not always configured in EE apps.
 * Defer creation of WebPoller in WebPollerDataLoaderService till actually required. This allows
   the EE client variant to be injected with resources prior to creating WebPoller.

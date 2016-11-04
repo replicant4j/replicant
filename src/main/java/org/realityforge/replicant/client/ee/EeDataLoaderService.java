@@ -20,6 +20,9 @@ import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends WebPollerDataLoaderService<T, G>
 {
+  private static final int DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK = 10000;
+  private static final int DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK = 10000;
+
   @Inject
   private Event<DataLoadCompleteEvent> _dataLoadCompleteEvent;
 
@@ -33,6 +36,8 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
            new EntityRepositoryImpl(),
            new InMemoryCacheService(),
            new EntitySubscriptionManagerImpl() );
+    setChangesToProcessPerTick( DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK );
+    setLinksToProcessPerTick( DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK );
   }
 
   @Override
