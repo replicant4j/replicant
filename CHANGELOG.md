@@ -3,7 +3,8 @@
   be handled correctly if they were cancelled when WebPoller was stopped but did not return until
   the WebPoller was started again.
 * Define implementation of `WebPollerDataLoaderService.connect()` and `WebPollerDataLoaderService.disconnect()`
-  that has template methods for subclasses to override.
+  that has template methods for subclasses to override. Ensure `disconnect()` is called before attempting
+  to reconnect WebPoller.
 * Use more reasonable values for `ChangesToProcessPerTick` and `LinksToProcessPerTick` for ee client.
 * Use a small repeat period for repeating scheduler in ee client.
 * Avoid the use of `javax.enterprise.inject.spi.CDI` as it is not always configured in EE apps.
