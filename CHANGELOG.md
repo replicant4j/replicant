@@ -1,4 +1,4 @@
-## 0.5.59 (Pending):
+## 0.5.59:
 * Create a new WebPoller when polling starts to avoid reusing a WebPoller as pending calls may not
   be handled correctly if they were cancelled when WebPoller was stopped but did not return until
   the WebPoller was started again.
