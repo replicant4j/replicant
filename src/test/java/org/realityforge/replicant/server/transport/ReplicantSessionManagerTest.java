@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.AssertUtil;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
@@ -28,8 +29,6 @@ public class ReplicantSessionManagerTest
     throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    set( sm, ReplicantSessionManager.class, "_registry", registry );
     final TestSession session = sm.createSession();
 
     sm.getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, "r1" );
@@ -38,7 +37,7 @@ public class ReplicantSessionManagerTest
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestID(), "r1" );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
-    assertEquals( registry.getResource( ReplicantContext.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
+    assertEquals( sm.getRegistry().getResource( ReplicantContext.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }
 
   @Test
@@ -70,6 +69,8 @@ public class ReplicantSessionManagerTest
   static class TestReplicantSessionManager
     extends ReplicantSessionManager<TestSession>
   {
+    private final TestTransactionSynchronizationRegistry _registry = new TestTransactionSynchronizationRegistry();
+
     @Override
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,
@@ -77,6 +78,13 @@ public class ReplicantSessionManagerTest
                                        @Nullable final ChangeSet changeSet )
     {
       return false;
+    }
+
+    @Nonnull
+    @Override
+    protected TransactionSynchronizationRegistry getRegistry()
+    {
+      return _registry;
     }
 
     @Nonnull

@@ -2,7 +2,6 @@ package org.realityforge.replicant.server.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
@@ -16,9 +15,6 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
   extends InMemorySessionManager<T>
   implements EntityMessageEndpoint
 {
-  @Resource
-  private TransactionSynchronizationRegistry _registry;
-
   /**
    * Send messages to the specified session.
    * The requesting service must NOT have made any other changes that will be sent to the
@@ -40,10 +36,7 @@ public abstract class ReplicantSessionManager<T extends ReplicantSession>
    * @return the transaction synchronization registry.
    */
   @Nonnull
-  protected TransactionSynchronizationRegistry getRegistry()
-  {
-    return _registry;
-  }
+  protected abstract TransactionSynchronizationRegistry getRegistry();
 
   /**
    * Return the next packet to send to the client.
