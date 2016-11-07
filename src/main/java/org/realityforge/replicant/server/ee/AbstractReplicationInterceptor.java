@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import javax.annotation.Resource;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
@@ -21,9 +20,6 @@ public abstract class AbstractReplicationInterceptor
 {
   private static final Logger LOG = Logger.getLogger( AbstractReplicationInterceptor.class.getName() );
 
-  @Resource
-  private TransactionSynchronizationRegistry _registry;
-
   @AroundInvoke
   public Object businessIntercept( final InvocationContext context )
     throws Exception
@@ -35,7 +31,7 @@ public abstract class AbstractReplicationInterceptor
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
     ReplicantContextHolder.clean();
 
-    ReplicationRequestUtil.startReplication( _registry, invocationKey, sessionID, requestID );
+    ReplicationRequestUtil.startReplication( getRegistry(), invocationKey, sessionID, requestID );
 
     if ( LOG.isLoggable( Level.FINE ) )
     {
@@ -52,7 +48,7 @@ public abstract class AbstractReplicationInterceptor
     finally
     {
       final boolean requestComplete =
-        ReplicationRequestUtil.completeReplication( _registry, getEntityManager(), getEndpoint() );
+        ReplicationRequestUtil.completeReplication( getRegistry(), getEntityManager(), getEndpoint() );
 
       // Clear the context completely to ensure it contains only the completion key.
       ReplicantContextHolder.clean();
@@ -74,6 +70,9 @@ public abstract class AbstractReplicationInterceptor
 
   @Nonnull
   protected abstract EntityMessageEndpoint getEndpoint();
+
+  @Nonnull
+  protected abstract TransactionSynchronizationRegistry getRegistry();
 
   @SuppressWarnings( "EjbProhibitedPackageUsageInspection" )
   private String getInvocationKey( @Nonnull final InvocationContext context )

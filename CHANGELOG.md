@@ -1,6 +1,8 @@
 ## 0.5.60 (Pending):
 * Change implementation of `ReplicantSessionManager` so that it uses a template method to retrieve
   `TransactionSynchronizationRegistry` rather than a directly injected resource.
+* Change implementation of `AbstractReplicationInterceptor` so that it uses a template method to
+  retrieve `TransactionSynchronizationRegistry` rather than a directly injected resource.
 
 ## 0.5.59:
 * Create a new WebPoller when polling starts to avoid reusing a WebPoller as pending calls may not

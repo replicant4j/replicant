@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.ee;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -329,19 +328,7 @@ public class ReplicationInterceptorTest
                                                         final boolean routeToSession )
     throws Exception
   {
-    final TestReplicationInterceptor interceptor = new TestReplicationInterceptor( entityManager, routeToSession );
-    setField( interceptor, "_registry", registry );
-    return interceptor;
-  }
-
-  private static void setField( final TestReplicationInterceptor interceptor,
-                                final String fieldName,
-                                final Object value )
-    throws Exception
-  {
-    final Field field = interceptor.getClass().getSuperclass().getDeclaredField( fieldName );
-    field.setAccessible( true );
-    field.set( interceptor, value );
+    return new TestReplicationInterceptor( entityManager, registry, routeToSession );
   }
 
   private void enableReplicationContext( final TestTransactionSynchronizationRegistry registry )
@@ -362,13 +349,24 @@ public class ReplicationInterceptorTest
     String _requestID;
     Collection<EntityMessage> _messages;
     EntityManager _entityManager;
+    private final TransactionSynchronizationRegistry _registry;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
 
-    TestReplicationInterceptor( final EntityManager entityManager, final boolean routeToSession )
+    TestReplicationInterceptor( final EntityManager entityManager,
+                                final TransactionSynchronizationRegistry registry,
+                                final boolean routeToSession )
     {
       _entityManager = entityManager;
+      _registry = registry;
       _routeToSession = routeToSession;
+    }
+
+    @Nonnull
+    @Override
+    protected TransactionSynchronizationRegistry getRegistry()
+    {
+      return _registry;
     }
 
     @Override
