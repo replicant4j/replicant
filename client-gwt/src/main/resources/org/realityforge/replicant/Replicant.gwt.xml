@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+  <inherits name="org.realityforge.replicant.ReplicantClientCommon"/>
+  <inherits name="org.realityforge.gwt.propertysource.PropertySource"/>
+  <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
+  <inherits name="com.google.gwt.inject.Inject"/>
+  <inherits name="com.google.gwt.storage.Storage"/>
+  <inherits name="com.google.gwt.user.Window"/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+
+  <source path='client/gwt'/>
+
+  <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
+  <set-property name="replicant.shouldValidateRepositoryOnLoad" value="false"/>
+
+  <define-property name="replicant.repositoryDebugOutputEnabled" values="true,false"/>
+  <set-property name="replicant.repositoryDebugOutputEnabled" value="false"/>
+
+  <define-property name="replicant.subscriptionsDebugOutputEnabled" values="true,false"/>
+  <set-property name="replicant.subscriptionsDebugOutputEnabled" value="false"/>
+
+  <define-property name="replicant.requestDebugOutputEnabled" values="true,false"/>
+  <set-property name="replicant.requestDebugOutputEnabled" value="false"/>
+</module>

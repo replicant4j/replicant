@@ -1,4 +1,13 @@
 ## 0.5.60 (Pending):
+* Break the project into several different jars to produce a cleaner dependency tree.
+  This avoids scenarios where inappropriate code is included in final deployment units.
+  The new packages include;
+  - replicant-shared
+  - replicant-server
+  - replicant-client-common
+  - replicant-client-ee
+  - replicant-client-gwt
+  - replicant-client-qa-support
 * Convert `ReplicantPollResource` to an abstract class `AbstractReplicantPollResource` with template
   methods desgned for overload. Remove ReplicantPollResource now that it is no longer needed. Improve
   handling of exceptions so that the last Poll when session is being disconnected will not produce

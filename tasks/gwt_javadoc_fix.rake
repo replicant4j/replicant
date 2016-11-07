@@ -4,8 +4,8 @@ module Buildr
     include Extension
     after_define(:doc) do |project|
       project.doc.classpath.
-        delete_if {|f| f.to_s =~ /.*\/com\/google\/gwt\/gwt-(user|dev)\/.*/}.
-        delete_if {|f| f.to_s =~ /.*\/com\/google\/gwt\/inject\/gin\/.*/}
+        delete_if { |f| f.to_s =~ /.*\/com\/google\/gwt\/gwt-(user|dev)\/.*/ }.
+        delete_if { |f| f.to_s =~ /.*\/com\/google\/gwt\/inject\/gin\/.*/ }
     end
   end
   class Project #:nodoc:
