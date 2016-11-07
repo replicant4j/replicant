@@ -3,6 +3,8 @@
   `TransactionSynchronizationRegistry` rather than a directly injected resource.
 * Change implementation of `AbstractReplicationInterceptor` so that it uses a template method to
   retrieve `TransactionSynchronizationRegistry` rather than a directly injected resource.
+* Update `AbstractSessionRestService` to remove `@PostConstruct` annotation and require that
+  subclasses annotate the method appropriately.
 
 ## 0.5.59:
 * Create a new WebPoller when polling starts to avoid reusing a WebPoller as pending calls may not

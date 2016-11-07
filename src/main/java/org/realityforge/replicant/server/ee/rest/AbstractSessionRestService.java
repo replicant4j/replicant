@@ -6,7 +6,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
@@ -55,6 +54,13 @@ import org.realityforge.ssf.SessionManager;
  *   {
  *     return _sessionManager;
  *   }
+ *
+ *   @Override
+ *   @PostConstruct
+ *   public void postConstruct()
+ *   {
+ *     super.postConstruct();
+ *   }
  * }
  * </pre>
  */
@@ -65,7 +71,6 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
 
   protected abstract SessionManager<T> getSessionManager();
 
-  @PostConstruct
   public void postConstruct()
   {
     final HashMap<String, Object> config = new HashMap<>();
