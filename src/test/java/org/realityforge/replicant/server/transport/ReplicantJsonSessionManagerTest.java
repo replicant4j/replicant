@@ -4,10 +4,12 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.TestSession;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantJsonSessionManagerTest
@@ -27,6 +29,13 @@ public class ReplicantJsonSessionManagerTest
   static class TestReplicantSessionManager
     extends ReplicantJsonSessionManager<TestSession>
   {
+    @Nonnull
+    @Override
+    protected TransactionSynchronizationRegistry getRegistry()
+    {
+      return mock( TransactionSynchronizationRegistry.class );
+    }
+
     @Override
     public boolean saveEntityMessages( @Nullable final String sessionID,
                                        @Nullable final String requestID,

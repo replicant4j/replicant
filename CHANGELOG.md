@@ -1,4 +1,9 @@
 ## 0.5.60 (Pending):
+* Convert `ReplicantPollResource` to an abstract class `AbstractReplicantPollResource` with template
+  methods desgned for overload. Remove ReplicantPollResource now that it is no longer needed. Improve
+  handling of exceptions so that the last Poll when session is being disconnected will not produce
+  an error in the log. Improve the code so that `ManagedScheduledExecutorService` is used rather than
+  `ScheduledExecutorService`.
 * Change implementation of `ReplicantSessionManager` so that it uses a template method to retrieve
   `TransactionSynchronizationRegistry` rather than a directly injected resource.
 * Change implementation of `AbstractReplicationInterceptor` so that it uses a template method to
