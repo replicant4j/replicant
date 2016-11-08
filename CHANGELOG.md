@@ -1,3 +1,5 @@
+## 0.5.61 (Pending):
+
 ## 0.5.60:
 * Break the project into several different jars to produce a cleaner dependency tree.
   This avoids scenarios where inappropriate code is included in final deployment units.
