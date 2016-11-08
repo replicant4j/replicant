@@ -31,6 +31,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     WebPoller _webPoller;
     _webPoller = newWebPoller();
+    _webPoller.setLogLevel( getWebPollerLogLevel() );
     _webPoller.setRequestFactory( newRequestFactory() );
     _webPoller.setInterRequestDuration( 0 );
     _webPoller.setListener( new WebPollerListenerAdapter()
@@ -50,6 +51,12 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       }
     } );
     return _webPoller;
+  }
+
+  @Nonnull
+  protected Level getWebPollerLogLevel()
+  {
+    return Level.FINEST;
   }
 
   @Nonnull

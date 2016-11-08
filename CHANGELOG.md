@@ -1,4 +1,6 @@
 ## 0.5.61 (Pending):
+* Add WebPollerDataLoaderService.getWebPollerLogLevel() template method to configure
+  log level for WebPoller.
 
 ## 0.5.60:
 * Break the project into several different jars to produce a cleaner dependency tree.
