@@ -250,7 +250,7 @@ public abstract class AbstractReplicantPollResource
   /**
    * This class is used to deliver pending data for any outstanding requests.
    */
-  final class PendingDataChecker
+  public class PendingDataChecker
     implements Runnable
   {
     private final Lock _lock = new ReentrantLock( true );
