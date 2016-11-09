@@ -172,6 +172,8 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   protected RequestBuilder newRequestBuilder( @Nonnull final RequestBuilder.Method method,
                                               @Nonnull final String url )
   {
-    return new RequestBuilder( method, url );
+    final RequestBuilder rb = new RequestBuilder( method, url );
+    rb.setHeader( "Pragma", "no-cache" );
+    return rb;
   }
 }

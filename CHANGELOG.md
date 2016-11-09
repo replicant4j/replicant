@@ -3,6 +3,7 @@
   `GwtWebPollerDataLoaderService`.
 * Introduce `GwtWebPollerDataLoaderService.newRequestBuilder()` template method for
   constructing `RequestBuilder` objects to allow subclasses to customize requests.
+* Update `GwtWebPollerDataLoaderService.newRequestBuilder()` to set "Pragma: no-cache".
 
 ## 0.5.61:
 * Add WebPollerDataLoaderService.getWebPollerLogLevel() template method to configure
