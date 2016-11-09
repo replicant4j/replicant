@@ -1,4 +1,4 @@
-## 0.5.61 (Pending):
+## 0.5.61:
 * Add WebPollerDataLoaderService.getWebPollerLogLevel() template method to configure
   log level for WebPoller.
 
