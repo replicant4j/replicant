@@ -174,6 +174,11 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   {
     final RequestBuilder rb = new RequestBuilder( method, url );
     rb.setHeader( "Pragma", "no-cache" );
+    final String authenticationToken = getSessionContext().getAuthenticationToken();
+    if ( null != authenticationToken )
+    {
+      rb.setHeader( "Authorization", "Bearer " + authenticationToken );
+    }
     return rb;
   }
 }

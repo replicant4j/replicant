@@ -3,6 +3,9 @@
   `GwtWebPollerDataLoaderService`.
 * Introduce `GwtWebPollerDataLoaderService.newRequestBuilder()` template method for
   constructing `RequestBuilder` objects to allow subclasses to customize requests.
+* Update `GwtWebPollerDataLoaderService.newRequestBuilder()` to set the "Authorization"
+  http header when creating new builder if `getSessionContext().getAuthenticationToken()`
+  is not null.
 * Update `GwtWebPollerDataLoaderService.newRequestBuilder()` to set "Pragma: no-cache".
 
 ## 0.5.61:
