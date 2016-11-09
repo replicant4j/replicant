@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
+import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -65,7 +66,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   @Override
   protected WebPoller newWebPoller()
   {
-    return WebPoller.newWebPoller();
+    return new TimerBasedWebPoller();
   }
 
   protected void setupCloseHandler()
