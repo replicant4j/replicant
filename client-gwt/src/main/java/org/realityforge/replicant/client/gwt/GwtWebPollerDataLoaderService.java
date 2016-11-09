@@ -31,7 +31,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
     @Override
     protected RequestBuilder getRequestBuilder()
     {
-      final RequestBuilder rb = new RequestBuilder( RequestBuilder.GET, getPollURL() );
+      final RequestBuilder rb = newRequestBuilder( RequestBuilder.GET, getPollURL() );
       rb.setHeader( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
       rb.setHeader( "Pragma", "no-cache" );
       final String authenticationToken = getSessionContext().getAuthenticationToken();
@@ -85,7 +85,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   @Override
   protected void doConnect( @Nullable final Runnable runnable )
   {
-    final RequestBuilder rb = new RequestBuilder( RequestBuilder.POST, getTokenURL() );
+    final RequestBuilder rb = newRequestBuilder( RequestBuilder.POST, getTokenURL() );
     try
     {
       rb.sendRequest( null, new RequestCallback()
@@ -120,7 +120,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   protected void doDisconnect( @Nonnull final T session, @Nullable final Runnable runnable )
   {
     final RequestBuilder rb =
-      new RequestBuilder( RequestBuilder.DELETE, getTokenURL() + "/" + session.getSessionID() );
+      newRequestBuilder( RequestBuilder.DELETE, getTokenURL() + "/" + session.getSessionID() );
     try
     {
       rb.sendRequest( null, new RequestCallback()
@@ -166,5 +166,12 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   protected RequestFactory newRequestFactory()
   {
     return new ReplicantRequestFactory();
+  }
+
+  @Nonnull
+  protected RequestBuilder newRequestBuilder( @Nonnull final RequestBuilder.Method method,
+                                              @Nonnull final String url )
+  {
+    return new RequestBuilder( method, url );
   }
 }

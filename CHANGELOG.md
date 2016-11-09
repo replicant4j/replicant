@@ -1,6 +1,8 @@
 ## 0.5.62 (Pending):
 * Fix bug that required that the WebPoller factory be setup prior to creating
   `GwtWebPollerDataLoaderService`.
+* Introduce `GwtWebPollerDataLoaderService.newRequestBuilder()` template method for
+  constructing `RequestBuilder` objects to allow subclasses to customize requests.
 
 ## 0.5.61:
 * Add WebPollerDataLoaderService.getWebPollerLogLevel() template method to configure
