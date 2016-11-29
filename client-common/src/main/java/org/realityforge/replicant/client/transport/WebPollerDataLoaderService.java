@@ -29,12 +29,11 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected WebPoller createWebPoller()
   {
-    WebPoller _webPoller;
-    _webPoller = newWebPoller();
-    _webPoller.setLogLevel( getWebPollerLogLevel() );
-    _webPoller.setRequestFactory( newRequestFactory() );
-    _webPoller.setInterRequestDuration( 0 );
-    _webPoller.setListener( new WebPollerListenerAdapter()
+    final WebPoller webpoller = newWebPoller();
+    webpoller.setLogLevel( getWebPollerLogLevel() );
+    webpoller.setRequestFactory( newRequestFactory() );
+    webpoller.setInterRequestDuration( 0 );
+    webpoller.setListener( new WebPollerListenerAdapter()
     {
       @Override
       public void onMessage( @Nonnull final WebPoller webPoller,
@@ -50,7 +49,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
         handleSystemFailure( exception, "Failed to poll" );
       }
     } );
-    return _webPoller;
+    return webpoller;
   }
 
   @Nonnull
