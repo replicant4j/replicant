@@ -88,7 +88,7 @@ define 'replicant' do
 
     gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
         :java_args => %w(-Xms512M -Xmx1024M -XX:PermSize=128M -XX:MaxPermSize=256M),
-        :draft_compile => 'true') unless ENV['GWT_COMPILE'] == 'no'
+        :draft_compile => 'true') unless ENV['GWT'] == 'no'
 
     package(:jar).include("#{_(:source, :main, :java)}/*")
     package(:sources)
