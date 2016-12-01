@@ -1,5 +1,7 @@
 ## 0.5.63 (Pending):
 * Introduced `ChainedAction` class to help when building chains of actions.
+* Convert the "cache action" in the `AbstractDataLoaderService` to be a `ChainedAction`
+  to allow injections of actions after cache has been injected.
 * Send messages when session is connected/disconnected.
 * Move generic connect/disconnection functionality into `AbstractDataLoaderService` from
   `WebPollerDataLoaderService`.

@@ -175,7 +175,7 @@ final class TestDataLoadService
                                           @Nullable final Object id,
                                           @Nullable final Object filterParameter,
                                           @Nullable final String eTag,
-                                          @Nullable final Runnable cacheAction,
+                                          @Nullable final ChainedAction cacheAction,
                                           @Nonnull final Runnable completionAction )
   {
   }

@@ -319,7 +319,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           completeAoiAction( userAction );
           return true;
         }
-        final Runnable cacheAction;
+        final ChainedAction cacheAction;
         final String eTag;
         if ( null != cacheKey )
         {
@@ -331,7 +331,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
             final String message =
               "Found locally cached data for graph " + label + " with etag " + eTag + ".";
             LOG.info( message );
-            cacheAction = new Runnable()
+            cacheAction = new ChainedAction( userAction )
             {
               public void run()
               {
@@ -342,7 +342,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                   @Override
                   public void run()
                   {
-                    completeAoiAction( userAction );
+                    completeAoiAction( getNext() );
                   }
                 };
                 ensureSession().enqueueOOB( content, runnable, true );
@@ -453,7 +453,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                    @Nullable Object id,
                                                    @Nullable Object filterParameter,
                                                    @Nullable String eTag,
-                                                   @Nullable Runnable cacheAction,
+                                                   @Nullable ChainedAction cacheAction,
                                                    @Nonnull Runnable completionAction );
 
   protected abstract void requestUnsubscribeFromGraph( @Nonnull G graph,

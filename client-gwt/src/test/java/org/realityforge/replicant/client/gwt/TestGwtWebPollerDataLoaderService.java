@@ -11,6 +11,7 @@ import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.CacheService;
+import org.realityforge.replicant.client.transport.ChainedAction;
 import org.realityforge.replicant.client.transport.SessionContext;
 import static org.mockito.Mockito.*;
 
@@ -113,7 +114,7 @@ final class TestGwtWebPollerDataLoaderService
                                           @Nullable final Object id,
                                           @Nullable final Object filterParameter,
                                           @Nullable final String eTag,
-                                          @Nullable final Runnable cacheAction,
+                                          @Nullable final ChainedAction cacheAction,
                                           @Nonnull final Runnable completionAction )
   {
   }
