@@ -1,4 +1,7 @@
 ## 0.5.63 (Pending):
+* Send messages when session is connected/disconnected.
+* Move generic connect/disconnection functionality into `AbstractDataLoaderService` from
+  `WebPollerDataLoaderService`.
 
 ## 0.5.62:
 * Fix bug that required that the WebPoller factory be setup prior to creating
