@@ -263,7 +263,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   protected abstract void doScheduleDataLoad();
 
-  protected abstract void progressDataLoadFailure( @Nonnull Exception e );
+  protected void progressDataLoadFailure( @Nonnull final Exception e )
+  {
+    handleSystemFailure( e, "Failed to progress data load" );
+  }
 
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {
@@ -934,6 +937,64 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                     @Nonnull Class<?> entityType,
                                                     @Nonnull Object entityID );
 
+  public void connect( @Nullable final Runnable runnable )
+  {
+    disconnect( new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        doConnect( new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            perform( runnable );
+          }
+        } );
+      }
+    } );
+  }
+
+  protected abstract void doConnect( @Nullable Runnable runnable );
+
+  protected void handleInvalidConnect( @Nullable final Throwable exception )
+  {
+    handleSystemFailure( exception, "Failed to connect session" );
+  }
+
+  public void disconnect( @Nullable final Runnable runnable )
+  {
+    final T session = getSession();
+    if ( null != session )
+    {
+      doDisconnect( session, new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          perform( runnable );
+        }
+      } );
+    }
+    else
+    {
+      perform( runnable );
+    }
+  }
+
+  protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
+
+  protected void handleInvalidDisconnect( @Nullable final Throwable exception )
+  {
+    handleSystemFailure( exception, "Failed to disconnect session" );
+  }
+
+  protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
+  {
+    LOG.log( Level.SEVERE, "System Failure: " + message, caught );
+  }
+
   /**
    * Return the graph for specified channel.
    *
@@ -1049,5 +1110,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected RequestDebugger getRequestDebugger()
   {
     return new RequestDebugger();
+  }
+
+  protected void perform( @Nullable final Runnable runnable )
+  {
+    if ( null != runnable )
+    {
+      runnable.run();
+    }
   }
 }

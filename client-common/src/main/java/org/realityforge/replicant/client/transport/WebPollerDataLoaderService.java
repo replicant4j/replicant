@@ -74,34 +74,10 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     startPolling();
   }
 
-  public void connect( @Nullable final Runnable runnable )
-  {
-    disconnect( null );
-    doConnect( runnable );
-  }
-
-  protected abstract void doConnect( @Nullable Runnable runnable );
-
-  protected void handleInvalidConnect( @Nullable final Throwable exception )
-  {
-    handleSystemFailure( exception, "Failed to generate session token" );
-  }
-
   public void disconnect( @Nullable final Runnable runnable )
   {
     stopPolling();
-    final T session = getSession();
-    if ( null != session )
-    {
-      doDisconnect( session, runnable );
-    }
-  }
-
-  protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
-
-  protected void handleInvalidDisconnect( @Nullable final Throwable exception )
-  {
-    handleSystemFailure( exception, "Failed to disconnect session" );
+    super.disconnect( runnable );
   }
 
   /**
@@ -190,17 +166,6 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       webPoller.resume();
     }
     super.onDataLoadComplete( status );
-  }
-
-  @Override
-  protected void progressDataLoadFailure( @Nonnull final Exception e )
-  {
-    handleSystemFailure( e, "Failed to progress data load" );
-  }
-
-  protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
-  {
-    LOG.log( Level.SEVERE, "System Failure: " + message, caught );
   }
 
   protected void startPolling()
