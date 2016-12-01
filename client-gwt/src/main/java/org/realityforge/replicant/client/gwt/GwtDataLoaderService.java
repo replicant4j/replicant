@@ -135,6 +135,18 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     getEventBus().fireEvent( new DataLoadCompleteEvent( status ) );
   }
 
+  @Override
+  protected void fireDisconnectEvent()
+  {
+    getEventBus().fireEvent( new DisconnectEvent() );
+  }
+
+  @Override
+  protected void fireConnectEvent()
+  {
+    getEventBus().fireEvent( new ConnectEvent() );
+  }
+
   /**
    * Return the event bus associated with the service.
    */

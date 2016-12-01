@@ -950,6 +950,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           public void run()
           {
             perform( runnable );
+            fireConnectEvent();
           }
         } );
       }
@@ -974,6 +975,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         public void run()
         {
           perform( runnable );
+          fireDisconnectEvent();
         }
       } );
     }
@@ -981,6 +983,20 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     {
       perform( runnable );
     }
+  }
+
+  /**
+   * Invoked to fire an event when disconnect has completed.
+   */
+  protected void fireDisconnectEvent()
+  {
+  }
+
+  /**
+   * Invoked to fire an event when disconnect has completed.
+   */
+  protected void fireConnectEvent()
+  {
   }
 
   protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
