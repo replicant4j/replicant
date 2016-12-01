@@ -1,4 +1,5 @@
 ## 0.5.63 (Pending):
+* Introduced `ChainedAction` class to help when building chains of actions.
 * Send messages when session is connected/disconnected.
 * Move generic connect/disconnection functionality into `AbstractDataLoaderService` from
   `WebPollerDataLoaderService`.
