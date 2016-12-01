@@ -50,6 +50,16 @@ final class TestDataLoadService
     return session;
   }
 
+  @Override
+  protected void doConnect( @Nullable final Runnable runnable )
+  {
+  }
+
+  @Override
+  protected void doDisconnect( @Nonnull final TestClientSession session, @Nullable final Runnable runnable )
+  {
+  }
+
   @Nonnull
   @Override
   protected Class<TestGraph> getGraphType()
