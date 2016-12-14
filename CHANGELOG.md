@@ -1,4 +1,5 @@
 ## 0.5.64 (Pending):
+* Introduce `SubscriptionEntry` to start explicitly representing subscriptions on the server.
 
 ## 0.5.63:
 * Introduced `ChainedAction` class to help when building chains of actions.
