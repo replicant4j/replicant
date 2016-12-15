@@ -30,7 +30,7 @@ public final class SubscriptionEntry
 
   private boolean _explicitlySubscribed;
   @Nullable
-  private JsonObject _filter;
+  private Object _filter;
 
   public SubscriptionEntry( @Nonnull final ChannelDescriptor descriptor )
   {
@@ -70,12 +70,12 @@ public final class SubscriptionEntry
    * may or may not have a
    */
   @Nullable
-  public JsonObject getFilter()
+  public Object getFilter()
   {
     return _filter;
   }
 
-  public void setFilter( @Nullable final JsonObject filter )
+  public void setFilter( @Nullable final Object filter )
   {
     _filter = filter;
   }
