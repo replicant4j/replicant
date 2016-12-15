@@ -1,4 +1,5 @@
 ## 0.5.64 (Pending):
+* Make `ChannelDescriptor` implement `Comparable` to enable sorting.
 * Introduce `SubscriptionEntry` to start explicitly representing subscriptions on the server.
 
 ## 0.5.63:

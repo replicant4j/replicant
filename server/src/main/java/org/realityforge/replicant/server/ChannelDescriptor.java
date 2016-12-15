@@ -1,9 +1,11 @@
 package org.realityforge.replicant.server;
 
 import java.io.Serializable;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ChannelDescriptor
+  implements Comparable<ChannelDescriptor>
 {
   private final int _channelID;
   @Nullable
@@ -49,6 +51,41 @@ public final class ChannelDescriptor
     int result = _channelID;
     result = 31 * result + ( _subChannelID != null ? _subChannelID.hashCode() : 0 );
     return result;
+  }
+
+  @Override
+  public int compareTo( @Nonnull final ChannelDescriptor other )
+  {
+    final int otherChannelID = other.getChannelID();
+    final int channelID = getChannelID();
+
+    final int channelDiff = ( channelID < otherChannelID ) ? -1 : ( ( channelID == otherChannelID ) ? 0 : 1 );
+    if ( 0 != channelDiff )
+    {
+      return channelDiff;
+    }
+    else
+    {
+      final Serializable otherSubChannelID = other.getSubChannelID();
+      final Serializable subChannelID = getSubChannelID();
+      if ( null == otherSubChannelID && null == subChannelID )
+      {
+        return 0;
+      }
+      else if ( null == otherSubChannelID )
+      {
+        return -1;
+      }
+      else if ( null == subChannelID )
+      {
+        return 1;
+      }
+      else
+      {
+        //noinspection unchecked
+        return ( (Comparable) subChannelID ).compareTo( (Comparable) otherSubChannelID );
+      }
+    }
   }
 
   @Override
