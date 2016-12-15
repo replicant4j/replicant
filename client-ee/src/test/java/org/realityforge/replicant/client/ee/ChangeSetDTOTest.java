@@ -93,6 +93,6 @@ public class ChangeSetDTOTest
 
   private ChangeSetDTO toChangeSet( final String content )
   {
-    return new ChangeSetDTO( JsonUtil.toJsonObject( content ) );
+    return new ChangeSetDTO( JsonTestUtil.toJsonObject( content ) );
   }
 }

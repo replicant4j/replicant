@@ -63,6 +63,6 @@ public class ChannelActionDTOTest
 
   private ChannelActionDTO toChannelAction( final String content )
   {
-    return new ChannelActionDTO( JsonUtil.toJsonObject( content ) );
+    return new ChannelActionDTO( JsonTestUtil.toJsonObject( content ) );
   }
 }

@@ -101,6 +101,6 @@ public class ChangeDTOTest
 
   private ChangeDTO toChange( final String content )
   {
-    return new ChangeDTO( JsonUtil.toJsonObject( content ) );
+    return new ChangeDTO( JsonTestUtil.toJsonObject( content ) );
   }
 }
