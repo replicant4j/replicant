@@ -7,7 +7,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 
-public final class JsonUtil
+final class JsonUtil
 {
   private static final JsonReaderFactory c_readerFactory = Json.createReaderFactory( null );
 
