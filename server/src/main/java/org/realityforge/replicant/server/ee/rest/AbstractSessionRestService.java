@@ -247,7 +247,7 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     {
       final FieldFilter subFilter = filter.subFilter( "status" );
       g.writeStartObject( "status" );
-      session.emitStatus( g, subFilter );
+      EncodingUtil.emitSubscriptions( g, session.getSubscriptions().values(), subFilter );
       g.writeEnd();
     }
     g.writeEnd();
