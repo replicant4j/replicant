@@ -12,7 +12,7 @@ public abstract class ReplicantSession
 {
   private final PacketQueue _queue = new PacketQueue();
 
-  public ReplicantSession( @javax.annotation.Nonnull final String sessionID )
+  public ReplicantSession( @Nonnull final String sessionID )
   {
     super( sessionID );
   }
