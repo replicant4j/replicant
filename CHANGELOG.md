@@ -1,4 +1,6 @@
 ## 0.5.64 (Pending):
+* Introduce `JsonUtil` as a helper to convert strings and structured types to `JsonObject`
+  instances.
 * Make `ChannelDescriptor` implement `Comparable` to enable sorting.
 * Introduce `SubscriptionEntry` to start explicitly representing subscriptions on the server.
 
