@@ -1,5 +1,9 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -95,5 +99,26 @@ public class SubscriptionEntryTest
     assertEquals( entry.getOutwardSubscriptions().contains( cd3 ), false );
     assertEquals( entry.getOutwardSubscriptions().contains( cd4 ), true );
     assertEquals( entry.getOutwardSubscriptions().contains( cd5 ), false );
+  }
+
+  @Test
+  public void sorting()
+  {
+    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, "X" );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( 1, "Y" );
+    final ChannelDescriptor cd4 = new ChannelDescriptor( 2, null );
+    final ChannelDescriptor cd5 = new ChannelDescriptor( 3, null );
+
+    final SubscriptionEntry entry1 = new SubscriptionEntry( cd1 );
+    final SubscriptionEntry entry3 = new SubscriptionEntry( cd3 );
+    final SubscriptionEntry entry4 = new SubscriptionEntry( cd4 );
+    final SubscriptionEntry entry5 = new SubscriptionEntry( cd5 );
+
+    final List<SubscriptionEntry> list = new ArrayList<>( Arrays.asList( entry5, entry4, entry3, entry1 ) );
+
+    Collections.sort( list );
+
+    final SubscriptionEntry[] expected = { entry1, entry3, entry4, entry5 };
+    assertEquals( list.toArray( new SubscriptionEntry[ 0 ] ), expected );
   }
 }

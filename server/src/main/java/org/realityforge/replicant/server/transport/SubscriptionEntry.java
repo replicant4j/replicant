@@ -14,6 +14,7 @@ import org.realityforge.replicant.server.ChannelDescriptor;
  * all the dependency relationships to other graphs.
  */
 public final class SubscriptionEntry
+  implements Comparable<SubscriptionEntry>
 {
   private final ChannelDescriptor _descriptor;
   /**
@@ -166,5 +167,11 @@ public final class SubscriptionEntry
       }
     }
     return results.toArray( new ChannelDescriptor[ results.size() ] );
+  }
+
+  @Override
+  public int compareTo( final SubscriptionEntry o )
+  {
+    return getDescriptor().compareTo( o.getDescriptor() );
   }
 }
