@@ -31,5 +31,4 @@ public abstract class ReplicantSession
    * @param g      the json generator in which to serialize details.
    * @param filter the filter to use when determining which details to emit.
    */
-  public abstract void emitStatus( @Nonnull final JsonGenerator g, @Nonnull FieldFilter filter );
 }
