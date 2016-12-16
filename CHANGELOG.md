@@ -4,7 +4,8 @@
 * Introduce `JsonUtil` as a helper to convert strings and structured types to `JsonObject`
   instances.
 * Make `ChannelDescriptor` implement `Comparable` to enable sorting.
-* Introduce `SubscriptionEntry` to start explicitly representing subscriptions on the server.
+* Introduce `SubscriptionEntry` to start explicitly representing subscriptions and
+  make it accessible via `ReplicantSession`.
 
 ## 0.5.63:
 * Introduced `ChainedAction` class to help when building chains of actions.
