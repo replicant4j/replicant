@@ -70,7 +70,7 @@ public final class MessageTestUtil
       links = null;
     }
 
-    return new EntityMessage( new ChannelDescriptor( typeID, id ), timestamp, routingKeys, attributeValues, links );
+    return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues, links );
   }
 
   public static void assertAttributeValue( final EntityMessage message,
