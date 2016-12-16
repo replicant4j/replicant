@@ -113,8 +113,7 @@ public class EntityMessageSetTest
   public void isMessagePresent()
   {
     final EntityMessage message =
-      new EntityMessage( "a",
-                         42,
+      new EntityMessage( new ChannelDescriptor( 42, "a" ),
                          0,
                          new HashMap<String, Serializable>(),
                          new HashMap<String, Serializable>(),

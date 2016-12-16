@@ -1,4 +1,5 @@
 ## 0.5.64 (Pending):
+* Update `EntityMessage` class to take a `ChannelDescriptor` parameter in the constructor.
 * Add `ChannelMetaData` class that represents characteristics of each channel.
 * Add `ChangeUtil.toChanges` method that directly accepts `ChannelDescriptor`.
 * Move the conversion of sessions to json for rest service from ReplicantSession to EncoderUtil

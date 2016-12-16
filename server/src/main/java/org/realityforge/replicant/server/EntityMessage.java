@@ -10,37 +10,41 @@ import javax.annotation.Nullable;
 
 public final class EntityMessage
 {
-  private final Serializable _id;
-  private final int _typeID;
+  private final ChannelDescriptor _channel;
   private final Map<String, Serializable> _routingKeys;
   private Set<ChannelLink> _links;
   private Map<String, Serializable> _attributeValues;
   private long _timestamp;
 
-  public EntityMessage( @Nonnull final Serializable id,
-                        final int typeID,
+  public EntityMessage( @Nonnull final ChannelDescriptor channel,
                         final long timestamp,
                         @Nonnull final Map<String, Serializable> routingKeys,
                         @Nullable final Map<String, Serializable> attributeValues,
                         @Nullable final Set<ChannelLink> links )
   {
-    _id = id;
-    _typeID = typeID;
+    _channel = channel;
     _timestamp = timestamp;
     _routingKeys = routingKeys;
     _attributeValues = attributeValues;
     _links = links;
   }
 
+  public ChannelDescriptor getChannel()
+  {
+    return _channel;
+  }
+
   public int getTypeID()
   {
-    return _typeID;
+    return getChannel().getChannelID();
   }
 
   @Nonnull
   public Serializable getID()
   {
-    return _id;
+    final Serializable subChannelID = getChannel().getSubChannelID();
+    assert null != subChannelID;
+    return subChannelID;
   }
 
   public long getTimestamp()
@@ -80,8 +84,7 @@ public final class EntityMessage
   public EntityMessage duplicate()
   {
     final EntityMessage message =
-      new EntityMessage( getID(),
-                         getTypeID(),
+      new EntityMessage( getChannel(),
                          getTimestamp(),
                          new HashMap<String, Serializable>(),
                          new HashMap<String, Serializable>(),

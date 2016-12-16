@@ -162,7 +162,8 @@ public final class JsonEncoderTest
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
     final HashMap<String, Serializable> attributeData = new HashMap<>();
     attributeData.put( "X", 1392061102056L );
-    final EntityMessage message = new EntityMessage( id, typeID, 0, routingKeys, attributeData, null );
+    final EntityMessage message =
+      new EntityMessage( new ChannelDescriptor( typeID, id ), 0, routingKeys, attributeData, null );
     final ChangeSet cs = new ChangeSet();
     cs.merge( new Change( message ) );
 
