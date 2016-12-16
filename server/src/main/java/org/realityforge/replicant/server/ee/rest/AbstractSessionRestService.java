@@ -2,6 +2,9 @@ package org.realityforge.replicant.server.ee.rest;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Set;
@@ -24,9 +27,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
+import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.rest.field_filter.FieldFilter;
 import org.realityforge.ssf.SessionInfo;
@@ -247,7 +253,7 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     {
       final FieldFilter subFilter = filter.subFilter( "status" );
       g.writeStartObject( "status" );
-      EncodingUtil.emitSubscriptions( g, session.getSubscriptions().values(), subFilter );
+      emitSubscriptions( g, session.getSubscriptions().values(), subFilter );
       g.writeEnd();
     }
     g.writeEnd();
@@ -264,5 +270,125 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     final GregorianCalendar calendar = new GregorianCalendar();
     calendar.setTimeInMillis( timeInMillis );
     return _datatypeFactory.newXMLGregorianCalendar( calendar ).toXMLFormat();
+  }
+
+
+  private void emitSubscriptions( @Nonnull final JsonGenerator g,
+                                  @Nonnull final Collection<SubscriptionEntry> subscriptionEntries,
+                                  @Nonnull final FieldFilter filter )
+  {
+    if ( filter.allow( "subscriptions" ) )
+    {
+      g.writeStartArray( "subscriptions" );
+      final FieldFilter subFilter = filter.subFilter( "subscriptions" );
+
+      final ArrayList<SubscriptionEntry> subscriptions = new ArrayList<>( subscriptionEntries );
+      Collections.sort( subscriptions );
+
+      for ( final SubscriptionEntry subscription : subscriptions )
+      {
+        emitSubscriptionEntry( g, subscription, subFilter );
+      }
+      g.writeEnd();
+    }
+  }
+
+  private void emitChannelID( @Nonnull final JsonGenerator g,
+                              @Nonnull final FieldFilter filter,
+                              final int channelID )
+  {
+    if ( filter.allow( "channelID" ) )
+    {
+      g.write( "channelID", channelID );
+    }
+  }
+
+  private void emitSubChannelID( @Nonnull final JsonGenerator g,
+                                 @Nonnull final FieldFilter filter,
+                                 final Serializable subChannelID )
+  {
+    if ( null != subChannelID && filter.allow( "instanceID" ) )
+    {
+      if ( subChannelID instanceof Integer )
+      {
+        g.write( "instanceID", (Integer) subChannelID );
+      }
+      else
+      {
+        g.write( "instanceID", String.valueOf( subChannelID ) );
+      }
+    }
+  }
+
+  private void emitChannelDescriptors( @Nonnull final JsonGenerator g,
+                                       @Nonnull final Set<ChannelDescriptor> descriptors,
+                                       @Nonnull final FieldFilter filter )
+  {
+    for ( final ChannelDescriptor descriptor : descriptors )
+    {
+      g.writeStartObject();
+      emitChannelDescriptor( g, filter, descriptor );
+      g.writeEnd();
+    }
+  }
+
+  private void emitSubscriptionEntry( @Nonnull final JsonGenerator g,
+                                      @Nonnull final SubscriptionEntry entry,
+                                      @Nonnull final FieldFilter filter )
+  {
+    if ( filter.allow( "subscription" ) )
+    {
+      final FieldFilter subFilter = filter.subFilter( "subscription" );
+      g.writeStartObject();
+      emitChannelDescriptor( g, subFilter, entry.getDescriptor() );
+      if ( subFilter.allow( "explicitlySubscribed" ) )
+      {
+        g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
+      }
+      if ( channelMetaData.getFilterType() != ChannelMetaData.FilterType.NONE && subFilter.allow( "filter" ) )
+      {
+        final Object f = entry.getFilter();
+        if ( null == f )
+        {
+          g.writeNull( "filter" );
+        }
+        else
+        {
+          g.write( "filter", JsonUtil.toJsonObject( f ) );
+        }
+      }
+
+      emitChannelDescriptors( g,
+                              "inwardSubscriptions",
+                              entry.getInwardSubscriptions(),
+                              subFilter );
+      emitChannelDescriptors( g,
+                              "outwardSubscriptions",
+                              entry.getOutwardSubscriptions(),
+                              subFilter );
+      g.writeEnd();
+    }
+  }
+
+  private void emitChannelDescriptor( @Nonnull final JsonGenerator g,
+                                      @Nonnull final FieldFilter filter,
+                                      @Nonnull final ChannelDescriptor descriptor )
+  {
+    emitChannelID( g, filter, descriptor.getChannelID() );
+    emitSubChannelID( g, filter, descriptor.getSubChannelID() );
+  }
+
+  private void emitChannelDescriptors( @Nonnull final JsonGenerator g,
+                                       @Nonnull final String key,
+                                       @Nonnull final Set<ChannelDescriptor> descriptors,
+                                       @Nonnull final FieldFilter filter )
+  {
+    if ( !descriptors.isEmpty() && filter.allow( key ) )
+    {
+      final FieldFilter subFilter = filter.subFilter( key );
+      g.writeStartArray( key );
+      emitChannelDescriptors( g, descriptors, subFilter );
+      g.writeEnd();
+    }
   }
 }
