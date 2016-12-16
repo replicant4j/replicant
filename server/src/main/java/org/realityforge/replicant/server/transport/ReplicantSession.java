@@ -3,12 +3,13 @@ package org.realityforge.replicant.server.transport;
 import javax.annotation.Nonnull;
 import javax.json.stream.JsonGenerator;
 import org.realityforge.rest.field_filter.FieldFilter;
+import org.realityforge.ssf.SimpleSessionInfo;
 
 /**
  * Base class for sessions within replicant.
  */
 public abstract class ReplicantSession
-  extends org.realityforge.ssf.SimpleSessionInfo
+  extends SimpleSessionInfo
 {
   private final PacketQueue _queue = new PacketQueue();
 
