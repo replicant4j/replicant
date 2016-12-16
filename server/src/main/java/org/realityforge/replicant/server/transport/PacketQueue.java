@@ -101,7 +101,7 @@ public class PacketQueue
    *
    * @param sequence the sequence
    */
-  final void removePacketsLessThanOrEqual( final int sequence )
+  private void removePacketsLessThanOrEqual( final int sequence )
   {
     final Iterator<Packet> iterator = _packets.iterator();
     while ( iterator.hasNext() )
