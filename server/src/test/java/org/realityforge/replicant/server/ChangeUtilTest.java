@@ -16,7 +16,8 @@ public class ChangeUtilTest
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
 
-    final List<Change> changes = ChangeUtil.toChanges( Arrays.asList( message1, message2 ), 1, "B" );
+    final List<Change> changes =
+      ChangeUtil.toChanges( Arrays.asList( message1, message2 ), new ChannelDescriptor( 1, "B" ) );
 
     assertEquals( changes.size(), 2 );
 

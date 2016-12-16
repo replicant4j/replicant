@@ -15,6 +15,13 @@ public final class ChangeUtil
 
   @Nonnull
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
+                                        @Nonnull final ChannelDescriptor descriptor )
+  {
+    return toChanges( messages, descriptor.getChannelID(), descriptor.getSubChannelID() );
+  }
+
+  @Nonnull
+  public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
                                         final int channelID,
                                         @Nullable final Serializable subChannelID )
   {

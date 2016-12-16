@@ -1,4 +1,5 @@
 ## 0.5.64 (Pending):
+* Add `ChangeUtil.toChanges` method that directly accepts `ChannelDescriptor`.
 * Move the conversion of sessions to json for rest service from ReplicantSession to EncoderUtil
   class in same package as AbstractSessionRestService.
 * Introduce `JsonUtil` as a helper to convert strings and structured types to `JsonObject`
