@@ -15,14 +15,6 @@ public final class ChannelLink
   public ChannelLink( @Nonnull final ChannelDescriptor sourceChannel,
                       @Nonnull final ChannelDescriptor targetChannel )
   {
-    if ( null == sourceChannel.getSubChannelID() )
-    {
-      throw new IllegalArgumentException( "Channel Link source sub-channel id should not be null" );
-    }
-    if ( null == targetChannel.getSubChannelID() )
-    {
-      throw new IllegalArgumentException( "Channel Link target sub-channel id should not be null" );
-    }
     _sourceChannel = sourceChannel;
     _targetChannel = targetChannel;
   }
