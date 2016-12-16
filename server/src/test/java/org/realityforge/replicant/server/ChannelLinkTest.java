@@ -14,16 +14,4 @@ public class ChannelLinkTest
     assertEquals( link.getTargetChannel().getChannelID(), 1 );
     assertEquals( link.getTargetChannel().getSubChannelID(), "2" );
   }
-
-  @Test( expectedExceptions = IllegalArgumentException.class )
-  public void badTargetDescriptor()
-  {
-    new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, null ) );
-  }
-
-  @Test( expectedExceptions = IllegalArgumentException.class )
-  public void badSourceDescriptor()
-  {
-    new ChannelLink( new ChannelDescriptor( 22, null ), new ChannelDescriptor( 1, "2" ) );
-  }
 }
