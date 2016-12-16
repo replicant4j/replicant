@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 public final class ChannelMetaData
 {
-  enum FilterType
+  public enum FilterType
   {
     NONE, STATIC, DYNAMIC
   }
