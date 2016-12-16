@@ -1,8 +1,6 @@
 ## 0.5.64 (Pending):
 * Add `ChannelMetaData` class that represents characteristics of each channel.
 * Add `ChangeUtil.toChanges` method that directly accepts `ChannelDescriptor`.
-* Move the conversion of sessions to json for rest service from ReplicantSession to EncoderUtil
-  class in same package as AbstractSessionRestService.
 * Introduce `JsonUtil` as a helper to convert strings and structured types to `JsonObject`
   instances.
 * Make `ChannelDescriptor` implement `Comparable` to enable sorting.
