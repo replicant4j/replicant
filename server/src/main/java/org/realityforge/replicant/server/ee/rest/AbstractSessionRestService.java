@@ -171,10 +171,10 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     return builder.entity( writer.toString() ).build();
   }
 
-  void emitSession( @Nonnull final ReplicantSession session,
-                    @Nonnull final JsonGenerator g,
-                    @Nonnull final FieldFilter filter,
-                    @Nonnull final UriInfo uri )
+  private void emitSession( @Nonnull final ReplicantSession session,
+                            @Nonnull final JsonGenerator g,
+                            @Nonnull final FieldFilter filter,
+                            @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
     if ( filter.allow( "id" ) )
