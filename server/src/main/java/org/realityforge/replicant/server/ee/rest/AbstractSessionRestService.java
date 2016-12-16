@@ -127,7 +127,7 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     g.writeStartArray();
     for ( final String sessionID : sessionIDs )
     {
-      final ReplicantSession session = (ReplicantSession) getSessionManager().getSession( sessionID );
+      final ReplicantSession session = getSessionManager().getSession( sessionID );
       if ( null != session )
       {
         emitSession( session, g, filter, uri );
