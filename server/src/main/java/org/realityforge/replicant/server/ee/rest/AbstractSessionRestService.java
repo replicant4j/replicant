@@ -32,11 +32,11 @@ import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
+import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.rest.field_filter.FieldFilter;
 import org.realityforge.ssf.SessionInfo;
-import org.realityforge.ssf.SessionManager;
 
 /**
  * The session management rest resource.
@@ -50,13 +50,13 @@ import org.realityforge.ssf.SessionManager;
  * @Produces( MediaType.APPLICATION_JSON )
  * @ApplicationScoped
  * public class CalendarSessionRestService
- *   extends AbstractSessionRestService
+ *   extends AbstractSessionRestService<MySession>
  * {
  *   @Inject
- *   private SessionManager<MySession> _sessionManager;
+ *   private MySessionManager<MySession> _sessionManager;
  *
  *   @Override
- *   protected SessionManager getSessionManager()
+ *   protected ReplicantSessionManager getSessionManager()
  *   {
  *     return _sessionManager;
  *   }
@@ -75,7 +75,7 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
   private DatatypeFactory _datatypeFactory;
   private JsonGeneratorFactory _factory;
 
-  protected abstract SessionManager<T> getSessionManager();
+  protected abstract ReplicantSessionManager<T> getSessionManager();
 
   public void postConstruct()
   {

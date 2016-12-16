@@ -1,4 +1,5 @@
 ## 0.5.64 (Pending):
+* Split `ReplicantSessionManager` into an interface and an implementation.
 * Add `ChannelMetaData` class that represents characteristics of each channel.
 * Add `ChangeUtil.toChanges` method that directly accepts `ChannelDescriptor`.
 * Introduce `JsonUtil` as a helper to convert strings and structured types to `JsonObject`
