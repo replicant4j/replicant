@@ -29,6 +29,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.ee.JsonUtil;
+import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
@@ -340,6 +341,11 @@ public abstract class AbstractSessionRestService<T extends ReplicantSession>
     {
       final FieldFilter subFilter = filter.subFilter( "subscription" );
       g.writeStartObject();
+      final ChannelMetaData channelMetaData = getSessionManager().getChannelMetaData( entry.getDescriptor() );
+      if ( subFilter.allow( "name" ) )
+      {
+        g.write( "name", channelMetaData.getName() );
+      }
       emitChannelDescriptor( g, subFilter, entry.getDescriptor() );
       if ( subFilter.allow( "explicitlySubscribed" ) )
       {
