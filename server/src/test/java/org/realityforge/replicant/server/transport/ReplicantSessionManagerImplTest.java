@@ -59,7 +59,7 @@ public class ReplicantSessionManagerImplTest
   }
 
   static class TestReplicantSessionManager
-    extends ReplicantSessionManagerImpl<ReplicantSession>
+    extends ReplicantSessionManagerImpl
   {
     private final TestTransactionSynchronizationRegistry _registry = new TestTransactionSynchronizationRegistry();
 
@@ -119,13 +119,6 @@ public class ReplicantSessionManagerImplTest
     protected TransactionSynchronizationRegistry getRegistry()
     {
       return _registry;
-    }
-
-    @Nonnull
-    @Override
-    protected ReplicantSession newSessionInfo()
-    {
-      return new ReplicantSession( UUID.randomUUID().toString() );
     }
   }
 }

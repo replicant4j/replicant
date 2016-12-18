@@ -51,10 +51,10 @@ import org.realityforge.ssf.SessionInfo;
  * @Produces( MediaType.APPLICATION_JSON )
  * @ApplicationScoped
  * public class CalendarSessionRestService
- *   extends AbstractSessionRestService<MySession>
+ *   extends AbstractSessionRestService
  * {
  *   @Inject
- *   private MySessionManager<MySession> _sessionManager;
+ *   private MySessionManager _sessionManager;
  *
  *   @Override
  *   protected ReplicantSessionManager getSessionManager()
@@ -71,12 +71,12 @@ import org.realityforge.ssf.SessionInfo;
  * }
  * </pre>
  */
-public abstract class AbstractSessionRestService<T extends ReplicantSession>
+public abstract class AbstractSessionRestService
 {
   private DatatypeFactory _datatypeFactory;
   private JsonGeneratorFactory _factory;
 
-  protected abstract ReplicantSessionManager<T> getSessionManager();
+  protected abstract ReplicantSessionManager getSessionManager();
 
   public void postConstruct()
   {

@@ -1,7 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
 import java.util.Collection;
-import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
@@ -28,7 +27,7 @@ public class ReplicantJsonSessionManagerImplTest
   }
 
   static class TestReplicantSessionManagerImpl
-    extends ReplicantJsonSessionManagerImpl<ReplicantSession>
+    extends ReplicantJsonSessionManagerImpl
   {
     @Nonnull
     @Override
@@ -86,13 +85,6 @@ public class ReplicantJsonSessionManagerImplTest
     protected TransactionSynchronizationRegistry getRegistry()
     {
       return mock( TransactionSynchronizationRegistry.class );
-    }
-
-    @Nonnull
-    @Override
-    protected ReplicantSession newSessionInfo()
-    {
-      return new ReplicantSession( UUID.randomUUID().toString() );
     }
   }
 }
