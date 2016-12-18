@@ -43,8 +43,8 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "MetaData", ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );

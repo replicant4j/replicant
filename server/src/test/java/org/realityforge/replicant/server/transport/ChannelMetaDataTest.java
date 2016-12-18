@@ -8,9 +8,11 @@ public class ChannelMetaDataTest
   @Test
   public void basicOperation()
   {
-    final ChannelMetaData metaData = new ChannelMetaData( 1, "MetaData", ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData metaData = new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE );
     assertEquals( metaData.getChannelID(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
+    assertEquals( metaData.isTypeGraph(), true );
+    assertEquals( metaData.isInstanceGraph(), false );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
   }
 }
