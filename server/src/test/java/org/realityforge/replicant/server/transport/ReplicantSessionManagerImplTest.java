@@ -51,82 +51,81 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry se3b = session.createSubscriptionEntry( cd3b );
     final SubscriptionEntry se4a = session.createSubscriptionEntry( cd4a );
 
-    final String filter = "SomeRandomFilter";
-    se1.setFilter( filter );
-
-    assertEntry( se1, 0, 0, filter );
-    assertEntry( se2a, 0, 0, null );
-    assertEntry( se2b, 0, 0, null );
-    assertEntry( se3a, 0, 0, null );
-    assertEntry( se3b, 0, 0, null );
-    assertEntry( se4a, 0, 0, null );
+    assertEntry( se1, false, 0, 0, null );
+    assertEntry( se2a, false, 0, 0, null );
+    assertEntry( se2b, false, 0, 0, null );
+    assertEntry( se3a, false, 0, 0, null );
+    assertEntry( se3b, false, 0, 0, null );
+    assertEntry( se4a, false, 0, 0, null );
 
     // Link channels where target is unfiltered instance channel
     sm.linkSubscriptionEntries( session, cd1, cd2a );
 
-    assertEntry( se1, 0, 1, filter );
-    assertEntry( se2a, 1, 0, null );
-    assertEntry( se2b, 0, 0, null );
-    assertEntry( se3a, 0, 0, null );
-    assertEntry( se3b, 0, 0, null );
-    assertEntry( se4a, 0, 0, null );
+    assertEntry( se1, false, 0, 1, null );
+    assertEntry( se2a, false, 1, 0, null );
+    assertEntry( se2b, false, 0, 0, null );
+    assertEntry( se3a, false, 0, 0, null );
+    assertEntry( se3b, false, 0, 0, null );
+    assertEntry( se4a, false, 0, 0, null );
     assertTrue( se1.getOutwardSubscriptions().contains( cd2a ) );
     assertTrue( se2a.getInwardSubscriptions().contains( cd1 ) );
 
     // Link channels where target has DYNAMIC filter
     sm.linkSubscriptionEntries( session, cd1, cd3a );
 
-    assertEntry( se1, 0, 2, filter );
-    assertEntry( se2a, 1, 0, null );
-    assertEntry( se2b, 0, 0, null );
-    assertEntry( se3a, 1, 0, filter );
-    assertEntry( se3b, 0, 0, null );
-    assertEntry( se4a, 0, 0, null );
+    assertEntry( se1, false, 0, 2, null );
+    assertEntry( se2a, false, 1, 0, null );
+    assertEntry( se2b, false, 0, 0, null );
+    assertEntry( se3a, false, 1, 0, null );
+    assertEntry( se3b, false, 0, 0, null );
+    assertEntry( se4a, false, 0, 0, null );
     assertTrue( se1.getOutwardSubscriptions().contains( cd3a ) );
     assertTrue( se3a.getInwardSubscriptions().contains( cd1 ) );
 
     //Duplicate link - no change
     sm.linkSubscriptionEntries( session, cd1, cd3a );
 
-    assertEntry( se1, 0, 2, filter );
-    assertEntry( se2a, 1, 0, null );
-    assertEntry( se2b, 0, 0, null );
-    assertEntry( se3a, 1, 0, filter );
-    assertEntry( se3b, 0, 0, null );
-    assertEntry( se4a, 0, 0, null );
+    assertEntry( se1, false, 0, 2, null );
+    assertEntry( se2a, false, 1, 0, null );
+    assertEntry( se2b, false, 0, 0, null );
+    assertEntry( se3a, false, 1, 0, null );
+    assertEntry( se3b, false, 0, 0, null );
+    assertEntry( se4a, false, 0, 0, null );
     assertTrue( se1.getOutwardSubscriptions().contains( cd3a ) );
     assertTrue( se3a.getInwardSubscriptions().contains( cd1 ) );
 
     // Link channels where target has STATIC filter
     sm.linkSubscriptionEntries( session, cd1, cd4a );
 
-    assertEntry( se1, 0, 3, filter );
-    assertEntry( se2a, 1, 0, null );
-    assertEntry( se2b, 0, 0, null );
-    assertEntry( se3a, 1, 0, filter );
-    assertEntry( se3b, 0, 0, null );
-    assertEntry( se4a, 1, 0, filter );
+    assertEntry( se1, false, 0, 3, null );
+    assertEntry( se2a, false, 1, 0, null );
+    assertEntry( se2b, false, 0, 0, null );
+    assertEntry( se3a, false, 1, 0, null );
+    assertEntry( se3b, false, 0, 0, null );
+    assertEntry( se4a, false, 1, 0, null );
     assertTrue( se1.getOutwardSubscriptions().contains( cd4a ) );
     assertTrue( se4a.getInwardSubscriptions().contains( cd1 ) );
 
     // More links to ensure both in and out links align
     sm.linkSubscriptionEntries( session, cd3a, cd4a );
 
-    assertEntry( se1, 0, 3, filter );
-    assertEntry( se2a, 1, 0, null );
-    assertEntry( se2b, 0, 0, null );
-    assertEntry( se3a, 1, 1, filter );
-    assertEntry( se3b, 0, 0, null );
-    assertEntry( se4a, 2, 0, filter );
+    assertEntry( se1, false, 0, 3, null );
+    assertEntry( se2a, false, 1, 0, null );
+    assertEntry( se2b, false, 0, 0, null );
+    assertEntry( se3a, false, 1, 1, null );
+    assertEntry( se3b, false, 0, 0, null );
+    assertEntry( se4a, false, 2, 0, null );
     assertTrue( se3a.getOutwardSubscriptions().contains( cd4a ) );
     assertTrue( se4a.getInwardSubscriptions().contains( cd3a ) );
   }
 
   private void assertEntry( @Nonnull final SubscriptionEntry entry,
+                            final boolean explicitlySubscribed,
                             final int inwardCount,
                             final int outwardCount,
                             @Nullable final Object filter )
   {
+    assertEquals( entry.isExplicitlySubscribed(), explicitlySubscribed );
     assertEquals( entry.getInwardSubscriptions().size(), inwardCount );
     assertEquals( entry.getOutwardSubscriptions().size(), outwardCount );
     assertEquals( entry.getFilter(), filter );

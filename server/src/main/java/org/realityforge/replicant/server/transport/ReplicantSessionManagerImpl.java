@@ -107,20 +107,17 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
+
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
-   * This will also copy the filter from the source grap to the target graph. Note: This is dangerous if
-   * multiple graphs have target graph as auto-link and both can be subscribed simulatenously.
    */
   protected void linkSubscriptionEntries( @Nonnull final ReplicantSession session,
                                           @Nonnull final ChannelDescriptor source,
                                           @Nonnull final ChannelDescriptor target )
   {
-    final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( source );
-    final SubscriptionEntry targetEntry = session.getSubscriptionEntry( target );
+    session.getSubscriptionEntry( source ).registerOutwardSubscriptions( target );
+    session.getSubscriptionEntry( target ).registerInwardSubscriptions( source );
 
-    sourceEntry.registerOutwardSubscriptions( target );
-    targetEntry.registerInwardSubscriptions( source );
 
     if ( getChannelMetaData( target ).getFilterType() != ChannelMetaData.FilterType.NONE )
     {
