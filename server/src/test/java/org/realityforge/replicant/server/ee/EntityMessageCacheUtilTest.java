@@ -15,7 +15,7 @@ public class EntityMessageCacheUtilTest
   public void setup()
     throws Exception
   {
-    TestTransactionSynchronizationRegistry.bind();
+    RegistryUtil.bind();
   }
 
   @AfterMethod
