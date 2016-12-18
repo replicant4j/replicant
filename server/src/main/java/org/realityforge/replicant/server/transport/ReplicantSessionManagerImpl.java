@@ -27,7 +27,9 @@ public abstract class ReplicantSessionManagerImpl
    * @param changeSet the messages to be sent along to the client.
    * @return the packet created.
    */
-  protected Packet sendPacket( final ReplicantSession session, @Nullable final String etag, @Nonnull final ChangeSet changeSet )
+  protected Packet sendPacket( @Nonnull final ReplicantSession session,
+                               @Nullable final String etag,
+                               @Nonnull final ChangeSet changeSet )
   {
     final String requestID = (String) getRegistry().getResource( ReplicantContext.REQUEST_ID_KEY );
     getRegistry().putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE );
