@@ -5,9 +5,13 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
+import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
+import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
+import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
+import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.ssf.InMemorySessionManager;
 
@@ -107,6 +111,23 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
+
+  protected void performSubscribe( @Nonnull final ReplicantSession session,
+                                   @Nonnull final SubscriptionEntry entry,
+                                   final boolean explicitSubscribe,
+                                   @Nullable final Object filter )
+  {
+    if ( explicitSubscribe )
+    {
+      entry.setExplicitlySubscribed( true );
+    }
+    entry.setFilter( filter );
+    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+    collectDataForSubscribe( session, entry.getDescriptor(), changeSet, filter );
+    changeSet.addAction( new ChannelAction( entry.getDescriptor(),
+                                            ChannelAction.Action.ADD,
+                                            null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
+  }
 
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.

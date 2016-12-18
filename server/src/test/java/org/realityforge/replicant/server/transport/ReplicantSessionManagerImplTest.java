@@ -1,27 +1,129 @@
 package org.realityforge.replicant.server.transport;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.AssertUtil;
+import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.guiceyloops.server.TestTransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
+import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
+import org.realityforge.replicant.server.ee.RegistryUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ReplicantSessionManagerImplTest
 {
+  @AfterMethod
+  public void clearContext()
+  {
+    TestInitialContextFactory.reset();
+  }
+
   @Test
   public void ensureCdiType()
   {
     AssertUtil.assertNoFinalMethodsForCDI( ReplicantSessionManagerImpl.class );
     AssertUtil.assertNoFinalMethodsForCDI( ReplicantJsonSessionManagerImpl.class );
+  }
+
+  @Test
+  public void performSubscribe()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "MetaData", ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch2.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    {
+      final TestFilter filter = new TestFilter( 42 );
+
+      RegistryUtil.bind();
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+
+      assertEquals( changeSet.getChannelActions().size(), 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      sm.performSubscribe( session, e1, true, filter );
+
+      assertEntry( e1, true, 0, 0, filter );
+
+      final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+      assertEquals( actions.size(), 1 );
+      assertChannelAction( actions.get( 0 ), cd1, ChannelAction.Action.ADD, "{\"myField\":42}" );
+
+      // 1 Change comes from collectDataForSubscribe
+      final Collection<Change> changes = changeSet.getChanges();
+      assertEquals( changes.size(), 1 );
+      assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
+
+      assertEntry( e1, true, 0, 0, filter );
+
+      session.deleteSubscriptionEntry( e1 );
+    }
+
+    // Test with no filter
+    {
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd2 );
+      //Rebind clears the state
+      RegistryUtil.bind();
+      final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+
+      assertEquals( changeSet.getChannelActions().size(), 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      sm.performSubscribe( session, e1, true, null );
+
+      assertEntry( e1, true, 0, 0, null );
+
+      final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+      assertEquals( actions.size(), 1 );
+      assertChannelAction( actions.get( 0 ), cd2, ChannelAction.Action.ADD, null );
+
+      // 1 Change comes from collectDataForSubscribe
+      final Collection<Change> changes = changeSet.getChanges();
+      assertEquals( changes.size(), 1 );
+      assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
+
+      assertEntry( e1, true, 0, 0, null );
+    }
+  }
+
+  private void assertChannelAction( @Nonnull final ChannelAction channelAction,
+                                    @Nonnull final ChannelDescriptor channelDescriptor,
+                                    @Nonnull final ChannelAction.Action action,
+                                    @Nullable final String filterAsString )
+  {
+    assertEquals( channelAction.getAction(), action );
+    assertEquals( channelAction.getChannelDescriptor(), channelDescriptor );
+    if ( null == filterAsString )
+    {
+      assertNull( channelAction.getFilter() );
+    }
+    else
+    {
+      assertNotNull( channelAction.getFilter() );
+      assertEquals( channelAction.getFilter().toString(), filterAsString );
+    }
   }
 
   @Test
@@ -247,6 +349,11 @@ public class ReplicantSessionManagerImplTest
                                             @Nonnull final ChangeSet changeSet,
                                             @Nullable final Object filter )
     {
+      final HashMap<String, Serializable> routingKeys = new HashMap<>();
+      final HashMap<String, Serializable> attributes = new HashMap<>();
+      attributes.put( "ID", 79 );
+      final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
+      changeSet.merge( new Change( message, descriptor.getChannelID(), descriptor.getSubChannelID() ) );
     }
 
     @Override
