@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.AssertUtil;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelDescriptor;
@@ -21,6 +22,114 @@ public class ReplicantSessionManagerImplTest
   {
     AssertUtil.assertNoFinalMethodsForCDI( ReplicantSessionManagerImpl.class );
     AssertUtil.assertNoFinalMethodsForCDI( ReplicantJsonSessionManagerImpl.class );
+  }
+
+  @Test
+  public void linkSubscriptionEntries()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch3 = new ChannelMetaData( 2, "Shift", ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch4 = new ChannelMetaData( 3, "Plans", ChannelMetaData.FilterType.STATIC );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3, ch4 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2a = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2b = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3a = new ChannelDescriptor( ch3.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3b = new ChannelDescriptor( ch3.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd4a = new ChannelDescriptor( ch4.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
+    final SubscriptionEntry se2a = session.createSubscriptionEntry( cd2a );
+    final SubscriptionEntry se2b = session.createSubscriptionEntry( cd2b );
+    final SubscriptionEntry se3a = session.createSubscriptionEntry( cd3a );
+    final SubscriptionEntry se3b = session.createSubscriptionEntry( cd3b );
+    final SubscriptionEntry se4a = session.createSubscriptionEntry( cd4a );
+
+    final String filter = "SomeRandomFilter";
+    se1.setFilter( filter );
+
+    assertEntry( se1, 0, 0, filter );
+    assertEntry( se2a, 0, 0, null );
+    assertEntry( se2b, 0, 0, null );
+    assertEntry( se3a, 0, 0, null );
+    assertEntry( se3b, 0, 0, null );
+    assertEntry( se4a, 0, 0, null );
+
+    // Link channels where target is unfiltered instance channel
+    sm.linkSubscriptionEntries( session, cd1, cd2a );
+
+    assertEntry( se1, 0, 1, filter );
+    assertEntry( se2a, 1, 0, null );
+    assertEntry( se2b, 0, 0, null );
+    assertEntry( se3a, 0, 0, null );
+    assertEntry( se3b, 0, 0, null );
+    assertEntry( se4a, 0, 0, null );
+    assertTrue( se1.getOutwardSubscriptions().contains( cd2a ) );
+    assertTrue( se2a.getInwardSubscriptions().contains( cd1 ) );
+
+    // Link channels where target has DYNAMIC filter
+    sm.linkSubscriptionEntries( session, cd1, cd3a );
+
+    assertEntry( se1, 0, 2, filter );
+    assertEntry( se2a, 1, 0, null );
+    assertEntry( se2b, 0, 0, null );
+    assertEntry( se3a, 1, 0, filter );
+    assertEntry( se3b, 0, 0, null );
+    assertEntry( se4a, 0, 0, null );
+    assertTrue( se1.getOutwardSubscriptions().contains( cd3a ) );
+    assertTrue( se3a.getInwardSubscriptions().contains( cd1 ) );
+
+    //Duplicate link - no change
+    sm.linkSubscriptionEntries( session, cd1, cd3a );
+
+    assertEntry( se1, 0, 2, filter );
+    assertEntry( se2a, 1, 0, null );
+    assertEntry( se2b, 0, 0, null );
+    assertEntry( se3a, 1, 0, filter );
+    assertEntry( se3b, 0, 0, null );
+    assertEntry( se4a, 0, 0, null );
+    assertTrue( se1.getOutwardSubscriptions().contains( cd3a ) );
+    assertTrue( se3a.getInwardSubscriptions().contains( cd1 ) );
+
+    // Link channels where target has STATIC filter
+    sm.linkSubscriptionEntries( session, cd1, cd4a );
+
+    assertEntry( se1, 0, 3, filter );
+    assertEntry( se2a, 1, 0, null );
+    assertEntry( se2b, 0, 0, null );
+    assertEntry( se3a, 1, 0, filter );
+    assertEntry( se3b, 0, 0, null );
+    assertEntry( se4a, 1, 0, filter );
+    assertTrue( se1.getOutwardSubscriptions().contains( cd4a ) );
+    assertTrue( se4a.getInwardSubscriptions().contains( cd1 ) );
+
+    // More links to ensure both in and out links align
+    sm.linkSubscriptionEntries( session, cd3a, cd4a );
+
+    assertEntry( se1, 0, 3, filter );
+    assertEntry( se2a, 1, 0, null );
+    assertEntry( se2b, 0, 0, null );
+    assertEntry( se3a, 1, 1, filter );
+    assertEntry( se3b, 0, 0, null );
+    assertEntry( se4a, 2, 0, filter );
+    assertTrue( se3a.getOutwardSubscriptions().contains( cd4a ) );
+    assertTrue( se4a.getInwardSubscriptions().contains( cd3a ) );
+  }
+
+  private void assertEntry( @Nonnull final SubscriptionEntry entry,
+                            final int inwardCount,
+                            final int outwardCount,
+                            @Nullable final Object filter )
+  {
+    assertEquals( entry.getInwardSubscriptions().size(), inwardCount );
+    assertEquals( entry.getOutwardSubscriptions().size(), outwardCount );
+    assertEquals( entry.getFilter(), filter );
   }
 
   @Test
@@ -94,12 +203,23 @@ public class ReplicantSessionManagerImplTest
     extends ReplicantSessionManagerImpl
   {
     private final TestTransactionSynchronizationRegistry _registry = new TestTransactionSynchronizationRegistry();
+    private final ChannelMetaData[] _channelMetaDatas;
+
+    private TestReplicantSessionManager()
+    {
+      this( new ChannelMetaData[ 0 ] );
+    }
+
+    private TestReplicantSessionManager( final ChannelMetaData[] channelMetaDatas )
+    {
+      _channelMetaDatas = channelMetaDatas;
+    }
 
     @Nonnull
     @Override
     protected ChannelMetaData[] getChannelMetaData()
     {
-      return new ChannelMetaData[ 0 ];
+      return _channelMetaDatas;
     }
 
     @Nonnull
