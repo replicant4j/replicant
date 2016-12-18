@@ -130,10 +130,10 @@ public class ReplicantSessionManagerImplTest
   public void linkSubscriptionEntries()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", ChannelMetaData.FilterType.NONE );
-    final ChannelMetaData ch3 = new ChannelMetaData( 2, "Shift", ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch4 = new ChannelMetaData( 3, "Plans", ChannelMetaData.FilterType.STATIC );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch3 = new ChannelMetaData( 2, "Shift", false, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch4 = new ChannelMetaData( 3, "Plans", false, ChannelMetaData.FilterType.STATIC );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3, ch4 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
