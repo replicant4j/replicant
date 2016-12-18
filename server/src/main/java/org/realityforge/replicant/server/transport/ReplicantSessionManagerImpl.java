@@ -87,4 +87,23 @@ public abstract class ReplicantSessionManagerImpl
     queue.ack( lastSequenceAcked );
     return queue.nextPacketToProcess();
   }
+
+  /**
+   * Return session associated with specified ID.
+   *
+   * @throws RuntimeException if no such session is available.
+   */
+  @Nonnull
+  protected ReplicantSession ensureSession( @Nonnull final String sessionID )
+  {
+    final ReplicantSession session = getSession( sessionID );
+    if ( null == session )
+    {
+      throw newBadSessionException( sessionID );
+    }
+    return session;
+  }
+
+  @Nonnull
+  protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 }

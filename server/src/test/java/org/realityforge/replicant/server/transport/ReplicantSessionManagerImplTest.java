@@ -24,6 +24,28 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void ensureSession()
+    throws Exception
+  {
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
+
+    boolean ensureFailed = false;
+    try
+    {
+      sm.ensureSession( "NotExist" );
+    }
+    catch ( final RuntimeException re )
+    {
+      ensureFailed = true;
+    }
+
+    assertFalse( ensureFailed, "Ensure expected to fail with non-existent session" );
+
+    final ReplicantSession session = sm.createSession();
+    assertEquals( sm.ensureSession( session.getSessionID() ), session );
+  }
+
+  @Test
   public void newSessionInfo()
     throws Exception
   {
