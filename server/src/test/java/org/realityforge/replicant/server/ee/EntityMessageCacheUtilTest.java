@@ -1,10 +1,10 @@
 package org.realityforge.replicant.server.ee;
 
-import javax.naming.Context;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -15,11 +15,13 @@ public class EntityMessageCacheUtilTest
   public void setup()
     throws Exception
   {
+    TestTransactionSynchronizationRegistry.bind();
+  }
+
+  @AfterMethod
+  public void clearContext()
+  {
     TestInitialContextFactory.reset();
-    final Context context = TestInitialContextFactory.getContext().createSubcontext( "java:comp" );
-    final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, "Ignored" );
-    context.bind( "TransactionSynchronizationRegistry", registry );
   }
 
   @Test
