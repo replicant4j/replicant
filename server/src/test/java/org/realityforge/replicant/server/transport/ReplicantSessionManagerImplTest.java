@@ -53,37 +53,9 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
-    {
-      final TestFilter filter = new TestFilter( 42 );
-
-      RegistryUtil.bind();
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
-      final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
-
-      assertEquals( changeSet.getChannelActions().size(), 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      sm.performSubscribe( session, e1, true, filter );
-
-      assertEntry( e1, true, 0, 0, filter );
-
-      final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
-      assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), cd1, ChannelAction.Action.ADD, "{\"myField\":42}" );
-
-      // 1 Change comes from collectDataForSubscribe
-      final Collection<Change> changes = changeSet.getChanges();
-      assertEquals( changes.size(), 1 );
-      assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
-
-      assertEntry( e1, true, 0, 0, filter );
-
-      session.deleteSubscriptionEntry( e1 );
-    }
-
     // Test with no filter
     {
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd2 );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
       //Rebind clears the state
       RegistryUtil.bind();
       final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
@@ -97,7 +69,7 @@ public class ReplicantSessionManagerImplTest
 
       final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
       assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), cd2, ChannelAction.Action.ADD, null );
+      assertChannelAction( actions.get( 0 ), cd1, ChannelAction.Action.ADD, null );
 
       // 1 Change comes from collectDataForSubscribe
       final Collection<Change> changes = changeSet.getChanges();
@@ -105,6 +77,34 @@ public class ReplicantSessionManagerImplTest
       assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
 
       assertEntry( e1, true, 0, 0, null );
+    }
+
+    {
+      final TestFilter filter = new TestFilter( 42 );
+
+      RegistryUtil.bind();
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd2 );
+      final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+
+      assertEquals( changeSet.getChannelActions().size(), 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      sm.performSubscribe( session, e1, true, filter );
+
+      assertEntry( e1, true, 0, 0, filter );
+
+      final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+      assertEquals( actions.size(), 1 );
+      assertChannelAction( actions.get( 0 ), cd2, ChannelAction.Action.ADD, "{\"myField\":42}" );
+
+      // 1 Change comes from collectDataForSubscribe
+      final Collection<Change> changes = changeSet.getChanges();
+      assertEquals( changes.size(), 1 );
+      assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
+
+      assertEntry( e1, true, 0, 0, filter );
+
+      session.deleteSubscriptionEntry( e1 );
     }
   }
 
