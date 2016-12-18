@@ -46,6 +46,13 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract ChannelMetaData[] getChannelMetaData();
 
+  @Nonnull
+  @Override
+  protected ReplicantSession newSessionInfo()
+  {
+    return new ReplicantSession( UUID.randomUUID().toString() );
+  }
+
   /**
    * @return the channel metadata.
    */
