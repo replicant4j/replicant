@@ -2,7 +2,6 @@ package org.realityforge.replicant.server.transport;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.ChannelDescriptor;
-import org.realityforge.replicant.server.TestSession;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -12,7 +11,7 @@ public class ReplicantSessionTest
   public void basicOperation()
   {
     final String sessionID = ValueUtil.randomString();
-    final ReplicantSession session = new TestSession( sessionID );
+    final ReplicantSession session = new ReplicantSession( sessionID );
 
     assertEquals( session.getSessionID(), sessionID );
     assertEquals( session.getQueue().size(), 0 );

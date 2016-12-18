@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server.ee.rest;
 
 import javax.ws.rs.core.Response;
-import org.realityforge.replicant.server.TestSession;
+import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -17,7 +17,7 @@ public class SessionRestServiceTest
     final AbstractSessionRestService resource = newResource( sessionManager );
 
     when( sessionManager.createSession() ).
-      thenReturn( new TestSession( "2222" ) );
+      thenReturn( new ReplicantSession( "2222" ) );
 
     final Response token = resource.createSession();
 

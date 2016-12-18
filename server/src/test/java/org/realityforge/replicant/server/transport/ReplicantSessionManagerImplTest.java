@@ -10,7 +10,6 @@ import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.TestSession;
 import org.realityforge.replicant.server.ee.TestTransactionSynchronizationRegistry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.Test;
@@ -30,7 +29,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-    final TestSession session = sm.createSession();
+    final ReplicantSession session = sm.createSession();
 
     sm.getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, "r1" );
 
@@ -46,7 +45,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-    final TestSession session = sm.createSession();
+    final ReplicantSession session = sm.createSession();
     final Packet p1 = session.getQueue().addPacket( null, null, new ChangeSet() );
     final Packet p2 = session.getQueue().addPacket( null, null, new ChangeSet() );
     final Packet p3 = session.getQueue().addPacket( null, null, new ChangeSet() );
@@ -60,7 +59,7 @@ public class ReplicantSessionManagerImplTest
   }
 
   static class TestReplicantSessionManager
-    extends ReplicantSessionManagerImpl<TestSession>
+    extends ReplicantSessionManagerImpl<ReplicantSession>
   {
     private final TestTransactionSynchronizationRegistry _registry = new TestTransactionSynchronizationRegistry();
 
@@ -80,19 +79,19 @@ public class ReplicantSessionManagerImplTest
 
     @Override
     protected void processUpdateMessages( @Nonnull final EntityMessage message,
-                                          @Nonnull final Collection<TestSession> sessions,
+                                          @Nonnull final Collection<ReplicantSession> sessions,
                                           @Nonnull final ChangeAccumulator accumulator )
     {
     }
 
     @Override
     protected void processDeleteMessages( @Nonnull final EntityMessage message,
-                                          @Nonnull final Collection<TestSession> sessions )
+                                          @Nonnull final Collection<ReplicantSession> sessions )
     {
     }
 
     @Override
-    protected void collectDataForSubscribe( @Nonnull final TestSession session,
+    protected void collectDataForSubscribe( @Nonnull final ReplicantSession session,
                                             @Nonnull final ChannelDescriptor descriptor,
                                             @Nonnull final ChangeSet changeSet,
                                             @Nullable final Object filter )
@@ -100,7 +99,7 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected void collectDataForSubscriptionUpdate( @Nonnull final TestSession session,
+    protected void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
                                                      @Nonnull final ChannelDescriptor descriptor,
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object originalFilter,
@@ -124,9 +123,9 @@ public class ReplicantSessionManagerImplTest
 
     @Nonnull
     @Override
-    protected TestSession newSessionInfo()
+    protected ReplicantSession newSessionInfo()
     {
-      return new TestSession( UUID.randomUUID().toString() );
+      return new ReplicantSession( UUID.randomUUID().toString() );
     }
   }
 }

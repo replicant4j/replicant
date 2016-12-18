@@ -11,7 +11,7 @@ import org.realityforge.ssf.SimpleSessionInfo;
 /**
  * Base class for sessions within replicant.
  */
-public abstract class ReplicantSession
+public final class ReplicantSession
   extends SimpleSessionInfo
 {
   private final PacketQueue _queue = new PacketQueue();

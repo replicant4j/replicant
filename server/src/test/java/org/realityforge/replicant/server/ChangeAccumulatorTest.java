@@ -7,6 +7,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.transport.Packet;
+import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -15,7 +16,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation()
   {
-    final TestSession c = new TestSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final String id = "myID";
@@ -48,7 +49,7 @@ public class ChangeAccumulatorTest
   @Test
   public void addEntityMessages()
   {
-    final TestSession c = new TestSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final String id = "myID";
@@ -77,7 +78,7 @@ public class ChangeAccumulatorTest
   @Test
   public void addActions()
   {
-    final TestSession c = new TestSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
@@ -107,7 +108,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation_whereSessionIDDifferent()
   {
-    final TestSession c = new TestSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final EntityMessage message = MessageTestUtil.createMessage( "myID", 42, 0, "r1", "r2", "a1", "a2" );
@@ -124,7 +125,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation_whereNoMessagesSentToInitiator()
   {
-    final TestSession c = new TestSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c );

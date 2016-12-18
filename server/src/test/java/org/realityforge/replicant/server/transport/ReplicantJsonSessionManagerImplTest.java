@@ -9,7 +9,6 @@ import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessage;
-import org.realityforge.replicant.server.TestSession;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -21,7 +20,7 @@ public class ReplicantJsonSessionManagerImplTest
     throws Exception
   {
     final TestReplicantSessionManagerImpl sm = new TestReplicantSessionManagerImpl();
-    final TestSession session = sm.createSession();
+    final ReplicantSession session = sm.createSession();
     session.getQueue().addPacket( null, null, new ChangeSet() );
 
     assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1,\"request_id\":null,\"etag\":null}" );
@@ -29,7 +28,7 @@ public class ReplicantJsonSessionManagerImplTest
   }
 
   static class TestReplicantSessionManagerImpl
-    extends ReplicantJsonSessionManagerImpl<TestSession>
+    extends ReplicantJsonSessionManagerImpl<ReplicantSession>
   {
     @Nonnull
     @Override
@@ -47,19 +46,19 @@ public class ReplicantJsonSessionManagerImplTest
 
     @Override
     protected void processUpdateMessages( @Nonnull final EntityMessage message,
-                                          @Nonnull final Collection<TestSession> sessions,
+                                          @Nonnull final Collection<ReplicantSession> sessions,
                                           @Nonnull final ChangeAccumulator accumulator )
     {
     }
 
     @Override
     protected void processDeleteMessages( @Nonnull final EntityMessage message,
-                                          @Nonnull final Collection<TestSession> sessions )
+                                          @Nonnull final Collection<ReplicantSession> sessions )
     {
     }
 
     @Override
-    protected void collectDataForSubscribe( @Nonnull final TestSession session,
+    protected void collectDataForSubscribe( @Nonnull final ReplicantSession session,
                                             @Nonnull final ChannelDescriptor descriptor,
                                             @Nonnull final ChangeSet changeSet,
                                             @Nullable final Object filter )
@@ -67,7 +66,7 @@ public class ReplicantJsonSessionManagerImplTest
     }
 
     @Override
-    protected void collectDataForSubscriptionUpdate( @Nonnull final TestSession session,
+    protected void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
                                                      @Nonnull final ChannelDescriptor descriptor,
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object originalFilter,
@@ -91,9 +90,9 @@ public class ReplicantJsonSessionManagerImplTest
 
     @Nonnull
     @Override
-    protected TestSession newSessionInfo()
+    protected ReplicantSession newSessionInfo()
     {
-      return new TestSession( UUID.randomUUID().toString() );
+      return new ReplicantSession( UUID.randomUUID().toString() );
     }
   }
 }
