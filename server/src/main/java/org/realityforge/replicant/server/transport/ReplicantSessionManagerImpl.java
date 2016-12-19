@@ -276,7 +276,7 @@ public abstract class ReplicantSessionManagerImpl
     collectDataForSubscribe( session, entry.getDescriptor(), changeSet, filter );
     changeSet.addAction( new ChannelAction( entry.getDescriptor(),
                                             ChannelAction.Action.ADD,
-                                            null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
+                                            filterToJsonObject( filter ) ) );
   }
 
   void performUpdateSubscription( @Nonnull final ReplicantSession session,
@@ -291,7 +291,7 @@ public abstract class ReplicantSessionManagerImpl
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
     changeSet.addAction( new ChannelAction( descriptor,
                                             ChannelAction.Action.UPDATE,
-                                            null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
+                                            filterToJsonObject( filter ) ) );
   }
 
   /**
@@ -434,4 +434,9 @@ public abstract class ReplicantSessionManagerImpl
 
   protected abstract boolean shouldFollowLink( @Nonnull final ChannelDescriptor source,
                                                @Nonnull final ChannelDescriptor target );
+
+  private JsonObject filterToJsonObject( final @Nullable Object filter )
+  {
+    return null == filter ? null : JsonUtil.toJsonObject( filter );
+  }
 }
