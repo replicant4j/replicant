@@ -293,23 +293,17 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 1 );
   }
 
-
   @Test
   public void linkSubscriptionEntries()
     throws Exception
   {
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC );
     final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE );
-    final ChannelMetaData ch3 = new ChannelMetaData( 2, "Shift", false, ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch4 = new ChannelMetaData( 3, "Plans", false, ChannelMetaData.FilterType.STATIC );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3, ch4 };
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
     final ChannelDescriptor cd2a = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
     final ChannelDescriptor cd2b = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
-    final ChannelDescriptor cd3a = new ChannelDescriptor( ch3.getChannelID(), ValueUtil.randomString() );
-    final ChannelDescriptor cd3b = new ChannelDescriptor( ch3.getChannelID(), ValueUtil.randomString() );
-    final ChannelDescriptor cd4a = new ChannelDescriptor( ch4.getChannelID(), ValueUtil.randomString() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -317,88 +311,51 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
     final SubscriptionEntry se2a = session.createSubscriptionEntry( cd2a );
     final SubscriptionEntry se2b = session.createSubscriptionEntry( cd2b );
-    final SubscriptionEntry se3a = session.createSubscriptionEntry( cd3a );
-    final SubscriptionEntry se3b = session.createSubscriptionEntry( cd3b );
-    final SubscriptionEntry se4a = session.createSubscriptionEntry( cd4a );
 
     assertEntry( se1, false, 0, 0, null );
     assertEntry( se2a, false, 0, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertEntry( se3a, false, 0, 0, null );
-    assertEntry( se3b, false, 0, 0, null );
-    assertEntry( se4a, false, 0, 0, null );
 
-    // Link channels where target is unfiltered instance channel
-    sm.linkSubscriptionEntries( session, cd1, cd2a );
+    sm.linkSubscriptionEntries( se1, se2a );
 
     assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertEntry( se3a, false, 0, 0, null );
-    assertEntry( se3b, false, 0, 0, null );
-    assertEntry( se4a, false, 0, 0, null );
     assertTrue( se1.getOutwardSubscriptions().contains( cd2a ) );
     assertTrue( se2a.getInwardSubscriptions().contains( cd1 ) );
 
-    // Link channels where target has DYNAMIC filter
-    sm.linkSubscriptionEntries( session, cd1, cd3a );
+    sm.linkSubscriptionEntries( se2a, se2b );
 
-    assertEntry( se1, false, 0, 2, null );
+    assertEntry( se1, false, 0, 1, null );
+    assertEntry( se2a, false, 1, 1, null );
+    assertEntry( se2b, false, 1, 0, null );
+    assertTrue( se2a.getOutwardSubscriptions().contains( cd2b ) );
+    assertTrue( se2b.getInwardSubscriptions().contains( cd2a ) );
+
+    sm.delinkSubscriptionEntries( se2a, se2b );
+
+    assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertEntry( se3a, false, 1, 0, null );
-    assertEntry( se3b, false, 0, 0, null );
-    assertEntry( se4a, false, 0, 0, null );
-    assertTrue( se1.getOutwardSubscriptions().contains( cd3a ) );
-    assertTrue( se3a.getInwardSubscriptions().contains( cd1 ) );
+    assertFalse( se2a.getOutwardSubscriptions().contains( cd2b ) );
+    assertFalse( se2b.getInwardSubscriptions().contains( cd2a ) );
 
-    //Duplicate link - no change
-    sm.linkSubscriptionEntries( session, cd1, cd3a );
+    //Duplicate delink - noop
+    sm.delinkSubscriptionEntries( se2a, se2b );
 
-    assertEntry( se1, false, 0, 2, null );
+    assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertEntry( se3a, false, 1, 0, null );
-    assertEntry( se3b, false, 0, 0, null );
-    assertEntry( se4a, false, 0, 0, null );
-    assertTrue( se1.getOutwardSubscriptions().contains( cd3a ) );
-    assertTrue( se3a.getInwardSubscriptions().contains( cd1 ) );
+    assertFalse( se2a.getOutwardSubscriptions().contains( cd2b ) );
+    assertFalse( se2b.getInwardSubscriptions().contains( cd2a ) );
 
-    // Link channels where target has STATIC filter
-    sm.linkSubscriptionEntries( session, cd1, cd4a );
+    sm.delinkSubscriptionEntries( se1, se2a );
 
-    assertEntry( se1, false, 0, 3, null );
-    assertEntry( se2a, false, 1, 0, null );
+    assertEntry( se1, false, 0, 0, null );
+    assertEntry( se2a, false, 0, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertEntry( se3a, false, 1, 0, null );
-    assertEntry( se3b, false, 0, 0, null );
-    assertEntry( se4a, false, 1, 0, null );
-    assertTrue( se1.getOutwardSubscriptions().contains( cd4a ) );
-    assertTrue( se4a.getInwardSubscriptions().contains( cd1 ) );
-
-    // More links to ensure both in and out links align
-    sm.linkSubscriptionEntries( session, cd3a, cd4a );
-
-    assertEntry( se1, false, 0, 3, null );
-    assertEntry( se2a, false, 1, 0, null );
-    assertEntry( se2b, false, 0, 0, null );
-    assertEntry( se3a, false, 1, 1, null );
-    assertEntry( se3b, false, 0, 0, null );
-    assertEntry( se4a, false, 2, 0, null );
-    assertTrue( se3a.getOutwardSubscriptions().contains( cd4a ) );
-    assertTrue( se4a.getInwardSubscriptions().contains( cd3a ) );
-  }
-
-  private void assertEntry( @Nonnull final SubscriptionEntry entry,
-                            final boolean explicitlySubscribed,
-                            final int inwardCount,
-                            final int outwardCount,
-                            @Nullable final Object filter )
-  {
-    assertEquals( entry.isExplicitlySubscribed(), explicitlySubscribed );
-    assertEquals( entry.getInwardSubscriptions().size(), inwardCount );
-    assertEquals( entry.getOutwardSubscriptions().size(), outwardCount );
-    assertEquals( entry.getFilter(), filter );
+    assertFalse( se1.getOutwardSubscriptions().contains( cd2a ) );
+    assertFalse( se2a.getInwardSubscriptions().contains( cd1 ) );
   }
 
   @Test
@@ -466,6 +423,18 @@ public class ReplicantSessionManagerImplTest
     assertEquals( sm.pollPacket( session, p1.getSequence() ), p2 );
     assertEquals( sm.pollPacket( session, p2.getSequence() ), p3 );
     assertEquals( sm.pollPacket( session, p3.getSequence() ), null );
+  }
+
+  private void assertEntry( @Nonnull final SubscriptionEntry entry,
+                            final boolean explicitlySubscribed,
+                            final int inwardCount,
+                            final int outwardCount,
+                            @Nullable final Object filter )
+  {
+    assertEquals( entry.isExplicitlySubscribed(), explicitlySubscribed );
+    assertEquals( entry.getInwardSubscriptions().size(), inwardCount );
+    assertEquals( entry.getOutwardSubscriptions().size(), outwardCount );
+    assertEquals( entry.getFilter(), filter );
   }
 
   private Collection<Change> getChanges()

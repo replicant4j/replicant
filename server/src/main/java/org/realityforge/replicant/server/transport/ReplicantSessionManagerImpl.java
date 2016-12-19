@@ -207,11 +207,20 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */
-  protected void linkSubscriptionEntries( @Nonnull final ReplicantSession session,
-                                          @Nonnull final ChannelDescriptor source,
-                                          @Nonnull final ChannelDescriptor target )
+  void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                @Nonnull final SubscriptionEntry targetEntry )
   {
-    session.getSubscriptionEntry( source ).registerOutwardSubscriptions( target );
-    session.getSubscriptionEntry( target ).registerInwardSubscriptions( source );
+    sourceEntry.registerOutwardSubscriptions( targetEntry.getDescriptor() );
+    targetEntry.registerInwardSubscriptions( sourceEntry.getDescriptor() );
+  }
+
+  /**
+   * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
+   */
+  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                  @Nonnull final SubscriptionEntry targetEntry )
+  {
+    sourceEntry.deregisterOutwardSubscriptions( targetEntry.getDescriptor() );
+    targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
   }
 }
