@@ -168,6 +168,30 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void subscribe_withSessionID()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    assertNull( session.findSubscriptionEntry( cd1 ) );
+
+    sm.subscribe( session.getSessionID(), cd1, null );
+
+    final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+    assertNotNull( entry1 );
+    assertEntry( entry1, true, 0, 0, null );
+
+    assertChannelActionCount( 1 );
+    assertSessionChangesCount( 1 );
+  }
+
+  @Test
   public void performSubscribe()
     throws Exception
   {

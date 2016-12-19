@@ -134,6 +134,16 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
 
+  protected void subscribe( @Nonnull final String sessionID,
+                            @Nonnull final ChannelDescriptor descriptor,
+                            @Nullable final Object filter )
+  {
+    setupRegistryContext( sessionID );
+    final ReplicantSession session = ensureSession( sessionID );
+    subscribe( session, descriptor, true, filter );
+    expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+  }
+
   protected void updateSubscription( @Nonnull final String sessionID,
                                      @Nonnull final ChannelDescriptor descriptor,
                                      @Nullable final Object filter )
