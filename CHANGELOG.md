@@ -1,4 +1,5 @@
 ## 0.5.64 (Pending):
+* Add helper methods to `ChangeSet` to simplify merging messages.
 * Convert `ReplicantSession` from abstract to final class and update code appropriately.
 * Split `ReplicantSessionManager` into an interface and an implementation.
 * Add `ChannelMetaData` class that represents characteristics of each channel.

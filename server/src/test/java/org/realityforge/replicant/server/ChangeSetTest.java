@@ -129,4 +129,26 @@ public class ChangeSetTest
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
+
+  @Test
+  public void mergeEntityMessageSet()
+  {
+    final ChangeSet changeSet = new ChangeSet();
+
+    final String id = "myID";
+    final int typeID = 42;
+
+    final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessageSet messageSet = new EntityMessageSet();
+    messageSet.merge( message1 );
+
+    changeSet.merge( new ChannelDescriptor( 1, null ), messageSet );
+
+    final Collection<Change> changes = changeSet.getChanges();
+    assertEquals( changes.size(), 1 );
+    final Change change = changes.iterator().next();
+    assertEquals( change.getEntityMessage().getID(), id );
+    assertEquals( change.getChannels().size(), 1 );
+    assertEquals( change.getChannels().get( 1 ), 0 );
+  }
 }
