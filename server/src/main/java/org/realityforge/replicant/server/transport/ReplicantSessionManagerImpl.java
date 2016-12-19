@@ -112,6 +112,19 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
 
+  protected void updateSubscription( @Nonnull final ReplicantSession session,
+                                     @Nonnull final ChannelDescriptor descriptor,
+                                     @Nullable final Object filter )
+  {
+    final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
+    final Object originalFilter = entry.getFilter();
+    if ( !( ( null == originalFilter && null == filter ) ||
+            ( null != originalFilter && originalFilter.equals( filter ) ) ) )
+    {
+      performUpdateSubscription( session, entry, originalFilter, filter );
+    }
+  }
+
   void performSubscribe( @Nonnull final ReplicantSession session,
                          @Nonnull final SubscriptionEntry entry,
                          final boolean explicitSubscribe,

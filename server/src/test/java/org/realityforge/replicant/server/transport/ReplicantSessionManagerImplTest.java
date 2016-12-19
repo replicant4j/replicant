@@ -151,6 +151,47 @@ public class ReplicantSessionManagerImplTest
     assertEquals( entityMessage.getAttributeValues().get( "Filter" ), filter );
   }
 
+  @Test
+  public void updateSubscription()
+    throws Exception
+  {
+    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
+
+    final ChannelDescriptor cd = new ChannelDescriptor( ch.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final TestFilter originalFilter = new TestFilter( 41 );
+    final TestFilter filter = new TestFilter( 42 );
+
+    RegistryUtil.bind();
+
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
+    e1.setFilter( originalFilter );
+
+    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+
+    assertEquals( changeSet.getChannelActions().size(), 0 );
+    assertEntry( e1, false, 0, 0, originalFilter );
+
+    // Attempt to update to same filter - should be a noop
+    sm.updateSubscription( session, cd, originalFilter );
+
+    assertEntry( e1, false, 0, 0, originalFilter );
+
+    assertEquals( changeSet.getChannelActions().size(), 0 );
+    assertEquals( changeSet.getChanges().size(), 0 );
+
+    sm.updateSubscription( session, cd, filter );
+
+    assertEntry( e1, false, 0, 0, filter );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChanges().size(), 1 );
+  }
+
   private void assertChannelAction( @Nonnull final ChannelAction channelAction,
                                     @Nonnull final ChannelDescriptor channelDescriptor,
                                     @Nonnull final ChannelAction.Action action,
