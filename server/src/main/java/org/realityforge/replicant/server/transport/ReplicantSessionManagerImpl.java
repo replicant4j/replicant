@@ -294,10 +294,15 @@ public abstract class ReplicantSessionManagerImpl
                                             null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
   }
 
-  protected abstract void collectDataForSubscribe( @Nonnull final ReplicantSession session,
-                                                   @Nonnull final ChannelDescriptor descriptor,
-                                                   @Nonnull final ChangeSet changeSet,
-                                                   @Nullable final Object filter );
+  /**
+   * @param session the client session performing subscribe or null if loading as part of cache
+   * @return the cacheKey if any. The return value is ignored for non-cacheable channels.
+   */
+  @Nullable
+  protected abstract String collectDataForSubscribe( @Nullable final ReplicantSession session,
+                                                     @Nonnull final ChannelDescriptor descriptor,
+                                                     @Nonnull final ChangeSet changeSet,
+                                                     @Nullable final Object filter );
 
   protected abstract void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
                                                             @Nonnull final ChannelDescriptor descriptor,

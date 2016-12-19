@@ -1055,16 +1055,17 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected void collectDataForSubscribe( @Nonnull final ReplicantSession session,
-                                            @Nonnull final ChannelDescriptor descriptor,
-                                            @Nonnull final ChangeSet changeSet,
-                                            @Nullable final Object filter )
+    protected String collectDataForSubscribe( @Nullable final ReplicantSession session,
+                                              @Nonnull final ChannelDescriptor descriptor,
+                                              @Nonnull final ChangeSet changeSet,
+                                              @Nullable final Object filter )
     {
       final HashMap<String, Serializable> routingKeys = new HashMap<>();
       final HashMap<String, Serializable> attributes = new HashMap<>();
       attributes.put( "ID", 79 );
       final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
       changeSet.merge( new Change( message, descriptor.getChannelID(), descriptor.getSubChannelID() ) );
+      return null;
     }
 
     @Override
