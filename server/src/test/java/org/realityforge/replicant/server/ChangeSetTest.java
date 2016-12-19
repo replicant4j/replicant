@@ -1,8 +1,8 @@
 package org.realityforge.replicant.server;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
@@ -33,7 +33,7 @@ public class ChangeSetTest
 
     assertEquals( changeSet.getChanges().size(), 0 );
 
-    changeSet.mergeAll( Arrays.asList( change1 ) );
+    changeSet.mergeAll( Collections.singletonList( change1 ) );
 
     assertEquals( changeSet.getChanges().size(), 1 );
     assertEquals( change1.getChannels().size(), 1 );
