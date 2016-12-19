@@ -4,13 +4,15 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.AssertUtil;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
-import org.realityforge.guiceyloops.server.TestTransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
@@ -23,11 +25,18 @@ import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.RegistryUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ReplicantSessionManagerImplTest
 {
+  @BeforeMethod
+  public void setupTransactionContext()
+  {
+    RegistryUtil.bind();
+  }
+
   @AfterMethod
   public void clearContext()
   {
@@ -361,11 +370,10 @@ public class ReplicantSessionManagerImplTest
       sm.performUnsubscribe( session, entry, true );
 
       assertChannelActionCount( 5 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 1 ), cd2, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 2 ), cd3, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 3 ), cd4, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 4 ), cd5, ChannelAction.Action.REMOVE, null );
+      for ( final ChannelAction action : getChannelActions() )
+      {
+        assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
+      }
 
       assertNull( session.findSubscriptionEntry( cd1 ) );
       assertNull( session.findSubscriptionEntry( cd2 ) );
@@ -521,6 +529,38 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 0 );
 
     sm.updateSubscription( session, cd, filter );
+
+    assertEntry( e1, false, 0, 0, filter );
+
+    assertChannelActionCount( 1 );
+    assertSessionChangesCount( 1 );
+  }
+
+  @Test
+  public void updateSubscription_usingSessionID()
+    throws Exception
+  {
+    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
+
+    final ChannelDescriptor cd = new ChannelDescriptor( ch.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final TestFilter originalFilter = new TestFilter( 41 );
+    final TestFilter filter = new TestFilter( 42 );
+
+    final TransactionSynchronizationRegistry registry = RegistryUtil.bind();
+
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
+    e1.setFilter( originalFilter );
+
+    assertChannelActionCount( 0 );
+
+    sm.updateSubscription( session.getSessionID(), cd, filter );
+
+    assertEquals( registry.getResource( ReplicantContext.SESSION_ID_KEY ), session.getSessionID() );
 
     assertEntry( e1, false, 0, 0, filter );
 
@@ -795,7 +835,7 @@ public class ReplicantSessionManagerImplTest
 
     final HashMap<String, Serializable> routes = new HashMap<>();
     final HashMap<String, Serializable> attributes = new HashMap<>();
-    final HashSet<ChannelLink> links = new HashSet<>();
+    final HashSet<ChannelLink> links = new LinkedHashSet<>();
     links.add( link1 );
     links.add( link2 );
     final EntityMessage message =
@@ -947,7 +987,6 @@ public class ReplicantSessionManagerImplTest
   static class TestReplicantSessionManager
     extends ReplicantSessionManagerImpl
   {
-    private final TestTransactionSynchronizationRegistry _registry = new TestTransactionSynchronizationRegistry();
     private final ChannelMetaData[] _channelMetaDatas;
     private ChannelDescriptor _followSource;
 
@@ -1036,7 +1075,17 @@ public class ReplicantSessionManagerImplTest
     @Override
     protected TransactionSynchronizationRegistry getRegistry()
     {
-      return _registry;
+      final String key = "java:comp/TransactionSynchronizationRegistry";
+      try
+      {
+        return (TransactionSynchronizationRegistry) new InitialContext().lookup( key );
+      }
+      catch ( final NamingException ne )
+      {
+        final String message =
+          "Unable to locate TransactionSynchronizationRegistry at " + key + " due to " + ne;
+        throw new IllegalStateException( message, ne );
+      }
     }
   }
 }
