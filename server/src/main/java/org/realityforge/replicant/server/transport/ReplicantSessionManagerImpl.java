@@ -133,6 +133,18 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
+  protected void unsubscribe( @Nonnull final String sessionID,
+                              @Nonnull final ChannelDescriptor descriptor )
+  {
+    setupRegistryContext( sessionID );
+    unsubscribe( descriptor, ensureSession( sessionID ), true );
+  }
+
+  private void setupRegistryContext( @Nonnull final String sessionID )
+  {
+    //Force the sessionID to the desired session in case call has not been set up by boundary
+    getRegistry().putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
+  }
 
   protected void updateSubscription( @Nonnull final ReplicantSession session,
                                      @Nonnull final ChannelDescriptor descriptor,
