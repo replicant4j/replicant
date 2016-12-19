@@ -204,6 +204,32 @@ public abstract class ReplicantSessionManagerImpl
                                                             @Nullable final Object originalFilter,
                                                             @Nullable final Object filter );
 
+
+  void performUnsubscribe( @Nonnull final ReplicantSession session,
+                           @Nonnull final SubscriptionEntry entry,
+                           final boolean explicitUnsubscribe )
+  {
+    if ( explicitUnsubscribe )
+    {
+      entry.setExplicitlySubscribed( false );
+    }
+    if ( entry.canUnsubscribe() )
+    {
+      EntityMessageCacheUtil.getSessionChanges().
+        addAction( new ChannelAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null ) );
+      for ( final ChannelDescriptor downstream : entry.getOutwardSubscriptions() )
+      {
+        final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
+        if ( null != downstreamEntry )
+        {
+          delinkSubscriptionEntries( entry, downstreamEntry );
+          performUnsubscribe( session, downstreamEntry, false );
+        }
+      }
+      session.deleteSubscriptionEntry( entry );
+    }
+  }
+
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */

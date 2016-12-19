@@ -213,6 +213,112 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void performUnsubscribe()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    // Unsubscribe from channel that was explicitly subscribed
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true,  null );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.performUnsubscribe( session, entry, true );
+
+      assertChannelActionCount( 1 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+    }
+
+    // implicit unsubscribe from channel that was implicitly subscribed should leave explicit subscription
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true,  null );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.performUnsubscribe( session, entry, false );
+
+      assertChannelActionCount( 0 );
+
+      assertNotNull( session.findSubscriptionEntry( cd1 ) );
+
+      sm.performUnsubscribe( session, entry, true );
+
+      assertChannelActionCount( 1 );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+    }
+
+    // implicit unsubscribe from channel that was implicitly subscribed should delete subscription
+     {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, false,  null );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.performUnsubscribe( session, entry, false );
+
+      assertChannelActionCount( 1 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+    }
+
+    // implicit unsubscribe from channel that was implicitly subscribed should leave subscription that
+    // implicitly linked from elsewhere
+     {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, false,  null );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+
+      sm.subscribe( session, cd2, false,  null );
+      final SubscriptionEntry entry2 = session.getSubscriptionEntry( cd1 );
+      sm.linkSubscriptionEntries( entry2, entry );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.performUnsubscribe( session, entry, false );
+
+      assertChannelActionCount( 0 );
+      assertNotNull( session.findSubscriptionEntry( cd1 ) );
+
+      sm.delinkSubscriptionEntries( entry2, entry );
+
+      sm.performUnsubscribe( session, entry, false );
+
+      assertChannelActionCount( 1 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+    }
+  }
+
+  @Test
   public void performUpdateSubscription()
     throws Exception
   {
