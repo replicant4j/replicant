@@ -16,6 +16,7 @@ import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelLink;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.RegistryUtil;
@@ -629,6 +630,104 @@ public class ReplicantSessionManagerImplTest
     assertEquals( sm.pollPacket( session, p3.getSequence() ), null );
   }
 
+  @Test
+  public void expandLinkIfRequired()
+  {
+    RegistryUtil.bind();
+
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch3 = new ChannelMetaData( 2, "C3", false, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2a = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2b = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3a = new ChannelDescriptor( ch3.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3b = new ChannelDescriptor( ch3.getChannelID(), ValueUtil.randomString() );
+
+    final ChannelLink link1 = new ChannelLink( cd1, cd2a );
+    final ChannelLink link2 = new ChannelLink( cd1, cd2b );
+    final ChannelLink link3 = new ChannelLink( cd1, cd3a );
+    final ChannelLink link4 = new ChannelLink( cd1, cd3b );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    //No expand as cd1 is not subscribed
+    assertFalse( sm.expandLinkIfRequired( session, link1 ) );
+
+    sm.subscribe( session, cd1, true, new TestFilter( 33 ) );
+
+    final SubscriptionEntry entry1 = session.getSubscriptionEntry( cd1 );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 0 );
+
+    //Expand as cd1 is subscribed
+    assertTrue( sm.expandLinkIfRequired( session, link1 ) );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 1 );
+
+    final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
+
+    assertEquals( entry2a.isExplicitlySubscribed(), false );
+    assertEquals( entry2a.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2a.getOutwardSubscriptions().size(), 0 );
+
+    //No expand as cd2a is already subscribed
+    assertFalse( sm.expandLinkIfRequired( session, link1 ) );
+
+    // Subscribe to 2 explicitly
+    sm.subscribe( session, cd2b, true, null );
+
+    final SubscriptionEntry entry2b = session.getSubscriptionEntry( cd2b );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 1 );
+    assertEquals( entry2b.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry2b.getOutwardSubscriptions().size(), 0 );
+
+    assertFalse( sm.expandLinkIfRequired( session, link2 ) );
+
+    //expandLinkIfRequired should still "Link" them even if no subscribe occurs
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 2 );
+    assertEquals( entry2b.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2b.getOutwardSubscriptions().size(), 0 );
+
+    //Fails the filter
+    assertFalse( sm.expandLinkIfRequired( session, link3 ) );
+
+    sm.setFollowSource( link3.getSourceChannel() );
+
+    //We create a new subscription and copy the filter across
+    assertTrue( sm.expandLinkIfRequired( session, link3 ) );
+
+    final SubscriptionEntry entry3a = session.getSubscriptionEntry( cd3a );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 3 );
+    assertEquals( entry3a.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry3a.getOutwardSubscriptions().size(), 0 );
+    assertEquals( entry3a.getFilter(), entry1.getFilter() );
+
+    sm.subscribe( session, cd3b, true, new TestFilter( ValueUtil.randomInt() ) );
+
+    final SubscriptionEntry entry3b = session.getSubscriptionEntry( cd3b );
+
+    //Do not update the filter... does this crazyness actually occur?
+    assertFalse( sm.expandLinkIfRequired( session, link4 ) );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 4 );
+    assertEquals( entry3b.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry3b.getOutwardSubscriptions().size(), 0 );
+    assertNotEquals( entry3b.getFilter(), entry1.getFilter() );
+  }
+
   private void assertEntry( @Nonnull final SubscriptionEntry entry,
                             final boolean explicitlySubscribed,
                             final int inwardCount,
@@ -689,6 +788,7 @@ public class ReplicantSessionManagerImplTest
   {
     private final TestTransactionSynchronizationRegistry _registry = new TestTransactionSynchronizationRegistry();
     private final ChannelMetaData[] _channelMetaDatas;
+    private ChannelDescriptor _followSource;
 
     private TestReplicantSessionManager()
     {
@@ -758,11 +858,17 @@ public class ReplicantSessionManagerImplTest
       changeSet.merge( new Change( message, descriptor.getChannelID(), descriptor.getSubChannelID() ) );
     }
 
+    public void setFollowSource( final ChannelDescriptor followSource )
+    {
+      _followSource = followSource;
+    }
+
     @Override
     protected boolean shouldFollowLink( @Nonnull final ChannelDescriptor source,
                                         @Nonnull final ChannelDescriptor target )
     {
-      return false;
+
+      return null != _followSource && _followSource.equals( source );
     }
 
     @Nonnull

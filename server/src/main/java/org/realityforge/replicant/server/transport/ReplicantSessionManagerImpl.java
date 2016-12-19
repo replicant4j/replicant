@@ -281,4 +281,40 @@ public abstract class ReplicantSessionManagerImpl
     sourceEntry.deregisterOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
   }
+
+  /**
+   * Determine if the specified ChannelLink needs to be expanded and do so. A ChannelLink needs to be
+   * expanded if the session is subscribed to the source channel and shouldFollowLink returns true.
+   * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
+   * is always followed. If a link should be followed the source graph and target graph are linked.
+   *
+   * If a subscription occurs then this method will immediately return false. This occurs as the changes
+   * in the ChangeSet may have been modified as a result of the subscription and thus scanning of changeSet
+   * needs to start again.
+   */
+  boolean expandLinkIfRequired( @Nonnull final ReplicantSession session, @Nonnull final ChannelLink link )
+  {
+    final ChannelDescriptor source = link.getSourceChannel();
+    final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
+    if ( null != sourceEntry )
+    {
+      final ChannelDescriptor target = link.getTargetChannel();
+      final boolean targetUnfiltered = getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
+      if ( targetUnfiltered || shouldFollowLink( source, target ) )
+      {
+        final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
+        if ( null == targetEntry )
+        {
+          subscribe( session, target, false, targetUnfiltered ? null : sourceEntry.getFilter() );
+          linkSubscriptionEntries( sourceEntry, session.getSubscriptionEntry( target ) );
+          return true;
+        }
+        linkSubscriptionEntries( sourceEntry, targetEntry );
+      }
+    }
+    return false;
+  }
+
+  protected abstract boolean shouldFollowLink( @Nonnull final ChannelDescriptor source,
+                                               @Nonnull final ChannelDescriptor target );
 }
