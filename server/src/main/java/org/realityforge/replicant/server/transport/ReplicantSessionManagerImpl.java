@@ -282,6 +282,39 @@ public abstract class ReplicantSessionManagerImpl
     targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
   }
 
+  @SuppressWarnings( { "PMD.WhileLoopsMustUseBraces", "StatementWithEmptyBody" } )
+  protected void expandLinks( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  {
+    while ( expandLink( session, changeSet ) )
+    {
+      //Ignore.
+    }
+  }
+
+  /**
+   * Iterate over all the ChannelLinks in change set attempting to "expand" them if they have to be
+   * subscribed. The expand involves subscribing to the target graph. As soon as one is expanded
+   * terminate search and return true, otherwise return false.
+   */
+  protected boolean expandLink( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  {
+    for ( final Change change : changeSet.getChanges() )
+    {
+      final Set<ChannelLink> links = change.getEntityMessage().getLinks();
+      if ( null != links )
+      {
+        for ( final ChannelLink link : links )
+        {
+          if ( expandLinkIfRequired( session, link ) )
+          {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * Determine if the specified ChannelLink needs to be expanded and do so. A ChannelLink needs to be
    * expanded if the session is subscribed to the source channel and shouldFollowLink returns true.

@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -726,6 +727,137 @@ public class ReplicantSessionManagerImplTest
     assertEquals( entry3b.getInwardSubscriptions().size(), 1 );
     assertEquals( entry3b.getOutwardSubscriptions().size(), 0 );
     assertNotEquals( entry3b.getFilter(), entry1.getFilter() );
+  }
+
+  @Test
+  public void expandLink()
+  {
+    RegistryUtil.bind();
+
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2a = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2b = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+
+    final ChannelLink link1 = new ChannelLink( cd1, cd2a );
+    final ChannelLink link2 = new ChannelLink( cd1, cd2b );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final ChangeSet changeSet = getSessionChanges();
+
+    //No expand as cd1 is not subscribed
+    assertFalse( sm.expandLink( session, changeSet ) );
+
+    assertChannelActionCount( 0 );
+
+    sm.subscribe( session, cd1, true, null );
+
+    assertChannelActionCount( 1 );
+
+    //No expand as no data to expand
+    assertFalse( sm.expandLink( session, changeSet ) );
+
+    assertChannelActionCount( 1 );
+
+    final HashMap<String, Serializable> routes = new HashMap<>();
+    final HashMap<String, Serializable> attributes = new HashMap<>();
+    final HashSet<ChannelLink> links = new HashSet<>();
+    links.add( link1 );
+    links.add( link2 );
+    final EntityMessage message =
+      new EntityMessage( ValueUtil.randomInt(), ValueUtil.randomInt(), 0, routes, attributes, links );
+    changeSet.merge( new Change( message ) );
+
+    assertTrue( sm.expandLink( session, changeSet ) );
+
+    assertChannelActionCount( 2 );
+
+    final SubscriptionEntry entry1 = session.getSubscriptionEntry( cd1 );
+    final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
+
+    // Should not subscribe this until second wave
+    assertNull( session.findSubscriptionEntry( cd2b ) );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 1 );
+    assertEquals( entry2a.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2a.getOutwardSubscriptions().size(), 0 );
+
+    // Second wave starts now
+    assertTrue( sm.expandLink( session, changeSet ) );
+
+    assertChannelActionCount( 3 );
+
+    final SubscriptionEntry entry2b = session.getSubscriptionEntry( cd2b );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 2 );
+    assertEquals( entry2a.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2a.getOutwardSubscriptions().size(), 0 );
+    assertEquals( entry2b.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2b.getOutwardSubscriptions().size(), 0 );
+
+    // No more data to process
+    assertFalse( sm.expandLink( session, changeSet ) );
+
+    assertChannelActionCount( 3 );
+  }
+
+  @Test
+  public void expandLink2()
+  {
+    RegistryUtil.bind();
+
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2a = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2b = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+
+    final ChannelLink link1 = new ChannelLink( cd1, cd2a );
+    final ChannelLink link2 = new ChannelLink( cd1, cd2b );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final ChangeSet changeSet = getSessionChanges();
+
+    assertChannelActionCount( 0 );
+
+    sm.subscribe( session, cd1, true, null );
+
+    assertChannelActionCount( 1 );
+
+    final HashMap<String, Serializable> routes = new HashMap<>();
+    final HashMap<String, Serializable> attributes = new HashMap<>();
+    final HashSet<ChannelLink> links = new HashSet<>();
+    links.add( link1 );
+    links.add( link2 );
+    final EntityMessage message =
+      new EntityMessage( ValueUtil.randomInt(), ValueUtil.randomInt(), 0, routes, attributes, links );
+    changeSet.merge( new Change( message ) );
+
+    sm.expandLinks( session, changeSet );
+
+    final SubscriptionEntry entry1 = session.getSubscriptionEntry( cd1 );
+    final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
+    final SubscriptionEntry entry2b = session.getSubscriptionEntry( cd2b );
+
+    assertEquals( entry1.getInwardSubscriptions().size(), 0 );
+    assertEquals( entry1.getOutwardSubscriptions().size(), 2 );
+    assertEquals( entry2a.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2a.getOutwardSubscriptions().size(), 0 );
+    assertEquals( entry2b.getInwardSubscriptions().size(), 1 );
+    assertEquals( entry2b.getOutwardSubscriptions().size(), 0 );
+
+    assertChannelActionCount( 3 );
   }
 
   private void assertEntry( @Nonnull final SubscriptionEntry entry,
