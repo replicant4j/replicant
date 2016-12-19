@@ -42,7 +42,6 @@ public class ReplicantSessionManagerImplTest
 
     assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1,\"request_id\":null,\"etag\":null}" );
     assertEquals( sm.pollJsonData( session, 1 ), null );
-
   }
 
   @Test
