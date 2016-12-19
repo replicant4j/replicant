@@ -9,7 +9,7 @@ import javax.json.JsonObject;
  */
 public final class ChannelAction
 {
-  public static enum Action
+  public enum Action
   {
     ADD, REMOVE, UPDATE
   }
