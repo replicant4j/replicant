@@ -58,21 +58,20 @@ public class ReplicantSessionManagerImplTest
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
       //Rebind clears the state
       RegistryUtil.bind();
-      final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
 
-      assertEquals( changeSet.getChannelActions().size(), 0 );
+      assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
 
       sm.performSubscribe( session, e1, true, null );
 
       assertEntry( e1, true, 0, 0, null );
 
-      final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+      final LinkedList<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
       assertChannelAction( actions.get( 0 ), cd1, ChannelAction.Action.ADD, null );
 
       // 1 Change comes from collectDataForSubscribe
-      final Collection<Change> changes = changeSet.getChanges();
+      final Collection<Change> changes = getChanges();
       assertEquals( changes.size(), 1 );
       assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
 
@@ -84,21 +83,20 @@ public class ReplicantSessionManagerImplTest
 
       RegistryUtil.bind();
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd2 );
-      final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
 
-      assertEquals( changeSet.getChannelActions().size(), 0 );
+      assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
 
       sm.performSubscribe( session, e1, true, filter );
 
       assertEntry( e1, true, 0, 0, filter );
 
-      final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+      final LinkedList<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
       assertChannelAction( actions.get( 0 ), cd2, ChannelAction.Action.ADD, "{\"myField\":42}" );
 
       // 1 Change comes from collectDataForSubscribe
-      final Collection<Change> changes = changeSet.getChanges();
+      final Collection<Change> changes = getChanges();
       assertEquals( changes.size(), 1 );
       assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
 
@@ -126,21 +124,20 @@ public class ReplicantSessionManagerImplTest
     RegistryUtil.bind();
 
     final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
-    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
 
-    assertEquals( changeSet.getChannelActions().size(), 0 );
+    assertChannelActionCount( 0 );
     assertEntry( e1, false, 0, 0, null );
 
     sm.performUpdateSubscription( session, e1, originalFilter, filter );
 
     assertEntry( e1, false, 0, 0, filter );
 
-    final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+    final LinkedList<ChannelAction> actions = getChannelActions();
     assertEquals( actions.size(), 1 );
     assertChannelAction( actions.get( 0 ), cd, ChannelAction.Action.UPDATE, "{\"myField\":42}" );
 
     // 1 Change comes from collectDataForUpdate
-    final Collection<Change> changes = changeSet.getChanges();
+    final Collection<Change> changes = getChanges();
     assertEquals( changes.size(), 1 );
     final Change change = changes.iterator().next();
     final EntityMessage entityMessage = change.getEntityMessage();
@@ -171,9 +168,7 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
     e1.setFilter( originalFilter );
 
-    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
-
-    assertEquals( changeSet.getChannelActions().size(), 0 );
+    assertChannelActionCount( 0 );
     assertEntry( e1, false, 0, 0, originalFilter );
 
     // Attempt to update to same filter - should be a noop
@@ -181,34 +176,17 @@ public class ReplicantSessionManagerImplTest
 
     assertEntry( e1, false, 0, 0, originalFilter );
 
-    assertEquals( changeSet.getChannelActions().size(), 0 );
-    assertEquals( changeSet.getChanges().size(), 0 );
+    assertChannelActionCount( 0 );
+    assertSessionChangesCount( 0 );
 
     sm.updateSubscription( session, cd, filter );
 
     assertEntry( e1, false, 0, 0, filter );
 
-    assertEquals( changeSet.getChannelActions().size(), 1 );
-    assertEquals( changeSet.getChanges().size(), 1 );
+    assertChannelActionCount( 1 );
+    assertSessionChangesCount( 1 );
   }
 
-  private void assertChannelAction( @Nonnull final ChannelAction channelAction,
-                                    @Nonnull final ChannelDescriptor channelDescriptor,
-                                    @Nonnull final ChannelAction.Action action,
-                                    @Nullable final String filterAsString )
-  {
-    assertEquals( channelAction.getAction(), action );
-    assertEquals( channelAction.getChannelDescriptor(), channelDescriptor );
-    if ( null == filterAsString )
-    {
-      assertNull( channelAction.getFilter() );
-    }
-    else
-    {
-      assertNotNull( channelAction.getFilter() );
-      assertEquals( channelAction.getFilter().toString(), filterAsString );
-    }
-  }
 
   @Test
   public void linkSubscriptionEntries()
@@ -382,6 +360,49 @@ public class ReplicantSessionManagerImplTest
     assertEquals( sm.pollPacket( session, p1.getSequence() ), p2 );
     assertEquals( sm.pollPacket( session, p2.getSequence() ), p3 );
     assertEquals( sm.pollPacket( session, p3.getSequence() ), null );
+  }
+
+  private Collection<Change> getChanges()
+  {
+    return getSessionChanges().getChanges();
+  }
+
+  private ChangeSet getSessionChanges()
+  {
+    return EntityMessageCacheUtil.getSessionChanges();
+  }
+
+  private void assertSessionChangesCount( final int sessionChangesCount )
+  {
+    assertEquals( getChanges().size(), sessionChangesCount );
+  }
+
+  private LinkedList<ChannelAction> getChannelActions()
+  {
+    return getSessionChanges().getChannelActions();
+  }
+
+  private void assertChannelAction( @Nonnull final ChannelAction channelAction,
+                                    @Nonnull final ChannelDescriptor channelDescriptor,
+                                    @Nonnull final ChannelAction.Action action,
+                                    @Nullable final String filterAsString )
+  {
+    assertEquals( channelAction.getAction(), action );
+    assertEquals( channelAction.getChannelDescriptor(), channelDescriptor );
+    if ( null == filterAsString )
+    {
+      assertNull( channelAction.getFilter() );
+    }
+    else
+    {
+      assertNotNull( channelAction.getFilter() );
+      assertEquals( channelAction.getFilter().toString(), filterAsString );
+    }
+  }
+
+  private void assertChannelActionCount( final int channelActionCount )
+  {
+    assertEquals( getChannelActions().size(), channelActionCount );
   }
 
   static class TestReplicantSessionManager
