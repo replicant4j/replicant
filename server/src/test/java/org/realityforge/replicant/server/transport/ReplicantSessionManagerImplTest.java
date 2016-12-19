@@ -33,10 +33,22 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void pollJsonData()
+    throws Exception
+  {
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
+    final ReplicantSession session = sm.createSession();
+    session.getQueue().addPacket( null, null, new ChangeSet() );
+
+    assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1,\"request_id\":null,\"etag\":null}" );
+    assertEquals( sm.pollJsonData( session, 1 ), null );
+
+  }
+
+  @Test
   public void ensureCdiType()
   {
     AssertUtil.assertNoFinalMethodsForCDI( ReplicantSessionManagerImpl.class );
-    AssertUtil.assertNoFinalMethodsForCDI( ReplicantJsonSessionManagerImpl.class );
   }
 
   @Test

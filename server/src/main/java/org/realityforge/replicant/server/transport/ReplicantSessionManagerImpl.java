@@ -1,17 +1,24 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.Change;
+import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelLink;
+import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.JsonUtil;
+import org.realityforge.replicant.server.json.JsonEncoder;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.ssf.InMemorySessionManager;
 
@@ -22,6 +29,21 @@ public abstract class ReplicantSessionManagerImpl
   extends InMemorySessionManager<ReplicantSession>
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
+  @Nullable
+  protected String pollJsonData( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
+  {
+    final Packet packet = pollPacket( session, lastSequenceAcked );
+    if ( null != packet )
+    {
+      return JsonEncoder.
+        encodeChangeSet( packet.getSequence(), packet.getRequestID(), packet.getETag(), packet.getChangeSet() );
+    }
+    else
+    {
+      return null;
+    }
+  }
+
   /**
    * Send messages to the specified session.
    * The requesting service must NOT have made any other changes that will be sent to the
