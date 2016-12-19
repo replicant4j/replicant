@@ -2,6 +2,7 @@ package org.realityforge.replicant.server;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
@@ -92,5 +93,40 @@ public class ChangeSetTest
     final Change change = changes.iterator().next();
     assertEquals( change.getEntityMessage().getID(), id );
     assertNotSame( change, change1 );
+  }
+
+
+  @Test
+  public void fullMerge()
+  {
+    final ChangeSet changeSet = new ChangeSet();
+
+    final String id = "myID";
+    final int typeID = 42;
+
+    final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final Change change1 = new Change( message1 );
+    changeSet.merge( change1 );
+
+    final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
+    changeSet.addAction( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) );
+
+    final ChangeSet changeSet2 = new ChangeSet();
+    changeSet2.merge( changeSet, true );
+
+    final Collection<Change> changes = changeSet2.getChanges();
+    assertEquals( changes.size(), 1 );
+    final Change change = changes.iterator().next();
+    assertEquals( change.getEntityMessage().getID(), id );
+    assertNotSame( change, change1 );
+
+    final LinkedList<ChannelAction> actions = changeSet2.getChannelActions();
+    assertEquals( actions.size(), 1 );
+
+    final ChannelAction action = actions.get( 0 );
+    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getAction(), Action.ADD );
+    assertEquals( action.getFilter(), filter );
   }
 }
