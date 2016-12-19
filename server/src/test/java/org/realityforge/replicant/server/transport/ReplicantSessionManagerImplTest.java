@@ -956,6 +956,28 @@ public class ReplicantSessionManagerImplTest
     assertChannelActionCount( 3 );
   }
 
+  @Test
+  public void ensureCacheEntry()
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+
+    sm.setCacheKey( "MyCache" );
+
+    assertEquals( sm.getCacheEntry( cd1 ).isInitialized(), false );
+
+    final ChannelCacheEntry entry = sm.ensureCacheEntry( cd1 );
+
+    assertEquals( entry.isInitialized(), true );
+    assertEquals( entry.getDescriptor(), cd1 );
+    assertEquals( entry.getCacheKey(), "MyCache" );
+    assertEquals( entry.getChangeSet().getChanges().size(), 1 );
+  }
+
   private void assertEntry( @Nonnull final SubscriptionEntry entry,
                             final boolean explicitlySubscribed,
                             final int inwardCount,
