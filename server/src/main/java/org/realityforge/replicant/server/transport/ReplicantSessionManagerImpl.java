@@ -112,10 +112,10 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
 
-  protected void performSubscribe( @Nonnull final ReplicantSession session,
-                                   @Nonnull final SubscriptionEntry entry,
-                                   final boolean explicitSubscribe,
-                                   @Nullable final Object filter )
+  void performSubscribe( @Nonnull final ReplicantSession session,
+                         @Nonnull final SubscriptionEntry entry,
+                         final boolean explicitSubscribe,
+                         @Nullable final Object filter )
   {
     if ( explicitSubscribe )
     {
