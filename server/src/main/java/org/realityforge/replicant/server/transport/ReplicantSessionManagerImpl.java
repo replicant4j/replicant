@@ -3,10 +3,14 @@ package org.realityforge.replicant.server.transport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
@@ -29,6 +33,10 @@ public abstract class ReplicantSessionManagerImpl
   extends InMemorySessionManager<ReplicantSession>
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
+
+  private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
+  private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
+
   @Nullable
   protected String pollJsonData( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
   {
@@ -277,6 +285,85 @@ public abstract class ReplicantSessionManagerImpl
     changeSet.addAction( new ChannelAction( entry.getDescriptor(),
                                             ChannelAction.Action.ADD,
                                             filterToJsonObject( filter ) ) );
+  /**
+   * Return a CacheEntry for a specific channel. When this method returns the cache
+   * data will have already been loaded. The cache data is loaded using a separate lock for
+   * each channel cached.
+   */
+  @Nonnull
+  ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  {
+    assert getChannelMetaData( descriptor ).isCacheable();
+    final ChannelCacheEntry entry = getCacheEntry( descriptor );
+    entry.getLock().readLock().lock();
+    try
+    {
+      if ( entry.isInitialized() )
+      {
+        return entry;
+      }
+    }
+    finally
+    {
+      entry.getLock().readLock().unlock();
+    }
+    entry.getLock().writeLock().lock();
+    try
+    {
+      //Make sure check again once we re-aquire the lock
+      if ( entry.isInitialized() )
+      {
+        return entry;
+      }
+      final ChangeSet changeSet = new ChangeSet();
+      final String cacheKey = collectDataForSubscribe( null, descriptor, changeSet, null );
+      assert null != cacheKey;
+      entry.init( cacheKey, changeSet );
+      return entry;
+    }
+    finally
+    {
+      entry.getLock().writeLock().unlock();
+    }
+  }
+
+  /**
+   * Get the CacheEntry for specified channel. Note that the cache is not necessarily
+   * loaded at this stage. This is done to avoid using a global lock while loading data for a
+   * particular cache entry.
+   */
+  ChannelCacheEntry getCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  {
+    _cacheLock.readLock().lock();
+    try
+    {
+      final ChannelCacheEntry entry = _cache.get( descriptor );
+      if ( null != entry )
+      {
+        return entry;
+      }
+    }
+    finally
+    {
+      _cacheLock.readLock().unlock();
+    }
+    _cacheLock.writeLock().lock();
+    try
+    {
+      //Try again in case it has since been created
+      ChannelCacheEntry entry = _cache.get( descriptor );
+      if ( null != entry )
+      {
+        return entry;
+      }
+      entry = new ChannelCacheEntry( descriptor );
+      _cache.put( descriptor, entry );
+      return entry;
+    }
+    finally
+    {
+      _cacheLock.writeLock().unlock();
+    }
   }
 
   void performUpdateSubscription( @Nonnull final ReplicantSession session,
