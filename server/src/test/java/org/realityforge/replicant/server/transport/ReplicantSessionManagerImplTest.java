@@ -878,7 +878,7 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
-  public void expandLink2()
+  public void expandLinks()
   {
     RegistryUtil.bind();
 
