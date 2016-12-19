@@ -129,6 +129,27 @@ public abstract class ReplicantSessionManagerImpl
                                             null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
   }
 
+  void performUpdateSubscription( @Nonnull final ReplicantSession session,
+                                  @Nonnull final SubscriptionEntry entry,
+                                  @Nullable final Object originalFilter,
+                                  @Nullable final Object filter )
+  {
+    assert getChannelMetaData( entry.getDescriptor() ).getFilterType() != ChannelMetaData.FilterType.NONE;
+    entry.setFilter( filter );
+    final ChannelDescriptor descriptor = entry.getDescriptor();
+    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+    collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
+    changeSet.addAction( new ChannelAction( descriptor,
+                                            ChannelAction.Action.UPDATE,
+                                            null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
+  }
+
+  protected abstract void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                            @Nonnull final ChannelDescriptor descriptor,
+                                                            @Nonnull final ChangeSet changeSet,
+                                                            @Nullable final Object originalFilter,
+                                                            @Nullable final Object filter );
+
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */

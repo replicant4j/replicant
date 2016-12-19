@@ -108,6 +108,49 @@ public class ReplicantSessionManagerImplTest
     }
   }
 
+  @Test
+  public void performUpdateSubscription()
+    throws Exception
+  {
+    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
+
+    final ChannelDescriptor cd = new ChannelDescriptor( ch.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final TestFilter originalFilter = new TestFilter( 41 );
+    final TestFilter filter = new TestFilter( 42 );
+
+    RegistryUtil.bind();
+
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
+    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+
+    assertEquals( changeSet.getChannelActions().size(), 0 );
+    assertEntry( e1, false, 0, 0, null );
+
+    sm.performUpdateSubscription( session, e1, originalFilter, filter );
+
+    assertEntry( e1, false, 0, 0, filter );
+
+    final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
+    assertEquals( actions.size(), 1 );
+    assertChannelAction( actions.get( 0 ), cd, ChannelAction.Action.UPDATE, "{\"myField\":42}" );
+
+    // 1 Change comes from collectDataForUpdate
+    final Collection<Change> changes = changeSet.getChanges();
+    assertEquals( changes.size(), 1 );
+    final Change change = changes.iterator().next();
+    final EntityMessage entityMessage = change.getEntityMessage();
+    assertEquals( entityMessage.getID(), 78 );
+    //Ugly hack to check the filters correctly passed through
+    assertNotNull( entityMessage.getAttributeValues() );
+    assertEquals( entityMessage.getAttributeValues().get( "OriginalFilter" ), originalFilter );
+    assertEquals( entityMessage.getAttributeValues().get( "Filter" ), filter );
+  }
+
   private void assertChannelAction( @Nonnull final ChannelAction channelAction,
                                     @Nonnull final ChannelDescriptor channelDescriptor,
                                     @Nonnull final ChannelAction.Action action,
@@ -363,6 +406,15 @@ public class ReplicantSessionManagerImplTest
                                                      @Nullable final Object originalFilter,
                                                      @Nullable final Object filter )
     {
+
+      final HashMap<String, Serializable> routingKeys = new HashMap<>();
+      final HashMap<String, Serializable> attributes = new HashMap<>();
+      attributes.put( "ID", 78 );
+      //Ugly hack to pass back filters
+      attributes.put( "OriginalFilter", (Serializable) originalFilter );
+      attributes.put( "Filter", (Serializable) filter );
+      final EntityMessage message = new EntityMessage( 78, 1, 0, routingKeys, attributes, null );
+      changeSet.merge( new Change( message, descriptor.getChannelID(), descriptor.getSubChannelID() ) );
     }
 
     @Override
