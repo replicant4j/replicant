@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import javax.json.Json;
@@ -68,8 +67,7 @@ public class ChangeSetTest
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
     assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    final Serializable subChannelID = 2;
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), subChannelID );
+    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
