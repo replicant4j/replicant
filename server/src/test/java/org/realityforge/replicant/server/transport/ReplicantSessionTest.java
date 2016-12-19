@@ -59,4 +59,31 @@ public class ReplicantSessionTest
     assertFalse( session.isSubscriptionEntryPresent( cd1 ) );
     assertEquals( session.getSubscriptions().size(), 0 );
   }
+
+  @Test
+  public void cacheKeys()
+  {
+    final String sessionID = ValueUtil.randomString();
+    final ReplicantSession session = new ReplicantSession( sessionID );
+
+    assertEquals( session.getCacheKeys().size(), 0 );
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, null );
+
+    assertEquals( session.getCacheKey( cd1 ), null );
+
+    session.setCacheKey( cd1, "X" );
+
+    assertEquals( session.getCacheKeys().size(), 1 );
+    assertEquals( session.getCacheKey( cd1 ), "X" );
+    try
+    {
+      session.getCacheKeys().remove( cd1 );
+      fail( "Expected to be unable to delete cacheKey as it is a read-only set" );
+    }
+    catch ( final UnsupportedOperationException uoe )
+    {
+      //ignored
+    }
+  }
 }

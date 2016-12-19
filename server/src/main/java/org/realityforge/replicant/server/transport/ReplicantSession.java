@@ -15,6 +15,8 @@ public final class ReplicantSession
   extends SimpleSessionInfo
 {
   private final PacketQueue _queue = new PacketQueue();
+  private final HashMap<ChannelDescriptor, String> _cacheKeys = new HashMap<>();
+  private final Map<ChannelDescriptor, String> _roCacheKeys = Collections.unmodifiableMap( _cacheKeys );
   private final HashMap<ChannelDescriptor, SubscriptionEntry> _subscriptions = new HashMap<>();
   private final Map<ChannelDescriptor, SubscriptionEntry> _roSubscriptions =
     Collections.unmodifiableMap( _subscriptions );
@@ -28,6 +30,30 @@ public final class ReplicantSession
   public final PacketQueue getQueue()
   {
     return _queue;
+  }
+
+  @Nonnull
+  public Map<ChannelDescriptor, String> getCacheKeys()
+  {
+    return _roCacheKeys;
+  }
+
+  @Nullable
+  public String getCacheKey( @Nonnull final ChannelDescriptor descriptor )
+  {
+    return _cacheKeys.get( descriptor );
+  }
+
+  public void setCacheKey( @Nonnull final ChannelDescriptor descriptor, @Nullable final String key )
+  {
+    if ( null == key )
+    {
+      _cacheKeys.remove( descriptor );
+    }
+    else
+    {
+      _cacheKeys.put( descriptor, key );
+    }
   }
 
   @Nonnull
