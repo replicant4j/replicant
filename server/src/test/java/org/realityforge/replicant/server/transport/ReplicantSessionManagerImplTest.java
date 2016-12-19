@@ -1086,7 +1086,7 @@ public class ReplicantSessionManagerImplTest
       changeSet.merge( new Change( message, descriptor.getChannelID(), descriptor.getSubChannelID() ) );
     }
 
-    public void setFollowSource( final ChannelDescriptor followSource )
+    private void setFollowSource( final ChannelDescriptor followSource )
     {
       _followSource = followSource;
     }
