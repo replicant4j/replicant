@@ -1016,6 +1016,7 @@ public class ReplicantSessionManagerImplTest
   {
     private final ChannelMetaData[] _channelMetaDatas;
     private ChannelDescriptor _followSource;
+    private String _cacheKey;
 
     private TestReplicantSessionManager()
     {
@@ -1025,6 +1026,11 @@ public class ReplicantSessionManagerImplTest
     private TestReplicantSessionManager( final ChannelMetaData[] channelMetaDatas )
     {
       _channelMetaDatas = channelMetaDatas;
+    }
+
+    private void setCacheKey( final String cacheKey )
+    {
+      _cacheKey = cacheKey;
     }
 
     @Nonnull
@@ -1065,7 +1071,7 @@ public class ReplicantSessionManagerImplTest
       attributes.put( "ID", 79 );
       final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
       changeSet.merge( new Change( message, descriptor.getChannelID(), descriptor.getSubChannelID() ) );
-      return null;
+      return _cacheKey;
     }
 
     @Override
