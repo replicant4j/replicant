@@ -363,6 +363,49 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void unsubscribe()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    // Unsubscribe from channel that was explicitly subscribed
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true, null );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.unsubscribe( entry.getDescriptor(), session, true );
+
+      assertChannelActionCount( 1 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+    }
+
+    // unsubscribe from unsubscribed
+    {
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.unsubscribe( cd1, session, true );
+
+      assertChannelActionCount( 0 );
+    }
+  }
+
+  @Test
   public void performUpdateSubscription()
     throws Exception
   {

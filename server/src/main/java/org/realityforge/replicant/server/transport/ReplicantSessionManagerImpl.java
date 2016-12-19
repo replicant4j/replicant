@@ -204,6 +204,16 @@ public abstract class ReplicantSessionManagerImpl
                                                             @Nullable final Object originalFilter,
                                                             @Nullable final Object filter );
 
+  protected void unsubscribe( @Nonnull final ChannelDescriptor descriptor,
+                              final ReplicantSession session,
+                              final boolean explicitUnsubscribe )
+  {
+    final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
+    if ( null != entry )
+    {
+      performUnsubscribe( session, entry, explicitUnsubscribe );
+    }
+  }
 
   void performUnsubscribe( @Nonnull final ReplicantSession session,
                            @Nonnull final SubscriptionEntry entry,
