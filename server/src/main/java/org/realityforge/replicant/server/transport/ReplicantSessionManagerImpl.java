@@ -33,6 +33,30 @@ public abstract class ReplicantSessionManagerImpl
   extends InMemorySessionManager<ReplicantSession>
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
+  /**
+   * Status returned when attempting to subscribe.
+   */
+  public enum CacheStatus
+  {
+    /**
+     * The client supplied cacheKey is still valid and cached data should be reused.
+     */
+    USE,
+    /**
+     * The client did not supply cacheKey or it is out of date. Client cache should be refreshed from supplied data.
+     */
+    REFRESH,
+    /**
+     * The client did not supply cacheKey or it is out of date and the response is not cacheable. This may occur
+     * if multiple subscriptions occur in a single subscribe call or attempting to subscribe to channels that are
+     * already on the client.
+     *
+     * One day this may not be needed if the client can generate the cache from the in-memory representation rather
+     * than the representation as it passes over the network.
+     * TODO: Fix this.
+     */
+    IGNORE
+  }
 
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
@@ -270,21 +294,43 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  void performSubscribe( @Nonnull final ReplicantSession session,
-                         @Nonnull final SubscriptionEntry entry,
-                         final boolean explicitSubscribe,
-                         @Nullable final Object filter )
+  @Nonnull
+  CacheStatus performSubscribe( @Nonnull final ReplicantSession session,
+                                @Nonnull final SubscriptionEntry entry,
+                                final boolean explicitSubscribe,
+                                @Nullable final Object filter )
   {
     if ( explicitSubscribe )
     {
       entry.setExplicitlySubscribed( true );
     }
     entry.setFilter( filter );
+    final ChannelDescriptor descriptor = entry.getDescriptor();
+    final ChannelMetaData channelMetaData = getChannelMetaData( descriptor );
+    if ( channelMetaData.isCacheable() )
+    {
+      final ChannelCacheEntry cacheEntry = ensureCacheEntry( descriptor );
+      if ( cacheEntry.getCacheKey().equals( session.getCacheKey( descriptor ) ) )
+      {
+        return CacheStatus.USE;
+      }
+      else
+      {
+        final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+        changeSet.merge( cacheEntry.getChangeSet(), true );
+        changeSet.addAction( new ChannelAction( descriptor, ChannelAction.Action.ADD, filterToJsonObject( filter ) ) );
+        return CacheStatus.REFRESH;
+      }
+    }
+
     final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
-    collectDataForSubscribe( session, entry.getDescriptor(), changeSet, filter );
-    changeSet.addAction( new ChannelAction( entry.getDescriptor(),
+    collectDataForSubscribe( session, descriptor, changeSet, filter );
+    changeSet.addAction( new ChannelAction( descriptor,
                                             ChannelAction.Action.ADD,
                                             filterToJsonObject( filter ) ) );
+    return CacheStatus.REFRESH;
+  }
+
   /**
    * Return a CacheEntry for a specific channel. When this method returns the cache
    * data will have already been loaded. The cache data is loaded using a separate lock for

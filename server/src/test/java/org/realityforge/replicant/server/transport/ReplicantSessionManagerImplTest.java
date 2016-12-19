@@ -217,7 +217,9 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
 
-      sm.performSubscribe( session, e1, true, null );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
 
       assertEntry( e1, true, 0, 0, null );
 
@@ -242,7 +244,9 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
 
-      sm.performSubscribe( session, e1, true, filter );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, filter );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
 
       assertEntry( e1, true, 0, 0, filter );
 
@@ -258,6 +262,84 @@ public class ReplicantSessionManagerImplTest
       assertEntry( e1, true, 0, 0, filter );
 
       session.deleteSubscriptionEntry( e1 );
+    }
+  }
+
+  @Test
+  public void performSubscribe_withCaching()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, true );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch2.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+
+    sm.setCacheKey( "X" );
+
+    //Locally cached
+    {
+      final ReplicantSession session = sm.createSession();
+      session.setCacheKey( cd1, "X" );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.USE );
+
+      assertEntry( e1, true, 0, 0, null );
+
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
+    }
+
+    //Locally cached but an old version
+    {
+      final ReplicantSession session = sm.createSession();
+      session.setCacheKey( cd1, "NOT" + sm._cacheKey );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+
+      assertEntry( e1, true, 0, 0, null );
+
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
+    }
+
+    //Not cached locally
+    {
+      final ReplicantSession session = sm.createSession();
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+
+      assertEntry( e1, true, 0, 0, null );
+
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
     }
   }
 
