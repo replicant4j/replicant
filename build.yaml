@@ -22,7 +22,7 @@ artifacts:
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
 
-  glassfish_embedded: org.glassfish.main.extras:glassfish-embedded-all:jar:4.1
+  glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:4.1.1.162
 
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.67
 
