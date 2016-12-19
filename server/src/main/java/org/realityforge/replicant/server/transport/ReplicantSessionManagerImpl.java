@@ -213,11 +213,5 @@ public abstract class ReplicantSessionManagerImpl
   {
     session.getSubscriptionEntry( source ).registerOutwardSubscriptions( target );
     session.getSubscriptionEntry( target ).registerInwardSubscriptions( source );
-
-
-    if ( getChannelMetaData( target ).getFilterType() != ChannelMetaData.FilterType.NONE )
-    {
-      targetEntry.setFilter( sourceEntry.getFilter() );
-    }
   }
 }
