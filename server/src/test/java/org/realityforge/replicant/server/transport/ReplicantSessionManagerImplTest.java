@@ -221,6 +221,9 @@ public class ReplicantSessionManagerImplTest
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
     final ChannelDescriptor cd2 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd4 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd5 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -228,7 +231,7 @@ public class ReplicantSessionManagerImplTest
     // Unsubscribe from channel that was explicitly subscribed
     {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, true,  null );
+      sm.subscribe( session, cd1, true, null );
       final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
 
       //Rebind clears the state
@@ -247,7 +250,7 @@ public class ReplicantSessionManagerImplTest
     // implicit unsubscribe from channel that was implicitly subscribed should leave explicit subscription
     {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, true,  null );
+      sm.subscribe( session, cd1, true, null );
       final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
 
       //Rebind clears the state
@@ -269,9 +272,9 @@ public class ReplicantSessionManagerImplTest
     }
 
     // implicit unsubscribe from channel that was implicitly subscribed should delete subscription
-     {
+    {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, false,  null );
+      sm.subscribe( session, cd1, false, null );
       final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
 
       //Rebind clears the state
@@ -289,13 +292,13 @@ public class ReplicantSessionManagerImplTest
 
     // implicit unsubscribe from channel that was implicitly subscribed should leave subscription that
     // implicitly linked from elsewhere
-     {
+    {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, false,  null );
+      sm.subscribe( session, cd1, false, null );
       final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
 
-      sm.subscribe( session, cd2, false,  null );
-      final SubscriptionEntry entry2 = session.getSubscriptionEntry( cd1 );
+      sm.subscribe( session, cd2, false, null );
+      final SubscriptionEntry entry2 = session.getSubscriptionEntry( cd2 );
       sm.linkSubscriptionEntries( entry2, entry );
 
       //Rebind clears the state
@@ -315,6 +318,47 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
       assertNull( session.findSubscriptionEntry( cd1 ) );
+    }
+
+    // Unsubscribe als results in unsubscribe for all downstream channels
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true, null );
+      sm.subscribe( session, cd2, false, null );
+      sm.subscribe( session, cd3, false, null );
+      sm.subscribe( session, cd4, false, null );
+      sm.subscribe( session, cd5, false, null );
+
+      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+      final SubscriptionEntry entry2 = session.getSubscriptionEntry( cd2 );
+      final SubscriptionEntry entry3 = session.getSubscriptionEntry( cd3 );
+      final SubscriptionEntry entry4 = session.getSubscriptionEntry( cd4 );
+      final SubscriptionEntry entry5 = session.getSubscriptionEntry( cd5 );
+
+      sm.linkSubscriptionEntries( entry, entry2 );
+      sm.linkSubscriptionEntries( entry, entry3 );
+      sm.linkSubscriptionEntries( entry3, entry4 );
+      sm.linkSubscriptionEntries( entry4, entry5 );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      sm.performUnsubscribe( session, entry, true );
+
+      assertChannelActionCount( 5 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 1 ), cd2, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 2 ), cd3, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 3 ), cd4, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 4 ), cd5, ChannelAction.Action.REMOVE, null );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( cd2 ) );
+      assertNull( session.findSubscriptionEntry( cd3 ) );
+      assertNull( session.findSubscriptionEntry( cd4 ) );
+      assertNull( session.findSubscriptionEntry( cd5 ) );
     }
   }
 

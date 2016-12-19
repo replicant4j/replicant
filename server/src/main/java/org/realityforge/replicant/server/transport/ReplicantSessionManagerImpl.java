@@ -217,7 +217,7 @@ public abstract class ReplicantSessionManagerImpl
     {
       EntityMessageCacheUtil.getSessionChanges().
         addAction( new ChannelAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null ) );
-      for ( final ChannelDescriptor downstream : entry.getOutwardSubscriptions() )
+      for ( final ChannelDescriptor downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
         if ( null != downstreamEntry )
