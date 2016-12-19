@@ -68,9 +68,9 @@ public class ReplicantSessionManagerImplTest
   public void subscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch3 = new ChannelMetaData( 2, "C3", true, ChannelMetaData.FilterType.STATIC );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData ch3 = new ChannelMetaData( 2, "C3", true, ChannelMetaData.FilterType.STATIC, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
@@ -174,7 +174,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
@@ -184,7 +184,7 @@ public class ReplicantSessionManagerImplTest
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
-    sm.subscribe( session.getSessionID(), cd1, null );
+    sm.subscribe( session.getSessionID(), cd1, null, null );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
     assertNotNull( entry1 );
@@ -198,8 +198,8 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
@@ -265,7 +265,7 @@ public class ReplicantSessionManagerImplTest
   public void performUnsubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
@@ -414,7 +414,7 @@ public class ReplicantSessionManagerImplTest
   public void unsubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
@@ -457,7 +457,7 @@ public class ReplicantSessionManagerImplTest
   public void unsubscribe_usingSessionID()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
@@ -486,7 +486,7 @@ public class ReplicantSessionManagerImplTest
   public void performUpdateSubscription()
     throws Exception
   {
-    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelDescriptor cd = new ChannelDescriptor( ch.getChannelID(), null );
@@ -528,7 +528,7 @@ public class ReplicantSessionManagerImplTest
   public void updateSubscription()
     throws Exception
   {
-    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelDescriptor cd = new ChannelDescriptor( ch.getChannelID(), null );
@@ -567,7 +567,7 @@ public class ReplicantSessionManagerImplTest
   public void updateSubscription_usingSessionID()
     throws Exception
   {
-    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch = new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelDescriptor cd = new ChannelDescriptor( ch.getChannelID(), null );
@@ -599,8 +599,8 @@ public class ReplicantSessionManagerImplTest
   public void linkSubscriptionEntries()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
@@ -732,9 +732,9 @@ public class ReplicantSessionManagerImplTest
   {
     RegistryUtil.bind();
 
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE );
-    final ChannelMetaData ch3 = new ChannelMetaData( 2, "C3", false, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData ch3 = new ChannelMetaData( 2, "C3", false, ChannelMetaData.FilterType.DYNAMIC, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
@@ -830,8 +830,8 @@ public class ReplicantSessionManagerImplTest
   {
     RegistryUtil.bind();
 
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
@@ -909,8 +909,8 @@ public class ReplicantSessionManagerImplTest
   {
     RegistryUtil.bind();
 
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
