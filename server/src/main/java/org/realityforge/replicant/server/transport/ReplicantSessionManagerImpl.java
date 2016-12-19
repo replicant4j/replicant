@@ -230,6 +230,7 @@ public abstract class ReplicantSessionManagerImpl
     final CacheStatus status = subscribe( session, descriptor, true, filter );
     if ( status != CacheStatus.USE )
     {
+      session.setCacheKey( descriptor, null );
       expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
     }
     return status;
