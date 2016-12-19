@@ -346,17 +346,17 @@ public class ReplicationInterceptorTest
     extends AbstractReplicationInterceptor
     implements EntityMessageEndpoint
   {
-    String _sessionID;
-    String _requestID;
-    Collection<EntityMessage> _messages;
-    EntityManager _entityManager;
+    private String _sessionID;
+    private String _requestID;
+    private Collection<EntityMessage> _messages;
+    private EntityManager _entityManager;
     private final TransactionSynchronizationRegistry _registry;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
 
-    TestReplicationInterceptor( final EntityManager entityManager,
-                                final TransactionSynchronizationRegistry registry,
-                                final boolean routeToSession )
+    private TestReplicationInterceptor( final EntityManager entityManager,
+                                        final TransactionSynchronizationRegistry registry,
+                                        final boolean routeToSession )
     {
       _entityManager = entityManager;
       _registry = registry;
