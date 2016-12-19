@@ -353,7 +353,7 @@ public abstract class ReplicantSessionManagerImpl
    * each channel cached.
    */
   @Nonnull
-  ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  protected ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelDescriptor descriptor )
   {
     assert getChannelMetaData( descriptor ).isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( descriptor );
