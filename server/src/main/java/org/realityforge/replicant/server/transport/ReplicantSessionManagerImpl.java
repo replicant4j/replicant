@@ -470,9 +470,9 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  void performUnsubscribe( @Nonnull final ReplicantSession session,
-                           @Nonnull final SubscriptionEntry entry,
-                           final boolean explicitUnsubscribe )
+  protected void performUnsubscribe( @Nonnull final ReplicantSession session,
+                                     @Nonnull final SubscriptionEntry entry,
+                                     final boolean explicitUnsubscribe )
   {
     if ( explicitUnsubscribe )
     {
