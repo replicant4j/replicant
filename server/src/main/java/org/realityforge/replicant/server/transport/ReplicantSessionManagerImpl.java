@@ -144,6 +144,11 @@ public abstract class ReplicantSessionManagerImpl
                                             null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
   }
 
+  protected abstract void collectDataForSubscribe( @Nonnull final ReplicantSession session,
+                                                   @Nonnull final ChannelDescriptor descriptor,
+                                                   @Nonnull final ChangeSet changeSet,
+                                                   @Nullable final Object filter );
+
   protected abstract void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
                                                             @Nonnull final ChannelDescriptor descriptor,
                                                             @Nonnull final ChangeSet changeSet,
