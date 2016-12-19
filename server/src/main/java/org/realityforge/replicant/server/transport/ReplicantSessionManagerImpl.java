@@ -133,6 +133,52 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
+  @Override
+  public boolean saveEntityMessages( @Nullable final String sessionID,
+                                     @Nullable final String requestID,
+                                     @Nonnull final Collection<EntityMessage> messages,
+                                     @Nullable final ChangeSet sessionChanges )
+  {
+    //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
+    getLock().readLock().lock();
+    final ChangeAccumulator accumulator = new ChangeAccumulator();
+    try
+    {
+      final Collection<ReplicantSession> sessions = getSessions().values();
+      for ( final EntityMessage message : messages )
+      {
+        processDeleteMessages( message, sessions );
+      }
+
+      for ( final EntityMessage message : messages )
+      {
+        processUpdateMessages( message, sessions, accumulator );
+      }
+      final ReplicantSession initiatorSession = null != sessionID ? getSession( sessionID ) : null;
+      if ( null != initiatorSession && null != sessionChanges )
+      {
+        accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
+        accumulator.addActions( initiatorSession, sessionChanges.getChannelActions() );
+      }
+      for ( final ReplicantSession session : getSessions().values() )
+      {
+        expandLinks( session, accumulator.getChangeSet( session ) );
+      }
+    }
+    finally
+    {
+      getLock().readLock().unlock();
+    }
+
+    return accumulator.complete( sessionID, requestID );
+  }
+
+  protected abstract void processUpdateMessages( @Nonnull EntityMessage message,
+                                                 @Nonnull Collection<ReplicantSession> sessions,
+                                                 @Nonnull ChangeAccumulator accumulator );
+
+  protected abstract void processDeleteMessages( @Nonnull EntityMessage message,
+                                                 @Nonnull Collection<ReplicantSession> sessions );
 
   protected void subscribe( @Nonnull final String sessionID,
                             @Nonnull final ChannelDescriptor descriptor,
