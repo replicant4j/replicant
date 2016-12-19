@@ -212,14 +212,27 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract void processDeleteMessages( @Nonnull EntityMessage message,
                                                  @Nonnull Collection<ReplicantSession> sessions );
 
-  protected void subscribe( @Nonnull final String sessionID,
-                            @Nonnull final ChannelDescriptor descriptor,
-                            @Nullable final Object filter )
+  /**
+   * Perform a a subscribe.
+   *
+   * @param cacheKey the opaque string that represents version of message client has cached locally.
+   * @return The cache status of data returned as part of subscribe.
+   */
+  @Nonnull
+  protected CacheStatus subscribe( @Nonnull final String sessionID,
+                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nullable final Object filter,
+                                   @Nullable final String cacheKey )
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    subscribe( session, descriptor, true, filter );
-    expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+    session.setCacheKey( descriptor, cacheKey );
+    final CacheStatus status = subscribe( session, descriptor, true, filter );
+    if ( status != CacheStatus.USE )
+    {
+      expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+    }
+    return status;
   }
 
   protected void updateSubscription( @Nonnull final String sessionID,
@@ -258,10 +271,11 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  protected void subscribe( @Nonnull final ReplicantSession session,
-                            @Nonnull final ChannelDescriptor descriptor,
-                            final boolean explicitlySubscribe,
-                            @Nullable final Object filter )
+  @Nonnull
+  protected CacheStatus subscribe( @Nonnull final ReplicantSession session,
+                                   @Nonnull final ChannelDescriptor descriptor,
+                                   final boolean explicitlySubscribe,
+                                   @Nullable final Object filter )
   {
     if ( session.isSubscriptionEntryPresent( descriptor ) )
     {
@@ -287,10 +301,11 @@ public abstract class ReplicantSessionManagerImpl
           throw new AttemptedToUpdateStaticFilterException( message );
         }
       }
+      return CacheStatus.IGNORE;
     }
     else
     {
-      performSubscribe( session, session.createSubscriptionEntry( descriptor ), explicitlySubscribe, filter );
+      return performSubscribe( session, session.createSubscriptionEntry( descriptor ), explicitlySubscribe, filter );
     }
   }
 

@@ -88,7 +88,9 @@ public class ReplicantSessionManagerImplTest
     // subscribe
     {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, false, null );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, cd1, false, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
 
       final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
       assertNotNull( entry1 );
@@ -101,7 +103,9 @@ public class ReplicantSessionManagerImplTest
     // re-subscribe- should be noop
     {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, false, null );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, cd1, false, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
       assertEntry( session.getSubscriptionEntry( cd1 ), false, 0, 0, null );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
@@ -110,7 +114,9 @@ public class ReplicantSessionManagerImplTest
     // re-subscribe explicitly - should only set explicit flag
     {
       RegistryUtil.bind();
-      sm.subscribe( session, cd1, true, null );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, cd1, true, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
       assertEntry( session.getSubscriptionEntry( cd1 ), true, 0, 0, null );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
@@ -119,7 +125,9 @@ public class ReplicantSessionManagerImplTest
     // subscribe when existing subscription present
     {
       RegistryUtil.bind();
-      sm.subscribe( session, cd2, true, originalFilter );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, cd2, true, originalFilter );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
       assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 1 );
       assertSessionChangesCount( 1 );
@@ -127,14 +135,16 @@ public class ReplicantSessionManagerImplTest
       EntityMessageCacheUtil.removeSessionChanges();
 
       //Should be a noop as same filter
-      sm.subscribe( session, cd2, true, originalFilter );
+      final ReplicantSessionManagerImpl.CacheStatus status1 = sm.subscribe( session, cd2, true, originalFilter );
+      assertEquals( status1, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
 
       assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
 
       //Should be a filter update
-      sm.subscribe( session, cd2, true, filter );
+      final ReplicantSessionManagerImpl.CacheStatus status2 = sm.subscribe( session, cd2, true, filter );
+      assertEquals( status2, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
 
       assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, filter );
       assertChannelActionCount( 1 );
@@ -171,6 +181,56 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void subscribe_withCache()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+
+    sm.setCacheKey( "X" );
+
+    // subscribe - matching cacheKey
+    {
+      final ReplicantSession session = sm.createSession();
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+      RegistryUtil.bind();
+      session.setCacheKey( cd1, "X" );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, cd1, false, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.USE );
+
+      final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+      assertNotNull( entry1 );
+      assertEntry( entry1, false, 0, 0, null );
+
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
+    }
+
+    // subscribe - cacheKey differs
+    {
+      final ReplicantSession session = sm.createSession();
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+      RegistryUtil.bind();
+      session.setCacheKey( cd1, "Y" );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, cd1, false, null );
+      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+
+      final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+      assertNotNull( entry1 );
+      assertEntry( entry1, false, 0, 0, null );
+
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
+    }
+  }
+
+  @Test
   public void subscribe_withSessionID()
     throws Exception
   {
@@ -184,7 +244,42 @@ public class ReplicantSessionManagerImplTest
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
-    sm.subscribe( session.getSessionID(), cd1, null, null );
+    final ReplicantSessionManagerImpl.CacheStatus status =
+      sm.subscribe( session.getSessionID(), cd1, null, null );
+    assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+
+    final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+    assertNotNull( entry1 );
+    assertEntry( entry1, true, 0, 0, null );
+
+    assertChannelActionCount( 1 );
+    assertSessionChangesCount( 1 );
+  }
+
+
+  @Test
+  public void subscribe_withSessionID_andCaching()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    sm.setCacheKey( "X" );
+
+    assertNull( session.getCacheKey( cd1 ) );
+
+    assertNull( session.findSubscriptionEntry( cd1 ) );
+
+    final ReplicantSessionManagerImpl.CacheStatus status =
+      sm.subscribe( session.getSessionID(), cd1, null, "Y" );
+    assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+
+    assertEquals( session.getCacheKey( cd1 ), "Y" );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
     assertNotNull( entry1 );
@@ -270,11 +365,9 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, true );
-    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, false );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
-    final ChannelDescriptor cd2 = new ChannelDescriptor( ch2.getChannelID(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
