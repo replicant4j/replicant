@@ -40,6 +40,112 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void subscribe()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC );
+    final ChannelMetaData ch3 = new ChannelMetaData( 2, "C3", true, ChannelMetaData.FilterType.STATIC );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch2.getChannelID(), null );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( ch3.getChannelID(), null );
+
+    final TestFilter originalFilter = new TestFilter( 41 );
+    final TestFilter filter = new TestFilter( 42 );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    assertNull( session.findSubscriptionEntry( cd1 ) );
+
+    // subscribe
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, false, null );
+
+      final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+      assertNotNull( entry1 );
+      assertEntry( entry1, false, 0, 0, null );
+
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
+    }
+
+    // re-subscribe- should be noop
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, false, null );
+      assertEntry( session.getSubscriptionEntry( cd1 ), false, 0, 0, null );
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
+    }
+
+    // re-subscribe explicitly - should only set explicit flag
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true, null );
+      assertEntry( session.getSubscriptionEntry( cd1 ), true, 0, 0, null );
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
+    }
+
+    // subscribe when existing subscription present
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd2, true, originalFilter );
+      assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
+
+      EntityMessageCacheUtil.removeSessionChanges();
+
+      //Should be a noop as same filter
+      sm.subscribe( session, cd2, true, originalFilter );
+
+      assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
+
+      //Should be a filter update
+      sm.subscribe( session, cd2, true, filter );
+
+      assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, filter );
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
+    }
+
+    //Subscribe and attempt to update static filter
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd3, true, originalFilter );
+      assertEntry( session.getSubscriptionEntry( cd3 ), true, 0, 0, originalFilter );
+      assertChannelActionCount( 1 );
+      assertSessionChangesCount( 1 );
+
+      EntityMessageCacheUtil.removeSessionChanges();
+
+      //Should be a noop as same filter
+      sm.subscribe( session, cd3, true, originalFilter );
+
+      assertEntry( session.getSubscriptionEntry( cd3 ), true, 0, 0, originalFilter );
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
+
+      try
+      {
+        sm.subscribe( session, cd3, true, filter );
+        fail( "Successfully updated a static filter" );
+      }
+      catch ( final AttemptedToUpdateStaticFilterException ignore )
+      {
+        //Ignore. Fine
+      }
+    }
+  }
+
+  @Test
   public void performSubscribe()
     throws Exception
   {

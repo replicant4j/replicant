@@ -125,6 +125,42 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  protected void subscribe( @Nonnull final ReplicantSession session,
+                            @Nonnull final ChannelDescriptor descriptor,
+                            final boolean explicitlySubscribe,
+                            @Nullable final Object filter )
+  {
+    if ( session.isSubscriptionEntryPresent( descriptor ) )
+    {
+      final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
+      if ( explicitlySubscribe )
+      {
+        entry.setExplicitlySubscribed( true );
+      }
+      final ChannelMetaData channelMetaData = getChannelMetaData( descriptor );
+      if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC )
+      {
+        updateSubscription( session, descriptor, filter );
+      }
+      else if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.STATIC )
+      {
+        final Object existingFilter = entry.getFilter();
+        if ( !( ( null == existingFilter && null == filter ) ||
+                ( null != existingFilter && existingFilter.equals( filter ) ) ) )
+        {
+          final String message =
+            "Attempted to update filter on channel " + entry.getDescriptor() + " from " + existingFilter +
+            " to " + filter + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
+          throw new AttemptedToUpdateStaticFilterException( message );
+        }
+      }
+    }
+    else
+    {
+      performSubscribe( session, session.createSubscriptionEntry( descriptor ), explicitlySubscribe, filter );
+    }
+  }
+
   void performSubscribe( @Nonnull final ReplicantSession session,
                          @Nonnull final SubscriptionEntry entry,
                          final boolean explicitSubscribe,
