@@ -333,7 +333,7 @@ public class ReplicantSessionManagerImplTest
       ensureFailed = true;
     }
 
-    assertFalse( ensureFailed, "Ensure expected to fail with non-existent session" );
+    assertTrue( ensureFailed, "Ensure expected to fail with non-existent session" );
 
     final ReplicantSession session = sm.createSession();
     assertEquals( sm.ensureSession( session.getSessionID() ), session );
