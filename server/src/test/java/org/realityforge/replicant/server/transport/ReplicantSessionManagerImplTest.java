@@ -57,6 +57,8 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     assertFalse( sm.deleteCacheEntry( cd1 ) );
 
+    sm.setCacheKey( "X" );
+
     sm.ensureCacheEntry( cd1 );
 
     assertTrue( sm.deleteCacheEntry( cd1 ) );
@@ -241,8 +243,13 @@ public class ReplicantSessionManagerImplTest
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
+      final PacketQueue queue = session.getQueue();
+      assertEquals( queue.size(), 1 );
+      final Packet packet = queue.getPacket( 1 );
+      assertNotNull( packet );
+      assertEquals( packet.getETag(), "X" );
+      assertEquals( packet.getChangeSet().getChanges().size(), 1 );
+      assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
     }
   }
 
@@ -332,8 +339,13 @@ public class ReplicantSessionManagerImplTest
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
-    assertChannelActionCount( 1 );
-    assertSessionChangesCount( 1 );
+      final PacketQueue queue = session.getQueue();
+      assertEquals( queue.size(), 1 );
+      final Packet packet = queue.getPacket( 1 );
+      assertNotNull( packet );
+      assertEquals( packet.getETag(), "X" );
+      assertEquals( packet.getChangeSet().getChanges().size(), 1 );
+      assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
   }
 
   @Test
@@ -458,8 +470,13 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
+      final PacketQueue queue = session.getQueue();
+      assertEquals( queue.size(), 1 );
+      final Packet packet = queue.getPacket( 1 );
+      assertNotNull( packet );
+      assertEquals( packet.getETag(), "X" );
+      assertEquals( packet.getChangeSet().getChanges().size(), 1 );
+      assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
     }
 
     //Not cached locally
@@ -478,8 +495,13 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
+      final PacketQueue queue = session.getQueue();
+      assertEquals( queue.size(), 1 );
+      final Packet packet = queue.getPacket( 1 );
+      assertNotNull( packet );
+      assertEquals( packet.getETag(), "X" );
+      assertEquals( packet.getChangeSet().getChanges().size(), 1 );
+      assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
     }
   }
 

@@ -332,9 +332,10 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
+        final ChangeSet changeSet = new ChangeSet();
         changeSet.merge( cacheEntry.getChangeSet(), true );
         changeSet.addAction( new ChannelAction( descriptor, ChannelAction.Action.ADD, filterToJsonObject( filter ) ) );
+        sendPacket( session, cacheEntry.getCacheKey(), changeSet );
         return CacheStatus.REFRESH;
       }
     }
