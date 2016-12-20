@@ -347,6 +347,19 @@ public abstract class ReplicantSessionManagerImpl
     return CacheStatus.REFRESH;
   }
 
+  protected boolean deleteCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  {
+    _cacheLock.writeLock().lock();
+    try
+    {
+      return null != _cache.remove( descriptor );
+    }
+    finally
+    {
+      _cacheLock.writeLock().unlock();
+    }
+  }
+
   /**
    * Return a CacheEntry for a specific channel. When this method returns the cache
    * data will have already been loaded. The cache data is loaded using a separate lock for

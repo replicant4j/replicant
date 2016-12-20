@@ -47,6 +47,22 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void deleteCacheEntry()
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    assertFalse( sm.deleteCacheEntry( cd1 ) );
+
+    sm.ensureCacheEntry( cd1 );
+
+    assertTrue( sm.deleteCacheEntry( cd1 ) );
+  }
+
+  @Test
   public void pollJsonData()
     throws Exception
   {
