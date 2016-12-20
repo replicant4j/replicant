@@ -589,7 +589,7 @@ public abstract class ReplicantSessionManagerImpl
     {
       final ChannelDescriptor target = link.getTargetChannel();
       final boolean targetUnfiltered = getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
-      if ( targetUnfiltered || shouldFollowLink( source, target ) )
+      if ( targetUnfiltered || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
@@ -604,7 +604,7 @@ public abstract class ReplicantSessionManagerImpl
     return false;
   }
 
-  protected abstract boolean shouldFollowLink( @Nonnull final ChannelDescriptor source,
+  protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelDescriptor target );
 
   private JsonObject filterToJsonObject( final @Nullable Object filter )

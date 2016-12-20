@@ -1364,11 +1364,10 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected boolean shouldFollowLink( @Nonnull final ChannelDescriptor source,
+    protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                         @Nonnull final ChannelDescriptor target )
     {
-
-      return null != _followSource && _followSource.equals( source );
+      return null != _followSource && _followSource.equals( sourceEntry.getDescriptor() );
     }
 
     @Nonnull
