@@ -120,14 +120,23 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   public ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
   {
+    return getChannelMetaData( descriptor.getChannelID() );
+  }
+
+  /**
+   * @return the channel metadata.
+   */
+  @Nonnull
+  public ChannelMetaData getChannelMetaData( final int channelID )
+  {
     final ChannelMetaData[] channelMetaData = getChannelMetaData();
-    if ( descriptor.getChannelID() >= channelMetaData.length )
+    if ( channelID >= channelMetaData.length )
     {
       final String message =
-        "Descriptor " + descriptor + " not part of declared metadata: " + Arrays.asList( channelMetaData );
+        "Channel " + channelID + " not part of declared metadata: " + Arrays.asList( channelMetaData );
       throw new IllegalStateException( message );
     }
-    return channelMetaData[ descriptor.getChannelID() ];
+    return channelMetaData[ channelID ];
   }
 
   /**

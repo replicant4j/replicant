@@ -9,4 +9,7 @@ public interface ReplicantSessionManager
 {
   @Nonnull
   ChannelMetaData getChannelMetaData( @Nonnull ChannelDescriptor descriptor );
+
+  @Nonnull
+  ChannelMetaData getChannelMetaData( int channelID );
 }
