@@ -677,7 +677,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.unsubscribe( entry.getDescriptor(), session, true );
+      sm.unsubscribe( session, entry.getDescriptor(), true );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -691,7 +691,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.unsubscribe( cd1, session, true );
+      sm.unsubscribe( session, cd1, true );
 
       assertChannelActionCount( 0 );
     }

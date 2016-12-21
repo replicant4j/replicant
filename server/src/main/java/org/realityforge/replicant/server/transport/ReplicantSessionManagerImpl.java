@@ -259,7 +259,7 @@ public abstract class ReplicantSessionManagerImpl
                               @Nonnull final ChannelDescriptor descriptor )
   {
     setupRegistryContext( sessionID );
-    unsubscribe( descriptor, ensureSession( sessionID ), true );
+    unsubscribe( ensureSession( sessionID ), descriptor, true );
   }
 
   private void setupRegistryContext( @Nonnull final String sessionID )
@@ -484,8 +484,8 @@ public abstract class ReplicantSessionManagerImpl
                                                             @Nullable Object originalFilter,
                                                             @Nullable Object filter );
 
-  protected void unsubscribe( @Nonnull final ChannelDescriptor descriptor,
-                              final ReplicantSession session,
+  protected void unsubscribe( @Nonnull final ReplicantSession session,
+                              @Nonnull final ChannelDescriptor descriptor,
                               final boolean explicitUnsubscribe )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
