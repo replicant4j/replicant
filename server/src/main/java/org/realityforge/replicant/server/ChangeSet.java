@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import org.realityforge.replicant.server.ee.JsonUtil;
 
 public final class ChangeSet
 {
@@ -21,6 +24,18 @@ public final class ChangeSet
   public void addAction( @Nonnull final ChannelAction action )
   {
     _channelActions.add( action );
+  }
+
+  public void addAction( @Nonnull final ChannelDescriptor descriptor,
+                         @Nonnull final ChannelAction.Action action,
+                         @Nullable final Object filter )
+  {
+    addAction( new ChannelAction( descriptor, action, filterToJsonObject( filter ) ) );
+  }
+
+  private JsonObject filterToJsonObject( final @Nullable Object filter )
+  {
+    return null == filter ? null : JsonUtil.toJsonObject( filter );
   }
 
   @Nonnull

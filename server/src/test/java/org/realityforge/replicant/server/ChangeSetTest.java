@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
+import org.realityforge.replicant.server.transport.TestFilter;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -70,6 +71,28 @@ public class ChangeSetTest
     assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
     assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
     assertEquals( action.getAction(), Action.ADD );
+    assertEquals( action.getFilter(), filter );
+  }
+
+  @Test
+  public void addAction_basic()
+  {
+    final ChangeSet changeSet = new ChangeSet();
+
+    assertEquals( changeSet.getChannelActions().size(), 0 );
+
+    final TestFilter myFilter = new TestFilter( 23 );
+    changeSet.addAction( new ChannelDescriptor( 1, 2 ), Action.ADD, myFilter );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+
+    final ChannelAction action = changeSet.getChannelActions().get( 0 );
+    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getAction(), Action.ADD );
+
+    final JsonObject filter =
+      Json.createBuilderFactory( null ).createObjectBuilder().add( "myField", 23 ).build();
     assertEquals( action.getFilter(), filter );
   }
 
