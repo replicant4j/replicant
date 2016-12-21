@@ -608,9 +608,4 @@ public abstract class ReplicantSessionManagerImpl
 
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelDescriptor target );
-
-  private JsonObject filterToJsonObject( final @Nullable Object filter )
-  {
-    return null == filter ? null : JsonUtil.toJsonObject( filter );
-  }
 }
