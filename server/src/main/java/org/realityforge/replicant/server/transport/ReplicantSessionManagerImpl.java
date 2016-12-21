@@ -260,12 +260,6 @@ public abstract class ReplicantSessionManagerImpl
     unsubscribe( ensureSession( sessionID ), descriptor, true );
   }
 
-  private void setupRegistryContext( @Nonnull final String sessionID )
-  {
-    //Force the sessionID to the desired session in case call has not been set up by boundary
-    getRegistry().putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
-  }
-
   protected void updateSubscription( @Nonnull final ReplicantSession session,
                                      @Nonnull final ChannelDescriptor descriptor,
                                      @Nullable final Object filter )
@@ -606,4 +600,10 @@ public abstract class ReplicantSessionManagerImpl
 
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelDescriptor target );
+
+  private void setupRegistryContext( @Nonnull final String sessionID )
+  {
+    //Force the sessionID to the desired session in case call has not been set up by boundary
+    getRegistry().putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
+  }
 }
