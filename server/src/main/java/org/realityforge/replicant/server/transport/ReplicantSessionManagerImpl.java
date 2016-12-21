@@ -349,7 +349,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         final ChangeSet changeSet = new ChangeSet();
         changeSet.merge( cacheEntry.getChangeSet(), true );
-        changeSet.addAction( new ChannelAction( descriptor, ChannelAction.Action.ADD, filterToJsonObject( filter ) ) );
+        changeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
         sendPacket( session, cacheEntry.getCacheKey(), changeSet );
         return CacheStatus.REFRESH;
       }
@@ -357,9 +357,7 @@ public abstract class ReplicantSessionManagerImpl
 
     final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
     collectDataForSubscribe( session, descriptor, changeSet, filter );
-    changeSet.addAction( new ChannelAction( descriptor,
-                                            ChannelAction.Action.ADD,
-                                            filterToJsonObject( filter ) ) );
+    changeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
     return CacheStatus.REFRESH;
   }
 
@@ -467,9 +465,7 @@ public abstract class ReplicantSessionManagerImpl
     final ChannelDescriptor descriptor = entry.getDescriptor();
     final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
-    changeSet.addAction( new ChannelAction( descriptor,
-                                            ChannelAction.Action.UPDATE,
-                                            filterToJsonObject( filter ) ) );
+    changeSet.addAction( descriptor, ChannelAction.Action.UPDATE, filter );
   }
 
   /**
@@ -510,7 +506,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( entry.canUnsubscribe() )
     {
       EntityMessageCacheUtil.getSessionChanges().
-        addAction( new ChannelAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null ) );
+        addAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
       for ( final ChannelDescriptor downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
