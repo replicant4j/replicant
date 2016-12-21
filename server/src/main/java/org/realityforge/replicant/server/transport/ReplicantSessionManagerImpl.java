@@ -272,6 +272,8 @@ public abstract class ReplicantSessionManagerImpl
                                      @Nonnull final ChannelDescriptor descriptor,
                                      @Nullable final Object filter )
   {
+    assert getChannelMetaData( descriptor ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
+
     final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
     final Object originalFilter = entry.getFilter();
     if ( !doFiltersMatch( filter, originalFilter ) )
