@@ -478,11 +478,11 @@ public abstract class ReplicantSessionManagerImpl
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object filter );
 
-  protected abstract void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                            @Nonnull final ChannelDescriptor descriptor,
-                                                            @Nonnull final ChangeSet changeSet,
-                                                            @Nullable final Object originalFilter,
-                                                            @Nullable final Object filter );
+  protected abstract void collectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
+                                                            @Nonnull ChannelDescriptor descriptor,
+                                                            @Nonnull ChangeSet changeSet,
+                                                            @Nullable Object originalFilter,
+                                                            @Nullable Object filter );
 
   protected void unsubscribe( @Nonnull final ChannelDescriptor descriptor,
                               final ReplicantSession session,
