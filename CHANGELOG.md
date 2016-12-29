@@ -1,3 +1,5 @@
+## 0.5.65 (Pending):
+
 ## 0.5.64:
 * Major refactoring of `ReplicantSessionManagerImpl` so that the logic behind the
   subscribe, subscription updates and unsubscribe actions is not hidden in generated code.
