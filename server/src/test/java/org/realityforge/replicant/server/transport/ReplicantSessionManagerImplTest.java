@@ -340,13 +340,13 @@ public class ReplicantSessionManagerImplTest
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
-      final PacketQueue queue = session.getQueue();
-      assertEquals( queue.size(), 1 );
-      final Packet packet = queue.getPacket( 1 );
-      assertNotNull( packet );
-      assertEquals( packet.getETag(), "X" );
-      assertEquals( packet.getChangeSet().getChanges().size(), 1 );
-      assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
+    final PacketQueue queue = session.getQueue();
+    assertEquals( queue.size(), 1 );
+    final Packet packet = queue.getPacket( 1 );
+    assertNotNull( packet );
+    assertEquals( packet.getETag(), "X" );
+    assertEquals( packet.getChangeSet().getChanges().size(), 1 );
+    assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
   }
 
   @Test
