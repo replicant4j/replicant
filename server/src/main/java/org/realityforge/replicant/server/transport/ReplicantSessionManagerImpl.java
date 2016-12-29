@@ -245,6 +245,17 @@ public abstract class ReplicantSessionManagerImpl
     return status;
   }
 
+  protected void bulkSubscribe( @Nonnull final String sessionID,
+                                final int channelID,
+                                @Nonnull final Collection<Serializable> subChannelIDs,
+                                @Nullable final Object filter,
+                                final boolean explicitSubscribe )
+  {
+    setupRegistryContext( sessionID );
+    final ReplicantSession session = ensureSession( sessionID );
+    bulkSubscribe( session, channelID, subChannelIDs, filter, explicitSubscribe );
+  }
+
   protected void updateSubscription( @Nonnull final String sessionID,
                                      @Nonnull final ChannelDescriptor descriptor,
                                      @Nullable final Object filter )
@@ -329,6 +340,83 @@ public abstract class ReplicantSessionManagerImpl
         for ( final ChannelDescriptor descriptor : channelsToUpdate )
         {
           updateSubscription( session, descriptor, filter );
+        }
+      }
+    }
+  }
+
+  protected void bulkSubscribe( @Nonnull final ReplicantSession session,
+                                final int channelID,
+                                @Nonnull final Collection<Serializable> subChannelIDs,
+                                @Nullable final Object filter,
+                                final boolean explicitSubscribe )
+  {
+    assert getChannelMetaData( channelID ).isInstanceGraph();
+
+    final ArrayList<ChannelDescriptor> newChannels = new ArrayList<>();
+    //OriginalFilter => Channels
+    final HashMap<Object, ArrayList<ChannelDescriptor>> channelsToUpdate = new HashMap<>();
+
+    for ( final Serializable root : subChannelIDs )
+    {
+      final ChannelDescriptor descriptor = new ChannelDescriptor( channelID, root );
+      final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
+      if ( null == entry )
+      {
+        newChannels.add( descriptor );
+      }
+      else
+      {
+        final Object originalFilter = entry.getFilter();
+        ArrayList<ChannelDescriptor> descriptors = channelsToUpdate.get( originalFilter );
+        if ( null == descriptors )
+        {
+          descriptors = new ArrayList<>();
+          channelsToUpdate.put( originalFilter, descriptors );
+        }
+        descriptors.add( descriptor );
+      }
+    }
+
+    if ( !newChannels.isEmpty() )
+    {
+      final boolean bulkLoaded =
+        bulkCollectDataForSubscribe( session,
+                                     newChannels,
+                                     EntityMessageCacheUtil.getSessionChanges(),
+                                     filter,
+                                     explicitSubscribe );
+      if ( !bulkLoaded )
+      {
+        for ( final ChannelDescriptor descriptor : newChannels )
+        {
+          subscribe( session, descriptor, true, filter );
+        }
+      }
+    }
+    if ( !channelsToUpdate.isEmpty() )
+    {
+      for ( final Map.Entry<Object, ArrayList<ChannelDescriptor>> update : channelsToUpdate.entrySet() )
+      {
+        final Object originalFilter = update.getKey();
+        final ArrayList<ChannelDescriptor> descriptors = update.getValue();
+        boolean bulkLoaded = false;
+
+        if ( descriptors.size() > 1 )
+        {
+          bulkLoaded = bulkCollectDataForSubscriptionUpdate( session,
+                                                             newChannels,
+                                                             EntityMessageCacheUtil.getSessionChanges(),
+                                                             originalFilter,
+                                                             filter );
+        }
+        if ( !bulkLoaded )
+        {
+          for ( final ChannelDescriptor descriptor : descriptors )
+          {
+            //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
+            subscribe( session, descriptor, true, filter );
+          }
         }
       }
     }
@@ -529,6 +617,19 @@ public abstract class ReplicantSessionManagerImpl
                                                      @Nonnull final ChannelDescriptor descriptor,
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object filter );
+
+  /**
+   * This method is called in an attempt to use a more efficient method for bulk loading instance graphs.
+   * Subclasses may return false form this method, in which case collectDataForSubscribe will be called
+   * for each independent channel.
+   *
+   * @return true if method has actually bulk loaded all data, false otherwise.
+   */
+  protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
+                                                          @Nonnull ArrayList<ChannelDescriptor> descriptors,
+                                                          @Nonnull ChangeSet changeSet,
+                                                          @Nullable Object filter,
+                                                          boolean explicitSubscribe );
 
   protected abstract void collectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
                                                             @Nonnull ChannelDescriptor descriptor,
