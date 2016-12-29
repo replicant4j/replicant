@@ -476,6 +476,15 @@ public abstract class ReplicantSessionManagerImpl
                                                             @Nullable Object originalFilter,
                                                             @Nullable Object filter );
 
+  protected void bulkUnsubscribe( @Nonnull final String sessionID,
+                                  final int channelID,
+                                  @Nonnull final Collection<Serializable> subChannelIDs,
+                                  final boolean explicitUnsubscribe )
+  {
+    setupRegistryContext( sessionID );
+    bulkUnsubscribe( ensureSession( sessionID ), channelID, subChannelIDs, explicitUnsubscribe );
+  }
+
   protected void unsubscribe( @Nonnull final ReplicantSession session,
                               @Nonnull final ChannelDescriptor descriptor,
                               final boolean explicitUnsubscribe )
@@ -484,6 +493,17 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != entry )
     {
       performUnsubscribe( session, entry, explicitUnsubscribe );
+    }
+  }
+
+  protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
+                                  final int channelID,
+                                  @Nonnull final Collection<Serializable> subChannelIDs,
+                                  final boolean explicitUnsubscribe )
+  {
+    for ( final Serializable subChannelID : subChannelIDs )
+    {
+      unsubscribe( session, new ChannelDescriptor( channelID, subChannelID ), explicitUnsubscribe );
     }
   }
 

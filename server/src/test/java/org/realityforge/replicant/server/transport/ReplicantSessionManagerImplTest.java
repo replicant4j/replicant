@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -727,6 +728,96 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void bulkUnsubscribe()
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd4 = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    // Unsubscribe from channel that was explicitly subscribed
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true, null );
+      sm.subscribe( session, cd2, true, null );
+      sm.subscribe( session, cd4, true, null );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      final ArrayList<Serializable> subChannelIDs = new ArrayList<>();
+      subChannelIDs.add( cd1.getSubChannelID() );
+      subChannelIDs.add( cd2.getSubChannelID() );
+      //This next one is not subscribed
+      subChannelIDs.add( cd3.getSubChannelID() );
+      // This next one is for wrong channel so should be no-op
+      subChannelIDs.add( cd4.getSubChannelID() );
+      sm.bulkUnsubscribe( session, ch1.getChannelID(), subChannelIDs, true );
+
+      assertChannelActionCount( 2 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 1 ), cd2, ChannelAction.Action.REMOVE, null );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( cd2 ) );
+    }
+  }
+
+  @Test
+  public void bulkUnsubscribe_withSessionID()
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd4 = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    // Unsubscribe from channel that was explicitly subscribed
+    {
+      RegistryUtil.bind();
+      sm.subscribe( session, cd1, true, null );
+      sm.subscribe( session, cd2, true, null );
+      sm.subscribe( session, cd4, true, null );
+
+      //Rebind clears the state
+      RegistryUtil.bind();
+
+      assertChannelActionCount( 0 );
+
+      final ArrayList<Serializable> subChannelIDs = new ArrayList<>();
+      subChannelIDs.add( cd1.getSubChannelID() );
+      subChannelIDs.add( cd2.getSubChannelID() );
+      //This next one is not subscribed
+      subChannelIDs.add( cd3.getSubChannelID() );
+      // This next one is for wrong channel so should be no-op
+      subChannelIDs.add( cd4.getSubChannelID() );
+      sm.bulkUnsubscribe( session.getSessionID(), ch1.getChannelID(), subChannelIDs, true );
+
+      assertChannelActionCount( 2 );
+      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 1 ), cd2, ChannelAction.Action.REMOVE, null );
+
+      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( cd2 ) );
+    }
+  }
+
+  @Test
   public void performUpdateSubscription()
     throws Exception
   {
@@ -1324,6 +1415,26 @@ public class ReplicantSessionManagerImplTest
     protected void processDeleteMessages( @Nonnull final EntityMessage message,
                                           @Nonnull final Collection<ReplicantSession> sessions )
     {
+    }
+
+    @Override
+    protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
+                                                   @Nonnull final ArrayList<ChannelDescriptor> descriptors,
+                                                   @Nonnull final ChangeSet changeSet,
+                                                   @Nullable final Object filter,
+                                                   final boolean explicitSubscribe )
+    {
+      return false;
+    }
+
+    @Override
+    protected boolean bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                            @Nonnull final ArrayList<ChannelDescriptor> descriptors,
+                                                            @Nonnull final ChangeSet changeSet,
+                                                            @Nullable final Object originalFilter,
+                                                            @Nullable final Object filter )
+    {
+      return false;
     }
 
     @Override
