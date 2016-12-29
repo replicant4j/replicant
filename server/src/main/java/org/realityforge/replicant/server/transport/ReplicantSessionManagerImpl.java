@@ -255,6 +255,17 @@ public abstract class ReplicantSessionManagerImpl
     expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
   }
 
+  protected void bulkUpdateSubscription( @Nonnull final String sessionID,
+                                         final int channelID,
+                                         @Nonnull final Collection<Serializable> subChannelIDs,
+                                         @Nullable final Object filter )
+  {
+    setupRegistryContext( sessionID );
+    final ReplicantSession session = ensureSession( sessionID );
+    bulkUpdateSubscription( session, channelID, subChannelIDs, filter );
+    expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+  }
+
   protected void unsubscribe( @Nonnull final String sessionID,
                               @Nonnull final ChannelDescriptor descriptor )
   {
@@ -273,6 +284,53 @@ public abstract class ReplicantSessionManagerImpl
     if ( !doFiltersMatch( filter, originalFilter ) )
     {
       performUpdateSubscription( session, entry, originalFilter, filter );
+    }
+  }
+
+  protected void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
+                                         final int channelID,
+                                         @Nonnull final Collection<Serializable> subChannelIDs,
+                                         @Nullable final Object filter )
+  {
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
+
+    final ArrayList<ChannelDescriptor> channelsToUpdate = new ArrayList<>();
+
+    for ( final Serializable subChannelID : subChannelIDs )
+    {
+      final ChannelDescriptor descriptor = new ChannelDescriptor( channelID, subChannelID );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
+      if ( !doFiltersMatch( filter, entry.getFilter() ) )
+      {
+        channelsToUpdate.add( descriptor );
+      }
+    }
+
+    if ( channelsToUpdate.isEmpty() )
+    {
+      return;
+    }
+    else if ( 1 == channelsToUpdate.size() )
+    {
+      updateSubscription( session, channelsToUpdate.get( 0 ), filter );
+    }
+    else
+    {
+      final Object originalFilter = session.getSubscriptionEntry( channelsToUpdate.get( 0 ) ).getFilter();
+      final boolean bulkLoaded =
+        bulkCollectDataForSubscriptionUpdate( session,
+                                              channelsToUpdate,
+                                              EntityMessageCacheUtil.getSessionChanges(),
+                                              originalFilter,
+                                              filter );
+      if ( !bulkLoaded )
+      {
+        for ( final ChannelDescriptor descriptor : channelsToUpdate )
+        {
+          updateSubscription( session, descriptor, filter );
+        }
+      }
     }
   }
 
@@ -477,6 +535,17 @@ public abstract class ReplicantSessionManagerImpl
                                                             @Nonnull ChangeSet changeSet,
                                                             @Nullable Object originalFilter,
                                                             @Nullable Object filter );
+
+  /**
+   * Hook method by which efficient bulk collection of data for subscription updates can occur.
+   * It is expected that the hook does everything including updating SubscriptionEntry with new
+   * filter, adding graph links etc.
+   */
+  protected abstract boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
+                                                                   @Nonnull ArrayList<ChannelDescriptor> descriptors,
+                                                                   @Nonnull ChangeSet changeSet,
+                                                                   @Nullable Object originalFilter,
+                                                                   @Nullable Object filter );
 
   protected void bulkUnsubscribe( @Nonnull final String sessionID,
                                   final int channelID,

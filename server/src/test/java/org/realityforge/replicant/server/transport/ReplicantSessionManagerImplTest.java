@@ -931,6 +931,129 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void bulkUpdateSubscription()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final TestFilter originalFilter = new TestFilter( 41 );
+    final TestFilter filter = new TestFilter( 42 );
+
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+    e1.setFilter( originalFilter );
+    final SubscriptionEntry e2 = session.createSubscriptionEntry( cd2 );
+    e2.setFilter( originalFilter );
+
+    final ArrayList<Serializable> subChannelIDs = new ArrayList<>();
+    subChannelIDs.add( cd1.getSubChannelID() );
+    subChannelIDs.add( cd2.getSubChannelID() );
+
+    RegistryUtil.bind();
+
+    assertChannelActionCount( 0 );
+    assertEntry( e1, false, 0, 0, originalFilter );
+    assertEntry( e2, false, 0, 0, originalFilter );
+
+    // Attempt to update to same filter - should be a noop
+    sm.bulkUpdateSubscription( session, ch1.getChannelID(), subChannelIDs, originalFilter );
+
+    assertEntry( e1, false, 0, 0, originalFilter );
+    assertEntry( e2, false, 0, 0, originalFilter );
+
+    assertChannelActionCount( 0 );
+    assertSessionChangesCount( 0 );
+
+    // Attempt to update no channels - should be noop
+    sm.bulkUpdateSubscription( session, ch1.getChannelID(), new ArrayList<Serializable>(), filter );
+
+    assertEntry( e1, false, 0, 0, originalFilter );
+    assertEntry( e2, false, 0, 0, originalFilter );
+
+    assertChannelActionCount( 0 );
+    assertSessionChangesCount( 0 );
+
+    // Attempt to update both channels
+    sm.bulkUpdateSubscription( session.getSessionID(), ch1.getChannelID(), subChannelIDs, filter );
+
+    assertEntry( e1, false, 0, 0, filter );
+    assertEntry( e2, false, 0, 0, filter );
+
+    assertChannelActionCount( 2 );
+    assertSessionChangesCount( 1 );
+
+    //Clear counts
+    RegistryUtil.bind();
+
+    //Set original filter so next action updates this one again
+    e2.setFilter( originalFilter );
+
+    // Attempt to update one channels
+    sm.bulkUpdateSubscription( session, ch1.getChannelID(), subChannelIDs, filter );
+
+    assertEntry( e1, false, 0, 0, filter );
+    assertEntry( e2, false, 0, 0, filter );
+
+    assertChannelActionCount( 1 );
+    assertSessionChangesCount( 1 );
+  }
+
+  @Test
+  public void bulkUpdateSubscription_wherebulkUpdateHookIsUsed()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch1.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final ReplicantSession session = sm.createSession();
+
+    final TestFilter originalFilter = new TestFilter( 41 );
+    final TestFilter filter = new TestFilter( 42 );
+
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+    e1.setFilter( originalFilter );
+    final SubscriptionEntry e2 = session.createSubscriptionEntry( cd2 );
+    e2.setFilter( originalFilter );
+
+    final ArrayList<Serializable> subChannelIDs = new ArrayList<>();
+    subChannelIDs.add( cd1.getSubChannelID() );
+    subChannelIDs.add( cd2.getSubChannelID() );
+
+    RegistryUtil.bind();
+
+    assertChannelActionCount( 0 );
+    assertEntry( e1, false, 0, 0, originalFilter );
+    assertEntry( e2, false, 0, 0, originalFilter );
+
+    sm.setBulkCollectDataForSubscriptionUpdate( true );
+
+    assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
+
+    // Attempt to update both channels
+    sm.bulkUpdateSubscription( session, ch1.getChannelID(), subChannelIDs, filter );
+
+    assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 1 );
+
+    // the original filter is still set as it is expected that the hook method does the magic
+    assertEntry( e1, false, 0, 0, originalFilter );
+    assertEntry( e2, false, 0, 0, originalFilter );
+
+    // These are 0 as expected the hook to do magic
+    assertChannelActionCount( 0 );
+    assertSessionChangesCount( 0 );
+  }
+
+  @Test
   public void linkSubscriptionEntries()
     throws Exception
   {
@@ -1374,6 +1497,8 @@ public class ReplicantSessionManagerImplTest
     private final ChannelMetaData[] _channelMetaDatas;
     private ChannelDescriptor _followSource;
     private String _cacheKey;
+    private boolean _bulkCollectDataForSubscriptionUpdate;
+    private int _bulkCollectDataForSubscriptionUpdateCallCount;
 
     private TestReplicantSessionManager()
     {
@@ -1383,6 +1508,16 @@ public class ReplicantSessionManagerImplTest
     private TestReplicantSessionManager( final ChannelMetaData[] channelMetaDatas )
     {
       _channelMetaDatas = channelMetaDatas;
+    }
+
+    int getBulkCollectDataForSubscriptionUpdateCallCount()
+    {
+      return _bulkCollectDataForSubscriptionUpdateCallCount;
+    }
+
+    void setBulkCollectDataForSubscriptionUpdate( final boolean bulkCollectDataForSubscriptionUpdate )
+    {
+      _bulkCollectDataForSubscriptionUpdate = bulkCollectDataForSubscriptionUpdate;
     }
 
     private void setCacheKey( final String cacheKey )
@@ -1434,7 +1569,8 @@ public class ReplicantSessionManagerImplTest
                                                             @Nullable final Object originalFilter,
                                                             @Nullable final Object filter )
     {
-      return false;
+      _bulkCollectDataForSubscriptionUpdateCallCount += 1;
+      return _bulkCollectDataForSubscriptionUpdate;
     }
 
     @Override
