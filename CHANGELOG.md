@@ -1,4 +1,9 @@
 ## 0.5.64 (Pending):
+* Major refactoring of `ReplicantSessionManagerImpl` so that the logic behind the
+  subscribe, subscription updates and unsubscribe actions is not hidden in generated code.
+  This has allowed the support of several new features, including automatic unsubscription
+  of unreferenced subscriptions that were not explicitly subscribed
+* Support bulk subscribe, subscription updates and unsubscribe actions on `ReplicantSessionManagerImpl`.
 * Add helper methods to `ChangeSet` to simplify merging messages.
 * Convert `ReplicantSession` from abstract to final class and update code appropriately.
 * Split `ReplicantSessionManager` into an interface and an implementation.
