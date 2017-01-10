@@ -1,4 +1,4 @@
-## 0.5.65 (Pending):
+## 0.5.65:
 * Ensure `ChannelLink.hashcode()`, `ChannelLink.equals()` and `ChannelLink.toString()` take
   into consideration the source channel.
 
