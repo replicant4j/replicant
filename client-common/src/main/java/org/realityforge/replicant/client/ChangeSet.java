@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 
 /**
  * The interface representing the set of changes to be applied to the EntityRepository.
- * <p/>
+ *
  * <p>The change set may represent several transactions but may be merged when transmitted to the client.
  * The sequence number identifies the last transaction to be included in the set.</p>
  */

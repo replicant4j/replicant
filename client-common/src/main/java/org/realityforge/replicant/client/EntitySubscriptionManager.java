@@ -164,7 +164,7 @@ public interface EntitySubscriptionManager
 
   /**
    * Register specified entity as being part of specified graphs.
-   * <p/>
+   *
    * Note: It is assumed that if an entity is part of a graph, they are always part of the graph.
    * This may not be true with filters but we can assume it for all other scenarios.
    *
@@ -176,7 +176,7 @@ public interface EntitySubscriptionManager
 
   /**
    * Disassociate entity from specified graph.
-   * <p/>
+   *
    * Note: It is assumed that the caller will remove the entity from the subscription manager and
    * repository if there are no more subscriptions.
    *

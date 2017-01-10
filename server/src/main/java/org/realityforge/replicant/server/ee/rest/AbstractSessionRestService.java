@@ -47,23 +47,23 @@ import org.realityforge.ssf.SessionInfo;
  * Extend this class and provider a SessionManager as required. ie.
  *
  * <pre>
- * @Path( ReplicantContext.SESSION_URL_FRAGMENT )
- * @Produces( MediaType.APPLICATION_JSON )
- * @ApplicationScoped
+ * \@Path( ReplicantContext.SESSION_URL_FRAGMENT )
+ * \@Produces( MediaType.APPLICATION_JSON )
+ * \@ApplicationScoped
  * public class CalendarSessionRestService
  *   extends AbstractSessionRestService
  * {
- *   @Inject
+ *   \@Inject
  *   private MySessionManager _sessionManager;
  *
- *   @Override
+ *   \@Override
  *   protected ReplicantSessionManager getSessionManager()
  *   {
  *     return _sessionManager;
  *   }
  *
- *   @Override
- *   @PostConstruct
+ *   \@Override
+ *   \@PostConstruct
  *   public void postConstruct()
  *   {
  *     super.postConstruct();

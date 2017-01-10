@@ -32,17 +32,17 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  *
  * <code>
  *
- * @Path( ReplicantContext.REPLICANT_URL_FRAGMENT )
- * @ApplicationScoped
- * @Transactional( Transactional.TxType.NOT_SUPPORTED )
+ * \@Path( ReplicantContext.REPLICANT_URL_FRAGMENT )
+ * \@ApplicationScoped
+ * \@Transactional( Transactional.TxType.NOT_SUPPORTED )
  * public class MyAppReplicantPollResource extends AbstractReplicantPollResource
  * {
  * protected String poll( @Nonnull String sessionID, int rxSequence )
  * throws Exception { ... }
  *
  * protected boolean isSessionConnected( @Nonnull String sessionID ) { ... }
- * @Override
- * @PostConstruct public void postConstruct()
+ * \@Override
+ * \@PostConstruct public void postConstruct()
  * {
  * super.postConstruct();
  * }

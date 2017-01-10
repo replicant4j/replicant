@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 /**
  * A mechanism for passing context data from the servlet/ejb tier to the ejb tier.
- * <p/>
+ *
  * <p>The expectation is that an interceptor in the ejb tier will inspect and utilize
  * the context data. The implementation uses thread-locals as it assumes that at least
  * the first interceptor will be invoked in the thread that initiates the request.</p>

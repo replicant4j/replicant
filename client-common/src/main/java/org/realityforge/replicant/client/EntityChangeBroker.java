@@ -83,7 +83,7 @@ public interface EntityChangeBroker
 
   /**
    * Pause the broker.
-   * <p/>
+   *
    * <p>Changes sent to the broker while it is paused will be cached and transmitted when it is resumed.</p>
    *
    * @param key the opaque identifier for transaction.
@@ -96,7 +96,7 @@ public interface EntityChangeBroker
 
   /**
    * Resume the broker.
-   * <p/>
+   *
    * <p>Any changes that have been delivered since pause has been invoked will be delivered on resume.</p>
    *
    * @param key the opaque identifier for transaction.
@@ -112,9 +112,9 @@ public interface EntityChangeBroker
 
   /**
    * Disable the transmission of changes to listeners.
-   * <p/>
+   *
    * <p>Changes sent to the broker while it is disabled will be discarded.</p>
-   * <p/>
+   *
    * <p>Typically the broker is disabled before a bulk load of an EntityRepository and re-enabled
    * after the fact.</p>
    *

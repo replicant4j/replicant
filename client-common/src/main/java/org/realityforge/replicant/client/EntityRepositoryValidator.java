@@ -9,7 +9,7 @@ public class EntityRepositoryValidator
 
   /**
    * Check all the entities in the repository and raise an exception if an entity fails to validate.
-   * <p/>
+   *
    * An entity can fail to validate if it is {@link Linkable} and {@link Linkable#isValid()} returns
    * false. An entity can also fail to validate if it is {@link Verifiable} and {@link Verifiable#verify()}
    * throws an exception.
