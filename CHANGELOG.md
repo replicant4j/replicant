@@ -1,4 +1,6 @@
 ## 0.5.65 (Pending):
+* Ensure `ChannelLink.hashcode()`, `ChannelLink.equals()` and `ChannelLink.toString()` take
+  into consideration the source channel.
 
 ## 0.5.64:
 * Major refactoring of `ReplicantSessionManagerImpl` so that the logic behind the

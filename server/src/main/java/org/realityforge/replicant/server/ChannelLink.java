@@ -44,18 +44,18 @@ public final class ChannelLink
     }
 
     final ChannelLink that = (ChannelLink) o;
-    return _targetChannel.equals( that._targetChannel );
+    return _sourceChannel.equals( that._sourceChannel ) && _targetChannel.equals( that._targetChannel );
   }
 
   @Override
   public int hashCode()
   {
-    return _targetChannel.hashCode();
+    return _sourceChannel.hashCode() + _targetChannel.hashCode();
   }
 
   @Override
   public String toString()
   {
-    return _targetChannel.toString();
+    return "[" + _sourceChannel.toString() + "=>" + _targetChannel.toString() + "]";
   }
 }
