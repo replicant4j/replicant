@@ -709,14 +709,22 @@ public abstract class ReplicantSessionManagerImpl
       changeSet.addAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
       for ( final ChannelDescriptor downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
-        final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
-        if ( null != downstreamEntry )
-        {
-          delinkSubscriptionEntries( entry, downstreamEntry );
-          performUnsubscribe( session, downstreamEntry, false, changeSet );
-        }
+        delinkDownstreamSubscription( session, entry, downstream, changeSet );
       }
       session.deleteSubscriptionEntry( entry );
+    }
+  }
+
+  private void delinkDownstreamSubscription( final @Nonnull ReplicantSession session,
+                                             final SubscriptionEntry sourceEntry,
+                                             final ChannelDescriptor downstream,
+                                             final @Nonnull ChangeSet changeSet )
+  {
+    final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
+    if ( null != downstreamEntry )
+    {
+      delinkSubscriptionEntries( sourceEntry, downstreamEntry );
+      performUnsubscribe( session, downstreamEntry, false, changeSet );
     }
   }
 
