@@ -1,3 +1,6 @@
+## 0.5.67:
+* Update `ReplicantSessionManagerImpl` so that `ChannelLinks` are only expanded for updates.
+
 ## 0.5.66:
 * Update the `ReplicantSessionManagerImpl` so the ChangeSet is passed into many methods rather than
   assuming the caller sessions ChangeSet.

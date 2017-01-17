@@ -766,14 +766,18 @@ public abstract class ReplicantSessionManagerImpl
   {
     for ( final Change change : changeSet.getChanges() )
     {
-      final Set<ChannelLink> links = change.getEntityMessage().getLinks();
-      if ( null != links )
+      final EntityMessage entityMessage = change.getEntityMessage();
+      if ( entityMessage.isUpdate() )
       {
-        for ( final ChannelLink link : links )
+        final Set<ChannelLink> links = entityMessage.getLinks();
+        if ( null != links )
         {
-          if ( expandLinkIfRequired( session, link, changeSet ) )
+          for ( final ChannelLink link : links )
           {
-            return true;
+            if ( expandLinkIfRequired( session, link, changeSet ) )
+            {
+              return true;
+            }
           }
         }
       }
