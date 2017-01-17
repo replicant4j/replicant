@@ -728,11 +728,12 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */
-  void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                @Nonnull final SubscriptionEntry targetEntry )
+  protected void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                          @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.registerOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.registerInwardSubscriptions( sourceEntry.getDescriptor() );
@@ -741,8 +742,8 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
    */
-  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                  @Nonnull final SubscriptionEntry targetEntry )
+  protected void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                            @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.deregisterOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
