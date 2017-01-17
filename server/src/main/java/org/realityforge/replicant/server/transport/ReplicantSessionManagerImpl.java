@@ -21,7 +21,6 @@ import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.ChannelLink;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
-import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.json.JsonEncoder;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.ssf.InMemorySessionManager;
@@ -188,7 +187,7 @@ public abstract class ReplicantSessionManagerImpl
       final Collection<ReplicantSession> sessions = getSessions().values();
       for ( final EntityMessage message : messages )
       {
-        processDeleteMessages( message, sessions );
+        processDeleteMessages( message, sessions, accumulator );
       }
 
       for ( final EntityMessage message : messages )
@@ -219,7 +218,8 @@ public abstract class ReplicantSessionManagerImpl
                                                  @Nonnull ChangeAccumulator accumulator );
 
   protected abstract void processDeleteMessages( @Nonnull EntityMessage message,
-                                                 @Nonnull Collection<ReplicantSession> sessions );
+                                                 @Nonnull Collection<ReplicantSession> sessions,
+                                                 @Nonnull ChangeAccumulator accumulator );
 
   /**
    * Perform a a subscribe.
@@ -231,16 +231,17 @@ public abstract class ReplicantSessionManagerImpl
   protected CacheStatus subscribe( @Nonnull final String sessionID,
                                    @Nonnull final ChannelDescriptor descriptor,
                                    @Nullable final Object filter,
-                                   @Nullable final String cacheKey )
+                                   @Nullable final String cacheKey,
+                                   @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
     session.setCacheKey( descriptor, cacheKey );
-    final CacheStatus status = subscribe( session, descriptor, true, filter );
+    final CacheStatus status = subscribe( session, descriptor, true, filter, changeSet );
     if ( status != CacheStatus.USE )
     {
       session.setCacheKey( descriptor, null );
-      expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+      expandLinks( session, changeSet );
     }
     return status;
   }
@@ -249,44 +250,49 @@ public abstract class ReplicantSessionManagerImpl
                                 final int channelID,
                                 @Nonnull final Collection<Serializable> subChannelIDs,
                                 @Nullable final Object filter,
-                                final boolean explicitSubscribe )
+                                final boolean explicitSubscribe,
+                                @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    bulkSubscribe( session, channelID, subChannelIDs, filter, explicitSubscribe );
+    bulkSubscribe( session, channelID, subChannelIDs, filter, explicitSubscribe, changeSet );
   }
 
   protected void updateSubscription( @Nonnull final String sessionID,
                                      @Nonnull final ChannelDescriptor descriptor,
-                                     @Nullable final Object filter )
+                                     @Nullable final Object filter,
+                                     @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    updateSubscription( session, descriptor, filter );
-    expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+    updateSubscription( session, descriptor, filter, changeSet );
+    expandLinks( session, changeSet );
   }
 
   protected void bulkUpdateSubscription( @Nonnull final String sessionID,
                                          final int channelID,
                                          @Nonnull final Collection<Serializable> subChannelIDs,
-                                         @Nullable final Object filter )
+                                         @Nullable final Object filter,
+                                         @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    bulkUpdateSubscription( session, channelID, subChannelIDs, filter );
-    expandLinks( session, EntityMessageCacheUtil.getSessionChanges() );
+    bulkUpdateSubscription( session, channelID, subChannelIDs, filter, changeSet );
+    expandLinks( session, changeSet );
   }
 
   protected void unsubscribe( @Nonnull final String sessionID,
-                              @Nonnull final ChannelDescriptor descriptor )
+                              @Nonnull final ChannelDescriptor descriptor,
+                              @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
-    unsubscribe( ensureSession( sessionID ), descriptor, true );
+    unsubscribe( ensureSession( sessionID ), descriptor, true, changeSet );
   }
 
   protected void updateSubscription( @Nonnull final ReplicantSession session,
                                      @Nonnull final ChannelDescriptor descriptor,
-                                     @Nullable final Object filter )
+                                     @Nullable final Object filter,
+                                     @Nonnull final ChangeSet changeSet )
   {
     assert getChannelMetaData( descriptor ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
@@ -294,14 +300,15 @@ public abstract class ReplicantSessionManagerImpl
     final Object originalFilter = entry.getFilter();
     if ( !doFiltersMatch( filter, originalFilter ) )
     {
-      performUpdateSubscription( session, entry, originalFilter, filter );
+      performUpdateSubscription( session, entry, originalFilter, filter, changeSet );
     }
   }
 
   protected void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
                                          final int channelID,
                                          @Nonnull final Collection<Serializable> subChannelIDs,
-                                         @Nullable final Object filter )
+                                         @Nullable final Object filter,
+                                         @Nonnull final ChangeSet changeSet )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
     assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
@@ -324,7 +331,7 @@ public abstract class ReplicantSessionManagerImpl
     }
     else if ( 1 == channelsToUpdate.size() )
     {
-      updateSubscription( session, channelsToUpdate.get( 0 ), filter );
+      updateSubscription( session, channelsToUpdate.get( 0 ), filter, changeSet );
     }
     else
     {
@@ -332,14 +339,14 @@ public abstract class ReplicantSessionManagerImpl
       final boolean bulkLoaded =
         bulkCollectDataForSubscriptionUpdate( session,
                                               channelsToUpdate,
-                                              EntityMessageCacheUtil.getSessionChanges(),
+                                              changeSet,
                                               originalFilter,
                                               filter );
       if ( !bulkLoaded )
       {
         for ( final ChannelDescriptor descriptor : channelsToUpdate )
         {
-          updateSubscription( session, descriptor, filter );
+          updateSubscription( session, descriptor, filter, changeSet );
         }
       }
     }
@@ -349,7 +356,8 @@ public abstract class ReplicantSessionManagerImpl
                                 final int channelID,
                                 @Nonnull final Collection<Serializable> subChannelIDs,
                                 @Nullable final Object filter,
-                                final boolean explicitSubscribe )
+                                final boolean explicitSubscribe,
+                                @Nonnull final ChangeSet changeSet )
   {
     assert getChannelMetaData( channelID ).isInstanceGraph();
 
@@ -383,14 +391,14 @@ public abstract class ReplicantSessionManagerImpl
       final boolean bulkLoaded =
         bulkCollectDataForSubscribe( session,
                                      newChannels,
-                                     EntityMessageCacheUtil.getSessionChanges(),
+                                     changeSet,
                                      filter,
                                      explicitSubscribe );
       if ( !bulkLoaded )
       {
         for ( final ChannelDescriptor descriptor : newChannels )
         {
-          subscribe( session, descriptor, true, filter );
+          subscribe( session, descriptor, true, filter, changeSet );
         }
       }
     }
@@ -406,7 +414,7 @@ public abstract class ReplicantSessionManagerImpl
         {
           bulkLoaded = bulkCollectDataForSubscriptionUpdate( session,
                                                              newChannels,
-                                                             EntityMessageCacheUtil.getSessionChanges(),
+                                                             changeSet,
                                                              originalFilter,
                                                              filter );
         }
@@ -415,7 +423,7 @@ public abstract class ReplicantSessionManagerImpl
           for ( final ChannelDescriptor descriptor : descriptors )
           {
             //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
-            subscribe( session, descriptor, true, filter );
+            subscribe( session, descriptor, true, filter, changeSet );
           }
         }
       }
@@ -426,7 +434,8 @@ public abstract class ReplicantSessionManagerImpl
   protected CacheStatus subscribe( @Nonnull final ReplicantSession session,
                                    @Nonnull final ChannelDescriptor descriptor,
                                    final boolean explicitlySubscribe,
-                                   @Nullable final Object filter )
+                                   @Nullable final Object filter,
+                                   @Nonnull final ChangeSet changeSet )
   {
     if ( session.isSubscriptionEntryPresent( descriptor ) )
     {
@@ -438,7 +447,7 @@ public abstract class ReplicantSessionManagerImpl
       final ChannelMetaData channelMetaData = getChannelMetaData( descriptor );
       if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC )
       {
-        updateSubscription( session, descriptor, filter );
+        updateSubscription( session, descriptor, filter, changeSet );
       }
       else if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.STATIC )
       {
@@ -455,7 +464,11 @@ public abstract class ReplicantSessionManagerImpl
     }
     else
     {
-      return performSubscribe( session, session.createSubscriptionEntry( descriptor ), explicitlySubscribe, filter );
+      return performSubscribe( session,
+                               session.createSubscriptionEntry( descriptor ),
+                               explicitlySubscribe,
+                               filter,
+                               changeSet );
     }
   }
 
@@ -469,7 +482,8 @@ public abstract class ReplicantSessionManagerImpl
   CacheStatus performSubscribe( @Nonnull final ReplicantSession session,
                                 @Nonnull final SubscriptionEntry entry,
                                 final boolean explicitSubscribe,
-                                @Nullable final Object filter )
+                                @Nullable final Object filter,
+                                @Nonnull final ChangeSet changeSet )
   {
     if ( explicitSubscribe )
     {
@@ -487,15 +501,14 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        final ChangeSet changeSet = new ChangeSet();
-        changeSet.merge( cacheEntry.getChangeSet(), true );
-        changeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
-        sendPacket( session, cacheEntry.getCacheKey(), changeSet );
+        final ChangeSet cacheChangeSet = new ChangeSet();
+        cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
+        cacheChangeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
+        sendPacket( session, cacheEntry.getCacheKey(), cacheChangeSet );
         return CacheStatus.REFRESH;
       }
     }
 
-    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
     collectDataForSubscribe( session, descriptor, changeSet, filter );
     changeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
     return CacheStatus.REFRESH;
@@ -598,12 +611,12 @@ public abstract class ReplicantSessionManagerImpl
   void performUpdateSubscription( @Nonnull final ReplicantSession session,
                                   @Nonnull final SubscriptionEntry entry,
                                   @Nullable final Object originalFilter,
-                                  @Nullable final Object filter )
+                                  @Nullable final Object filter,
+                                  @Nonnull final ChangeSet changeSet )
   {
     assert getChannelMetaData( entry.getDescriptor() ).getFilterType() != ChannelMetaData.FilterType.NONE;
     entry.setFilter( filter );
     final ChannelDescriptor descriptor = entry.getDescriptor();
-    final ChangeSet changeSet = EntityMessageCacheUtil.getSessionChanges();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
     changeSet.addAction( descriptor, ChannelAction.Action.UPDATE, filter );
   }
@@ -651,37 +664,41 @@ public abstract class ReplicantSessionManagerImpl
   protected void bulkUnsubscribe( @Nonnull final String sessionID,
                                   final int channelID,
                                   @Nonnull final Collection<Serializable> subChannelIDs,
-                                  final boolean explicitUnsubscribe )
+                                  final boolean explicitUnsubscribe,
+                                  @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
-    bulkUnsubscribe( ensureSession( sessionID ), channelID, subChannelIDs, explicitUnsubscribe );
+    bulkUnsubscribe( ensureSession( sessionID ), channelID, subChannelIDs, explicitUnsubscribe, changeSet );
   }
 
   protected void unsubscribe( @Nonnull final ReplicantSession session,
                               @Nonnull final ChannelDescriptor descriptor,
-                              final boolean explicitUnsubscribe )
+                              final boolean explicitUnsubscribe,
+                              @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
     if ( null != entry )
     {
-      performUnsubscribe( session, entry, explicitUnsubscribe );
+      performUnsubscribe( session, entry, explicitUnsubscribe, changeSet );
     }
   }
 
   protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                   final int channelID,
                                   @Nonnull final Collection<Serializable> subChannelIDs,
-                                  final boolean explicitUnsubscribe )
+                                  final boolean explicitUnsubscribe,
+                                  @Nonnull final ChangeSet changeSet )
   {
     for ( final Serializable subChannelID : subChannelIDs )
     {
-      unsubscribe( session, new ChannelDescriptor( channelID, subChannelID ), explicitUnsubscribe );
+      unsubscribe( session, new ChannelDescriptor( channelID, subChannelID ), explicitUnsubscribe, changeSet );
     }
   }
 
   protected void performUnsubscribe( @Nonnull final ReplicantSession session,
                                      @Nonnull final SubscriptionEntry entry,
-                                     final boolean explicitUnsubscribe )
+                                     final boolean explicitUnsubscribe,
+                                     @Nonnull final ChangeSet changeSet )
   {
     if ( explicitUnsubscribe )
     {
@@ -689,15 +706,14 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( entry.canUnsubscribe() )
     {
-      EntityMessageCacheUtil.getSessionChanges().
-        addAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
+      changeSet.addAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
       for ( final ChannelDescriptor downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
         if ( null != downstreamEntry )
         {
           delinkSubscriptionEntries( entry, downstreamEntry );
-          performUnsubscribe( session, downstreamEntry, false );
+          performUnsubscribe( session, downstreamEntry, false, changeSet );
         }
       }
       session.deleteSubscriptionEntry( entry );
@@ -747,7 +763,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         for ( final ChannelLink link : links )
         {
-          if ( expandLinkIfRequired( session, link ) )
+          if ( expandLinkIfRequired( session, link, changeSet ) )
           {
             return true;
           }
@@ -767,7 +783,9 @@ public abstract class ReplicantSessionManagerImpl
    * in the ChangeSet may have been modified as a result of the subscription and thus scanning of changeSet
    * needs to start again.
    */
-  boolean expandLinkIfRequired( @Nonnull final ReplicantSession session, @Nonnull final ChannelLink link )
+  boolean expandLinkIfRequired( @Nonnull final ReplicantSession session,
+                                @Nonnull final ChannelLink link,
+                                @Nonnull final ChangeSet changeSet )
   {
     final ChannelDescriptor source = link.getSourceChannel();
     final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
@@ -780,7 +798,7 @@ public abstract class ReplicantSessionManagerImpl
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          subscribe( session, target, false, targetUnfiltered ? null : sourceEntry.getFilter() );
+          subscribe( session, target, false, targetUnfiltered ? null : sourceEntry.getFilter(), changeSet );
           linkSubscriptionEntries( sourceEntry, session.getSubscriptionEntry( target ) );
           return true;
         }

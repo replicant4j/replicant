@@ -1,3 +1,7 @@
+## 0.5.66:
+* Update the `ReplicantSessionManagerImpl` so the ChangeSet is passed into many methods rather than
+  assuming the caller sessions ChangeSet.
+
 ## 0.5.65:
 * Ensure `ChannelLink.hashcode()`, `ChannelLink.equals()` and `ChannelLink.toString()` take
   into consideration the source channel.
