@@ -728,6 +728,21 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  protected void delinkDownstreamSubscriptions( @Nonnull final ReplicantSession session,
+                                                @Nonnull final SubscriptionEntry entry,
+                                                @Nonnull final EntityMessage message,
+                                                @Nonnull final ChangeAccumulator accumulator )
+  {
+    // Delink any implicit subscriptions that was a result of the deleted entity
+    final Set<ChannelLink> links = message.getLinks();
+    if ( null != links )
+    {
+      for ( final ChannelLink link : links )
+      {
+        delinkDownstreamSubscription( session, entry, link.getTargetChannel(), accumulator.getChangeSet( session ) );
+      }
+    }
+  }
 
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.

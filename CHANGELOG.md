@@ -1,4 +1,5 @@
 ## 0.5.67:
+* Add `ReplicantSessionManagerImpl.delinkDownstreamSubscriptions` and exposed to subclasses.
 * Update `ReplicantSessionManagerImpl` so that `ChannelLinks` are only expanded for updates.
 * Update `ReplicantSessionManagerImpl` to make `delinkSubscriptionEntries` and `linkSubscriptionEntries`
   protected access and available to subclasses.
