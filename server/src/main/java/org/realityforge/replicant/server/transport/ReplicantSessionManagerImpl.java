@@ -715,10 +715,10 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  private void delinkDownstreamSubscription( final @Nonnull ReplicantSession session,
-                                             final SubscriptionEntry sourceEntry,
-                                             final ChannelDescriptor downstream,
-                                             final @Nonnull ChangeSet changeSet )
+  private void delinkDownstreamSubscription( @Nonnull final ReplicantSession session,
+                                             @Nonnull final SubscriptionEntry sourceEntry,
+                                             @Nonnull final ChannelDescriptor downstream,
+                                             @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
     if ( null != downstreamEntry )
