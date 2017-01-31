@@ -25,7 +25,7 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends GwtDataLoaderService<T, G>
 {
-  private class ReplicantRequestFactory
+  protected class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
   {
     @Override

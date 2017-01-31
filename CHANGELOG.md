@@ -1,3 +1,6 @@
+## 0.5.69:
+* Change the access specifier of the class `GwtWebPollerDataLoaderService.ReplicantRequestFactory` to protected.
+
 ## 0.5.68:
 * Introduce `AbstractSessionContextImpl` as a base class to extend as part of generation.
 
