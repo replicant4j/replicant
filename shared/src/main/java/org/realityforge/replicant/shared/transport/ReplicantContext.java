@@ -47,6 +47,10 @@ public final class ReplicantContext
    * The query parameter used to identify the last received packet sequence.
    */
   public static final String RECEIVE_SEQUENCE_PARAM = "rx";
+  /**
+   * The duration of the long polls before returning in seconds.
+   */
+  public static final int MAX_POLL_TIME_IN_SECONDS = 30;
 
   private ReplicantContext()
   {

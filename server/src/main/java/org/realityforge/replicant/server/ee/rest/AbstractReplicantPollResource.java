@@ -177,7 +177,7 @@ public abstract class AbstractReplicantPollResource
    */
   protected int getPollTime()
   {
-    return 30;
+    return ReplicantContext.MAX_POLL_TIME_IN_SECONDS;
   }
 
   /**

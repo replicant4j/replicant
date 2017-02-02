@@ -1,3 +1,7 @@
+## 0.5.70:
+* Introduce constant `ReplicantContext.MAX_POLL_TIME_IN_SECONDS` to make it easy to determine poll
+  time in both client and server code.
+
 ## 0.5.69:
 * Change the access specifier of the class `GwtWebPollerDataLoaderService.ReplicantRequestFactory` to protected.
 
