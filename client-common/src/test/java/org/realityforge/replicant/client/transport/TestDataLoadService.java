@@ -75,7 +75,7 @@ final class TestDataLoadService
 
   @Nonnull
   @Override
-  protected String getSystemKey()
+  public String getSystemKey()
   {
     return "TEST";
   }
