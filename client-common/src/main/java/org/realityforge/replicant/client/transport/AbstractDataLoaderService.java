@@ -883,7 +883,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   @Nonnull
-  public String getSystemKey()
+  protected String getSystemKey()
   {
     return getSessionContext().getKey();
   }

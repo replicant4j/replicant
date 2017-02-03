@@ -104,7 +104,7 @@ final class TestGwtWebPollerDataLoaderService
 
   @Nonnull
   @Override
-  public String getSystemKey()
+  protected String getSystemKey()
   {
     return "TEST";
   }

@@ -1,6 +1,3 @@
-## 0.5.72 (Pending):
-* Make `AbstractDataLoaderService.getSystemKey()` public access.
-
 ## 0.5.71:
 * Introduce support interface `DataLoaderService` to make interaction with data loader generalizable.
 
