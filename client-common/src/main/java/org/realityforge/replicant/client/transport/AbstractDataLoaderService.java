@@ -33,6 +33,7 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
+  implements DataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 

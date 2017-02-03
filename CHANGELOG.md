@@ -1,3 +1,6 @@
+## 0.5.71:
+* Introduce support interface `DataLoaderService` to make interaction with data loader generalizable.
+
 ## 0.5.70:
 * Introduce constant `ReplicantContext.MAX_POLL_TIME_IN_SECONDS` to make it easy to determine poll
   time in both client and server code.
