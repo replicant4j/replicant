@@ -71,14 +71,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
 
   protected void setupCloseHandler()
   {
-    final Window.ClosingHandler handler = new Window.ClosingHandler()
-    {
-      @Override
-      public void onWindowClosing( final Window.ClosingEvent event )
-      {
-        disconnect( null );
-      }
-    };
+    final Window.ClosingHandler handler = event -> disconnect( null );
     Window.addWindowClosingHandler( handler );
   }
 
