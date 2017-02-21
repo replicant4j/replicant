@@ -58,7 +58,7 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
   }
 
   @Nonnull
-  private Client newClient()
+  protected Client newClient()
   {
     return ClientBuilder.newClient().
       property( "jersey.config.client.readTimeout", DEFAULT_TIMEOUT ).
