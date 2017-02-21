@@ -116,10 +116,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       _sessionContext.setSession( session );
       if ( shouldPurgeOnSessionChange() )
       {
-        final boolean enabled = _changeBroker.isEnabled();
+        final boolean enabled = getChangeBroker().isEnabled();
         if ( enabled )
         {
-          _changeBroker.disable( getSystemKey() );
+          getChangeBroker().disable( getSystemKey() );
         }
         //TODO: else schedule action so that it runs in loop
         // until it can disable broker. This will involve replacing _resetAction
@@ -127,7 +127,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         purgeSubscriptions();
         if ( enabled )
         {
-          _changeBroker.enable( getSystemKey() );
+          getChangeBroker().enable( getSystemKey() );
         }
       }
     }
@@ -324,7 +324,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         final String eTag;
         if ( null != cacheKey )
         {
-          final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
+          final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
           eTag = null != cacheEntry ? cacheEntry.getETag() : null;
           final String content = null != cacheEntry ? cacheEntry.getContent() : null;
           if ( null != content )
@@ -430,11 +430,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     final ChannelSubscriptionEntry entry;
     if ( null == id )
     {
-      entry = _subscriptionManager.findSubscription( graph );
+      entry = getSubscriptionManager().findSubscription( graph );
     }
     else
     {
-      entry = _subscriptionManager.findSubscription( graph, id );
+      entry = getSubscriptionManager().findSubscription( graph, id );
     }
     return entry;
   }
@@ -468,12 +468,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
   {
-    return null != _subscriptionManager.findSubscription( graph, id );
+    return null != getSubscriptionManager().findSubscription( graph, id );
   }
 
   protected boolean isSubscribed( @Nonnull final G graph )
   {
-    return null != _subscriptionManager.findSubscription( graph );
+    return null != getSubscriptionManager().findSubscription( graph );
   }
 
   DataLoadAction getCurrentAction()
@@ -648,11 +648,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
           if ( null == subChannelID )
           {
-            _subscriptionManager.subscribe( graph, filter );
+            getSubscriptionManager().subscribe( graph, filter );
           }
           else
           {
-            _subscriptionManager.subscribe( graph, subChannelID, filter );
+            getSubscriptionManager().subscribe( graph, subChannelID, filter );
           }
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
@@ -660,11 +660,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           final ChannelSubscriptionEntry entry;
           if ( null == subChannelID )
           {
-            entry = _subscriptionManager.unsubscribe( graph );
+            entry = getSubscriptionManager().unsubscribe( graph );
           }
           else
           {
-            entry = _subscriptionManager.unsubscribe( graph, subChannelID );
+            entry = getSubscriptionManager().unsubscribe( graph, subChannelID );
           }
           final int removedEntities = deregisterUnOwnedEntities( entry );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
@@ -674,11 +674,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           final ChannelSubscriptionEntry entry;
           if ( null == subChannelID )
           {
-            entry = _subscriptionManager.updateSubscription( graph, filter );
+            entry = getSubscriptionManager().updateSubscription( graph, filter );
           }
           else
           {
-            entry = _subscriptionManager.updateSubscription( graph, subChannelID, filter );
+            entry = getSubscriptionManager().updateSubscription( graph, subChannelID, filter );
           }
           final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter, removedEntities );
@@ -874,7 +874,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
           removedEntities += 1;
-          final Object entity = _repository.deregisterEntity( type, entityID );
+          final Object entity = getRepository().deregisterEntity( type, entityID );
           getChangeBroker().removeAllChangeListeners( entity );
         }
       }
@@ -911,7 +911,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       if ( !doesEntityMatchFilter( descriptor, filter, entityType, entityID ) )
       {
         final EntitySubscriptionEntry entityEntry =
-          _subscriptionManager.removeEntityFromGraph( entityType, entityID, descriptor );
+          getSubscriptionManager().removeEntityFromGraph( entityType, entityID, descriptor );
         final boolean deregisterEntity = 0 == entityEntry.getGraphSubscriptions().size();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
@@ -924,8 +924,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         // If there is only one subscriber then lets delete it
         if ( deregisterEntity )
         {
-          _subscriptionManager.removeEntity( entityType, entityID );
-          _repository.deregisterEntity( entityType, entityID );
+          getSubscriptionManager().removeEntity( entityType, entityID );
+          getRepository().deregisterEntity( entityType, entityID );
           removedEntities += 1;
         }
       }
