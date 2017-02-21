@@ -1050,7 +1050,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   @Nonnull
   protected Level getLogLevel()
   {
-    return Level.FINEST;
+    return Level.INFO;
   }
 
   @Nonnull
