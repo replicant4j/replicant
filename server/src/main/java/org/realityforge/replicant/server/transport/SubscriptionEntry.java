@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelDescriptor;
 
 /**
