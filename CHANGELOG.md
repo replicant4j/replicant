@@ -1,4 +1,5 @@
 ## 0.5.72 (Pending):
+* Move to Java8.
 
 ## 0.5.71:
 * Introduce support interface `DataLoaderService` to make interaction with data loader generalizable.
