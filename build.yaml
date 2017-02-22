@@ -18,6 +18,7 @@ artifacts:
   google_guice: com.google.inject:guice:jar:3.0
   google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
   aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
+  javax_inject: javax.inject:javax.inject:jar:1
 
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4

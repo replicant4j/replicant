@@ -5,7 +5,7 @@ require 'buildr/gpg'
 require 'buildr/gwt'
 require 'buildr/single_intermediate_layout'
 
-GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin]
+GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject]
 
 GWT_DEPS = [:gwt_user, :gwt_property_source] + GIN_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
