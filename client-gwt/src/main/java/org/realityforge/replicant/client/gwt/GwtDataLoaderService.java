@@ -116,7 +116,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
 
   protected void doScheduleDataLoad()
   {
-    Scheduler.get().scheduleIncremental( () -> stepDataLoad() );
+    Scheduler.get().scheduleIncremental( this::stepDataLoad );
   }
 
   /**
