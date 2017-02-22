@@ -20,7 +20,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ConnectionCallback;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.container.TimeoutHandler;
 import javax.ws.rs.core.Response;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -85,22 +84,8 @@ public abstract class AbstractReplicantPollResource
                     @NotNull @QueryParam( ReplicantContext.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
   {
     response.setTimeout( getPollTime(), TimeUnit.SECONDS );
-    response.register( new ConnectionCallback()
-    {
-      @Override
-      public void onDisconnect( final AsyncResponse disconnected )
-      {
-        doDisconnect( disconnected );
-      }
-    } );
-    response.setTimeoutHandler( new TimeoutHandler()
-    {
-      @Override
-      public void handleTimeout( final AsyncResponse asyncResponse )
-      {
-        doTimeout( asyncResponse );
-      }
-    } );
+    response.register( (ConnectionCallback) disconnected -> doDisconnect( disconnected ) );
+    response.setTimeoutHandler( asyncResponse -> doTimeout( asyncResponse ) );
 
     try
     {

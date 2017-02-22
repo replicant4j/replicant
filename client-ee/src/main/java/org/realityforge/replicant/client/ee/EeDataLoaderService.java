@@ -80,19 +80,18 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected void doScheduleDataLoad()
   {
-    _future = getManagedScheduledExecutorService().scheduleAtFixedRate( new Runnable()
+    _future = getManagedScheduledExecutorService().
+      scheduleAtFixedRate( this::scheduleTick, 0, 1, TimeUnit.MILLISECONDS );
+  }
+
+  private void scheduleTick()
+  {
+    if ( !stepDataLoad() && null != _future )
     {
-      @Override
-      public void run()
-      {
-        if ( !stepDataLoad() && null != _future )
-        {
-          final ScheduledFuture future = _future;
-          _future = null;
-          future.cancel( false );
-        }
-      }
-    }, 0, 1, TimeUnit.MILLISECONDS );
+      final ScheduledFuture future = _future;
+      _future = null;
+      future.cancel( false );
+    }
   }
 
   /**

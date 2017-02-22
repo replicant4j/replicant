@@ -100,14 +100,7 @@ public class ReplicationInterceptorTest
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestInvocationContext context = new TestInvocationContext();
-    context.setRunnable( new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        registry.putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE );
-      }
-    } );
+    context.setRunnable( () -> registry.putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE ) );
     final EntityManager entityManager = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor =
       createInterceptor( registry, entityManager );

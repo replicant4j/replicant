@@ -78,14 +78,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
-    final Runnable runnable = new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        doSetSession( session, postAction );
-      }
-    };
+    final Runnable runnable = () -> doSetSession( session, postAction );
     if ( null == _currentAction )
     {
       runnable.run();
@@ -303,14 +296,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
               {
                 LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
                 //TODO: Figure out how to make the bulkLoad configurable
-                final Runnable runnable = new Runnable()
-                {
-                  @Override
-                  public void run()
-                  {
-                    completeAoiAction( getNext() );
-                  }
-                };
+                final Runnable runnable = () -> completeAoiAction( getNext() );
                 ensureSession().enqueueOOB( content, runnable, true );
               }
             };
@@ -325,14 +311,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           eTag = null;
           cacheAction = null;
         }
-        final Runnable runnable = new Runnable()
+        final Runnable runnable = () ->
         {
-          @Override
-          public void run()
-          {
-            LOG.info( "Subscription to " + label + " completed." );
-            completeAoiAction( userAction );
-          }
+          LOG.info( "Subscription to " + label + " completed." );
+          completeAoiAction( userAction );
         };
         LOG.info( "Subscription to " + label + " requested." );
         requestSubscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
@@ -350,14 +332,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         }
 
         LOG.info( "Unsubscribe from " + label + " requested." );
-        final Runnable runnable = new Runnable()
+        final Runnable runnable = () ->
         {
-          @Override
-          public void run()
-          {
-            LOG.info( "Unsubscribe from " + label + " completed." );
-            completeAoiAction( userAction );
-          }
+          LOG.info( "Unsubscribe from " + label + " completed." );
+          completeAoiAction( userAction );
         };
         requestUnsubscribeFromGraph( graph, id, runnable );
         return true;
@@ -373,14 +351,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
           return true;
         }
 
-        final Runnable runnable = new Runnable()
+        final Runnable runnable = () ->
         {
-          @Override
-          public void run()
-          {
-            LOG.warning( "Subscription update of " + label + " completed." );
-            completeAoiAction( userAction );
-          }
+          LOG.warning( "Subscription update of " + label + " completed." );
+          completeAoiAction( userAction );
         };
         LOG.warning( "Subscription update of " + label + " requested." );
         assert null != filterParameter;
@@ -905,22 +879,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   public void connect( @Nullable final Runnable runnable )
   {
-    disconnect( new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        doConnect( new Runnable()
-        {
-          @Override
-          public void run()
-          {
-            perform( runnable );
-            fireConnectEvent();
-          }
-        } );
-      }
-    } );
+    disconnect( () -> doConnect( () ->
+                                 {
+                                   perform( runnable );
+                                   fireConnectEvent();
+                                 } ) );
   }
 
   protected abstract void doConnect( @Nullable Runnable runnable );
@@ -935,14 +898,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     final T session = getSession();
     if ( null != session )
     {
-      doDisconnect( session, new Runnable()
+      doDisconnect( session, () ->
       {
-        @Override
-        public void run()
-        {
-          perform( runnable );
-          fireDisconnectEvent();
-        }
+        perform( runnable );
+        fireDisconnectEvent();
       } );
     }
     else
