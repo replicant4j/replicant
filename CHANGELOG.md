@@ -1,4 +1,6 @@
 ## 0.5.72 (Pending):
+* Introduce the `EntitySystem` abstraction that collectors the EntityRepository, the EntityChangeBroker and
+  the EntitySubscriptionManager services into one access point.
 * Move to Java8.
 * Move to GWT 2.8.0.
 * Refactor the AbstractDataLoader so that required services are exposed as template methods rather than

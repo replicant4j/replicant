@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+@SuppressWarnings( "NonJREEmulationClassesInClientCode" )
 public class DataLoaderServiceTest
 {
   @Test
@@ -137,7 +138,7 @@ public class DataLoaderServiceTest
   {
     final TestChangeSet changeSet =
       new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
     final Runnable runnable1 = mock( Runnable.class );
     final TestClientSession session1 = new TestClientSession( service, "X" );
 
@@ -170,7 +171,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
     ensureEnqueueDataLoads( service );
 
     for ( int i = 0; i < 6; i++ )
@@ -191,7 +192,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet =
       new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
@@ -241,7 +242,7 @@ public class DataLoaderServiceTest
     changeSet.setCacheKey( "MetaData" );
     changeSet.setEtag( "1 Jan 2020" );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
     final CacheService cacheService = service.getCacheService();
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
@@ -269,7 +270,7 @@ public class DataLoaderServiceTest
     changeSet.setCacheKey( "MetaData" );
     changeSet.setEtag( "1 Jan 2020" );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
     final CacheService cacheService = service.getCacheService();
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
@@ -302,7 +303,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet =
       new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
@@ -367,7 +368,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet =
       new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
 
     final RequestEntry request =
       service.ensureSession().newRequestRegistration( "", null, changeSet.isBulkChange() );
@@ -391,7 +392,7 @@ public class DataLoaderServiceTest
   {
     final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), false, new Change[ 0 ] );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
@@ -421,7 +422,7 @@ public class DataLoaderServiceTest
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet = new TestChangeSet( 1, null, true, new Change[]{ new TestChange( false ) } );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
@@ -440,7 +441,7 @@ public class DataLoaderServiceTest
   {
     final TestChangeSet changeSet = new TestChangeSet( 1, null, false, new Change[]{ new TestChange( true ) } );
 
-    final TestDataLoadService service = newService( changeSet, true );
+    final TestDataLoadService service = newService( changeSet );
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
@@ -652,13 +653,12 @@ public class DataLoaderServiceTest
     return actionsProcessed;
   }
 
-  private TestDataLoadService newService( final TestChangeSet changeSet,
-                                          final boolean validateOnLoad )
+  private TestDataLoadService newService( final TestChangeSet changeSet )
     throws Exception
   {
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
-    service.setValidateOnLoad( validateOnLoad );
+    service.setValidateOnLoad( true );
     service.setChangeSets( changeSet );
     return service;
   }
@@ -676,10 +676,6 @@ public class DataLoaderServiceTest
   private void configureService( final TestDataLoadService service )
     throws Exception
   {
-    set( service, TestDataLoadService.class, "_changeMapper", mock( ChangeMapper.class ) );
-    set( service, TestDataLoadService.class, "_changeBroker", mock( EntityChangeBroker.class ) );
-    set( service, TestDataLoadService.class, "_repository", mock( EntityRepository.class ) );
-    set( service, TestDataLoadService.class, "_cacheService", mock( CacheService.class ) );
     set( service, AbstractDataLoaderService.class, "_session", new TestClientSession( service, "1" ) );
 
     service.setChangesToProcessPerTick( 1 );
@@ -692,6 +688,7 @@ public class DataLoaderServiceTest
     final Field field5 = clazz.getDeclaredField( fieldName );
     field5.setAccessible( true );
     field5.set( instance, value );
+
   }
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )

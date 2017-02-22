@@ -23,6 +23,7 @@ import org.realityforge.replicant.client.EntityRepositoryDebugger;
 import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
@@ -60,16 +61,27 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected abstract CacheService getCacheService();
 
   @Nonnull
-  protected abstract EntityChangeBroker getChangeBroker();
+  protected EntityChangeBroker getChangeBroker()
+  {
+    return getEntitySystem().getChangeBroker();
+  }
 
   @Nonnull
   protected abstract ChangeMapper getChangeMapper();
 
   @Nonnull
-  protected abstract EntitySubscriptionManager getSubscriptionManager();
+  protected EntitySubscriptionManager getSubscriptionManager()
+  {
+    return getEntitySystem().getSubscriptionManager();
+  }
 
   @Nonnull
-  protected abstract EntityRepository getRepository();
+  protected EntityRepository getRepository()
+  {
+    return getEntitySystem().getRepository();
+  }
+
+  protected abstract EntitySystem getEntitySystem();
 
   protected boolean shouldPurgeOnSessionChange()
   {

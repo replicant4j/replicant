@@ -10,6 +10,7 @@ import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.EntitySystemImpl;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChainedAction;
 import org.realityforge.replicant.client.transport.SessionContext;
@@ -23,10 +24,10 @@ final class TestGwtWebPollerDataLoaderService
   public TestGwtWebPollerDataLoaderService()
   {
     super( new SessionContext( "X" ),
-           mock( EntityChangeBroker.class ),
-           mock( EntityRepository.class ),
+           new EntitySystemImpl( mock( EntityRepository.class ),
+                                 mock( EntityChangeBroker.class ),
+                                 mock( EntitySubscriptionManager.class ) ),
            mock( CacheService.class ),
-           mock( EntitySubscriptionManager.class ),
            new SimpleEventBus(),
            mock( ReplicantConfig.class ) );
     _changeMapper = mock( ChangeMapper.class );

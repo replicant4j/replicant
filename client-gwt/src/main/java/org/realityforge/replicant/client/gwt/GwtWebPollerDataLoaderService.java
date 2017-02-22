@@ -14,9 +14,7 @@ import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
-import org.realityforge.replicant.client.EntityChangeBroker;
-import org.realityforge.replicant.client.EntityRepository;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.SessionContext;
@@ -25,11 +23,9 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
   extends GwtDataLoaderService<T, G>
 {
-  private final EntityChangeBroker _changeBroker;
-  private final EntityRepository _repository;
   private final CacheService _cacheService;
-  private final EntitySubscriptionManager _subscriptionManager;
   private final SessionContext _sessionContext;
+  private final EntitySystem _entitySystem;
 
   protected class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
@@ -50,21 +46,23 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   }
 
   public GwtWebPollerDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                        @Nonnull final EntityChangeBroker changeBroker,
-                                        @Nonnull final EntityRepository repository,
+                                        @Nonnull final EntitySystem entitySystem,
                                         @Nonnull final CacheService cacheService,
-                                        @Nonnull final EntitySubscriptionManager subscriptionManager,
                                         @Nonnull final EventBus eventBus,
                                         @Nonnull final ReplicantConfig replicantConfig )
   {
     super( eventBus, replicantConfig );
     _sessionContext = sessionContext;
-    _changeBroker = changeBroker;
-    _repository = repository;
+    _entitySystem = entitySystem;
     _cacheService = cacheService;
-    _subscriptionManager = subscriptionManager;
     createWebPoller();
     setupCloseHandler();
+  }
+
+  @Override
+  protected EntitySystem getEntitySystem()
+  {
+    return _entitySystem;
   }
 
   @Nonnull
@@ -79,27 +77,6 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   protected CacheService getCacheService()
   {
     return _cacheService;
-  }
-
-  @Nonnull
-  @Override
-  protected EntityChangeBroker getChangeBroker()
-  {
-    return _changeBroker;
-  }
-
-  @Nonnull
-  @Override
-  protected EntitySubscriptionManager getSubscriptionManager()
-  {
-    return _subscriptionManager;
-  }
-
-  @Nonnull
-  @Override
-  protected EntityRepository getRepository()
-  {
-    return _repository;
   }
 
   @Nonnull

@@ -12,6 +12,8 @@ import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.EntitySystem;
+import org.realityforge.replicant.client.EntitySystemImpl;
 import static org.mockito.Mockito.*;
 
 final class TestDataLoadService
@@ -23,22 +25,20 @@ final class TestDataLoadService
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
   private DataLoadStatus _status;
-  private final EntityChangeBroker _changeBroker;
-  private final EntityRepository _repository;
   private final CacheService _cacheService;
-  private final EntitySubscriptionManager _subscriptionManager;
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
+  private final EntitySystem _entitySystem;
 
   TestDataLoadService()
   {
     _sessionContext = new SessionContext( "X" );
-    _changeBroker = mock( EntityChangeBroker.class );
-    _repository = mock( EntityRepository.class );
     _cacheService = mock( CacheService.class );
-    _subscriptionManager = mock( EntitySubscriptionManager.class );
     _changeMapper = mock( ChangeMapper.class );
     _validator = mock( EntityRepositoryValidator.class );
+    _entitySystem = new EntitySystemImpl( mock( EntityRepository.class ),
+                                          mock( EntityChangeBroker.class ),
+                                          mock( EntitySubscriptionManager.class ) );
   }
 
   @Nonnull
@@ -55,25 +55,10 @@ final class TestDataLoadService
     return _cacheService;
   }
 
-  @Nonnull
   @Override
-  protected EntityChangeBroker getChangeBroker()
+  protected EntitySystem getEntitySystem()
   {
-    return _changeBroker;
-  }
-
-  @Nonnull
-  @Override
-  protected EntitySubscriptionManager getSubscriptionManager()
-  {
-    return _subscriptionManager;
-  }
-
-  @Nonnull
-  @Override
-  protected EntityRepository getRepository()
-  {
-    return _repository;
+    return _entitySystem;
   }
 
   @Nonnull
