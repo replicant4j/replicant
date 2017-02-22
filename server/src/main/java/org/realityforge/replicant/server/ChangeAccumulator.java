@@ -86,12 +86,6 @@ public final class ChangeAccumulator
   @Nonnull
   public final ChangeSet getChangeSet( @Nonnull final ReplicantSession session )
   {
-    ChangeSet changeSet = _changeSets.get( session );
-    if ( null == changeSet )
-    {
-      changeSet = new ChangeSet();
-      _changeSets.put( session, changeSet );
-    }
-    return changeSet;
+    return _changeSets.computeIfAbsent( session, k -> new ChangeSet() );
   }
 }

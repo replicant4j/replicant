@@ -107,12 +107,7 @@ public class DataLoaderServiceTest
     throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
   {
     final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = getRwEntities( entry );
-    Map<Object, EntitySubscriptionEntry> typeMap = entities.get( type );
-    if ( null == typeMap )
-    {
-      typeMap = new HashMap<>();
-      entities.put( type, typeMap );
-    }
+    final Map<Object, EntitySubscriptionEntry> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
     final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
     getRwGraphSubscriptions( entitySubscriptionEntry ).put( entry.getDescriptor(), entry );
     typeMap.put( id, entitySubscriptionEntry );

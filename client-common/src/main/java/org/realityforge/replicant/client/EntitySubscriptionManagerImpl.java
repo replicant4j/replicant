@@ -83,12 +83,8 @@ public class EntitySubscriptionManagerImpl
                                                    @Nonnull final Object id,
                                                    @Nullable final Object filter )
   {
-    Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
-    if ( null == instanceMap )
-    {
-      instanceMap = new HashMap<>();
-      _instanceSubscriptions.put( graph, instanceMap );
-    }
+    final Map<Object, ChannelSubscriptionEntry> instanceMap =
+      _instanceSubscriptions.computeIfAbsent( graph, k -> new HashMap<>() );
     if ( !instanceMap.containsKey( id ) )
     {
       final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( new ChannelDescriptor( graph, id ), filter );
@@ -326,25 +322,12 @@ public class EntitySubscriptionManagerImpl
 
   private EntitySubscriptionEntry getEntitySubscriptions( final Class<?> type, final Object id )
   {
-    final Map<Object, EntitySubscriptionEntry> typeMap = getEntityTypeMap( type );
-    EntitySubscriptionEntry entityEntry = typeMap.get( id );
-    if ( null == entityEntry )
-    {
-      entityEntry = new EntitySubscriptionEntry( type, id );
-      typeMap.put( id, entityEntry );
-    }
-    return entityEntry;
+    return getEntityTypeMap( type ).computeIfAbsent( id, k -> new EntitySubscriptionEntry( type, id ) );
   }
 
   @Nonnull
   private Map<Object, EntitySubscriptionEntry> getEntityTypeMap( @Nonnull final Class<?> type )
   {
-    Map<Object, EntitySubscriptionEntry> typeMap = _entityMapping.get( type );
-    if ( null == typeMap )
-    {
-      typeMap = new HashMap<>();
-      _entityMapping.put( type, typeMap );
-    }
-    return typeMap;
+    return _entityMapping.computeIfAbsent( type, k -> new HashMap<>() );
   }
 }

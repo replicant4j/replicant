@@ -375,13 +375,8 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        final Object originalFilter = entry.getFilter();
-        ArrayList<ChannelDescriptor> descriptors = channelsToUpdate.get( originalFilter );
-        if ( null == descriptors )
-        {
-          descriptors = new ArrayList<>();
-          channelsToUpdate.put( originalFilter, descriptors );
-        }
+        final ArrayList<ChannelDescriptor> descriptors =
+          channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() );
         descriptors.add( descriptor );
       }
     }

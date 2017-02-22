@@ -727,13 +727,7 @@ public class EntityChangeBrokerImpl
   @Nonnull
   private ListenerEntry getEntryForListener( @Nonnull final EntityChangeListener listener )
   {
-    ListenerEntry entry = _listenerEntries.get( listener );
-    if ( null == entry )
-    {
-      entry = new ListenerEntry( listener );
-      _listenerEntries.put( listener, entry );
-    }
-    return entry;
+    return _listenerEntries.computeIfAbsent( listener, k -> new ListenerEntry( listener ) );
   }
 
   /**
