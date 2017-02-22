@@ -15,6 +15,26 @@
 
 raise 'Addon patched in the latest version of Buildr' unless Buildr::VERSION.to_s == '1.5.0'
 
+module Buildr
+  module GWT
+    module ProjectExtension
+      include Extension
+
+      after_define(:doc) do |project|
+        project.doc.classpath.delete_if { |f| f.to_s =~ /.*\/com\/google\/gwt\/gwt-.*/ }
+      end
+
+      first_time do
+        desc 'Run C22 to GSS converter. Set css files via environment variable CSS_FILES'
+        task('css2gss') do
+          raise 'Please specify css files or directory via variable CSS_FILES' unless ENV['CSS_FILES']
+          Buildr::GWT.gwt_css2gss(ENV['CSS_FILES'].to_s.split(' '))
+        end
+      end
+    end
+  end
+end
+
 require 'buildr/gwt'
 
 module Buildr
@@ -130,25 +150,5 @@ module Buildr
         Java::Commands.java 'com.google.gwt.resources.converter.Css2Gss', *([filenames] + [{ :classpath => cp, :properties => properties, :java_args => java_args, :pathing_jar => false }])
       end
     end
-
-    module ProjectExtension
-      include Extension
-
-      after_define(:doc) do |project|
-        project.doc.classpath.delete_if { |f| f.to_s =~ /.*\/com\/google\/gwt\/gwt-.*/ }
-      end
-
-      first_time do
-        desc 'Run C22 to GSS converter. Set css files via environment variable CSS_FILES'
-        task('css2gss') do
-          raise 'Please specify css files or directory via variable CSS_FILES' unless ENV['CSS_FILES']
-          Buildr::GWT.gwt_css2gss(ENV['CSS_FILES'].to_s.split(' '))
-        end
-      end
-    end
   end
-end
-
-class Buildr::Project
-  include Buildr::GWT::ProjectExtension
 end
