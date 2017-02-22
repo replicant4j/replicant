@@ -18,6 +18,8 @@ import static org.mockito.Mockito.*;
 final class TestGwtWebPollerDataLoaderService
   extends GwtWebPollerDataLoaderService<TestClientSession, TestGraph>
 {
+  private final ChangeMapper _changeMapper;
+
   public TestGwtWebPollerDataLoaderService()
   {
     super( new SessionContext( "X" ),
@@ -27,6 +29,7 @@ final class TestGwtWebPollerDataLoaderService
            mock( EntitySubscriptionManager.class ),
            new SimpleEventBus(),
            mock( ReplicantConfig.class ) );
+    _changeMapper = mock( ChangeMapper.class );
   }
 
   @Nonnull
@@ -38,9 +41,9 @@ final class TestGwtWebPollerDataLoaderService
 
   @Nonnull
   @Override
-  protected ChangeMapper newChangeMapper()
+  protected ChangeMapper getChangeMapper()
   {
-    return mock( ChangeMapper.class );
+    return _changeMapper;
   }
 
   @Nonnull

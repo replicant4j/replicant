@@ -1,6 +1,8 @@
 ## 0.5.72 (Pending):
 * Move to Java8.
 * Move to GWT 2.8.0.
+* Refactor the AbstractDataLoader so that required services are exposed as template methods rather than
+  being passed into the constructor. The aim is to enable sharing of these services for EE clients.
 
 ## 0.5.71:
 * Introduce support interface `DataLoaderService` to make interaction with data loader generalizable.

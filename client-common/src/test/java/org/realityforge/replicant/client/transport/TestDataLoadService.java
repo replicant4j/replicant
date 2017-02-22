@@ -23,22 +23,64 @@ final class TestDataLoadService
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
   private DataLoadStatus _status;
+  private final EntityChangeBroker _changeBroker;
+  private final EntityRepository _repository;
+  private final CacheService _cacheService;
+  private final EntitySubscriptionManager _subscriptionManager;
+  private final SessionContext _sessionContext;
+  private final ChangeMapper _changeMapper;
 
   TestDataLoadService()
   {
-    super( new SessionContext( "X" ),
-           mock( EntityChangeBroker.class ),
-           mock( EntityRepository.class ),
-           mock( CacheService.class ),
-           mock( EntitySubscriptionManager.class ) );
+    _sessionContext = new SessionContext( "X" );
+    _changeBroker = mock( EntityChangeBroker.class );
+    _repository = mock( EntityRepository.class );
+    _cacheService = mock( CacheService.class );
+    _subscriptionManager = mock( EntitySubscriptionManager.class );
+    _changeMapper = mock( ChangeMapper.class );
     _validator = mock( EntityRepositoryValidator.class );
   }
 
   @Nonnull
   @Override
-  protected ChangeMapper newChangeMapper()
+  protected SessionContext getSessionContext()
   {
-    return mock( ChangeMapper.class );
+    return _sessionContext;
+  }
+
+  @Nonnull
+  @Override
+  protected CacheService getCacheService()
+  {
+    return _cacheService;
+  }
+
+  @Nonnull
+  @Override
+  protected EntityChangeBroker getChangeBroker()
+  {
+    return _changeBroker;
+  }
+
+  @Nonnull
+  @Override
+  protected EntitySubscriptionManager getSubscriptionManager()
+  {
+    return _subscriptionManager;
+  }
+
+  @Nonnull
+  @Override
+  protected EntityRepository getRepository()
+  {
+    return _repository;
+  }
+
+  @Nonnull
+  @Override
+  protected ChangeMapper getChangeMapper()
+  {
+    return _changeMapper;
   }
 
   @Nonnull

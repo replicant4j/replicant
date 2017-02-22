@@ -4,13 +4,8 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChangeSet;
-import org.realityforge.replicant.client.EntityChangeBroker;
-import org.realityforge.replicant.client.EntityRepository;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
-import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
 public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
@@ -22,15 +17,9 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   private final ReplicantConfig _replicantConfig;
   private final EventBus _eventBus;
 
-  protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                  @Nonnull final EntityChangeBroker changeBroker,
-                                  @Nonnull final EntityRepository repository,
-                                  @Nonnull final CacheService cacheService,
-                                  @Nonnull final EntitySubscriptionManager subscriptionManager,
-                                  @Nonnull final EventBus eventBus,
+  protected GwtDataLoaderService( @Nonnull final EventBus eventBus,
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( sessionContext, changeBroker, repository, cacheService, subscriptionManager );
     createWebPoller();
     _eventBus = eventBus;
     _replicantConfig = replicantConfig;

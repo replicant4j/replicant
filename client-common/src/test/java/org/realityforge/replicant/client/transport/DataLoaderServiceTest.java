@@ -681,10 +681,10 @@ public class DataLoaderServiceTest
   private void configureService( final TestDataLoadService service )
     throws Exception
   {
-    set( service, AbstractDataLoaderService.class, "_changeMapper", mock( ChangeMapper.class ) );
-    set( service, AbstractDataLoaderService.class, "_changeBroker", mock( EntityChangeBroker.class ) );
-    set( service, AbstractDataLoaderService.class, "_repository", mock( EntityRepository.class ) );
-    set( service, AbstractDataLoaderService.class, "_cacheService", mock( CacheService.class ) );
+    set( service, TestDataLoadService.class, "_changeMapper", mock( ChangeMapper.class ) );
+    set( service, TestDataLoadService.class, "_changeBroker", mock( EntityChangeBroker.class ) );
+    set( service, TestDataLoadService.class, "_repository", mock( EntityRepository.class ) );
+    set( service, TestDataLoadService.class, "_cacheService", mock( CacheService.class ) );
     set( service, AbstractDataLoaderService.class, "_session", new TestClientSession( service, "1" ) );
 
     service.setChangesToProcessPerTick( 1 );

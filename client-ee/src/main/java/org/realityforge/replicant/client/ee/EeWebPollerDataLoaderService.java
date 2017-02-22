@@ -16,7 +16,6 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
@@ -37,11 +36,6 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
 
   @Inject
   private Event<SystemErrorEvent> _systemErrorEvent;
-
-  public EeWebPollerDataLoaderService( @Nonnull final SessionContext sessionContext )
-  {
-    super( sessionContext );
-  }
 
   @Nonnull
   @Override

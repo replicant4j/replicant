@@ -9,12 +9,8 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import org.realityforge.replicant.client.ChangeSet;
-import org.realityforge.replicant.client.EntityChangeBrokerImpl;
-import org.realityforge.replicant.client.EntityRepositoryImpl;
-import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
-import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
 public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
@@ -29,13 +25,8 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Nullable
   private ScheduledFuture _future;
 
-  protected EeDataLoaderService( @Nonnull final SessionContext sessionContext )
+  protected EeDataLoaderService()
   {
-    super( sessionContext,
-           new EntityChangeBrokerImpl(),
-           new EntityRepositoryImpl(),
-           new InMemoryCacheService(),
-           new EntitySubscriptionManagerImpl() );
     setChangesToProcessPerTick( DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK );
     setLinksToProcessPerTick( DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK );
   }

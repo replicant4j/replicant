@@ -39,48 +39,37 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
-  private final ChangeMapper _changeMapper;
-  private final EntityChangeBroker _changeBroker;
-  private final EntityRepository _repository;
-  private final CacheService _cacheService;
-  private final EntitySubscriptionManager _subscriptionManager;
-  private final SessionContext _sessionContext;
 
   private DataLoadAction _currentAction;
   private AreaOfInterestAction<G> _currentAoiAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
-
-  private T _session;
-
-  protected AbstractDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                       @Nonnull final EntityChangeBroker changeBroker,
-                                       @Nonnull final EntityRepository repository,
-                                       @Nonnull final CacheService cacheService,
-                                       @Nonnull final EntitySubscriptionManager subscriptionManager )
-  {
-    _sessionContext = sessionContext;
-    _changeBroker = changeBroker;
-    _repository = repository;
-    _cacheService = cacheService;
-    _subscriptionManager = subscriptionManager;
-    _changeMapper = newChangeMapper();
-  }
-
-  @Nonnull
-  protected abstract ChangeMapper newChangeMapper();
-
-  @Nonnull
-  protected SessionContext getSessionContext()
-  {
-    return _sessionContext;
-  }
-
   /**
    * Action invoked after current action completes to reset session state.
    */
   private Runnable _resetAction;
+
+
+  private T _session;
+
+  @Nonnull
+  protected abstract SessionContext getSessionContext();
+
+  @Nonnull
+  protected abstract CacheService getCacheService();
+
+  @Nonnull
+  protected abstract EntityChangeBroker getChangeBroker();
+
+  @Nonnull
+  protected abstract ChangeMapper getChangeMapper();
+
+  @Nonnull
+  protected abstract EntitySubscriptionManager getSubscriptionManager();
+
+  @Nonnull
+  protected abstract EntityRepository getRepository();
 
   protected boolean shouldPurgeOnSessionChange()
   {
@@ -113,7 +102,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     {
       _session = session;
       // This should probably be moved elsewhere ... but where?
-      _sessionContext.setSession( session );
+      getSessionContext().setSession( session );
       if ( shouldPurgeOnSessionChange() )
       {
         final boolean enabled = getChangeBroker().isEnabled();
@@ -135,30 +124,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     {
       postAction.run();
     }
-  }
-
-  @Nonnull
-  protected CacheService getCacheService()
-  {
-    return _cacheService;
-  }
-
-  @Nonnull
-  protected EntityChangeBroker getChangeBroker()
-  {
-    return _changeBroker;
-  }
-
-  @Nonnull
-  protected ChangeMapper getChangeMapper()
-  {
-    return _changeMapper;
-  }
-
-  @Nonnull
-  protected EntitySubscriptionManager getSubscriptionManager()
-  {
-    return _subscriptionManager;
   }
 
   @Nullable
@@ -1051,12 +1016,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected Level getLogLevel()
   {
     return Level.INFO;
-  }
-
-  @Nonnull
-  protected EntityRepository getRepository()
-  {
-    return _repository;
   }
 
   /**
