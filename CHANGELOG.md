@@ -1,4 +1,5 @@
 ## 0.5.74 (Pending):
+* Move propagation of SystemErrorEvent from EeWebPollerDataLoaderService to EeDataLoaderService.
 * Fire ConnectEvent and DisconnectEvent from EeDataLoaderService when data loader connects and disconnects.
 
 ## 0.5.73:
