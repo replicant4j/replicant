@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client.ee;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public final class ConnectEvent
 {
