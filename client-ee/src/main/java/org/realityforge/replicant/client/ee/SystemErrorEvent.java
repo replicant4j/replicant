@@ -11,7 +11,6 @@ public final class SystemErrorEvent
 
   @SuppressWarnings( "ConstantConditions" )
   public SystemErrorEvent( @Nonnull final String message, @Nullable final Throwable throwable )
-
   {
     if ( null == message )
     {
