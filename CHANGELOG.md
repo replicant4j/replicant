@@ -1,4 +1,5 @@
 ## 0.5.73 (Pending):
+* Change log level of WebPollerDataLoaderService to INFO.
 
 ## 0.5.72:
 * Introduce the `EntitySystem` abstraction that collectors the EntityRepository, the EntityChangeBroker and
