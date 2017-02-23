@@ -1,4 +1,4 @@
-## 0.5.73 (Pending):
+## 0.5.73:
 * Add implementation EeDataLoaderService.getCacheService().
 * Change log level of WebPollerDataLoaderService to INFO.
 
