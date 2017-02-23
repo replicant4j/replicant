@@ -14,7 +14,7 @@ public final class SystemErrorEvent
   {
     if ( null == message )
     {
-      throw new IllegalArgumentException( "Message is null" );
+      throw new IllegalArgumentException( "message is null" );
     }
 
     _message = message;
