@@ -138,6 +138,6 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
   protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
-    _systemErrorEvent.fire( new SystemErrorEvent( message, caught ) );
+    _systemErrorEvent.fire( new SystemErrorEvent( getSystemKey(), message, caught ) );
   }
 }
