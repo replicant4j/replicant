@@ -22,6 +22,10 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
 
   @Inject
   private Event<DataLoadCompleteEvent> _dataLoadCompleteEvent;
+  @Inject
+  private Event<ConnectEvent> _connectEvent;
+  @Inject
+  private Event<DisconnectEvent> _disconnectEvent;
 
   @Nullable
   private ScheduledFuture _future;
@@ -117,5 +121,17 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
     _dataLoadCompleteEvent.fire( new DataLoadCompleteEvent( status ) );
+  }
+
+  @Override
+  protected void fireConnectEvent()
+  {
+    _connectEvent.fire( new ConnectEvent( getSystemKey() ) );
+  }
+
+  @Override
+  protected void fireDisconnectEvent()
+  {
+    _disconnectEvent.fire( new DisconnectEvent( getSystemKey() ) );
   }
 }
