@@ -47,6 +47,6 @@ public final class SystemErrorEvent
 
   public String toString()
   {
-    return "SystemError[Message=" + _message + ", " + "Throwable=" + _throwable + "]";
+    return "SystemError[systemKey=" + _systemKey + ",Message=" + _message + ", Throwable=" + _throwable + "]";
   }
 }
