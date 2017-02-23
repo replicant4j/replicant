@@ -1,3 +1,5 @@
+## 0.5.73 (Pending):
+
 ## 0.5.72:
 * Introduce the `EntitySystem` abstraction that collectors the EntityRepository, the EntityChangeBroker and
   the EntitySubscriptionManager services into one access point.
