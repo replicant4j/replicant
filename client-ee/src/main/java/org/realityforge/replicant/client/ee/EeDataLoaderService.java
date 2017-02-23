@@ -9,6 +9,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
@@ -24,11 +25,19 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
 
   @Nullable
   private ScheduledFuture _future;
+  private final InMemoryCacheService _cacheService = new InMemoryCacheService();
 
   protected EeDataLoaderService()
   {
     setChangesToProcessPerTick( DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK );
     setLinksToProcessPerTick( DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK );
+  }
+
+  @Nonnull
+  @Override
+  protected CacheService getCacheService()
+  {
+    return _cacheService;
   }
 
   @Override
