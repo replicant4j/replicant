@@ -34,6 +34,6 @@ public final class InvalidDisconnectEvent
 
   public String toString()
   {
-    return "SystemError[systemKey=" + _systemKey + ", Throwable=" + _throwable + "]";
+    return "InvalidDisconnect[systemKey=" + _systemKey + ", Throwable=" + _throwable + "]";
   }
 }

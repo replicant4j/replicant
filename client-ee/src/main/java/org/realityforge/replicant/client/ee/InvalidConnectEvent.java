@@ -34,6 +34,6 @@ public final class InvalidConnectEvent
 
   public String toString()
   {
-    return "SystemError[systemKey=" + _systemKey + ", Throwable=" + _throwable + "]";
+    return "InvalidConnect[systemKey=" + _systemKey + ", Throwable=" + _throwable + "]";
   }
 }
