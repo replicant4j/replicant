@@ -1,11 +1,12 @@
 package org.realityforge.replicant.client.ee;
 
+import java.lang.annotation.Annotation;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.enterprise.event.Event;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import org.realityforge.replicant.client.ChangeSet;
@@ -21,20 +22,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   private static final int DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK = 10000;
 
   @Inject
-  private Event<DataLoadCompleteEvent> _dataLoadCompleteEvent;
-  @Inject
-  private Event<SystemErrorEvent> _systemErrorEvent;
-  @Inject
-  private Event<ConnectEvent> _connectEvent;
-  @Inject
-  private Event<InvalidConnectEvent> _invalidConnectEvent;
-  @Inject
-  private Event<DisconnectEvent> _disconnectEvent;
-  @Inject
-  private Event<InvalidDisconnectEvent> _invalidDisconnectEvent;
-  @Inject
-  private Event<PollErrorEvent> _pollErrorEvent;
-
+  private BeanManager _beanManager;
   @Nullable
   private ScheduledFuture _future;
   private final InMemoryCacheService _cacheService = new InMemoryCacheService();
@@ -128,47 +116,53 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
-    qualifyEvent( _dataLoadCompleteEvent ).fire( new DataLoadCompleteEvent( status ) );
+    fireEvent( new DataLoadCompleteEvent( status ) );
   }
 
   protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
-    qualifyEvent( _systemErrorEvent ).fire( new SystemErrorEvent( getSystemKey(), message, caught ) );
+    fireEvent( new SystemErrorEvent( getSystemKey(), message, caught ) );
   }
 
   @Override
   protected void fireConnectEvent()
   {
-    _connectEvent.fire( new ConnectEvent( getSystemKey() ) );
+    fireEvent( new ConnectEvent( getSystemKey() ) );
   }
 
   @Override
   protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
   {
-    qualifyEvent( _invalidConnectEvent ).fire( new InvalidConnectEvent( getSystemKey(), exception ) );
+    fireEvent( new InvalidConnectEvent( getSystemKey(), exception ) );
   }
 
   @Override
   protected void fireDisconnectEvent()
   {
-    qualifyEvent( _disconnectEvent ).fire( new DisconnectEvent( getSystemKey() ) );
+    fireEvent( new DisconnectEvent( getSystemKey() ) );
   }
 
   @Override
   protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
   {
-    qualifyEvent( _invalidDisconnectEvent ).fire( new InvalidDisconnectEvent( getSystemKey(), exception ) );
+    fireEvent( new InvalidDisconnectEvent( getSystemKey(), exception ) );
   }
 
   @Override
   protected void firePollFailure( @Nonnull final Throwable exception )
   {
-    qualifyEvent( _pollErrorEvent ).fire( new PollErrorEvent( getSystemKey(), exception ) );
+    fireEvent( new PollErrorEvent( getSystemKey(), exception ) );
   }
 
-  protected <T> Event<T> qualifyEvent( final Event<T> event )
+  protected final void fireEvent( @Nonnull final Object event )
   {
-    return event;
+    _beanManager.fireEvent( event, getEventQualifiers() );
+  }
+
+  @Nonnull
+  protected Annotation[] getEventQualifiers()
+  {
+    return new Annotation[ 0 ];
   }
 }
