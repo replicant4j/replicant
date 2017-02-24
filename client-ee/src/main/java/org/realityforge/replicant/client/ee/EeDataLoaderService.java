@@ -155,6 +155,12 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
     fireEvent( new PollErrorEvent( getSystemKey(), exception ) );
   }
 
+  @Override
+  protected void fireDataLoadFailure( @Nonnull final Exception e )
+  {
+    fireEvent( new DataLoadFailureEvent( getSystemKey(), e ) );
+  }
+
   protected final void fireEvent( @Nonnull final Object event )
   {
     _beanManager.fireEvent( event, getEventQualifiers() );

@@ -237,6 +237,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected void progressDataLoadFailure( @Nonnull final Exception e )
   {
     handleSystemFailure( e, "Failed to progress data load" );
+    fireDataLoadFailure( e );
   }
 
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
@@ -998,6 +999,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    * Invoked to fire an event when data load has completed.
    */
   protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
+  {
+  }
+
+  /**
+   * Invoked to fire an event when data load has resulted in a failure.
+   */
+  protected void fireDataLoadFailure( @Nonnull final Exception e )
   {
   }
 
