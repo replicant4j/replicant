@@ -1,39 +1,17 @@
 package org.realityforge.replicant.client.ee;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public final class InvalidConnectEvent
+  extends AbstractDataLoaderErrorEvent
 {
-  private final String _systemKey;
-  private final Throwable _throwable;
-
-  @SuppressWarnings( "ConstantConditions" )
-  public InvalidConnectEvent( @Nonnull final String systemKey,
-                              @Nullable final Throwable throwable )
+  public InvalidConnectEvent( @Nonnull final String systemKey, @Nonnull final Throwable throwable )
   {
-    if ( null == systemKey )
-    {
-      throw new IllegalArgumentException( "systemKey is null" );
-    }
-    _systemKey = systemKey;
-    _throwable = throwable;
-  }
-
-  @Nonnull
-  public String getSystemKey()
-  {
-    return _systemKey;
-  }
-
-  @Nullable
-  public Throwable getThrowable()
-  {
-    return _throwable;
+    super( systemKey, throwable );
   }
 
   public String toString()
   {
-    return "InvalidConnect[systemKey=" + _systemKey + ", Throwable=" + _throwable + "]";
+    return "InvalidConnect[systemKey=" + getSystemKey() + ", Throwable=" + getThrowable() + "]";
   }
 }

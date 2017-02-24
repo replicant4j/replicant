@@ -167,7 +167,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
     }
   }
 
-  protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
+  protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
     final Throwable cause = ( caught instanceof InvocationException ) ? caught.getCause() : caught;

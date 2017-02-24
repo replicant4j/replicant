@@ -961,7 +961,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     fireInvalidDisconnectEvent( exception );
   }
 
-  protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
+  protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
   {
     LOG.log( Level.SEVERE, "System Failure: " + message, caught );
   }

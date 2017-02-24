@@ -131,7 +131,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
     _dataLoadCompleteEvent.fire( new DataLoadCompleteEvent( status ) );
   }
 
-  protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )
+  protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
     _systemErrorEvent.fire( new SystemErrorEvent( getSystemKey(), message, caught ) );

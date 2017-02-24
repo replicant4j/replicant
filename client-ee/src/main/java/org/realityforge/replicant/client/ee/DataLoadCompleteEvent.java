@@ -4,17 +4,13 @@ import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
 
 public final class DataLoadCompleteEvent
+  extends AbstractDataLoaderEvent
 {
   private final DataLoadStatus _status;
 
-  @SuppressWarnings( "ConstantConditions" )
   public DataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
-    if ( null == status )
-    {
-      throw new IllegalArgumentException( "status is null" );
-    }
-
+    super( status.getSystemKey() );
     _status = status;
   }
 
