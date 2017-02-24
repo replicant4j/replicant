@@ -128,13 +128,13 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
-    _dataLoadCompleteEvent.fire( new DataLoadCompleteEvent( status ) );
+    qualifyEvent( _dataLoadCompleteEvent ).fire( new DataLoadCompleteEvent( status ) );
   }
 
   protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
-    _systemErrorEvent.fire( new SystemErrorEvent( getSystemKey(), message, caught ) );
+    qualifyEvent( _systemErrorEvent ).fire( new SystemErrorEvent( getSystemKey(), message, caught ) );
   }
 
   @Override
@@ -146,24 +146,29 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
   {
-    _invalidConnectEvent.fire( new InvalidConnectEvent( getSystemKey(), exception ) );
+    qualifyEvent( _invalidConnectEvent ).fire( new InvalidConnectEvent( getSystemKey(), exception ) );
   }
 
   @Override
   protected void fireDisconnectEvent()
   {
-    _disconnectEvent.fire( new DisconnectEvent( getSystemKey() ) );
+    qualifyEvent( _disconnectEvent ).fire( new DisconnectEvent( getSystemKey() ) );
   }
 
   @Override
   protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
   {
-    _invalidDisconnectEvent.fire( new InvalidDisconnectEvent( getSystemKey(), exception ) );
+    qualifyEvent( _invalidDisconnectEvent ).fire( new InvalidDisconnectEvent( getSystemKey(), exception ) );
   }
 
   @Override
   protected void firePollFailure( @Nonnull final Throwable exception )
   {
-    _pollErrorEvent.fire( new PollErrorEvent( getSystemKey(), exception ) );
+    qualifyEvent( _pollErrorEvent ).fire( new PollErrorEvent( getSystemKey(), exception ) );
+  }
+
+  protected <T> Event<T> qualifyEvent( final Event<T> event )
+  {
+    return event;
   }
 }
