@@ -903,6 +903,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
     handleSystemFailure( exception, "Failed to connect session" );
+    fireInvalidConnectEvent( exception );
   }
 
   public void disconnect( @Nullable final Runnable runnable )
@@ -932,9 +933,23 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   /**
+   * Invoked to fire an event when failed to connect.
+   */
+  protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
+  {
+  }
+
+  /**
    * Invoked to fire an event when disconnect has completed.
    */
   protected void fireConnectEvent()
+  {
+  }
+
+  /**
+   * Invoked to fire an event when failed to connect.
+   */
+  protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
   {
   }
 
@@ -943,6 +958,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
   {
     handleSystemFailure( exception, "Failed to disconnect session" );
+    fireInvalidDisconnectEvent( exception );
   }
 
   protected void handleSystemFailure( @Nullable final Throwable caught, @Nonnull final String message )

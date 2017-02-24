@@ -1,4 +1,6 @@
 ## 0.5.74 (Pending):
+* Generate CDI events for InvalidConnect and InvalidDisconnect conditions in EE client. 
+* Add explicit mechanisms for firing events for InvalidConnect and InvalidDisconnect events. 
 * Move propagation of SystemErrorEvent from EeWebPollerDataLoaderService to EeDataLoaderService.
 * Fire ConnectEvent and DisconnectEvent from EeDataLoaderService when data loader connects and disconnects.
 

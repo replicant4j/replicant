@@ -27,7 +27,11 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Inject
   private Event<ConnectEvent> _connectEvent;
   @Inject
+  private Event<InvalidConnectEvent> _invalidConnectEvent;
+  @Inject
   private Event<DisconnectEvent> _disconnectEvent;
+  @Inject
+  private Event<InvalidDisconnectEvent> _invalidDisconnectEvent;
 
   @Nullable
   private ScheduledFuture _future;
@@ -138,8 +142,20 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   }
 
   @Override
+  protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
+  {
+    _invalidConnectEvent.fire( new InvalidConnectEvent( getSystemKey(), exception ) );
+  }
+
+  @Override
   protected void fireDisconnectEvent()
   {
     _disconnectEvent.fire( new DisconnectEvent( getSystemKey() ) );
+  }
+
+  @Override
+  protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
+  {
+    _invalidDisconnectEvent.fire( new InvalidDisconnectEvent( getSystemKey(), exception ) );
   }
 }
