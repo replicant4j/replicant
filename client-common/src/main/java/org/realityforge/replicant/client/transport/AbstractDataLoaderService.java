@@ -900,7 +900,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected abstract void doConnect( @Nullable Runnable runnable );
 
-  protected void handleInvalidConnect( @Nullable final Throwable exception )
+  protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
     handleSystemFailure( exception, "Failed to connect session" );
   }
@@ -940,7 +940,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
 
-  protected void handleInvalidDisconnect( @Nullable final Throwable exception )
+  protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
   {
     handleSystemFailure( exception, "Failed to disconnect session" );
   }

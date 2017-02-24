@@ -17,6 +17,7 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -103,13 +104,14 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
         @Override
         public void onResponseReceived( final Request request, final Response response )
         {
-          if ( Response.SC_OK == response.getStatusCode() )
+          final int statusCode = response.getStatusCode();
+          if ( Response.SC_OK == statusCode )
           {
             onSessionCreated( response.getText(), runnable );
           }
           else
           {
-            handleInvalidConnect( null );
+            handleInvalidConnect( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
           }
         }
 
@@ -138,14 +140,15 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
         @Override
         public void onResponseReceived( final Request request, final Response response )
         {
-          if ( Response.SC_OK == response.getStatusCode() )
+          final int statusCode = response.getStatusCode();
+          if ( Response.SC_OK == statusCode )
           {
             setSession( null, runnable );
           }
           else
           {
             setSession( null, runnable );
-            handleInvalidDisconnect( null );
+            handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
           }
         }
 

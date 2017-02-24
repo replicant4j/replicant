@@ -14,6 +14,7 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
 import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
@@ -89,14 +90,15 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
         }
         else
         {
-          handleInvalidConnect( null );
+          handleInvalidConnect( new InvalidHttpResponseException( statusCode,
+                                                                  response.getStatusInfo().getReasonPhrase() ) );
         }
       }
 
       @Override
       public void failed( final Throwable throwable )
       {
-        handleInvalidConnect( null );
+        handleInvalidConnect( throwable );
       }
     } );
   }
@@ -118,7 +120,8 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
         else
         {
           setSession( null, runnable );
-          handleInvalidDisconnect( null );
+          handleInvalidDisconnect( new InvalidHttpResponseException( statusCode,
+                                                                     response.getStatusInfo().getReasonPhrase() ) );
         }
       }
 
