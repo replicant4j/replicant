@@ -910,16 +910,18 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     final T session = getSession();
     if ( null != session )
     {
-      doDisconnect( session, () ->
-      {
-        perform( runnable );
-        fireDisconnectEvent();
-      } );
+      doDisconnect( session, () -> onDisconnect( runnable ) );
     }
     else
     {
       perform( runnable );
     }
+  }
+
+  private void onDisconnect( final @Nullable Runnable runnable )
+  {
+    perform( runnable );
+    fireDisconnectEvent();
   }
 
   /**
