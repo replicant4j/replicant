@@ -32,6 +32,8 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   private Event<DisconnectEvent> _disconnectEvent;
   @Inject
   private Event<InvalidDisconnectEvent> _invalidDisconnectEvent;
+  @Inject
+  private Event<PollErrorEvent> _pollErrorEvent;
 
   @Nullable
   private ScheduledFuture _future;
@@ -157,5 +159,11 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
   {
     _invalidDisconnectEvent.fire( new InvalidDisconnectEvent( getSystemKey(), exception ) );
+  }
+
+  @Override
+  protected void firePollFailure( @Nonnull final Throwable exception )
+  {
+    _pollErrorEvent.fire( new PollErrorEvent( getSystemKey(), exception ) );
   }
 }

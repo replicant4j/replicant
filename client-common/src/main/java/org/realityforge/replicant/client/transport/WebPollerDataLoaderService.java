@@ -34,7 +34,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       @Override
       public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
       {
-        handleSystemFailure( exception, "Failed to poll" );
+        handlePollFailure( exception );
       }
     } );
     return webpoller;
@@ -112,6 +112,19 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       throw new NullPointerException( "_webPoller" );
     }
     return _webPoller;
+  }
+
+  private void handlePollFailure( @Nonnull final Throwable exception )
+  {
+    handleSystemFailure( exception, "Failed to poll" );
+    firePollFailure( exception );
+  }
+
+  /**
+   * Invoked to fire an event when poll failed.
+   */
+  protected void firePollFailure( @Nonnull final Throwable exception )
+  {
   }
 
   private void handlePollSuccess( final String rawJsonData )
