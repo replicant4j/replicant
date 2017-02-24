@@ -161,7 +161,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
     fireEvent( new DataLoadFailureEvent( getSystemKey(), e ) );
   }
 
-  protected final void fireEvent( @Nonnull final Object event )
+  protected void fireEvent( @Nonnull final Object event )
   {
     _beanManager.fireEvent( event, getEventQualifiers() );
   }
