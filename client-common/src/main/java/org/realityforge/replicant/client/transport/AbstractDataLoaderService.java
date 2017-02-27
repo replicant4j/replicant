@@ -922,7 +922,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private void onDisconnect( final @Nullable Runnable runnable )
+  private void onDisconnect( @Nullable final Runnable runnable )
   {
     perform( runnable );
     fireDisconnectEvent();
