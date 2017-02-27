@@ -75,7 +75,7 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
   }
 
   @Override
-  protected void doConnect( final @Nullable Runnable runnable )
+  protected void doConnect( @Nullable final Runnable runnable )
   {
     final Invocation.Builder builder = newInvocationBuilder( getTokenURL() );
     builder.async().post( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
