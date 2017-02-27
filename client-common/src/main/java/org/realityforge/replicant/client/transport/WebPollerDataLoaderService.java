@@ -144,10 +144,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     {
       logResponse( rawJsonData );
       ensureSession().enqueueDataLoad( rawJsonData );
-      if ( !getWebPoller().isPaused() )
-      {
-        getWebPoller().pause();
-      }
+      pauseWebPoller();
     }
   }
 
@@ -172,11 +169,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Override
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
-    final WebPoller webPoller = getWebPoller();
-    if ( webPoller.isPaused() )
-    {
-      webPoller.resume();
-    }
+    resumeWebPoller();
     super.onDataLoadComplete( status );
   }
 
@@ -202,5 +195,22 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   public boolean isConnected()
   {
     return null != _webPoller && getWebPoller().isActive();
+  }
+
+  protected void pauseWebPoller()
+  {
+    if ( !getWebPoller().isPaused() )
+    {
+      getWebPoller().pause();
+    }
+  }
+
+  protected void resumeWebPoller()
+  {
+    final WebPoller webPoller = getWebPoller();
+    if ( webPoller.isPaused() )
+    {
+      webPoller.resume();
+    }
   }
 }
