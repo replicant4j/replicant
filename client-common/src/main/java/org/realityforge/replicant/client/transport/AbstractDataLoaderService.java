@@ -428,6 +428,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return null != getSubscriptionManager().findSubscription( graph );
   }
 
+  // Method only used in tests
   DataLoadAction getCurrentAction()
   {
     return _currentAction;
