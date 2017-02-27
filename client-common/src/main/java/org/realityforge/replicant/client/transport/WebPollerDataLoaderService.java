@@ -126,7 +126,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     firePollFailure( exception );
   }
 
- protected void handleWebPollerStop()
+  protected void handleWebPollerStop()
   {
     disconnect( null );
   }
