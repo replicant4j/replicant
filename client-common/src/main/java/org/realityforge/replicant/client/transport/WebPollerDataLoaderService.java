@@ -43,7 +43,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected Level getWebPollerLogLevel()
   {
-    return Level.INFO;
+    return Level.FINE;
   }
 
   @Nonnull
