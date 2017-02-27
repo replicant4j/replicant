@@ -1,4 +1,5 @@
 ## 0.5.74 (Pending):
+* Ensure correct handling of incorrect disconnects when failing to connect to server.
 * Ensure a stopped WebPoller marks the DataLoaderService as disconnected.
 * Generate CDI events for InvalidConnect, InvalidDisconnect and PollError conditions in EE client.
 * Add explicit mechanisms for firing events for InvalidConnect, InvalidDisconnect and PollError events.

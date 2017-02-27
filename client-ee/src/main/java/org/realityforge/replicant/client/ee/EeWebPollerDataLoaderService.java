@@ -129,6 +129,7 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
       public void failed( final Throwable throwable )
       {
         setSession( null, runnable );
+        handleInvalidDisconnect( throwable );
       }
     } );
   }
