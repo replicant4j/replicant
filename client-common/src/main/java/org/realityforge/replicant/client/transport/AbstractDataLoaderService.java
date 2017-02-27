@@ -892,11 +892,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   public void connect( @Nullable final Runnable runnable )
   {
-    disconnect( () -> doConnect( () ->
-                                 {
-                                   perform( runnable );
-                                   fireConnectEvent();
-                                 } ) );
+    disconnect( () -> doConnect( () -> completeConnect( runnable ) ) );
+  }
+
+  private void completeConnect( @Nullable final Runnable runnable )
+  {
+    perform( runnable );
+    fireConnectEvent();
   }
 
   protected abstract void doConnect( @Nullable Runnable runnable );
