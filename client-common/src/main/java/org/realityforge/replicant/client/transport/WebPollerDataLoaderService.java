@@ -36,6 +36,12 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       {
         handlePollFailure( exception );
       }
+
+      @Override
+      public void onStop( @Nonnull final WebPoller webPoller )
+      {
+        handleWebPollerStop();
+      }
     } );
     return webpoller;
   }
@@ -118,6 +124,11 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   {
     handleSystemFailure( exception, "Failed to poll" );
     firePollFailure( exception );
+  }
+
+ protected void handleWebPollerStop()
+  {
+    disconnect( null );
   }
 
   /**
