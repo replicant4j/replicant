@@ -25,7 +25,6 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   extends GwtDataLoaderService<T, G>
 {
   private final CacheService _cacheService;
-  private final SessionContext _sessionContext;
   private final EntitySystem _entitySystem;
 
   protected class ReplicantRequestFactory
@@ -52,8 +51,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
                                         @Nonnull final EventBus eventBus,
                                         @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( eventBus, replicantConfig );
-    _sessionContext = sessionContext;
+    super( sessionContext, eventBus, replicantConfig );
     _entitySystem = entitySystem;
     _cacheService = cacheService;
     createWebPoller();
@@ -64,13 +62,6 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
   protected EntitySystem getEntitySystem()
   {
     return _entitySystem;
-  }
-
-  @Nonnull
-  @Override
-  protected SessionContext getSessionContext()
-  {
-    return _sessionContext;
   }
 
   @Nonnull
