@@ -490,7 +490,8 @@ public abstract class ReplicantSessionManagerImpl
     if ( channelMetaData.isCacheable() )
     {
       final ChannelCacheEntry cacheEntry = ensureCacheEntry( descriptor );
-      if ( cacheEntry.getCacheKey().equals( session.getCacheKey( descriptor ) ) )
+      final String cacheKey = cacheEntry.getCacheKey();
+      if ( cacheKey.equals( session.getCacheKey( descriptor ) ) )
       {
         return CacheStatus.USE;
       }
@@ -499,7 +500,7 @@ public abstract class ReplicantSessionManagerImpl
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
         cacheChangeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
-        sendPacket( session, cacheEntry.getCacheKey(), cacheChangeSet );
+        sendPacket( session, cacheKey, cacheChangeSet );
         return CacheStatus.REFRESH;
       }
     }
