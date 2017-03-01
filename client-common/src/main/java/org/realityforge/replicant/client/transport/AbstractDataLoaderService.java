@@ -101,7 +101,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
+  protected void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
     if ( session != _session )
     {
