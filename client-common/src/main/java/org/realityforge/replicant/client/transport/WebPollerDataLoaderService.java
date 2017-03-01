@@ -183,6 +183,16 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Nonnull
   protected abstract RequestFactory newRequestFactory();
 
+  @Override
+  protected void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
+  {
+    if( null == session )
+    {
+      stopPolling();
+    }
+    super.doSetSession( session, postAction );
+  }
+
   protected void stopPolling()
   {
     if ( isConnected() )
