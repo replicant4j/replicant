@@ -15,10 +15,21 @@ public interface EntityRepository
   <T> T deregisterEntity( @Nonnull Class<T> type, @Nonnull Object id );
 
   @Nonnull
-  <T> T getByID( @Nonnull Class<T> type, @Nonnull Object id );
+  default <T> T getByID( @Nonnull final Class<T> type, @Nonnull final Object id )
+  {
+    final T entity = findByID( type, id );
+    if ( null == entity )
+    {
+      throw new NoSuchEntityException( type, id );
+    }
+    return entity;
+  }
 
   @Nullable
-  <T> T findByID( @Nonnull Class<T> type, @Nonnull Object id );
+  default <T> T findByID( @Nonnull final Class<T> type, @Nonnull final Object id )
+  {
+    return findByID( type, id, true );
+  }
 
   /**
    * Lookup an entity of specified type with specified id, returning null if not present.

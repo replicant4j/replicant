@@ -3,7 +3,6 @@ package org.realityforge.replicant.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class EntityRepositoryImpl
   implements EntityRepository
@@ -54,25 +53,6 @@ public class EntityRepositoryImpl
       doDeregisterEntity( superclass, id );
     }
     return existing;
-  }
-
-  @Override
-  @Nonnull
-  public <T> T getByID( @Nonnull final Class<T> type, @Nonnull final Object id )
-  {
-    final T entity = findByID( type, id );
-    if ( null == entity )
-    {
-      throw new IllegalStateException( "Unable to locate " + describeEntity( type, id ) );
-    }
-    return entity;
-  }
-
-  @Override
-  @Nullable
-  public <T> T findByID( @Nonnull final Class<T> type, @Nonnull final Object id )
-  {
-    return findByID( type, id, true );
   }
 
   @Override

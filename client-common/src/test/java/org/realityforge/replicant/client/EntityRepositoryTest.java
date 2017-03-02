@@ -167,10 +167,10 @@ public class EntityRepositoryTest
       r.getByID( type, id );
       failed = false;
     }
-    catch ( final IllegalStateException e )
+    catch ( final NoSuchEntityException e )
     {
-      assertEquals( "Unable to locate entity with type '" + type.getName() + "' and id = '" + id + "'",
-                    e.getMessage() );
+      assertEquals( e.getID(), id );
+      assertEquals( e.getType(), type );
       failed = true;
     }
     if ( !failed )

@@ -1,4 +1,7 @@
 ## 0.5.74 (Pending):
+* Convert EntityRepository.getByID and EntityRepository.findByID to default methods on interface.
+* Throw a NoSuchEntityException rather than IllegalStateException from EntityRepository.getByID when
+  no entity is present.
 * Ensure correct handling of incorrect disconnects when failing to connect to server.
 * Ensure a stopped WebPoller marks the DataLoaderService as disconnected.
 * Generate CDI events for InvalidConnect, InvalidDisconnect and PollError conditions in EE client.
