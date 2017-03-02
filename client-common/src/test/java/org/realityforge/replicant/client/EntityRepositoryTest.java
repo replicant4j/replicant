@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -146,10 +147,10 @@ public class EntityRepositoryTest
     final C e2 = new C( "B" );
     final C e3 = new C( "C" );
     final C e4 = new C( "D" );
-    r.registerEntity( C.class, 1, e1 );
-    r.registerEntity( C.class, 2, e2 );
     r.registerEntity( C.class, 3, e3 );
+    r.registerEntity( C.class, 2, e2 );
     r.registerEntity( C.class, 4, e4 );
+    r.registerEntity( C.class, 1, e1 );
 
     {
       final ArrayList<C> results = r.findAllByQuery( C.class, e -> Objects.equals( e.getCode(), "B" ) );
@@ -162,6 +163,15 @@ public class EntityRepositoryTest
       assertTrue( results.contains( e1 ) );
       assertTrue( results.contains( e3 ) );
       assertTrue( results.contains( e4 ) );
+    }
+
+    {
+      final ArrayList<C> results =
+        r.findAllByQuery( C.class, e -> !Objects.equals( e.getCode(), "B" ), Comparator.comparing( C::getCode ) );
+      assertEquals( results.size(), 3 );
+      assertEquals( results.indexOf( e1 ), 0 );
+      assertEquals( results.indexOf( e3 ), 1 );
+      assertEquals( results.indexOf( e4 ), 2 );
     }
   }
 

@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -88,6 +88,16 @@ public interface EntityRepository
   default <T> ArrayList<T> findAllByQuery( @Nonnull final Class<T> type, @Nonnull final Predicate<T> query )
   {
     return findAll( type ).stream().filter( query ).collect( Collectors.toCollection( ArrayList::new ) );
+  }
+
+  @Nonnull
+  default <T> ArrayList<T> findAllByQuery( @Nonnull final Class<T> type,
+                                           @Nonnull final Predicate<T> query,
+                                           @Nonnull Comparator<T> comparator)
+  {
+    final ArrayList<T> results = findAllByQuery( type, query );
+    results.sort( comparator );
+    return results;
   }
 
   /**
