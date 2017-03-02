@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
+@SuppressWarnings( "Duplicates" )
 public class EntityRepositoryTest
 {
   @Test
