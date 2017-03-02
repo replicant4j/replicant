@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -117,6 +118,53 @@ public class EntityRepositoryTest
     fail( "Expected to raise an exception when de-registering an entity not present" );
   }
 
+  @Test
+  public void findByQuery()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+
+    final C e1 = new C( "A" );
+    final C e2 = new C( "B" );
+    final C e3 = new C( "C" );
+    final C e4 = new C( "D" );
+    r.registerEntity( C.class, 1, e1 );
+    r.registerEntity( C.class, 2, e2 );
+    r.registerEntity( C.class, 3, e3 );
+    r.registerEntity( C.class, 4, e4 );
+
+    assertEquals( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "B" ) ), e2 );
+    assertEquals( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "D" ) ), e4 );
+    assertEquals( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "X" ) ), null );
+  }
+
+  @Test
+  public void findAllByQuery()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+
+    final C e1 = new C( "A" );
+    final C e2 = new C( "B" );
+    final C e3 = new C( "C" );
+    final C e4 = new C( "D" );
+    r.registerEntity( C.class, 1, e1 );
+    r.registerEntity( C.class, 2, e2 );
+    r.registerEntity( C.class, 3, e3 );
+    r.registerEntity( C.class, 4, e4 );
+
+    {
+      final ArrayList<C> results = r.findAllByQuery( C.class, e -> Objects.equals( e.getCode(), "B" ) );
+      assertEquals( results.size(), 1 );
+      assertEquals( results.get( 0 ), e2 );
+    }
+    {
+      final ArrayList<C> results = r.findAllByQuery( C.class, e -> !Objects.equals( e.getCode(), "B" ) );
+      assertEquals( results.size(), 3 );
+      assertTrue( results.contains( e1 ) );
+      assertTrue( results.contains( e3 ) );
+      assertTrue( results.contains( e4 ) );
+    }
+  }
+
   private void assertPresent( final EntityRepository r, final Class<?> type, final Object id, final Object entity )
   {
     assertCanFind( r, type, id, entity );
@@ -229,5 +277,21 @@ public class EntityRepositoryTest
   static class A
     extends B
   {
+  }
+
+  static class C
+    extends B
+  {
+    private final String _code;
+
+    public C( final String code )
+    {
+      _code = code;
+    }
+
+    public String getCode()
+    {
+      return _code;
+    }
   }
 }

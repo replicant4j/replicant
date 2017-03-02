@@ -1,6 +1,9 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -44,8 +47,48 @@ public interface EntityRepository
   @Nullable
   <T> T findByID( @Nonnull Class<T> type, @Nonnull Object id, boolean forceLink );
 
+  /**
+   * Find an entity based on specified query, returning null if not present.
+   *
+   * @param type  the type of the entity.
+   * @param query the query.
+   * @param <T>   the entity type.
+   * @return the entity or null if no such entity.
+   */
+  @Nullable
+  default <T> T findByQuery( @Nonnull final Class<T> type, @Nonnull final Predicate<T> query )
+  {
+    return findAll( type ).stream().filter( query ).findFirst().orElse( null );
+  }
+
+  /**
+   * Return an entity based on specified query, raising a NoResultException if no matching entity.
+   *
+   * @param type  the type of the entity.
+   * @param query the query.
+   * @param <T>   the entity type.
+   * @return the entity or null if no such entity.
+   */
+  @Nonnull
+  default <T> T getByQuery( @Nonnull final Class<T> type, @Nonnull final Predicate<T> query )
+    throws NoResultException
+  {
+    final T result = findByQuery( type, query );
+    if ( null == result )
+    {
+      throw new NoResultException();
+    }
+    return result;
+  }
+
   @Nonnull
   <T> ArrayList<T> findAll( @Nonnull Class<T> type );
+
+  @Nonnull
+  default <T> ArrayList<T> findAllByQuery( @Nonnull final Class<T> type, @Nonnull final Predicate<T> query )
+  {
+    return findAll( type ).stream().filter( query ).collect( Collectors.toCollection( ArrayList::new ) );
+  }
 
   /**
    * Return the list of ids for entities of a particular type.
