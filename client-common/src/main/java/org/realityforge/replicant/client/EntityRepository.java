@@ -85,6 +85,14 @@ public interface EntityRepository
   <T> ArrayList<T> findAll( @Nonnull Class<T> type );
 
   @Nonnull
+  default <T> ArrayList<T> findAll( @Nonnull final Class<T> type, @Nonnull final Comparator<T> comparator )
+  {
+    final ArrayList<T> results = findAll( type );
+    results.sort( comparator );
+    return results;
+  }
+
+  @Nonnull
   default <T> ArrayList<T> findAllByQuery( @Nonnull final Class<T> type, @Nonnull final Predicate<T> query )
   {
     return findAll( type ).stream().filter( query ).collect( Collectors.toCollection( ArrayList::new ) );

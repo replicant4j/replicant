@@ -65,6 +65,28 @@ public class EntityRepositoryTest
   }
 
   @Test
+  public void findAllSorted()
+  {
+    final EntityRepository r = new EntityRepositoryImpl();
+
+    final C e1 = new C( "A" );
+    final C e2 = new C( "B" );
+    final C e3 = new C( "C" );
+    final C e4 = new C( "D" );
+    r.registerEntity( C.class, 3, e3 );
+    r.registerEntity( C.class, 2, e2 );
+    r.registerEntity( C.class, 4, e4 );
+    r.registerEntity( C.class, 1, e1 );
+
+    final ArrayList<C> results = r.findAll( C.class, Comparator.comparing( C::getCode ) );
+    assertEquals( results.size(), 4 );
+    assertEquals( results.indexOf( e1 ), 0 );
+    assertEquals( results.indexOf( e2 ), 1 );
+    assertEquals( results.indexOf( e3 ), 2 );
+    assertEquals( results.indexOf( e4 ), 3 );
+  }
+
+  @Test
   public void findAllIDs()
   {
     final EntityRepository r = new EntityRepositoryImpl();
