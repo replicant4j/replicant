@@ -93,7 +93,7 @@ public interface EntityRepository
   @Nonnull
   default <T> ArrayList<T> findAllByQuery( @Nonnull final Class<T> type,
                                            @Nonnull final Predicate<T> query,
-                                           @Nonnull Comparator<T> comparator)
+                                           @Nonnull final Comparator<T> comparator )
   {
     final ArrayList<T> results = findAllByQuery( type, query );
     results.sort( comparator );
