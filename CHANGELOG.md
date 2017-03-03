@@ -1,4 +1,4 @@
-## 0.5.74 (Pending):
+## 0.5.74:
 * Introduce querying and sorting accessors to EntityRepository as default methods.
 * Introduce basic locking around EeDataLoaderService operations.
 * Convert EntityRepository.getByID and EntityRepository.findByID to default methods on interface.
