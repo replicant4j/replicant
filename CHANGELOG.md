@@ -1,4 +1,5 @@
 ## 0.5.74 (Pending):
+* Introduce querying and sorting accessors to EntityRepository as default methods.
 * Introduce basic locking around EeDataLoaderService operations.
 * Convert EntityRepository.getByID and EntityRepository.findByID to default methods on interface.
 * Throw a NoSuchEntityException rather than IllegalStateException from EntityRepository.getByID when
