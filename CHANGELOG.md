@@ -1,3 +1,5 @@
+## 0.5.75 (Pending):
+
 ## 0.5.74:
 * Introduce querying and sorting accessors to EntityRepository as default methods.
 * Introduce basic locking around EeDataLoaderService operations.
