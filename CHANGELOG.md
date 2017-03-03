@@ -1,4 +1,5 @@
 ## 0.5.74 (Pending):
+* Introduce basic locking around EeDataLoaderService operations.
 * Convert EntityRepository.getByID and EntityRepository.findByID to default methods on interface.
 * Throw a NoSuchEntityException rather than IllegalStateException from EntityRepository.getByID when
   no entity is present.

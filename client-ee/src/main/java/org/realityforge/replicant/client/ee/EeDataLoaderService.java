@@ -3,12 +3,16 @@ package org.realityforge.replicant.client.ee;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
+import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
@@ -26,11 +30,18 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Nullable
   private ScheduledFuture _future;
   private final InMemoryCacheService _cacheService = new InMemoryCacheService();
+  private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock( true );
 
   protected EeDataLoaderService()
   {
     setChangesToProcessPerTick( DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK );
     setLinksToProcessPerTick( DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK );
+  }
+
+  @Nonnull
+  protected ReentrantReadWriteLock getLock()
+  {
+    return _lock;
   }
 
   @Nonnull
@@ -170,5 +181,86 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   protected Annotation[] getEventQualifiers()
   {
     return new Annotation[ 0 ];
+  }
+
+  @Override
+  protected void startPolling()
+  {
+    withLock( _lock.writeLock(), () -> super.startPolling() );
+  }
+
+  @Override
+  protected void stopPolling()
+  {
+    withLock( _lock.writeLock(), () -> super.stopPolling() );
+  }
+
+  @Override
+  public boolean isConnected()
+  {
+    return withLock( _lock.readLock(), super::isConnected );
+  }
+
+  @Override
+  protected void resumeWebPoller()
+  {
+    withLock( _lock.writeLock(), () -> super.resumeWebPoller() );
+  }
+
+  @Override
+  protected void pauseWebPoller()
+  {
+    withLock( _lock.writeLock(), () -> super.pauseWebPoller() );
+  }
+
+  @Nonnull
+  @Override
+  protected WebPoller getWebPoller()
+  {
+    return withLock( _lock.readLock(), () -> super.getWebPoller() );
+  }
+
+  @Override
+  protected boolean stepDataLoad()
+  {
+    return withLock( _lock.writeLock(), () -> super.stepDataLoad() );
+  }
+
+  @Override
+  protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
+  {
+    withLock( _lock.writeLock(), () -> super.setSession( session, postAction ) );
+  }
+
+  @Override
+  protected void scheduleDataLoad()
+  {
+    withLock( _lock.writeLock(), () -> super.scheduleDataLoad() );
+  }
+
+  private <T> T withLock( final Lock lock, final Supplier<T> action )
+  {
+    lock.lock();
+    try
+    {
+      return action.get();
+    }
+    finally
+    {
+      lock.unlock();
+    }
+  }
+
+  private void withLock( final Lock lock, final Runnable action )
+  {
+    lock.lock();
+    try
+    {
+      action.run();
+    }
+    finally
+    {
+      lock.unlock();
+    }
   }
 }
