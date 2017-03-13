@@ -1,3 +1,5 @@
+## 0.5.76 (Pending):
+
 ## 0.5.75:
 * Restructure `ReplicantClientTestModule` so that it also exposes the `EntitySystem` service. 
 
