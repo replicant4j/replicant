@@ -1,4 +1,5 @@
 ## 0.5.75 (Pending):
+* Restructure `ReplicantClientTestModule` so that it also exposes the `EntitySystem` service. 
 
 ## 0.5.74:
 * Introduce querying and sorting accessors to EntityRepository as default methods.
