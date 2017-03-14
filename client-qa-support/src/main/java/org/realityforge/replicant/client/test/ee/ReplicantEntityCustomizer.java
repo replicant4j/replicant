@@ -24,7 +24,7 @@ public class ReplicantEntityCustomizer
     _entitySystem = entitySystem;
   }
 
-  public final void configure( @Nonnull final EntityManager em, @Nonnull final EntitySystem entitySystem )
+  public static void configure( @Nonnull final EntityManager em, @Nonnull final EntitySystem entitySystem )
   {
     final Session session = em.unwrap( Session.class );
     for ( final Map.Entry<Class, ClassDescriptor> entry : session.getDescriptors().entrySet() )

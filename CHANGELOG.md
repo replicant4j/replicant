@@ -1,4 +1,5 @@
 ## 0.5.77 (Pending):
+* Update `ReplicantEntityCustomizer.configure` to be static.
 
 ## 0.5.76:
 * Introduce `ReplicantEntityCustomizer` to help customize replicant entities during tests.
