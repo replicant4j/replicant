@@ -27,6 +27,8 @@ artifacts:
 
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.67
 
+  testng: org.testng:testng:jar:6.11
+
   #
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.9.5
