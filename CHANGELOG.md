@@ -1,3 +1,5 @@
+## 0.5.77 (Pending):
+
 ## 0.5.76:
 * Introduce `ReplicantEntityCustomizer` to help customize replicant entities during tests.
 
