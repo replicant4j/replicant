@@ -1,3 +1,5 @@
+## 0.5.78 (Pending):
+
 ## 0.5.77:
 * Update `ReplicantEntityCustomizer.configure` to be static.
 
