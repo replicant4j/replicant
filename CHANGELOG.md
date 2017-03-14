@@ -1,4 +1,5 @@
 ## 0.5.76 (Pending):
+* Introduce `ReplicantEntityCustomizer` to help customize replicant entities during tests.
 
 ## 0.5.75:
 * Restructure `ReplicantClientTestModule` so that it also exposes the `EntitySystem` service. 
