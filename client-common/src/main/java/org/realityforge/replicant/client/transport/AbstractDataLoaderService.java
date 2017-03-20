@@ -34,7 +34,7 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
-  implements DataLoaderService
+  implements DataLoaderService<G>
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
@@ -197,7 +197,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   /**
    * Schedule data loads using incremental scheduler.
    */
-  protected void scheduleDataLoad()
+  @Override
+  public void scheduleDataLoad()
   {
     if ( !_incrementalDataLoadInProgress )
     {
@@ -418,12 +419,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Runnable completionAction );
 
-  protected boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
+  @Override
+  public boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
   {
     return null != getSubscriptionManager().findSubscription( graph, id );
   }
 
-  protected boolean isSubscribed( @Nonnull final G graph )
+  @Override
+  public boolean isSubscribed( @Nonnull final G graph )
   {
     return null != getSubscriptionManager().findSubscription( graph );
   }

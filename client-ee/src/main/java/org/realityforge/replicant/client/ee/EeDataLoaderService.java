@@ -233,9 +233,9 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   }
 
   @Override
-  protected void scheduleDataLoad()
+  public void scheduleDataLoad()
   {
-    withLock( _lock.writeLock(), () -> super.scheduleDataLoad() );
+    withLock( _lock.writeLock(), super::scheduleDataLoad );
   }
 
   private <R> R withLock( final Lock lock, final Supplier<R> action )

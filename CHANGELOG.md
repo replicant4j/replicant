@@ -1,4 +1,6 @@
 ## 0.5.78 (Pending):
+* Enhance the `DataLoaderService` so that interaction between the `ClientSession` instances
+  and `DataLoaderService` uses a formal contract rather than protected methods.
 * Make sure the asynchronous callbacks from JAXRS are correctly contextualized to ensure
   CDI operates as expected in `EeWebPollerDataLoaderService`.
 * Increase the log level from FINE to INFO for the `WebPoller` in `WebPollerDataLoaderService`.

@@ -18,7 +18,7 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enum>
 {
   @Nonnull
-  private final AbstractDataLoaderService<T, G> _dataLoaderService;
+  private final DataLoaderService _dataLoaderService;
   private final String _sessionID;
   private final Map<String, RequestEntry> _requests = new HashMap<>();
   private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
@@ -45,7 +45,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
 
   private int _lastRxSequence;
 
-  protected ClientSession( @Nonnull final AbstractDataLoaderService<T, G> dataLoaderService,
+  protected ClientSession( @Nonnull final DataLoaderService dataLoaderService,
                            @Nonnull final String sessionID )
   {
     _dataLoaderService = dataLoaderService;
