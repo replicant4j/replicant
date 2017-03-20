@@ -1,4 +1,4 @@
-## 0.5.78 (Pending):
+## 0.5.78:
 * Enhance the `DataLoaderService` so that interaction between the `ClientSession` instances
   and `DataLoaderService` uses a formal contract rather than protected methods.
 * Make sure the asynchronous callbacks from JAXRS are correctly contextualized to ensure
