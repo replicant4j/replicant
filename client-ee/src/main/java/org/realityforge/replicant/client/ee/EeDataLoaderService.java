@@ -238,7 +238,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
     withLock( _lock.writeLock(), () -> super.scheduleDataLoad() );
   }
 
-  private <T> T withLock( final Lock lock, final Supplier<T> action )
+  private <R> R withLock( final Lock lock, final Supplier<R> action )
   {
     lock.lock();
     try
