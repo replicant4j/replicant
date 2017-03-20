@@ -27,8 +27,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
   /**
    * Pending actions that will change the area of interest.
    */
-  private final LinkedList<AreaOfInterestAction<G>> _pendingAreaOfInterestActions =
-    new LinkedList<>();
+  private final LinkedList<AreaOfInterestAction<G>> _pendingAreaOfInterestActions = new LinkedList<>();
   /**
    * The set of data load actions that still need to have the json parsed.
    */
