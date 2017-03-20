@@ -1,4 +1,5 @@
 ## 0.5.78 (Pending):
+* Increase the log level from FINE to INFO for the `WebPoller` in `WebPollerDataLoaderService`.
 
 ## 0.5.77:
 * Update `ReplicantEntityCustomizer.configure` to be static.
