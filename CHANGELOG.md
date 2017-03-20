@@ -1,3 +1,5 @@
+## 0.5.79 (Pending):
+
 ## 0.5.78:
 * Enhance the `DataLoaderService` so that interaction between the `ClientSession` instances
   and `DataLoaderService` uses a formal contract rather than protected methods.
