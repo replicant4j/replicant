@@ -1,4 +1,6 @@
 ## 0.5.78 (Pending):
+* Make sure the asynchronous callbacks from JAXRS are correctly contextualized to ensure
+  CDI operates as expected in `EeWebPollerDataLoaderService`.
 * Increase the log level from FINE to INFO for the `WebPoller` in `WebPollerDataLoaderService`.
 
 ## 0.5.77:

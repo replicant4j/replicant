@@ -1,7 +1,9 @@
 package org.realityforge.replicant.client.ee;
 
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.enterprise.concurrent.ContextService;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -32,6 +34,9 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
       return newInvocationBuilder( getPollURL() ).header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
     }
   }
+
+  @Nonnull
+  protected abstract ContextService getContextService();
 
   @Nonnull
   @Override
@@ -78,27 +83,33 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
   protected void doConnect( @Nullable final Runnable runnable )
   {
     final Invocation.Builder builder = newInvocationBuilder( getTokenURL() );
+    final Consumer<Response> onCompletion =
+      wrap( response ->
+            {
+              final int statusCode = response.getStatus();
+              if ( Response.Status.OK.getStatusCode() == statusCode )
+              {
+                onSessionCreated( response.readEntity( String.class ), runnable );
+              }
+              else
+              {
+                final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
+                handleInvalidConnect( new InvalidHttpResponseException( statusCode, reasonPhrase ) );
+              }
+            } );
+    final Consumer<Throwable> onError = wrap( this::handleInvalidDisconnect );
     builder.async().post( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
     {
       @Override
       public void completed( final Response response )
       {
-        final int statusCode = response.getStatus();
-        if ( Response.Status.OK.getStatusCode() == statusCode )
-        {
-          onSessionCreated( response.readEntity( String.class ), runnable );
-        }
-        else
-        {
-          handleInvalidConnect( new InvalidHttpResponseException( statusCode,
-                                                                  response.getStatusInfo().getReasonPhrase() ) );
-        }
+        onCompletion.accept( response );
       }
 
       @Override
       public void failed( final Throwable throwable )
       {
-        handleInvalidConnect( throwable );
+        onError.accept( throwable );
       }
     } );
   }
@@ -107,30 +118,49 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
   {
     final Invocation.Builder builder =
       newInvocationBuilder( getTokenURL() + "/" + session.getSessionID() );
+    final Consumer<Response> onCompletion =
+      wrap( response ->
+            {
+              final int statusCode = response.getStatus();
+              if ( Response.Status.OK.getStatusCode() == statusCode )
+              {
+                setSession( null, runnable );
+              }
+              else
+              {
+                setSession( null, runnable );
+                final String reasonPhrase =
+                  response.getStatusInfo().getReasonPhrase();
+                handleInvalidDisconnect( new InvalidHttpResponseException(
+                  statusCode,
+                  reasonPhrase ) );
+              }
+            } );
+    final Consumer<Throwable> onError =
+      wrap( throwable ->
+            {
+              setSession( null, runnable );
+              handleInvalidDisconnect( throwable );
+            } );
     builder.async().delete( new InvocationCallback<Response>()
     {
       @Override
       public void completed( final Response response )
       {
-        final int statusCode = response.getStatus();
-        if ( Response.Status.OK.getStatusCode() == statusCode )
-        {
-          setSession( null, runnable );
-        }
-        else
-        {
-          setSession( null, runnable );
-          handleInvalidDisconnect( new InvalidHttpResponseException( statusCode,
-                                                                     response.getStatusInfo().getReasonPhrase() ) );
-        }
+        onCompletion.accept( response );
       }
 
       @Override
       public void failed( final Throwable throwable )
       {
-        setSession( null, runnable );
-        handleInvalidDisconnect( throwable );
+        onError.accept( throwable );
       }
     } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private <R> Consumer<R> wrap( @Nonnull final Consumer<R> action )
+  {
+    return getContextService().createContextualProxy( action, Consumer.class );
   }
 }
