@@ -17,6 +17,12 @@ public class ChannelDescriptor
   }
 
   @Nonnull
+  public Class getSystem()
+  {
+    return _graph.getDeclaringClass();
+  }
+
+  @Nonnull
   public Enum getGraph()
   {
     return _graph;
