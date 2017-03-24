@@ -83,7 +83,7 @@ public final class ChannelDescriptor
       else
       {
         //noinspection unchecked
-        return ( (Comparable) subChannelID ).compareTo( (Comparable) otherSubChannelID );
+        return ( (Comparable) subChannelID ).compareTo( otherSubChannelID );
       }
     }
   }
