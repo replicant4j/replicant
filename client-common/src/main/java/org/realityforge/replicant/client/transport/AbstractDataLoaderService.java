@@ -50,9 +50,24 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    * Action invoked after current action completes to reset session state.
    */
   private Runnable _resetAction;
-
+  @Nonnull
+  private State _state = State.DISCONNECTED;
 
   private T _session;
+
+  @Nonnull
+  @Override
+  public State getState()
+  {
+    return _state;
+  }
+
+  @SuppressWarnings( "ConstantConditions" )
+  protected void setState( @Nonnull final State state )
+  {
+    assert null != state;
+    _state = state;
+  }
 
   @Nonnull
   protected abstract SessionContext getSessionContext();
@@ -894,13 +909,29 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                     @Nonnull Class<?> entityType,
                                                     @Nonnull Object entityID );
 
+  @Override
   public void connect( @Nullable final Runnable runnable )
   {
-    disconnect( () -> doConnect( () -> completeConnect( runnable ) ) );
+    disconnect( () -> performConnect( runnable ) );
+  }
+
+  private void performConnect( final @Nullable Runnable runnable )
+  {
+    State state = State.ERROR;
+    try
+    {
+      doConnect( () -> completeConnect( runnable ) );
+      state = State.CONNECTING;
+    }
+    finally
+    {
+      setState( state );
+    }
   }
 
   private void completeConnect( @Nullable final Runnable runnable )
   {
+    setState( State.CONNECTED );
     perform( runnable );
     fireConnectEvent();
   }
@@ -913,11 +944,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     fireInvalidConnectEvent( exception );
   }
 
+  @Override
   public void disconnect( @Nullable final Runnable runnable )
   {
     final T session = getSession();
     if ( null != session )
     {
+      setState( State.DISCONNECTING );
       doDisconnect( session, () -> onDisconnect( runnable ) );
     }
     else
@@ -928,6 +961,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   private void onDisconnect( @Nullable final Runnable runnable )
   {
+    setState( State.DISCONNECTED );
     perform( runnable );
     fireDisconnectEvent();
   }

@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Replace and enhance `DataLoaderService#isConnected()` with `DataLoaderService#getState()`.
 * Implement `AbstractDataLoaderService#channelToGraph()` directly rather than relying on customization
   by subclasses.
 * Remove `DataLoaderService#getSystemKey()` method through inlining and changing the way it is

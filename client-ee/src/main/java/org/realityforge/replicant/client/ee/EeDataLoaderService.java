@@ -17,6 +17,7 @@ import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
+import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
 public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
@@ -195,10 +196,11 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
     withLock( _lock.writeLock(), () -> super.stopPolling() );
   }
 
+  @Nonnull
   @Override
-  public boolean isConnected()
+  public State getState()
   {
-    return withLock( _lock.readLock(), super::isConnected );
+    return withLock( _lock.readLock(), super::getState );
   }
 
   @Override

@@ -78,12 +78,6 @@ final class TestDataLoadService
   }
 
   @Override
-  public boolean isConnected()
-  {
-    return true;
-  }
-
-  @Override
   protected void doConnect( @Nullable final Runnable runnable )
   {
   }
