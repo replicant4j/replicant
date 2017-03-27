@@ -133,43 +133,43 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
   {
     super.handleSystemFailure( caught, message );
-    fireEvent( new SystemErrorEvent( getSystemKey(), message, caught ) );
+    fireEvent( new SystemErrorEvent( getSessionContext().getKey(), message, caught ) );
   }
 
   @Override
   protected void fireConnectEvent()
   {
-    fireEvent( new ConnectEvent( getSystemKey() ) );
+    fireEvent( new ConnectEvent( getSessionContext().getKey() ) );
   }
 
   @Override
   protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
   {
-    fireEvent( new InvalidConnectEvent( getSystemKey(), exception ) );
+    fireEvent( new InvalidConnectEvent( getSessionContext().getKey(), exception ) );
   }
 
   @Override
   protected void fireDisconnectEvent()
   {
-    fireEvent( new DisconnectEvent( getSystemKey() ) );
+    fireEvent( new DisconnectEvent( getSessionContext().getKey() ) );
   }
 
   @Override
   protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
   {
-    fireEvent( new InvalidDisconnectEvent( getSystemKey(), exception ) );
+    fireEvent( new InvalidDisconnectEvent( getSessionContext().getKey(), exception ) );
   }
 
   @Override
   protected void firePollFailure( @Nonnull final Throwable exception )
   {
-    fireEvent( new PollErrorEvent( getSystemKey(), exception ) );
+    fireEvent( new PollErrorEvent( getSessionContext().getKey(), exception ) );
   }
 
   @Override
   protected void fireDataLoadFailure( @Nonnull final Exception e )
   {
-    fireEvent( new DataLoadFailureEvent( getSystemKey(), e ) );
+    fireEvent( new DataLoadFailureEvent( getSessionContext().getKey(), e ) );
   }
 
   protected void fireEvent( @Nonnull final Object event )

@@ -102,13 +102,6 @@ final class TestDataLoadService
 
   @Nonnull
   @Override
-  protected String getSystemKey()
-  {
-    return "TEST";
-  }
-
-  @Nonnull
-  @Override
   protected EntityRepositoryValidator getEntityRepositoryValidator()
   {
     return _validator;

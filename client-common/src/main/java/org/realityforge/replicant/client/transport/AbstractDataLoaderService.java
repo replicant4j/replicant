@@ -113,7 +113,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         final boolean enabled = getChangeBroker().isEnabled();
         if ( enabled )
         {
-          getChangeBroker().disable( getSystemKey() );
+          getChangeBroker().disable( getChangeBrokerKey() );
         }
         //TODO: else schedule action so that it runs in loop
         // until it can disable broker. This will involve replacing _resetAction
@@ -121,7 +121,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         purgeSubscriptions();
         if ( enabled )
         {
-          getChangeBroker().enable( getSystemKey() );
+          getChangeBroker().enable( getChangeBrokerKey() );
         }
       }
     }
@@ -129,6 +129,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     {
       postAction.run();
     }
+  }
+
+  @Nonnull
+  protected String getChangeBrokerKey()
+  {
+    return getGraphType().getSimpleName();
   }
 
   @Nullable
@@ -566,11 +572,11 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       _currentAction.markBrokerPaused();
       if ( _currentAction.isBulkLoad() )
       {
-        getChangeBroker().disable( getSystemKey() );
+        getChangeBroker().disable( getChangeBrokerKey() );
       }
       else
       {
-        getChangeBroker().pause( getSystemKey() );
+        getChangeBroker().pause( getChangeBrokerKey() );
       }
       return true;
     }
@@ -725,14 +731,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       {
         if ( _currentAction.hasBrokerBeenPaused() )
         {
-          getChangeBroker().enable( getSystemKey() );
+          getChangeBroker().enable( getChangeBrokerKey() );
         }
       }
       else
       {
         if ( _currentAction.hasBrokerBeenPaused() )
         {
-          getChangeBroker().resume( getSystemKey() );
+          getChangeBroker().resume( getChangeBrokerKey() );
         }
       }
       if ( repositoryDebugOutputEnabled() )
@@ -749,7 +755,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       return true;
     }
-    final DataLoadStatus status = _currentAction.toStatus( getSystemKey() );
+    final DataLoadStatus status = _currentAction.toStatus( getSessionContext().getKey() );
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " involved " +
@@ -836,12 +842,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
     }
     return removedEntities;
-  }
-
-  @Nonnull
-  protected String getSystemKey()
-  {
-    return getSessionContext().getKey();
   }
 
   @Nonnull
