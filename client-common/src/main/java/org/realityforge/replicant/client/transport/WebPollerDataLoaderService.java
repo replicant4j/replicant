@@ -186,7 +186,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
   @Override
   protected void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
-    if( null == session )
+    if ( null == session )
     {
       stopPolling();
     }
