@@ -34,6 +34,7 @@ public final class SessionContext
    * Return the authentication token.
    * Typically passed as bearer authorization token when using http based transport.
    */
+  @Nullable
   public String getAuthenticationToken()
   {
     return _authenticationToken;
