@@ -981,8 +981,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    * @throws IllegalArgumentException if no such channel
    */
   @Nonnull
-  protected abstract G channelToGraph( int channel )
-    throws IllegalArgumentException;
+  protected G channelToGraph( final int channel )
+    throws IllegalArgumentException
+  {
+    assert getGraphType().isEnum();
+    return getGraphType().getEnumConstants()[ channel ];
+  }
 
   /**
    * Template method invoked when progressDataLoad() is about to return false and terminate load process.

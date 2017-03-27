@@ -1,4 +1,6 @@
 ## 0.5.79 (Pending):
+* Implement `AbstractDataLoaderService#channelToGraph()` directly rather than relying on customization
+  by subclasses.
 * Remove `DataLoaderService#getSystemKey()` method through inlining and changing the way it is
   used in the context of the ChangeBroker.
 * Add `DataLoaderService#getGraphType()` method to access type of graphs processed by loader.
