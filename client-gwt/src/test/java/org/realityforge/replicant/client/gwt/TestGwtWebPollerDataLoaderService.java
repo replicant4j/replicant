@@ -49,7 +49,7 @@ final class TestGwtWebPollerDataLoaderService
 
   @Nonnull
   @Override
-  protected Class<TestGraph> getGraphType()
+  public Class<TestGraph> getGraphType()
   {
     return TestGraph.class;
   }

@@ -845,7 +845,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   @Nonnull
-  protected abstract Class<G> getGraphType();
+  public abstract Class<G> getGraphType();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nullable Object filter );

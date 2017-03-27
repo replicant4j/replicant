@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Add `DataLoaderService#getGraphType()` method to access type of graphs processed by loader.
 * Update `client.ChannelDescriptor` to add method `getSystem()` that returns the class of enum.
 * Increase the log level from FINE to WARNING for the `WebPoller` in `WebPollerDataLoaderService`.
 

@@ -31,6 +31,12 @@ public interface DataLoaderService<G>
    */
   void scheduleDataLoad();
 
+  /**
+   * Return the class of graphs that this loader processes.
+   */
+  @Nonnull
+  Class<G> getGraphType();
+
   boolean isSubscribed( @Nonnull G graph );
 
   boolean isSubscribed( @Nonnull G graph, @Nonnull Object id );
