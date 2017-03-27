@@ -195,14 +195,14 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
 
   protected void stopPolling()
   {
-    if ( isConnected() )
+    if ( isWebPollerActive() )
     {
       _webPoller.stop();
       _webPoller = null;
     }
   }
 
-  public boolean isConnected()
+  private boolean isWebPollerActive()
   {
     return null != _webPoller && getWebPoller().isActive();
   }
