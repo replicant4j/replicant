@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
 
@@ -17,15 +18,9 @@ public final class DataLoadCompleteEvent
   public static final Type<Handler> TYPE = new Type<>();
   private final DataLoadStatus _status;
 
-  @SuppressWarnings( "ConstantConditions" )
   public DataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
-    if ( null == status )
-    {
-      throw new IllegalArgumentException( "status is null" );
-    }
-
-    _status = status;
+    _status = Objects.requireNonNull( status );
   }
 
   @Override

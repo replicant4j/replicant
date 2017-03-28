@@ -1,19 +1,15 @@
 package org.realityforge.replicant.client.ee;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 
 public abstract class AbstractDataLoaderEvent
 {
   private final String _systemKey;
 
-  @SuppressWarnings( "ConstantConditions" )
   public AbstractDataLoaderEvent( @Nonnull final String systemKey )
   {
-    if ( null == systemKey )
-    {
-      throw new IllegalArgumentException( "systemKey is null" );
-    }
-    _systemKey = systemKey;
+    _systemKey = Objects.requireNonNull( systemKey );
   }
 
   @Nonnull

@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.ee;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
 
@@ -11,7 +12,7 @@ public final class DataLoadCompleteEvent
   public DataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
   {
     super( status.getSystemKey() );
-    _status = status;
+    _status = Objects.requireNonNull( status );
   }
 
   @Nonnull
