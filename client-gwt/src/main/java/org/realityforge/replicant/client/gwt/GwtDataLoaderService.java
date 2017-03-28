@@ -9,7 +9,7 @@ import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
-public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
+public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
   extends WebPollerDataLoaderService<T, G>
 {
   private static final String REQUEST_DEBUG = "imitRequestDebug";

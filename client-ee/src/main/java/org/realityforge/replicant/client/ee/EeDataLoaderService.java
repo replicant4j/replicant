@@ -20,7 +20,7 @@ import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
-public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
+public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
   extends WebPollerDataLoaderService<T, G>
 {
   private static final int DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK = 10000;

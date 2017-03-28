@@ -21,7 +21,7 @@ import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
+public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
   extends GwtDataLoaderService<T, G>
 {
   private final CacheService _cacheService;

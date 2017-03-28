@@ -33,7 +33,7 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
  * steps to avoid locking a thread such as in GWT.
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
-public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum>
+public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
   implements DataLoaderService<G>
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
