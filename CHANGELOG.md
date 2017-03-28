@@ -9,6 +9,7 @@
 * Update `client.ChannelDescriptor` to add method `getSystem()` that returns the class of enum.
 * Increase the log level from FINE to WARNING for the `WebPoller` in `WebPollerDataLoaderService`.
 * Decrease the log level from INFO to FINEST for the `AbstractDataLoaderService`.
+* Decrease the log level from WARNING to FINEST for the `WebPollerLogLevel`.
 
 ## 0.5.78:
 * Enhance the `DataLoaderService` so that interaction between the `ClientSession` instances
