@@ -173,11 +173,6 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void progressDataLoadFailure( @Nonnull final Exception e )
-  {
-  }
-
-  @Override
   protected boolean shouldValidateOnLoad()
   {
     return _validateOnLoad;

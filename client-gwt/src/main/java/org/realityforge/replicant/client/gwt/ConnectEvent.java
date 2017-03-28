@@ -2,10 +2,12 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import java.util.Objects;
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.transport.DataLoadStatus;
 
 public final class ConnectEvent
-  extends GwtEvent<ConnectEvent.Handler>
+  extends AbstractDataLoaderEvent<ConnectEvent.Handler>
 {
   public interface Handler
     extends EventHandler
@@ -14,6 +16,11 @@ public final class ConnectEvent
   }
 
   public static final Type<Handler> TYPE = new Type<>();
+
+  public ConnectEvent( @Nonnull final String systemKey )
+  {
+    super( systemKey );
+  }
 
   @Override
   public Type<Handler> getAssociatedType()
@@ -34,6 +41,6 @@ public final class ConnectEvent
 
   public String toString()
   {
-    return "Disconnect[]";
+    return "Connect[SystemKey=" + getSystemKey() + "]";
   }
 }

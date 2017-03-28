@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Introduce `DataLoaderListener` to generate events from `DataLoaderService`.
 * Ensure the type parameter for enums in DataLoaderService is qualified correctly.
 * Replace and enhance `DataLoaderService#isConnected()` with `DataLoaderService#getState()`.
 * Implement `AbstractDataLoaderService#channelToGraph()` directly rather than relying on customization

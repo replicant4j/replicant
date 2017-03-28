@@ -5,7 +5,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import javax.annotation.Nonnull;
 
 public final class DisconnectEvent
-  extends GwtEvent<DisconnectEvent.Handler>
+  extends AbstractDataLoaderEvent<DisconnectEvent.Handler>
 {
   public interface Handler
     extends EventHandler
@@ -14,6 +14,11 @@ public final class DisconnectEvent
   }
 
   public static final Type<Handler> TYPE = new Type<>();
+
+  public DisconnectEvent( @Nonnull final String systemKey )
+  {
+    super( systemKey );
+  }
 
   @Override
   public Type<Handler> getAssociatedType()
@@ -34,6 +39,6 @@ public final class DisconnectEvent
 
   public String toString()
   {
-    return "Disconnect[]";
+    return "Disconnect[SystemKey=" + getSystemKey() + "]";
   }
 }

@@ -5,7 +5,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
@@ -16,16 +15,15 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
   private static final String REPOSITORY_DEBUG = "imitRepositoryDebug";
   private final ReplicantConfig _replicantConfig;
-  private final EventBus _eventBus;
   private final SessionContext _sessionContext;
 
   protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext,
                                   @Nonnull final EventBus eventBus,
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
+    setListener( new GwtDataLoaderListener<G>( eventBus, sessionContext.getKey() ) );
     createWebPoller();
     _sessionContext = sessionContext;
-    _eventBus = eventBus;
     _replicantConfig = replicantConfig;
 
     if ( _replicantConfig.repositoryDebugOutputEnabled() )
@@ -117,35 +115,5 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   protected void doScheduleDataLoad()
   {
     Scheduler.get().scheduleIncremental( this::stepDataLoad );
-  }
-
-  /**
-   * Invoked to fire an event when data load has completed.
-   */
-  @Override
-  protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
-  {
-    getEventBus().fireEvent( new DataLoadCompleteEvent( status ) );
-  }
-
-  @Override
-  protected void fireDisconnectEvent()
-  {
-    getEventBus().fireEvent( new DisconnectEvent() );
-  }
-
-  @Override
-  protected void fireConnectEvent()
-  {
-    getEventBus().fireEvent( new ConnectEvent() );
-  }
-
-  /**
-   * Return the event bus associated with the service.
-   */
-  @Nonnull
-  protected final EventBus getEventBus()
-  {
-    return _eventBus;
   }
 }

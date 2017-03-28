@@ -46,6 +46,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
+  private DataLoaderListener<G> _listener = new NoopDataLoaderListener<>();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -67,6 +68,17 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     assert null != state;
     _state = state;
+  }
+
+  @Nonnull
+  protected DataLoaderListener<G> getListener()
+  {
+    return _listener;
+  }
+
+  public void setListener( @Nullable final DataLoaderListener<G> listener )
+  {
+    _listener = null == listener ? new NoopDataLoaderListener<>() : listener;
   }
 
   @Nonnull
@@ -244,7 +256,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
     catch ( final Exception e )
     {
-      progressDataLoadFailure( e );
+      _listener.onDataLoadFailure( e );
       _incrementalDataLoadInProgress = false;
       return false;
     }
@@ -255,12 +267,6 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    * Actually perform the scheduling of the data load action.
    */
   protected abstract void doScheduleDataLoad();
-
-  protected void progressDataLoadFailure( @Nonnull final Exception e )
-  {
-    handleSystemFailure( e, "Failed to progress data load" );
-    fireDataLoadFailure( e );
-  }
 
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {
@@ -933,15 +939,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     setState( State.CONNECTED );
     perform( runnable );
-    fireConnectEvent();
+    _listener.onConnect();
   }
 
   protected abstract void doConnect( @Nullable Runnable runnable );
 
   protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
-    handleSystemFailure( exception, "Failed to connect session" );
-    fireInvalidConnectEvent( exception );
+    _listener.onInvalidConnect( exception );
   }
 
   @Override
@@ -963,49 +968,10 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     setState( State.DISCONNECTED );
     perform( runnable );
-    fireDisconnectEvent();
-  }
-
-  /**
-   * Invoked to fire an event when disconnect has completed.
-   */
-  protected void fireDisconnectEvent()
-  {
-  }
-
-  /**
-   * Invoked to fire an event when failed to connect.
-   */
-  protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
-  {
-  }
-
-  /**
-   * Invoked to fire an event when disconnect has completed.
-   */
-  protected void fireConnectEvent()
-  {
-  }
-
-  /**
-   * Invoked to fire an event when failed to connect.
-   */
-  protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
-  {
+    _listener.onDisconnect();
   }
 
   protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
-
-  protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
-  {
-    handleSystemFailure( exception, "Failed to disconnect session" );
-    fireInvalidDisconnectEvent( exception );
-  }
-
-  protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
-  {
-    LOG.log( Level.SEVERE, "System Failure: " + message, caught );
-  }
 
   /**
    * Return the graph for specified channel.
@@ -1036,21 +1002,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
-    fireDataLoadCompleteEvent( status );
-  }
-
-  /**
-   * Invoked to fire an event when data load has completed.
-   */
-  protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
-  {
-  }
-
-  /**
-   * Invoked to fire an event when data load has resulted in a failure.
-   */
-  protected void fireDataLoadFailure( @Nonnull final Exception e )
-  {
+    _listener.onDataLoadComplete( status );
   }
 
   @Nonnull

@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.ee;
 
-import java.lang.annotation.Annotation;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -8,16 +7,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.enterprise.concurrent.ContextService;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
 import javax.naming.InitialContext;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.DataLoadStatus;
-import org.realityforge.replicant.client.transport.DataLoaderService;
+import org.realityforge.replicant.client.transport.DataLoaderListener;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
 public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
@@ -26,8 +23,6 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   private static final int DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK = 10000;
   private static final int DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK = 10000;
 
-  @Inject
-  private BeanManager _beanManager;
   @Nullable
   private ScheduledFuture _future;
   private final InMemoryCacheService _cacheService = new InMemoryCacheService();
@@ -44,6 +39,9 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   {
     return _lock;
   }
+
+  @Nonnull
+  protected abstract ContextService getContextService();
 
   @Nonnull
   @Override
@@ -121,68 +119,6 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
    */
   @Nonnull
   protected abstract String getJndiPrefix();
-
-  /**
-   * Invoked to fire an event when data load has completed.
-   */
-  @Override
-  protected void fireDataLoadCompleteEvent( @Nonnull final DataLoadStatus status )
-  {
-    fireEvent( new DataLoadCompleteEvent( status ) );
-  }
-
-  protected void handleSystemFailure( @Nonnull final Throwable caught, @Nonnull final String message )
-  {
-    super.handleSystemFailure( caught, message );
-    fireEvent( new SystemErrorEvent( getSessionContext().getKey(), message, caught ) );
-  }
-
-  @Override
-  protected void fireConnectEvent()
-  {
-    fireEvent( new ConnectEvent( getSessionContext().getKey() ) );
-  }
-
-  @Override
-  protected void fireInvalidConnectEvent( @Nonnull final Throwable exception )
-  {
-    fireEvent( new InvalidConnectEvent( getSessionContext().getKey(), exception ) );
-  }
-
-  @Override
-  protected void fireDisconnectEvent()
-  {
-    fireEvent( new DisconnectEvent( getSessionContext().getKey() ) );
-  }
-
-  @Override
-  protected void fireInvalidDisconnectEvent( @Nonnull final Throwable exception )
-  {
-    fireEvent( new InvalidDisconnectEvent( getSessionContext().getKey(), exception ) );
-  }
-
-  @Override
-  protected void firePollFailure( @Nonnull final Throwable exception )
-  {
-    fireEvent( new PollErrorEvent( getSessionContext().getKey(), exception ) );
-  }
-
-  @Override
-  protected void fireDataLoadFailure( @Nonnull final Exception e )
-  {
-    fireEvent( new DataLoadFailureEvent( getSessionContext().getKey(), e ) );
-  }
-
-  protected void fireEvent( @Nonnull final Object event )
-  {
-    _beanManager.fireEvent( event, getEventQualifiers() );
-  }
-
-  @Nonnull
-  protected Annotation[] getEventQualifiers()
-  {
-    return new Annotation[ 0 ];
-  }
 
   @Override
   protected void startPolling()
@@ -264,5 +200,20 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
     {
       lock.unlock();
     }
+  }
+
+  @Override
+  public void setListener( @Nullable final DataLoaderListener<G> listener )
+  {
+
+    final DataLoaderListener<G> l =
+      null == listener ? null : createContextualProxy( listener, DataLoaderListener.class );
+    super.setListener( l );
+  }
+
+  @Nonnull
+  protected <T> T createContextualProxy( @Nonnull final T instance, @Nonnull Class<T> serviceInterface )
+  {
+    return getContextService().createContextualProxy( instance, serviceInterface );
   }
 }
