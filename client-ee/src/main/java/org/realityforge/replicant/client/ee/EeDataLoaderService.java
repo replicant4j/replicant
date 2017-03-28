@@ -187,57 +187,57 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   @Override
   protected void startPolling()
   {
-    withLock( _lock.writeLock(), () -> super.startPolling() );
+    withLock( getLock().writeLock(), () -> super.startPolling() );
   }
 
   @Override
   protected void stopPolling()
   {
-    withLock( _lock.writeLock(), () -> super.stopPolling() );
+    withLock( getLock().writeLock(), () -> super.stopPolling() );
   }
 
   @Nonnull
   @Override
   public State getState()
   {
-    return withLock( _lock.readLock(), super::getState );
+    return withLock( getLock().readLock(), super::getState );
   }
 
   @Override
   protected void resumeWebPoller()
   {
-    withLock( _lock.writeLock(), () -> super.resumeWebPoller() );
+    withLock( getLock().writeLock(), () -> super.resumeWebPoller() );
   }
 
   @Override
   protected void pauseWebPoller()
   {
-    withLock( _lock.writeLock(), () -> super.pauseWebPoller() );
+    withLock( getLock().writeLock(), () -> super.pauseWebPoller() );
   }
 
   @Nonnull
   @Override
   protected WebPoller getWebPoller()
   {
-    return withLock( _lock.readLock(), () -> super.getWebPoller() );
+    return withLock( getLock().readLock(), () -> super.getWebPoller() );
   }
 
   @Override
   protected boolean stepDataLoad()
   {
-    return withLock( _lock.writeLock(), () -> super.stepDataLoad() );
+    return withLock( getLock().writeLock(), () -> super.stepDataLoad() );
   }
 
   @Override
   protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
   {
-    withLock( _lock.writeLock(), () -> super.setSession( session, postAction ) );
+    withLock( getLock().writeLock(), () -> super.setSession( session, postAction ) );
   }
 
   @Override
   public void scheduleDataLoad()
   {
-    withLock( _lock.writeLock(), super::scheduleDataLoad );
+    withLock( getLock().writeLock(), super::scheduleDataLoad );
   }
 
   private <R> R withLock( final Lock lock, final Supplier<R> action )
