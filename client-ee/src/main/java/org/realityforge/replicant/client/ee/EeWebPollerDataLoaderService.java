@@ -129,8 +129,7 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
               else
               {
                 setSession( null, runnable );
-                final String reasonPhrase =
-                  response.getStatusInfo().getReasonPhrase();
+                final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
                 handleInvalidDisconnect( new InvalidHttpResponseException(
                   statusCode,
                   reasonPhrase ) );
