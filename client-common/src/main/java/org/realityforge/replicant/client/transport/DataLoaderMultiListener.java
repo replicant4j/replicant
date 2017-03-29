@@ -11,7 +11,7 @@ public final class DataLoaderMultiListener<G extends Enum<G>>
 {
   private final Stream<DataLoaderListener<G>> _listeners;
 
-  public DataLoaderMultiListener( @Nonnull final DataLoaderListener<G>[] listeners )
+  public DataLoaderMultiListener( @Nonnull final DataLoaderListener<G>... listeners )
   {
     Objects.requireNonNull( listeners );
     assert Arrays.stream( listeners ).allMatch( Objects::nonNull );
