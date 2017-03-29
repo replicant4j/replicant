@@ -1,6 +1,5 @@
 require 'buildr/git_auto_version'
 require 'buildr/jacoco'
-require 'buildr/custom_pom'
 require 'buildr/gpg'
 require 'buildr/gwt'
 require 'buildr/single_intermediate_layout'
