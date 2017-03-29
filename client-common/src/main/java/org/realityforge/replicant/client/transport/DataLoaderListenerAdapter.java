@@ -10,7 +10,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onDisconnect()
+  public void onDisconnect( @Nonnull final DataLoaderService<G> service )
   {
   }
 
@@ -18,7 +18,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onInvalidDisconnect( @Nonnull final Throwable throwable )
+  public void onInvalidDisconnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
   }
 
@@ -26,7 +26,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onConnect()
+  public void onConnect( @Nonnull final DataLoaderService<G> service )
   {
   }
 
@@ -34,7 +34,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onInvalidConnect( @Nonnull final Throwable throwable )
+  public void onInvalidConnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
   }
 
@@ -42,7 +42,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  public void onDataLoadComplete( @Nonnull final DataLoaderService<G> service, @Nonnull final DataLoadStatus status )
   {
   }
 
@@ -50,7 +50,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onDataLoadFailure( @Nonnull final Throwable throwable )
+  public void onDataLoadFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
   }
 
@@ -58,7 +58,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onPollFailure( @Nonnull final Throwable throwable )
+  public void onPollFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
   }
 
@@ -66,7 +66,9 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onSubscribeStarted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscribeStarted( @Nonnull final DataLoaderService<G> service,
+                                  @Nonnull final G graph,
+                                  @Nullable final Object id )
   {
   }
 
@@ -74,7 +76,9 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onSubscribeCompleted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscribeCompleted( @Nonnull final DataLoaderService<G> service,
+                                    @Nonnull final G graph,
+                                    @Nullable final Object id )
   {
   }
 
@@ -82,7 +86,10 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onSubscribeFailed( @Nonnull final G graph, @Nullable final Object id, @Nonnull final Throwable throwable )
+  public void onSubscribeFailed( @Nonnull final DataLoaderService<G> service,
+                                 @Nonnull final G graph,
+                                 @Nullable final Object id,
+                                 @Nonnull final Throwable throwable )
   {
   }
 
@@ -90,7 +97,9 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onUnsubscribeStarted( @Nonnull final G graph, @Nullable final Object id )
+  public void onUnsubscribeStarted( @Nonnull final DataLoaderService<G> service,
+                                    @Nonnull final G graph,
+                                    @Nullable final Object id )
   {
   }
 
@@ -98,7 +107,9 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onUnsubscribeCompleted( @Nonnull final G graph, @Nullable final Object id )
+  public void onUnsubscribeCompleted( @Nonnull final DataLoaderService<G> service,
+                                      @Nonnull final G graph,
+                                      @Nullable final Object id )
   {
   }
 
@@ -106,7 +117,8 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onUnsubscribeFailed( @Nonnull final G graph,
+  public void onUnsubscribeFailed( @Nonnull final DataLoaderService<G> service,
+                                   @Nonnull final G graph,
                                    @Nullable final Object id,
                                    @Nonnull final Throwable throwable )
   {
@@ -116,7 +128,9 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onSubscriptionUpdateStarted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService<G> service,
+                                           @Nonnull final G graph,
+                                           @Nullable final Object id )
   {
   }
 
@@ -124,7 +138,9 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onSubscriptionUpdateCompleted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService<G> service,
+                                             @Nonnull final G graph,
+                                             @Nullable final Object id )
   {
   }
 
@@ -132,7 +148,8 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onSubscriptionUpdateFailed( @Nonnull final G graph,
+  public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService<G> service,
+                                          @Nonnull final G graph,
                                           @Nullable final Object id,
                                           @Nonnull final Throwable throwable )
   {

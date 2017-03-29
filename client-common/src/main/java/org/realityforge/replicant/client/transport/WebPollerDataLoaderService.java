@@ -34,7 +34,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
       @Override
       public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
       {
-        getListener().onPollFailure( exception );
+        getListener().onPollFailure( WebPollerDataLoaderService.this, exception );
       }
 
       @Override

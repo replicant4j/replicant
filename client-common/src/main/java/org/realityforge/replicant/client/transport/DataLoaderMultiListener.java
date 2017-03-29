@@ -19,104 +19,119 @@ public final class DataLoaderMultiListener<G extends Enum<G>>
   }
 
   @Override
-  public void onDisconnect()
+  public void onDisconnect( @Nonnull final DataLoaderService<G> service )
   {
-    _listeners.forEach( DataLoaderListener::onDisconnect );
+    _listeners.forEach( e -> e.onDisconnect( service ) );
   }
 
   @Override
-  public void onInvalidDisconnect( @Nonnull final Throwable throwable )
+  public void onInvalidDisconnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onInvalidDisconnect( throwable ) );
+    _listeners.forEach( e -> e.onInvalidDisconnect( service, throwable ) );
   }
 
   @Override
-  public void onConnect()
+  public void onConnect( @Nonnull final DataLoaderService<G> service )
   {
-    _listeners.forEach( DataLoaderListener::onConnect );
+    _listeners.forEach( e -> e.onConnect( service ) );
   }
 
   @Override
-  public void onInvalidConnect( @Nonnull final Throwable throwable )
+  public void onInvalidConnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onInvalidConnect( throwable ) );
+    _listeners.forEach( e -> e.onInvalidConnect( service, throwable ) );
   }
 
   @Override
-  public void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  public void onDataLoadComplete( @Nonnull final DataLoaderService<G> service, @Nonnull final DataLoadStatus status )
   {
-    _listeners.forEach( e -> e.onDataLoadComplete( status ) );
+    _listeners.forEach( e -> e.onDataLoadComplete( service, status ) );
   }
 
   @Override
-  public void onDataLoadFailure( @Nonnull final Throwable throwable )
+  public void onDataLoadFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onDataLoadFailure( throwable ) );
+    _listeners.forEach( e -> e.onDataLoadFailure( service, throwable ) );
   }
 
   @Override
-  public void onPollFailure( @Nonnull final Throwable throwable )
+  public void onPollFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onPollFailure( throwable ) );
+    _listeners.forEach( e -> e.onPollFailure( service, throwable ) );
   }
 
   @Override
-  public void onSubscribeStarted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscribeStarted( @Nonnull final DataLoaderService<G> service,
+                                  @Nonnull final G graph,
+                                  @Nullable final Object id )
   {
-    _listeners.forEach( e -> e.onSubscribeStarted( graph, id ) );
+    _listeners.forEach( e -> e.onSubscribeStarted( service, graph, id ) );
   }
 
   @Override
-  public void onSubscribeCompleted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscribeCompleted( @Nonnull final DataLoaderService<G> service,
+                                    @Nonnull final G graph,
+                                    @Nullable final Object id )
   {
-    _listeners.forEach( e -> e.onSubscribeCompleted( graph, id ) );
+    _listeners.forEach( e -> e.onSubscribeCompleted( service, graph, id ) );
   }
 
   @Override
-  public void onSubscribeFailed( @Nonnull final G graph,
+  public void onSubscribeFailed( @Nonnull final DataLoaderService<G> service,
+                                 @Nonnull final G graph,
                                  @Nullable final Object id,
                                  @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onSubscribeFailed( graph, id, throwable ) );
+    _listeners.forEach( e -> e.onSubscribeFailed( service, graph, id, throwable ) );
   }
 
   @Override
-  public void onUnsubscribeStarted( @Nonnull final G graph, @Nullable final Object id )
+  public void onUnsubscribeStarted( @Nonnull final DataLoaderService<G> service,
+                                    @Nonnull final G graph,
+                                    @Nullable final Object id )
   {
-    _listeners.forEach( e -> e.onUnsubscribeStarted( graph, id ) );
+    _listeners.forEach( e -> e.onUnsubscribeStarted( service, graph, id ) );
   }
 
   @Override
-  public void onUnsubscribeCompleted( @Nonnull final G graph, @Nullable final Object id )
+  public void onUnsubscribeCompleted( @Nonnull final DataLoaderService<G> service,
+                                      @Nonnull final G graph,
+                                      @Nullable final Object id )
   {
-    _listeners.forEach( e -> e.onUnsubscribeCompleted( graph, id ) );
+    _listeners.forEach( e -> e.onUnsubscribeCompleted( service, graph, id ) );
   }
 
   @Override
-  public void onUnsubscribeFailed( @Nonnull final G graph,
+  public void onUnsubscribeFailed( @Nonnull final DataLoaderService<G> service,
+                                   @Nonnull final G graph,
                                    @Nullable final Object id,
                                    @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onUnsubscribeFailed( graph, id, throwable ) );
+    _listeners.forEach( e -> e.onUnsubscribeFailed( service, graph, id, throwable ) );
   }
 
   @Override
-  public void onSubscriptionUpdateStarted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService<G> service,
+                                           @Nonnull final G graph,
+                                           @Nullable final Object id )
   {
-    _listeners.forEach( e -> e.onSubscriptionUpdateStarted( graph, id ) );
+    _listeners.forEach( e -> e.onSubscriptionUpdateStarted( service, graph, id ) );
   }
 
   @Override
-  public void onSubscriptionUpdateCompleted( @Nonnull final G graph, @Nullable final Object id )
+  public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService<G> service,
+                                             @Nonnull final G graph,
+                                             @Nullable final Object id )
   {
-    _listeners.forEach( e -> e.onSubscriptionUpdateCompleted( graph, id ) );
+    _listeners.forEach( e -> e.onSubscriptionUpdateCompleted( service, graph, id ) );
   }
 
   @Override
-  public void onSubscriptionUpdateFailed( @Nonnull final G graph,
+  public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService<G> service,
+                                          @Nonnull final G graph,
                                           @Nullable final Object id,
                                           @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( e -> e.onSubscriptionUpdateFailed( graph, id, throwable ) );
+    _listeners.forEach( e -> e.onSubscriptionUpdateFailed( service, graph, id, throwable ) );
   }
 }

@@ -6,7 +6,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.InvocationException;
 import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -139,7 +138,9 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
           else
           {
             setSession( null, runnable );
-            getListener().onInvalidDisconnect( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
+            getListener().
+              onInvalidDisconnect( GwtWebPollerDataLoaderService.this,
+                                   new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
           }
         }
 
@@ -147,14 +148,14 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
         public void onError( final Request request, final Throwable exception )
         {
           setSession( null, runnable );
-          getListener().onInvalidDisconnect( exception );
+          getListener().onInvalidDisconnect( GwtWebPollerDataLoaderService.this, exception );
         }
       } );
     }
     catch ( final RequestException e )
     {
       setSession( null, runnable );
-      getListener().onInvalidDisconnect( e );
+      getListener().onInvalidDisconnect( this, e );
     }
   }
 

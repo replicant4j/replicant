@@ -97,7 +97,7 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
                 handleInvalidConnect( new InvalidHttpResponseException( statusCode, reasonPhrase ) );
               }
             } );
-    final Consumer<Throwable> onError = wrap( t -> getListener().onInvalidConnect( t ) );
+    final Consumer<Throwable> onError = wrap( t -> getListener().onInvalidConnect( this, t ) );
     builder.async().post( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
     {
       @Override
@@ -130,14 +130,14 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
               {
                 setSession( null, runnable );
                 final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
-                getListener().onInvalidDisconnect( new InvalidHttpResponseException( statusCode, reasonPhrase ) );
+                getListener().onInvalidDisconnect( this, new InvalidHttpResponseException( statusCode, reasonPhrase ) );
               }
             } );
     final Consumer<Throwable> onError =
       wrap( throwable ->
             {
               setSession( null, runnable );
-              getListener().onInvalidDisconnect( throwable );
+              getListener().onInvalidDisconnect( this, throwable );
             } );
     builder.async().delete( new InvocationCallback<Response>()
     {

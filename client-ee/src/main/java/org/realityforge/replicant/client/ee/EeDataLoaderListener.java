@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.enterprise.inject.spi.BeanManager;
 import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
+import org.realityforge.replicant.client.transport.DataLoaderService;
 
 public class EeDataLoaderListener<G extends Enum<G>>
   extends DataLoaderListenerAdapter<G>
@@ -24,43 +25,43 @@ public class EeDataLoaderListener<G extends Enum<G>>
   }
 
   @Override
-  public void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  public void onDataLoadComplete( @Nonnull final DataLoaderService<G> service, @Nonnull final DataLoadStatus status )
   {
     fireEvent( new DataLoadCompleteEvent( status ) );
   }
 
   @Override
-  public void onConnect()
+  public void onConnect( @Nonnull final DataLoaderService<G> service )
   {
     fireEvent( new ConnectEvent( _key ) );
   }
 
   @Override
-  public void onInvalidConnect( @Nonnull final Throwable throwable )
+  public void onInvalidConnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
     fireEvent( new InvalidConnectEvent( _key, throwable ) );
   }
 
   @Override
-  public void onDisconnect()
+  public void onDisconnect( @Nonnull final DataLoaderService<G> service )
   {
     fireEvent( new DisconnectEvent( _key ) );
   }
 
   @Override
-  public void onInvalidDisconnect( @Nonnull final Throwable throwable )
+  public void onInvalidDisconnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
     fireEvent( new InvalidDisconnectEvent( _key, throwable ) );
   }
 
   @Override
-  public void onPollFailure( @Nonnull final Throwable throwable )
+  public void onPollFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
     fireEvent( new PollErrorEvent( _key, throwable ) );
   }
 
   @Override
-  public void onDataLoadFailure( @Nonnull final Throwable throwable )
+  public void onDataLoadFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
     fireEvent( new DataLoadFailureEvent( _key, throwable ) );
   }

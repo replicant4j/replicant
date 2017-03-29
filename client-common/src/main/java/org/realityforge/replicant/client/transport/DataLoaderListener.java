@@ -8,53 +8,62 @@ public interface DataLoaderListener<G extends Enum<G>>
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  void onDisconnect();
+  void onDisconnect( @Nonnull DataLoaderService<G> service );
 
   /**
    * Invoked to fire an event when failed to connect.
    */
-  void onInvalidDisconnect( @Nonnull Throwable throwable );
+  void onInvalidDisconnect( @Nonnull DataLoaderService<G> service, @Nonnull Throwable throwable );
 
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  void onConnect();
+  void onConnect( @Nonnull DataLoaderService<G> service );
 
   /**
    * Invoked to fire an event when failed to connect.
    */
-  void onInvalidConnect( @Nonnull Throwable throwable );
+  void onInvalidConnect( @Nonnull DataLoaderService<G> service, @Nonnull Throwable throwable );
 
   /**
    * Called when a data load has completed.
    */
-  void onDataLoadComplete( @Nonnull DataLoadStatus status );
+  void onDataLoadComplete( @Nonnull DataLoaderService<G> service, @Nonnull DataLoadStatus status );
 
   /**
    * Called when a data load has resulted in a failure.
    */
-  void onDataLoadFailure( @Nonnull Throwable throwable );
+  void onDataLoadFailure( @Nonnull DataLoaderService<G> service, @Nonnull Throwable throwable );
 
   /**
    * Attempted to retrieve data from backend and failed.
    */
-  void onPollFailure( @Nonnull Throwable throwable );
+  void onPollFailure( @Nonnull DataLoaderService<G> service, @Nonnull Throwable throwable );
 
-  void onSubscribeStarted( @Nonnull G graph, @Nullable Object id );
+  void onSubscribeStarted( @Nonnull DataLoaderService<G> service, @Nonnull G graph, @Nullable Object id );
 
-  void onSubscribeCompleted( @Nonnull G graph, @Nullable Object id );
+  void onSubscribeCompleted( @Nonnull DataLoaderService<G> service, @Nonnull G graph, @Nullable Object id );
 
-  void onSubscribeFailed( @Nonnull G graph, @Nullable Object id, @Nonnull Throwable throwable );
+  void onSubscribeFailed( @Nonnull DataLoaderService<G> service,
+                          @Nonnull G graph,
+                          @Nullable Object id,
+                          @Nonnull Throwable throwable );
 
-  void onUnsubscribeStarted( @Nonnull G graph, @Nullable Object id );
+  void onUnsubscribeStarted( @Nonnull DataLoaderService<G> service, @Nonnull G graph, @Nullable Object id );
 
-  void onUnsubscribeCompleted( @Nonnull G graph, @Nullable Object id );
+  void onUnsubscribeCompleted( @Nonnull DataLoaderService<G> service, @Nonnull G graph, @Nullable Object id );
 
-  void onUnsubscribeFailed( @Nonnull G graph, @Nullable Object id, @Nonnull Throwable throwable );
+  void onUnsubscribeFailed( @Nonnull DataLoaderService<G> service,
+                            @Nonnull G graph,
+                            @Nullable Object id,
+                            @Nonnull Throwable throwable );
 
-  void onSubscriptionUpdateStarted( @Nonnull G graph, @Nullable Object id );
+  void onSubscriptionUpdateStarted( @Nonnull DataLoaderService<G> service, @Nonnull G graph, @Nullable Object id );
 
-  void onSubscriptionUpdateCompleted( @Nonnull G graph, @Nullable Object id );
+  void onSubscriptionUpdateCompleted( @Nonnull DataLoaderService<G> service, @Nonnull G graph, @Nullable Object id );
 
-  void onSubscriptionUpdateFailed( @Nonnull G graph, @Nullable Object id, @Nonnull Throwable throwable );
+  void onSubscriptionUpdateFailed( @Nonnull DataLoaderService<G> service,
+                                   @Nonnull G graph,
+                                   @Nullable Object id,
+                                   @Nonnull Throwable throwable );
 }

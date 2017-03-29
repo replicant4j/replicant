@@ -257,7 +257,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
     catch ( final Exception e )
     {
-      _listener.onDataLoadFailure( e );
+      _listener.onDataLoadFailure( this, e );
       _incrementalDataLoadInProgress = false;
       return false;
     }
@@ -940,14 +940,14 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     setState( State.CONNECTED );
     perform( runnable );
-    _listener.onConnect();
+    _listener.onConnect( this );
   }
 
   protected abstract void doConnect( @Nullable Runnable runnable );
 
   protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
-    _listener.onInvalidConnect( exception );
+    _listener.onInvalidConnect( this, exception );
   }
 
   @Override
@@ -969,7 +969,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     setState( State.DISCONNECTED );
     perform( runnable );
-    _listener.onDisconnect();
+    _listener.onDisconnect( this );
   }
 
   protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
@@ -1003,7 +1003,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
    */
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
-    _listener.onDataLoadComplete( status );
+    getListener().onDataLoadComplete( this, status );
   }
 
   @Nonnull
