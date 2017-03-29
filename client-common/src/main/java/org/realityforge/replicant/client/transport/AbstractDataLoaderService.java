@@ -76,6 +76,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return _listener;
   }
 
+  @Override
   public void setListener( @Nullable final DataLoaderListener<G> listener )
   {
     _listener = null == listener ? new NoopDataLoaderListener<>() : listener;

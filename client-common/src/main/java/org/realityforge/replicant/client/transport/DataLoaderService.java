@@ -46,6 +46,8 @@ public interface DataLoaderService<G extends Enum<G>>
    */
   void scheduleDataLoad();
 
+  void setListener( @Nullable DataLoaderListener<G> listener );
+
   /**
    * Return the class of graphs that this loader processes.
    */
