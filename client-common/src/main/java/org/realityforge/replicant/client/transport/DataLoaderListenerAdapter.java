@@ -18,7 +18,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onInvalidDisconnect( @Nonnull final Throwable exception )
+  public void onInvalidDisconnect( @Nonnull final Throwable throwable )
   {
   }
 
@@ -34,7 +34,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onInvalidConnect( @Nonnull final Throwable exception )
+  public void onInvalidConnect( @Nonnull final Throwable throwable )
   {
   }
 
@@ -50,7 +50,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onDataLoadFailure( @Nonnull final Throwable e )
+  public void onDataLoadFailure( @Nonnull final Throwable throwable )
   {
   }
 
@@ -58,7 +58,7 @@ public abstract class DataLoaderListenerAdapter<G extends Enum<G>>
    * {@inheritDoc}
    */
   @Override
-  public void onPollFailure( @Nonnull final Throwable e )
+  public void onPollFailure( @Nonnull final Throwable throwable )
   {
   }
 

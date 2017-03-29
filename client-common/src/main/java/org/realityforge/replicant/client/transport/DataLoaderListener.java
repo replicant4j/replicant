@@ -13,7 +13,7 @@ public interface DataLoaderListener<G extends Enum<G>>
   /**
    * Invoked to fire an event when failed to connect.
    */
-  void onInvalidDisconnect( @Nonnull Throwable exception );
+  void onInvalidDisconnect( @Nonnull Throwable throwable );
 
   /**
    * Invoked to fire an event when disconnect has completed.

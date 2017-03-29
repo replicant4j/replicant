@@ -36,9 +36,9 @@ public class EeDataLoaderListener<G extends Enum<G>>
   }
 
   @Override
-  public void onInvalidConnect( @Nonnull final Throwable exception )
+  public void onInvalidConnect( @Nonnull final Throwable throwable )
   {
-    fireEvent( new InvalidConnectEvent( _key, exception ) );
+    fireEvent( new InvalidConnectEvent( _key, throwable ) );
   }
 
   @Override
@@ -48,21 +48,21 @@ public class EeDataLoaderListener<G extends Enum<G>>
   }
 
   @Override
-  public void onInvalidDisconnect( @Nonnull final Throwable exception )
+  public void onInvalidDisconnect( @Nonnull final Throwable throwable )
   {
-    fireEvent( new InvalidDisconnectEvent( _key, exception ) );
+    fireEvent( new InvalidDisconnectEvent( _key, throwable ) );
   }
 
   @Override
-  public void onPollFailure( @Nonnull final Throwable exception )
+  public void onPollFailure( @Nonnull final Throwable throwable )
   {
-    fireEvent( new PollErrorEvent( _key, exception ) );
+    fireEvent( new PollErrorEvent( _key, throwable ) );
   }
 
   @Override
-  public void onDataLoadFailure( @Nonnull final Throwable e )
+  public void onDataLoadFailure( @Nonnull final Throwable throwable )
   {
-    fireEvent( new DataLoadFailureEvent( _key, e ) );
+    fireEvent( new DataLoadFailureEvent( _key, throwable ) );
   }
 
   protected void fireEvent( @Nonnull final Object event )
