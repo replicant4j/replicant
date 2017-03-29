@@ -212,7 +212,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   }
 
   @Nonnull
-  protected <T> T createContextualProxy( @Nonnull final T instance, @Nonnull Class<T> serviceInterface )
+  protected <S> S createContextualProxy( @Nonnull final S instance, @Nonnull Class<S> serviceInterface )
   {
     return getContextService().createContextualProxy( instance, serviceInterface );
   }

@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 /**
  * Basic interface for interacting with data loader services.
  */
-public interface DataLoaderService<G extends Enum<G>>
+public interface DataLoaderService<G>
 {
   enum State
   {
