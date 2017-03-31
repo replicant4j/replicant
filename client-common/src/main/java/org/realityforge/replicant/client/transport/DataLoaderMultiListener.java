@@ -1,21 +1,21 @@
 package org.realityforge.replicant.client.transport;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class DataLoaderMultiListener<G extends Enum<G>>
   implements DataLoaderListener<G>
 {
-  private final Stream<DataLoaderListener<G>> _listeners;
+  private final List<DataLoaderListener<G>> _listeners;
 
   public DataLoaderMultiListener( @Nonnull final DataLoaderListener<G>... listeners )
   {
     Objects.requireNonNull( listeners );
     assert Arrays.stream( listeners ).allMatch( Objects::nonNull );
-    _listeners = Stream.of( listeners );
+    _listeners = Arrays.asList( listeners );
   }
 
   @Override
