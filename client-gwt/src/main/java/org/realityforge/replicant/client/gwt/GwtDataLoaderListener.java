@@ -13,36 +13,34 @@ public class GwtDataLoaderListener<G extends Enum<G>>
   extends DataLoaderListenerAdapter<G>
 {
   private final EventBus _eventBus;
-  private final String _key;
 
-  public GwtDataLoaderListener( @Nonnull final EventBus eventBus, @Nonnull final String key )
+  public GwtDataLoaderListener( @Nonnull final EventBus eventBus )
   {
     _eventBus = Objects.requireNonNull( eventBus );
-    _key = Objects.requireNonNull( key );
   }
 
   @Override
   public void onConnect( @Nonnull final DataLoaderService<G> service )
   {
-    fireEvent( new ConnectEvent( _key ) );
+    fireEvent( new ConnectEvent( service.getKey() ) );
   }
 
   @Override
   public void onInvalidConnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    fireEvent( new InvalidConnectEvent( _key, toCause( throwable ) ) );
+    fireEvent( new InvalidConnectEvent( service.getKey(), toCause( throwable ) ) );
   }
 
   @Override
   public void onDisconnect( @Nonnull final DataLoaderService<G> service )
   {
-    fireEvent( new DisconnectEvent( _key ) );
+    fireEvent( new DisconnectEvent( service.getKey() ) );
   }
 
   @Override
   public void onInvalidDisconnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    fireEvent( new InvalidDisconnectEvent( _key, toCause( throwable ) ) );
+    fireEvent( new InvalidDisconnectEvent( service.getKey(), toCause( throwable ) ) );
   }
 
   @Override
@@ -54,13 +52,13 @@ public class GwtDataLoaderListener<G extends Enum<G>>
   @Override
   public void onDataLoadFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    fireEvent( new DataLoadFailureEvent( _key, throwable ) );
+    fireEvent( new DataLoadFailureEvent( service.getKey(), throwable ) );
   }
 
   @Override
   public void onPollFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    fireEvent( new PollFailureEvent( _key, throwable ) );
+    fireEvent( new PollFailureEvent( service.getKey(), throwable ) );
   }
 
   protected Throwable toCause( @Nonnull final Throwable caught )

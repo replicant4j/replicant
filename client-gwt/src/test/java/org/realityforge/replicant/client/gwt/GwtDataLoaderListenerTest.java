@@ -2,7 +2,6 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.rpc.InvocationException;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -13,7 +12,7 @@ public class GwtDataLoaderListenerTest
     throws Exception
   {
     final GwtDataLoaderListener<TestGraph> service =
-      new GwtDataLoaderListener<>( new SimpleEventBus(), ValueUtil.randomString() );
+      new GwtDataLoaderListener<>( new SimpleEventBus() );
     final Exception cause = new Exception();
     final Throwable throwable = service.toCause( new InvocationException( "Nasty Exception", cause ) );
     assertEquals( throwable, cause );
@@ -24,7 +23,7 @@ public class GwtDataLoaderListenerTest
     throws Exception
   {
     final GwtDataLoaderListener<TestGraph> service =
-      new GwtDataLoaderListener<>( new SimpleEventBus(), ValueUtil.randomString() );
+      new GwtDataLoaderListener<>( new SimpleEventBus() );
     final Exception cause = new Exception();
     final Throwable throwable = service.toCause( cause );
     assertEquals( throwable, cause );

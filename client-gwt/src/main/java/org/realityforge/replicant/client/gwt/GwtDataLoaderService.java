@@ -21,7 +21,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
                                   @Nonnull final EventBus eventBus,
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
-    setListener( new GwtDataLoaderListener<G>( eventBus, sessionContext.getKey() ) );
+    setListener( new GwtDataLoaderListener<>( eventBus ) );
     createWebPoller();
     _sessionContext = sessionContext;
     _replicantConfig = replicantConfig;
@@ -29,7 +29,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     if ( _replicantConfig.repositoryDebugOutputEnabled() )
     {
       final String message =
-        getSessionContext().getKey() + ".RepositoryDebugOutput module is enabled. Run the javascript " +
+        getKey() + ".RepositoryDebugOutput module is enabled. Run the javascript " +
         "'window." + REPOSITORY_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
         "the debug output to just this data loader run the javascript '" +
         toSessionSpecificJavascript( REPOSITORY_DEBUG ) + "'";
@@ -39,7 +39,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     if ( _replicantConfig.subscriptionsDebugOutputEnabled() )
     {
       final String message =
-        getSessionContext().getKey() + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
+        getKey() + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
         "'window." + SUBSCRIPTION_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
         "the debug output to just this data loader run the javascript '" +
         toSessionSpecificJavascript( SUBSCRIPTION_DEBUG ) + "'";
@@ -49,7 +49,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
     if ( _replicantConfig.requestDebugOutputEnabled() )
     {
       final String message =
-        getSessionContext().getKey() + ".RequestDebugOutput module is enabled. Run the javascript " +
+        getKey() + ".RequestDebugOutput module is enabled. Run the javascript " +
         "'window." + REQUEST_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
         "the debug output to just this data loader run the javascript '" +
         toSessionSpecificJavascript( REQUEST_DEBUG ) + "'";
@@ -66,7 +66,7 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
 
   private String toSessionSpecificJavascript( final String variable )
   {
-    final String key = getSessionContext().getKey();
+    final String key = getKey();
     return "( window." + key + " ? window." + key + " : window." + key + " = {} )." + variable + " = true";
   }
 
@@ -88,21 +88,21 @@ public abstract class GwtDataLoaderService<T extends ClientSession<T, G>, G exte
   protected boolean requestDebugOutputEnabled()
   {
     return _replicantConfig.requestDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), REQUEST_DEBUG );
+           RepositoryDebugEnabledChecker.isEnabled( getKey(), REQUEST_DEBUG );
   }
 
   @Override
   protected boolean subscriptionsDebugOutputEnabled()
   {
     return _replicantConfig.subscriptionsDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), SUBSCRIPTION_DEBUG );
+           RepositoryDebugEnabledChecker.isEnabled( getKey(), SUBSCRIPTION_DEBUG );
   }
 
   @Override
   protected boolean repositoryDebugOutputEnabled()
   {
     return _replicantConfig.repositoryDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( getSessionContext().getKey(), REPOSITORY_DEBUG );
+           RepositoryDebugEnabledChecker.isEnabled( getKey(), REPOSITORY_DEBUG );
   }
 
   @Nonnull

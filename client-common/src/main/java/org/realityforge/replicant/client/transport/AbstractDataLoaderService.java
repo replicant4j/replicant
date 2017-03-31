@@ -58,6 +58,13 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   @Nonnull
   @Override
+  public String getKey()
+  {
+    return getSessionContext().getKey();
+  }
+
+  @Nonnull
+  @Override
   public State getState()
   {
     return _state;
@@ -777,7 +784,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
       }
       return true;
     }
-    final DataLoadStatus status = _currentAction.toStatus( getSessionContext().getKey() );
+    final DataLoadStatus status = _currentAction.toStatus( getKey() );
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " involved " +
@@ -1073,7 +1080,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected void outputRequestDebug()
   {
-    getRequestDebugger().outputRequests( getSessionContext().getKey() + ":", ensureSession() );
+    getRequestDebugger().outputRequests( getKey() + ":", ensureSession() );
   }
 
   @Nonnull

@@ -49,6 +49,12 @@ public interface DataLoaderService<G extends Enum<G>>
   void setListener( @Nullable DataLoaderListener<G> listener );
 
   /**
+   * A symbolic key for describing system.
+   */
+  @Nonnull
+  String getKey();
+
+  /**
    * Return the class of graphs that this loader processes.
    */
   @Nonnull

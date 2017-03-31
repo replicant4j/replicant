@@ -4,7 +4,7 @@
 * Replace and enhance `DataLoaderService#isConnected()` with `DataLoaderService#getState()`.
 * Implement `AbstractDataLoaderService#channelToGraph()` directly rather than relying on customization
   by subclasses.
-* Remove `DataLoaderService#getSystemKey()` method through inlining and changing the way it is
+* Rename `DataLoaderService#getSystemKey()` to `DataLoaderService#getKey()` and changing the way it is
   used in the context of the ChangeBroker.
 * Add `DataLoaderService#getGraphType()` method to access type of graphs processed by loader.
 * Update `client.ChannelDescriptor` to add method `getSystem()` that returns the class of enum.
