@@ -9,7 +9,7 @@ public final class PollFailureEvent
   public interface Handler
     extends EventHandler
   {
-    void onInvalidDisconnect( @Nonnull PollFailureEvent event );
+    void onPollFailure( @Nonnull PollFailureEvent event );
   }
 
   public static final Type<Handler> TYPE = new Type<>();
@@ -28,7 +28,7 @@ public final class PollFailureEvent
   @Override
   protected void dispatch( final Handler handler )
   {
-    handler.onInvalidDisconnect( this );
+    handler.onPollFailure( this );
   }
 
   public String toDebugString()

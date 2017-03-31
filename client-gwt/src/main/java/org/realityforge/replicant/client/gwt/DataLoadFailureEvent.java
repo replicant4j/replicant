@@ -9,7 +9,7 @@ public final class DataLoadFailureEvent
   public interface Handler
     extends EventHandler
   {
-    void onInvalidDisconnect( @Nonnull DataLoadFailureEvent event );
+    void onDataLoadFailure( @Nonnull DataLoadFailureEvent event );
   }
 
   public static final Type<Handler> TYPE = new Type<>();
@@ -28,7 +28,7 @@ public final class DataLoadFailureEvent
   @Override
   protected void dispatch( final Handler handler )
   {
-    handler.onInvalidDisconnect( this );
+    handler.onDataLoadFailure( this );
   }
 
   public String toDebugString()
