@@ -138,9 +138,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
           else
           {
             setSession( null, runnable );
-            getListener().
-              onInvalidDisconnect( GwtWebPollerDataLoaderService.this,
-                                   new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
+            handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
           }
         }
 
@@ -148,14 +146,14 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<T, G
         public void onError( final Request request, final Throwable exception )
         {
           setSession( null, runnable );
-          getListener().onInvalidDisconnect( GwtWebPollerDataLoaderService.this, exception );
+          handleInvalidDisconnect( exception );
         }
       } );
     }
     catch ( final RequestException e )
     {
       setSession( null, runnable );
-      getListener().onInvalidDisconnect( this, e );
+      handleInvalidDisconnect( e );
     }
   }
 

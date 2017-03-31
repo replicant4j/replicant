@@ -957,6 +957,12 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     _listener.onInvalidConnect( this, exception );
   }
 
+  protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
+  {
+    setState( State.ERROR );
+    getListener().onInvalidDisconnect( this, exception );
+  }
+
   @Override
   public void disconnect( @Nullable final Runnable runnable )
   {

@@ -130,14 +130,14 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>
               {
                 setSession( null, runnable );
                 final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
-                getListener().onInvalidDisconnect( this, new InvalidHttpResponseException( statusCode, reasonPhrase ) );
+                handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, reasonPhrase ) );
               }
             } );
     final Consumer<Throwable> onError =
       wrap( throwable ->
             {
               setSession( null, runnable );
-              getListener().onInvalidDisconnect( this, throwable );
+              handleInvalidDisconnect( throwable );
             } );
     builder.async().delete( new InvocationCallback<Response>()
     {
