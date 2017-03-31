@@ -954,7 +954,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
 
   protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
-    _listener.onInvalidConnect( this, exception );
+    setState( State.ERROR );
+    getListener().onInvalidConnect( this, exception );
   }
 
   protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
