@@ -1,4 +1,7 @@
 ## 0.5.79 (Pending):
+* Significant refactoring of `AvbstractDataLoaderServiceImpl` to aid inheritance. 
+* Update `DataLoaderService` to maintain the current state of the connection. ie. CONNECTING, 
+  CONNECTED, DISCONNECTING, DISCONNECTED, ERROR.
 * Introduce `DataLoaderListener` to generate events from `DataLoaderService`.
 * Ensure the type parameter for enums in DataLoaderService is qualified correctly.
 * Replace and enhance `DataLoaderService#isConnected()` with `DataLoaderService#getState()`.
