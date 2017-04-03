@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Ensure http requests from `GwtWebPollerDataLoaderService` have a reasonable timeout specified. 
 * Significant refactoring of `AvbstractDataLoaderServiceImpl` to aid inheritance. 
 * Update `DataLoaderService` to maintain the current state of the connection. ie. CONNECTING, 
   CONNECTED, DISCONNECTING, DISCONNECTED, ERROR.
