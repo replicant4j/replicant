@@ -10,7 +10,6 @@ public abstract class AbstractDataLoaderEvent<H extends EventHandler>
 {
   private final String _systemKey;
 
-  @SuppressWarnings( "ConstantConditions" )
   public AbstractDataLoaderEvent( @Nonnull final String systemKey )
   {
     _systemKey = Objects.requireNonNull( systemKey );
