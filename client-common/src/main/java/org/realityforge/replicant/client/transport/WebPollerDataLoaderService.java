@@ -68,6 +68,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     startPolling();
   }
 
+  @Override
   public void disconnect()
   {
     stopPolling();
