@@ -226,6 +226,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
+  @SuppressWarnings( "unchecked" )
   @Nonnull
   private ArrayList<Enum> sortGraphs( @Nonnull final Set<Enum> enums )
   {
