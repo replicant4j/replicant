@@ -1,9 +1,9 @@
 package org.realityforge.replicant.client.transport;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -16,54 +16,54 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
   {
     Objects.requireNonNull( listeners );
     assert Arrays.stream( listeners ).allMatch( Objects::nonNull );
-    _listeners = Arrays.asList( listeners );
+    _listeners = Collections.unmodifiableList( Arrays.asList( listeners ) );
   }
 
-  public void forEach( @Nonnull final Consumer<DataLoaderListener<G>> action )
+  public List<DataLoaderListener<G>> getListeners()
   {
-    _listeners.forEach( action );
+    return _listeners;
   }
 
   @Override
   public void onDisconnect( @Nonnull final DataLoaderService<G> service )
   {
-    forEach( e -> e.onDisconnect( service ) );
+    getListeners().forEach( e -> e.onDisconnect( service ) );
   }
 
   @Override
   public void onInvalidDisconnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onInvalidDisconnect( service, throwable ) );
+    getListeners().forEach( e -> e.onInvalidDisconnect( service, throwable ) );
   }
 
   @Override
   public void onConnect( @Nonnull final DataLoaderService<G> service )
   {
-    forEach( e -> e.onConnect( service ) );
+    getListeners().forEach( e -> e.onConnect( service ) );
   }
 
   @Override
   public void onInvalidConnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onInvalidConnect( service, throwable ) );
+    getListeners().forEach( e -> e.onInvalidConnect( service, throwable ) );
   }
 
   @Override
   public void onDataLoadComplete( @Nonnull final DataLoaderService<G> service, @Nonnull final DataLoadStatus status )
   {
-    forEach( e -> e.onDataLoadComplete( service, status ) );
+    getListeners().forEach( e -> e.onDataLoadComplete( service, status ) );
   }
 
   @Override
   public void onDataLoadFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onDataLoadFailure( service, throwable ) );
+    getListeners().forEach( e -> e.onDataLoadFailure( service, throwable ) );
   }
 
   @Override
   public void onPollFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onPollFailure( service, throwable ) );
+    getListeners().forEach( e -> e.onPollFailure( service, throwable ) );
   }
 
   @Override
@@ -71,7 +71,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                   @Nonnull final G graph,
                                   @Nullable final Object id )
   {
-    forEach( e -> e.onSubscribeStarted( service, graph, id ) );
+    getListeners().forEach( e -> e.onSubscribeStarted( service, graph, id ) );
   }
 
   @Override
@@ -79,7 +79,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                     @Nonnull final G graph,
                                     @Nullable final Object id )
   {
-    forEach( e -> e.onSubscribeCompleted( service, graph, id ) );
+    getListeners().forEach( e -> e.onSubscribeCompleted( service, graph, id ) );
   }
 
   @Override
@@ -88,7 +88,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                  @Nullable final Object id,
                                  @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onSubscribeFailed( service, graph, id, throwable ) );
+    getListeners().forEach( e -> e.onSubscribeFailed( service, graph, id, throwable ) );
   }
 
   @Override
@@ -96,7 +96,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                     @Nonnull final G graph,
                                     @Nullable final Object id )
   {
-    forEach( e -> e.onUnsubscribeStarted( service, graph, id ) );
+    getListeners().forEach( e -> e.onUnsubscribeStarted( service, graph, id ) );
   }
 
   @Override
@@ -104,7 +104,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                       @Nonnull final G graph,
                                       @Nullable final Object id )
   {
-    forEach( e -> e.onUnsubscribeCompleted( service, graph, id ) );
+    getListeners().forEach( e -> e.onUnsubscribeCompleted( service, graph, id ) );
   }
 
   @Override
@@ -113,7 +113,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                    @Nullable final Object id,
                                    @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onUnsubscribeFailed( service, graph, id, throwable ) );
+    getListeners().forEach( e -> e.onUnsubscribeFailed( service, graph, id, throwable ) );
   }
 
   @Override
@@ -121,7 +121,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                            @Nonnull final G graph,
                                            @Nullable final Object id )
   {
-    forEach( e -> e.onSubscriptionUpdateStarted( service, graph, id ) );
+    getListeners().forEach( e -> e.onSubscriptionUpdateStarted( service, graph, id ) );
   }
 
   @Override
@@ -129,7 +129,7 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                              @Nonnull final G graph,
                                              @Nullable final Object id )
   {
-    forEach( e -> e.onSubscriptionUpdateCompleted( service, graph, id ) );
+    getListeners().forEach( e -> e.onSubscriptionUpdateCompleted( service, graph, id ) );
   }
 
   @Override
@@ -138,6 +138,6 @@ public final class DataLoaderMulticastListener<G extends Enum<G>>
                                           @Nullable final Object id,
                                           @Nonnull final Throwable throwable )
   {
-    forEach( e -> e.onSubscriptionUpdateFailed( service, graph, id, throwable ) );
+    getListeners().forEach( e -> e.onSubscriptionUpdateFailed( service, graph, id, throwable ) );
   }
 }
