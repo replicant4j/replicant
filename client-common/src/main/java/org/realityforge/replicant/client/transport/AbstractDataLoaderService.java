@@ -925,17 +925,20 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                     @Nonnull Object entityID );
 
   @Override
-  public void connect( @Nullable final Runnable runnable )
+  public void connect()
   {
-    disconnect( () -> performConnect( runnable ) );
+    if( null == getSession() )
+    {
+      performConnect();
+    }
   }
 
-  private void performConnect( final @Nullable Runnable runnable )
+  private void performConnect()
   {
     State state = State.ERROR;
     try
     {
-      doConnect( () -> completeConnect( runnable ) );
+      doConnect( this::completeConnect );
       state = State.CONNECTING;
     }
     finally
@@ -944,10 +947,9 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     }
   }
 
-  private void completeConnect( @Nullable final Runnable runnable )
+  private void completeConnect()
   {
     setState( State.CONNECTED );
-    perform( runnable );
     _listener.onConnect( this );
   }
 
@@ -966,24 +968,19 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   @Override
-  public void disconnect( @Nullable final Runnable runnable )
+  public void disconnect()
   {
     final T session = getSession();
     if ( null != session )
     {
       setState( State.DISCONNECTING );
-      doDisconnect( session, () -> onDisconnect( runnable ) );
-    }
-    else
-    {
-      perform( runnable );
+      doDisconnect( session, this::onDisconnect );
     }
   }
 
-  private void onDisconnect( @Nullable final Runnable runnable )
+  private void onDisconnect()
   {
     setState( State.DISCONNECTED );
-    perform( runnable );
     _listener.onDisconnect( this );
   }
 
@@ -1095,13 +1092,5 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   protected RequestDebugger getRequestDebugger()
   {
     return new RequestDebugger();
-  }
-
-  protected void perform( @Nullable final Runnable runnable )
-  {
-    if ( null != runnable )
-    {
-      runnable.run();
-    }
   }
 }

@@ -32,14 +32,14 @@ public interface DataLoaderService<G extends Enum<G>>
    * Connect to the underlying data source.
    * When connection is complete then execute passed runnable.
    */
-  void connect( @Nullable Runnable runnable );
+  void connect();
 
   /**
    * Disconnect from underlying data source.
    * When disconnection is complete then execute passed runnable. The runnable
    * will also be invoked if the data loader service is not currently connected.
    */
-  void disconnect( @Nullable Runnable runnable );
+  void disconnect();
 
   /**
    * Schedule a data load.

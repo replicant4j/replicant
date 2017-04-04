@@ -68,10 +68,10 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
     startPolling();
   }
 
-  public void disconnect( @Nullable final Runnable runnable )
+  public void disconnect()
   {
     stopPolling();
-    super.disconnect( runnable );
+    super.disconnect();
   }
 
   /**
@@ -122,7 +122,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, 
 
   protected void handleWebPollerStop()
   {
-    disconnect( null );
+    disconnect();
   }
 
   private void handlePollSuccess( final String rawJsonData )
