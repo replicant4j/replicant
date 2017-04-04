@@ -206,7 +206,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   public void setListener( @Nullable final DataLoaderListener<G> listener )
   {
 
-    final DataLoaderListener<G> l =
+    @SuppressWarnings( "unchecked" ) final DataLoaderListener<G> l =
       null == listener ? null : createContextualProxy( listener, DataLoaderListener.class );
     super.setListener( l );
   }
