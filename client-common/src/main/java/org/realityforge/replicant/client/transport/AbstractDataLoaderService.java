@@ -33,7 +33,7 @@ import org.realityforge.replicant.client.Linkable;
  * steps to avoid locking a thread such as in GWT.
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
-public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
+public abstract class AbstractDataLoaderService
   implements DataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
@@ -42,7 +42,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private DataLoadAction _currentAction;
-  private AreaOfInterestEntry<G> _currentAoiAction;
+  private AreaOfInterestEntry _currentAoiAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
@@ -54,7 +54,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
   @Nonnull
   private State _state = State.DISCONNECTED;
 
-  private T _session;
+  private ClientSession _session;
 
   @Nonnull
   @Override
@@ -123,7 +123,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     return true;
   }
 
-  protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
+  protected void setSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
   {
     final Runnable runnable = () -> doSetSession( session, postAction );
     if ( null == _currentAction )
@@ -136,7 +136,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     }
   }
 
-  protected void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
+  protected void doSetSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
   {
     if ( session != _session )
     {
@@ -177,7 +177,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
    */
   @Nullable
   @Override
-  public T getSession()
+  public ClientSession getSession()
   {
     return _session;
   }
@@ -186,7 +186,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
    * {@inheritDoc}
    */
   @Nonnull
-  public abstract T ensureSession();
+  public abstract ClientSession ensureSession();
 
   /**
    * Return the id of the session associated with the service.
@@ -204,7 +204,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     /*
      * Ensure that we only purge subscriptions that are managed by this data loader.
      */
-    final Class<G> graphClass = getGraphType();
+    final Class<Enum> graphClass = getGraphType();
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
     {
@@ -301,7 +301,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
   {
     if ( null == _currentAoiAction )
     {
-      final LinkedList<AreaOfInterestEntry<G>> actions = ensureSession().getPendingAreaOfInterestActions();
+      final LinkedList<AreaOfInterestEntry> actions = ensureSession().getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
       {
         return false;
@@ -315,7 +315,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     else
     {
       _currentAoiAction.markAsInProgress();
-      final G graph = _currentAoiAction.getGraph();
+      final Enum graph = _currentAoiAction.getGraph();
       final Object id = _currentAoiAction.getId();
       final Object filterParameter = _currentAoiAction.getFilterParameter();
       final String label =
@@ -421,7 +421,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     }
   }
 
-  private ChannelSubscriptionEntry findSubscription( @Nonnull final G graph, @Nullable final Object id )
+  private ChannelSubscriptionEntry findSubscription( @Nonnull final Enum graph, @Nullable final Object id )
   {
     final ChannelSubscriptionEntry entry;
     if ( null == id )
@@ -446,18 +446,18 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     _currentAoiAction = null;
   }
 
-  protected abstract void requestSubscribeToGraph( @Nonnull G graph,
+  protected abstract void requestSubscribeToGraph( @Nonnull Enum graph,
                                                    @Nullable Object id,
                                                    @Nullable Object filterParameter,
                                                    @Nullable String eTag,
                                                    @Nullable ChainedAction cacheAction,
                                                    @Nonnull Runnable completionAction );
 
-  protected abstract void requestUnsubscribeFromGraph( @Nonnull G graph,
+  protected abstract void requestUnsubscribeFromGraph( @Nonnull Enum graph,
                                                        @Nullable Object id,
                                                        @Nonnull Runnable completionAction );
 
-  protected abstract void requestUpdateSubscription( @Nonnull G graph,
+  protected abstract void requestUpdateSubscription( @Nonnull Enum graph,
                                                      @Nullable Object id,
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Runnable completionAction );
@@ -478,7 +478,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
                                                 @Nonnull final ChannelDescriptor descriptor )
   {
-    final T session = getSession();
+    final ClientSession session = getSession();
     return null != session &&
            session.getPendingAreaOfInterestActions().stream().
              anyMatch( a ->
@@ -495,7 +495,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
 
   protected boolean progressDataLoad()
   {
-    final T session = ensureSession();
+    final ClientSession session = ensureSession();
     // Step: Retrieve any out of band actions
     final LinkedList<DataLoadAction> oobActions = session.getOobActions();
     if ( null == _currentAction && !oobActions.isEmpty() )
@@ -653,7 +653,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
           LOG.log( getLogLevel(), message );
         }
 
-        final G graph = channelToGraph( channel );
+        final Enum graph = channelToGraph( channel );
         final ChannelDescriptor descriptor = new ChannelDescriptor( graph, subChannelID );
         if ( ChannelAction.Action.ADD == actionType )
         {
@@ -895,7 +895,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
   }
 
   @Nonnull
-  public abstract Class<G> getGraphType();
+  public abstract Class<Enum> getGraphType();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nullable Object filter );
@@ -990,7 +990,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
   @Override
   public void disconnect()
   {
-    final T session = getSession();
+    final ClientSession session = getSession();
     if ( null != session )
     {
       setState( State.DISCONNECTING );
@@ -1004,7 +1004,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
     _listener.onDisconnect( this );
   }
 
-  protected abstract void doDisconnect( @Nonnull T session, @Nullable Runnable runnable );
+  protected abstract void doDisconnect( @Nonnull ClientSession session, @Nullable Runnable runnable );
 
   /**
    * Return the graph for specified channel.
@@ -1014,7 +1014,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G ex
    * @throws IllegalArgumentException if no such channel
    */
   @Nonnull
-  protected G channelToGraph( final int channel )
+  protected Enum channelToGraph( final int channel )
     throws IllegalArgumentException
   {
     assert getGraphType().isEnum();

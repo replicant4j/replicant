@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -8,7 +9,7 @@ public class ClientSessionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final ClientSession rm = new TestClientSession();
+    final ClientSession rm = new ClientSession( new TestDataLoadService(), ValueUtil.randomString() );
     final RequestEntry e = rm.newRequestRegistration( "Y", "X", true );
     assertEquals( e.isBulkLoad(), true );
     assertEquals( e.getRequestKey(), "Y" );

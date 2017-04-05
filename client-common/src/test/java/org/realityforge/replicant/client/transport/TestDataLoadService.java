@@ -16,8 +16,8 @@ import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.EntitySystemImpl;
 import static org.mockito.Mockito.*;
 
-final class TestDataLoadService
-  extends AbstractDataLoaderService<TestClientSession, TestGraph>
+public final class TestDataLoadService
+  extends AbstractDataLoaderService
 {
   private final EntityRepositoryValidator _validator;
   private boolean _validateOnLoad;
@@ -30,7 +30,7 @@ final class TestDataLoadService
   private final ChangeMapper _changeMapper;
   private final EntitySystem _entitySystem;
 
-  TestDataLoadService()
+  public TestDataLoadService()
   {
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
@@ -70,9 +70,9 @@ final class TestDataLoadService
 
   @Nonnull
   @Override
-  public TestClientSession ensureSession()
+  public ClientSession ensureSession()
   {
-    final TestClientSession session = getSession();
+    final ClientSession session = getSession();
     assert null != session;
     return session;
   }
@@ -83,15 +83,16 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void doDisconnect( @Nonnull final TestClientSession session, @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nonnull final ClientSession session, @Nullable final Runnable runnable )
   {
   }
 
+  @SuppressWarnings( "unchecked" )
   @Nonnull
   @Override
-  public Class<TestGraph> getGraphType()
+  public Class<Enum> getGraphType()
   {
-    return TestGraph.class;
+    return (Class<Enum>) (Class) TestGraph.class;
   }
 
   @Nonnull
@@ -186,7 +187,7 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull final TestGraph graph,
+  protected void requestSubscribeToGraph( @Nonnull final Enum graph,
                                           @Nullable final Object id,
                                           @Nullable final Object filterParameter,
                                           @Nullable final String eTag,
@@ -196,14 +197,14 @@ final class TestDataLoadService
   }
 
   @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final TestGraph graph,
+  protected void requestUnsubscribeFromGraph( @Nonnull final Enum graph,
                                               @Nullable final Object id,
                                               @Nonnull final Runnable runnable )
   {
   }
 
   @Override
-  protected void requestUpdateSubscription( @Nonnull final TestGraph graph,
+  protected void requestUpdateSubscription( @Nonnull final Enum graph,
                                             @Nullable final Object id,
                                             @Nullable final Object filterParameter,
                                             @Nonnull final Runnable completionAction )

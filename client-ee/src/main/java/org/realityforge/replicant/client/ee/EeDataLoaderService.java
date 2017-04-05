@@ -17,8 +17,8 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderListener;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
-public abstract class EeDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
-  extends WebPollerDataLoaderService<T, G>
+public abstract class EeDataLoaderService
+  extends WebPollerDataLoaderService
 {
   private static final int DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK = 10000;
   private static final int DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK = 10000;
@@ -165,7 +165,7 @@ public abstract class EeDataLoaderService<T extends ClientSession<G>, G extends 
   }
 
   @Override
-  protected void setSession( @Nullable final T session, @Nullable final Runnable postAction )
+  protected void setSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
   {
     withLock( getLock().writeLock(), () -> super.setSession( session, postAction ) );
   }

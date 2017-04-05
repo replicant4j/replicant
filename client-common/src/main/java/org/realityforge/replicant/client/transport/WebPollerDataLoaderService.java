@@ -9,8 +9,8 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class WebPollerDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
-  extends AbstractDataLoaderService<T, G>
+public abstract class WebPollerDataLoaderService
+  extends AbstractDataLoaderService
 {
   private WebPoller _webPoller;
 
@@ -58,12 +58,9 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<G>, G e
   @Nonnull
   protected abstract String getEndpointOffset();
 
-  @Nonnull
-  protected abstract T createSession( @Nonnull String sessionID );
-
   protected void onSessionCreated( @Nonnull final String sessionID, @Nullable final Runnable runnable )
   {
-    setSession( createSession( sessionID ), runnable );
+    setSession( new ClientSession( this, sessionID ), runnable );
     scheduleDataLoad();
     startPolling();
   }
@@ -172,7 +169,7 @@ public abstract class WebPollerDataLoaderService<T extends ClientSession<G>, G e
   protected abstract RequestFactory newRequestFactory();
 
   @Override
-  protected void doSetSession( @Nullable final T session, @Nullable final Runnable postAction )
+  protected void doSetSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
   {
     if ( null == session )
     {

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChannelAction;
@@ -140,9 +141,10 @@ public class DataLoaderServiceTest
       new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
     final TestDataLoadService service = newService( changeSet );
     final Runnable runnable1 = mock( Runnable.class );
-    final TestClientSession session1 = new TestClientSession( service, "X" );
+    final String sessionID = ValueUtil.randomString();
+    final ClientSession session1 = new ClientSession( service, ValueUtil.randomString() );
 
-    session1.enqueueOOB( "X", null, false );
+    session1.enqueueOOB( sessionID, null, false );
 
     assertEquals( service.getSessionContext().getSession(), null );
 
@@ -716,7 +718,7 @@ public class DataLoaderServiceTest
   private void configureService( final TestDataLoadService service )
     throws Exception
   {
-    set( service, AbstractDataLoaderService.class, "_session", new TestClientSession( service, "1" ) );
+    set( service, AbstractDataLoaderService.class, "_session", new ClientSession( service, ValueUtil.randomString() ) );
 
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );

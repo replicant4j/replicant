@@ -1,12 +1,13 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-final class AreaOfInterestEntry<T extends Enum>
+final class AreaOfInterestEntry
 {
   @Nonnull
-  private final T _graph;
+  private final Enum _graph;
   @Nonnull
   private final AreaOfInterestAction _action;
   @Nullable
@@ -19,15 +20,15 @@ final class AreaOfInterestEntry<T extends Enum>
   private final Runnable _userAction;
   private boolean _inProgress;
 
-  AreaOfInterestEntry( @Nonnull final T graph,
+  AreaOfInterestEntry( @Nonnull final Enum graph,
                        @Nonnull final AreaOfInterestAction action,
                        @Nullable final String cacheKey,
                        @Nullable final Object id,
                        @Nullable final Object filterParameter,
                        @Nullable final Runnable userAction )
   {
-    _graph = graph;
-    _action = action;
+    _graph = Objects.requireNonNull( graph );
+    _action = Objects.requireNonNull( action );
     _cacheKey = cacheKey;
     _id = id;
     _filterParameter = filterParameter;
@@ -35,7 +36,7 @@ final class AreaOfInterestEntry<T extends Enum>
   }
 
   @Nonnull
-  T getGraph()
+  Enum getGraph()
   {
     return _graph;
   }

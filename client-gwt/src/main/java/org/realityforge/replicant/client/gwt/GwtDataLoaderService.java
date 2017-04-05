@@ -8,8 +8,8 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
-public abstract class GwtDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
-  extends WebPollerDataLoaderService<T, G>
+public abstract class GwtDataLoaderService
+  extends WebPollerDataLoaderService
 {
   private static final String REQUEST_DEBUG = "imitRequestDebug";
   private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";

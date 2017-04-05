@@ -20,8 +20,8 @@ import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
-  extends GwtDataLoaderService<T, G>
+public abstract class GwtWebPollerDataLoaderService
+  extends GwtDataLoaderService
 {
   private final CacheService _cacheService;
   private final EntitySystem _entitySystem;
@@ -119,7 +119,7 @@ public abstract class GwtWebPollerDataLoaderService<T extends ClientSession<G>, 
   }
 
   @Override
-  protected void doDisconnect( @Nonnull final T session, @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nonnull final ClientSession session, @Nullable final Runnable runnable )
   {
     final RequestBuilder rb =
       newRequestBuilder( RequestBuilder.DELETE, getTokenURL() + "/" + session.getSessionID() );

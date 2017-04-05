@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -11,10 +12,8 @@ import javax.annotation.Nullable;
  * Client-side representation of session.
  * Includes a database of outstanding requests, a subscription database and a
  * collection of outstanding data actions to apply.
- *
- * @param <G> The enum type representing the different graphs.
  */
-public abstract class ClientSession<G extends Enum>
+public final class ClientSession
 {
   @Nonnull
   private final DataLoaderService _dataLoaderService;
@@ -26,7 +25,7 @@ public abstract class ClientSession<G extends Enum>
   /**
    * Pending actions that will change the area of interest.
    */
-  private final LinkedList<AreaOfInterestEntry<G>> _pendingAreaOfInterestActions = new LinkedList<>();
+  private final LinkedList<AreaOfInterestEntry> _pendingAreaOfInterestActions = new LinkedList<>();
   /**
    * The set of data load actions that still need to have the json parsed.
    */
@@ -44,11 +43,10 @@ public abstract class ClientSession<G extends Enum>
 
   private int _lastRxSequence;
 
-  protected ClientSession( @Nonnull final DataLoaderService dataLoaderService,
-                           @Nonnull final String sessionID )
+  public ClientSession( @Nonnull final DataLoaderService dataLoaderService, @Nonnull final String sessionID )
   {
-    _dataLoaderService = dataLoaderService;
-    _sessionID = sessionID;
+    _dataLoaderService = Objects.requireNonNull( dataLoaderService );
+    _sessionID = Objects.requireNonNull( sessionID );
   }
 
   @Nonnull
@@ -57,7 +55,7 @@ public abstract class ClientSession<G extends Enum>
     return _sessionID;
   }
 
-  public void requestSubscribe( @Nonnull final G graph,
+  public void requestSubscribe( @Nonnull final Enum graph,
                                 @Nullable final Object id,
                                 @Nullable final String cacheKey,
                                 @Nullable final Object filterParameter,
@@ -66,7 +64,7 @@ public abstract class ClientSession<G extends Enum>
     enqueueAoiAction( graph, AreaOfInterestAction.ADD, cacheKey, id, filterParameter, userAction );
   }
 
-  public void requestSubscriptionUpdate( @Nonnull final G graph,
+  public void requestSubscriptionUpdate( @Nonnull final Enum graph,
                                          @Nullable final Object id,
                                          @Nullable final Object filterParameter,
                                          @Nullable final Runnable userAction )
@@ -74,14 +72,14 @@ public abstract class ClientSession<G extends Enum>
     enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, null, id, filterParameter, userAction );
   }
 
-  public void requestUnsubscribe( @Nonnull final G graph,
+  public void requestUnsubscribe( @Nonnull final Enum graph,
                                   @Nullable final Object id,
                                   @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, null, id, null, userAction );
   }
 
-  private void enqueueAoiAction( @Nonnull final G graph,
+  private void enqueueAoiAction( @Nonnull final Enum graph,
                                  @Nonnull final AreaOfInterestAction action,
                                  @Nullable final String cacheKey,
                                  @Nullable final Object id,
@@ -89,7 +87,7 @@ public abstract class ClientSession<G extends Enum>
                                  @Nullable final Runnable userAction )
   {
     _pendingAreaOfInterestActions.
-      add( new AreaOfInterestEntry<>( graph, action, cacheKey, id, filterParameter, userAction ) );
+      add( new AreaOfInterestEntry( graph, action, cacheKey, id, filterParameter, userAction ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
@@ -120,17 +118,17 @@ public abstract class ClientSession<G extends Enum>
     _dataLoaderService.scheduleDataLoad();
   }
 
-  protected final boolean isSubscribed( @Nonnull final G graph )
+  protected final boolean isSubscribed( @Nonnull final Enum graph )
   {
     return _dataLoaderService.isSubscribed( graph );
   }
 
-  protected final boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
+  protected final boolean isSubscribed( @Nonnull final Enum graph, @Nonnull final Object id )
   {
     return _dataLoaderService.isSubscribed( graph, id );
   }
 
-  final LinkedList<AreaOfInterestEntry<G>> getPendingAreaOfInterestActions()
+  final LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()
   {
     return _pendingAreaOfInterestActions;
   }

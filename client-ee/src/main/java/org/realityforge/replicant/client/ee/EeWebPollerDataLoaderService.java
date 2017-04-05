@@ -19,8 +19,8 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class EeWebPollerDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
-  extends EeDataLoaderService<T, G>
+public abstract class EeWebPollerDataLoaderService
+  extends EeDataLoaderService
 {
   private static final int DEFAULT_TIMEOUT = 25000;
 
@@ -114,7 +114,7 @@ public abstract class EeWebPollerDataLoaderService<T extends ClientSession<G>, G
     } );
   }
 
-  protected void doDisconnect( @Nonnull final T session, @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nonnull final ClientSession session, @Nullable final Runnable runnable )
   {
     final Invocation.Builder builder =
       newInvocationBuilder( getTokenURL() + "/" + session.getSessionID() );
