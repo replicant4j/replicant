@@ -6,9 +6,9 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
-import org.realityforge.replicant.client.transport.TestDataLoadService;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -34,7 +34,7 @@ public class ReplicantRpcRequestBuilderTest
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final SessionContext sessionContext = new SessionContext( "X" );
-    sessionContext.setSession( new ClientSession( new TestDataLoadService(), "1" ) );
+    sessionContext.setSession( new ClientSession( mock( DataLoaderService.class ), "1" ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
     verify( rb ).setHeader( refEq( ReplicantContext.SESSION_ID_HEADER ), refEq( "1" ) );
@@ -44,7 +44,7 @@ public class ReplicantRpcRequestBuilderTest
   @Test
   public void requestIDSet_withSuccessAndComplete()
   {
-    final ClientSession session = new ClientSession( new TestDataLoadService(), ValueUtil.randomString() );
+    final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
@@ -71,7 +71,7 @@ public class ReplicantRpcRequestBuilderTest
   @Test
   public void requestIDSet_withSuccessAndIncomplete()
   {
-    final ClientSession session = new ClientSession( new TestDataLoadService(), ValueUtil.randomString() );
+    final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
@@ -99,7 +99,7 @@ public class ReplicantRpcRequestBuilderTest
   @Test
   public void requestIDSet_withFailure()
   {
-    final ClientSession session = new ClientSession( new TestDataLoadService(), ValueUtil.randomString() );
+    final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
     final RequestEntry requestEntry = session.newRequestRegistration( "", null, true );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
