@@ -221,7 +221,7 @@ final class TestDataLoadService
 
   @Override
   protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
-                                                       @Nonnull final Object filter )
+                                                       @Nullable final Object filter )
   {
     return 0;
   }
