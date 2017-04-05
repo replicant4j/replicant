@@ -101,12 +101,12 @@ final class TestDataLoadService
     return _validator;
   }
 
-  public void setValidateOnLoad( final boolean validateOnLoad )
+  void setValidateOnLoad( final boolean validateOnLoad )
   {
     _validateOnLoad = validateOnLoad;
   }
 
-  public void setChangeSets( final TestChangeSet... changeSets )
+  void setChangeSets( final TestChangeSet... changeSets )
   {
     _changeSets.addAll( Arrays.asList( changeSets ) );
   }
@@ -130,22 +130,22 @@ final class TestDataLoadService
     _terminateCount++;
   }
 
-  protected int getTerminateCount()
+  int getTerminateCount()
   {
     return _terminateCount;
   }
 
-  protected boolean isBulkLoadCompleteCalled()
+  boolean isBulkLoadCompleteCalled()
   {
     return isDataLoadComplete() && getStatus().isBulkLoad();
   }
 
-  protected boolean isIncrementalLoadCompleteCalled()
+  boolean isIncrementalLoadCompleteCalled()
   {
     return isDataLoadComplete() && !getStatus().isBulkLoad();
   }
 
-  protected boolean isScheduleDataLoadCalled()
+  boolean isScheduleDataLoadCalled()
   {
     return _scheduleDataLoadCalled;
   }
@@ -156,12 +156,12 @@ final class TestDataLoadService
     _status = status;
   }
 
-  public DataLoadStatus getStatus()
+  DataLoadStatus getStatus()
   {
     return _status;
   }
 
-  public boolean isDataLoadComplete()
+  boolean isDataLoadComplete()
   {
     return null != _status;
   }
