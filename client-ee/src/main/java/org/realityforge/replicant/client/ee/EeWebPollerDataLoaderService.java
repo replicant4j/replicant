@@ -19,7 +19,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class EeWebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
+public abstract class EeWebPollerDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
   extends EeDataLoaderService<T, G>
 {
   private static final int DEFAULT_TIMEOUT = 25000;

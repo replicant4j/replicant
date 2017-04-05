@@ -11,8 +11,7 @@ public class GwtDataLoaderListenerTest
   public void unwrapExceptionOnInvocationException()
     throws Exception
   {
-    final GwtDataLoaderListener<TestGraph> service =
-      new GwtDataLoaderListener<>( new SimpleEventBus() );
+    final GwtDataLoaderListener service = new GwtDataLoaderListener( new SimpleEventBus() );
     final Exception cause = new Exception();
     final Throwable throwable = service.toCause( new InvocationException( "Nasty Exception", cause ) );
     assertEquals( throwable, cause );
@@ -22,8 +21,7 @@ public class GwtDataLoaderListenerTest
   public void firesOnlySystemErrorEventOnNonInvocationException()
     throws Exception
   {
-    final GwtDataLoaderListener<TestGraph> service =
-      new GwtDataLoaderListener<>( new SimpleEventBus() );
+    final GwtDataLoaderListener service = new GwtDataLoaderListener( new SimpleEventBus() );
     final Exception cause = new Exception();
     final Throwable throwable = service.toCause( cause );
     assertEquals( throwable, cause );

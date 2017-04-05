@@ -9,7 +9,7 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
-public abstract class WebPollerDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
+public abstract class WebPollerDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
   extends AbstractDataLoaderService<T, G>
 {
   private WebPoller _webPoller;

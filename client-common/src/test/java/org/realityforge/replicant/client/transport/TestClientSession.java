@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.transport;
 import javax.annotation.Nonnull;
 
 public class TestClientSession
-  extends ClientSession<TestClientSession, TestGraph>
+  extends ClientSession<TestGraph>
 {
   public TestClientSession()
   {

@@ -33,8 +33,8 @@ import org.realityforge.replicant.client.Linkable;
  * steps to avoid locking a thread such as in GWT.
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
-public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
-  implements DataLoaderService<G>
+public abstract class AbstractDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
+  implements DataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
@@ -46,7 +46,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
-  private DataLoaderListener<G> _listener = new NoopDataLoaderListener<>();
+  private DataLoaderListener _listener = new NoopDataLoaderListener();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -78,15 +78,15 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   }
 
   @Nonnull
-  protected DataLoaderListener<G> getListener()
+  protected DataLoaderListener getListener()
   {
     return _listener;
   }
 
   @Override
-  public void setListener( @Nullable final DataLoaderListener<G> listener )
+  public void setListener( @Nullable final DataLoaderListener listener )
   {
-    _listener = null == listener ? new NoopDataLoaderListener<>() : listener;
+    _listener = null == listener ? new NoopDataLoaderListener() : listener;
   }
 
   @Nonnull
@@ -172,14 +172,21 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
     return getGraphType().getSimpleName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Nullable
+  @Override
   public T getSession()
   {
     return _session;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Nonnull
-  protected abstract T ensureSession();
+  public abstract T ensureSession();
 
   /**
    * Return the id of the session associated with the service.
@@ -456,42 +463,28 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
                                                      @Nonnull Runnable completionAction );
 
   @Override
-  public boolean isSubscribed( @Nonnull final G graph, @Nonnull final Object id )
+  public boolean isSubscribed( @Nonnull final Enum graph, @Nonnull final Object id )
   {
     return null != getSubscriptionManager().findSubscription( graph, id );
   }
 
   @Override
-  public boolean isSubscribed( @Nonnull final G graph )
+  public boolean isSubscribed( @Nonnull final Enum graph )
   {
     return null != getSubscriptionManager().findSubscription( graph );
   }
 
   @Override
-  public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action, @Nonnull final G graph )
-  {
-    return isAreaOfInterestActionPending0( action, graph, null );
-  }
-
-  @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final G graph,
-                                                @Nonnull final Object id )
-  {
-    return isAreaOfInterestActionPending0( action, graph, id );
-  }
-
-  private boolean isAreaOfInterestActionPending0( @Nonnull final AreaOfInterestAction action,
-                                                  @Nonnull final G graph,
-                                                  @Nullable final Object id )
+                                                @Nonnull final ChannelDescriptor descriptor )
   {
     final T session = getSession();
     return null != session &&
            session.getPendingAreaOfInterestActions().stream().
              anyMatch( a ->
                          a.getAction().equals( action ) &&
-                         a.getGraph().equals( graph ) &&
-                         Objects.equals( a.getId(), id ) );
+                         a.getGraph().equals( descriptor.getGraph() ) &&
+                         Objects.equals( a.getId(), descriptor.getID() ) );
   }
 
   // Method only used in tests

@@ -6,7 +6,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import static org.mockito.Mockito.*;
 
 public class TestClientSession
-  extends ClientSession<TestClientSession, TestGraph>
+  extends ClientSession<TestGraph>
 {
   public TestClientSession( @Nonnull final AbstractDataLoaderService<TestClientSession, TestGraph> dataLoaderService,
                             @Nonnull final String sessionID )

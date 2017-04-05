@@ -9,8 +9,8 @@ import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 
-public class GwtDataLoaderListener<G extends Enum<G>>
-  extends DataLoaderListenerAdapter<G>
+public class GwtDataLoaderListener
+  extends DataLoaderListenerAdapter
 {
   private final EventBus _eventBus;
 
@@ -20,48 +20,48 @@ public class GwtDataLoaderListener<G extends Enum<G>>
   }
 
   @Override
-  public void onConnect( @Nonnull final DataLoaderService<G> service )
+  public void onConnect( @Nonnull final DataLoaderService service )
   {
     fireEvent( new ConnectEvent( service.getKey() ) );
   }
 
   @Override
-  public void onInvalidConnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
+  public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
     fireEvent( new InvalidConnectEvent( service.getKey(), toCause( throwable ) ) );
   }
 
   @Override
-  public void onDisconnect( @Nonnull final DataLoaderService<G> service )
+  public void onDisconnect( @Nonnull final DataLoaderService service )
   {
     fireEvent( new DisconnectEvent( service.getKey() ) );
   }
 
   @Override
-  public void onInvalidDisconnect( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
+  public void onInvalidDisconnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
     fireEvent( new InvalidDisconnectEvent( service.getKey(), toCause( throwable ) ) );
   }
 
   @Override
-  public void onDataLoadComplete( @Nonnull final DataLoaderService<G> service, @Nonnull final DataLoadStatus status )
+  public void onDataLoadComplete( @Nonnull final DataLoaderService service, @Nonnull final DataLoadStatus status )
   {
     fireEvent( new DataLoadCompleteEvent( status ) );
   }
 
   @Override
-  public void onDataLoadFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
+  public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
     fireEvent( new DataLoadFailureEvent( service.getKey(), throwable ) );
   }
 
   @Override
-  public void onPollFailure( @Nonnull final DataLoaderService<G> service, @Nonnull final Throwable throwable )
+  public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
     fireEvent( new PollFailureEvent( service.getKey(), throwable ) );
   }
 
-  protected Throwable toCause( @Nonnull final Throwable caught )
+  Throwable toCause( @Nonnull final Throwable caught )
   {
     return caught instanceof InvocationException ? caught.getCause() : caught;
   }

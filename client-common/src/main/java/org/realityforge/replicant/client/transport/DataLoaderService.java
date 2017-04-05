@@ -2,11 +2,12 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.ChannelDescriptor;
 
 /**
  * Basic interface for interacting with data loader services.
  */
-public interface DataLoaderService<G extends Enum<G>>
+public interface DataLoaderService
 {
   enum State
   {
@@ -29,6 +30,19 @@ public interface DataLoaderService<G extends Enum<G>>
   State getState();
 
   /**
+   * Return a session if present.
+   * The session is present if the service is in CONNECTED state or is transitioning states.
+   */
+  @Nullable
+  ClientSession getSession();
+
+  /**
+   * Return a session and raise an exception if no session is present.
+   */
+  @Nonnull
+  ClientSession ensureSession();
+
+  /**
    * Connect to the underlying data source.
    * When connection is complete then execute passed runnable.
    */
@@ -46,7 +60,7 @@ public interface DataLoaderService<G extends Enum<G>>
    */
   void scheduleDataLoad();
 
-  void setListener( @Nullable DataLoaderListener<G> listener );
+  void setListener( @Nullable DataLoaderListener listener );
 
   /**
    * A symbolic key for describing system.
@@ -58,13 +72,24 @@ public interface DataLoaderService<G extends Enum<G>>
    * Return the class of graphs that this loader processes.
    */
   @Nonnull
-  Class<G> getGraphType();
+  Class getGraphType();
 
-  boolean isSubscribed( @Nonnull G graph );
+  boolean isSubscribed( @Nonnull Enum graph );
 
-  boolean isSubscribed( @Nonnull G graph, @Nonnull Object id );
+  boolean isSubscribed( @Nonnull Enum graph, @Nonnull Object id );
 
-  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull G graph );
+  @SuppressWarnings( "unchecked" )
+  default boolean isSubscribed( @Nonnull ChannelDescriptor descriptor )
+  {
+    if ( null == descriptor.getID() )
+    {
+      return isSubscribed( descriptor.getGraph() );
+    }
+    else
+    {
+      return isSubscribed( descriptor.getGraph(), descriptor.getID() );
+    }
+  }
 
-  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull G graph, @Nonnull Object id );
+  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull ChannelDescriptor descriptor );
 }

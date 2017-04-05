@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  *
  * @param <G> The enum type representing the different graphs.
  */
-public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enum>
+public abstract class ClientSession<G extends Enum>
 {
   @Nonnull
   private final DataLoaderService _dataLoaderService;

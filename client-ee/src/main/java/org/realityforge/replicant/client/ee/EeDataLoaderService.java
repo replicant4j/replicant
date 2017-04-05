@@ -17,7 +17,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderListener;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
-public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G extends Enum<G>>
+public abstract class EeDataLoaderService<T extends ClientSession<G>, G extends Enum<G>>
   extends WebPollerDataLoaderService<T, G>
 {
   private static final int DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK = 10000;
@@ -203,17 +203,11 @@ public abstract class EeDataLoaderService<T extends ClientSession<T, G>, G exten
   }
 
   @Override
-  public void setListener( @Nullable final DataLoaderListener<G> listener )
+  public void setListener( @Nullable final DataLoaderListener listener )
   {
-
-    @SuppressWarnings( "unchecked" ) final DataLoaderListener<G> l =
-      null == listener ? null : createContextualProxy( listener, DataLoaderListener.class );
-    super.setListener( l );
+    super.setListener( null == listener ?
+                       null :
+                       getContextService().createContextualProxy( listener, DataLoaderListener.class ) );
   }
 
-  @Nonnull
-  protected <S> S createContextualProxy( @Nonnull final S instance, @Nonnull Class<S> serviceInterface )
-  {
-    return getContextService().createContextualProxy( instance, serviceInterface );
-  }
 }

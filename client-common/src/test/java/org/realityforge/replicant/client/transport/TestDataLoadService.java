@@ -70,7 +70,7 @@ final class TestDataLoadService
 
   @Nonnull
   @Override
-  protected TestClientSession ensureSession()
+  public TestClientSession ensureSession()
   {
     final TestClientSession session = getSession();
     assert null != session;
