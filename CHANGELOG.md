@@ -1,4 +1,6 @@
 ## 0.5.79 (Pending):
+* Move from mandatory subclassing of `ClientSession` to disallowing subclassing of the same.
+* Remove generics from the `ClientSession` and the `DataLoaderService` classes.
 * Make the `ClientSession` methods `requestSubscribe`, `requestSubscriptionUpdate` and `requestUnsubscribe`
   public so that it can be called directly from code. This will potentially enable the elimination of the
   session subclasses.
