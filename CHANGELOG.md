@@ -1,4 +1,7 @@
 ## 0.5.79 (Pending):
+* Make the `ClientSession` methods `requestSubscribe`, `requestSubscriptionUpdate` and `requestUnsubscribe`
+  public so that it can be called directly from code. This will potentially enable the elimination of the
+  session subclasses.
 * Add `DataLoaderService#isAreaOfInterestActionPending()` methods to query the state of pending requests. 
 * Ensure http requests from `GwtWebPollerDataLoaderService` have a reasonable timeout specified. 
 * Significant refactoring of `AvbstractDataLoaderServiceImpl` to aid inheritance. 

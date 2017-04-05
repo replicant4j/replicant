@@ -57,26 +57,26 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
     return _sessionID;
   }
 
-  protected void requestSubscribe( @Nonnull final G graph,
-                                   @Nullable final Object id,
-                                   @Nullable final String cacheKey,
-                                   @Nullable final Object filterParameter,
-                                   @Nullable final Runnable userAction )
+  public void requestSubscribe( @Nonnull final G graph,
+                                @Nullable final Object id,
+                                @Nullable final String cacheKey,
+                                @Nullable final Object filterParameter,
+                                @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.ADD, cacheKey, id, filterParameter, userAction );
   }
 
-  protected void requestSubscriptionUpdate( @Nonnull final G graph,
-                                            @Nullable final Object id,
-                                            @Nullable final Object filterParameter,
-                                            @Nullable final Runnable userAction )
+  public void requestSubscriptionUpdate( @Nonnull final G graph,
+                                         @Nullable final Object id,
+                                         @Nullable final Object filterParameter,
+                                         @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, null, id, filterParameter, userAction );
   }
 
-  protected void requestUnsubscribe( @Nonnull final G graph,
-                                     @Nullable final Object id,
-                                     @Nullable final Runnable userAction )
+  public void requestUnsubscribe( @Nonnull final G graph,
+                                  @Nullable final Object id,
+                                  @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, null, id, null, userAction );
   }
