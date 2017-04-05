@@ -927,7 +927,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   @Override
   public void connect()
   {
-    if( null == getSession() )
+    if ( null == getSession() )
     {
       performConnect();
     }
