@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +26,6 @@ import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.Linkable;
-import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
@@ -42,7 +42,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private DataLoadAction _currentAction;
-  private AreaOfInterestAction<G> _currentAoiAction;
+  private AreaOfInterestEntry<G> _currentAoiAction;
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
@@ -294,7 +294,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   {
     if ( null == _currentAoiAction )
     {
-      final LinkedList<AreaOfInterestAction<G>> actions = ensureSession().getPendingAreaOfInterestActions();
+      final LinkedList<AreaOfInterestEntry<G>> actions = ensureSession().getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
       {
         return false;
@@ -317,8 +317,8 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         ( null == filterParameter ? "" : "[" + filterParameter + "]" );
       final Runnable userAction = _currentAoiAction.getUserAction();
       final String cacheKey = _currentAoiAction.getCacheKey();
-      final Action action = _currentAoiAction.getAction();
-      if ( action == Action.ADD )
+      final AreaOfInterestAction action = _currentAoiAction.getAction();
+      if ( action == AreaOfInterestAction.ADD )
       {
         final ChannelSubscriptionEntry entry = findSubscription( graph, id );
         //Already subscribed
@@ -370,7 +370,7 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
         requestSubscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
         return true;
       }
-      else if ( action == Action.REMOVE )
+      else if ( action == AreaOfInterestAction.REMOVE )
       {
         final ChannelSubscriptionEntry entry = findSubscription( graph, id );
         //Not subscribed
@@ -465,6 +465,33 @@ public abstract class AbstractDataLoaderService<T extends ClientSession<T, G>, G
   public boolean isSubscribed( @Nonnull final G graph )
   {
     return null != getSubscriptionManager().findSubscription( graph );
+  }
+
+  @Override
+  public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action, @Nonnull final G graph )
+  {
+    return isAreaOfInterestActionPending0( action, graph, null );
+  }
+
+  @Override
+  public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
+                                                @Nonnull final G graph,
+                                                @Nonnull final Object id )
+  {
+    return isAreaOfInterestActionPending0( action, graph, id );
+  }
+
+  private boolean isAreaOfInterestActionPending0( @Nonnull final AreaOfInterestAction action,
+                                                  @Nonnull final G graph,
+                                                  @Nullable final Object id )
+  {
+    final T session = getSession();
+    return null != session &&
+           session.getPendingAreaOfInterestActions().stream().
+             anyMatch( a ->
+                         a.getAction().equals( action ) &&
+                         a.getGraph().equals( graph ) &&
+                         Objects.equals( a.getId(), id ) );
   }
 
   // Method only used in tests

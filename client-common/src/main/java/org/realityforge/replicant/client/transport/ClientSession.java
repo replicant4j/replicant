@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.transport.AreaOfInterestAction.Action;
 
 /**
  * Client-side representation of session.
@@ -27,7 +26,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
   /**
    * Pending actions that will change the area of interest.
    */
-  private final LinkedList<AreaOfInterestAction<G>> _pendingAreaOfInterestActions = new LinkedList<>();
+  private final LinkedList<AreaOfInterestEntry<G>> _pendingAreaOfInterestActions = new LinkedList<>();
   /**
    * The set of data load actions that still need to have the json parsed.
    */
@@ -64,7 +63,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
                                    @Nullable final Object filterParameter,
                                    @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, Action.ADD, cacheKey, id, filterParameter, userAction );
+    enqueueAoiAction( graph, AreaOfInterestAction.ADD, cacheKey, id, filterParameter, userAction );
   }
 
   protected void requestSubscriptionUpdate( @Nonnull final G graph,
@@ -72,25 +71,25 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
                                             @Nullable final Object filterParameter,
                                             @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, Action.UPDATE, null, id, filterParameter, userAction );
+    enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, null, id, filterParameter, userAction );
   }
 
   protected void requestUnsubscribe( @Nonnull final G graph,
                                      @Nullable final Object id,
                                      @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, Action.REMOVE, null, id, null, userAction );
+    enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, null, id, null, userAction );
   }
 
   private void enqueueAoiAction( @Nonnull final G graph,
-                                 @Nonnull final Action action,
+                                 @Nonnull final AreaOfInterestAction action,
                                  @Nullable final String cacheKey,
                                  @Nullable final Object id,
                                  @Nullable final Object filterParameter,
                                  @Nullable final Runnable userAction )
   {
     _pendingAreaOfInterestActions.
-      add( new AreaOfInterestAction<>( graph, action, cacheKey, id, filterParameter, userAction ) );
+      add( new AreaOfInterestEntry<>( graph, action, cacheKey, id, filterParameter, userAction ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
@@ -131,7 +130,7 @@ public abstract class ClientSession<T extends ClientSession<T, G>, G extends Enu
     return _dataLoaderService.isSubscribed( graph, id );
   }
 
-  final LinkedList<AreaOfInterestAction<G>> getPendingAreaOfInterestActions()
+  final LinkedList<AreaOfInterestEntry<G>> getPendingAreaOfInterestActions()
   {
     return _pendingAreaOfInterestActions;
   }

@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Add `DataLoaderService#isAreaOfInterestActionPending()` methods to query the state of pending requests. 
 * Ensure http requests from `GwtWebPollerDataLoaderService` have a reasonable timeout specified. 
 * Significant refactoring of `AvbstractDataLoaderServiceImpl` to aid inheritance. 
 * Update `DataLoaderService` to maintain the current state of the connection. ie. CONNECTING, 

@@ -63,4 +63,8 @@ public interface DataLoaderService<G extends Enum<G>>
   boolean isSubscribed( @Nonnull G graph );
 
   boolean isSubscribed( @Nonnull G graph, @Nonnull Object id );
+
+  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull G graph );
+
+  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull G graph, @Nonnull Object id );
 }

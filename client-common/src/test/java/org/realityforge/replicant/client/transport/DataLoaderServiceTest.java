@@ -582,6 +582,43 @@ public class DataLoaderServiceTest
     inOrder.verifyNoMoreInteractions();
   }
 
+  @Test
+  public void isAreaOfInterestActionPending()
+    throws Exception
+  {
+    final TestDataLoadService service = new TestDataLoadService();
+    configureService( service );
+    assertNotNull( service.getSession() );
+
+    // type graph
+    {
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, TestGraph.A ) );
+
+      //Request a subscription so that it should be pending
+      service.ensureSession().requestSubscribe( TestGraph.A, null, null, null, null );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, TestGraph.A ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, TestGraph.A ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, TestGraph.A ) );
+    }
+
+    // instance graph
+    {
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, TestGraph.B, 2 ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, TestGraph.B ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, TestGraph.B ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, TestGraph.B ) );
+
+      //Request a subscription so that it should be pending
+      service.ensureSession().requestSubscribe( TestGraph.B, 2, null, null, null );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, TestGraph.B, 2 ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, TestGraph.B ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, TestGraph.B ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, TestGraph.B ) );
+    }
+  }
+
   private void verifyPostActionRun( final Runnable runnable )
   {
     verify( runnable ).run();
