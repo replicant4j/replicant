@@ -78,7 +78,6 @@ public interface DataLoaderService
 
   boolean isSubscribed( @Nonnull Enum graph, @Nonnull Object id );
 
-  @SuppressWarnings( "unchecked" )
   default boolean isSubscribed( @Nonnull ChannelDescriptor descriptor )
   {
     if ( null == descriptor.getID() )
