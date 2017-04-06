@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.Date;
 import javax.annotation.Nonnull;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.Change;
 
 final class TestChange
@@ -67,10 +68,9 @@ final class TestChange
   @Override
   public String getStringValue( @Nonnull final String key )
   {
-    return null;
+    return ValueUtil.randomString();
   }
 
-  @Nonnull
   @Override
   public boolean getBooleanValue( @Nonnull final String key )
   {

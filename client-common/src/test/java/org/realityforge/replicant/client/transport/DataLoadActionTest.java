@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.DataProvider;
@@ -69,7 +68,10 @@ public class DataLoadActionTest
     //Ensure the initial state is as expected
     assertEquals( action.getRawJsonData(), "BLAH" );
     assertEquals( action.getChangeSet(), null );
-    assertRunCount( runnable, 0 );
+    if ( null != runnable )
+    {
+      assertEquals( runnable.getRunCount(), 0 );
+    }
 
     assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
@@ -106,6 +108,7 @@ public class DataLoadActionTest
 
     assertEquals( action.areChangesPending(), true );
     final Change change = action.nextChange();
+    assertNotNull( change );
     assertEquals( change, changeSet.getChange( 0 ) );
 
     action.changeProcessed( change.isUpdate(), entity );
@@ -118,7 +121,9 @@ public class DataLoadActionTest
     {
       while ( action.areChangesPending() )
       {
-        action.changeProcessed( action.nextChange().isUpdate(), entity );
+        final Change nextChange = action.nextChange();
+        assertNotNull( nextChange );
+        action.changeProcessed( nextChange.isUpdate(), entity );
       }
     }
 
@@ -144,14 +149,6 @@ public class DataLoadActionTest
     action.markWorldAsNotified();
 
     assertEquals( action.hasWorldBeenNotified(), true );
-  }
-
-  private void assertRunCount( @Nullable final MockRunner runnable, final int expected )
-  {
-    if ( null != runnable )
-    {
-      assertEquals( runnable.getRunCount(), expected );
-    }
   }
 
   static final class MockRunner

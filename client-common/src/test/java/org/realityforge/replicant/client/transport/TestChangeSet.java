@@ -40,22 +40,22 @@ final class TestChangeSet
     _actions = actions;
   }
 
-  public String getCacheKey()
+  String getCacheKey()
   {
     return _cacheKey;
   }
 
-  public void setCacheKey( final String cacheKey )
+  void setCacheKey( final String cacheKey )
   {
     _cacheKey = cacheKey;
   }
 
-  public void setRequestID( final String requestID )
+  void setRequestID( final String requestID )
   {
     _requestID = requestID;
   }
 
-  public void setEtag( final String etag )
+  void setEtag( final String etag )
   {
     _etag = etag;
   }
@@ -67,17 +67,17 @@ final class TestChangeSet
     return _etag;
   }
 
-  public boolean isResponseToRequest()
+  boolean isResponseToRequest()
   {
     return null != _runnable;
   }
 
-  public Runnable getRunnable()
+  Runnable getRunnable()
   {
     return _runnable;
   }
 
-  public boolean isBulkChange()
+  boolean isBulkChange()
   {
     return _bulkChange;
   }
