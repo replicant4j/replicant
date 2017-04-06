@@ -92,22 +92,19 @@ public interface DataLoaderService
 
   boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull ChannelDescriptor descriptor );
 
-  default void requestSubscribe( @Nonnull final ChannelDescriptor descriptor,
-                                 @Nullable final Object filterParameter,
-                                 @Nullable final Runnable userAction )
+  default void requestSubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Object filterParameter )
   {
-    ensureSession().requestSubscribe( descriptor, filterParameter, userAction );
+    ensureSession().requestSubscribe( descriptor, filterParameter );
   }
 
   default void requestSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor,
-                                          @Nullable final Object filterParameter,
-                                          @Nullable final Runnable userAction )
+                                          @Nullable final Object filterParameter )
   {
-    ensureSession().requestSubscriptionUpdate( descriptor, filterParameter, userAction );
+    ensureSession().requestSubscriptionUpdate( descriptor, filterParameter );
   }
 
-  default void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Runnable userAction )
+  default void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor )
   {
-    ensureSession().requestUnsubscribe( descriptor, userAction );
+    ensureSession().requestUnsubscribe( descriptor );
   }
 }

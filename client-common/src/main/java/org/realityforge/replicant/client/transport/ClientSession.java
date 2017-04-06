@@ -56,31 +56,28 @@ public final class ClientSession
     return _sessionID;
   }
 
-  void requestSubscribe( @Nonnull final ChannelDescriptor descriptor,
-                         @Nullable final Object filterParameter,
-                         @Nullable final Runnable userAction )
+  void requestSubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Object filterParameter )
   {
-    enqueueAoiAction( descriptor, AreaOfInterestAction.ADD, filterParameter, userAction );
+    enqueueAoiAction( descriptor, AreaOfInterestAction.ADD, filterParameter );
   }
 
   void requestSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor,
-                                  @Nullable final Object filterParameter,
-                                  @Nullable final Runnable userAction )
+                                  @Nullable final Object filterParameter )
   {
-    enqueueAoiAction( descriptor, AreaOfInterestAction.UPDATE, filterParameter, userAction );
+    enqueueAoiAction( descriptor, AreaOfInterestAction.UPDATE, filterParameter );
   }
 
-  void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Runnable userAction )
+  void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor )
   {
-    enqueueAoiAction( descriptor, AreaOfInterestAction.REMOVE, null, userAction );
+    enqueueAoiAction( descriptor, AreaOfInterestAction.REMOVE, null );
   }
 
   private void enqueueAoiAction( @Nonnull final ChannelDescriptor descriptor,
                                  @Nonnull final AreaOfInterestAction action,
-                                 @Nullable final Object filterParameter,
-                                 @Nullable final Runnable userAction )
+                                 @Nullable final Object filterParameter )
   {
-    _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( _dataLoaderService.getKey(), descriptor, action, filterParameter, userAction ) );
+    _pendingAreaOfInterestActions.
+      add( new AreaOfInterestEntry( _dataLoaderService.getKey(), descriptor, action, filterParameter ) );
     _dataLoaderService.scheduleDataLoad();
   }
 

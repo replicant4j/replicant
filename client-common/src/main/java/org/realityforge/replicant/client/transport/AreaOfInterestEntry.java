@@ -15,21 +15,17 @@ final class AreaOfInterestEntry
   private final AreaOfInterestAction _action;
   @Nullable
   private final Object _filterParameter;
-  @Nullable
-  private final Runnable _userAction;
   private boolean _inProgress;
 
   AreaOfInterestEntry( @Nonnull final String systemKey,
                        @Nonnull final ChannelDescriptor descriptor,
                        @Nonnull final AreaOfInterestAction action,
-                       @Nullable final Object filterParameter,
-                       @Nullable final Runnable userAction )
+                       @Nullable final Object filterParameter )
   {
     _systemKey = Objects.requireNonNull( systemKey );
     _descriptor = Objects.requireNonNull( descriptor );
     _action = Objects.requireNonNull( action );
     _filterParameter = filterParameter;
-    _userAction = userAction;
   }
 
   @Nonnull
@@ -60,12 +56,6 @@ final class AreaOfInterestEntry
   Object getFilterParameter()
   {
     return _filterParameter;
-  }
-
-  @Nullable
-  Runnable getUserAction()
-  {
-    return _userAction;
   }
 
   boolean isInProgress()

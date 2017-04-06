@@ -598,7 +598,7 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
 
       //Request a subscription so that it should be pending
-      service.requestSubscribe( channel1, null, null );
+      service.requestSubscribe( channel1, null );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel1 ) );
@@ -615,7 +615,7 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2 ) );
 
       //Request a subscription so that it should be pending
-      service.requestSubscribe( channel2, null, null );
+      service.requestSubscribe( channel2, null );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2 ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b ) );
@@ -627,7 +627,7 @@ public class DataLoaderServiceTest
       final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3 ) );
       final AreaOfInterestEntry entry =
-        new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null, null );
+        new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
       set( service, AbstractDataLoaderService.class, "_currentAoiAction", entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3 ) );

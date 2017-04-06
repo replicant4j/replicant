@@ -320,7 +320,6 @@ public abstract class AbstractDataLoaderService
       final Object filterParameter = _currentAoiAction.getFilterParameter();
 
       final String label = getKey() + ":" + descriptor + ( null == filterParameter ? "" : "[" + filterParameter + "]" );
-      final Runnable userAction = _currentAoiAction.getUserAction();
       final String cacheKey = _currentAoiAction.getCacheKey();
       final AreaOfInterestAction action = _currentAoiAction.getAction();
       if ( action == AreaOfInterestAction.ADD )
@@ -330,27 +329,23 @@ public abstract class AbstractDataLoaderService
         if ( null != entry )
         {
           LOG.warning( "Subscription to " + label + " requested but already subscribed." );
-          completeAoiAction( userAction );
+          completeAoiAction();
           return true;
         }
         final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
         final String eTag = null != cacheEntry ? cacheEntry.getETag() : null;
         final String content = null != cacheEntry ? cacheEntry.getContent() : null;
-        final ChainedAction cacheAction;
+        final Runnable cacheAction;
         if ( null != content )
         {
           final String message =
             "Found locally cached data for graph " + label + " with etag " + eTag + ".";
           LOG.info( message );
-          cacheAction = new ChainedAction( userAction )
+          cacheAction = () ->
           {
-            public void run()
-            {
-              LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
-              //TODO: Figure out how to make the bulkLoad configurable
-              final Runnable runnable = () -> completeAoiAction( getNext() );
-              ensureSession().enqueueOOB( content, runnable, true );
-            }
+            LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
+            //TODO: Figure out how to make the bulkLoad configurable
+            ensureSession().enqueueOOB( content, this::completeAoiAction, true );
           };
         }
         else
@@ -360,7 +355,7 @@ public abstract class AbstractDataLoaderService
         final Runnable runnable = () ->
         {
           LOG.info( "Subscription to " + label + " completed." );
-          completeAoiAction( userAction );
+          completeAoiAction();
         };
         LOG.info( "Subscription to " + label + " requested." );
         requestSubscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
@@ -373,7 +368,7 @@ public abstract class AbstractDataLoaderService
         if ( null == entry )
         {
           LOG.warning( "Unsubscribe from " + label + " requested but not subscribed." );
-          completeAoiAction( userAction );
+          completeAoiAction();
           return true;
         }
 
@@ -381,7 +376,7 @@ public abstract class AbstractDataLoaderService
         final Runnable runnable = () ->
         {
           LOG.info( "Unsubscribe from " + label + " completed." );
-          completeAoiAction( userAction );
+          completeAoiAction();
         };
         requestUnsubscribeFromGraph( graph, id, runnable );
         return true;
@@ -393,14 +388,14 @@ public abstract class AbstractDataLoaderService
         if ( null == entry )
         {
           LOG.warning( "Subscription update of " + label + " requested but not subscribed." );
-          completeAoiAction( userAction );
+          completeAoiAction();
           return true;
         }
 
         final Runnable runnable = () ->
         {
           LOG.warning( "Subscription update of " + label + " completed." );
-          completeAoiAction( userAction );
+          completeAoiAction();
         };
         LOG.warning( "Subscription update of " + label + " requested." );
         assert null != filterParameter;
@@ -424,13 +419,9 @@ public abstract class AbstractDataLoaderService
     return entry;
   }
 
-  private void completeAoiAction( @Nullable final Runnable userAction )
+  private void completeAoiAction()
   {
     scheduleDataLoad();
-    if ( null != userAction )
-    {
-      userAction.run();
-    }
     _currentAoiAction.markAsComplete();
     _currentAoiAction = null;
   }
@@ -439,7 +430,7 @@ public abstract class AbstractDataLoaderService
                                                    @Nullable Object id,
                                                    @Nullable Object filterParameter,
                                                    @Nullable String eTag,
-                                                   @Nullable ChainedAction cacheAction,
+                                                   @Nullable Runnable cacheAction,
                                                    @Nonnull Runnable completionAction );
 
   protected abstract void requestUnsubscribeFromGraph( @Nonnull Enum graph,

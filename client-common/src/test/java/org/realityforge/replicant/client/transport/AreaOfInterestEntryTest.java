@@ -15,7 +15,7 @@ public class AreaOfInterestEntryTest
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 
     final AreaOfInterestEntry entry =
-      new AreaOfInterestEntry( systemKey, descriptor, action, filterParameter, null );
+      new AreaOfInterestEntry( systemKey, descriptor, action, filterParameter );
 
     assertEquals( entry.getSystemKey(), systemKey );
     assertEquals( entry.getDescriptor(), descriptor );
