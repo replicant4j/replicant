@@ -64,9 +64,9 @@ public class DataLoaderServiceTest
     final ChannelSubscriptionEntry entryB =
       new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, "2" ), null );
     final ChannelSubscriptionEntry entryC =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.C, null ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.C ), null );
     final ChannelSubscriptionEntry entryD =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D, null ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D ), null );
 
     insertSubscription( entryA, String.class, "A1" );
     insertSubscription( entryB, String.class, "B1" );
@@ -562,7 +562,7 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     when( service.getSubscriptionManager().unsubscribe( TestGraph.A ) ).
-      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, null ), null ) );
+      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A ), null ) );
     when( service.getSubscriptionManager().unsubscribe( TestGraph.B, 33 ) ).
       thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null ) );
     configureRequests( service, service.getChangeSets() );
@@ -594,7 +594,7 @@ public class DataLoaderServiceTest
 
     // type graph
     {
-      final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A, null );
+      final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
 
       //Request a subscription so that it should be pending
@@ -608,7 +608,7 @@ public class DataLoaderServiceTest
     // instance graph
     {
       final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 2 );
-      final ChannelDescriptor channel2b = new ChannelDescriptor( TestGraph.B, null );
+      final ChannelDescriptor channel2b = new ChannelDescriptor( TestGraph.B );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2 ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2 ) );

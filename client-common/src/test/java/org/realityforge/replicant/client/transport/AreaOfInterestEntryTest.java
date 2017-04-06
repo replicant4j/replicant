@@ -10,7 +10,7 @@ public class AreaOfInterestEntryTest
   public void basicOperation()
   {
     final String systemKey = "Foo";
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
     final Object filterParameter = null;
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 

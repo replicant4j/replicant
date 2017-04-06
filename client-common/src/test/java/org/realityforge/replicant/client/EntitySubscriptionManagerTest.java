@@ -22,7 +22,7 @@ public class EntitySubscriptionManagerTest
     final ChannelSubscriptionEntry s = sm.findSubscription( G.G1 );
     assertNotNull( s );
     assertNotNull( sm.getSubscription( G.G1 ) );
-    assertEquals( s.getDescriptor(), new ChannelDescriptor( G.G1, null ) );
+    assertEquals( s.getDescriptor(), new ChannelDescriptor( G.G1 ) );
     assertEquals( s.getEntities().size(), 0 );
 
     sm.unsubscribe( G.G1 );
@@ -68,11 +68,11 @@ public class EntitySubscriptionManagerTest
 
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
     assertEntitySubscribed( sm, G.G1, null, type, id );
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
 
     final ChannelSubscriptionEntry e2 = sm.unsubscribe( G.G1 );
 
@@ -93,13 +93,13 @@ public class EntitySubscriptionManagerTest
 
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
 
     assertEntitySubscribed( sm, G.G1, null, type, id );
 
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
 
     assertEntitySubscribed( sm, G.G1, null, type, id );
 
@@ -225,7 +225,7 @@ public class EntitySubscriptionManagerTest
 
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
     assertEntitySubscribed( sm, G.G1, null, type, id );
     assertEntityNotSubscribed( sm, G.G2, 1, type, id );
     sm.updateEntity( type,
@@ -269,25 +269,25 @@ public class EntitySubscriptionManagerTest
 
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
     assertEntitySubscribed( sm, G.G1, null, type, id );
     assertEntityNotSubscribed( sm, G.G2, null, type, id );
 
     sm.updateEntity( type,
                      id,
-                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1, null ),
-                                              new ChannelDescriptor( G.G2, null ) } );
+                     new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ),
+                                              new ChannelDescriptor( G.G2 ) } );
 
     assertEntitySubscribed( sm, G.G1, null, type, id );
     assertEntitySubscribed( sm, G.G2, null, type, id );
 
-    sm.removeEntityFromGraph( type, id, new ChannelDescriptor( G.G1, null ) );
+    sm.removeEntityFromGraph( type, id, new ChannelDescriptor( G.G1 ) );
 
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
     assertEntitySubscribed( sm, G.G2, null, type, id );
 
     final EntitySubscriptionEntry e =
-      sm.removeEntityFromGraph( type, id, new ChannelDescriptor( G.G2, null ) );
+      sm.removeEntityFromGraph( type, id, new ChannelDescriptor( G.G2 ) );
 
     assertEntityNotSubscribed( sm, G.G1, null, type, id );
     assertEntityNotSubscribed( sm, G.G2, null, type, id );

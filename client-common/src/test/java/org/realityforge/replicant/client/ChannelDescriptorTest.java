@@ -10,7 +10,7 @@ public class ChannelDescriptorTest
   @Test
   public void basicOperation()
   {
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A );
     final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B, 1 );
 
     assertEquals( descriptor1.getSystem(), TestGraph.class );

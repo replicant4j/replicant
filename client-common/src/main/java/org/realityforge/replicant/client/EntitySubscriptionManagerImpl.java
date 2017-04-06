@@ -64,7 +64,7 @@ public class EntitySubscriptionManagerImpl
     if ( null == typeMap )
     {
       final ChannelSubscriptionEntry entry =
-        new ChannelSubscriptionEntry( new ChannelDescriptor( graph, null ), filter );
+        new ChannelSubscriptionEntry( new ChannelDescriptor( graph ), filter );
       _typeSubscriptions.put( graph, entry );
       return entry;
     }

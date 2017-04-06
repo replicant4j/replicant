@@ -11,6 +11,11 @@ public class ChannelDescriptor
   @Nullable
   private final Object _id;
 
+  public ChannelDescriptor( @Nonnull final Enum graph )
+  {
+    this( graph, null );
+  }
+
   public ChannelDescriptor( @Nonnull final Enum graph, @Nullable final Object id )
   {
     _graph = Objects.requireNonNull( graph );
