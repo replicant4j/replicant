@@ -335,37 +335,28 @@ public abstract class AbstractDataLoaderService
           completeAoiAction( userAction );
           return true;
         }
+        final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
+        final String eTag = null != cacheEntry ? cacheEntry.getETag() : null;
+        final String content = null != cacheEntry ? cacheEntry.getContent() : null;
         final ChainedAction cacheAction;
-        final String eTag;
-        if ( null != cacheKey )
+        if ( null != content )
         {
-          final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
-          eTag = null != cacheEntry ? cacheEntry.getETag() : null;
-          final String content = null != cacheEntry ? cacheEntry.getContent() : null;
-          if ( null != content )
+          final String message =
+            "Found locally cached data for graph " + label + " with etag " + eTag + ".";
+          LOG.info( message );
+          cacheAction = new ChainedAction( userAction )
           {
-            final String message =
-              "Found locally cached data for graph " + label + " with etag " + eTag + ".";
-            LOG.info( message );
-            cacheAction = new ChainedAction( userAction )
+            public void run()
             {
-              public void run()
-              {
-                LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
-                //TODO: Figure out how to make the bulkLoad configurable
-                final Runnable runnable = () -> completeAoiAction( getNext() );
-                ensureSession().enqueueOOB( content, runnable, true );
-              }
-            };
-          }
-          else
-          {
-            cacheAction = null;
-          }
+              LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
+              //TODO: Figure out how to make the bulkLoad configurable
+              final Runnable runnable = () -> completeAoiAction( getNext() );
+              ensureSession().enqueueOOB( content, runnable, true );
+            }
+          };
         }
         else
         {
-          eTag = null;
           cacheAction = null;
         }
         final Runnable runnable = () ->
