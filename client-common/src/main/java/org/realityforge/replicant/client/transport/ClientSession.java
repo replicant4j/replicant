@@ -102,30 +102,15 @@ public final class ClientSession
     _dataLoaderService.scheduleDataLoad();
   }
 
-  @SuppressWarnings( "ConstantConditions" )
   protected final void enqueueOOB( @Nonnull final String rawJsonData,
                                    @Nullable final Runnable runnable,
                                    final boolean bulkLoad )
   {
-    if ( null == rawJsonData )
-    {
-      throw new IllegalStateException( "null == rawJsonData" );
-    }
-    final DataLoadAction action = new DataLoadAction( rawJsonData, true );
+    final DataLoadAction action = new DataLoadAction( Objects.requireNonNull( rawJsonData ), true );
     action.setRunnable( runnable );
     action.setBulkLoad( bulkLoad );
     getOobActions().add( action );
     _dataLoaderService.scheduleDataLoad();
-  }
-
-  protected final boolean isSubscribed( @Nonnull final Enum graph )
-  {
-    return _dataLoaderService.isSubscribed( graph );
-  }
-
-  protected final boolean isSubscribed( @Nonnull final Enum graph, @Nonnull final Object id )
-  {
-    return _dataLoaderService.isSubscribed( graph, id );
   }
 
   final LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()
