@@ -8,6 +8,8 @@ import org.realityforge.replicant.client.ChannelDescriptor;
 final class AreaOfInterestEntry
 {
   @Nonnull
+  private final String _systemKey;
+  @Nonnull
   private final ChannelDescriptor _descriptor;
   @Nonnull
   private final AreaOfInterestAction _action;
@@ -17,15 +19,23 @@ final class AreaOfInterestEntry
   private final Runnable _userAction;
   private boolean _inProgress;
 
-  AreaOfInterestEntry( @Nonnull final ChannelDescriptor descriptor,
+  AreaOfInterestEntry( @Nonnull final String systemKey,
+                       @Nonnull final ChannelDescriptor descriptor,
                        @Nonnull final AreaOfInterestAction action,
                        @Nullable final Object filterParameter,
                        @Nullable final Runnable userAction )
   {
+    _systemKey = Objects.requireNonNull( systemKey );
     _descriptor = Objects.requireNonNull( descriptor );
     _action = Objects.requireNonNull( action );
     _filterParameter = filterParameter;
     _userAction = userAction;
+  }
+
+  @Nonnull
+  String getSystemKey()
+  {
+    return _systemKey;
   }
 
   @Nonnull
@@ -43,7 +53,7 @@ final class AreaOfInterestEntry
   @Nonnull
   String getCacheKey()
   {
-    return getDescriptor().toString();
+    return _systemKey + ":" + getDescriptor().toString();
   }
 
   @Nullable
@@ -73,10 +83,16 @@ final class AreaOfInterestEntry
     _inProgress = false;
   }
 
+  boolean match( @Nonnull final ChannelDescriptor descriptor, @Nonnull final AreaOfInterestAction action )
+  {
+    return getAction().equals( action ) && getDescriptor().equals( descriptor );
+  }
+
   @Override
   public String toString()
   {
     final ChannelDescriptor descriptor = getDescriptor();
-    return "AOI[Channel=" + descriptor + ",filter=" + _filterParameter + "]" + ( _inProgress ? "(InProgress)" : "" );
+    return "AOI[SystemKey=" + _systemKey + ",Channel=" + descriptor + ",filter=" + _filterParameter + "]" +
+           ( _inProgress ? "(InProgress)" : "" );
   }
 }

@@ -80,7 +80,7 @@ public final class ClientSession
                                  @Nullable final Object filterParameter,
                                  @Nullable final Runnable userAction )
   {
-    _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( descriptor, action, filterParameter, userAction ) );
+    _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( _dataLoaderService.getKey(), descriptor, action, filterParameter, userAction ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
