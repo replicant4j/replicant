@@ -622,6 +622,16 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2 ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2 ) );
     }
+
+    {
+      final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.C, 2 );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3 ) );
+      final AreaOfInterestEntry entry =
+        new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null, null );
+      set( service, AbstractDataLoaderService.class, "_currentAoiAction", entry );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3 ) );
+    }
   }
 
   private void verifyPostActionRun( final Runnable runnable )

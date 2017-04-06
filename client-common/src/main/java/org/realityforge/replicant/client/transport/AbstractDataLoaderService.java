@@ -470,9 +470,13 @@ public abstract class AbstractDataLoaderService
                                                 @Nonnull final ChannelDescriptor descriptor )
   {
     final ClientSession session = getSession();
-    return null != session &&
-           session.getPendingAreaOfInterestActions().stream().
-             anyMatch( a -> a.getAction().equals( action ) && a.getDescriptor().equals( descriptor ) );
+    return
+      null != _currentAoiAction && _currentAoiAction.match( descriptor, action ) ||
+      (
+        null != session &&
+        session.getPendingAreaOfInterestActions().stream().
+          anyMatch( a -> a.match( descriptor, action ) )
+      );
   }
 
   // Method only used in tests
