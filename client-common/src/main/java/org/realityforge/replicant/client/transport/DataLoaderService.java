@@ -94,11 +94,10 @@ public interface DataLoaderService
 
   default void requestSubscribe( @Nonnull final Enum graph,
                                  @Nullable final Object id,
-                                 @Nullable final String cacheKey,
                                  @Nullable final Object filterParameter,
                                  @Nullable final Runnable userAction )
   {
-    ensureSession().requestSubscribe( graph, id, cacheKey, filterParameter, userAction );
+    ensureSession().requestSubscribe( graph, id, filterParameter, userAction );
   }
 
   default void requestSubscriptionUpdate( @Nonnull final Enum graph,

@@ -11,8 +11,6 @@ final class AreaOfInterestEntry
   @Nonnull
   private final AreaOfInterestAction _action;
   @Nullable
-  private final String _cacheKey;
-  @Nullable
   private final Object _id;
   @Nullable
   private final Object _filterParameter;
@@ -22,14 +20,12 @@ final class AreaOfInterestEntry
 
   AreaOfInterestEntry( @Nonnull final Enum graph,
                        @Nonnull final AreaOfInterestAction action,
-                       @Nullable final String cacheKey,
                        @Nullable final Object id,
                        @Nullable final Object filterParameter,
                        @Nullable final Runnable userAction )
   {
     _graph = Objects.requireNonNull( graph );
     _action = Objects.requireNonNull( action );
-    _cacheKey = cacheKey;
     _id = id;
     _filterParameter = filterParameter;
     _userAction = userAction;
@@ -47,10 +43,10 @@ final class AreaOfInterestEntry
     return _action;
   }
 
-  @Nullable
+  @Nonnull
   String getCacheKey()
   {
-    return _cacheKey;
+    return null == _id ? getGraph().name() : getGraph().name() + "/" + _id;
   }
 
   @Nullable
@@ -92,7 +88,6 @@ final class AreaOfInterestEntry
     return "AOI[" +
            "Graph=" + _graph +
            ",id=" + _id +
-           ",CacheKey=" + _cacheKey +
            ",filter=" + _filterParameter +
            "]" + ( _inProgress ? "(InProgress)" : "" );
   }

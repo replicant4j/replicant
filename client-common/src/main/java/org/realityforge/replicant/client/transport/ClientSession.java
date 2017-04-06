@@ -57,11 +57,10 @@ public final class ClientSession
 
   void requestSubscribe( @Nonnull final Enum graph,
                          @Nullable final Object id,
-                         @Nullable final String cacheKey,
                          @Nullable final Object filterParameter,
                          @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, AreaOfInterestAction.ADD, cacheKey, id, filterParameter, userAction );
+    enqueueAoiAction( graph, AreaOfInterestAction.ADD, id, filterParameter, userAction );
   }
 
   void requestSubscriptionUpdate( @Nonnull final Enum graph,
@@ -69,23 +68,22 @@ public final class ClientSession
                                   @Nullable final Object filterParameter,
                                   @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, null, id, filterParameter, userAction );
+    enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, id, filterParameter, userAction );
   }
 
   void requestUnsubscribe( @Nonnull final Enum graph, @Nullable final Object id, @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, null, id, null, userAction );
+    enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, id, null, userAction );
   }
 
   private void enqueueAoiAction( @Nonnull final Enum graph,
                                  @Nonnull final AreaOfInterestAction action,
-                                 @Nullable final String cacheKey,
                                  @Nullable final Object id,
                                  @Nullable final Object filterParameter,
                                  @Nullable final Runnable userAction )
   {
     _pendingAreaOfInterestActions.
-      add( new AreaOfInterestEntry( graph, action, cacheKey, id, filterParameter, userAction ) );
+      add( new AreaOfInterestEntry( graph, action, id, filterParameter, userAction ) );
     _dataLoaderService.scheduleDataLoad();
   }
 

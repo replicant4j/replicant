@@ -598,7 +598,7 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
 
       //Request a subscription so that it should be pending
-      service.ensureSession().requestSubscribe( (TestGraph) channel1.getGraph(), null, null, null, null );
+      service.ensureSession().requestSubscribe( (TestGraph) channel1.getGraph(), null, null, null );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel1 ) );
@@ -615,7 +615,7 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2 ) );
 
       //Request a subscription so that it should be pending
-      service.ensureSession().requestSubscribe( (TestGraph) channel2.getGraph(), channel2.getID(), null, null, null );
+      service.ensureSession().requestSubscribe( (TestGraph) channel2.getGraph(), channel2.getID(), null, null );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2 ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b ) );
