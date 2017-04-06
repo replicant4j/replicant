@@ -91,14 +91,9 @@ public final class ClientSession
     _dataLoaderService.scheduleDataLoad();
   }
 
-  @SuppressWarnings( "ConstantConditions" )
   public final void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
-    if ( null == rawJsonData )
-    {
-      throw new IllegalStateException( "null == rawJsonData" );
-    }
-    getPendingActions().add( new DataLoadAction( rawJsonData, false ) );
+    getPendingActions().add( new DataLoadAction( Objects.requireNonNull( rawJsonData ), false ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
