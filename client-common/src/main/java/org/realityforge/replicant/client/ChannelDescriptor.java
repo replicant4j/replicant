@@ -54,7 +54,7 @@ public class ChannelDescriptor
     }
 
     final ChannelDescriptor that = (ChannelDescriptor) o;
-    return _graph.equals( that._graph ) && !( _id != null ? !_id.equals( that._id ) : that._id != null );
+    return Objects.equals( _graph, that._graph ) && Objects.equals( _id, that._id );
   }
 
   @Override
