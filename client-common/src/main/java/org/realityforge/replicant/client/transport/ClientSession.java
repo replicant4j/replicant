@@ -55,26 +55,24 @@ public final class ClientSession
     return _sessionID;
   }
 
-  public void requestSubscribe( @Nonnull final Enum graph,
-                                @Nullable final Object id,
-                                @Nullable final String cacheKey,
-                                @Nullable final Object filterParameter,
-                                @Nullable final Runnable userAction )
+  void requestSubscribe( @Nonnull final Enum graph,
+                         @Nullable final Object id,
+                         @Nullable final String cacheKey,
+                         @Nullable final Object filterParameter,
+                         @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.ADD, cacheKey, id, filterParameter, userAction );
   }
 
-  public void requestSubscriptionUpdate( @Nonnull final Enum graph,
-                                         @Nullable final Object id,
-                                         @Nullable final Object filterParameter,
-                                         @Nullable final Runnable userAction )
+  void requestSubscriptionUpdate( @Nonnull final Enum graph,
+                                  @Nullable final Object id,
+                                  @Nullable final Object filterParameter,
+                                  @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, null, id, filterParameter, userAction );
   }
 
-  public void requestUnsubscribe( @Nonnull final Enum graph,
-                                  @Nullable final Object id,
-                                  @Nullable final Runnable userAction )
+  void requestUnsubscribe( @Nonnull final Enum graph, @Nullable final Object id, @Nullable final Runnable userAction )
   {
     enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, null, id, null, userAction );
   }
@@ -91,15 +89,13 @@ public final class ClientSession
     _dataLoaderService.scheduleDataLoad();
   }
 
-  public final void enqueueDataLoad( @Nonnull final String rawJsonData )
+  final void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
     getPendingActions().add( new DataLoadAction( Objects.requireNonNull( rawJsonData ), false ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
-  protected final void enqueueOOB( @Nonnull final String rawJsonData,
-                                   @Nullable final Runnable runnable,
-                                   final boolean bulkLoad )
+  final void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable, final boolean bulkLoad )
   {
     final DataLoadAction action = new DataLoadAction( Objects.requireNonNull( rawJsonData ), true );
     action.setRunnable( runnable );

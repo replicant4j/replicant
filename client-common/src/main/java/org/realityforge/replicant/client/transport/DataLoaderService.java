@@ -91,4 +91,28 @@ public interface DataLoaderService
   }
 
   boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull ChannelDescriptor descriptor );
+
+  default void requestSubscribe( @Nonnull final Enum graph,
+                                 @Nullable final Object id,
+                                 @Nullable final String cacheKey,
+                                 @Nullable final Object filterParameter,
+                                 @Nullable final Runnable userAction )
+  {
+    ensureSession().requestSubscribe( graph, id, cacheKey, filterParameter, userAction );
+  }
+
+  default void requestSubscriptionUpdate( @Nonnull final Enum graph,
+                                          @Nullable final Object id,
+                                          @Nullable final Object filterParameter,
+                                          @Nullable final Runnable userAction )
+  {
+    ensureSession().requestSubscriptionUpdate( graph, id, filterParameter, userAction );
+  }
+
+  default void requestUnsubscribe( @Nonnull final Enum graph,
+                                   @Nullable final Object id,
+                                   @Nullable final Runnable userAction )
+  {
+    ensureSession().requestUnsubscribe( graph, id, userAction );
+  }
 }
