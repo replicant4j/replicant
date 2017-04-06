@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -315,8 +314,9 @@ public abstract class AbstractDataLoaderService
     else
     {
       _currentAoiAction.markAsInProgress();
-      final Enum graph = _currentAoiAction.getGraph();
-      final Object id = _currentAoiAction.getId();
+      final ChannelDescriptor descriptor = _currentAoiAction.getDescriptor();
+      final Enum graph = descriptor.getGraph();
+      final Object id = descriptor.getID();
       final Object filterParameter = _currentAoiAction.getFilterParameter();
       final String label =
         graph.name() +
@@ -481,10 +481,7 @@ public abstract class AbstractDataLoaderService
     final ClientSession session = getSession();
     return null != session &&
            session.getPendingAreaOfInterestActions().stream().
-             anyMatch( a ->
-                         a.getAction().equals( action ) &&
-                         a.getGraph().equals( descriptor.getGraph() ) &&
-                         Objects.equals( a.getId(), descriptor.getID() ) );
+             anyMatch( a -> a.getAction().equals( action ) && a.getDescriptor().equals( descriptor ) );
   }
 
   // Method only used in tests

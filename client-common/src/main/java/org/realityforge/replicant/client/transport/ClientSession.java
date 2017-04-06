@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.ChannelDescriptor;
 
 /**
  * Client-side representation of session.
@@ -55,35 +56,31 @@ public final class ClientSession
     return _sessionID;
   }
 
-  void requestSubscribe( @Nonnull final Enum graph,
-                         @Nullable final Object id,
+  void requestSubscribe( @Nonnull final ChannelDescriptor descriptor,
                          @Nullable final Object filterParameter,
                          @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, AreaOfInterestAction.ADD, id, filterParameter, userAction );
+    enqueueAoiAction( descriptor, AreaOfInterestAction.ADD, filterParameter, userAction );
   }
 
-  void requestSubscriptionUpdate( @Nonnull final Enum graph,
-                                  @Nullable final Object id,
+  void requestSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor,
                                   @Nullable final Object filterParameter,
                                   @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, AreaOfInterestAction.UPDATE, id, filterParameter, userAction );
+    enqueueAoiAction( descriptor, AreaOfInterestAction.UPDATE, filterParameter, userAction );
   }
 
-  void requestUnsubscribe( @Nonnull final Enum graph, @Nullable final Object id, @Nullable final Runnable userAction )
+  void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Runnable userAction )
   {
-    enqueueAoiAction( graph, AreaOfInterestAction.REMOVE, id, null, userAction );
+    enqueueAoiAction( descriptor, AreaOfInterestAction.REMOVE, null, userAction );
   }
 
-  private void enqueueAoiAction( @Nonnull final Enum graph,
+  private void enqueueAoiAction( @Nonnull final ChannelDescriptor descriptor,
                                  @Nonnull final AreaOfInterestAction action,
-                                 @Nullable final Object id,
                                  @Nullable final Object filterParameter,
                                  @Nullable final Runnable userAction )
   {
-    _pendingAreaOfInterestActions.
-      add( new AreaOfInterestEntry( graph, action, id, filterParameter, userAction ) );
+    _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( descriptor, action, filterParameter, userAction ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
