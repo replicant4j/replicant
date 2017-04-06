@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -12,7 +13,7 @@ public class ChannelDescriptor
 
   public ChannelDescriptor( @Nonnull final Enum graph, @Nullable final Object id )
   {
-    _graph = graph;
+    _graph = Objects.requireNonNull( graph );
     _id = id;
   }
 
