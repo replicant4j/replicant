@@ -30,7 +30,7 @@ public final class TestDataLoadService
   private final ChangeMapper _changeMapper;
   private final EntitySystem _entitySystem;
 
-  public TestDataLoadService()
+  TestDataLoadService()
   {
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
