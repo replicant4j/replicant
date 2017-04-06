@@ -318,10 +318,8 @@ public abstract class AbstractDataLoaderService
       final Enum graph = descriptor.getGraph();
       final Object id = descriptor.getID();
       final Object filterParameter = _currentAoiAction.getFilterParameter();
-      final String label =
-        graph.name() +
-        ( null == id ? "" : "(" + id + ")" ) +
-        ( null == filterParameter ? "" : "[" + filterParameter + "]" );
+
+      final String label = getKey() + ":" + descriptor + ( null == filterParameter ? "" : "[" + filterParameter + "]" );
       final Runnable userAction = _currentAoiAction.getUserAction();
       final String cacheKey = _currentAoiAction.getCacheKey();
       final AreaOfInterestAction action = _currentAoiAction.getAction();
