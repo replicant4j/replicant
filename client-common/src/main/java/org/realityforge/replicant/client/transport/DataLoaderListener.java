@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.ChannelDescriptor;
 
 public interface DataLoaderListener
 {
@@ -40,30 +41,27 @@ public interface DataLoaderListener
    */
   void onPollFailure( @Nonnull DataLoaderService service, @Nonnull Throwable throwable );
 
-  void onSubscribeStarted( @Nonnull DataLoaderService service, @Nonnull Enum graph, @Nullable Object id );
+  void onSubscribeStarted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
 
-  void onSubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull Enum graph, @Nullable Object id );
+  void onSubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
 
   void onSubscribeFailed( @Nonnull DataLoaderService service,
-                          @Nonnull Enum graph,
-                          @Nullable Object id,
+                          @Nonnull ChannelDescriptor descriptor,
                           @Nonnull Throwable throwable );
 
-  void onUnsubscribeStarted( @Nonnull DataLoaderService service, @Nonnull Enum graph, @Nullable Object id );
+  void onUnsubscribeStarted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
 
-  void onUnsubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull Enum graph, @Nullable Object id );
+  void onUnsubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
 
   void onUnsubscribeFailed( @Nonnull DataLoaderService service,
-                            @Nonnull Enum graph,
-                            @Nullable Object id,
+                            @Nonnull ChannelDescriptor descriptor,
                             @Nonnull Throwable throwable );
 
-  void onSubscriptionUpdateStarted( @Nonnull DataLoaderService service, @Nonnull Enum graph, @Nullable Object id );
+  void onSubscriptionUpdateStarted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
 
-  void onSubscriptionUpdateCompleted( @Nonnull DataLoaderService service, @Nonnull Enum graph, @Nullable Object id );
+  void onSubscriptionUpdateCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
 
   void onSubscriptionUpdateFailed( @Nonnull DataLoaderService service,
-                                   @Nonnull Enum graph,
-                                   @Nullable Object id,
+                                   @Nonnull ChannelDescriptor descriptor,
                                    @Nonnull Throwable throwable );
 }

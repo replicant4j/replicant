@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.realityforge.replicant.client.ChannelDescriptor;
 
 public abstract class DataLoaderListenerAdapter
   implements DataLoaderListener
@@ -67,8 +67,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
-                                  @Nonnull final Enum graph,
-                                  @Nullable final Object id )
+                                  @Nonnull final ChannelDescriptor descriptor )
   {
   }
 
@@ -77,8 +76,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final Enum graph,
-                                    @Nullable final Object id )
+                                    @Nonnull final ChannelDescriptor descriptor )
   {
   }
 
@@ -87,8 +85,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                 @Nonnull final Enum graph,
-                                 @Nullable final Object id,
+                                 @Nonnull final ChannelDescriptor descriptor,
                                  @Nonnull final Throwable throwable )
   {
   }
@@ -98,8 +95,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final Enum graph,
-                                    @Nullable final Object id )
+                                    @Nonnull final ChannelDescriptor descriptor )
   {
   }
 
@@ -108,8 +104,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final Enum graph,
-                                      @Nullable final Object id )
+                                      @Nonnull final ChannelDescriptor descriptor )
   {
   }
 
@@ -118,8 +113,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final Enum graph,
-                                   @Nullable final Object id,
+                                   @Nonnull final ChannelDescriptor descriptor,
                                    @Nonnull final Throwable throwable )
   {
   }
@@ -129,8 +123,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
-                                           @Nonnull final Enum graph,
-                                           @Nullable final Object id )
+                                           @Nonnull final ChannelDescriptor descriptor )
   {
   }
 
@@ -139,8 +132,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                             @Nonnull final Enum graph,
-                                             @Nullable final Object id )
+                                             @Nonnull final ChannelDescriptor descriptor )
   {
   }
 
@@ -149,8 +141,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                          @Nonnull final Enum graph,
-                                          @Nullable final Object id,
+                                          @Nonnull final ChannelDescriptor descriptor,
                                           @Nonnull final Throwable throwable )
   {
   }
