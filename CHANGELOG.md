@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Move to using `ChannelDescriptor` to represent channels/graphs through a larger portion of the API.
 * Move from mandatory subclassing of `ClientSession` to disallowing subclassing of the same.
 * Remove generics from the `ClientSession` and the `DataLoaderService` classes.
 * Make the `ClientSession` methods `requestSubscribe`, `requestSubscriptionUpdate` and `requestUnsubscribe`
