@@ -321,8 +321,6 @@ public abstract class AbstractDataLoaderService
     {
       _currentAoiAction.markAsInProgress();
       final ChannelDescriptor descriptor = _currentAoiAction.getDescriptor();
-      final Enum graph = descriptor.getGraph();
-      final Object id = descriptor.getID();
       final Object filterParameter = _currentAoiAction.getFilterParameter();
 
       final String label = getKey() + ":" + descriptor + ( null == filterParameter ? "" : "[" + filterParameter + "]" );
