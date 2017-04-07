@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 
@@ -20,10 +21,9 @@ public class EntitySubscriptionDebugger
   {
     for ( final Enum key : subscriptionManager.getInstanceSubscriptionKeys() )
     {
-      final Set<Object> instanceSubscriptions = subscriptionManager.getInstanceSubscriptions( key );
-      for ( final Object id : instanceSubscriptions )
+      for ( final Object id : subscriptionManager.getInstanceSubscriptions( key ) )
       {
-        outputSubscription( subscriptionManager.getSubscription( key, id ) );
+        outputSubscription( subscriptionManager.getSubscription( new ChannelDescriptor( key, id ) ) );
       }
     }
   }
@@ -32,7 +32,7 @@ public class EntitySubscriptionDebugger
   {
     for ( final Enum type : subscriptionManager.getTypeSubscriptions() )
     {
-      outputSubscription( subscriptionManager.getSubscription( type ) );
+      outputSubscription( subscriptionManager.getSubscription( new ChannelDescriptor( type ) ) );
     }
   }
 

@@ -31,114 +31,56 @@ public interface EntitySubscriptionManager
   /**
    * Record a subscription to a graph containing types.
    *
-   * @param graph  the graph to subscribe to.
+   * @param descriptor the descriptor to subscribe to.
    * @param filter the filter if subscription is update-able.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry subscribe( @Nonnull Enum graph, @Nullable Object filter )
+  ChannelSubscriptionEntry subscribe( @Nonnull ChannelDescriptor descriptor, @Nullable Object filter )
     throws IllegalStateException;
-
-  /**
-   * Subscribe to graph rooted at an instance.
-   *
-   * @param graph  the graph to subscribe to.
-   * @param id     the id of the root object.
-   * @param filter the filter if subscription is update-able.
-   * @return the subscription entry.
-   * @throws IllegalStateException if graph already subscribed to.
-   */
-  @Nonnull
-  ChannelSubscriptionEntry subscribe( @Nonnull Enum graph, @Nonnull Object id, @Nullable Object filter );
 
   /**
    * Update subscription to a graph containing types.
    *
-   * @param graph  the graph to subscribe to.
+   * @param descriptor  the graph to subscribe to.
    * @param filter the filter being updated.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nullable Object filter )
+  ChannelSubscriptionEntry updateSubscription( @Nonnull ChannelDescriptor descriptor, @Nullable Object filter )
     throws IllegalStateException;
-
-  /**
-   * Update subscription to graph rooted at an instance.
-   *
-   * @param graph  the graph to subscribe to.
-   * @param id     the id of the root object.
-   * @param filter the filter being updated.
-   * @return the subscription entry.
-   * @throws IllegalStateException if graph already subscribed to.
-   */
-  @Nonnull
-  ChannelSubscriptionEntry updateSubscription( @Nonnull Enum graph, @Nonnull Object id, @Nullable Object filter );
-
-  /**
-   * Return the subscription for type graph.
-   *
-   * @param graph the graph.
-   * @return the subscription entry.
-   * @throws IllegalArgumentException if no such subscription
-   */
-  @Nonnull
-  ChannelSubscriptionEntry getSubscription( @Nonnull Enum graph )
-    throws IllegalArgumentException;
 
   /**
    * Return the subscription for  rooted at an instance.
    *
-   * @param graph the graph.
-   * @param id    the id of the root object.
+   * @param descriptor the channel descriptor.
    * @return the subscription entry.
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  ChannelSubscriptionEntry getSubscription( @Nonnull Enum graph, @Nonnull Object id )
+  ChannelSubscriptionEntry getSubscription( @Nonnull ChannelDescriptor descriptor )
     throws IllegalArgumentException;
 
   /**
-   * Find subscription for type graph if it exists.
+   * Find subscription for channel if it exists.
    *
-   * @param graph the graph.
+   * @param descriptor the descriptor.
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  ChannelSubscriptionEntry findSubscription( @Nonnull Enum graph );
-
-  /**
-   * Find a graph rooted at an instance.
-   *
-   * @param graph the graph to look for.
-   * @param id    the id of the root object.
-   * @return the subscription entry if it exists, null otherwise.
-   */
-  @Nullable
-  ChannelSubscriptionEntry findSubscription( @Nonnull Enum graph, @Nonnull Object id );
+  ChannelSubscriptionEntry findSubscription( @Nonnull ChannelDescriptor descriptor );
 
   /**
    * Unsubscribe from graph containing types.
    *
-   * @param graph the graph to unsubscribe from.
+   * @param descriptor the graph to unsubscribe from.
    * @return the subscription entry.
    * @throws IllegalStateException if graph not subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry unsubscribe( @Nonnull Enum graph )
-    throws IllegalStateException;
-
-  /**
-   * Unsubscribe from graph rooted at an instance.
-   *
-   * @param graph the graph to unsubscribe from.
-   * @param id    the id of the root object.
-   * @return the subscription entry.
-   * @throws IllegalStateException if graph not subscribed to.
-   */
-  @Nonnull
-  ChannelSubscriptionEntry unsubscribe( @Nonnull Enum graph, @Nonnull Object id )
+  ChannelSubscriptionEntry unsubscribe( @Nonnull ChannelDescriptor descriptor )
     throws IllegalStateException;
 
   /**

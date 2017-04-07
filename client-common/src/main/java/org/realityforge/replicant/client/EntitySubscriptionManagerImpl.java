@@ -56,21 +56,29 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final ChannelSubscriptionEntry subscribe( @Nonnull final Enum graph,
+  public final ChannelSubscriptionEntry subscribe( @Nonnull final ChannelDescriptor descriptor,
                                                    @Nullable final Object filter )
     throws IllegalStateException
   {
-    ChannelSubscriptionEntry typeMap = findSubscription( graph );
+    ChannelSubscriptionEntry typeMap = findSubscription( descriptor );
     if ( null == typeMap )
     {
-      final ChannelSubscriptionEntry entry =
-        new ChannelSubscriptionEntry( new ChannelDescriptor( graph ), filter );
-      _typeSubscriptions.put( graph, entry );
+      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( descriptor, filter );
+      final Enum graph = descriptor.getGraph();
+      final Object id = descriptor.getID();
+      if ( null == id )
+      {
+        _typeSubscriptions.put( graph, entry );
+      }
+      else
+      {
+        _instanceSubscriptions.computeIfAbsent( graph, k -> new HashMap<>() ).put( id, entry );
+      }
       return entry;
     }
     else
     {
-      throw new IllegalStateException( "Graph already subscribed: " + graph );
+      throw new IllegalStateException( "Graph already subscribed: " + descriptor );
     }
   }
 
@@ -79,44 +87,11 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final ChannelSubscriptionEntry subscribe( @Nonnull final Enum graph,
-                                                   @Nonnull final Object id,
-                                                   @Nullable final Object filter )
-  {
-    final Map<Object, ChannelSubscriptionEntry> instanceMap =
-      _instanceSubscriptions.computeIfAbsent( graph, k -> new HashMap<>() );
-    if ( !instanceMap.containsKey( id ) )
-    {
-      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( new ChannelDescriptor( graph, id ), filter );
-      instanceMap.put( id, entry );
-      return entry;
-    }
-    else
-    {
-      throw new IllegalStateException( "Graph already subscribed: " + graph + ":" + id );
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Nonnull
-  public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph, @Nullable final Object filter )
-    throws IllegalStateException
-  {
-    final ChannelSubscriptionEntry subscription = getSubscription( graph );
-    subscription.setFilter( filter );
-    return subscription;
-  }
-
-  @Nonnull
-  @Override
-  public ChannelSubscriptionEntry updateSubscription( @Nonnull final Enum graph,
-                                                      @Nonnull final Object id,
+  public ChannelSubscriptionEntry updateSubscription( @Nonnull final ChannelDescriptor descriptor,
                                                       @Nullable final Object filter )
+    throws IllegalStateException
   {
-    final ChannelSubscriptionEntry subscription = getSubscription( graph, id );
+    final ChannelSubscriptionEntry subscription = getSubscription( descriptor );
     subscription.setFilter( filter );
     return subscription;
   }
@@ -126,26 +101,25 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nullable
-  public final ChannelSubscriptionEntry findSubscription( @Nonnull final Enum graph )
+  public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelDescriptor descriptor )
   {
-    return _typeSubscriptions.get( graph );
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Nullable
-  public final ChannelSubscriptionEntry findSubscription( @Nonnull final Enum graph, @Nonnull final Object id )
-  {
-    Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
-    if ( null == instanceMap )
+    final Enum graph = descriptor.getGraph();
+    final Object id = descriptor.getID();
+    if ( null == id )
     {
-      return null;
+      return _typeSubscriptions.get( graph );
     }
     else
     {
-      return instanceMap.get( id );
+      Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
+      if ( null == instanceMap )
+      {
+        return null;
+      }
+      else
+      {
+        return instanceMap.get( id );
+      }
     }
   }
 
@@ -154,13 +128,13 @@ public class EntitySubscriptionManagerImpl
    */
   @Nonnull
   @Override
-  public ChannelSubscriptionEntry getSubscription( @Nonnull final Enum graph )
+  public ChannelSubscriptionEntry getSubscription( @Nonnull final ChannelDescriptor descriptor )
     throws IllegalArgumentException
   {
-    final ChannelSubscriptionEntry subscription = findSubscription( graph );
+    final ChannelSubscriptionEntry subscription = findSubscription( descriptor );
     if ( null == subscription )
     {
-      throw new IllegalStateException( "Graph not subscribed: " + graph );
+      throw new IllegalStateException( "Graph not subscribed: " + descriptor );
     }
     return subscription;
   }
@@ -170,52 +144,35 @@ public class EntitySubscriptionManagerImpl
    */
   @Nonnull
   @Override
-  public ChannelSubscriptionEntry getSubscription( @Nonnull final Enum graph, @Nonnull final Object id )
-    throws IllegalArgumentException
-  {
-    final ChannelSubscriptionEntry subscription = findSubscription( graph, id );
-    if ( null == subscription )
-    {
-      throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
-    }
-    return subscription;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  @Override
-  public final ChannelSubscriptionEntry unsubscribe( @Nonnull final Enum graph )
+  public final ChannelSubscriptionEntry unsubscribe( @Nonnull final ChannelDescriptor descriptor )
     throws IllegalStateException
   {
-    final ChannelSubscriptionEntry entry = _typeSubscriptions.remove( graph );
-    if ( null == entry )
+    final Enum graph = descriptor.getGraph();
+    final Object id = descriptor.getID();
+    if ( null == id )
     {
-      throw new IllegalStateException( "Graph not subscribed: " + graph );
+      final ChannelSubscriptionEntry entry = _typeSubscriptions.remove( graph );
+      if ( null == entry )
+      {
+        throw new IllegalStateException( "Graph not subscribed: " + descriptor );
+      }
+      return entry;
     }
-    return entry;
-  }
+    else
+    {
+      final Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
+      if ( null == instanceMap )
+      {
+        throw new IllegalStateException( "Graph not subscribed: " + descriptor );
+      }
+      final ChannelSubscriptionEntry entry = instanceMap.remove( id );
+      if ( null == entry )
+      {
+        throw new IllegalStateException( "Graph not subscribed: " + descriptor );
+      }
+      return entry;
 
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  @Override
-  public final ChannelSubscriptionEntry unsubscribe( @Nonnull final Enum graph, @Nonnull final Object id )
-    throws IllegalStateException
-  {
-    final Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph );
-    if ( null == instanceMap )
-    {
-      throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
     }
-    final ChannelSubscriptionEntry entry = instanceMap.remove( id );
-    if ( null == entry )
-    {
-      throw new IllegalStateException( "Graph not subscribed: " + graph + "/" + id );
-    }
-    return entry;
   }
 
   @Nonnull
@@ -245,13 +202,8 @@ public class EntitySubscriptionManagerImpl
     final EntitySubscriptionEntry entityEntry = getEntitySubscriptions( type, id );
     for ( final ChannelDescriptor graph : graphs )
     {
-      ChannelSubscriptionEntry entry = entityEntry.getRwGraphSubscriptions().get( graph );
-      if ( null == entry )
-      {
-        final Enum g = graph.getGraph();
-        entry = null == graph.getID() ? getSubscription( g ) : getSubscription( g, graph.getID() );
-        entityEntry.getRwGraphSubscriptions().put( graph, entry );
-      }
+      final ChannelSubscriptionEntry entry =
+        entityEntry.getRwGraphSubscriptions().computeIfAbsent( graph, this::getSubscription );
       Map<Object, EntitySubscriptionEntry> typeMap = entry.getEntities().get( type );
       if ( null == typeMap )
       {

@@ -16,7 +16,8 @@ public class EntityRepositoryDebugger
                                   final Enum graph,
                                   final Class<?>[] types )
   {
-    final ChannelSubscriptionEntry subscription = subscriptionManager.findSubscription( graph );
+    final ChannelDescriptor descriptor = new ChannelDescriptor( graph );
+    final ChannelSubscriptionEntry subscription = subscriptionManager.findSubscription( descriptor );
     if ( null != subscription )
     {
       for ( final Class<?> type : types )

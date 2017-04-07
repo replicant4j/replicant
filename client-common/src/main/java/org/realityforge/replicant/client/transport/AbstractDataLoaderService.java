@@ -222,7 +222,7 @@ public abstract class AbstractDataLoaderService
     {
       if ( graph.getClass().equals( graphClass ) )
       {
-        final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( graph );
+        final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( new ChannelDescriptor( graph ) );
         deregisterUnOwnedEntities( entry );
       }
     }
@@ -233,7 +233,7 @@ public abstract class AbstractDataLoaderService
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
-      final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( graph, id );
+      final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( new ChannelDescriptor( graph, id ) );
       deregisterUnOwnedEntities( entry );
     }
   }
@@ -330,7 +330,7 @@ public abstract class AbstractDataLoaderService
       final AreaOfInterestAction action = _currentAoiAction.getAction();
       if ( action == AreaOfInterestAction.ADD )
       {
-        final ChannelSubscriptionEntry entry = findSubscription( graph, id );
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( descriptor );
         //Already subscribed
         if ( null != entry )
         {
@@ -369,7 +369,7 @@ public abstract class AbstractDataLoaderService
       }
       else if ( action == AreaOfInterestAction.REMOVE )
       {
-        final ChannelSubscriptionEntry entry = findSubscription( graph, id );
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( descriptor );
         //Not subscribed
         if ( null == entry )
         {
@@ -389,7 +389,7 @@ public abstract class AbstractDataLoaderService
       }
       else
       {
-        final ChannelSubscriptionEntry entry = findSubscription( graph, id );
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( descriptor );
         //Not subscribed
         if ( null == entry )
         {
@@ -409,20 +409,6 @@ public abstract class AbstractDataLoaderService
         return true;
       }
     }
-  }
-
-  private ChannelSubscriptionEntry findSubscription( @Nonnull final Enum graph, @Nullable final Object id )
-  {
-    final ChannelSubscriptionEntry entry;
-    if ( null == id )
-    {
-      entry = getSubscriptionManager().findSubscription( graph );
-    }
-    else
-    {
-      entry = getSubscriptionManager().findSubscription( graph, id );
-    }
-    return entry;
   }
 
   private void completeAoiAction()
@@ -448,13 +434,13 @@ public abstract class AbstractDataLoaderService
   @Override
   public boolean isSubscribed( @Nonnull final Enum graph, @Nonnull final Object id )
   {
-    return null != getSubscriptionManager().findSubscription( graph, id );
+    return null != getSubscriptionManager().findSubscription( new ChannelDescriptor( graph, id ) );
   }
 
   @Override
   public boolean isSubscribed( @Nonnull final Enum graph )
   {
-    return null != getSubscriptionManager().findSubscription( graph );
+    return null != getSubscriptionManager().findSubscription( new ChannelDescriptor( graph ) );
   }
 
   @Override
@@ -642,40 +628,17 @@ public abstract class AbstractDataLoaderService
         if ( ChannelAction.Action.ADD == actionType )
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
-          if ( null == subChannelID )
-          {
-            getSubscriptionManager().subscribe( graph, filter );
-          }
-          else
-          {
-            getSubscriptionManager().subscribe( graph, subChannelID, filter );
-          }
+          getSubscriptionManager().subscribe( descriptor, filter );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          final ChannelSubscriptionEntry entry;
-          if ( null == subChannelID )
-          {
-            entry = getSubscriptionManager().unsubscribe( graph );
-          }
-          else
-          {
-            entry = getSubscriptionManager().unsubscribe( graph, subChannelID );
-          }
+          final ChannelSubscriptionEntry entry = getSubscriptionManager().unsubscribe( descriptor );
           final int removedEntities = deregisterUnOwnedEntities( entry );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
-          final ChannelSubscriptionEntry entry;
-          if ( null == subChannelID )
-          {
-            entry = getSubscriptionManager().updateSubscription( graph, filter );
-          }
-          else
-          {
-            entry = getSubscriptionManager().updateSubscription( graph, subChannelID, filter );
-          }
+          final ChannelSubscriptionEntry entry = getSubscriptionManager().updateSubscription( descriptor, filter );
           final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter, removedEntities );
           _currentAction.recordChannelSubscriptionUpdate( status );
