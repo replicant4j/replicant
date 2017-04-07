@@ -178,8 +178,7 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull final Enum graph,
-                                          @Nullable final Object id,
+  protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
                                           @Nullable final Object filterParameter,
                                           @Nullable final String eTag,
                                           @Nullable final Runnable cacheAction,
@@ -188,15 +187,13 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final Enum graph,
-                                              @Nullable final Object id,
+  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
                                               @Nonnull final Runnable runnable )
   {
   }
 
   @Override
-  protected void requestUpdateSubscription( @Nonnull final Enum graph,
-                                            @Nullable final Object id,
+  protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
                                             @Nullable final Object filterParameter,
                                             @Nonnull final Runnable completionAction )
   {

@@ -364,7 +364,7 @@ public abstract class AbstractDataLoaderService
           completeAoiAction();
         };
         LOG.info( "Subscription to " + label + " requested." );
-        requestSubscribeToGraph( graph, id, filterParameter, eTag, cacheAction, runnable );
+        requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, runnable );
         return true;
       }
       else if ( action == AreaOfInterestAction.REMOVE )
@@ -384,7 +384,7 @@ public abstract class AbstractDataLoaderService
           LOG.info( "Unsubscribe from " + label + " completed." );
           completeAoiAction();
         };
-        requestUnsubscribeFromGraph( graph, id, runnable );
+        requestUnsubscribeFromGraph( descriptor, runnable );
         return true;
       }
       else
@@ -405,7 +405,7 @@ public abstract class AbstractDataLoaderService
         };
         LOG.warning( "Subscription update of " + label + " requested." );
         assert null != filterParameter;
-        requestUpdateSubscription( graph, id, filterParameter, runnable );
+        requestUpdateSubscription( descriptor, filterParameter, runnable );
         return true;
       }
     }
@@ -432,19 +432,16 @@ public abstract class AbstractDataLoaderService
     _currentAoiAction = null;
   }
 
-  protected abstract void requestSubscribeToGraph( @Nonnull Enum graph,
-                                                   @Nullable Object id,
+  protected abstract void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
                                                    @Nullable Object filterParameter,
                                                    @Nullable String eTag,
                                                    @Nullable Runnable cacheAction,
                                                    @Nonnull Runnable completionAction );
 
-  protected abstract void requestUnsubscribeFromGraph( @Nonnull Enum graph,
-                                                       @Nullable Object id,
+  protected abstract void requestUnsubscribeFromGraph( @Nonnull ChannelDescriptor descriptor,
                                                        @Nonnull Runnable completionAction );
 
-  protected abstract void requestUpdateSubscription( @Nonnull Enum graph,
-                                                     @Nullable Object id,
+  protected abstract void requestUpdateSubscription( @Nonnull ChannelDescriptor descriptor,
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Runnable completionAction );
 
