@@ -6,7 +6,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
-import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
@@ -47,10 +46,9 @@ public abstract class GwtWebPollerDataLoaderService
   public GwtWebPollerDataLoaderService( @Nonnull final SessionContext sessionContext,
                                         @Nonnull final EntitySystem entitySystem,
                                         @Nonnull final CacheService cacheService,
-                                        @Nonnull final EventBus eventBus,
                                         @Nonnull final ReplicantConfig replicantConfig )
   {
-    super( sessionContext, eventBus, replicantConfig );
+    super( sessionContext, replicantConfig );
     _entitySystem = entitySystem;
     _cacheService = cacheService;
     createWebPoller();

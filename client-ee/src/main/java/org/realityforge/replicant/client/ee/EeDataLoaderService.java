@@ -203,11 +203,20 @@ public abstract class EeDataLoaderService
   }
 
   @Override
-  public void setListener( @Nullable final DataLoaderListener listener )
+  public boolean addDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    super.setListener( null == listener ?
-                       null :
-                       getContextService().createContextualProxy( listener, DataLoaderListener.class ) );
+    return super.addDataLoaderListener( wrap( listener ) );
   }
 
+  @Override
+  public boolean removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
+  {
+    return super.removeDataLoaderListener( wrap( listener ) );
+  }
+
+  @Nonnull
+  private DataLoaderListener wrap( @Nonnull final DataLoaderListener listener )
+  {
+    return getContextService().createContextualProxy( listener, DataLoaderListener.class );
+  }
 }

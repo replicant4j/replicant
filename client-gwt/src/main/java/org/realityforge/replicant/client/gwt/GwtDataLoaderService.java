@@ -4,7 +4,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.event.shared.EventBus;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChangeSet;
-import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
@@ -18,10 +17,8 @@ public abstract class GwtDataLoaderService
   private final SessionContext _sessionContext;
 
   protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                  @Nonnull final EventBus eventBus,
                                   @Nonnull final ReplicantConfig replicantConfig )
   {
-    setListener( new GwtDataLoaderListener( eventBus ) );
     createWebPoller();
     _sessionContext = sessionContext;
     _replicantConfig = replicantConfig;

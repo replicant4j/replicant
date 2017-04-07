@@ -45,7 +45,7 @@ public abstract class AbstractDataLoaderService
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
-  private DataLoaderListener _listener = new NoopDataLoaderListener();
+  private final DataLoaderListenerSupport _listenerSupport = new DataLoaderListenerSupport();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -79,13 +79,19 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   protected DataLoaderListener getListener()
   {
-    return _listener;
+    return _listenerSupport;
   }
 
   @Override
-  public void setListener( @Nullable final DataLoaderListener listener )
+  public boolean addDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    _listener = null == listener ? new NoopDataLoaderListener() : listener;
+    return _listenerSupport.addListener( listener );
+  }
+
+  @Override
+  public boolean removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
+  {
+    return _listenerSupport.removeListener( listener );
   }
 
   @Nonnull
@@ -271,7 +277,7 @@ public abstract class AbstractDataLoaderService
     }
     catch ( final Exception e )
     {
-      _listener.onDataLoadFailure( this, e );
+      getListener().onDataLoadFailure( this, e );
       _incrementalDataLoadInProgress = false;
       return false;
     }
@@ -951,7 +957,7 @@ public abstract class AbstractDataLoaderService
   private void completeConnect()
   {
     setState( State.CONNECTED );
-    _listener.onConnect( this );
+    getListener().onConnect( this );
   }
 
   protected abstract void doConnect( @Nullable Runnable runnable );
@@ -982,7 +988,7 @@ public abstract class AbstractDataLoaderService
   private void onDisconnect()
   {
     setState( State.DISCONNECTED );
-    _listener.onDisconnect( this );
+    getListener().onDisconnect( this );
   }
 
   protected abstract void doDisconnect( @Nonnull ClientSession session, @Nullable Runnable runnable );
