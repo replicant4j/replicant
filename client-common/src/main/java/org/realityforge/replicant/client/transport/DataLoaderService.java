@@ -82,21 +82,7 @@ public interface DataLoaderService
   @Nonnull
   Class getGraphType();
 
-  boolean isSubscribed( @Nonnull Enum graph );
-
-  boolean isSubscribed( @Nonnull Enum graph, @Nonnull Object id );
-
-  default boolean isSubscribed( @Nonnull ChannelDescriptor descriptor )
-  {
-    if ( null == descriptor.getID() )
-    {
-      return isSubscribed( descriptor.getGraph() );
-    }
-    else
-    {
-      return isSubscribed( descriptor.getGraph(), descriptor.getID() );
-    }
-  }
+  boolean isSubscribed( @Nonnull ChannelDescriptor descriptor );
 
   boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull ChannelDescriptor descriptor );
 

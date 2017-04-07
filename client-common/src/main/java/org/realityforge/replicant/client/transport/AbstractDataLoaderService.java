@@ -430,15 +430,9 @@ public abstract class AbstractDataLoaderService
                                                      @Nonnull Runnable completionAction );
 
   @Override
-  public boolean isSubscribed( @Nonnull final Enum graph, @Nonnull final Object id )
+  public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
   {
-    return null != getSubscriptionManager().findSubscription( new ChannelDescriptor( graph, id ) );
-  }
-
-  @Override
-  public boolean isSubscribed( @Nonnull final Enum graph )
-  {
-    return null != getSubscriptionManager().findSubscription( new ChannelDescriptor( graph ) );
+    return null != getSubscriptionManager().findSubscription( descriptor );
   }
 
   @Override
