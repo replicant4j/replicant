@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChannelDescriptor;
 
@@ -14,6 +15,7 @@ public final class DataLoaderListenerSupport
 
   public boolean addListener( @Nonnull final DataLoaderListener listener )
   {
+    Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
     {
       _listeners.add( listener );
@@ -27,6 +29,7 @@ public final class DataLoaderListenerSupport
 
   public boolean removeListener( @Nonnull final DataLoaderListener listener )
   {
+    Objects.requireNonNull( listener );
     return _listeners.remove( listener );
   }
 
