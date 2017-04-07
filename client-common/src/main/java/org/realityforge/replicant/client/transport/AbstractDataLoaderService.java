@@ -602,21 +602,15 @@ public abstract class AbstractDataLoaderService
       for ( int i = 0; i < channelActionCount; i++ )
       {
         final ChannelAction action = changeSet.getChannelAction( i );
-        final int channel = action.getChannelID();
-        final Object subChannelID = action.getSubChannelID();
+        final ChannelDescriptor descriptor = toChannelDescriptor( action );
         final Object filter = action.getChannelFilter();
         final ChannelAction.Action actionType = action.getAction();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
-          final String message =
-            "ChannelAction:: " + actionType.name() + " " +
-            channel + ( null == subChannelID ? "" : ( "-" + subChannelID ) ) +
-            " filter=" + filter;
+          final String message = "ChannelAction:: " + actionType.name() + " " + descriptor + " filter=" + filter;
           LOG.log( getLogLevel(), message );
         }
 
-        final Enum graph = channelToGraph( channel );
-        final ChannelDescriptor descriptor = new ChannelDescriptor( graph, subChannelID );
         if ( ChannelAction.Action.ADD == actionType )
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
@@ -809,6 +803,15 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  @Nonnull
+  private ChannelDescriptor toChannelDescriptor( final ChannelAction action )
+  {
+    final int channel = action.getChannelID();
+    final Object subChannelID = action.getSubChannelID();
+    final Enum graph = channelToGraph( channel );
+    return new ChannelDescriptor( graph, subChannelID );
   }
 
   private int deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )
