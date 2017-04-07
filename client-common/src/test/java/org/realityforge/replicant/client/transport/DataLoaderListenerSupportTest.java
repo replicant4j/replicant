@@ -24,8 +24,12 @@ public class DataLoaderListenerSupportTest
     final Throwable throwable = new Throwable();
     final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
 
+    assertEquals( support.getListeners().size(), 0 );
+
     assertTrue( support.addListener( listener ) );
     assertFalse( support.addListener( listener ), "Can not add duplicate" );
+
+    assertEquals( support.getListeners().size(), 1 );
 
     reset( listener );
     support.onConnect( service );
@@ -79,8 +83,12 @@ public class DataLoaderListenerSupportTest
     support.onUnsubscribeFailed( service, descriptor, throwable );
     verify( listener ).onUnsubscribeFailed( service, descriptor, throwable );
 
+    assertEquals( support.getListeners().size(), 1 );
+
     assertTrue( support.removeListener( listener ) );
     assertFalse( support.removeListener( listener ), "Can not remove duplicate" );
+
+    assertEquals( support.getListeners().size(), 0 );
 
     reset( listener );
     support.onConnect( service );

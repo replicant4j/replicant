@@ -1,6 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChannelDescriptor;
 
@@ -8,6 +10,7 @@ public final class DataLoaderListenerSupport
   implements DataLoaderListener
 {
   private final ArrayList<DataLoaderListener> _listeners = new ArrayList<>();
+  private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( _listeners );
 
   public boolean addListener( @Nonnull final DataLoaderListener listener )
   {
@@ -25,6 +28,11 @@ public final class DataLoaderListenerSupport
   public boolean removeListener( @Nonnull final DataLoaderListener listener )
   {
     return _listeners.remove( listener );
+  }
+
+  public List<DataLoaderListener> getListeners()
+  {
+    return _roListeners;
   }
 
   @Override
