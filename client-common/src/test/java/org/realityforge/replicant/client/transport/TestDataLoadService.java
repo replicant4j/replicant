@@ -87,12 +87,11 @@ public final class TestDataLoadService
   {
   }
 
-  @SuppressWarnings( "unchecked" )
   @Nonnull
   @Override
-  public Class<Enum> getGraphType()
+  public Class<? extends Enum> getGraphType()
   {
-    return (Class<Enum>) (Class) TestGraph.class;
+    return TestGraph.class;
   }
 
   @Nonnull

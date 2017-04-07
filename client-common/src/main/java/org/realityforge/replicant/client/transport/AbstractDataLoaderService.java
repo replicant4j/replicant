@@ -209,7 +209,7 @@ public abstract class AbstractDataLoaderService
     /*
      * Ensure that we only purge subscriptions that are managed by this data loader.
      */
-    final Class<Enum> graphClass = getGraphType();
+    final Class graphClass = getGraphType();
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
     {
@@ -882,7 +882,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  public abstract Class<Enum> getGraphType();
+  public abstract Class<? extends Enum> getGraphType();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nullable Object filter );
