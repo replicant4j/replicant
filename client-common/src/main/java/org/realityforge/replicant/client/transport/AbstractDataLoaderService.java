@@ -369,7 +369,6 @@ public abstract class AbstractDataLoaderService
           a.run();
         };
         LOG.info( "Subscription to " + label + " requested." );
-        LOG.severe( "requestSubscribeToGraph(" + descriptor + "," + filterParameter + "," + eTag + ",A,C)" );
         requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, completionAction );
         return true;
       }
