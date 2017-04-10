@@ -1,4 +1,6 @@
 ## 0.5.79 (Pending):
+* Introduce the `AreaOfInterestService` and `ReplicantClientSystem` classes in a runtime package that aims
+  to simplify the mechanisms for setting up client environments.
 * Move to using `ChannelDescriptor` to represent channels/graphs through a larger portion of the API.
 * Move from mandatory subclassing of `ClientSession` to disallowing subclassing of the same.
 * Remove generics from the `ClientSession` and the `DataLoaderService` classes.
