@@ -14,7 +14,7 @@ public class EntitySubscriptionManagerTest
     assertEquals( sm.getTypeSubscriptions().size(), 0 );
     assertFalse( sm.getTypeSubscriptions().contains( G.G1 ) );
 
-    sm.subscribe( new ChannelDescriptor( G.G1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1 ), null );
 
     assertEquals( sm.getTypeSubscriptions().size(), 1 );
     assertTrue( sm.getTypeSubscriptions().contains( G.G1 ) );
@@ -25,7 +25,7 @@ public class EntitySubscriptionManagerTest
     assertEquals( s.getDescriptor(), new ChannelDescriptor( G.G1 ) );
     assertEquals( s.getEntities().size(), 0 );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G1 ) );
+    sm.removeSubscription( new ChannelDescriptor( G.G1 ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
   }
 
@@ -38,7 +38,7 @@ public class EntitySubscriptionManagerTest
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
     assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 0 );
 
-    sm.subscribe( new ChannelDescriptor( G.G2, 1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null );
 
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 1 );
     assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 1 );
@@ -50,7 +50,7 @@ public class EntitySubscriptionManagerTest
     assertEquals( s.getDescriptor(), new ChannelDescriptor( G.G2, 1 ) );
     assertEquals( s.getEntities().size(), 0 );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G2, 1 ) );
+    sm.removeSubscription( new ChannelDescriptor( G.G2, 1 ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
   }
 
@@ -62,7 +62,7 @@ public class EntitySubscriptionManagerTest
 
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
-    final ChannelSubscriptionEntry e1 = sm.subscribe( new ChannelDescriptor( G.G1 ), null );
+    final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelDescriptor( G.G1 ), null );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
 
@@ -74,7 +74,7 @@ public class EntitySubscriptionManagerTest
                      id,
                      new ChannelDescriptor[]{ new ChannelDescriptor( G.G1 ) } );
 
-    final ChannelSubscriptionEntry e2 = sm.unsubscribe( new ChannelDescriptor( G.G1 ) );
+    final ChannelSubscriptionEntry e2 = sm.removeSubscription( new ChannelDescriptor( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
 
@@ -89,7 +89,7 @@ public class EntitySubscriptionManagerTest
 
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
-    sm.subscribe( new ChannelDescriptor( G.G1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1 ), null );
 
     sm.updateEntity( type,
                      id,
@@ -108,7 +108,7 @@ public class EntitySubscriptionManagerTest
 
     //assertEntityPresent( type, id, r );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G1 ));
+    sm.removeSubscription( new ChannelDescriptor( G.G1 ));
 
     // Entity still here as unsubscribe did not unload as removed from subscription manager
     //assertEntityPresent( type, id, r );
@@ -123,7 +123,7 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
-    sm.subscribe( new ChannelDescriptor( G.G2, 1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null );
 
     r.registerEntity( type, id, new A() );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
@@ -136,7 +136,7 @@ public class EntitySubscriptionManagerTest
                      id,
                      new ChannelDescriptor[]{ new ChannelDescriptor( G.G2, 1 ) } );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G2, 1 ) );
+    sm.removeSubscription( new ChannelDescriptor( G.G2, 1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
   }
@@ -147,7 +147,7 @@ public class EntitySubscriptionManagerTest
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
 
-    final ChannelSubscriptionEntry e1 = sm.subscribe( new ChannelDescriptor( G.G2, 1 ), "F1" );
+    final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), "F1" );
 
     assertEquals( sm.getSubscription( new ChannelDescriptor( G.G2, 1 ) ).getFilter(), "F1" );
 
@@ -164,7 +164,7 @@ public class EntitySubscriptionManagerTest
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
 
-    final ChannelSubscriptionEntry e1 = sm.subscribe( new ChannelDescriptor( G.G1 ), "F1" );
+    final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelDescriptor( G.G1 ), "F1" );
 
     assertEquals( sm.getSubscription( new ChannelDescriptor( G.G1 ) ).getFilter(), "F1" );
 
@@ -184,7 +184,7 @@ public class EntitySubscriptionManagerTest
     final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
-    sm.subscribe( new ChannelDescriptor( G.G2, 1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null );
 
     r.registerEntity( type, id, new A() );
     sm.updateEntity( type,
@@ -202,7 +202,7 @@ public class EntitySubscriptionManagerTest
     sm.removeEntity( type, id );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G2, 1 ) );
+    sm.removeSubscription( new ChannelDescriptor( G.G2, 1 ) );
   }
 
   @Test
@@ -215,8 +215,8 @@ public class EntitySubscriptionManagerTest
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
-    sm.subscribe( new ChannelDescriptor( G.G1 ), null );
-    sm.subscribe( new ChannelDescriptor( G.G2, 1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null );
 
     r.registerEntity( type, id, new A() );
 
@@ -235,12 +235,12 @@ public class EntitySubscriptionManagerTest
     assertEntitySubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G1) );
+    sm.removeSubscription( new ChannelDescriptor( G.G1) );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
 
-    sm.unsubscribe( new ChannelDescriptor( G.G2, 1) );
+    sm.removeSubscription( new ChannelDescriptor( G.G2, 1) );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
@@ -257,9 +257,9 @@ public class EntitySubscriptionManagerTest
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2 ) ) );
 
-    final ChannelSubscriptionEntry s1 = sm.subscribe( new ChannelDescriptor( G.G1 ), "X" );
+    final ChannelSubscriptionEntry s1 = sm.recordSubscription( new ChannelDescriptor( G.G1 ), "X" );
     assertEquals( s1.getFilter(), "X" );
-    final ChannelSubscriptionEntry s2 = sm.subscribe( new ChannelDescriptor( G.G2 ), null );
+    final ChannelSubscriptionEntry s2 = sm.recordSubscription( new ChannelDescriptor( G.G2 ), null );
     assertEquals( s2.getFilter(), null );
 
     r.registerEntity( type, id, new A() );
@@ -327,8 +327,8 @@ public class EntitySubscriptionManagerTest
   public void subscribe_nonExistentTypeGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.subscribe( new ChannelDescriptor( G.G1 ), null );
-    sm.subscribe( new ChannelDescriptor( G.G1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1 ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1 ), null );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -344,7 +344,7 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentTypeGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.unsubscribe( new ChannelDescriptor( G.G1 ) );
+    sm.removeSubscription( new ChannelDescriptor( G.G1 ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -352,8 +352,8 @@ public class EntitySubscriptionManagerTest
   public void subscribe_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.subscribe( new ChannelDescriptor( G.G1, "1" ), null );
-    sm.subscribe( new ChannelDescriptor( G.G1, "1" ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1, "1" ), null );
+    sm.recordSubscription( new ChannelDescriptor( G.G1, "1" ), null );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -369,7 +369,7 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.unsubscribe( new ChannelDescriptor( G.G1, "1" ) );
+    sm.removeSubscription( new ChannelDescriptor( G.G1, "1" ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -377,8 +377,8 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.subscribe( new ChannelDescriptor( G.G1 ), "1" );
-    sm.unsubscribe( new ChannelDescriptor( G.G1, "2" ) );
+    sm.recordSubscription( new ChannelDescriptor( G.G1 ), "1" );
+    sm.removeSubscription( new ChannelDescriptor( G.G1, "2" ) );
   }
 
   enum G

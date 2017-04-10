@@ -29,58 +29,58 @@ public interface EntitySubscriptionManager
   Set<Object> getInstanceSubscriptions( @Nonnull Enum graph );
 
   /**
-   * Record a subscription to a graph containing types.
+   * Record a subscription for specified graph.
    *
-   * @param descriptor the descriptor to subscribe to.
-   * @param filter the filter if subscription is update-able.
+   * @param graph the graph.
+   * @param filter the filter if subscription is filterable.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry subscribe( @Nonnull ChannelDescriptor descriptor, @Nullable Object filter )
+  ChannelSubscriptionEntry recordSubscription( @Nonnull ChannelDescriptor graph, @Nullable Object filter )
     throws IllegalStateException;
 
   /**
-   * Update subscription to a graph containing types.
+   * Update subscription details for the specified graph.
    *
-   * @param descriptor  the graph to subscribe to.
+   * @param graph the graph.
    * @param filter the filter being updated.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry updateSubscription( @Nonnull ChannelDescriptor descriptor, @Nullable Object filter )
+  ChannelSubscriptionEntry updateSubscription( @Nonnull ChannelDescriptor graph, @Nullable Object filter )
     throws IllegalStateException;
 
   /**
-   * Return the subscription for  rooted at an instance.
+   * Return the subscription details for the specified graph.
    *
-   * @param descriptor the channel descriptor.
+   * @param graph the graph.
    * @return the subscription entry.
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  ChannelSubscriptionEntry getSubscription( @Nonnull ChannelDescriptor descriptor )
+  ChannelSubscriptionEntry getSubscription( @Nonnull ChannelDescriptor graph )
     throws IllegalArgumentException;
 
   /**
-   * Find subscription for channel if it exists.
+   * Return the subscription details for the specified graph if a subscription is recorded.
    *
-   * @param descriptor the descriptor.
+   * @param graph the graph.
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  ChannelSubscriptionEntry findSubscription( @Nonnull ChannelDescriptor descriptor );
+  ChannelSubscriptionEntry findSubscription( @Nonnull ChannelDescriptor graph );
 
   /**
-   * Unsubscribe from graph containing types.
+   * Remove subscription details for specified graph.
    *
-   * @param descriptor the graph to unsubscribe from.
+   * @param graph the graph.
    * @return the subscription entry.
    * @throws IllegalStateException if graph not subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry unsubscribe( @Nonnull ChannelDescriptor descriptor )
+  ChannelSubscriptionEntry removeSubscription( @Nonnull ChannelDescriptor graph )
     throws IllegalStateException;
 
   /**

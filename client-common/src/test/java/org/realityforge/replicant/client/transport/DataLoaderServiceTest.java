@@ -77,10 +77,10 @@ public class DataLoaderServiceTest
     when( sm.getInstanceSubscriptions( TestGraph.A ) ).thenReturn( aGraph );
     when( sm.getInstanceSubscriptions( TestGraph.B ) ).thenReturn( bGraph );
     when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
-    when( sm.unsubscribe( new ChannelDescriptor( TestGraph.A, "1" ) ) ).thenReturn( entryA );
-    when( sm.unsubscribe( new ChannelDescriptor( TestGraph.B, "2" ) ) ).thenReturn( entryB );
-    when( sm.unsubscribe( new ChannelDescriptor( TestGraph.C ) ) ).thenReturn( entryC );
-    when( sm.unsubscribe( new ChannelDescriptor( TestGraph.D ) ) ).thenReturn( entryD );
+    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) ) ).thenReturn( entryA );
+    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) ) ).thenReturn( entryB );
+    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.C ) ) ).thenReturn( entryC );
+    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.D ) ) ).thenReturn( entryD );
 
     when( repository.deregisterEntity( String.class, "A1" ) ).thenReturn( "A1" );
     when( repository.deregisterEntity( String.class, "B1" ) ).thenReturn( "B1" );
@@ -90,16 +90,16 @@ public class DataLoaderServiceTest
     service.purgeSubscriptions();
 
     final InOrder inOrder = inOrder( repository, sm, broker );
-    inOrder.verify( sm ).unsubscribe( new ChannelDescriptor( TestGraph.B, "2" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
     inOrder.verify( broker ).removeAllChangeListeners( "B1" );
-    inOrder.verify( sm ).unsubscribe( new ChannelDescriptor( TestGraph.A, "1" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
     inOrder.verify( broker ).removeAllChangeListeners( "A1" );
-    inOrder.verify( sm ).unsubscribe( new ChannelDescriptor( TestGraph.D ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.D ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
     inOrder.verify( broker ).removeAllChangeListeners( "D1" );
-    inOrder.verify( sm ).unsubscribe( new ChannelDescriptor( TestGraph.C ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.C ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
     inOrder.verify( broker ).removeAllChangeListeners( "C1" );
     inOrder.verifyNoMoreInteractions();
@@ -534,7 +534,7 @@ public class DataLoaderServiceTest
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
-    verify( service.getSubscriptionManager() ).subscribe( new ChannelDescriptor( TestGraph.B, "S" ), null );
+    verify( service.getSubscriptionManager() ).recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null );
 
     final DataLoadAction action = actions.getLast();
 
@@ -561,9 +561,9 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    when( service.getSubscriptionManager().unsubscribe( new ChannelDescriptor( TestGraph.A ) ) ).
+    when( service.getSubscriptionManager().removeSubscription( new ChannelDescriptor( TestGraph.A ) ) ).
       thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A ), null ) );
-    when( service.getSubscriptionManager().unsubscribe( new ChannelDescriptor( TestGraph.B, 33 ) ) ).
+    when( service.getSubscriptionManager().removeSubscription( new ChannelDescriptor( TestGraph.B, 33 ) ) ).
       thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null ) );
     configureRequests( service, service.getChangeSets() );
     service.ensureSession().enqueueDataLoad( "jsonData" );
@@ -577,10 +577,10 @@ public class DataLoaderServiceTest
     assertEquals( action.getChannelRemoveCount(), 2 );
 
     final InOrder inOrder = inOrder( service.getSubscriptionManager() );
-    inOrder.verify( service.getSubscriptionManager() ).subscribe( new ChannelDescriptor( TestGraph.A ), null );
-    inOrder.verify( service.getSubscriptionManager() ).unsubscribe( new ChannelDescriptor( TestGraph.A ) );
-    inOrder.verify( service.getSubscriptionManager() ).subscribe( new ChannelDescriptor( TestGraph.B, "S" ), null );
-    inOrder.verify( service.getSubscriptionManager() ).unsubscribe( new ChannelDescriptor( TestGraph.B, 33 ) );
+    inOrder.verify( service.getSubscriptionManager() ).recordSubscription( new ChannelDescriptor( TestGraph.A ), null );
+    inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelDescriptor( TestGraph.A ) );
+    inOrder.verify( service.getSubscriptionManager() ).recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null );
+    inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelDescriptor( TestGraph.B, 33 ) );
     inOrder.verifyNoMoreInteractions();
   }
 

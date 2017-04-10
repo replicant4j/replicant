@@ -223,7 +223,7 @@ public abstract class AbstractDataLoaderService
     {
       if ( graph.getClass().equals( graphClass ) )
       {
-        final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( new ChannelDescriptor( graph ) );
+        final ChannelSubscriptionEntry entry = subscriptionManager.removeSubscription( new ChannelDescriptor( graph ) );
         deregisterUnOwnedEntities( entry );
       }
     }
@@ -234,7 +234,7 @@ public abstract class AbstractDataLoaderService
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
-      final ChannelSubscriptionEntry entry = subscriptionManager.unsubscribe( new ChannelDescriptor( graph, id ) );
+      final ChannelSubscriptionEntry entry = subscriptionManager.removeSubscription( new ChannelDescriptor( graph, id ) );
       deregisterUnOwnedEntities( entry );
     }
   }
@@ -624,11 +624,11 @@ public abstract class AbstractDataLoaderService
         if ( ChannelAction.Action.ADD == actionType )
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
-          getSubscriptionManager().subscribe( descriptor, filter );
+          getSubscriptionManager().recordSubscription( descriptor, filter );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          final ChannelSubscriptionEntry entry = getSubscriptionManager().unsubscribe( descriptor );
+          final ChannelSubscriptionEntry entry = getSubscriptionManager().removeSubscription( descriptor );
           final int removedEntities = deregisterUnOwnedEntities( entry );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
         }
