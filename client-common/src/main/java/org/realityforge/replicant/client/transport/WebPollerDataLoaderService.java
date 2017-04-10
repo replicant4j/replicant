@@ -180,32 +180,26 @@ public abstract class WebPollerDataLoaderService
 
   protected void stopPolling()
   {
-    if ( isWebPollerActive() )
+    if ( null != _webPoller && _webPoller.isActive() )
     {
       _webPoller.stop();
       _webPoller = null;
     }
   }
 
-  private boolean isWebPollerActive()
-  {
-    return null != _webPoller && getWebPoller().isActive();
-  }
-
   protected void pauseWebPoller()
   {
-    if ( !getWebPoller().isPaused() )
+    if ( null != _webPoller && _webPoller.isActive() && !_webPoller.isPaused() )
     {
-      getWebPoller().pause();
+      _webPoller.pause();
     }
   }
 
   protected void resumeWebPoller()
   {
-    final WebPoller webPoller = getWebPoller();
-    if ( webPoller.isPaused() )
+    if ( null != _webPoller && _webPoller.isActive() && _webPoller.isPaused() )
     {
-      webPoller.resume();
+      _webPoller.resume();
     }
   }
 }
