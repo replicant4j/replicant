@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.storage.client.Storage;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -26,6 +27,7 @@ public class LocalCacheService
   @Nullable
   public CacheEntry lookup( @Nonnull final String key )
   {
+    Objects.requireNonNull( key );
     final Storage storage = getStorage();
     if ( null == storage )
     {
@@ -52,6 +54,9 @@ public class LocalCacheService
   @Override
   public boolean store( @Nonnull final String key, @Nonnull final String eTag, @Nonnull final String content )
   {
+    Objects.requireNonNull( key );
+    Objects.requireNonNull( eTag );
+    Objects.requireNonNull( content );
     final Storage storage = getStorage();
     if ( null == storage )
     {
@@ -79,6 +84,7 @@ public class LocalCacheService
   @Override
   public boolean invalidate( @Nonnull final String key )
   {
+    Objects.requireNonNull( key );
     final Storage storage = getStorage();
     if ( null == storage || null == storage.getItem( key + ETAG_SUFFIX ) )
     {
