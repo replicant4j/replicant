@@ -84,7 +84,13 @@ public interface DataLoaderService
 
   boolean isSubscribed( @Nonnull ChannelDescriptor descriptor );
 
-  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action, @Nonnull ChannelDescriptor descriptor );
+  /**
+   * Return true if an area of interest action with specified parameters is pending or being processed.
+   * When the action parameter is DELETE the filter parameter is ignored.
+   */
+  boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action,
+                                         @Nonnull ChannelDescriptor descriptor,
+                                         @Nullable Object filter );
 
   default void requestSubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Object filterParameter )
   {

@@ -595,42 +595,60 @@ public class DataLoaderServiceTest
     // type graph
     {
       final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
 
       //Request a subscription so that it should be pending
       service.requestSubscribe( channel1, null );
 
-      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1 ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel1 ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel1 ) );
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel1, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel1, null ) );
     }
 
     // instance graph
     {
       final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 2 );
       final ChannelDescriptor channel2b = new ChannelDescriptor( TestGraph.B );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2 ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2 ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2 ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2, null ) );
 
       //Request a subscription so that it should be pending
       service.requestSubscribe( channel2, null );
 
-      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2 ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2 ) );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2 ) );
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2, null ) );
     }
 
     {
       final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.C, 2 );
-      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3 ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
         new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
       set( service, AbstractDataLoaderService.class, "_currentAoiAction", entry );
 
-      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3 ) );
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
+    }
+
+    // instance graph with filter
+    {
+      final Object filter = new Object();
+      final ChannelDescriptor channel4 = new ChannelDescriptor( TestGraph.B, 55 );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, filter ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, filter ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
+
+      //Request a subscription so that it should be pending
+      service.requestSubscribe( channel4, filter );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, filter ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, "OtherFilterKey" ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, null ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, filter ) );
+      assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
     }
   }
 

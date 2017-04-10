@@ -437,15 +437,16 @@ public abstract class AbstractDataLoaderService
 
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final ChannelDescriptor descriptor )
+                                                @Nonnull final ChannelDescriptor descriptor,
+                                                @Nullable final Object filter )
   {
     final ClientSession session = getSession();
     return
-      null != _currentAoiAction && _currentAoiAction.match( descriptor, action ) ||
+      null != _currentAoiAction && _currentAoiAction.match( action, descriptor, filter ) ||
       (
         null != session &&
         session.getPendingAreaOfInterestActions().stream().
-          anyMatch( a -> a.match( descriptor, action ) )
+          anyMatch( a -> a.match( action, descriptor, filter ) )
       );
   }
 

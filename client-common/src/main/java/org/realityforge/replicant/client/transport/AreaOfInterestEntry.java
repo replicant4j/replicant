@@ -73,9 +73,13 @@ final class AreaOfInterestEntry
     _inProgress = false;
   }
 
-  boolean match( @Nonnull final ChannelDescriptor descriptor, @Nonnull final AreaOfInterestAction action )
+  boolean match( @Nonnull final AreaOfInterestAction action,
+                 @Nonnull final ChannelDescriptor descriptor,
+                 @Nullable final Object filter )
   {
-    return getAction().equals( action ) && getDescriptor().equals( descriptor );
+    return getAction().equals( action ) &&
+           getDescriptor().equals( descriptor ) &&
+           ( AreaOfInterestAction.REMOVE == action || Objects.equals( filter, getFilterParameter() ) );
   }
 
   @Override
