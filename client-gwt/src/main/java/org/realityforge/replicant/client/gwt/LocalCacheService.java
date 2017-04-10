@@ -35,7 +35,14 @@ public class LocalCacheService
     {
       final String eTag = storage.getItem( key + ETAG_SUFFIX );
       final String content = storage.getItem( key );
-      return new CacheEntry( key, eTag, content );
+      if ( null != eTag && null != content )
+      {
+        return new CacheEntry( key, eTag, content );
+      }
+      else
+      {
+        return null;
+      }
     }
   }
 
