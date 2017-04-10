@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -337,32 +338,39 @@ public abstract class AbstractDataLoaderService
           return true;
         }
         final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
-        final String eTag = null != cacheEntry ? cacheEntry.getETag() : null;
-        final String content = null != cacheEntry ? cacheEntry.getContent() : null;
-        final Runnable cacheAction;
-        if ( null != content )
+        final String eTag;
+        final Consumer<Runnable> cacheAction;
+        if ( null != cacheEntry )
         {
-          final String message =
-            "Found locally cached data for graph " + label + " with etag " + eTag + ".";
-          LOG.info( message );
-          cacheAction = () ->
+          eTag = cacheEntry.getETag();
+          LOG.info( "Found locally cached data for graph " + label + " with etag " + eTag + "." );
+          cacheAction = ( a ) ->
           {
             LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
+            final Runnable completeAoiAction = () ->
+            {
+              LOG.info( "Completed load of cached data for graph " + label + " with etag " + eTag + "." );
+              completeAoiAction();
+              a.run();
+            };
             //TODO: Figure out how to make the bulkLoad configurable
-            ensureSession().enqueueOOB( content, this::completeAoiAction, true );
+            ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction, true );
           };
         }
         else
         {
+          eTag = null;
           cacheAction = null;
         }
-        final Runnable runnable = () ->
+        final Consumer<Runnable> completionAction = ( a ) ->
         {
           LOG.info( "Subscription to " + label + " completed." );
           completeAoiAction();
+          a.run();
         };
         LOG.info( "Subscription to " + label + " requested." );
-        requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, runnable );
+        LOG.severe( "requestSubscribeToGraph(" + descriptor + "," + filterParameter + "," + eTag + ",A,C)" );
+        requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, completionAction );
         return true;
       }
       else if ( action == AreaOfInterestAction.REMOVE )
@@ -377,12 +385,13 @@ public abstract class AbstractDataLoaderService
         }
 
         LOG.info( "Unsubscribe from " + label + " requested." );
-        final Runnable runnable = () ->
+        final Consumer<Runnable> completionAction = ( a ) ->
         {
           LOG.info( "Unsubscribe from " + label + " completed." );
           completeAoiAction();
+          a.run();
         };
-        requestUnsubscribeFromGraph( descriptor, runnable );
+        requestUnsubscribeFromGraph( descriptor, completionAction );
         return true;
       }
       else
@@ -396,14 +405,15 @@ public abstract class AbstractDataLoaderService
           return true;
         }
 
-        final Runnable runnable = () ->
+        final Consumer<Runnable> completionAction = ( a ) ->
         {
           LOG.warning( "Subscription update of " + label + " completed." );
           completeAoiAction();
+          a.run();
         };
         LOG.warning( "Subscription update of " + label + " requested." );
         assert null != filterParameter;
-        requestUpdateSubscription( descriptor, filterParameter, runnable );
+        requestUpdateSubscription( descriptor, filterParameter, completionAction );
         return true;
       }
     }
@@ -419,15 +429,15 @@ public abstract class AbstractDataLoaderService
   protected abstract void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
                                                    @Nullable Object filterParameter,
                                                    @Nullable String eTag,
-                                                   @Nullable Runnable cacheAction,
-                                                   @Nonnull Runnable completionAction );
+                                                   @Nullable Consumer<Runnable> cacheAction,
+                                                   @Nonnull Consumer<Runnable> completionAction );
 
   protected abstract void requestUnsubscribeFromGraph( @Nonnull ChannelDescriptor descriptor,
-                                                       @Nonnull Runnable completionAction );
+                                                       @Nonnull Consumer<Runnable> completionAction );
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelDescriptor descriptor,
                                                      @Nonnull Object filterParameter,
-                                                     @Nonnull Runnable completionAction );
+                                                     @Nonnull Consumer<Runnable> completionAction );
 
   @Override
   public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
