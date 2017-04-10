@@ -9,6 +9,7 @@
   <inherits name="com.google.gwt.http.HTTP"/>
 
   <source path='client/gwt'/>
+  <source path='client/runtime/gwt'/>
 
   <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
   <set-property name="replicant.shouldValidateRepositoryOnLoad" value="false"/>
