@@ -60,13 +60,13 @@ public class DataLoaderServiceTest
     bGraph.add( "2" );
 
     final ChannelSubscriptionEntry entryA =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, "1" ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, "1" ), null, true );
     final ChannelSubscriptionEntry entryB =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, "2" ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, "2" ), null, true );
     final ChannelSubscriptionEntry entryC =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.C ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.C ), null, true );
     final ChannelSubscriptionEntry entryD =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D ), null );
+      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D ), null, true );
 
     insertSubscription( entryA, String.class, "A1" );
     insertSubscription( entryB, String.class, "B1" );
@@ -534,7 +534,8 @@ public class DataLoaderServiceTest
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
-    verify( service.getSubscriptionManager() ).recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null );
+    verify( service.getSubscriptionManager() ).
+      recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null, false );
 
     final DataLoadAction action = actions.getLast();
 
@@ -562,9 +563,9 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     when( service.getSubscriptionManager().removeSubscription( new ChannelDescriptor( TestGraph.A ) ) ).
-      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A ), null ) );
+      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A ), null, true ) );
     when( service.getSubscriptionManager().removeSubscription( new ChannelDescriptor( TestGraph.B, 33 ) ) ).
-      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null ) );
+      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null, true ) );
     configureRequests( service, service.getChangeSets() );
     service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
@@ -577,9 +578,11 @@ public class DataLoaderServiceTest
     assertEquals( action.getChannelRemoveCount(), 2 );
 
     final InOrder inOrder = inOrder( service.getSubscriptionManager() );
-    inOrder.verify( service.getSubscriptionManager() ).recordSubscription( new ChannelDescriptor( TestGraph.A ), null );
+    inOrder.verify( service.getSubscriptionManager() ).
+      recordSubscription( new ChannelDescriptor( TestGraph.A ), null, false );
     inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelDescriptor( TestGraph.A ) );
-    inOrder.verify( service.getSubscriptionManager() ).recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null );
+    inOrder.verify( service.getSubscriptionManager() ).
+      recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null, false );
     inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelDescriptor( TestGraph.B, 33 ) );
     inOrder.verifyNoMoreInteractions();
   }

@@ -57,13 +57,14 @@ public class EntitySubscriptionManagerImpl
   @Override
   @Nonnull
   public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelDescriptor graph,
-                                                            @Nullable final Object filter )
+                                                            @Nullable final Object filter,
+                                                            final boolean explicitSubscription )
     throws IllegalStateException
   {
-    ChannelSubscriptionEntry typeMap = findSubscription( graph );
-    if ( null == typeMap )
+    final ChannelSubscriptionEntry existing = findSubscription( graph );
+    if ( null == existing )
     {
-      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( graph, filter );
+      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( graph, filter, explicitSubscription );
       final Object id = graph.getID();
       if ( null == id )
       {

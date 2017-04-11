@@ -33,11 +33,14 @@ public interface EntitySubscriptionManager
    *
    * @param graph the graph.
    * @param filter the filter if subscription is filterable.
+   * @param explicitSubscription if subscription was explicitly requested by the client.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry recordSubscription( @Nonnull ChannelDescriptor graph, @Nullable Object filter )
+  ChannelSubscriptionEntry recordSubscription( @Nonnull ChannelDescriptor graph,
+                                               @Nullable Object filter,
+                                               boolean explicitSubscription )
     throws IllegalStateException;
 
   /**
