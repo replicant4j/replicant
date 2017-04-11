@@ -623,7 +623,8 @@ public abstract class AbstractDataLoaderService
         if ( ChannelAction.Action.ADD == actionType )
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
-          getSubscriptionManager().recordSubscription( descriptor, filter );
+          boolean explicitSubscribe = false;
+          getSubscriptionManager().recordSubscription( descriptor, filter, explicitSubscribe );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
