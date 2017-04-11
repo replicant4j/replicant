@@ -234,8 +234,7 @@ public abstract class AbstractDataLoaderService
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
-      final ChannelSubscriptionEntry entry = subscriptionManager.removeSubscription( new ChannelDescriptor( graph, id ) );
-      deregisterUnOwnedEntities( entry );
+      deregisterUnOwnedEntities( subscriptionManager.removeSubscription( new ChannelDescriptor( graph, id ) ) );
     }
   }
 
