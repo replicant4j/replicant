@@ -377,8 +377,14 @@ public abstract class AbstractDataLoaderService
           completeAoiAction();
           a.run();
         };
+        final Consumer<Runnable> failAction = a ->
+        {
+          LOG.info( "Subscription to " + label + " failed." );
+          completeAoiAction();
+          a.run();
+        };
         LOG.info( "Subscription to " + label + " requested." );
-        requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, completionAction );
+        requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, completionAction, failAction );
         return true;
       }
       else if ( action == AreaOfInterestAction.REMOVE )
@@ -406,7 +412,14 @@ public abstract class AbstractDataLoaderService
           completeAoiAction();
           a.run();
         };
-        requestUnsubscribeFromGraph( descriptor, completionAction );
+        final Consumer<Runnable> failAction = a ->
+        {
+          LOG.info( "Unsubscribe from " + label + " failed." );
+          entry.setExplicitSubscription( false );
+          completeAoiAction();
+          a.run();
+        };
+        requestUnsubscribeFromGraph( descriptor, completionAction, failAction );
         return true;
       }
       else
@@ -426,9 +439,15 @@ public abstract class AbstractDataLoaderService
           completeAoiAction();
           a.run();
         };
+        final Consumer<Runnable> failAction = a ->
+        {
+          LOG.warning( "Subscription update of " + label + " failed." );
+          completeAoiAction();
+          a.run();
+        };
         LOG.warning( "Subscription update of " + label + " requested." );
         assert null != filterParameter;
-        requestUpdateSubscription( descriptor, filterParameter, completionAction );
+        requestUpdateSubscription( descriptor, filterParameter, completionAction, failAction );
         return true;
       }
     }
@@ -445,14 +464,17 @@ public abstract class AbstractDataLoaderService
                                                    @Nullable Object filterParameter,
                                                    @Nullable String eTag,
                                                    @Nullable Consumer<Runnable> cacheAction,
-                                                   @Nonnull Consumer<Runnable> completionAction );
+                                                   @Nonnull Consumer<Runnable> completionAction,
+                                                   @Nonnull Consumer<Runnable> failAction );
 
   protected abstract void requestUnsubscribeFromGraph( @Nonnull ChannelDescriptor descriptor,
-                                                       @Nonnull Consumer<Runnable> completionAction );
+                                                       @Nonnull Consumer<Runnable> completionAction,
+                                                       @Nonnull Consumer<Runnable> failAction );
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelDescriptor descriptor,
                                                      @Nonnull Object filterParameter,
-                                                     @Nonnull Consumer<Runnable> completionAction );
+                                                     @Nonnull Consumer<Runnable> completionAction,
+                                                     @Nonnull Consumer<Runnable> failAction );
 
   @Override
   public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )

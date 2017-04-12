@@ -183,20 +183,23 @@ public final class TestDataLoadService
                                           @Nullable final Object filterParameter,
                                           @Nullable final String eTag,
                                           @Nullable final Consumer<Runnable> cacheAction,
-                                          @Nonnull final Consumer<Runnable> completionAction )
+                                          @Nonnull final Consumer<Runnable> completionAction,
+                                          @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
   @Override
   protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
-                                              @Nonnull final Consumer<Runnable> completionAction )
+                                              @Nonnull final Consumer<Runnable> completionAction,
+                                              @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
                                             @Nonnull final Object filterParameter,
-                                            @Nonnull final Consumer<Runnable> completionAction )
+                                            @Nonnull final Consumer<Runnable> completionAction,
+                                            @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
