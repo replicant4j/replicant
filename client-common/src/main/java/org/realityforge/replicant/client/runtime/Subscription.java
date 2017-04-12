@@ -81,7 +81,7 @@ public final class Subscription
 
   public void release()
   {
-    _incomingReferences.forEach( SubscriptionReference::release );
+    new ArrayList<>( _incomingReferences ).forEach( SubscriptionReference::release );
 
     //This next line is required if release is called prior to creating a reference to a subscription
     releaseUnreferenced();

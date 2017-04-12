@@ -48,7 +48,7 @@ public final class Scope
 
   public void release()
   {
-    _incomingReferences.forEach( ScopeReference::release );
+    new ArrayList<>( _incomingReferences ).forEach( ScopeReference::release );
 
     //This next line is required if release is called prior to creating a reference to a scope
     releaseUnreferenced();

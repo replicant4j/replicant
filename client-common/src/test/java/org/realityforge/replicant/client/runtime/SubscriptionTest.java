@@ -164,6 +164,23 @@ public class SubscriptionTest
     assertThrows( SubscriptionInactiveException.class, () -> subscription1.requireSubscription( subscription2 ) );
   }
 
+  @Test
+  public void releaseMultiple()
+  {
+    final Subscription subscription1 =
+      new Subscription( mock( AreaOfInterestService.class ), new ChannelDescriptor( TestGraph.A ) );
+
+    final SubscriptionReference reference1 = subscription1.createReference();
+    final SubscriptionReference reference2 = subscription1.createReference();
+    final SubscriptionReference reference3 = subscription1.createReference();
+
+    subscription1.release();
+
+    assertEquals( reference1.hasBeenReleased(), true );
+    assertEquals( reference2.hasBeenReleased(), true );
+    assertEquals( reference3.hasBeenReleased(), true );
+  }
+
   private void answerDestroySubscription( @Nonnull final AreaOfInterestService areaOfInterestService,
                                           @Nonnull final Subscription subscription )
   {

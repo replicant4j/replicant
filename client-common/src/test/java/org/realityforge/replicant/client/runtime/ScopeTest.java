@@ -267,6 +267,24 @@ public class ScopeTest
     assertThrows( ScopeInactiveException.class, () -> scope.requireSubscription( subscription ) );
   }
 
+  @Test
+  public void releaseMultiple()
+  {
+    final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
+
+    final Scope scope = new Scope( areaOfInterestService, ValueUtil.randomString() );
+
+    final ScopeReference reference1 = scope.createReference();
+    final ScopeReference reference2 = scope.createReference();
+    final ScopeReference reference3 = scope.createReference();
+
+    scope.release();
+
+    assertEquals( reference1.hasBeenReleased(), true );
+    assertEquals( reference2.hasBeenReleased(), true );
+    assertEquals( reference3.hasBeenReleased(), true );
+  }
+
   private void answerDestroyScope( @Nonnull final AreaOfInterestService areaOfInterestService,
                                    @Nonnull final Scope scope )
   {
