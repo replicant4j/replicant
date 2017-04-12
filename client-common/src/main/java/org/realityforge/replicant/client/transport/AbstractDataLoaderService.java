@@ -332,9 +332,19 @@ public abstract class AbstractDataLoaderService
         //Already subscribed
         if ( null != entry )
         {
-          LOG.warning( "Subscription to " + label + " requested but already subscribed." );
-          completeAoiAction();
-          return true;
+          if ( entry.isExplicitSubscription() )
+          {
+            LOG.warning( "Subscription to " + label + " requested but already subscribed." );
+            completeAoiAction();
+            return true;
+          }
+          else
+          {
+            LOG.warning( "Existing subscription to " + label + " converted to a explicit subscription." );
+            entry.setExplicitSubscription( true );
+            completeAoiAction();
+            return true;
+          }
         }
         final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
         final String eTag;
@@ -381,11 +391,18 @@ public abstract class AbstractDataLoaderService
           completeAoiAction();
           return true;
         }
+        else if ( !entry.isExplicitSubscription() )
+        {
+          LOG.warning( "Unsubscribe from " + label + " requested but not explicitly subscribed." );
+          completeAoiAction();
+          return true;
+        }
 
         LOG.info( "Unsubscribe from " + label + " requested." );
         final Consumer<Runnable> completionAction = ( a ) ->
         {
           LOG.info( "Unsubscribe from " + label + " completed." );
+          entry.setExplicitSubscription( false );
           completeAoiAction();
           a.run();
         };
@@ -624,6 +641,16 @@ public abstract class AbstractDataLoaderService
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
           boolean explicitSubscribe = false;
+          if ( null != _currentAoiAction &&
+               _currentAoiAction.isInProgress() &&
+               _currentAoiAction.getDescriptor().equals( descriptor ) )
+          {
+            if ( LOG.isLoggable( getLogLevel() ) )
+            {
+              LOG.log( getLogLevel(), "Recording explicit subscription for " + descriptor );
+            }
+            explicitSubscribe = true;
+          }
           getSubscriptionManager().recordSubscription( descriptor, filter, explicitSubscribe );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
