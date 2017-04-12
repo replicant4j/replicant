@@ -2,7 +2,6 @@ package org.realityforge.replicant.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -27,7 +26,7 @@ public final class EntityMessageSorter
   public static List<EntityMessage> sort( @Nonnull final Collection<EntityMessage> messages )
   {
     final ArrayList<EntityMessage> sortedMessages = new ArrayList<>( messages );
-    Collections.sort( sortedMessages, COMPARATOR );
+    sortedMessages.sort( COMPARATOR );
     return sortedMessages;
   }
 
