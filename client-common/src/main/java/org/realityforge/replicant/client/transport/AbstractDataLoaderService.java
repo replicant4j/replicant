@@ -353,7 +353,7 @@ public abstract class AbstractDataLoaderService
         {
           eTag = cacheEntry.getETag();
           LOG.info( "Found locally cached data for graph " + label + " with etag " + eTag + "." );
-          cacheAction = ( a ) ->
+          cacheAction = a ->
           {
             LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
             final Runnable completeAoiAction = () ->
@@ -371,7 +371,7 @@ public abstract class AbstractDataLoaderService
           eTag = null;
           cacheAction = null;
         }
-        final Consumer<Runnable> completionAction = ( a ) ->
+        final Consumer<Runnable> completionAction = a ->
         {
           LOG.info( "Subscription to " + label + " completed." );
           completeAoiAction();
@@ -399,7 +399,7 @@ public abstract class AbstractDataLoaderService
         }
 
         LOG.info( "Unsubscribe from " + label + " requested." );
-        final Consumer<Runnable> completionAction = ( a ) ->
+        final Consumer<Runnable> completionAction = a ->
         {
           LOG.info( "Unsubscribe from " + label + " completed." );
           entry.setExplicitSubscription( false );
@@ -420,7 +420,7 @@ public abstract class AbstractDataLoaderService
           return true;
         }
 
-        final Consumer<Runnable> completionAction = ( a ) ->
+        final Consumer<Runnable> completionAction = a ->
         {
           LOG.warning( "Subscription update of " + label + " completed." );
           completeAoiAction();
