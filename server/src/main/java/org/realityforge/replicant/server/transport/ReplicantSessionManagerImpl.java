@@ -32,30 +32,6 @@ public abstract class ReplicantSessionManagerImpl
   extends InMemorySessionManager<ReplicantSession>
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
-  /**
-   * Status returned when attempting to subscribe.
-   */
-  public enum CacheStatus
-  {
-    /**
-     * The client supplied cacheKey is still valid and cached data should be reused.
-     */
-    USE,
-    /**
-     * The client did not supply cacheKey or it is out of date. Client cache should be refreshed from supplied data.
-     */
-    REFRESH,
-    /**
-     * The client did not supply cacheKey or it is out of date and the response is not cacheable. This may occur
-     * if multiple subscriptions occur in a single subscribe call or attempting to subscribe to channels that are
-     * already on the client.
-     *
-     * One day this may not be needed if the client can generate the cache from the in-memory representation rather
-     * than the representation as it passes over the network.
-     * TODO: Fix this.
-     */
-    IGNORE
-  }
 
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
@@ -289,10 +265,11 @@ public abstract class ReplicantSessionManagerImpl
     unsubscribe( ensureSession( sessionID ), descriptor, true, changeSet );
   }
 
-  protected void updateSubscription( @Nonnull final ReplicantSession session,
-                                     @Nonnull final ChannelDescriptor descriptor,
-                                     @Nullable final Object filter,
-                                     @Nonnull final ChangeSet changeSet )
+  @Override
+  public void updateSubscription( @Nonnull final ReplicantSession session,
+                                  @Nonnull final ChannelDescriptor descriptor,
+                                  @Nullable final Object filter,
+                                  @Nonnull final ChangeSet changeSet )
   {
     assert getChannelMetaData( descriptor ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
@@ -304,11 +281,12 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  protected void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
-                                         final int channelID,
-                                         @Nonnull final Collection<Serializable> subChannelIDs,
-                                         @Nullable final Object filter,
-                                         @Nonnull final ChangeSet changeSet )
+  @Override
+  public void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
+                                      final int channelID,
+                                      @Nonnull final Collection<Serializable> subChannelIDs,
+                                      @Nullable final Object filter,
+                                      @Nonnull final ChangeSet changeSet )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
     assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
@@ -352,12 +330,13 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  protected void bulkSubscribe( @Nonnull final ReplicantSession session,
-                                final int channelID,
-                                @Nonnull final Collection<Serializable> subChannelIDs,
-                                @Nullable final Object filter,
-                                final boolean explicitSubscribe,
-                                @Nonnull final ChangeSet changeSet )
+  @Override
+  public void bulkSubscribe( @Nonnull final ReplicantSession session,
+                             final int channelID,
+                             @Nonnull final Collection<Serializable> subChannelIDs,
+                             @Nullable final Object filter,
+                             final boolean explicitSubscribe,
+                             @Nonnull final ChangeSet changeSet )
   {
     assert getChannelMetaData( channelID ).isInstanceGraph();
 
@@ -426,11 +405,12 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   @Nonnull
-  protected CacheStatus subscribe( @Nonnull final ReplicantSession session,
-                                   @Nonnull final ChannelDescriptor descriptor,
-                                   final boolean explicitlySubscribe,
-                                   @Nullable final Object filter,
-                                   @Nonnull final ChangeSet changeSet )
+  @Override
+  public CacheStatus subscribe( @Nonnull final ReplicantSession session,
+                                @Nonnull final ChannelDescriptor descriptor,
+                                final boolean explicitlySubscribe,
+                                @Nullable final Object filter,
+                                @Nonnull final ChangeSet changeSet )
   {
     if ( session.isSubscriptionEntryPresent( descriptor ) )
     {
@@ -667,10 +647,11 @@ public abstract class ReplicantSessionManagerImpl
     bulkUnsubscribe( ensureSession( sessionID ), channelID, subChannelIDs, explicitUnsubscribe, changeSet );
   }
 
-  protected void unsubscribe( @Nonnull final ReplicantSession session,
-                              @Nonnull final ChannelDescriptor descriptor,
-                              final boolean explicitUnsubscribe,
-                              @Nonnull final ChangeSet changeSet )
+  @Override
+  public void unsubscribe( @Nonnull final ReplicantSession session,
+                           @Nonnull final ChannelDescriptor descriptor,
+                           final boolean explicitUnsubscribe,
+                           @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
     if ( null != entry )
@@ -679,11 +660,12 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
-                                  final int channelID,
-                                  @Nonnull final Collection<Serializable> subChannelIDs,
-                                  final boolean explicitUnsubscribe,
-                                  @Nonnull final ChangeSet changeSet )
+  @Override
+  public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
+                               final int channelID,
+                               @Nonnull final Collection<Serializable> subChannelIDs,
+                               final boolean explicitUnsubscribe,
+                               @Nonnull final ChangeSet changeSet )
   {
     for ( final Serializable subChannelID : subChannelIDs )
     {

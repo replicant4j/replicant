@@ -116,7 +116,7 @@ public class ReplicantSessionManagerImplTest
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd1, false, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
       final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
       assertNotNull( entry1 );
@@ -131,7 +131,7 @@ public class ReplicantSessionManagerImplTest
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd1, false, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.IGNORE );
       assertEntry( session.getSubscriptionEntry( cd1 ), false, 0, 0, null );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
@@ -141,7 +141,7 @@ public class ReplicantSessionManagerImplTest
     {
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status = sm.subscribe( session, cd1, true, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.IGNORE );
       assertEntry( session.getSubscriptionEntry( cd1 ), true, 0, 0, null );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
@@ -152,7 +152,7 @@ public class ReplicantSessionManagerImplTest
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd2, true, originalFilter, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
       assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 1 );
       assertSessionChangesCount( 1 );
@@ -162,7 +162,7 @@ public class ReplicantSessionManagerImplTest
       //Should be a noop as same filter
       final ReplicantSessionManagerImpl.CacheStatus status1 =
         sm.subscribe( session, cd2, true, originalFilter, getChangeSet() );
-      assertEquals( status1, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
+      assertEquals( status1, ReplicantSessionManager.CacheStatus.IGNORE );
 
       assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 0 );
@@ -171,7 +171,7 @@ public class ReplicantSessionManagerImplTest
       //Should be a filter update
       final ReplicantSessionManagerImpl.CacheStatus status2 =
         sm.subscribe( session, cd2, true, filter, getChangeSet() );
-      assertEquals( status2, ReplicantSessionManagerImpl.CacheStatus.IGNORE );
+      assertEquals( status2, ReplicantSessionManager.CacheStatus.IGNORE );
 
       assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, filter );
       assertChannelActionCount( 1 );
@@ -228,7 +228,7 @@ public class ReplicantSessionManagerImplTest
       session.setCacheKey( cd1, "X" );
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd1, false, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.USE );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
       final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
       assertNotNull( entry1 );
@@ -246,7 +246,7 @@ public class ReplicantSessionManagerImplTest
       session.setCacheKey( cd1, "Y" );
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd1, false, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
       final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
       assertNotNull( entry1 );
@@ -278,7 +278,7 @@ public class ReplicantSessionManagerImplTest
 
     final ReplicantSessionManagerImpl.CacheStatus status =
       sm.subscribe( session.getSessionID(), cd1, null, null, getChangeSet() );
-    assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+    assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
     assertNotNull( entry1 );
@@ -308,7 +308,7 @@ public class ReplicantSessionManagerImplTest
 
     final ReplicantSessionManagerImpl.CacheStatus status =
       sm.subscribe( session.getSessionID(), cd1, null, "X", getChangeSet() );
-    assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.USE );
+    assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
     assertEquals( session.getCacheKey( cd1 ), "X" );
 
@@ -340,7 +340,7 @@ public class ReplicantSessionManagerImplTest
 
     final ReplicantSessionManagerImpl.CacheStatus status =
       sm.subscribe( session.getSessionID(), cd1, null, "Y", getChangeSet() );
-    assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+    assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
     assertNull( session.getCacheKey( cd1 ) );
 
@@ -382,7 +382,7 @@ public class ReplicantSessionManagerImplTest
 
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.performSubscribe( session, e1, true, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
       assertEntry( e1, true, 0, 0, null );
 
@@ -409,7 +409,7 @@ public class ReplicantSessionManagerImplTest
 
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.performSubscribe( session, e1, true, filter, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
       assertEntry( e1, true, 0, 0, filter );
 
@@ -454,7 +454,7 @@ public class ReplicantSessionManagerImplTest
 
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.performSubscribe( session, e1, true, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.USE );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
       assertEntry( e1, true, 0, 0, null );
 
@@ -475,7 +475,7 @@ public class ReplicantSessionManagerImplTest
 
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.performSubscribe( session, e1, true, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
       assertEntry( e1, true, 0, 0, null );
 
@@ -500,7 +500,7 @@ public class ReplicantSessionManagerImplTest
 
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.performSubscribe( session, e1, true, null, getChangeSet() );
-      assertEquals( status, ReplicantSessionManagerImpl.CacheStatus.REFRESH );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
       assertEntry( e1, true, 0, 0, null );
 
