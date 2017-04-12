@@ -57,6 +57,17 @@ public interface ReplicantSessionManager
                       boolean explicitSubscribe,
                       @Nonnull ChangeSet changeSet );
 
+  void delinkSubscription( @Nonnull ReplicantSession session,
+                           @Nonnull ChannelDescriptor sourceGraph,
+                           @Nonnull ChannelDescriptor targetGraph,
+                           @Nonnull ChangeSet changeSet );
+
+  void bulkDelinkSubscription( @Nonnull ReplicantSession session,
+                               @Nonnull ChannelDescriptor sourceGraph,
+                               int channelID,
+                               @Nonnull Collection<Serializable> subChannelIDs,
+                               @Nonnull ChangeSet changeSet );
+
   void updateSubscription( @Nonnull ReplicantSession session,
                            @Nonnull ChannelDescriptor descriptor,
                            @Nullable Object filter,

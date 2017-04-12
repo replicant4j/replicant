@@ -1,4 +1,5 @@
 ## 0.5.79 (Pending):
+* Enhance `ReplicantSessionManagerImpl` so support delink operations between graphs.
 * Rename methods on `EntitySubscriptionManager` that record subscriptions and update parameter names. The
   aim to clarify purpose of the API.
 * Introduce the `AreaOfInterestService` and `ReplicantClientSystem` classes in a runtime package that aims

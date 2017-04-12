@@ -197,6 +197,37 @@ public abstract class ReplicantSessionManagerImpl
                                                  @Nonnull Collection<ReplicantSession> sessions,
                                                  @Nonnull ChangeAccumulator accumulator );
 
+  @Override
+  public void delinkSubscription( @Nonnull final ReplicantSession session,
+                                  @Nonnull final ChannelDescriptor sourceGraph,
+                                  @Nonnull final ChannelDescriptor targetGraph,
+                                  @Nonnull final ChangeSet changeSet )
+  {
+    final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( sourceGraph );
+    final SubscriptionEntry targetEntry = session.findSubscriptionEntry( targetGraph );
+    if ( null != sourceEntry && null != targetEntry )
+    {
+      delinkSubscriptionEntries( sourceEntry, targetEntry );
+      if ( targetEntry.canUnsubscribe() )
+      {
+        performUnsubscribe( session, targetEntry, false, changeSet );
+      }
+    }
+  }
+
+  @Override
+  public void bulkDelinkSubscription( @Nonnull final ReplicantSession session,
+                                      @Nonnull final ChannelDescriptor sourceGraph,
+                                      final int channelID,
+                                      @Nonnull final Collection<Serializable> subChannelIDs,
+                                      @Nonnull final ChangeSet changeSet )
+  {
+    for ( final Serializable id : subChannelIDs )
+    {
+      delinkSubscription( session, sourceGraph, new ChannelDescriptor( channelID, id ), changeSet );
+    }
+  }
+
   /**
    * Perform a a subscribe.
    *

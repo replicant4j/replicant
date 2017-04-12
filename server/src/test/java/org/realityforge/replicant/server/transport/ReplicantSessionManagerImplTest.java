@@ -1127,6 +1127,62 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void delinkSubscription()
+    throws Exception
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC, false );
+    final ChannelMetaData ch2 = new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ch1.getChannelID(), null );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ch2.getChannelID(), ValueUtil.randomString() );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+
+    {
+      final ReplicantSession session = sm.createSession();
+      final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
+      se1.setExplicitlySubscribed( true );
+      final SubscriptionEntry se2 = session.createSubscriptionEntry( cd2 );
+      se2.setExplicitlySubscribed( true );
+
+      sm.linkSubscriptionEntries( se1, se2 );
+
+      assertEntry( se1, true, 0, 1, null );
+      assertEntry( se2, true, 1, 0, null );
+
+      final ChangeSet changeSet = new ChangeSet();
+      sm.delinkSubscription( session, cd1, cd2, changeSet );
+
+      //No action as se2 explicitly subscribed
+      assertEquals( changeSet.getChannelActions().size(), 0 );
+    }
+
+    {
+      final ReplicantSession session = sm.createSession();
+      final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
+      se1.setExplicitlySubscribed( true );
+      final SubscriptionEntry se2 = session.createSubscriptionEntry( cd2 );
+
+      sm.linkSubscriptionEntries( se1, se2 );
+
+      assertEntry( se1, true, 0, 1, null );
+      assertEntry( se2, false, 1, 0, null );
+
+      final ChangeSet changeSet = new ChangeSet();
+      sm.delinkSubscription( session, cd1, cd2, changeSet );
+
+      //Action as se2 not explicitly subscribed and now is delinked
+      final LinkedList<ChannelAction> channelActions = changeSet.getChannelActions();
+      assertEquals( channelActions.size(), 1 );
+      final ChannelAction action = channelActions.get( 0 );
+      assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
+      assertEquals( action.getChannelDescriptor(), cd2 );
+      assertEquals( action.getFilter(), null );
+    }
+  }
+
+  @Test
   public void ensureSession()
     throws Exception
   {
