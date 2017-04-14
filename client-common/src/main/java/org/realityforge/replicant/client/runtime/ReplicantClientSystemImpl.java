@@ -81,10 +81,10 @@ public abstract class ReplicantClientSystemImpl
   }
 
   /**
-   * {@inheritDoc}
+   * Attempt to converge the state of the system towards the desired state.
+   * This should be invoked periodically.
    */
-  @Override
-  public void converge()
+  protected void converge()
   {
     updateStatus();
     reflectActiveState();

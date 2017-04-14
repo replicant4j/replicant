@@ -42,12 +42,6 @@ public interface ReplicantClientSystem
   void deactivate();
 
   /**
-   * Attempt to converge the state of the system towards the desired state.
-   * This should be invoked periodically.
-   */
-  void converge();
-
-  /**
    * Add a listener. Return true if actually added, false if listener was already present.
    */
   boolean addReplicantSystemListener( @Nonnull ReplicantSystemListener listener );
