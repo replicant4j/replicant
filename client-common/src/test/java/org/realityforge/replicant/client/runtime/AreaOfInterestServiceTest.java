@@ -202,6 +202,8 @@ public class AreaOfInterestServiceTest
     final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B, 1 );
     final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.B, 2 );
 
+    assertEquals( scope1.getSubscriptionReferenceCount(), 0 );
+
     final SubscriptionReference reference1 = service.createSubscriptionReference( scope1, descriptor1 );
 
     final Subscription subscription1 = reference1.getSubscription();
@@ -210,6 +212,9 @@ public class AreaOfInterestServiceTest
     assertEquals( subscription1.getDescriptor(), descriptor1 );
     assertEquals( subscription1.getReferenceCount(), 1 );
     assertEquals( subscription1.isActive(), true );
+
+    assertEquals( scope1.getRequiredSubscriptions().contains( subscription1 ), true );
+    assertEquals( scope1.getSubscriptionReferenceCount(), 1 );
 
     verify( listener ).subscriptionCreated( subscription1 );
 
@@ -224,21 +229,6 @@ public class AreaOfInterestServiceTest
     assertEquals( subscription1.getFilter(), newFilter );
 
     verify( listener ).subscriptionUpdated( subscription1 );
-
-    // Verify a second reference to channel in scope is fine
-    {
-      final SubscriptionReference reference1b = service.createSubscriptionReference( scope1, descriptor1 );
-
-      assertEquals( reference1b.getSubscription(), subscription1 );
-      assertEquals( subscription1.getReferenceCount(), 2 );
-      assertEquals( service.getSubscriptionsChannels().size(), 1 );
-
-      assertFalse( reference1b.hasBeenReleased() );
-      reference1b.release();
-      assertTrue( reference1b.hasBeenReleased() );
-
-      assertEquals( subscription1.getReferenceCount(), 1 );
-    }
 
     // Verify a second reference to channel in different scope is fine
     {

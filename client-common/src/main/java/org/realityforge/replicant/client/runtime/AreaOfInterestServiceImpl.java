@@ -78,7 +78,7 @@ public class AreaOfInterestServiceImpl
                                                             @Nonnull final ChannelDescriptor channel )
   {
     assert scope.isActive();
-    return findOrCreateSubscription( channel ).createReference();
+    return scope.requireSubscription( findOrCreateSubscription( channel ) );
   }
 
   @Override
