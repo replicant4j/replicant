@@ -30,7 +30,7 @@ public class ReplicantClientSystemImplTest
     final TestDataLoaderService service2 = newServiceB();
 
     final ReplicantClientSystemImpl system =
-      new ReplicantClientSystemImpl( new DataLoaderEntry[]{ requiredEntry( service1 ), requiredEntry( service2 ) } );
+      new TestReplicantClientSystemImpl( new DataLoaderEntry[]{ requiredEntry( service1 ), requiredEntry( service2 ) } );
 
     assertEquals( system.getDataLoaderService( TestGraphA.A ), service1 );
     assertEquals( system.getDataLoaderService( TestGraphB.B ), service2 );
@@ -47,7 +47,7 @@ public class ReplicantClientSystemImplTest
     service1.setState( DataLoaderService.State.DISCONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
 
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1 } );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1 } );
     system.addReplicantSystemListener( listener );
 
     final DataLoaderListenerSupport l = service1.getListener();
@@ -139,7 +139,7 @@ public class ReplicantClientSystemImplTest
     service1.setState( DataLoaderService.State.DISCONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
 
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1 } );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1 } );
     system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
@@ -199,7 +199,7 @@ public class ReplicantClientSystemImplTest
     service3.setState( DataLoaderService.State.DISCONNECTED );
     final DataLoaderEntry entry3 = requiredEntry( service3 );
 
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1, entry3 } );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1, entry3 } );
     system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
@@ -279,7 +279,7 @@ public class ReplicantClientSystemImplTest
     service1.setState( DataLoaderService.State.CONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
 
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1 } );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1 } );
     system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
@@ -347,7 +347,7 @@ public class ReplicantClientSystemImplTest
     service3.setState( DataLoaderService.State.CONNECTED );
     final DataLoaderEntry entry3 = optionalEntry( service3 );
 
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1, entry3 } );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( new DataLoaderEntry[]{ entry1, entry3 } );
     system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
@@ -514,7 +514,7 @@ public class ReplicantClientSystemImplTest
                                   final DataLoaderEntry[] dataLoaders )
   {
     final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( dataLoaders );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( dataLoaders );
     system.addReplicantSystemListener( listener );
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     reset( listener );
@@ -539,7 +539,7 @@ public class ReplicantClientSystemImplTest
 
     final DataLoaderEntry[] dataLoaders = { requiredEntry( newServiceA() ) };
 
-    final ReplicantClientSystemImpl system = new ReplicantClientSystemImpl( dataLoaders );
+    final ReplicantClientSystemImpl system = new TestReplicantClientSystemImpl( dataLoaders );
     system.addReplicantSystemListener( listener );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
