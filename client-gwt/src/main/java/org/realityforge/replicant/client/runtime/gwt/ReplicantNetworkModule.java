@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.runtime.gwt;
 import com.google.gwt.inject.client.AbstractGinModule;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.AreaOfInterestServiceImpl;
+import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
 public class ReplicantNetworkModule
   extends AbstractGinModule
@@ -11,5 +12,6 @@ public class ReplicantNetworkModule
   protected void configure()
   {
     bind( AreaOfInterestService.class ).to( AreaOfInterestServiceImpl.class ).asEagerSingleton();
+    bind( ReplicantClientSystem.class ).to( GwtReplicantClientSystemImpl.class ).asEagerSingleton();
   }
 }

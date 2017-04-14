@@ -10,32 +10,36 @@ import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 
-public final class ReplicantClientSystemImpl
+public abstract class ReplicantClientSystemImpl
   implements ReplicantClientSystem
 {
+  protected static final int CONVERGE_DELAY_IN_MS = 2000;
+
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystemImpl.class.getName() );
 
   private final ReplicantSystemListenerSupport _listenerSupport = new ReplicantSystemListenerSupport();
-  private final DataLoaderEntry[] _dataLoaders;
+  private final Listener _dataLoaderListener = new Listener();
+  private DataLoaderEntry[] _dataLoaders;
+  private List<DataLoaderEntry> _roDataLoaders;
   private State _state = State.DISCONNECTED;
   /**
    * If true then the desired state is CONNECTED while if false then the desired state is DISCONNECTED.
    */
   private boolean _active;
-  private final Listener _dataLoaderListener = new Listener();
-  private final List<DataLoaderEntry> _roDataLoaders;
 
-  public ReplicantClientSystemImpl( @Nonnull final DataLoaderEntry[] dataLoaders )
+  protected void setDataLoaders( @Nonnull final DataLoaderEntry[] dataLoaders )
   {
     assert Arrays.stream( Objects.requireNonNull( dataLoaders ) ).allMatch( Objects::nonNull );
+    removeListener();
     _dataLoaders = Objects.requireNonNull( dataLoaders );
     _roDataLoaders = Collections.unmodifiableList( Arrays.asList( _dataLoaders ) );
     addListener();
   }
 
-  @Override
-  protected void finalize()
-    throws Throwable
+  /**
+   * Release resources associated with the system.
+   */
+  protected void release()
   {
     removeListener();
   }
@@ -279,9 +283,12 @@ public final class ReplicantClientSystemImpl
 
   private void removeListener()
   {
-    for ( final DataLoaderEntry dataLoader : _dataLoaders )
+    if ( null != _dataLoaders )
     {
-      dataLoader.getService().removeDataLoaderListener( getDataLoaderListener() );
+      for ( final DataLoaderEntry dataLoader : _dataLoaders )
+      {
+        dataLoader.getService().removeDataLoaderListener( getDataLoaderListener() );
+      }
     }
   }
 
