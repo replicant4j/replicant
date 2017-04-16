@@ -2,8 +2,8 @@
 * Enhance `ReplicantSessionManagerImpl` so support delink operations between graphs.
 * Rename methods on `EntitySubscriptionManager` that record subscriptions and update parameter names. The
   aim to clarify purpose of the API.
-* Introduce the `AreaOfInterestService` and `ReplicantClientSystem` classes in a runtime package that aims
-  to simplify the mechanisms for setting up client environments.
+* Introduce the `AreaOfInterestService`, `ContextConverger` and `ReplicantClientSystem` classes in a
+  runtime package that aims to simplify the mechanisms for setting up client environments.
 * Move to using `ChannelDescriptor` to represent channels/graphs through a larger portion of the API.
 * Move from mandatory subclassing of `ClientSession` to disallowing subclassing of the same.
 * Remove generics from the `ClientSession` and the `DataLoaderService` classes.
