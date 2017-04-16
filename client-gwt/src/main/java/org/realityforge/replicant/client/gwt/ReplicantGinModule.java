@@ -8,6 +8,7 @@ import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.EntitySystemImpl;
+import org.realityforge.replicant.client.transport.CacheService;
 
 /**
  * A simple GIN module that defines the repository and change broker services.
@@ -19,6 +20,12 @@ public class ReplicantGinModule
   protected void configure()
   {
     bind( EntitySystem.class ).to( EntitySystemImpl.class ).asEagerSingleton();
+    bindCacheService();
+  }
+
+  protected void bindCacheService()
+  {
+    bind( CacheService.class ).to( LocalCacheService.class ).asEagerSingleton();
   }
 
   @Provides
