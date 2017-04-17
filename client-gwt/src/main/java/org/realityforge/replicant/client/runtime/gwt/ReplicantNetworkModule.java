@@ -12,8 +12,23 @@ public class ReplicantNetworkModule
   @Override
   protected void configure()
   {
-    bind( AreaOfInterestService.class ).to( AreaOfInterestServiceImpl.class ).asEagerSingleton();
-    bind( ReplicantClientSystem.class ).to( GwtReplicantClientSystemImpl.class ).asEagerSingleton();
+    bindAreaOfInterestService();
+    bindReplicantClientSystem();
+    bindContextConverger();
+  }
+
+  private void bindContextConverger()
+  {
     bind( ContextConverger.class ).to( GwtContextConvergerImpl.class ).asEagerSingleton();
+  }
+
+  protected void bindReplicantClientSystem()
+  {
+    bind( ReplicantClientSystem.class ).to( GwtReplicantClientSystemImpl.class ).asEagerSingleton();
+  }
+
+  protected void bindAreaOfInterestService()
+  {
+    bind( AreaOfInterestService.class ).to( AreaOfInterestServiceImpl.class ).asEagerSingleton();
   }
 }

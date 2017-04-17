@@ -19,8 +19,13 @@ public class ReplicantGinModule
   @Override
   protected void configure()
   {
-    bind( EntitySystem.class ).to( EntitySystemImpl.class ).asEagerSingleton();
+    bindEntitySystem();
     bindCacheService();
+  }
+
+  protected void bindEntitySystem()
+  {
+    bind( EntitySystem.class ).to( EntitySystemImpl.class ).asEagerSingleton();
   }
 
   protected void bindCacheService()
