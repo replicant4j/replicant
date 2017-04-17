@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -31,9 +32,15 @@ public final class JsonUtil
   @Nonnull
   public static JsonObject toJsonObject( @Nonnull final Object object )
   {
+    return toJsonObject( toJsonString( object ) );
+  }
+
+  @Nonnull
+  public static String toJsonString( @Nullable final Object object )
+  {
     try
     {
-      return toJsonObject( c_jsonMapper.writeValueAsString( object ) );
+      return c_jsonMapper.writeValueAsString( object );
     }
     catch ( final IOException ioe )
     {
