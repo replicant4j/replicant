@@ -18,7 +18,7 @@ public class GwtContextConvergerImpl
   private final EntitySubscriptionManager _subscriptionManager;
   private final AreaOfInterestService _areaOfInterestService;
   private final ReplicantClientSystem _replicantClientSystem;
-  private final Timer _timer;
+  private Timer _timer;
 
   @Inject
   public GwtContextConvergerImpl( @Nonnull final EntitySubscriptionManager subscriptionManager,
@@ -29,6 +29,18 @@ public class GwtContextConvergerImpl
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     addListeners();
+  }
+
+  @Override
+  public boolean isActive()
+  {
+    return null != _timer;
+  }
+
+  @Override
+  public void activate()
+  {
+    deactivate();
     _timer = new Timer()
     {
       @Override
@@ -41,6 +53,13 @@ public class GwtContextConvergerImpl
   }
 
   @Override
+  public void deactivate()
+  {
+    cancelTimer();
+    unpause();
+  }
+
+  @Override
   protected void release()
   {
     cancelTimer();
@@ -49,7 +68,11 @@ public class GwtContextConvergerImpl
 
   private void cancelTimer()
   {
-    _timer.cancel();
+    if ( null != _timer )
+    {
+      _timer.cancel();
+      _timer = null;
+    }
   }
 
   @Override

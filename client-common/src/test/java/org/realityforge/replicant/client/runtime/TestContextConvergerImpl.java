@@ -21,6 +21,22 @@ final class TestContextConvergerImpl
     _replicantClientSystem = replicantClientSystem;
   }
 
+  @Override
+  public void activate()
+  {
+  }
+
+  @Override
+  public void deactivate()
+  {
+  }
+
+  @Override
+  public boolean isActive()
+  {
+    return true;
+  }
+
   @Nullable
   @Override
   protected String filterToString( @Nullable final Object filter )

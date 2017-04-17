@@ -80,7 +80,8 @@ public abstract class ContextConvergerImpl
 
   protected void convergeStep()
   {
-    if ( !_convergeComplete &&
+    if ( isActive() &&
+         !_convergeComplete &&
          !isPaused() &&
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
@@ -109,8 +110,17 @@ public abstract class ContextConvergerImpl
   @Override
   public void resume()
   {
-    _paused = false;
+    unpause();
     convergeStep();
+  }
+
+  /**
+   * Turn of paused state.
+   * Method does not schedule next converge step.
+   */
+  protected void unpause()
+  {
+    _paused = false;
   }
 
   @Override

@@ -12,6 +12,12 @@ public interface ContextConverger
    */
   void setPreConvergeAction( @Nullable Runnable preConvergeAction );
 
+  void activate();
+
+  void deactivate();
+
+  boolean isActive();
+
   void pause();
 
   void resume();
