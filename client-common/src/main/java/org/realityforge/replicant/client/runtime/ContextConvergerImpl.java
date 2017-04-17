@@ -158,18 +158,22 @@ public abstract class ContextConvergerImpl
       if ( DataLoaderService.State.CONNECTED == service.getState() )
       {
         final boolean subscribed = service.isSubscribed( descriptor );
-        final boolean addPending = isAddPending( service, subscription );
-        final boolean removePending = isRemovePending( service, subscription );
-
         final Object filter = subscription.getFilter();
 
-        if ( ( !subscribed && !addPending ) || removePending )
+        final int addIndex =
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, filter );
+        final int removeIndex =
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null );
+        final int updateIndex =
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, filter );
+
+        if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
         {
-          LOG.info( "Adding subscription: " + descriptor );
+          LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
           service.requestSubscribe( descriptor, filter );
           return true;
         }
-        else if ( addPending )
+        else if ( addIndex >= 0 )
         {
           //Must have add in pipeline so pause until it completed
           return true;
@@ -177,7 +181,7 @@ public abstract class ContextConvergerImpl
         else
         {
           //Must be subscribed...
-          if ( isUpdatePending( service, subscription ) )
+          if ( updateIndex >= 0 )
           {
             //Update in progress so wait till it completes
             return true;
@@ -202,28 +206,6 @@ public abstract class ContextConvergerImpl
 
   @Nullable
   protected abstract String filterToString( @Nullable final Object filter );
-
-  private boolean isAddPending( @Nonnull final DataLoaderService service, @Nonnull final Subscription subscription )
-  {
-    return isPending( service, AreaOfInterestAction.ADD, subscription );
-  }
-
-  private boolean isUpdatePending( @Nonnull final DataLoaderService service, @Nonnull final Subscription subscription )
-  {
-    return isPending( service, AreaOfInterestAction.UPDATE, subscription );
-  }
-
-  private boolean isRemovePending( @Nonnull final DataLoaderService service, @Nonnull final Subscription subscription )
-  {
-    return isPending( service, AreaOfInterestAction.REMOVE, subscription );
-  }
-
-  private boolean isPending( @Nonnull final DataLoaderService service,
-                             @Nonnull final AreaOfInterestAction action,
-                             @Nonnull final Subscription subscription )
-  {
-    return service.isAreaOfInterestActionPending( action, subscription.getDescriptor(), subscription.getFilter() );
-  }
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelDescriptor> expectedChannels )
   {

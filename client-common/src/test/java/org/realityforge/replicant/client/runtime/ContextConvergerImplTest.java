@@ -119,8 +119,8 @@ public class ContextConvergerImplTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
 
     c.removeOrphanSubscription( descriptor );
 
@@ -193,8 +193,8 @@ public class ContextConvergerImplTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
 
     final HashSet<ChannelDescriptor> expected = new HashSet<>();
 
@@ -273,8 +273,8 @@ public class ContextConvergerImplTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, null, true ) );
@@ -310,10 +310,10 @@ public class ContextConvergerImplTest
 
     when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.FALSE );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, null ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
 
     c.convergeSubscription( subscription );
 
@@ -343,10 +343,10 @@ public class ContextConvergerImplTest
 
     when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.TRUE );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.TRUE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, null ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( 0 );
 
     c.convergeSubscription( subscription );
 
@@ -376,10 +376,10 @@ public class ContextConvergerImplTest
 
     when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.TRUE );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, null ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, null, false ) );
@@ -412,10 +412,10 @@ public class ContextConvergerImplTest
 
     when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.FALSE );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, descriptor, null ) ).
-      thenReturn( Boolean.TRUE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, null ) ).
+      thenReturn( 1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
 
     c.convergeSubscription( subscription );
 
@@ -446,12 +446,12 @@ public class ContextConvergerImplTest
 
     when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.TRUE );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, descriptor, "Filter1" ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, descriptor, "Filter1" ) ).
-      thenReturn( Boolean.TRUE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, "Filter1" ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, "Filter1" ) ).
+      thenReturn( 4 );
 
     c.convergeSubscription( subscription );
 
@@ -482,12 +482,12 @@ public class ContextConvergerImplTest
 
     when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.TRUE );
 
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, descriptor, "Filter1" ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( Boolean.FALSE );
-    when( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, descriptor, "Filter1" ) ).
-      thenReturn( Boolean.FALSE );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, "Filter1" ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
+      thenReturn( -1 );
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, "Filter1" ) ).
+      thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, "OldFIlter", true ) );
