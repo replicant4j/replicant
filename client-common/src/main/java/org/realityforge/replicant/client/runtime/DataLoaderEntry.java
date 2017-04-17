@@ -14,8 +14,8 @@ public final class DataLoaderEntry
    * The cost to attempt to modify action on DataLoader.
    */
   private static final int ACTION_COST = 10000;
-  private static final int REQUIRED_REGEN_PER_MILLISECOND = ACTION_COST / 1000;
-  private static final int OPTIONAL_REGEN_PER_MILLISECOND = REQUIRED_REGEN_PER_MILLISECOND / 5;
+  static final int REQUIRED_REGEN_PER_MILLISECOND = ACTION_COST;
+  static final int OPTIONAL_REGEN_PER_MILLISECOND = REQUIRED_REGEN_PER_MILLISECOND / 5;
 
   @Nonnull
   private final DataLoaderService _service;
