@@ -130,4 +130,12 @@ final class TestDataLoaderService
   {
     return false;
   }
+
+  @Override
+  public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
+                                                 @Nonnull final ChannelDescriptor descriptor,
+                                                 @Nullable final Object filter )
+  {
+    return -1;
+  }
 }

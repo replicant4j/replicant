@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -495,6 +496,36 @@ public abstract class AbstractDataLoaderService
         session.getPendingAreaOfInterestActions().stream().
           anyMatch( a -> a.match( action, descriptor, filter ) )
       );
+  }
+
+  @Override
+  public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
+                                                 @Nonnull final ChannelDescriptor descriptor,
+                                                 @Nullable final Object filter )
+  {
+    final ClientSession session = getSession();
+    if ( null != _currentAoiAction && _currentAoiAction.match( action, descriptor, filter ) )
+    {
+      return 0;
+    }
+    else if ( null != session )
+    {
+      final LinkedList<AreaOfInterestEntry> actions = session.getPendingAreaOfInterestActions();
+      int index = actions.size();
+
+      final Iterator<AreaOfInterestEntry> iterator = actions.descendingIterator();
+      while ( iterator.hasNext() )
+      {
+        final AreaOfInterestEntry entry = iterator.next();
+        if ( entry.match( action, descriptor, filter ) )
+        {
+          return index;
+        }
+        index -= 1;
+      }
+
+    }
+    return -1;
   }
 
   // Method only used in tests

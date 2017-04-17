@@ -92,6 +92,13 @@ public interface DataLoaderService
                                          @Nonnull ChannelDescriptor descriptor,
                                          @Nullable Object filter );
 
+  /**
+   * Return the index of last matching AreaOfInterestAction in pending aoi actions list.
+   */
+  int indexOfPendingAreaOfInterestAction( @Nonnull AreaOfInterestAction action,
+                                          @Nonnull ChannelDescriptor descriptor,
+                                          @Nullable Object filter );
+
   default void requestSubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Object filterParameter )
   {
     ensureSession().requestSubscribe( descriptor, filterParameter );

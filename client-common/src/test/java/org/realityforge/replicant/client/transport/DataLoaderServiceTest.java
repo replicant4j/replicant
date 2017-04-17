@@ -597,19 +597,30 @@ public class DataLoaderServiceTest
 
     // type graph
     {
+      service.ensureSession().getPendingAreaOfInterestActions().clear();
+
       final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel1, null ), -1 );
 
       //Request a subscription so that it should be pending
       service.requestSubscribe( channel1, null );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel1, null ),
+                    1 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel1, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, channel1, null ),
+                    -1 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel1, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, channel1, null ),
+                    -1 );
     }
 
     // instance graph
     {
+      service.ensureSession().getPendingAreaOfInterestActions().clear();
+
       final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 2 );
       final ChannelDescriptor channel2b = new ChannelDescriptor( TestGraph.B );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
@@ -621,12 +632,16 @@ public class DataLoaderServiceTest
       service.requestSubscribe( channel2, null );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel2, null ),
+                    1 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel2, null ) );
     }
 
     {
+      service.ensureSession().getPendingAreaOfInterestActions().clear();
+
       final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
@@ -634,10 +649,14 @@ public class DataLoaderServiceTest
       set( service, AbstractDataLoaderService.class, "_currentAoiAction", entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel3, null ),
+                    0 );
     }
 
     // instance graph with filter
     {
+      service.ensureSession().getPendingAreaOfInterestActions().clear();
+
       final Object filter = new Object();
       final ChannelDescriptor channel4 = new ChannelDescriptor( TestGraph.B, 55 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, filter ) );
@@ -652,6 +671,43 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, filter ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
+    }
+
+
+    {
+      service.ensureSession().getPendingAreaOfInterestActions().clear();
+
+      final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.B, 1 );
+      final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 2 );
+      final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.B, 3 );
+      final ChannelDescriptor channel4 = new ChannelDescriptor( TestGraph.B, 4 );
+
+      service.requestSubscribe( channel1, null );
+      service.requestSubscribe( channel2, null );
+      service.requestSubscriptionUpdate( channel3, null );
+      service.requestUnsubscribe( channel4 );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel1, null ),
+                    1 );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel2, null ),
+                    2 );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel3, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, channel3, null ),
+                    3 );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, channel4, null ),
+                    4 );
+
+      service.requestUnsubscribe( channel4 );
+
+      assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, null ) );
+      assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, channel4, null ),
+                    5 );
     }
   }
 
