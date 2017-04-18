@@ -165,10 +165,36 @@ public final class TestDataLoadService
     _scheduleDataLoadCalled = true;
   }
 
+  @Nonnull
   @Override
-  protected boolean shouldValidateOnLoad()
+  protected DataLoaderServiceConfig config()
   {
-    return _validateOnLoad;
+    return new DataLoaderServiceConfig()
+    {
+      @Override
+      public boolean shouldValidateRepositoryOnLoad()
+      {
+        return _validateOnLoad;
+      }
+
+      @Override
+      public boolean repositoryDebugOutputEnabled()
+      {
+        return false;
+      }
+
+      @Override
+      public boolean subscriptionsDebugOutputEnabled()
+      {
+        return false;
+      }
+
+      @Override
+      public boolean requestDebugOutputEnabled()
+      {
+        return false;
+      }
+    };
   }
 
   @Nonnull

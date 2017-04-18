@@ -79,6 +79,9 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
+  protected abstract DataLoaderServiceConfig config();
+
+  @Nonnull
   protected DataLoaderListener getListener()
   {
     return _listenerSupport;
@@ -814,15 +817,15 @@ public abstract class AbstractDataLoaderService
           getChangeBroker().resume( getChangeBrokerKey() );
         }
       }
-      if ( repositoryDebugOutputEnabled() )
+      if ( config().repositoryDebugOutputEnabled() )
       {
         outputRepositoryDebug();
       }
-      if ( subscriptionsDebugOutputEnabled() )
+      if ( config().subscriptionsDebugOutputEnabled() )
       {
         outputSubscriptionDebug();
       }
-      if ( shouldValidateOnLoad() )
+      if ( config().shouldValidateRepositoryOnLoad() )
       {
         validateRepository();
       }
@@ -879,7 +882,7 @@ public abstract class AbstractDataLoaderService
           LOG.severe( "ChangeSet " + set.getSequence() + " expected to complete request '" +
                       requestID + "' but no request was registered with session." );
         }
-        if ( requestDebugOutputEnabled() )
+        if ( config().requestDebugOutputEnabled() )
         {
           outputRequestDebug();
         }
@@ -1077,14 +1080,6 @@ public abstract class AbstractDataLoaderService
   }
 
   /**
-   * @return true if a load action should result in the EntityRepository being validated.
-   */
-  protected boolean shouldValidateOnLoad()
-  {
-    return false;
-  }
-
-  /**
    * Perform a validation of the EntityRepository.
    */
   protected void validateRepository()
@@ -1096,21 +1091,6 @@ public abstract class AbstractDataLoaderService
   protected EntityRepositoryValidator getEntityRepositoryValidator()
   {
     return new EntityRepositoryValidator();
-  }
-
-  protected boolean requestDebugOutputEnabled()
-  {
-    return false;
-  }
-
-  protected boolean subscriptionsDebugOutputEnabled()
-  {
-    return false;
-  }
-
-  protected boolean repositoryDebugOutputEnabled()
-  {
-    return false;
   }
 
   protected void outputRepositoryDebug()

@@ -9,12 +9,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.enterprise.concurrent.ContextService;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.naming.InitialContext;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderListener;
+import org.realityforge.replicant.client.transport.DataLoaderServiceConfig;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 
 public abstract class EeDataLoaderService
@@ -27,11 +27,25 @@ public abstract class EeDataLoaderService
   private ScheduledFuture _future;
   private final InMemoryCacheService _cacheService = new InMemoryCacheService();
   private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock( true );
+  private DataLoaderServiceConfig _config;
 
   protected EeDataLoaderService()
   {
     setChangesToProcessPerTick( DEFAULT_EE_CHANGES_TO_PROCESS_PER_TICK );
     setLinksToProcessPerTick( DEFAULT_EE_LINKS_TO_PROCESS_PER_TICK );
+  }
+
+  protected void postConstruct()
+  {
+    _config = getContextService().
+      createContextualProxy( new EeDataLoaderServiceConfigImpl( getJndiPrefix() ), DataLoaderServiceConfig.class );
+  }
+
+  @Nonnull
+  @Override
+  protected DataLoaderServiceConfig config()
+  {
+    return _config;
   }
 
   @Nonnull
@@ -48,42 +62,6 @@ public abstract class EeDataLoaderService
   protected CacheService getCacheService()
   {
     return _cacheService;
-  }
-
-  @Override
-  protected boolean shouldValidateOnLoad()
-  {
-    return isFlagTrue( "shouldValidateRepositoryOnLoad" );
-  }
-
-  @Override
-  protected boolean requestDebugOutputEnabled()
-  {
-    return isFlagTrue( "requestDebugOutputEnabled" );
-  }
-
-  @Override
-  protected boolean subscriptionsDebugOutputEnabled()
-  {
-    return isFlagTrue( "subscriptionsDebugOutputEnabled" );
-  }
-
-  @Override
-  protected boolean repositoryDebugOutputEnabled()
-  {
-    return isFlagTrue( "repositoryDebugOutputEnabled" );
-  }
-
-  private boolean isFlagTrue( @Nonnull final String flag )
-  {
-    try
-    {
-      return (Boolean) new InitialContext().lookup( getJndiPrefix() + "/" + flag );
-    }
-    catch ( final Exception e )
-    {
-      return false;
-    }
   }
 
   @Nonnull
