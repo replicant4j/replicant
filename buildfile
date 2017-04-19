@@ -14,7 +14,8 @@ POWERMOCK = [
 
 GWT_DEPS = [:gwt_user, :gwt_property_source] + GIN_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
-COMPILE_DEPS = [:simple_session_filter, :field_filter]
+KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
+COMPILE_DEPS = [:simple_session_filter, :field_filter] + KEYCLOAK_DEPS
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
 TEST_DEPS = TEST_INFRA_DEPS + [:jndikit] + POWERMOCK
