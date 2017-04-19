@@ -30,13 +30,13 @@ public abstract class AbstractSecuredSessionRestService
   protected Response doCreateSession()
   {
     final OidcKeycloakAccount account = getAuthService().findAccount();
-    if ( !disableSecurity() && null == account )
+    if ( disableSecurity() || null != account )
     {
-      return createForbiddenResponse();
+      return super.doCreateSession();
     }
     else
     {
-      return super.doCreateSession();
+      return createForbiddenResponse();
     }
   }
 
