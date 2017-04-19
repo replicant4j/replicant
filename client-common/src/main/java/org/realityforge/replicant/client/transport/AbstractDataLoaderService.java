@@ -1026,7 +1026,7 @@ public abstract class AbstractDataLoaderService
   public void disconnect()
   {
     final ClientSession session = getSession();
-    if ( null != session )
+    if ( null != session && State.DISCONNECTING != getState() )
     {
       setState( State.DISCONNECTING );
       doDisconnect( session, this::onDisconnect );
