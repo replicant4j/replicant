@@ -2,6 +2,7 @@
 
 Some actions that should occur at some point in the future.
 
+* ChannelDescriptor should emit the "system" in toString (i.e. Rose, Planner etc)
 * Change should take a ChannelDescriptor as a parameter.
 * The Client/Server communication should be over generic interface and avoid generating typed
   interfaces via domgen. i.e. Eliminate sub-classing of ReplicantSessionManagerImpl by using
