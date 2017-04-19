@@ -141,4 +141,16 @@ public final class Subscription
       throw new SubscriptionInactiveException();
     }
   }
+
+  @Override
+  public String toString()
+  {
+    return "Subscription[" +
+           _descriptor +
+           " :: Filter=" + _filter +
+           ", Active=" + _active +
+           ", OutRefCount=" + _outwardReferences.size() +
+           ", InRefCount=" + _incomingReferences.size() +
+           "]";
+  }
 }

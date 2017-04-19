@@ -170,4 +170,16 @@ public final class Scope
       throw new ScopeInactiveException();
     }
   }
+
+  @Override
+  public String toString()
+  {
+    return "Subscription[" +
+           _name +
+           " :: Active=" + _active +
+           ", OutRefCount=" + _outwardReferences.size() +
+           ", InRefCount=" + _incomingReferences.size() +
+           ", SubRefCount=" + _subscriptionReferences.size() +
+           "]";
+  }
 }
