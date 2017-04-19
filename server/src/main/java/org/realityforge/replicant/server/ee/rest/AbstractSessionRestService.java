@@ -108,7 +108,7 @@ public abstract class AbstractSessionRestService
   public Response deleteSession( @PathParam( "sessionID" ) @NotNull final String sessionID )
   {
     final StringWriter writer = new StringWriter();
-    final JsonGenerator g = _factory.createGenerator( writer );
+    final JsonGenerator g = factory().createGenerator( writer );
     g.writeStartObject();
     g.write( "code", Response.Status.OK.getStatusCode() );
     g.write( "description", "Session removed." );
@@ -129,7 +129,7 @@ public abstract class AbstractSessionRestService
     CacheUtil.configureNoCacheHeaders( builder );
 
     final StringWriter writer = new StringWriter();
-    final JsonGenerator g = _factory.createGenerator( writer );
+    final JsonGenerator g = factory().createGenerator( writer );
     final Set<String> sessionIDs = getSessionManager().getSessionIDs();
     g.writeStartArray();
     for ( final String sessionID : sessionIDs )
@@ -153,7 +153,7 @@ public abstract class AbstractSessionRestService
                               @Context @Nonnull final UriInfo uri )
   {
     final StringWriter writer = new StringWriter();
-    final JsonGenerator g = _factory.createGenerator( writer );
+    final JsonGenerator g = factory().createGenerator( writer );
 
     final ReplicantSession session = getSessionManager().getSession( sessionID );
     final Response.ResponseBuilder builder;
@@ -397,5 +397,10 @@ public abstract class AbstractSessionRestService
       emitChannelDescriptors( g, descriptors, subFilter );
       g.writeEnd();
     }
+  }
+
+  protected JsonGeneratorFactory factory()
+  {
+    return _factory;
   }
 }
