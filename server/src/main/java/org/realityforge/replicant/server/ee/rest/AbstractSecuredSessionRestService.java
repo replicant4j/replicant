@@ -89,7 +89,7 @@ public abstract class AbstractSecuredSessionRestService
   private boolean doesUserMatchSession( @Nonnull final String sessionID,
                                         @Nonnull final OidcKeycloakAccount account )
   {
-    final String userID = account.getKeycloakSecurityContext().getIdToken().getId();
+    final String userID = account.getKeycloakSecurityContext().getToken().getId();
     final ReplicantSession session = getSessionManager().getSession( sessionID );
     return null != session && Objects.equals( session.getUserID(), userID );
   }
