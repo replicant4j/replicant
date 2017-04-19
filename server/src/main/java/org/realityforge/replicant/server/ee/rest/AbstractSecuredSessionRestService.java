@@ -74,7 +74,7 @@ public abstract class AbstractSecuredSessionRestService
                                    @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
-    if ( !disableSecurity() && doesCurrentUserMatchSession( sessionID ) )
+    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
     {
       return super.doGetSession( sessionID, filter, uri );
     }
