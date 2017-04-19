@@ -56,6 +56,10 @@ public interface AreaOfInterestService
   @Nonnull
   SubscriptionReference createSubscriptionReference( @Nonnull Scope scope, @Nonnull ChannelDescriptor channel );
 
+  @Nonnull
+  Subscription createSubscription( @Nonnull ChannelDescriptor descriptor, @Nullable Object filter )
+    throws SubscriptionExistsException;
+
   void updateSubscription( @Nonnull Subscription subscription, @Nullable Object filter );
 
   void destroySubscription( @Nonnull Subscription subscription );

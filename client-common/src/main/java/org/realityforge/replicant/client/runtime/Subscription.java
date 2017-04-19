@@ -45,7 +45,7 @@ public final class Subscription
     return _descriptor;
   }
 
-  public void setFilter( @Nullable final Object filter )
+  void setFilter( @Nullable final Object filter )
   {
     _filter = filter;
   }

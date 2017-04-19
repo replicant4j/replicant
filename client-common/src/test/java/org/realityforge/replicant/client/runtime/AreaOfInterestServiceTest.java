@@ -255,4 +255,35 @@ public class AreaOfInterestServiceTest
 
     verify( listener ).subscriptionDeleted( subscription1 );
   }
+
+  @Test
+  public void createSubscription()
+  {
+    final AreaOfInterestServiceImpl service = new AreaOfInterestServiceImpl();
+
+    final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
+    service.addAreaOfInterestListener( listener );
+
+    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A );
+    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B );
+
+    final String filer1 = "Filer1";
+    final String filer2 = null;
+
+    final Subscription subscription1 = service.createSubscription( descriptor1, filer1 );
+
+    assertEquals( subscription1.getDescriptor(), descriptor1 );
+    assertEquals( subscription1.getFilter(), filer1 );
+    assertEquals( subscription1.getReferenceCount(), 0 );
+
+    verify( listener ).subscriptionCreated( subscription1 );
+
+    final Subscription subscription2 = service.createSubscription( descriptor2, filer2 );
+
+    assertEquals( subscription2.getDescriptor(), descriptor2 );
+    assertEquals( subscription2.getFilter(), filer2 );
+    assertEquals( subscription2.getReferenceCount(), 0 );
+
+    verify( listener ).subscriptionCreated( subscription2 );
+  }
 }

@@ -100,7 +100,7 @@ public class AreaOfInterestServiceImpl
   }
 
   @Nonnull
-  protected Scope newScope( @Nonnull final String name )
+  protected Scope createScope( @Nonnull final String name )
   {
     assert !_scopes.containsKey( name );
     final Scope scope = new Scope( this, name );
@@ -113,23 +113,32 @@ public class AreaOfInterestServiceImpl
   protected Scope findOrCreateScope( @Nonnull final String name )
   {
     final Scope scope = findScope( name );
-    return null != scope ? scope : newScope( name );
+    return null != scope ? scope : createScope( name );
   }
 
   @Nonnull
-  protected Subscription newSubscription( @Nonnull final ChannelDescriptor descriptor )
+  @Override
+  public Subscription createSubscription( @Nonnull final ChannelDescriptor descriptor,
+                                          @Nullable final Object filter )
   {
-    assert !_subscriptions.containsKey( descriptor );
-    final Subscription subscription = new Subscription( this, descriptor );
-    _subscriptions.put( subscription.getDescriptor(), subscription );
-    _listeners.subscriptionCreated( subscription );
-    return subscription;
+    if ( _subscriptions.containsKey( descriptor ) )
+    {
+      throw new SubscriptionExistsException();
+    }
+    else
+    {
+      final Subscription subscription = new Subscription( this, descriptor );
+      subscription.setFilter( filter );
+      _subscriptions.put( subscription.getDescriptor(), subscription );
+      _listeners.subscriptionCreated( subscription );
+      return subscription;
+    }
   }
 
   @Nonnull
   protected Subscription findOrCreateSubscription( @Nonnull final ChannelDescriptor descriptor )
   {
     final Subscription subscription = findSubscription( descriptor );
-    return null != subscription ? subscription : newSubscription( descriptor );
+    return null != subscription ? subscription : createSubscription( descriptor, null );
   }
 }
