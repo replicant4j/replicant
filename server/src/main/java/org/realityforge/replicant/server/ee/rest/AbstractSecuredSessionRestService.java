@@ -17,12 +17,20 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   protected abstract SimpleAuthService getAuthService();
 
+  /**
+   * Override this and return true if security should be disabled. Typically used during local development.
+   */
+  protected boolean disableSecurity()
+  {
+    return false;
+  }
+
   @Nonnull
   @Override
   protected Response doCreateSession()
   {
     final OidcKeycloakAccount account = getAuthService().findAccount();
-    if ( null == account )
+    if ( !disableSecurity() && null == account )
     {
       return createForbiddenResponse();
     }
@@ -36,7 +44,7 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doDeleteSession( @Nonnull final String sessionID )
   {
-    if ( doesCurrentUserMatchSession( sessionID ) )
+    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
     {
       return super.doDeleteSession( sessionID );
     }
@@ -50,11 +58,8 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doListSessions( @Nonnull final FieldFilter filter, @Nonnull final UriInfo uri )
   {
-    final OidcKeycloakAccount account = getAuthService().findAccount();
-    if ( null == account )
+    if ( disableSecurity() )
     {
-      // Listing sessions is only really of use for debugging. So only allow it if can get
-      // to this service without authentication
       return super.doListSessions( filter, uri );
     }
     else
@@ -69,7 +74,7 @@ public abstract class AbstractSecuredSessionRestService
                                    @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
-    if ( doesCurrentUserMatchSession( sessionID ) )
+    if ( !disableSecurity() && doesCurrentUserMatchSession( sessionID ) )
     {
       return super.doGetSession( sessionID, filter, uri );
     }
