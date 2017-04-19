@@ -17,7 +17,7 @@ public class SessionRestServiceTest
     final AbstractSessionRestService resource = newResource( sessionManager );
 
     when( sessionManager.createSession() ).
-      thenReturn( new ReplicantSession( "2222" ) );
+      thenReturn( new ReplicantSession( null, "2222" ) );
 
     final Response token = resource.createSession();
 

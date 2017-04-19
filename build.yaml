@@ -33,7 +33,7 @@ artifacts:
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.10.19
 
-  simple_session_filter: org.realityforge.ssf:simple-session-filter:jar:0.6
+  simple_session_filter: org.realityforge.ssf:simple-session-filter:jar:0.9
 
   gwt_property_source: org.realityforge.gwt.property-source:gwt-property-source:jar:0.2
 

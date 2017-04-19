@@ -21,9 +21,9 @@ public final class ReplicantSession
   private final Map<ChannelDescriptor, SubscriptionEntry> _roSubscriptions =
     Collections.unmodifiableMap( _subscriptions );
 
-  public ReplicantSession( @Nonnull final String sessionID )
+  public ReplicantSession( @Nullable final String userID, @Nonnull final String sessionID )
   {
-    super( sessionID );
+    super( userID, sessionID );
   }
 
   @Nonnull

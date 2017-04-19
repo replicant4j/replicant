@@ -215,6 +215,18 @@ public abstract class AbstractSessionRestService
     {
       g.write( "id", session.getSessionID() );
     }
+    if ( filter.allow( "userID" ) )
+    {
+      final String userID = session.getUserID();
+      if ( null == userID )
+      {
+        g.writeNull( "userID" );
+      }
+      else
+      {
+        g.write( "userID", userID );
+      }
+    }
     if ( filter.allow( "url" ) )
     {
       g.write( "url", getSessionURL( session, uri ) );

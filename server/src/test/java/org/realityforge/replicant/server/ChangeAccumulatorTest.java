@@ -16,7 +16,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation()
   {
-    final ReplicantSession c = new ReplicantSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final String id = "myID";
@@ -49,7 +49,7 @@ public class ChangeAccumulatorTest
   @Test
   public void addEntityMessages()
   {
-    final ReplicantSession c = new ReplicantSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final String id = "myID";
@@ -78,7 +78,7 @@ public class ChangeAccumulatorTest
   @Test
   public void addActions()
   {
-    final ReplicantSession c = new ReplicantSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
@@ -108,7 +108,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation_whereSessionIDDifferent()
   {
-    final ReplicantSession c = new ReplicantSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final EntityMessage message = MessageTestUtil.createMessage( "myID", 42, 0, "r1", "r2", "a1", "a2" );
@@ -125,7 +125,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation_whereNoMessagesSentToInitiator()
   {
-    final ReplicantSession c = new ReplicantSession( "s1" );
+    final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c );

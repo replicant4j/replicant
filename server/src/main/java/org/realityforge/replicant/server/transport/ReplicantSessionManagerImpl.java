@@ -85,7 +85,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   protected ReplicantSession newSessionInfo()
   {
-    return new ReplicantSession( UUID.randomUUID().toString() );
+    return new ReplicantSession( null, UUID.randomUUID().toString() );
   }
 
   /**

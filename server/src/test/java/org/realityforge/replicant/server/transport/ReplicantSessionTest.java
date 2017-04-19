@@ -11,7 +11,7 @@ public class ReplicantSessionTest
   public void basicOperation()
   {
     final String sessionID = ValueUtil.randomString();
-    final ReplicantSession session = new ReplicantSession( sessionID );
+    final ReplicantSession session = new ReplicantSession( null, sessionID );
 
     assertEquals( session.getSessionID(), sessionID );
     assertEquals( session.getQueue().size(), 0 );
@@ -64,7 +64,7 @@ public class ReplicantSessionTest
   public void cacheKeys()
   {
     final String sessionID = ValueUtil.randomString();
-    final ReplicantSession session = new ReplicantSession( sessionID );
+    final ReplicantSession session = new ReplicantSession( null, sessionID );
 
     assertEquals( session.getCacheKeys().size(), 0 );
 
