@@ -18,8 +18,8 @@ public abstract class ReplicantSecuredSessionManagerImpl
   @Override
   protected ReplicantSession newSessionInfo()
   {
-    final OidcKeycloakAccount account = getAuthService().getAccount();
-    final String userID = account.getKeycloakSecurityContext().getToken().getId();
+    final OidcKeycloakAccount account = getAuthService().findAccount();
+    final String userID = null == account ? null : account.getKeycloakSecurityContext().getToken().getId();
     final String sessionID = UUID.randomUUID().toString();
     return new ReplicantSession( userID, sessionID );
   }
