@@ -98,14 +98,42 @@ public abstract class AbstractSessionRestService
   @Produces( MediaType.TEXT_PLAIN )
   public Response createSession()
   {
-    final Response.ResponseBuilder builder = Response.ok();
-    CacheUtil.configureNoCacheHeaders( builder );
-    return builder.entity( getSessionManager().createSession().getSessionID() ).build();
+    return doCreateSession();
   }
 
   @Path( "{sessionID}" )
   @DELETE
   public Response deleteSession( @PathParam( "sessionID" ) @NotNull final String sessionID )
+  {
+    return doDeleteSession( sessionID );
+  }
+
+  @GET
+  public Response listSessions( @QueryParam( "fields" ) @DefaultValue( "url" ) @NotNull final FieldFilter filter,
+                                @Context @Nonnull final UriInfo uri )
+  {
+    return doListSessions( filter, uri );
+  }
+
+  @Path( "{sessionID}" )
+  @GET
+  public Response getSession( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
+                              @Context @Nonnull final UriInfo uri )
+  {
+    return doGetSession( sessionID, filter, uri );
+  }
+
+  @Nonnull
+  protected Response doCreateSession()
+  {
+    final Response.ResponseBuilder builder = Response.ok();
+    CacheUtil.configureNoCacheHeaders( builder );
+    return builder.entity( getSessionManager().createSession().getSessionID() ).build();
+  }
+
+  @Nonnull
+  protected Response doDeleteSession( @Nonnull final String sessionID )
   {
     final StringWriter writer = new StringWriter();
     final JsonGenerator g = factory().createGenerator( writer );
@@ -121,9 +149,9 @@ public abstract class AbstractSessionRestService
     return builder.entity( writer.toString() ).build();
   }
 
-  @GET
-  public Response listSessions( @QueryParam( "fields" ) @DefaultValue( "url" ) @Nonnull final FieldFilter filter,
-                                @Context @Nonnull final UriInfo uri )
+  @Nonnull
+  protected Response doListSessions( @Nonnull final FieldFilter filter,
+                                     @Nonnull final UriInfo uri )
   {
     final Response.ResponseBuilder builder = Response.ok();
     CacheUtil.configureNoCacheHeaders( builder );
@@ -146,11 +174,10 @@ public abstract class AbstractSessionRestService
     return builder.entity( writer.toString() ).build();
   }
 
-  @Path( "{sessionID}" )
-  @GET
-  public Response getSession( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
-                              @Context @Nonnull final UriInfo uri )
+  @Nonnull
+  protected Response doGetSession( @Nonnull final String sessionID,
+                                   @Nonnull final FieldFilter filter,
+                                   @Nonnull final UriInfo uri )
   {
     final StringWriter writer = new StringWriter();
     final JsonGenerator g = factory().createGenerator( writer );
