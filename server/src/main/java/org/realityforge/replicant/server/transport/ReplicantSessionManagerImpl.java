@@ -32,7 +32,6 @@ public abstract class ReplicantSessionManagerImpl
   extends InMemorySessionManager<ReplicantSession>
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
-
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
 
