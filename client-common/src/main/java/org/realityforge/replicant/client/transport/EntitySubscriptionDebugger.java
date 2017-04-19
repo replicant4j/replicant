@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.ChannelDescriptor;
