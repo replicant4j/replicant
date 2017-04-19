@@ -260,6 +260,7 @@ public abstract class AbstractSessionRestService
     g.writeEnd();
   }
 
+  @Nonnull
   private String getSessionURL( @Nonnull final SessionInfo session, @Nonnull final UriInfo uri )
   {
     return uri.getBaseUri() + ReplicantContext.SESSION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
