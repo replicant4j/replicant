@@ -982,7 +982,7 @@ public abstract class AbstractDataLoaderService
   @Override
   public void connect()
   {
-    if ( null == getSession() )
+    if ( null == getSession() && State.CONNECTING != getState() )
     {
       performConnect();
     }
