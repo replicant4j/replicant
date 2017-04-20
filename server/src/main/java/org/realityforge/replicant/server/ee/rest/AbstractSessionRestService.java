@@ -30,6 +30,7 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.shared.ee.JsonUtil;
+import org.realityforge.replicant.shared.ee.rest.AbstractReplicantRestService;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.rest.field_filter.FieldFilter;
 import org.realityforge.ssf.SessionInfo;
