@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonObject;
-import org.realityforge.replicant.server.ee.JsonUtil;
+import org.realityforge.replicant.shared.ee.JsonUtil;
 
 public final class ChangeSet
 {

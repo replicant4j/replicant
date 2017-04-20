@@ -17,6 +17,7 @@ import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ContextConverger;
 import org.realityforge.replicant.client.runtime.ContextConvergerImpl;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.shared.ee.JsonUtil;
 
 @Singleton
 @Transactional( Transactional.TxType.NOT_SUPPORTED )
