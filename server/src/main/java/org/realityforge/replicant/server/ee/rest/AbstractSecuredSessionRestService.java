@@ -9,6 +9,7 @@ import javax.ws.rs.core.UriInfo;
 import org.keycloak.adapters.OidcKeycloakAccount;
 import org.realityforge.keycloak.sks.SimpleAuthService;
 import org.realityforge.replicant.server.transport.ReplicantSession;
+import org.realityforge.replicant.shared.ee.rest.CacheUtil;
 import org.realityforge.rest.field_filter.FieldFilter;
 
 public abstract class AbstractSecuredSessionRestService
