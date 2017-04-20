@@ -100,6 +100,19 @@ public abstract class EeDataLoaderService
   @Nonnull
   protected abstract String getJndiPrefix();
 
+
+  @Override
+  public void connect()
+  {
+    withLock( getLock().writeLock(), super::connect );
+  }
+
+  @Override
+  public void disconnect()
+  {
+    withLock( getLock().writeLock(), super::disconnect );
+  }
+
   @Override
   protected void startPolling()
   {
