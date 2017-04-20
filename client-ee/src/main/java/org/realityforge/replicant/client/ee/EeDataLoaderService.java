@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.ee;
 
+import java.util.HashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -28,6 +29,7 @@ public abstract class EeDataLoaderService
   private final InMemoryCacheService _cacheService = new InMemoryCacheService();
   private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock( true );
   private DataLoaderServiceConfig _config;
+  private final HashMap<DataLoaderListener, DataLoaderListener> _listenerMap = new HashMap<>();
 
   protected EeDataLoaderService()
   {
@@ -183,13 +185,29 @@ public abstract class EeDataLoaderService
   @Override
   public boolean addDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    return super.addDataLoaderListener( wrap( listener ) );
+    synchronized ( _listenerMap )
+    {
+      if ( !_listenerMap.containsKey( listener ) )
+      {
+        final DataLoaderListener wrapped = wrap( listener );
+        _listenerMap.put( listener, wrapped );
+        return super.addDataLoaderListener( wrapped );
+      }
+      else
+      {
+        return false;
+      }
+    }
   }
 
   @Override
   public boolean removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    return super.removeDataLoaderListener( wrap( listener ) );
+    synchronized ( _listenerMap )
+    {
+      final DataLoaderListener wrapped = _listenerMap.remove( listener );
+      return null != wrapped && super.removeDataLoaderListener( wrapped );
+    }
   }
 
   @Nonnull
