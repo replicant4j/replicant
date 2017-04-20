@@ -43,11 +43,24 @@ define 'replicant' do
                       :gwt_dev_artifact => :gwt_dev)
   end
 
+  define 'shared-ee' do
+    pom.provided_dependencies.concat PROVIDED_DEPS
+
+    compile.with PROVIDED_DEPS
+
+    test.using :testng
+    test.compile.with TEST_DEPS
+
+    package(:jar)
+    package(:sources)
+    package(:javadoc)
+  end
+
   define 'server' do
     pom.provided_dependencies.concat PROVIDED_DEPS
     pom.optional_dependencies.concat OPTIONAL_DEPS
 
-    compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar)
+    compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar), project('shared-ee').package(:jar)
 
     package(:jar)
     package(:sources)
@@ -76,6 +89,7 @@ define 'replicant' do
     pom.provided_dependencies.concat PROVIDED_DEPS
 
     compile.with PROVIDED_DEPS,
+                 project('shared-ee').package(:jar),
                  project('client-common').package(:jar),
                  project('client-common').compile.dependencies
 
