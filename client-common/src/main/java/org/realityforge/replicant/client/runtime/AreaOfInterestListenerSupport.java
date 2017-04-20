@@ -1,14 +1,17 @@
 package org.realityforge.replicant.client.runtime;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 public final class AreaOfInterestListenerSupport
   implements AreaOfInterestListener
 {
   private final ArrayList<AreaOfInterestListener> _listeners = new ArrayList<>();
+  private final List<AreaOfInterestListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  public boolean addListener( @Nonnull final AreaOfInterestListener listener )
+  public synchronized boolean addListener( @Nonnull final AreaOfInterestListener listener )
   {
     if ( !_listeners.contains( listener ) )
     {
@@ -21,38 +24,56 @@ public final class AreaOfInterestListenerSupport
     }
   }
 
-  public boolean removeListener( @Nonnull final AreaOfInterestListener listener )
+  public synchronized boolean removeListener( @Nonnull final AreaOfInterestListener listener )
   {
     return _listeners.remove( listener );
+  }
+
+  @Nonnull
+  public List<AreaOfInterestListener> getListeners()
+  {
+    return _roListeners;
   }
 
   @Override
   public void scopeCreated( @Nonnull final Scope scope )
   {
-    _listeners.forEach( l -> l.scopeCreated( scope ) );
+    cloneListeners().forEach( l -> l.scopeCreated( scope ) );
   }
 
   @Override
   public void scopeDeleted( @Nonnull final Scope scope )
   {
-    _listeners.forEach( l -> l.scopeDeleted( scope ) );
+    cloneListeners().forEach( l -> l.scopeDeleted( scope ) );
   }
 
   @Override
   public void subscriptionCreated( @Nonnull final Subscription subscription )
   {
-    _listeners.forEach( l -> l.subscriptionCreated( subscription ) );
+    cloneListeners().forEach( l -> l.subscriptionCreated( subscription ) );
   }
 
   @Override
   public void subscriptionUpdated( @Nonnull final Subscription subscription )
   {
-    _listeners.forEach( l -> l.subscriptionUpdated( subscription ) );
+    cloneListeners().forEach( l -> l.subscriptionUpdated( subscription ) );
   }
 
   @Override
   public void subscriptionDeleted( @Nonnull final Subscription subscription )
   {
-    _listeners.forEach( l -> l.subscriptionDeleted( subscription ) );
+    cloneListeners().forEach( l -> l.subscriptionDeleted( subscription ) );
+  }
+
+  /**
+   * Return a copy of the listeners.
+   * This avoids concurrent operation exceptions.
+   */
+  @Nonnull
+  protected synchronized ArrayList<AreaOfInterestListener> cloneListeners()
+  {
+    final ArrayList<AreaOfInterestListener> listeners = new ArrayList<>( _listeners.size() );
+    listeners.addAll( _listeners );
+    return listeners;
   }
 }

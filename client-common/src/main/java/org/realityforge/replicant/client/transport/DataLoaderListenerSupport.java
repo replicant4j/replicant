@@ -11,9 +11,9 @@ public final class DataLoaderListenerSupport
   implements DataLoaderListener
 {
   private final ArrayList<DataLoaderListener> _listeners = new ArrayList<>();
-  private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( _listeners );
+  private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( cloneListeners() );
 
-  public boolean addListener( @Nonnull final DataLoaderListener listener )
+  public synchronized boolean addListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
@@ -27,7 +27,7 @@ public final class DataLoaderListenerSupport
     }
   }
 
-  public boolean removeListener( @Nonnull final DataLoaderListener listener )
+  public synchronized boolean removeListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     return _listeners.remove( listener );
@@ -41,57 +41,57 @@ public final class DataLoaderListenerSupport
   @Override
   public void onDisconnect( @Nonnull final DataLoaderService service )
   {
-    _listeners.forEach( l -> l.onDisconnect( service ) );
+    cloneListeners().forEach( l -> l.onDisconnect( service ) );
   }
 
   @Override
   public void onInvalidDisconnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onInvalidDisconnect( service, throwable ) );
+    cloneListeners().forEach( l -> l.onInvalidDisconnect( service, throwable ) );
   }
 
   @Override
   public void onConnect( @Nonnull final DataLoaderService service )
   {
-    _listeners.forEach( l -> l.onConnect( service ) );
+    cloneListeners().forEach( l -> l.onConnect( service ) );
   }
 
   @Override
   public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onInvalidConnect( service, throwable ) );
+    cloneListeners().forEach( l -> l.onInvalidConnect( service, throwable ) );
   }
 
   @Override
   public void onDataLoadComplete( @Nonnull final DataLoaderService service, @Nonnull final DataLoadStatus status )
   {
-    _listeners.forEach( l -> l.onDataLoadComplete( service, status ) );
+    cloneListeners().forEach( l -> l.onDataLoadComplete( service, status ) );
   }
 
   @Override
   public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onDataLoadFailure( service, throwable ) );
+    cloneListeners().forEach( l -> l.onDataLoadFailure( service, throwable ) );
   }
 
   @Override
   public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onPollFailure( service, throwable ) );
+    cloneListeners().forEach( l -> l.onPollFailure( service, throwable ) );
   }
 
   @Override
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
                                   @Nonnull final ChannelDescriptor descriptor )
   {
-    _listeners.forEach( l -> l.onSubscribeStarted( service, descriptor ) );
+    cloneListeners().forEach( l -> l.onSubscribeStarted( service, descriptor ) );
   }
 
   @Override
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
                                     @Nonnull final ChannelDescriptor descriptor )
   {
-    _listeners.forEach( l -> l.onSubscribeCompleted( service, descriptor ) );
+    cloneListeners().forEach( l -> l.onSubscribeCompleted( service, descriptor ) );
   }
 
   @Override
@@ -99,21 +99,21 @@ public final class DataLoaderListenerSupport
                                  @Nonnull final ChannelDescriptor descriptor,
                                  @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onSubscribeFailed( service, descriptor, throwable ) );
+    cloneListeners().forEach( l -> l.onSubscribeFailed( service, descriptor, throwable ) );
   }
 
   @Override
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
                                     @Nonnull final ChannelDescriptor descriptor )
   {
-    _listeners.forEach( l -> l.onUnsubscribeStarted( service, descriptor ) );
+    cloneListeners().forEach( l -> l.onUnsubscribeStarted( service, descriptor ) );
   }
 
   @Override
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
                                       @Nonnull final ChannelDescriptor descriptor )
   {
-    _listeners.forEach( l -> l.onUnsubscribeCompleted( service, descriptor ) );
+    cloneListeners().forEach( l -> l.onUnsubscribeCompleted( service, descriptor ) );
   }
 
   @Override
@@ -121,21 +121,21 @@ public final class DataLoaderListenerSupport
                                    @Nonnull final ChannelDescriptor descriptor,
                                    @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onUnsubscribeFailed( service, descriptor, throwable ) );
+    cloneListeners().forEach( l -> l.onUnsubscribeFailed( service, descriptor, throwable ) );
   }
 
   @Override
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
-    _listeners.forEach( l -> l.onSubscriptionUpdateStarted( service, descriptor ) );
+    cloneListeners().forEach( l -> l.onSubscriptionUpdateStarted( service, descriptor ) );
   }
 
   @Override
   public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
                                              @Nonnull final ChannelDescriptor descriptor )
   {
-    _listeners.forEach( l -> l.onSubscriptionUpdateCompleted( service, descriptor ) );
+    cloneListeners().forEach( l -> l.onSubscriptionUpdateCompleted( service, descriptor ) );
   }
 
   @Override
@@ -143,6 +143,18 @@ public final class DataLoaderListenerSupport
                                           @Nonnull final ChannelDescriptor descriptor,
                                           @Nonnull final Throwable throwable )
   {
-    _listeners.forEach( l -> l.onSubscriptionUpdateFailed( service, descriptor, throwable ) );
+    cloneListeners().forEach( l -> l.onSubscriptionUpdateFailed( service, descriptor, throwable ) );
+  }
+
+  /**
+   * Return a copy of the listeners.
+   * This avoids concurrent operation exceptions.
+   */
+  @Nonnull
+  protected synchronized ArrayList<DataLoaderListener> cloneListeners()
+  {
+    final ArrayList<DataLoaderListener> listeners = new ArrayList<>( _listeners.size() );
+    listeners.addAll( _listeners );
+    return listeners;
   }
 }

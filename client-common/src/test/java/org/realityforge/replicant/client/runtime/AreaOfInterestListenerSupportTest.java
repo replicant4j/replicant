@@ -28,6 +28,8 @@ public class AreaOfInterestListenerSupportTest
     assertTrue( support.addListener( listener ) );
     assertFalse( support.addListener( listener ), "Can not add duplicate" );
 
+    assertTrue( support.getListeners().contains( listener ) );
+
     support.scopeCreated( scope );
     verify( listener ).scopeCreated( scope );
 
@@ -45,6 +47,8 @@ public class AreaOfInterestListenerSupportTest
 
     assertTrue( support.removeListener( listener ) );
     assertFalse( support.removeListener( listener ), "Can not remove duplicate" );
+
+    assertFalse( support.getListeners().contains( listener ) );
 
     reset( listener );
     support.subscriptionDeleted( subscription );

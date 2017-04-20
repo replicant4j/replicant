@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.transport.DataLoaderListener;
 
 public final class ReplicantSystemListenerSupport
   implements ReplicantSystemListener
@@ -12,7 +13,7 @@ public final class ReplicantSystemListenerSupport
   private final ArrayList<ReplicantSystemListener> _listeners = new ArrayList<>();
   private final List<ReplicantSystemListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  public boolean addListener( @Nonnull final ReplicantSystemListener listener )
+  public synchronized boolean addListener( @Nonnull final ReplicantSystemListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
@@ -26,7 +27,7 @@ public final class ReplicantSystemListenerSupport
     }
   }
 
-  public boolean removeListener( @Nonnull final ReplicantSystemListener listener )
+  public synchronized boolean removeListener( @Nonnull final ReplicantSystemListener listener )
   {
     Objects.requireNonNull( listener );
     return _listeners.remove( listener );
@@ -42,6 +43,18 @@ public final class ReplicantSystemListenerSupport
                             @Nonnull final ReplicantClientSystem.State newState,
                             @Nonnull final ReplicantClientSystem.State oldState )
   {
-    _listeners.forEach( l -> l.stateChanged( system, newState, oldState ) );
+    cloneListeners().forEach( l -> l.stateChanged( system, newState, oldState ) );
+  }
+
+  /**
+   * Return a copy of the listeners.
+   * This avoids concurrent operation exceptions.
+   */
+  @Nonnull
+  protected synchronized ArrayList<ReplicantSystemListener> cloneListeners()
+  {
+    final ArrayList<ReplicantSystemListener> listeners = new ArrayList<>( _listeners.size() );
+    listeners.addAll( _listeners );
+    return listeners;
   }
 }
