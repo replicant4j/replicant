@@ -6,12 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonGeneratorFactory;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -25,8 +22,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
@@ -72,27 +67,9 @@ import org.realityforge.ssf.SessionInfo;
  * </pre>
  */
 public abstract class AbstractSessionRestService
+  extends AbstractReplicantRestService
 {
-  private DatatypeFactory _datatypeFactory;
-  private JsonGeneratorFactory _factory;
-
   protected abstract ReplicantSessionManager getSessionManager();
-
-  public void postConstruct()
-  {
-    final HashMap<String, Object> config = new HashMap<>();
-    config.put( JsonGenerator.PRETTY_PRINTING, true );
-    _factory = Json.createGeneratorFactory( config );
-
-    try
-    {
-      _datatypeFactory = DatatypeFactory.newInstance();
-    }
-    catch ( final DatatypeConfigurationException dtce )
-    {
-      throw new IllegalStateException( "Unable to initialize DatatypeFactory", dtce );
-    }
-  }
 
   @POST
   @Produces( MediaType.TEXT_PLAIN )
@@ -127,9 +104,7 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doCreateSession()
   {
-    final Response.ResponseBuilder builder = Response.ok();
-    CacheUtil.configureNoCacheHeaders( builder );
-    return builder.entity( getSessionManager().createSession().getSessionID() ).build();
+    return buildResponse( Response.ok(), getSessionManager().createSession().getSessionID() );
   }
 
   @Nonnull
@@ -143,19 +118,14 @@ public abstract class AbstractSessionRestService
     g.writeEnd();
     g.close();
 
-    final Response.ResponseBuilder builder = Response.ok();
-    CacheUtil.configureNoCacheHeaders( builder );
     getSessionManager().invalidateSession( sessionID );
-    return builder.entity( writer.toString() ).build();
+    return buildResponse( Response.ok(), writer.toString() );
   }
 
   @Nonnull
   protected Response doListSessions( @Nonnull final FieldFilter filter,
                                      @Nonnull final UriInfo uri )
   {
-    final Response.ResponseBuilder builder = Response.ok();
-    CacheUtil.configureNoCacheHeaders( builder );
-
     final StringWriter writer = new StringWriter();
     final JsonGenerator g = factory().createGenerator( writer );
     final Set<String> sessionIDs = getSessionManager().getSessionIDs();
@@ -171,7 +141,7 @@ public abstract class AbstractSessionRestService
     g.writeEnd();
     g.close();
 
-    return builder.entity( writer.toString() ).build();
+    return buildResponse( Response.ok(), writer.toString() );
   }
 
   @Nonnull
@@ -187,7 +157,6 @@ public abstract class AbstractSessionRestService
     if ( null == session )
     {
       builder = Response.status( Response.Status.NOT_FOUND );
-      CacheUtil.configureNoCacheHeaders( builder );
 
       g.writeStartObject();
       g.write( "code", Response.Status.NOT_FOUND.getStatusCode() );
@@ -200,9 +169,9 @@ public abstract class AbstractSessionRestService
       emitSession( session, g, filter, uri );
     }
 
-    CacheUtil.configureNoCacheHeaders( builder );
     g.close();
-    return builder.entity( writer.toString() ).build();
+
+    return buildResponse( builder, writer.toString() );
   }
 
   private void emitSession( @Nonnull final ReplicantSession session,
@@ -310,7 +279,7 @@ public abstract class AbstractSessionRestService
   {
     final GregorianCalendar calendar = new GregorianCalendar();
     calendar.setTimeInMillis( timeInMillis );
-    return _datatypeFactory.newXMLGregorianCalendar( calendar ).toXMLFormat();
+    return datatypeFactory().newXMLGregorianCalendar( calendar ).toXMLFormat();
   }
 
 
@@ -436,10 +405,5 @@ public abstract class AbstractSessionRestService
       emitChannelDescriptors( g, descriptors, subFilter );
       g.writeEnd();
     }
-  }
-
-  protected JsonGeneratorFactory factory()
-  {
-    return _factory;
   }
 }
