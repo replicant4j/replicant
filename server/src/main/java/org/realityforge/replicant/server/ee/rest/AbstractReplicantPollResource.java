@@ -85,8 +85,8 @@ public abstract class AbstractReplicantPollResource
                     @NotNull @QueryParam( ReplicantContext.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
   {
     response.setTimeout( getPollTime(), TimeUnit.SECONDS );
-    response.register( (ConnectionCallback) disconnected -> doDisconnect( disconnected ) );
-    response.setTimeoutHandler( asyncResponse -> doTimeout( asyncResponse ) );
+    response.register( (ConnectionCallback) this::doDisconnect );
+    response.setTimeoutHandler( this::doTimeout );
 
     try
     {
