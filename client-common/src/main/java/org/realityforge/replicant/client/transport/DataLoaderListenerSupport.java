@@ -11,7 +11,7 @@ public final class DataLoaderListenerSupport
   implements DataLoaderListener
 {
   private final ArrayList<DataLoaderListener> _listeners = new ArrayList<>();
-  private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( cloneListeners() );
+  private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( _listeners );
 
   public synchronized boolean addListener( @Nonnull final DataLoaderListener listener )
   {
