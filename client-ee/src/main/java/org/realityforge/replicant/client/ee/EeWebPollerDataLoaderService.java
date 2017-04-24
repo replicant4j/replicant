@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
+import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
 import org.realityforge.replicant.client.transport.ClientSession;
@@ -153,6 +154,13 @@ public abstract class EeWebPollerDataLoaderService
         onError.accept( throwable );
       }
     } );
+  }
+
+  @Nonnull
+  @Override
+  protected WebPollerListener newWebPollerListener()
+  {
+    return getContextService().createContextualProxy( super.newWebPollerListener(), WebPollerListener.class );
   }
 
   @SuppressWarnings( "unchecked" )
