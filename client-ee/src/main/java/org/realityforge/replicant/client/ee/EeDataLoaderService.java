@@ -85,7 +85,15 @@ public abstract class EeDataLoaderService
 
   private void scheduleTick()
   {
-    if ( !stepDataLoad() && null != _future )
+    if ( !stepDataLoad() )
+    {
+      cancelSchedule();
+    }
+  }
+
+  private void cancelSchedule()
+  {
+    if ( null != _future )
     {
       final ScheduledFuture future = _future;
       _future = null;
@@ -110,7 +118,11 @@ public abstract class EeDataLoaderService
   @Override
   public void disconnect()
   {
-    withLock( getLock().writeLock(), super::disconnect );
+    withLock( getLock().writeLock(), () ->
+    {
+      cancelSchedule();
+      disconnect();
+    } );
   }
 
   @Override
