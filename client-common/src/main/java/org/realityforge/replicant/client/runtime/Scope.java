@@ -122,6 +122,14 @@ public final class Scope
       collect( Collectors.toList() );
   }
 
+  @Nonnull
+  public List<Subscription> getRequiredSubscriptionsByGraph( @Nonnull final Enum graph )
+  {
+    return getRequiredSubscriptions().stream().
+      filter( s -> s.getDescriptor().getGraph() == graph ).
+      collect( Collectors.toList() );
+  }
+
   public void purgeReleasedSubscriptionReferences()
   {
     _subscriptionReferences.removeIf( SubscriptionReference::hasBeenReleased );

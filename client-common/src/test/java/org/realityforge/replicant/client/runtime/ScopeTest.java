@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.ChannelDescriptor;
@@ -12,7 +14,8 @@ public class ScopeTest
 {
   enum TestGraph
   {
-    A
+    A,
+    B
   }
 
   @Test
@@ -144,6 +147,54 @@ public class ScopeTest
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
     assertEquals( scope.isActive(), false );
+  }
+
+  @Test
+  public void getRequiredSubscriptionsByGraph()
+  {
+    final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
+    final Scope scope = new Scope( areaOfInterestService, ValueUtil.randomString() );
+
+    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, 1 );
+    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, 2 );
+    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.B, 3 );
+    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraph.B, 4 );
+    final ChannelDescriptor descriptor5 = new ChannelDescriptor( TestGraph.B, 5 );
+    final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor1 );
+    final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
+    final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
+    final Subscription subscription4 = new Subscription( areaOfInterestService, descriptor4 );
+    final Subscription subscription5 = new Subscription( areaOfInterestService, descriptor5 );
+
+    assertEquals( scope.getSubscriptionReferenceCount(), 0 );
+
+    assertEquals( scope.getRequiredSubscriptionsByGraph( TestGraph.A ).size(), 0 );
+    assertEquals( scope.getRequiredSubscriptionsByGraph( TestGraph.B ).size(), 0 );
+
+    scope.requireSubscription( subscription1 );
+    scope.requireSubscription( subscription2 );
+
+    assertEquals( scope.getSubscriptionReferenceCount(), 2 );
+
+    assertEquals( scope.getRequiredSubscriptionsByGraph( TestGraph.A ).size(), 2 );
+    assertEquals( scope.getRequiredSubscriptionsByGraph( TestGraph.B ).size(), 0 );
+
+    scope.requireSubscription( subscription3 );
+    scope.requireSubscription( subscription4 );
+    scope.requireSubscription( subscription5 );
+
+    assertEquals( scope.getSubscriptionReferenceCount(), 5 );
+
+    assertEquals( scope.getRequiredSubscriptionsByGraph( TestGraph.A ).size(), 2 );
+    final List<Subscription> graphBSubscriptions = scope.getRequiredSubscriptionsByGraph( TestGraph.B );
+    assertEquals( graphBSubscriptions.size(), 3 );
+
+    final List<ChannelDescriptor> descriptors =
+      graphBSubscriptions.stream().map( Subscription::getDescriptor ).collect( Collectors.toList() );
+
+    assertTrue( descriptors.contains( descriptor3 ) );
+    assertTrue( descriptors.contains( descriptor4 ) );
+    assertTrue( descriptors.contains( descriptor5 ) );
   }
 
   @Test
