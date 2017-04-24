@@ -4,7 +4,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ChannelDescriptor
+public final class ChannelDescriptor
 {
   @Nonnull
   private final Enum _graph;
