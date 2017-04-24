@@ -27,6 +27,7 @@ public class ScopeTest
     final Scope scope = new Scope( areaOfInterestService, name );
 
     assertEquals( scope.isActive(), true );
+    assertEquals( scope.hasBeenReleased(), false );
     assertEquals( scope.getReferenceCount(), 0 );
     assertEquals( scope.getSubscriptionReferenceCount(), 0 );
 
@@ -38,6 +39,7 @@ public class ScopeTest
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
     assertEquals( scope.isActive(), false );
+    assertEquals( scope.hasBeenReleased(), true );
 
     reset( areaOfInterestService );
 
@@ -137,6 +139,7 @@ public class ScopeTest
     assertEquals( reference1.hasBeenReleased(), true );
 
     assertEquals( scope.isActive(), true );
+    assertEquals( scope.hasBeenReleased(), false );
 
     reset( areaOfInterestService );
     answerDestroyScope( areaOfInterestService, scope );
@@ -147,6 +150,7 @@ public class ScopeTest
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
     assertEquals( scope.isActive(), false );
+    assertEquals( scope.hasBeenReleased(), true );
   }
 
   @Test

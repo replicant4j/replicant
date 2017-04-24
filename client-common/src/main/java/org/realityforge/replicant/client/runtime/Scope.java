@@ -34,6 +34,11 @@ public final class Scope
     return _active;
   }
 
+  public boolean hasBeenReleased()
+  {
+    return !isActive();
+  }
+
   @Nonnegative
   public int getReferenceCount()
   {

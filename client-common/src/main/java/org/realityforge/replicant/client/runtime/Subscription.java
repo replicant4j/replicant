@@ -39,6 +39,11 @@ public final class Subscription
     return _active;
   }
 
+  public boolean hasBeenReleased()
+  {
+    return !isActive();
+  }
+
   @Nonnull
   public ChannelDescriptor getDescriptor()
   {

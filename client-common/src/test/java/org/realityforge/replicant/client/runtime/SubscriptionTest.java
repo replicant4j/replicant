@@ -23,6 +23,7 @@ public class SubscriptionTest
 
     assertEquals( subscription.getDescriptor(), descriptor );
     assertEquals( subscription.isActive(), true );
+    assertEquals( subscription.hasBeenReleased(), false );
     assertEquals( subscription.getReferenceCount(), 0 );
 
     assertEquals( subscription.getFilter(), null );
@@ -42,6 +43,7 @@ public class SubscriptionTest
     verify( areaOfInterestService, only() ).destroySubscription( subscription );
 
     assertEquals( subscription.isActive(), false );
+    assertEquals( subscription.hasBeenReleased(), true );
 
     reset( areaOfInterestService );
 
