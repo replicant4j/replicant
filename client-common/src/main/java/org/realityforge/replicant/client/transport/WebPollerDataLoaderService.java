@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
+import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -21,29 +22,14 @@ public abstract class WebPollerDataLoaderService
     webpoller.setLogLevel( getWebPollerLogLevel() );
     webpoller.setRequestFactory( newRequestFactory() );
     webpoller.setInterRequestDuration( 0 );
-    webpoller.setListener( new WebPollerListenerAdapter()
-    {
-      @Override
-      public void onMessage( @Nonnull final WebPoller webPoller,
-                             @Nonnull final Map<String, String> context,
-                             @Nonnull final String data )
-      {
-        handlePollSuccess( data );
-      }
-
-      @Override
-      public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
-      {
-        getListener().onPollFailure( WebPollerDataLoaderService.this, exception );
-      }
-
-      @Override
-      public void onStop( @Nonnull final WebPoller webPoller )
-      {
-        handleWebPollerStop();
-      }
-    } );
+    webpoller.setListener( newWebPollerListener() );
     return webpoller;
+  }
+
+  @Nonnull
+  protected WebPollerListener newWebPollerListener()
+  {
+    return new ReplicantWebPollerListener();
   }
 
   @Nonnull
@@ -203,6 +189,30 @@ public abstract class WebPollerDataLoaderService
     if ( null != _webPoller && _webPoller.isActive() && _webPoller.isPaused() )
     {
       _webPoller.resume();
+    }
+  }
+
+  private class ReplicantWebPollerListener
+    extends WebPollerListenerAdapter
+  {
+    @Override
+    public void onMessage( @Nonnull final WebPoller webPoller,
+                           @Nonnull final Map<String, String> context,
+                           @Nonnull final String data )
+    {
+      handlePollSuccess( data );
+    }
+
+    @Override
+    public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
+    {
+      getListener().onPollFailure( WebPollerDataLoaderService.this, exception );
+    }
+
+    @Override
+    public void onStop( @Nonnull final WebPoller webPoller )
+    {
+      handleWebPollerStop();
     }
   }
 }
