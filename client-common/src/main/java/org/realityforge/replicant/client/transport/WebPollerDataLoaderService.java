@@ -180,9 +180,12 @@ public abstract class WebPollerDataLoaderService
 
   protected void stopPolling()
   {
-    if ( null != _webPoller && _webPoller.isActive() )
+    if ( null != _webPoller )
     {
-      _webPoller.stop();
+      if ( _webPoller.isActive() )
+      {
+        _webPoller.stop();
+      }
       _webPoller = null;
     }
   }
