@@ -121,7 +121,7 @@ public abstract class EeDataLoaderService
     withLock( getLock().writeLock(), () ->
     {
       cancelSchedule();
-      disconnect();
+      super.disconnect();
     } );
   }
 
