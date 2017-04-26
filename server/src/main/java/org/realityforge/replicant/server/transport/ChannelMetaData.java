@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.transport;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class ChannelMetaData
 {
@@ -14,19 +15,22 @@ public final class ChannelMetaData
   @Nonnull
   private final String _name;
   private final boolean _typeGraph;
+  @Nullable
+  private final Class _subChannelType;
   @Nonnull
   private final FilterType _filterType;
   private final boolean _cacheable;
 
   public ChannelMetaData( final int channelID,
                           @Nonnull final String name,
-                          final boolean typeGraph,
+                          @Nullable final Class subChannelType,
                           @Nonnull final FilterType filterType,
                           final boolean cacheable )
   {
     _channelID = channelID;
     _name = Objects.requireNonNull( name );
-    _typeGraph = typeGraph;
+    _typeGraph = null == subChannelType;
+    _subChannelType = subChannelType;
     _filterType = Objects.requireNonNull( filterType );
     _cacheable = cacheable;
   }
@@ -34,6 +38,16 @@ public final class ChannelMetaData
   public int getChannelID()
   {
     return _channelID;
+  }
+
+  @Nonnull
+  public Class getSubChannelType()
+  {
+    if ( null == _subChannelType )
+    {
+      throw new IllegalStateException( "getSubChannelType invoked on type graph" );
+    }
+    return _subChannelType;
   }
 
   @Nonnull
