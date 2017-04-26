@@ -51,4 +51,12 @@ public class ChannelMetaDataTest
     assertEquals( metaData.isCacheable(), false );
     assertEquals( metaData.getSubChannelType(), Integer.class );
   }
+
+  @Test
+  public void badFilteredConfig()
+  {
+    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.STATIC, null, false ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.DYNAMIC, null, false ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.NONE, String.class, false ) );
+  }
 }
