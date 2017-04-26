@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 
 public final class ChannelMetaData
@@ -24,9 +25,9 @@ public final class ChannelMetaData
                           final boolean cacheable )
   {
     _channelID = channelID;
-    _name = name;
+    _name = Objects.requireNonNull( name );
     _typeGraph = typeGraph;
-    _filterType = filterType;
+    _filterType = Objects.requireNonNull( filterType );
     _cacheable = cacheable;
   }
 
