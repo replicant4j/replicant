@@ -6,6 +6,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.keycloak.adapters.OidcKeycloakAccount;
 import org.realityforge.keycloak.sks.SimpleAuthService;
+import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.rest.field_filter.FieldFilter;
 
@@ -82,6 +83,53 @@ public abstract class AbstractSecuredSessionRestService
     }
   }
 
+  @Nonnull
+  @Override
+  protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
+                                           @Nonnull final ChannelDescriptor descriptor )
+  {
+    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
+    {
+      return super.doUnsubscribeChannel( sessionID, descriptor );
+    }
+    else
+    {
+      return createForbiddenResponse();
+    }
+  }
+
+  @Nonnull
+  @Override
+  protected Response doGetChannel( @Nonnull final String sessionID,
+                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final FieldFilter filter,
+                                   @Nonnull final UriInfo uri )
+  {
+    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
+    {
+      return super.doGetChannel( sessionID, descriptor, filter, uri );
+    }
+    else
+    {
+      return createForbiddenResponse();
+    }
+  }
+
+  @Nonnull
+  @Override
+  protected Response doGetChannels( @Nonnull final String sessionID,
+                                    @Nonnull final FieldFilter filter,
+                                    @Nonnull final UriInfo uri )
+  {
+    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
+    {
+      return super.doGetChannels( sessionID, filter, uri );
+    }
+    else
+    {
+      return createForbiddenResponse();
+    }
+  }
 
   private boolean doesCurrentUserMatchSession( @Nonnull final String sessionID )
   {
