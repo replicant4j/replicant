@@ -1,5 +1,7 @@
 package org.realityforge.replicant.server.ee.rest;
 
+import javax.annotation.Nonnull;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.ws.rs.core.Response;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
@@ -29,10 +31,18 @@ public class SessionRestServiceTest
   {
     return new AbstractSessionRestService()
     {
+      @Nonnull
       @Override
       protected ReplicantSessionManager getSessionManager()
       {
         return sessionManager;
+      }
+
+      @Nonnull
+      @Override
+      protected TransactionSynchronizationRegistry getRegistry()
+      {
+        return mock( TransactionSynchronizationRegistry.class );
       }
     };
   }
