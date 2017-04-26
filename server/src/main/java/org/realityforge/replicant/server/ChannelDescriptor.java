@@ -11,6 +11,11 @@ public final class ChannelDescriptor
   @Nullable
   private final Serializable _subChannelID;
 
+  public ChannelDescriptor( final int channelID )
+  {
+    this( channelID, null );
+  }
+
   public ChannelDescriptor( final int channelID, @Nullable final Serializable subChannelID )
   {
     _channelID = channelID;
