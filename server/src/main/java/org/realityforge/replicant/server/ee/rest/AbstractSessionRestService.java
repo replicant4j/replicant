@@ -275,7 +275,7 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private Response standardResponse( @Nonnull final Response.Status status, @Nonnull final String message )
+  protected Response standardResponse( @Nonnull final Response.Status status, @Nonnull final String message )
   {
     final String content =
       json( g ->

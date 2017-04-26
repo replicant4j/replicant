@@ -102,16 +102,7 @@ public abstract class AbstractSecuredSessionRestService
 
   private Response createForbiddenResponse()
   {
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator g = factory().createGenerator( writer );
-    g.writeStartObject();
-    g.write( "code", Response.Status.FORBIDDEN.getStatusCode() );
-    g.write( "description", "No user authenticated or user does not have permission to perform action." );
-    g.writeEnd();
-    g.close();
-
-    final Response.ResponseBuilder builder = Response.status( Response.Status.FORBIDDEN );
-    CacheUtil.configureNoCacheHeaders( builder );
-    return builder.entity( writer.toString() ).build();
+    return standardResponse( Response.Status.FORBIDDEN,
+                             "No user authenticated or user does not have permission to perform action." );
   }
 }
