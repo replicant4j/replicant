@@ -44,6 +44,10 @@ public final class ReplicantContext
    */
   public static final String SESSION_URL_FRAGMENT = "/session";
   /**
+   * The url relative to the session from which controls the channel subscriptions.
+   */
+  public static final String CHANNEL_URL_FRAGMENT = "/channel";
+  /**
    * The query parameter used to identify the last received packet sequence.
    */
   public static final String RECEIVE_SEQUENCE_PARAM = "rx";
