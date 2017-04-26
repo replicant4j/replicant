@@ -33,8 +33,6 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
     assertEquals( metaData.isCacheable(), false );
     assertEquals( metaData.getSubChannelType(), Integer.class );
-
-    assertThrows( metaData::getFilterParameterType );
   }
 
   @Test

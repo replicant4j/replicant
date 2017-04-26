@@ -16,8 +16,8 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
-import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
+import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.JsonUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.rest.field_filter.FieldFilter;
@@ -43,7 +43,7 @@ final class Encoder
   {
   }
 
-  static void emitSession( @Nonnull final ReplicantSessionManager sessionManager,
+  static void emitSession( @Nonnull final SystemMetaData systemMetaData,
                            @Nonnull final ReplicantSession session,
                            @Nonnull final JsonGenerator g,
                            @Nonnull final FieldFilter filter,
@@ -132,24 +132,24 @@ final class Encoder
     {
       final FieldFilter subFilter = filter.subFilter( "channels" );
       g.writeStartObject( "channels" );
-      emitChannels( sessionManager, session, g, uri, subFilter );
+      emitChannels( systemMetaData, session, g, uri, subFilter );
       g.writeEnd();
     }
     g.writeEnd();
   }
 
-  static void emitChannelsList( @Nonnull final ReplicantSessionManager sessionManager,
+  static void emitChannelsList( @Nonnull final SystemMetaData systemMetaData,
                                 @Nonnull final ReplicantSession session,
                                 @Nonnull final JsonGenerator g,
                                 @Nonnull final FieldFilter filter,
                                 @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    emitChannels( sessionManager, session, g, uri, filter );
+    emitChannels( systemMetaData, session, g, uri, filter );
     g.writeEnd();
   }
 
-  private static void emitChannels( @Nonnull final ReplicantSessionManager sessionManager,
+  private static void emitChannels( @Nonnull final SystemMetaData systemMetaData,
                                     @Nonnull final ReplicantSession session,
                                     @Nonnull final JsonGenerator g,
                                     @Nonnull final UriInfo uri,
@@ -159,7 +159,7 @@ final class Encoder
     {
       g.write( "url", getSubscriptionsURL( session, uri ) );
     }
-    emitSubscriptions( sessionManager, session, g, session.getSubscriptions().values(), subFilter, uri );
+    emitSubscriptions( systemMetaData, session, g, session.getSubscriptions().values(), subFilter, uri );
   }
 
   @Nonnull
@@ -198,7 +198,7 @@ final class Encoder
     return c_datatypeFactory.newXMLGregorianCalendar( calendar ).toXMLFormat();
   }
 
-  private static void emitSubscriptions( @Nonnull final ReplicantSessionManager sessionManager,
+  private static void emitSubscriptions( @Nonnull final SystemMetaData systemMetaData,
                                          @Nonnull final ReplicantSession session,
                                          @Nonnull final JsonGenerator g,
                                          @Nonnull final Collection<SubscriptionEntry> subscriptionEntries,
@@ -218,7 +218,7 @@ final class Encoder
         if ( subFilter.allow( "channel" ) )
         {
           final FieldFilter subFilter1 = subFilter.subFilter( "channel" );
-          emitChannel( sessionManager, session, g, subscription, subFilter1, uri );
+          emitChannel( systemMetaData, session, g, subscription, subFilter1, uri );
         }
       }
       g.writeEnd();
@@ -264,7 +264,7 @@ final class Encoder
     }
   }
 
-  static void emitChannel( @Nonnull final ReplicantSessionManager sessionManager,
+  static void emitChannel( @Nonnull final SystemMetaData systemMetaData,
                            @Nonnull final ReplicantSession session,
                            @Nonnull final JsonGenerator g,
                            @Nonnull final SubscriptionEntry entry,
@@ -272,7 +272,7 @@ final class Encoder
                            @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    final ChannelMetaData channelMetaData = sessionManager.getChannelMetaData( entry.getDescriptor() );
+    final ChannelMetaData channelMetaData = systemMetaData.getChannelMetaData( entry.getDescriptor() );
     if ( filter.allow( "name" ) )
     {
       g.write( "name", channelMetaData.getName() );

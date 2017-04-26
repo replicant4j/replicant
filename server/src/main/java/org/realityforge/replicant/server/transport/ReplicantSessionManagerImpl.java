@@ -2,7 +2,6 @@ package org.realityforge.replicant.server.transport;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,42 +74,11 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract TransactionSynchronizationRegistry getRegistry();
 
-  /**
-   * @return the metadata for all the channels as an array.
-   */
-  @Nonnull
-  protected abstract ChannelMetaData[] getChannelMetaData();
-
   @Nonnull
   @Override
   protected ReplicantSession newSessionInfo()
   {
     return new ReplicantSession( null, UUID.randomUUID().toString() );
-  }
-
-  /**
-   * @return the channel metadata.
-   */
-  @Nonnull
-  public ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
-  {
-    return getChannelMetaData( descriptor.getChannelID() );
-  }
-
-  /**
-   * @return the channel metadata.
-   */
-  @Nonnull
-  public ChannelMetaData getChannelMetaData( final int channelID )
-  {
-    final ChannelMetaData[] channelMetaData = getChannelMetaData();
-    if ( channelID >= channelMetaData.length )
-    {
-      final String message =
-        "Channel " + channelID + " not part of declared metadata: " + Arrays.asList( channelMetaData );
-      throw new IllegalStateException( message );
-    }
-    return channelMetaData[ channelID ];
   }
 
   /**
@@ -301,7 +269,7 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert getChannelMetaData( descriptor ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
+    assert getSystemMetaData().getChannelMetaData( descriptor ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
     final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
     final Object originalFilter = entry.getFilter();
@@ -318,7 +286,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nullable final Object filter,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( channelID );
     assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
     final ArrayList<ChannelDescriptor> channelsToUpdate = new ArrayList<>();
@@ -368,7 +336,7 @@ public abstract class ReplicantSessionManagerImpl
                              final boolean explicitSubscribe,
                              @Nonnull final ChangeSet changeSet )
   {
-    assert getChannelMetaData( channelID ).isInstanceGraph();
+    assert getSystemMetaData().getChannelMetaData( channelID ).isInstanceGraph();
 
     final ArrayList<ChannelDescriptor> newChannels = new ArrayList<>();
     //OriginalFilter => Channels
@@ -449,7 +417,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         entry.setExplicitlySubscribed( true );
       }
-      final ChannelMetaData channelMetaData = getChannelMetaData( descriptor );
+      final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( descriptor );
       if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC )
       {
         updateSubscription( session, descriptor, filter, changeSet );
@@ -496,7 +464,7 @@ public abstract class ReplicantSessionManagerImpl
     }
     entry.setFilter( filter );
     final ChannelDescriptor descriptor = entry.getDescriptor();
-    final ChannelMetaData channelMetaData = getChannelMetaData( descriptor );
+    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( descriptor );
     if ( channelMetaData.isCacheable() )
     {
       final ChannelCacheEntry cacheEntry = ensureCacheEntry( descriptor );
@@ -541,7 +509,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelDescriptor descriptor )
   {
-    assert getChannelMetaData( descriptor ).isCacheable();
+    assert getSystemMetaData().getChannelMetaData( descriptor ).isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( descriptor );
     entry.getLock().readLock().lock();
     try
@@ -620,7 +588,7 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert getChannelMetaData( entry.getDescriptor() ).getFilterType() != ChannelMetaData.FilterType.NONE;
+    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).getFilterType() != ChannelMetaData.FilterType.NONE;
     entry.setFilter( filter );
     final ChannelDescriptor descriptor = entry.getDescriptor();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
@@ -828,7 +796,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelDescriptor target = link.getTargetChannel();
-      final boolean targetUnfiltered = getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
+      final boolean targetUnfiltered = getSystemMetaData().getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
       if ( targetUnfiltered || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );

@@ -37,11 +37,11 @@ public interface ReplicantSessionManager
     IGNORE
   }
 
+  /**
+   * @return the metadata for replicant system.
+   */
   @Nonnull
-  ChannelMetaData getChannelMetaData( @Nonnull ChannelDescriptor descriptor );
-
-  @Nonnull
-  ChannelMetaData getChannelMetaData( int channelID );
+  SystemMetaData getSystemMetaData();
 
   @Nonnull
   CacheStatus subscribe( @Nonnull ReplicantSession session,
