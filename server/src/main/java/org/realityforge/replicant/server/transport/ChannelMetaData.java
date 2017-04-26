@@ -19,12 +19,14 @@ public final class ChannelMetaData
   private final Class _subChannelType;
   @Nonnull
   private final FilterType _filterType;
+  private final Class _filterParameterType;
   private final boolean _cacheable;
 
   public ChannelMetaData( final int channelID,
                           @Nonnull final String name,
                           @Nullable final Class subChannelType,
                           @Nonnull final FilterType filterType,
+                          @Nullable final Class filterParameterType,
                           final boolean cacheable )
   {
     _channelID = channelID;
@@ -32,6 +34,15 @@ public final class ChannelMetaData
     _typeGraph = null == subChannelType;
     _subChannelType = subChannelType;
     _filterType = Objects.requireNonNull( filterType );
+    _filterParameterType = filterParameterType;
+    if ( FilterType.NONE == filterType && null != filterParameterType )
+    {
+      throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to NONE" );
+    }
+    else if ( FilterType.NONE != filterType && null == filterParameterType )
+    {
+      throw new IllegalArgumentException( "FilterParameterType not specified but filterType is not set to NONE" );
+    }
     _cacheable = cacheable;
   }
 
@@ -70,6 +81,16 @@ public final class ChannelMetaData
   public FilterType getFilterType()
   {
     return _filterType;
+  }
+
+  @Nonnull
+  public Class getFilterParameterType()
+  {
+    if ( null == _subChannelType )
+    {
+      throw new IllegalStateException( "getFilterParameterType invoked on unfiltered graph" );
+    }
+    return _filterParameterType;
   }
 
   public boolean isCacheable()

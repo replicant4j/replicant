@@ -8,7 +8,8 @@ public class ChannelMetaDataTest
   @Test
   public void typeGraph()
   {
-    final ChannelMetaData metaData = new ChannelMetaData( 1, "MetaData", null, ChannelMetaData.FilterType.NONE, false );
+    final ChannelMetaData metaData =
+      new ChannelMetaData( 1, "MetaData", null, ChannelMetaData.FilterType.NONE, null, false );
     assertEquals( metaData.getChannelID(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), true );
@@ -17,18 +18,36 @@ public class ChannelMetaDataTest
     assertEquals( metaData.isCacheable(), false );
 
     assertThrows( metaData::getSubChannelType );
+    assertThrows( metaData::getFilterParameterType );
   }
 
   @Test
   public void instanceGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", Integer.class, ChannelMetaData.FilterType.NONE, false );
+      new ChannelMetaData( 1, "MetaData", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
     assertEquals( metaData.getChannelID(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), false );
     assertEquals( metaData.isInstanceGraph(), true );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
+    assertEquals( metaData.isCacheable(), false );
+    assertEquals( metaData.getSubChannelType(), Integer.class );
+
+    assertThrows( metaData::getFilterParameterType );
+  }
+
+  @Test
+  public void filteredGraph()
+  {
+    final ChannelMetaData metaData =
+      new ChannelMetaData( 1, "MetaData", Integer.class, ChannelMetaData.FilterType.STATIC, String.class, false );
+    assertEquals( metaData.getChannelID(), 1 );
+    assertEquals( metaData.getName(), "MetaData" );
+    assertEquals( metaData.isTypeGraph(), false );
+    assertEquals( metaData.isInstanceGraph(), true );
+    assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.STATIC );
+    assertEquals( metaData.getFilterParameterType(), String.class );
     assertEquals( metaData.isCacheable(), false );
     assertEquals( metaData.getSubChannelType(), Integer.class );
   }
