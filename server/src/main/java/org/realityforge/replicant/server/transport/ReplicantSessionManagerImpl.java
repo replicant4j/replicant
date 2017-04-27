@@ -385,7 +385,7 @@ public abstract class ReplicantSessionManagerImpl
         if ( descriptors.size() > 1 )
         {
           bulkLoaded = bulkCollectDataForSubscriptionUpdate( session,
-                                                             newChannels,
+                                                             descriptors,
                                                              changeSet,
                                                              originalFilter,
                                                              filter );
