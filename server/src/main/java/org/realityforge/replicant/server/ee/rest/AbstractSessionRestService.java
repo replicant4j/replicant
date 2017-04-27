@@ -1,9 +1,13 @@
 package org.realityforge.replicant.server.ee.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.json.stream.JsonGenerator;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.validation.constraints.NotNull;
@@ -11,6 +15,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -24,6 +29,7 @@ import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.server.ee.Replicate;
+import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
@@ -67,6 +73,8 @@ import org.realityforge.rest.field_filter.FieldFilter;
 public abstract class AbstractSessionRestService
   extends AbstractReplicantRestService
 {
+  private transient final ObjectMapper _jsonMapper = new ObjectMapper();
+
   @Nonnull
   protected abstract ReplicantSessionManager getSessionManager();
 
@@ -114,63 +122,77 @@ public abstract class AbstractSessionRestService
 
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
   @GET
-  public Response getTypeChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                  @PathParam( "channelID" ) @NotNull final int channelID,
-                                  @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
-                                  @Context @Nonnull final UriInfo uri )
+  public Response getChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                              @PathParam( "channelID" ) @NotNull final int channelID,
+                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
+                              @Context @Nonnull final UriInfo uri )
   {
-    return doGetChannel( sessionID, new ChannelDescriptor( channelID ), filter, uri );
-  }
-
-  @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID:\\d+}" )
-  @GET
-  public Response getInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                      @PathParam( "channelID" ) @NotNull final int channelID,
-                                      @PathParam( "subChannelID" ) @NotNull final int subChannelID,
-                                      @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
-                                      @Context @Nonnull final UriInfo uri )
-  {
-    return doGetChannel( sessionID, new ChannelDescriptor( channelID, subChannelID ), filter, uri );
+    return doGetChannel( sessionID, toChannelDescriptor( channelID ), filter, uri );
   }
 
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
   @GET
-  public Response getInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                      @PathParam( "channelID" ) @NotNull final int channelID,
-                                      @PathParam( "subChannelID" ) @NotNull final String subChannelID,
-                                      @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
-                                      @Context @Nonnull final UriInfo uri )
+  public Response getChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                              @PathParam( "channelID" ) @NotNull final int channelID,
+                              @PathParam( "subChannelID" ) @NotNull final String subChannelID,
+                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
+                              @Context @Nonnull final UriInfo uri )
   {
-    return doGetChannel( sessionID, new ChannelDescriptor( channelID, subChannelID ), filter, uri );
+    return doGetChannel( sessionID, toChannelDescriptor( channelID, subChannelID ), filter, uri );
   }
 
   @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
   @DELETE
-  public Response unsubscribeTypeChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                          @PathParam( "channelID" ) @NotNull final int channelID )
+  public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                                          @PathParam( "channelID" ) final int channelID )
   {
-    return doUnsubscribeChannel( sessionID, new ChannelDescriptor( channelID ) );
-  }
-
-  @Replicate
-  @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID:\\d+}" )
-  @DELETE
-  public Response unsubscribeInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                              @PathParam( "channelID" ) @NotNull final int channelID,
-                                              @PathParam( "subChannelID" ) @NotNull final int subChannelID )
-  {
-    return doUnsubscribeChannel( sessionID, new ChannelDescriptor( channelID, subChannelID ) );
+    return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID ) );
   }
 
   @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
   @DELETE
-  public Response unsubscribeInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                              @PathParam( "channelID" ) @NotNull final int channelID,
-                                              @PathParam( "subChannelID" ) @NotNull final String subChannelID )
+  public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                                          @PathParam( "channelID" ) final int channelID,
+                                          @PathParam( "subChannelID" ) @NotNull final String subChannelText )
   {
-    return doUnsubscribeChannel( sessionID, new ChannelDescriptor( channelID, subChannelID ) );
+    return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID, subChannelText ) );
+  }
+
+  @Replicate
+  @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
+  @PUT
+  public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                                      @PathParam( "channelID" ) @NotNull final int channelID,
+                                      @Nonnull final String filterContent )
+  {
+    return doSubscribeChannel( sessionID, toChannelDescriptor( channelID ), filterContent );
+  }
+
+  @Replicate
+  @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
+  @PUT
+  public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                                      @PathParam( "channelID" ) @NotNull final int channelID,
+                                      @PathParam( "subChannelID" ) @NotNull final String subChannelText,
+                                      @Nonnull final String filterContent )
+  {
+    return doSubscribeChannel( sessionID, toChannelDescriptor( channelID, subChannelText ), filterContent );
+  }
+
+  @Nonnull
+  protected Response doSubscribeChannel( @Nonnull final String sessionID,
+                                         @Nonnull final ChannelDescriptor descriptor,
+                                         @Nonnull final String filterContent )
+  {
+    final ReplicantSession session = ensureSession( sessionID );
+    getSessionManager().subscribe( session,
+                                   descriptor,
+                                   true,
+                                   toFilter( getChannelMetaData( descriptor ), filterContent ),
+                                   EntityMessageCacheUtil.getSessionChanges() );
+    return standardResponse( Response.Status.OK, "Channel subscription added." );
   }
 
   @Nonnull
@@ -263,6 +285,83 @@ public abstract class AbstractSessionRestService
     final String content =
       json( g -> Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, filter, uri ) );
     return buildResponse( Response.ok(), content );
+  }
+
+  @Nonnull
+  private ChannelDescriptor toChannelDescriptor( final int channelID, @Nonnull final String subChannelText )
+  {
+    return new ChannelDescriptor( channelID, extractSubChannelID( channelID, subChannelText ) );
+  }
+
+  @Nonnull
+  private ChannelDescriptor toChannelDescriptor( final int channelID )
+  {
+    return new ChannelDescriptor( channelID );
+  }
+
+  @Nonnull
+  private Serializable extractSubChannelID( final int channelID, @Nonnull final String subChannelText )
+  {
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    if ( channelMetaData.isTypeGraph() )
+    {
+      final Response response =
+        standardResponse( Response.Status.BAD_REQUEST, "Attempted to supply subChannelID to type graph" );
+      throw new WebApplicationException( response );
+    }
+    final Class subChannelType = channelMetaData.getSubChannelType();
+    final Serializable subChannelID;
+    if ( Integer.class == subChannelType )
+    {
+      subChannelID = Integer.parseInt( subChannelText );
+    }
+    else if ( String.class == subChannelType )
+    {
+      subChannelID = subChannelText;
+    }
+    else
+    {
+      final Response response =
+        standardResponse( Response.Status.BAD_REQUEST, "Channel has invalid subChannel type" );
+      throw new WebApplicationException( response );
+    }
+    return subChannelID;
+  }
+
+  @Nonnull
+  private ChannelMetaData getChannelMetaData( final int channelID )
+  {
+    return getSessionManager().getSystemMetaData().getChannelMetaData( channelID );
+  }
+
+  @Nonnull
+  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
+  {
+    return getSessionManager().getSystemMetaData().getChannelMetaData( descriptor );
+  }
+
+  @Nullable
+  private Object toFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final String filterContent )
+  {
+    return ChannelMetaData.FilterType.NONE == channelMetaData.getFilterType() ?
+           null :
+           parseFilter( channelMetaData, filterContent );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Nonnull
+  private Object parseFilter( @Nonnull final ChannelMetaData channelMetaData,
+                              @Nonnull final String filterContent )
+  {
+    try
+    {
+      return _jsonMapper.readValue( filterContent, channelMetaData.getFilterParameterType() );
+    }
+    catch ( final IOException ioe )
+    {
+      final Response response = standardResponse( Response.Status.BAD_REQUEST, "Invalid or missing filter" );
+      throw new WebApplicationException( response );
+    }
   }
 
   @Nonnull
