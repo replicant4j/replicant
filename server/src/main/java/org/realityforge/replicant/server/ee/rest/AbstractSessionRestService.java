@@ -156,17 +156,39 @@ public abstract class AbstractSessionRestService
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
   @DELETE
   public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                          @PathParam( "channelID" ) final int channelID )
+                                          @PathParam( "channelID" ) final int channelID,
+                                          @QueryParam( "scid" ) @Nullable final String subChannelIDs )
   {
-    return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID ) );
+    if ( null == subChannelIDs )
+    {
+      //Handle type channel
+      return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID ) );
+    }
+    else
+    {
+      final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+      if ( channelMetaData.isTypeGraph() )
+      {
+        final Response response =
+          standardResponse( Response.Status.BAD_REQUEST, "Supplied subChannelIDs to type graph" );
+        throw new WebApplicationException( response );
+      }
+      //A bulk subscribe to an instance channel
+      final ArrayList<Serializable> scids = new ArrayList<>();
+      for ( final String scid : subChannelIDs.split( "," ) )
+      {
+        scids.add( toSubChannelID( channelMetaData, scid ) );
+      }
+      return doBulkUnsubscribeChannel( sessionID, channelID, scids );
+    }
   }
 
   @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
   @DELETE
-  public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                          @PathParam( "channelID" ) final int channelID,
-                                          @PathParam( "subChannelID" ) @NotNull final String subChannelText )
+  public Response unsubscribeFromInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                                                  @PathParam( "channelID" ) final int channelID,
+                                                  @PathParam( "subChannelID" ) @NotNull final String subChannelText )
   {
     return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID, subChannelText ) );
   }
@@ -243,6 +265,20 @@ public abstract class AbstractSessionRestService
                                        true,
                                        EntityMessageCacheUtil.getSessionChanges() );
     return standardResponse( Response.Status.OK, "Channel subscriptions added." );
+  }
+
+  @Nonnull
+  protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
+                                               final int channelID,
+                                               @Nonnull Collection<Serializable> subChannelIDs )
+  {
+    final ReplicantSession session = ensureSession( sessionID );
+    getSessionManager().bulkUnsubscribe( session,
+                                         channelID,
+                                         subChannelIDs,
+                                         true,
+                                         EntityMessageCacheUtil.getSessionChanges() );
+    return standardResponse( Response.Status.OK, "Channel subscriptions removed." );
   }
 
   @Nonnull
