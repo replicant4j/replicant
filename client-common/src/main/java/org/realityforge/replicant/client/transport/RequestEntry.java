@@ -107,6 +107,7 @@ public class RequestEntry
   @Override
   public String toString()
   {
-    return "Request(" + _requestKey + ")[ID=" + _requestID + ",Cache=" + _cacheKey + ",Bulk=" + _bulkLoad + "]";
+    return "Request(" + _requestKey + ")[ID=" + _requestID +
+           ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) + ( _bulkLoad ? ",BulkLoad!" : "" ) ) + "]";
   }
 }
