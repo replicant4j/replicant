@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -174,18 +176,41 @@ public abstract class AbstractSessionRestService
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                       @PathParam( "channelID" ) @NotNull final int channelID,
+                                      @QueryParam( "scid" ) @Nullable final String subChannelIDs,
                                       @Nonnull final String filterContent )
   {
-    return doSubscribeChannel( sessionID, toChannelDescriptor( channelID ), filterContent );
+    if ( null == subChannelIDs )
+    {
+      //Subscription to a type channel
+      return doSubscribeChannel( sessionID, toChannelDescriptor( channelID ), filterContent );
+    }
+    else
+    {
+      final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+      if ( channelMetaData.isTypeGraph() )
+      {
+        final Response response =
+          standardResponse( Response.Status.BAD_REQUEST, "Supplied subChannelIDs to type graph" );
+        throw new WebApplicationException( response );
+      }
+      //A bulk subscribe to an instance channel
+      final ArrayList<Serializable> scids = new ArrayList<>();
+      for ( final String scid : subChannelIDs.split( "," ) )
+      {
+        scids.add( toSubChannelID( channelMetaData, scid ) );
+      }
+      return doBulkSubscribeChannel( sessionID, channelID, scids, filterContent );
+
+    }
   }
 
   @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
   @PUT
-  public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                      @PathParam( "channelID" ) @NotNull final int channelID,
-                                      @PathParam( "subChannelID" ) @NotNull final String subChannelText,
-                                      @Nonnull final String filterContent )
+  public Response subscribeToInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
+                                              @PathParam( "channelID" ) @NotNull final int channelID,
+                                              @PathParam( "subChannelID" ) @NotNull final String subChannelText,
+                                              @Nonnull final String filterContent )
   {
     return doSubscribeChannel( sessionID, toChannelDescriptor( channelID, subChannelText ), filterContent );
   }
@@ -202,6 +227,23 @@ public abstract class AbstractSessionRestService
                                    toFilter( getChannelMetaData( descriptor ), filterContent ),
                                    EntityMessageCacheUtil.getSessionChanges() );
     return standardResponse( Response.Status.OK, "Channel subscription added." );
+  }
+
+  @Nonnull
+  protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
+                                             final int channelID,
+                                             @Nonnull Collection<Serializable> subChannelIDs,
+                                             @Nonnull final String filterContent )
+  {
+    final ReplicantSession session = ensureSession( sessionID );
+    final Object filter = toFilter( getChannelMetaData( channelID ), filterContent );
+    getSessionManager().bulkSubscribe( session,
+                                       channelID,
+                                       subChannelIDs,
+                                       filter,
+                                       true,
+                                       EntityMessageCacheUtil.getSessionChanges() );
+    return standardResponse( Response.Status.OK, "Channel subscriptions added." );
   }
 
   @Nonnull
@@ -318,6 +360,12 @@ public abstract class AbstractSessionRestService
   @Nonnull
   private ChannelDescriptor toChannelDescriptor( final int channelID )
   {
+    if ( getChannelMetaData( channelID ).isTypeGraph() )
+    {
+      final Response response =
+        standardResponse( Response.Status.BAD_REQUEST, "Failed to supply subChannelID to instance graph" );
+      throw new WebApplicationException( response );
+    }
     return new ChannelDescriptor( channelID );
   }
 
@@ -331,15 +379,20 @@ public abstract class AbstractSessionRestService
         standardResponse( Response.Status.BAD_REQUEST, "Attempted to supply subChannelID to type graph" );
       throw new WebApplicationException( response );
     }
+    return toSubChannelID( channelMetaData, subChannelText );
+  }
+
+  @Nonnull
+  private Serializable toSubChannelID( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final String value )
+  {
     final Class subChannelType = channelMetaData.getSubChannelType();
-    final Serializable subChannelID;
     if ( Integer.class == subChannelType )
     {
-      subChannelID = Integer.parseInt( subChannelText );
+      return Integer.parseInt( value );
     }
     else if ( String.class == subChannelType )
     {
-      subChannelID = subChannelText;
+      return value;
     }
     else
     {
@@ -347,7 +400,6 @@ public abstract class AbstractSessionRestService
         standardResponse( Response.Status.BAD_REQUEST, "Channel has invalid subChannel type" );
       throw new WebApplicationException( response );
     }
-    return subChannelID;
   }
 
   @Nonnull
