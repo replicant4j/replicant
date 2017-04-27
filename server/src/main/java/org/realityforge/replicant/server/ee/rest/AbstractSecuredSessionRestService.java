@@ -1,6 +1,9 @@
 package org.realityforge.replicant.server.ee.rest;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -43,14 +46,7 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doDeleteSession( @Nonnull final String sessionID )
   {
-    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
-    {
-      return super.doDeleteSession( sessionID );
-    }
-    else
-    {
-      return createForbiddenResponse();
-    }
+    return guard( sessionID, () -> super.doDeleteSession( sessionID ) );
   }
 
   @Nonnull
@@ -73,14 +69,7 @@ public abstract class AbstractSecuredSessionRestService
                                    @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
-    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
-    {
-      return super.doGetSession( sessionID, filter, uri );
-    }
-    else
-    {
-      return createForbiddenResponse();
-    }
+    return guard( sessionID, () -> super.doGetSession( sessionID, filter, uri ) );
   }
 
   @Nonnull
@@ -88,14 +77,7 @@ public abstract class AbstractSecuredSessionRestService
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
-    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
-    {
-      return super.doUnsubscribeChannel( sessionID, descriptor );
-    }
-    else
-    {
-      return createForbiddenResponse();
-    }
+    return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, descriptor ) );
   }
 
   @Nonnull
@@ -105,14 +87,7 @@ public abstract class AbstractSecuredSessionRestService
                                    @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
-    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
-    {
-      return super.doGetChannel( sessionID, descriptor, filter, uri );
-    }
-    else
-    {
-      return createForbiddenResponse();
-    }
+    return guard( sessionID, () -> super.doGetChannel( sessionID, descriptor, filter, uri ) );
   }
 
   @Nonnull
@@ -121,9 +96,44 @@ public abstract class AbstractSecuredSessionRestService
                                     @Nonnull final FieldFilter filter,
                                     @Nonnull final UriInfo uri )
   {
+    return guard( sessionID, () -> super.doGetChannels( sessionID, filter, uri ) );
+  }
+
+  @Nonnull
+  @Override
+  protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
+                                             final int channelID,
+                                             @Nonnull final Collection<Serializable> subChannelIDs,
+                                             @Nonnull final String filterContent )
+  {
+    return guard( sessionID, () -> super.doBulkSubscribeChannel( sessionID, channelID, subChannelIDs, filterContent ) );
+  }
+
+  @Nonnull
+  @Override
+  protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
+                                               final int channelID,
+                                               @Nonnull final Collection<Serializable> subChannelIDs )
+  {
+    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, channelID, subChannelIDs ) );
+  }
+
+  @Nonnull
+  @Override
+  protected Response doGetInstanceChannels( @Nonnull final String sessionID,
+                                            final int channelID,
+                                            @Nonnull final FieldFilter filter,
+                                            @Nonnull final UriInfo uri )
+  {
+    return guard( sessionID, () -> super.doGetInstanceChannels( sessionID, channelID, filter, uri ) );
+  }
+
+  @Nonnull
+  private Response guard( @Nonnull final String sessionID, @Nonnull final Supplier<Response> action )
+  {
     if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
     {
-      return super.doGetChannels( sessionID, filter, uri );
+      return action.get();
     }
     else
     {
