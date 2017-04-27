@@ -200,7 +200,6 @@ public abstract class AbstractSessionRestService
         scids.add( toSubChannelID( channelMetaData, scid ) );
       }
       return doBulkSubscribeChannel( sessionID, channelID, scids, filterContent );
-
     }
   }
 
