@@ -16,8 +16,6 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
-import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class EeWebPollerDataLoaderService
@@ -83,22 +81,13 @@ public abstract class EeWebPollerDataLoaderService
   @Override
   protected void doConnect( @Nullable final Runnable runnable )
   {
-    final Invocation.Builder builder = newInvocationBuilder( getTokenURL() );
     final Consumer<Response> onCompletion =
-      wrap( response ->
-            {
-              final int statusCode = response.getStatus();
-              if ( Response.Status.OK.getStatusCode() == statusCode )
-              {
-                onSessionCreated( response.readEntity( String.class ), runnable );
-              }
-              else
-              {
-                final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
-                handleInvalidConnect( new InvalidHttpResponseException( statusCode, reasonPhrase ) );
-              }
-            } );
+      wrap( r -> onConnectResponse( r.getStatus(),
+                                    r.getStatusInfo().getReasonPhrase(),
+                                    () -> r.readEntity( String.class ),
+                                    runnable ) );
     final Consumer<Throwable> onError = wrap( t -> getListener().onInvalidConnect( this, t ) );
+    final Invocation.Builder builder = newInvocationBuilder( getBaseSessionURL() );
     builder.async().post( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
     {
       @Override
@@ -115,31 +104,13 @@ public abstract class EeWebPollerDataLoaderService
     } );
   }
 
-  protected void doDisconnect( @Nonnull final ClientSession session, @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nullable final Runnable runnable )
   {
-    final Invocation.Builder builder =
-      newInvocationBuilder( getTokenURL() + "/" + session.getSessionID() );
     final Consumer<Response> onCompletion =
-      wrap( response ->
-            {
-              final int statusCode = response.getStatus();
-              if ( Response.Status.OK.getStatusCode() == statusCode )
-              {
-                setSession( null, runnable );
-              }
-              else
-              {
-                setSession( null, runnable );
-                final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
-                handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, reasonPhrase ) );
-              }
-            } );
-    final Consumer<Throwable> onError =
-      wrap( throwable ->
-            {
-              setSession( null, runnable );
-              handleInvalidDisconnect( throwable );
-            } );
+      wrap( r -> onDisconnectResponse( r.getStatus(), r.getStatusInfo().getReasonPhrase(), runnable ) );
+    final Consumer<Throwable> onError = wrap( t -> onDisconnectError( t, runnable ) );
+
+    final Invocation.Builder builder = newInvocationBuilder( getSessionURL() );
     builder.async().delete( new InvocationCallback<Response>()
     {
       @Override

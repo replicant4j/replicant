@@ -1029,7 +1029,7 @@ public abstract class AbstractDataLoaderService
     if ( null != session && State.DISCONNECTING != getState() )
     {
       setState( State.DISCONNECTING );
-      doDisconnect( session, this::onDisconnect );
+      doDisconnect( this::onDisconnect );
     }
   }
 
@@ -1039,7 +1039,7 @@ public abstract class AbstractDataLoaderService
     getListener().onDisconnect( this );
   }
 
-  protected abstract void doDisconnect( @Nonnull ClientSession session, @Nullable Runnable runnable );
+  protected abstract void doDisconnect( @Nullable Runnable runnable );
 
   /**
    * Return the graph for specified channel.

@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -81,14 +82,23 @@ public abstract class WebPollerDataLoaderService
   }
 
   /**
-   * Return the url to generate session token.
+   * Return the url to session service.
    *
    * The implementation derives the url from getBaseURL().
    */
   @Nonnull
-  protected String getTokenURL()
+  protected String getBaseSessionURL()
   {
     return getBaseURL() + ReplicantContext.SESSION_URL_FRAGMENT;
+  }
+
+  /**
+   * Return the url to the specific resource for specified session
+   */
+  @Nonnull
+  protected String getSessionURL()
+  {
+    return getBaseSessionURL() + "/" + ensureSession().getSessionID();
   }
 
   /**
@@ -102,6 +112,42 @@ public abstract class WebPollerDataLoaderService
       throw new NullPointerException( "_webPoller" );
     }
     return _webPoller;
+  }
+
+  protected void onDisconnectError( @Nonnull final Throwable t, @Nullable final Runnable runnable )
+  {
+    setSession( null, runnable );
+    handleInvalidDisconnect( t );
+  }
+
+  protected void onDisconnectResponse( final int statusCode,
+                                       @Nonnull final String statusText,
+                                       @Nullable final Runnable action )
+  {
+    if ( 200 == statusCode )
+    {
+      setSession( null, action );
+    }
+    else
+    {
+      setSession( null, action );
+      handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, statusText ) );
+    }
+  }
+
+  protected void onConnectResponse( final int statusCode,
+                                    @Nonnull final String statusText,
+                                    @Nonnull final Supplier<String> content,
+                                    @Nullable final Runnable runnable )
+  {
+    if ( 200 == statusCode )
+    {
+      onSessionCreated( content.get(), runnable );
+    }
+    else
+    {
+      handleInvalidConnect( new InvalidHttpResponseException( statusCode, statusText ) );
+    }
   }
 
   protected void handleWebPollerStop()

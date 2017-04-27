@@ -84,7 +84,7 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void doDisconnect( @Nonnull final ClientSession session, @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nullable final Runnable runnable )
   {
   }
 

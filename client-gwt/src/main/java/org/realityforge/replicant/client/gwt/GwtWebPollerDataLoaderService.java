@@ -6,6 +6,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
@@ -14,8 +15,6 @@ import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.transport.CacheService;
-import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -84,74 +83,52 @@ public abstract class GwtWebPollerDataLoaderService
   @Override
   protected void doConnect( @Nullable final Runnable runnable )
   {
-    final RequestBuilder rb = newRequestBuilder( RequestBuilder.POST, getTokenURL() );
-    try
-    {
-      rb.sendRequest( null, new RequestCallback()
-      {
-        @Override
-        public void onResponseReceived( final Request request, final Response response )
-        {
-          final int statusCode = response.getStatusCode();
-          if ( Response.SC_OK == statusCode )
-          {
-            onSessionCreated( response.getText(), runnable );
-          }
-          else
-          {
-            handleInvalidConnect( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
-          }
-        }
-
-        @Override
-        public void onError( final Request request, final Throwable exception )
-        {
-          handleInvalidConnect( exception );
-        }
-      } );
-    }
-    catch ( final RequestException e )
-    {
-      handleInvalidConnect( e );
-    }
+    final Consumer<Response> onResponse =
+      r -> onConnectResponse( r.getStatusCode(), r.getStatusText(), r::getText, runnable );
+    sendRequest( RequestBuilder.POST, getBaseSessionURL(), null, onResponse, this::handleInvalidConnect );
   }
 
   @Override
-  protected void doDisconnect( @Nonnull final ClientSession session, @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nullable final Runnable runnable )
   {
-    final RequestBuilder rb =
-      newRequestBuilder( RequestBuilder.DELETE, getTokenURL() + "/" + session.getSessionID() );
+    final Consumer<Response> onResponse = r -> onDisconnectResponse( r.getStatusCode(), r.getStatusText(), runnable );
+    final Consumer<Throwable> onError = t -> onDisconnectError( t, runnable );
+    sendRequest( RequestBuilder.DELETE, getSessionURL(), null, onResponse, onError );
+  }
+
+  @Nonnull
+  protected String getSessionURL()
+  {
+    return getBaseSessionURL() + "/" + ensureSession().getSessionID();
+  }
+
+  protected void sendRequest( @Nonnull final RequestBuilder.Method method,
+                              @Nonnull final String url,
+                              @Nullable final String requestData,
+                              @Nonnull final Consumer<Response> onResponse,
+                              @Nonnull final Consumer<Throwable> onError )
+  {
+    final RequestBuilder rb = newRequestBuilder( method, url );
     try
     {
-      rb.sendRequest( null, new RequestCallback()
+      rb.sendRequest( requestData, new RequestCallback()
       {
         @Override
         public void onResponseReceived( final Request request, final Response response )
         {
-          final int statusCode = response.getStatusCode();
-          if ( Response.SC_OK == statusCode )
-          {
-            setSession( null, runnable );
-          }
-          else
-          {
-            setSession( null, runnable );
-            handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
-          }
+          onResponse.accept( response );
         }
 
         @Override
         public void onError( final Request request, final Throwable exception )
         {
-          setSession( null, runnable );
-          handleInvalidDisconnect( exception );
+          onError.accept( exception );
         }
       } );
     }
     catch ( final RequestException e )
     {
-      setSession( null, runnable );
-      handleInvalidDisconnect( e );
+      onError.accept( e );
     }
   }
 
