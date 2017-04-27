@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.UriInfo;
@@ -162,6 +163,35 @@ final class Encoder
     emitSubscriptions( systemMetaData, session, g, session.getSubscriptions().values(), subFilter, uri );
   }
 
+  static void emitInstanceChannelList( @Nonnull final SystemMetaData systemMetaData,
+                                       final int channeID,
+                                       @Nonnull final ReplicantSession session,
+                                       @Nonnull final JsonGenerator g,
+                                       @Nonnull final FieldFilter filter,
+                                       @Nonnull final UriInfo uri )
+  {
+    g.writeStartObject();
+    emitInstanceChannels( systemMetaData, channeID, session, g, uri, filter );
+    g.writeEnd();
+  }
+
+  private static void emitInstanceChannels( @Nonnull final SystemMetaData systemMetaData,
+                                            final int channeID,
+                                            @Nonnull final ReplicantSession session,
+                                            @Nonnull final JsonGenerator g,
+                                            @Nonnull final UriInfo uri,
+                                            @Nonnull final FieldFilter subFilter )
+  {
+    if ( subFilter.allow( "url" ) )
+    {
+      g.write( "url", getInstanceChannelURL( session, channeID, uri ) );
+    }
+    final Collection<SubscriptionEntry> entries =
+      session.getSubscriptions().values().stream().filter( s -> s.getDescriptor().getChannelID() == channeID ).
+        collect( Collectors.toList() );
+    emitSubscriptions( systemMetaData, session, g, entries, subFilter, uri );
+  }
+
   @Nonnull
   private static String getSessionURL( @Nonnull final SessionInfo session, @Nonnull final UriInfo uri )
   {
@@ -172,6 +202,14 @@ final class Encoder
   private static String getSubscriptionsURL( @Nonnull final SessionInfo session, @Nonnull final UriInfo uri )
   {
     return getSessionURL( session, uri ) + ReplicantContext.CHANNEL_URL_FRAGMENT;
+  }
+
+  @Nonnull
+  private static String getInstanceChannelURL( @Nonnull final SessionInfo session,
+                                               final int channelID,
+                                               @Nonnull final UriInfo uri )
+  {
+    return getSubscriptionsURL( session, uri ) + '/' + channelID;
   }
 
   @Nonnull

@@ -33,6 +33,7 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
+import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.rest.AbstractReplicantRestService;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.realityforge.rest.field_filter.FieldFilter;
@@ -127,7 +128,15 @@ public abstract class AbstractSessionRestService
                               @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
                               @Context @Nonnull final UriInfo uri )
   {
-    return doGetChannel( sessionID, toChannelDescriptor( channelID ), filter, uri );
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    if ( channelMetaData.isTypeGraph() )
+    {
+      return doGetChannel( sessionID, toChannelDescriptor( channelID ), filter, uri );
+    }
+    else
+    {
+      return doGetInstanceChannels( sessionID, channelID, filter, uri );
+    }
   }
 
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
@@ -235,6 +244,19 @@ public abstract class AbstractSessionRestService
     final ReplicantSession session = ensureSession( sessionID );
     final String content =
       json( g -> Encoder.emitChannelsList( getSessionManager().getSystemMetaData(), session, g, filter, uri ) );
+    return buildResponse( Response.ok(), content );
+  }
+
+  @Nonnull
+  protected Response doGetInstanceChannels( @Nonnull final String sessionID,
+                                            final int channelID,
+                                            @Nonnull final FieldFilter filter,
+                                            @Nonnull final UriInfo uri )
+  {
+    final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
+    final ReplicantSession session = ensureSession( sessionID );
+    final String content =
+      json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelID, session, g, filter, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
