@@ -56,8 +56,7 @@ public final class SystemMetaData
   {
     if ( channelID >= _channels.size() || channelID < 0 )
     {
-      final String message = "Channel " + channelID + " not part of declared metadata: " + _channels;
-      throw new IllegalStateException( message );
+      throw new NoSuchChannelException( channelID );
     }
     return _channels.get( channelID );
   }
