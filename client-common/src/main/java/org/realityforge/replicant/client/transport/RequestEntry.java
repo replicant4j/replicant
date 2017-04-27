@@ -16,7 +16,7 @@ public class RequestEntry
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
-  private Runnable _runnable;
+  private Runnable _completionAction;
 
   public RequestEntry( @Nonnull final String requestID,
                        @Nonnull final String requestKey,
@@ -57,16 +57,16 @@ public class RequestEntry
     return _resultsArrived;
   }
 
-  public void setNormalCompletionAction( @Nullable final Runnable runnable )
+  public void setNormalCompletionAction( @Nullable final Runnable completionAction )
   {
     _normalCompletion = true;
-    _runnable = runnable;
+    _completionAction = completionAction;
   }
 
-  public void setNonNormalCompletionAction( @Nullable final Runnable runnable )
+  public void setNonNormalCompletionAction( @Nullable final Runnable completionAction )
   {
     _normalCompletion = false;
-    _runnable = runnable;
+    _completionAction = completionAction;
   }
 
   public boolean isCompletionDataPresent()
@@ -89,9 +89,9 @@ public class RequestEntry
   }
 
   @Nullable
-  public Runnable getRunnable()
+  public Runnable getCompletionAction()
   {
-    return _runnable;
+    return _completionAction;
   }
 
   public void setExpectingResults( final boolean expectingResults )

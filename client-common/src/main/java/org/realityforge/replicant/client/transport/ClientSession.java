@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
@@ -16,6 +18,9 @@ import org.realityforge.replicant.client.ChannelDescriptor;
  */
 public final class ClientSession
 {
+  private static final Logger LOG = Logger.getLogger( ClientSession.class.getName() );
+  private static final Level LOG_LEVEL = Level.INFO;
+
   @Nonnull
   private final DataLoaderService _dataLoaderService;
   private final String _sessionID;
@@ -121,33 +126,81 @@ public final class ClientSession
     return _lastRxSequence;
   }
 
-  public void setLastRxSequence( final int lastRxSequence )
+  void setLastRxSequence( final int lastRxSequence )
   {
     _lastRxSequence = lastRxSequence;
   }
 
   @Nonnull
-  public final RequestEntry newRequestRegistration( @Nonnull final String requestKey,
-                                                    @Nullable final String cacheKey,
-                                                    final boolean bulkLoad )
+  public final RequestEntry newRequest( @Nonnull final String requestKey,
+                                        @Nullable final String cacheKey,
+                                        final boolean bulkLoad )
   {
     final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey, bulkLoad );
     _requests.put( entry.getRequestID(), entry );
+    if ( LOG.isLoggable( LOG_LEVEL ) )
+    {
+      LOG.log( LOG_LEVEL, "Created request " + entry );
+    }
     return entry;
   }
 
+  public final void completeNormalRequest( @Nonnull final RequestEntry request,
+                                           @Nonnull final Runnable runnable )
+  {
+    if ( request.isExpectingResults() && !request.haveResultsArrived() )
+    {
+      request.setNormalCompletionAction( runnable );
+      if ( LOG.isLoggable( LOG_LEVEL ) )
+      {
+        LOG.log( LOG_LEVEL, "Request " + request + " completed normally. Change set has not arrived." );
+      }
+    }
+    else
+    {
+      runnable.run();
+      removeRequest( request.getRequestID() );
+      if ( LOG.isLoggable( LOG_LEVEL ) )
+      {
+        LOG.log( LOG_LEVEL, "Request " + request + " completed normally. No change set or already arrived." );
+      }
+    }
+  }
+
+  public final void completeNonNormalRequest( @Nonnull final RequestEntry request,
+                                              @Nonnull final Runnable runnable )
+  {
+    if ( request.isExpectingResults() && !request.haveResultsArrived() )
+    {
+      request.setNonNormalCompletionAction( runnable );
+      if ( LOG.isLoggable( LOG_LEVEL ) )
+      {
+        LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. Change set has not arrived." );
+      }
+    }
+    else
+    {
+      runnable.run();
+      removeRequest( request.getRequestID() );
+      if ( LOG.isLoggable( LOG_LEVEL ) )
+      {
+        LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. No change set or already arrived." );
+      }
+    }
+  }
+
   @Nullable
-  public final RequestEntry getRequest( @Nonnull final String requestID )
+  final RequestEntry getRequest( @Nonnull final String requestID )
   {
     return _requests.get( requestID );
   }
 
-  public Map<String, RequestEntry> getRequests()
+  Map<String, RequestEntry> getRequests()
   {
     return _roRequests;
   }
 
-  public final boolean removeRequest( @Nonnull final String requestID )
+  final boolean removeRequest( @Nonnull final String requestID )
   {
     return null != _requests.remove( requestID );
   }

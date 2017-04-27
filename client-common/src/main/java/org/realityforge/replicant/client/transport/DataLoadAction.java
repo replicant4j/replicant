@@ -306,7 +306,7 @@ final class DataLoadAction
     }
     else
     {
-      return _request.getRunnable();
+      return _request.getCompletionAction();
     }
   }
 
