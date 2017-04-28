@@ -285,8 +285,8 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker() ).disable( "TestGraph" );
-    verify( service.getChangeBroker() ).enable( "TestGraph" );
+    verify( service.getChangeBroker() ).pause( "TestGraph" );
+    verify( service.getChangeBroker() ).resume( "TestGraph" );
 
     assertTrue( service.isDataLoadComplete() );
     assertNull( service.getStatus().getRequestID() );
