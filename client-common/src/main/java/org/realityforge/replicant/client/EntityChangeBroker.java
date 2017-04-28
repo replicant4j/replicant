@@ -115,9 +115,6 @@ public interface EntityChangeBroker
    *
    * <p>Changes sent to the broker while it is disabled will be discarded.</p>
    *
-   * <p>Typically the broker is disabled before a bulk load of an EntityRepository and re-enabled
-   * after the fact.</p>
-   *
    * @param key the opaque identifier for transaction.
    * @return the transaction created by action.
    * @throws IllegalStateException if transaction is in process.

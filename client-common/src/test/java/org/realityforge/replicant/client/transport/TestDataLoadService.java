@@ -128,16 +128,6 @@ public final class TestDataLoadService
     return _terminateCount;
   }
 
-  boolean isBulkLoadCompleteCalled()
-  {
-    return isDataLoadComplete() && getStatus().isBulkLoad();
-  }
-
-  boolean isIncrementalLoadCompleteCalled()
-  {
-    return isDataLoadComplete() && !getStatus().isBulkLoad();
-  }
-
   boolean isScheduleDataLoadCalled()
   {
     return _scheduleDataLoadCalled;

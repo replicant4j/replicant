@@ -30,7 +30,7 @@ import org.realityforge.replicant.client.Linkable;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
- * Data can be loaded by bulk or incrementally and the load can be broken up into several
+ * Data is loaded incrementally and the load can be broken up into several
  * steps to avoid locking a thread such as in GWT.
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
@@ -366,8 +366,7 @@ public abstract class AbstractDataLoaderService
               completeAoiAction();
               a.run();
             };
-            //TODO: Figure out how to make the bulkLoad configurable
-            ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction, true );
+            ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
           };
         }
         else
@@ -664,14 +663,7 @@ public abstract class AbstractDataLoaderService
         return true;
       }
       _currentAction.markBrokerPaused();
-      if ( _currentAction.isBulkLoad() )
-      {
-        getChangeBroker().disable( getChangeBrokerKey() );
-      }
-      else
-      {
-        getChangeBroker().pause( getChangeBrokerKey() );
-      }
+      getChangeBroker().pause( getChangeBrokerKey() );
       return true;
     }
 
@@ -803,19 +795,9 @@ public abstract class AbstractDataLoaderService
       {
         session.setLastRxSequence( set.getSequence() );
       }
-      if ( _currentAction.isBulkLoad() )
+      if ( _currentAction.hasBrokerBeenPaused() )
       {
-        if ( _currentAction.hasBrokerBeenPaused() )
-        {
-          getChangeBroker().enable( getChangeBrokerKey() );
-        }
-      }
-      else
-      {
-        if ( _currentAction.hasBrokerBeenPaused() )
-        {
-          getChangeBroker().resume( getChangeBrokerKey() );
-        }
+        getChangeBroker().resume( getChangeBrokerKey() );
       }
       if ( config().repositoryDebugOutputEnabled() )
       {

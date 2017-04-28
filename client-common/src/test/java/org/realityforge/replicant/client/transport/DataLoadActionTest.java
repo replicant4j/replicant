@@ -19,34 +19,29 @@ public class DataLoadActionTest
     final ArrayList<Object[]> objects = new ArrayList<>();
     for ( final boolean normalCompletion : flags )
     {
-      for ( final boolean bulkChange : flags )
+      for ( final boolean useRunnable : flags )
       {
-        for ( final boolean useRunnable : flags )
+        for ( final boolean isLinkableEntity : flags )
         {
-          for ( final boolean isLinkableEntity : flags )
+          for ( final boolean oob : flags )
           {
-            for ( final boolean oob : flags )
+            for ( final boolean update : flags )
             {
-              for ( final boolean update : flags )
-              {
-                final boolean expectLink = isLinkableEntity && update;
-                final TestChangeSet changeSet =
-                  new TestChangeSet( 42,
-                                     useRunnable ? new MockRunner() : null,
-                                     bulkChange,
-                                     new Change[]{ new TestChange( update ) } );
-                final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
-                objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
-              }
-              final boolean expectLink = false;
+              final boolean expectLink = isLinkableEntity && update;
               final TestChangeSet changeSet =
                 new TestChangeSet( 42,
                                    useRunnable ? new MockRunner() : null,
-                                   bulkChange,
-                                   new Change[]{ new TestChange( true ), new TestChange( false ) } );
+                                   new Change[]{ new TestChange( update ) } );
               final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
               objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
             }
+            final boolean expectLink = false;
+            final TestChangeSet changeSet =
+              new TestChangeSet( 42,
+                                 useRunnable ? new MockRunner() : null,
+                                 new Change[]{ new TestChange( true ), new TestChange( false ) } );
+            final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
+            objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
           }
         }
       }
@@ -81,7 +76,6 @@ public class DataLoadActionTest
     if ( oob )
     {
       action.setRunnable( changeSet.getRunnable() );
-      action.setBulkLoad( changeSet.isBulkChange() );
       action.setChangeSet( changeSet, null );
     }
     else
@@ -89,7 +83,7 @@ public class DataLoadActionTest
       changeSet.setRequestID( "X" );
       final String requestID = changeSet.getRequestID();
       assertNotNull( requestID );
-      final RequestEntry request = new RequestEntry( requestID, "MyOperation", null, changeSet.isBulkChange() );
+      final RequestEntry request = new RequestEntry( requestID, "MyOperation", null );
       if ( normalCompletion )
       {
         request.setNormalCompletionAction( runnable );
@@ -100,7 +94,6 @@ public class DataLoadActionTest
       }
       action.setChangeSet( changeSet, request );
     }
-    assertEquals( action.isBulkLoad(), changeSet.isBulkChange() );
     assertEquals( action.getRunnable(), runnable );
 
     assertEquals( action.getChangeSet(), changeSet );

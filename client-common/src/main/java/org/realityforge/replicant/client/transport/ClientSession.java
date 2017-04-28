@@ -92,11 +92,10 @@ public final class ClientSession
     _dataLoaderService.scheduleDataLoad();
   }
 
-  final void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable, final boolean bulkLoad )
+  final void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable )
   {
     final DataLoadAction action = new DataLoadAction( Objects.requireNonNull( rawJsonData ), true );
     action.setRunnable( runnable );
-    action.setBulkLoad( bulkLoad );
     getOobActions().add( action );
     _dataLoaderService.scheduleDataLoad();
   }
@@ -132,11 +131,9 @@ public final class ClientSession
   }
 
   @Nonnull
-  public final RequestEntry newRequest( @Nonnull final String requestKey,
-                                        @Nullable final String cacheKey,
-                                        final boolean bulkLoad )
+  public final RequestEntry newRequest( @Nonnull final String requestKey, @Nullable final String cacheKey )
   {
-    final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey, bulkLoad );
+    final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey );
     _requests.put( entry.getRequestID(), entry );
     if ( LOG.isLoggable( LOG_LEVEL ) )
     {

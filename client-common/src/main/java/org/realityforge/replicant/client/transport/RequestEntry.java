@@ -12,7 +12,6 @@ public class RequestEntry
   private final String _requestKey;
   @Nullable
   private final String _cacheKey;
-  private final boolean _bulkLoad;
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
@@ -20,13 +19,11 @@ public class RequestEntry
 
   public RequestEntry( @Nonnull final String requestID,
                        @Nonnull final String requestKey,
-                       @Nullable final String cacheKey,
-                       final boolean bulkLoad )
+                       @Nullable final String cacheKey )
   {
     _requestID = requestID;
     _requestKey = requestKey;
     _cacheKey = cacheKey;
-    _bulkLoad = bulkLoad;
   }
 
   @Nonnull
@@ -45,11 +42,6 @@ public class RequestEntry
   public String getCacheKey()
   {
     return _cacheKey;
-  }
-
-  public boolean isBulkLoad()
-  {
-    return _bulkLoad;
   }
 
   public boolean haveResultsArrived()
@@ -108,6 +100,6 @@ public class RequestEntry
   public String toString()
   {
     return "Request(" + _requestKey + ")[ID=" + _requestID +
-           ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) + ( _bulkLoad ? ",BulkLoad!" : "" ) ) + "]";
+           ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) ) + "]";
   }
 }

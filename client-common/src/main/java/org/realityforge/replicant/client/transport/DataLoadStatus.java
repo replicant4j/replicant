@@ -15,7 +15,6 @@ public final class DataLoadStatus
   @Nonnull
   private final String _systemKey;
   private final int _sequence;
-  private final boolean _bulkLoad;
   @Nullable
   private final String _requestID;
   @Nonnull
@@ -34,7 +33,6 @@ public final class DataLoadStatus
 
   public DataLoadStatus( @Nonnull final String systemKey,
                          final int sequence,
-                         final boolean bulkLoad,
                          @Nullable final String requestID,
                          @Nonnull final List<ChannelChangeStatus> channelAdds,
                          @Nonnull final List<ChannelChangeStatus> channelUpdates,
@@ -45,7 +43,6 @@ public final class DataLoadStatus
   {
     _systemKey = systemKey;
     _sequence = sequence;
-    _bulkLoad = bulkLoad;
     _requestID = requestID;
     _channelAdds = channelAdds;
     _channelUpdates = channelUpdates;
@@ -64,11 +61,6 @@ public final class DataLoadStatus
   public int getSequence()
   {
     return _sequence;
-  }
-
-  public boolean isBulkLoad()
-  {
-    return _bulkLoad;
   }
 
   @Nullable

@@ -10,7 +10,6 @@ final class TestChangeSet
   implements ChangeSet
 {
   private final int _sequence;
-  private final boolean _bulkChange;
   private final Runnable _runnable;
   private final ChannelAction[] _actions;
   private String _requestID;
@@ -18,24 +17,19 @@ final class TestChangeSet
   private String _etag;
   private final Change[] _changes;
 
-  TestChangeSet( final int sequence,
-                 @Nullable final Runnable runnable,
-                 final boolean bulkChange,
-                 final Change[] changes )
+  TestChangeSet( final int sequence, @Nullable final Runnable runnable, final Change[] changes )
   {
-    this( sequence, runnable, bulkChange, changes, new ChannelAction[ 0 ] );
+    this( sequence, runnable, changes, new ChannelAction[ 0 ] );
   }
 
 
   TestChangeSet( final int sequence,
                  @Nullable final Runnable runnable,
-                 final boolean bulkChange,
                  final Change[] changes,
                  final ChannelAction[] actions )
   {
     _sequence = sequence;
     _runnable = runnable;
-    _bulkChange = bulkChange;
     _changes = changes;
     _actions = actions;
   }
@@ -45,7 +39,7 @@ final class TestChangeSet
     return _cacheKey;
   }
 
-  void setCacheKey( final String cacheKey )
+  void setCacheKey( @Nonnull final String cacheKey )
   {
     _cacheKey = cacheKey;
   }
@@ -55,7 +49,7 @@ final class TestChangeSet
     _requestID = requestID;
   }
 
-  void setEtag( final String etag )
+  void setEtag( @Nonnull final String etag )
   {
     _etag = etag;
   }
@@ -75,11 +69,6 @@ final class TestChangeSet
   Runnable getRunnable()
   {
     return _runnable;
-  }
-
-  boolean isBulkChange()
-  {
-    return _bulkChange;
   }
 
   @Override

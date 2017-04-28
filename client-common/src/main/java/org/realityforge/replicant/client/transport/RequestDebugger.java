@@ -21,7 +21,6 @@ public class RequestDebugger
     LOG.info( prefix + " Request: " + entry.getRequestKey() +
               " / " + entry.getRequestID() +
               " CacheKey: " + entry.getCacheKey() +
-              " BulkLoad: " + entry.isBulkLoad() +
               " CompletionDataPresent?: " + entry.isCompletionDataPresent() +
               " ExpectingResults?: " + entry.isExpectingResults() +
               " NormalCompletion?: " + ( entry.isCompletionDataPresent() ? entry.isNormalCompletion() : '?' ) );

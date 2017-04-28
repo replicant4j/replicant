@@ -45,7 +45,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndComplete()
   {
     final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
-    final RequestEntry requestEntry = session.newRequest( "", null, true );
+    final RequestEntry requestEntry = session.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
     sessionContext.setRequest( requestEntry );
@@ -72,7 +72,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndIncomplete()
   {
     final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
-    final RequestEntry requestEntry = session.newRequest( "", null, true );
+    final RequestEntry requestEntry = session.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
     sessionContext.setRequest( requestEntry );
@@ -100,7 +100,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withFailure()
   {
     final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
-    final RequestEntry requestEntry = session.newRequest( "", null, true );
+    final RequestEntry requestEntry = session.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
     sessionContext.setRequest( requestEntry );

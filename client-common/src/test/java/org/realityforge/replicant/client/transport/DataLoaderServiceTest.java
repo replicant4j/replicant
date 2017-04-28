@@ -138,13 +138,13 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
+      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
     final TestDataLoadService service = newService( changeSet );
     final Runnable runnable1 = mock( Runnable.class );
     final String sessionID = ValueUtil.randomString();
     final ClientSession session1 = new ClientSession( service, ValueUtil.randomString() );
 
-    session1.enqueueOOB( sessionID, null, false );
+    session1.enqueueOOB( sessionID, null );
 
     assertEquals( service.getSessionContext().getSession(), null );
 
@@ -172,7 +172,7 @@ public class DataLoaderServiceTest
   public void getTerminateCount()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
+    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
     final TestDataLoadService service = newService( changeSet );
     ensureEnqueueDataLoads( service );
 
@@ -184,47 +184,6 @@ public class DataLoaderServiceTest
 
     assertFalse( service.progressDataLoad() );
     assertEquals( service.getTerminateCount(), 1 );
-  }
-
-  @Test
-  public void verifyDataLoader_bulkDataLoad()
-    throws Exception
-  {
-    final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
-
-    final TestDataLoadService service = newService( changeSet );
-
-    when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
-
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
-
-    ensureEnqueueDataLoads( service );
-
-    final RequestEntry request = ensureRequest( service, changeSet );
-
-    progressWorkTillDone( service, 10, 1 );
-
-    // Termination count is actually 2 as progressWorkTillDone will attempt to progress
-    // once after it is initially terminates
-    assertEquals( service.getTerminateCount(), 2 );
-
-    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
-
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker() ).disable( "TestGraph" );
-    verify( service.getChangeBroker() ).enable( "TestGraph" );
-    assertTrue( service.isBulkLoadCompleteCalled() );
-    assertFalse( service.isIncrementalLoadCompleteCalled() );
-
-    assertTrue( service.isDataLoadComplete() );
-    assertTrue( service.getStatus().isBulkLoad() );
-
-    verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
-    verify( entity ).link();
-
-    assertRequestProcessed( service, request );
   }
 
   @Test
@@ -240,9 +199,12 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
-    changeSet.setCacheKey( "MetaData" );
-    changeSet.setEtag( "1 Jan 2020" );
+      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+    final String cacheKey = ValueUtil.randomString();
+    final String etag = ValueUtil.randomString();
+
+    changeSet.setCacheKey( cacheKey );
+    changeSet.setEtag( etag );
 
     final TestDataLoadService service = newService( changeSet );
     final CacheService cacheService = service.getCacheService();
@@ -258,7 +220,7 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( cacheService ).store( "MetaData", "1 Jan 2020", "Data" );
+    verify( cacheService ).store( cacheKey, etag, "Data" );
 
     assertRequestProcessed( service, request );
   }
@@ -268,16 +230,16 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
-    changeSet.setCacheKey( "MetaData" );
-    changeSet.setEtag( "1 Jan 2020" );
+      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+    changeSet.setCacheKey( ValueUtil.randomString() );
+    changeSet.setEtag( ValueUtil.randomString() );
 
     final TestDataLoadService service = newService( changeSet );
     final CacheService cacheService = service.getCacheService();
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    service.ensureSession().enqueueOOB( "Data", changeSet.getRunnable(), changeSet.isBulkChange() );
+    service.ensureSession().enqueueOOB( "Data", changeSet.getRunnable() );
 
     progressWorkTillDone( service, 7, 1 );
 
@@ -303,7 +265,7 @@ public class DataLoaderServiceTest
   {
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( 1, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -314,8 +276,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureSession()
-        .enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable(), changeSet.isBulkChange() );
+      service.ensureSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
 
@@ -326,11 +287,8 @@ public class DataLoaderServiceTest
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker() ).disable( "TestGraph" );
     verify( service.getChangeBroker() ).enable( "TestGraph" );
-    assertTrue( service.isBulkLoadCompleteCalled() );
-    assertFalse( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( service.isDataLoadComplete() );
-    assertTrue( service.getStatus().isBulkLoad() );
     assertNull( service.getStatus().getRequestID() );
 
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
@@ -343,9 +301,9 @@ public class DataLoaderServiceTest
   public void ordering()
     throws Exception
   {
-    final TestChangeSet cs1 = new TestChangeSet( 1, null, true, new Change[ 0 ] );
-    final TestChangeSet cs2 = new TestChangeSet( 2, null, true, new Change[ 0 ] );
-    final TestChangeSet cs3 = new TestChangeSet( 3, null, true, new Change[ 0 ] );
+    final TestChangeSet cs1 = new TestChangeSet( 1, null, new Change[ 0 ] );
+    final TestChangeSet cs2 = new TestChangeSet( 2, null, new Change[ 0 ] );
+    final TestChangeSet cs3 = new TestChangeSet( 3, null, new Change[ 0 ] );
 
     final DataLoadAction oob1 = new DataLoadAction( "oob1", true );
     final DataLoadAction oob2 = new DataLoadAction( "oob2", true );
@@ -368,12 +326,12 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[ 0 ] );
+      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
 
     final TestDataLoadService service = newService( changeSet );
 
     final RequestEntry request =
-      service.ensureSession().newRequest( "", null, changeSet.isBulkChange() );
+      service.ensureSession().newRequest( "", null );
     changeSet.setRequestID( request.getRequestID() );
     service.ensureSession().enqueueDataLoad( "blah" );
 
@@ -392,7 +350,7 @@ public class DataLoaderServiceTest
   public void verifyDataLoader_dataLoadWithZeroChanges()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), false, new Change[ 0 ] );
+    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -407,11 +365,8 @@ public class DataLoaderServiceTest
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeBroker(), never() ).disable( "TEST" );
     verify( service.getChangeBroker(), never() ).enable( "TEST" );
-    assertFalse( service.isBulkLoadCompleteCalled() );
-    assertTrue( service.isIncrementalLoadCompleteCalled() );
 
     assertTrue( service.isDataLoadComplete() );
-    assertFalse( service.getStatus().isBulkLoad() );
     assertNotNull( service.getStatus().getRequestID() );
 
     verifyPostActionRun( changeSet.getRunnable() );
@@ -422,7 +377,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, true, new Change[]{ new TestChange( false ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( false ) } );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -441,7 +396,7 @@ public class DataLoaderServiceTest
   public void verifyIncrementalChangeInvokesCorrectMethods()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, false, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -458,15 +413,13 @@ public class DataLoaderServiceTest
     final EntityChangeBroker changeBroker = service.getChangeBroker();
     verify( changeBroker ).pause( "TestGraph" );
     verify( changeBroker ).resume( "TestGraph" );
-    assertFalse( service.isBulkLoadCompleteCalled() );
-    assertTrue( service.isIncrementalLoadCompleteCalled() );
   }
 
   @Test
   public void verifyValidateIsNotCalled()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, false, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
 
     final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet, changeSet }, false );
 
@@ -483,9 +436,9 @@ public class DataLoaderServiceTest
   {
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet1 =
-      new TestChangeSet( 1, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( 1, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
     final TestChangeSet changeSet2 =
-      new TestChangeSet( 2, mock( Runnable.class ), true, new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( 2, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
 
     final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet2, changeSet1 }, true );
     final ChangeMapper changeMapper = service.getChangeMapper();
@@ -521,7 +474,6 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
                          mock( Runnable.class ),
-                         true,
                          new Change[ 0 ],
                          new ChannelAction[]{ new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD ) } );
 
@@ -554,7 +506,6 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
                          mock( Runnable.class ),
-                         true,
                          new Change[ 0 ],
                          new ChannelAction[]{ a1, a2, a3, a4 } );
 
@@ -746,7 +697,7 @@ public class DataLoaderServiceTest
     if ( changeSet.isResponseToRequest() )
     {
       final RequestEntry request =
-        service.ensureSession().newRequest( "", changeSet.getCacheKey(), changeSet.isBulkChange() );
+        service.ensureSession().newRequest( "", changeSet.getCacheKey() );
       request.setNormalCompletionAction( changeSet.getRunnable() );
       changeSet.setRequestID( request.getRequestID() );
       return request;

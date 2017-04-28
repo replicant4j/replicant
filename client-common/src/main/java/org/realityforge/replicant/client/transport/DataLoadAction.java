@@ -38,12 +38,6 @@ final class DataLoadAction
   private Runnable _runnable;
 
   /**
-   * The bulk load flag may have been explicitly set for oob message.
-   */
-  @Nullable
-  private Boolean _bulkLoad;
-
-  /**
    * The current index into changes.
    */
   private int _changeIndex;
@@ -148,17 +142,6 @@ final class DataLoadAction
   public boolean isOob()
   {
     return _oob;
-  }
-
-  public void setBulkLoad( @Nullable final Boolean bulkLoad )
-  {
-    assert isOob();
-    _bulkLoad = bulkLoad;
-  }
-
-  public boolean isBulkLoad()
-  {
-    return ( null != _bulkLoad && _bulkLoad ) || ( null != _request && _request.isBulkLoad() );
   }
 
   @Nullable
@@ -327,7 +310,6 @@ final class DataLoadAction
     assert null != changeSet;
     return new DataLoadStatus( systemKey,
                                changeSet.getSequence(),
-                               isBulkLoad(),
                                changeSet.getRequestID(),
                                getChannelAdds(),
                                _channelUpdates,
@@ -341,7 +323,6 @@ final class DataLoadAction
   public String toString()
   {
     return "DataLoad[" +
-           "IsBulk=" + isBulkLoad() +
            ",RawJson.null?=" + ( _rawJsonData == null ) +
            ",ChangeSet.null?=" + ( _changeSet == null ) +
            ",ChangeIndex=" + _changeIndex +
