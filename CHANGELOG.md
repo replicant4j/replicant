@@ -1,4 +1,6 @@
 ## 0.5.79 (Pending):
+* Introduce `org.realityforge.replicant.client.transport.SessionContext#request()` method to simplify
+  request management.
 * Enhance `ReplicantSessionManagerImpl` so support delink operations between graphs.
 * Rename methods on `EntitySubscriptionManager` that record subscriptions and update parameter names. The
   aim to clarify purpose of the API.

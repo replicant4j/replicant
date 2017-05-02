@@ -76,8 +76,13 @@ public final class SessionContext
     return _request;
   }
 
-  public void setRequest( @Nullable final RequestEntry request )
+  public void request( @Nonnull final String key, @Nullable final String cacheKey, @Nonnull final RequestAction action )
   {
-    _request = request;
+    if ( null != _session )
+    {
+      _request = _session.newRequest( key, cacheKey );
+    }
+    action.invokeReqest( _session, _request );
+    _request = null;
   }
 }

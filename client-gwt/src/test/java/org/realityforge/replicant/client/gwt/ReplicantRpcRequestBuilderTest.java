@@ -4,6 +4,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import java.lang.reflect.Field;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -43,12 +44,13 @@ public class ReplicantRpcRequestBuilderTest
 
   @Test
   public void requestIDSet_withSuccessAndComplete()
+    throws Exception
   {
     final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
     final RequestEntry requestEntry = session.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
-    sessionContext.setRequest( requestEntry );
+    setRequest( sessionContext, requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final Request request = mock( Request.class );
@@ -70,12 +72,13 @@ public class ReplicantRpcRequestBuilderTest
 
   @Test
   public void requestIDSet_withSuccessAndIncomplete()
+    throws Exception
   {
     final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
     final RequestEntry requestEntry = session.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
-    sessionContext.setRequest( requestEntry );
+    setRequest( sessionContext, requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final Request request = mock( Request.class );
@@ -98,12 +101,13 @@ public class ReplicantRpcRequestBuilderTest
 
   @Test
   public void requestIDSet_withFailure()
+    throws Exception
   {
     final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
     final RequestEntry requestEntry = session.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
     sessionContext.setSession( session );
-    sessionContext.setRequest( requestEntry );
+    setRequest( sessionContext, requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final Request request = mock( Request.class );
@@ -120,5 +124,13 @@ public class ReplicantRpcRequestBuilderTest
     verify( rb ).setHeader( refEq( ReplicantContext.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
+  }
+
+  private void setRequest( final SessionContext sessionContext, final RequestEntry requestEntry )
+    throws Exception
+  {
+    final Field field = SessionContext.class.getDeclaredField( "_request" );
+    field.setAccessible( true );
+    field.set( sessionContext, requestEntry );
   }
 }
