@@ -1,4 +1,4 @@
-## 0.5.79 (Pending):
+## 0.5.79:
 * Introduce `org.realityforge.replicant.client.transport.SessionContext#request()` method to simplify
   request management.
 * Enhance `ReplicantSessionManagerImpl` so support delink operations between graphs.
