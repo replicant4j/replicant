@@ -1,3 +1,6 @@
+## 0.5.81:
+* Introduce `AreaOfInterestListenerAdapter` to simplify writing custom listeners.
+
 ## 0.5.80:
 * Introduce `AbstractFrontendContextImpl` to simplify creation of frontend context for gwt interfaces.
 
