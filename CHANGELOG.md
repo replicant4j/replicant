@@ -1,3 +1,6 @@
+## 0.5.80:
+* Introduce `AbstractFrontendContextImpl` to simplify creation of frontend context for gwt interfaces.
+
 ## 0.5.79:
 * Introduce `org.realityforge.replicant.client.transport.SessionContext#request()` method to simplify
   request management.
