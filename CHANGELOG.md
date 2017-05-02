@@ -1,3 +1,6 @@
+## 0.5.82:
+* Update GWT module to include `AbstractFrontendContextImpl` and friends for GWT compiler.
+
 ## 0.5.81:
 * Introduce `AreaOfInterestListenerAdapter` to simplify writing custom listeners.
 
