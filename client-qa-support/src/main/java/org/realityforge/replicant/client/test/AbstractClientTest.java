@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.test;
 import com.google.inject.Module;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.AbstractSharedTest;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -15,8 +16,14 @@ public abstract class AbstractClientTest
   {
     final ArrayList<Module> modules = new ArrayList<>();
     Collections.addAll( modules, super.getModules() );
-    addModule( modules, new ReplicantClientTestModule() );
+    addModule( modules, newReplicantClientTestModule() );
     return modules.toArray( new Module[ modules.size() ] );
+  }
+
+  @Nonnull
+  private Module newReplicantClientTestModule()
+  {
+    return new ReplicantClientTestModule();
   }
 
   protected final EntityRepository repository()

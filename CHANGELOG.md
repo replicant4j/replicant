@@ -1,3 +1,6 @@
+## 0.5.83:
+* Make `ReplicantClientTestModule` more extensible and bind some missing elements required for tests.
+
 ## 0.5.82:
 * Update GWT module to include `AbstractFrontendContextImpl` and friends for GWT compiler.
 
