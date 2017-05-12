@@ -126,7 +126,7 @@ public class RateLimitedValueTest
     throws NoSuchFieldException
   {
     Class<?> clazz = type;
-    while ( Object.class != clazz )
+    while ( null != clazz && Object.class != clazz )
     {
       try
       {

@@ -48,7 +48,7 @@ public class EntityRepositoryImpl
       throw new IllegalStateException( "Attempting to de-register non existent " + describeEntity( type, id ) );
     }
     final Class<? super T> superclass = type.getSuperclass();
-    if ( Object.class != superclass )
+    if ( null != superclass && Object.class != superclass )
     {
       doDeregisterEntity( superclass, id );
     }

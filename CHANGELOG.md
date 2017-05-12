@@ -1,4 +1,5 @@
 ## 0.5.84 (Pending):
+* Ensure interfaces can be bound into `EntityRepository` and generated messages via `EntityChangeBroker`.
 * Remove `ReplicantGwtClientTestModule`, `AbstractClientTest` and `AbstractGwtClientTest` as no
   downstream users make use of any of these classes.
 

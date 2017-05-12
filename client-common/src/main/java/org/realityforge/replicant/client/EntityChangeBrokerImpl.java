@@ -463,7 +463,7 @@ public class EntityChangeBrokerImpl
     doSendEvent( getListeners( _objectListeners, object ), event );
 
     Class clazz = object.getClass();
-    while ( clazz != Object.class )
+    while ( null != clazz && clazz != Object.class )
     {
       doSendEvent( getListeners( _classListeners, clazz ), event );
       clazz = clazz.getSuperclass();
