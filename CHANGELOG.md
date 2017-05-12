@@ -1,3 +1,5 @@
+## 0.5.84 (Pending):
+
 ## 0.5.83:
 * Make `ReplicantClientTestModule` more extensible and bind some missing elements required for tests.
 
