@@ -1,4 +1,6 @@
 ## 0.5.84 (Pending):
+* Remove `ReplicantGwtClientTestModule`, `AbstractClientTest` and `AbstractGwtClientTest` as no
+  downstream users make use of any of these classes.
 
 ## 0.5.83:
 * Make `ReplicantClientTestModule` more extensible and bind some missing elements required for tests.
