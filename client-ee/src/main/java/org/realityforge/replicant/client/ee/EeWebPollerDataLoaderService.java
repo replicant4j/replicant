@@ -30,7 +30,7 @@ public abstract class EeWebPollerDataLoaderService
     @Override
     protected Invocation.Builder getInvocation()
     {
-      return newInvocationBuilder( getPollURL() ).header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+      return newSessionBasedInvocationBuilder( getPollURL() );
     }
   }
 
@@ -57,6 +57,12 @@ public abstract class EeWebPollerDataLoaderService
     return ClientBuilder.newClient().
       property( "jersey.config.client.readTimeout", DEFAULT_TIMEOUT ).
       property( "jersey.config.client.connectTimeout", DEFAULT_TIMEOUT );
+  }
+
+  @Nonnull
+  protected Invocation.Builder newSessionBasedInvocationBuilder( @Nonnull final String target )
+  {
+    return newInvocationBuilder( target ).header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
   }
 
   @Nonnull
