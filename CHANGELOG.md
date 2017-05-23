@@ -1,3 +1,5 @@
+## 0.5.85 (Pending):
+
 ## 0.5.84:
 * Extract a helper method `newSessionBasedInvocationBuilder` in `EeWebPollerDataLoaderService`.
 * Ensure interfaces can be bound into `EntityRepository` and generated messages via `EntityChangeBroker`.
