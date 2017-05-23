@@ -1,4 +1,4 @@
-## 0.5.84 (Pending):
+## 0.5.84:
 * Extract a helper method `newSessionBasedInvocationBuilder` in `EeWebPollerDataLoaderService`.
 * Ensure interfaces can be bound into `EntityRepository` and generated messages via `EntityChangeBroker`.
 * Remove `ReplicantGwtClientTestModule`, `AbstractClientTest` and `AbstractGwtClientTest` as no
