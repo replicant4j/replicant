@@ -38,7 +38,6 @@ public abstract class ReplicantSessionManagerImpl
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
 
-
   /**
    * {@inheritDoc}
    */
