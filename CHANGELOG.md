@@ -1,4 +1,6 @@
 ## 0.5.85 (Pending):
+* Extract `AbstractInvocationAdapter` from `AbstractReplicationInterceptor` to make functionality reusable
+  in other contexts.
 
 ## 0.5.84:
 * Extract a helper method `newSessionBasedInvocationBuilder` in `EeWebPollerDataLoaderService`.
