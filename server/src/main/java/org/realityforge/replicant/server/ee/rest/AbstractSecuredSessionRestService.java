@@ -72,6 +72,15 @@ public abstract class AbstractSecuredSessionRestService
 
   @Nonnull
   @Override
+  protected Response doSubscribeChannel( @Nonnull final String sessionID,
+                                         @Nonnull final ChannelDescriptor descriptor,
+                                         @Nonnull final String filterContent )
+  {
+    return guard( sessionID, () -> super.doSubscribeChannel( sessionID, descriptor, filterContent ) );
+  }
+
+  @Nonnull
+  @Override
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
