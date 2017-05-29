@@ -66,21 +66,6 @@ final class Encoder
     g.write( "createdAt", asDateTimeString( session.getCreatedAt() ) );
     g.write( "lastAccessedAt", asDateTimeString( session.getLastAccessedAt() ) );
     g.write( "synchronized", queue.getLastSequenceAcked() == queue.size() );
-    g.writeStartObject( "attributes" );
-
-    for ( final String attributeKey : session.getAttributeKeys() )
-    {
-      final Serializable attribute = session.getAttribute( attributeKey );
-      if ( null == attribute )
-      {
-        g.writeNull( attributeKey );
-      }
-      else
-      {
-        g.write( attributeKey, String.valueOf( attribute ) );
-      }
-    }
-    g.writeEnd();
 
     if ( emitNetworkData )
     {
