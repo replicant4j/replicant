@@ -14,7 +14,6 @@ import javax.json.stream.JsonGenerator;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -38,7 +37,6 @@ import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.rest.AbstractReplicantRestService;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
-import org.realityforge.rest.field_filter.FieldFilter;
 
 /**
  * The session management rest resource.
@@ -99,45 +97,41 @@ public abstract class AbstractSessionRestService
   }
 
   @GET
-  public Response listSessions( @QueryParam( "fields" ) @DefaultValue( "url" ) @NotNull final FieldFilter filter,
-                                @Context @Nonnull final UriInfo uri )
+  public Response listSessions( @Context @Nonnull final UriInfo uri )
   {
-    return doListSessions( filter, uri );
+    return doListSessions( uri );
   }
 
   @Path( "{sessionID}" )
   @GET
   public Response getSession( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
                               @Context @Nonnull final UriInfo uri )
   {
-    return doGetSession( sessionID, filter, uri );
+    return doGetSession( sessionID, uri );
   }
 
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT )
   @GET
   public Response getChannels( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                               @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
                                @Context @Nonnull final UriInfo uri )
   {
-    return doGetChannels( sessionID, filter, uri );
+    return doGetChannels( sessionID, uri );
   }
 
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                               @PathParam( "channelID" ) @NotNull final int channelID,
-                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
                               @Context @Nonnull final UriInfo uri )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
     if ( channelMetaData.isTypeGraph() )
     {
-      return doGetChannel( sessionID, toChannelDescriptor( channelID ), filter, uri );
+      return doGetChannel( sessionID, toChannelDescriptor( channelID ), uri );
     }
     else
     {
-      return doGetInstanceChannels( sessionID, channelID, filter, uri );
+      return doGetInstanceChannels( sessionID, channelID, uri );
     }
   }
 
@@ -146,10 +140,9 @@ public abstract class AbstractSessionRestService
   public Response getChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                               @PathParam( "channelID" ) @NotNull final int channelID,
                               @PathParam( "subChannelID" ) @NotNull final String subChannelID,
-                              @QueryParam( "fields" ) @DefaultValue( "" ) @Nonnull final FieldFilter filter,
                               @Context @Nonnull final UriInfo uri )
   {
-    return doGetChannel( sessionID, toChannelDescriptor( channelID, subChannelID ), filter, uri );
+    return doGetChannel( sessionID, toChannelDescriptor( channelID, subChannelID ), uri );
   }
 
   @Replicate
@@ -296,7 +289,6 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doGetChannel( @Nonnull final String sessionID,
                                    @Nonnull final ChannelDescriptor descriptor,
-                                   @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionID );
@@ -308,32 +300,30 @@ public abstract class AbstractSessionRestService
     else
     {
       final String content =
-        json( g -> Encoder.emitChannel( getSessionManager().getSystemMetaData(), session, g, entry, filter, uri ) );
+        json( g -> Encoder.emitChannel( getSessionManager().getSystemMetaData(), session, g, entry, uri ) );
       return buildResponse( Response.ok(), content );
     }
   }
 
   @Nonnull
   protected Response doGetChannels( @Nonnull final String sessionID,
-                                    @Nonnull final FieldFilter filter,
                                     @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionID );
     final String content =
-      json( g -> Encoder.emitChannelsList( getSessionManager().getSystemMetaData(), session, g, filter, uri ) );
+      json( g -> Encoder.emitChannelsList( getSessionManager().getSystemMetaData(), session, g, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
   @Nonnull
   protected Response doGetInstanceChannels( @Nonnull final String sessionID,
                                             final int channelID,
-                                            @Nonnull final FieldFilter filter,
                                             @Nonnull final UriInfo uri )
   {
     final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
     final ReplicantSession session = ensureSession( sessionID );
     final String content =
-      json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelID, session, g, filter, uri ) );
+      json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelID, session, g, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
@@ -351,16 +341,13 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  protected Response doListSessions( @Nonnull final FieldFilter filter,
-                                     @Nonnull final UriInfo uri )
+  protected Response doListSessions( @Nonnull final UriInfo uri )
   {
-    final String content = json( g -> emitSessionsList( g, filter, uri ) );
+    final String content = json( g -> emitSessionsList( g, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
-  private void emitSessionsList( @Nonnull final JsonGenerator g,
-                                 @Nonnull final FieldFilter filter,
-                                 @Nonnull final UriInfo uri )
+  private void emitSessionsList( @Nonnull final JsonGenerator g, @Nonnull final UriInfo uri )
   {
     final Set<String> sessionIDs = getSessionManager().getSessionIDs();
     g.writeStartArray();
@@ -369,20 +356,18 @@ public abstract class AbstractSessionRestService
       final ReplicantSession session = getSessionManager().getSession( sessionID );
       if ( null != session )
       {
-        Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, filter, uri );
+        Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, false );
       }
     }
     g.writeEnd();
   }
 
   @Nonnull
-  protected Response doGetSession( @Nonnull final String sessionID,
-                                   @Nonnull final FieldFilter filter,
-                                   @Nonnull final UriInfo uri )
+  protected Response doGetSession( @Nonnull final String sessionID, @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionID );
     final String content =
-      json( g -> Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, filter, uri ) );
+      json( g -> Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, true ) );
     return buildResponse( Response.ok(), content );
   }
 

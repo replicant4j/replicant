@@ -8,6 +8,7 @@ import java.util.GregorianCalendar;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -21,7 +22,6 @@ import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.JsonUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
-import org.realityforge.rest.field_filter.FieldFilter;
 import org.realityforge.ssf.SessionInfo;
 
 final class Encoder
@@ -47,131 +47,92 @@ final class Encoder
   static void emitSession( @Nonnull final SystemMetaData systemMetaData,
                            @Nonnull final ReplicantSession session,
                            @Nonnull final JsonGenerator g,
-                           @Nonnull final FieldFilter filter,
-                           @Nonnull final UriInfo uri )
+                           @Nonnull final UriInfo uri,
+                           final boolean emitNetworkData )
   {
+    final PacketQueue queue = session.getQueue();
     g.writeStartObject();
-    if ( filter.allow( "id" ) )
+    g.write( "id", session.getSessionID() );
+    final String userID = session.getUserID();
+    if ( null == userID )
     {
-      g.write( "id", session.getSessionID() );
+      g.writeNull( "userID" );
     }
-    if ( filter.allow( "userID" ) )
+    else
     {
-      final String userID = session.getUserID();
-      if ( null == userID )
+      g.write( "userID", userID );
+    }
+    g.write( "url", getSessionURL( session, uri ) );
+    g.write( "createdAt", asDateTimeString( session.getCreatedAt() ) );
+    g.write( "lastAccessedAt", asDateTimeString( session.getLastAccessedAt() ) );
+    g.write( "synchronized", queue.getLastSequenceAcked() == queue.size() );
+    g.writeStartObject( "attributes" );
+
+    for ( final String attributeKey : session.getAttributeKeys() )
+    {
+      final Serializable attribute = session.getAttribute( attributeKey );
+      if ( null == attribute )
       {
-        g.writeNull( "userID" );
+        g.writeNull( attributeKey );
       }
       else
       {
-        g.write( "userID", userID );
+        g.write( attributeKey, String.valueOf( attribute ) );
       }
     }
-    if ( filter.allow( "url" ) )
-    {
-      g.write( "url", getSessionURL( session, uri ) );
-    }
-    if ( filter.allow( "createdAt" ) )
-    {
-      g.write( "createdAt", asDateTimeString( session.getCreatedAt() ) );
-    }
-    if ( filter.allow( "lastAccessedAt" ) )
-    {
-      g.write( "lastAccessedAt", asDateTimeString( session.getLastAccessedAt() ) );
-    }
-    if ( filter.allow( "attributes" ) )
-    {
-      final FieldFilter subFilter = filter.subFilter( "attributes" );
-      g.writeStartObject( "attributes" );
+    g.writeEnd();
 
-      for ( final String attributeKey : session.getAttributeKeys() )
-      {
-        if ( subFilter.allow( attributeKey ) )
-        {
-          final Serializable attribute = session.getAttribute( attributeKey );
-          if ( null == attribute )
-          {
-            g.writeNull( attributeKey );
-          }
-          else
-          {
-            g.write( attributeKey, String.valueOf( attribute ) );
-          }
-        }
-      }
-      g.writeEnd();
-    }
-    if ( filter.allow( "net" ) )
+    if ( emitNetworkData )
     {
-      final FieldFilter subFilter = filter.subFilter( "net" );
       g.writeStartObject( "net" );
-      final PacketQueue queue = session.getQueue();
-      if ( subFilter.allow( "queueSize" ) )
+      g.write( "queueSize", queue.size() );
+      g.write( "lastSequenceAcked", queue.getLastSequenceAcked() );
+      final Packet nextPacket = queue.nextPacketToProcess();
+      if ( null != nextPacket )
       {
-        g.write( "queueSize", queue.size() );
+        g.write( "nextPacketSequence", nextPacket.getSequence() );
       }
-      if ( subFilter.allow( "lastSequenceAcked" ) )
+      else
       {
-        g.write( "lastSequenceAcked", queue.getLastSequenceAcked() );
+        g.writeNull( "nextPacketSequence" );
       }
-      if ( subFilter.allow( "nextPacketSequence" ) )
-      {
-        final Packet nextPacket = queue.nextPacketToProcess();
-        if ( null != nextPacket )
-        {
-          g.write( "nextPacketSequence", nextPacket.getSequence() );
-        }
-        else
-        {
-          g.writeNull( "nextPacketSequence" );
-        }
-      }
+      g.writeEnd();
+
+      g.writeStartObject( "channels" );
+      emitChannels( systemMetaData, session, g, uri );
       g.writeEnd();
     }
 
-    if ( filter.allow( "channels" ) )
-    {
-      final FieldFilter subFilter = filter.subFilter( "channels" );
-      g.writeStartObject( "channels" );
-      emitChannels( systemMetaData, session, g, uri, subFilter );
-      g.writeEnd();
-    }
     g.writeEnd();
   }
 
   static void emitChannelsList( @Nonnull final SystemMetaData systemMetaData,
                                 @Nonnull final ReplicantSession session,
                                 @Nonnull final JsonGenerator g,
-                                @Nonnull final FieldFilter filter,
                                 @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    emitChannels( systemMetaData, session, g, uri, filter );
+    emitChannels( systemMetaData, session, g, uri );
     g.writeEnd();
   }
 
   private static void emitChannels( @Nonnull final SystemMetaData systemMetaData,
                                     @Nonnull final ReplicantSession session,
                                     @Nonnull final JsonGenerator g,
-                                    @Nonnull final UriInfo uri,
-                                    @Nonnull final FieldFilter subFilter )
+                                    @Nonnull final UriInfo uri )
   {
-    if ( subFilter.allow( "url" ) )
-    {
-      g.write( "url", getSubscriptionsURL( session, uri ) );
-    }
-    emitSubscriptions( systemMetaData, session, g, session.getSubscriptions().values(), subFilter, uri );
+    g.write( "url", getSubscriptionsURL( session, uri ) );
+    emitSubscriptions( systemMetaData, session, g, session.getSubscriptions().values(), uri );
   }
 
   static void emitInstanceChannelList( @Nonnull final SystemMetaData systemMetaData,
                                        final int channeID,
                                        @Nonnull final ReplicantSession session,
                                        @Nonnull final JsonGenerator g,
-                                       @Nonnull final FieldFilter filter,
                                        @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    emitInstanceChannels( systemMetaData, channeID, session, g, uri, filter );
+    emitInstanceChannels( systemMetaData, channeID, session, g, uri );
     g.writeEnd();
   }
 
@@ -179,17 +140,13 @@ final class Encoder
                                             final int channeID,
                                             @Nonnull final ReplicantSession session,
                                             @Nonnull final JsonGenerator g,
-                                            @Nonnull final UriInfo uri,
-                                            @Nonnull final FieldFilter subFilter )
+                                            @Nonnull final UriInfo uri )
   {
-    if ( subFilter.allow( "url" ) )
-    {
-      g.write( "url", getInstanceChannelURL( session, channeID, uri ) );
-    }
+    g.write( "url", getInstanceChannelURL( session, channeID, uri ) );
     final Collection<SubscriptionEntry> entries =
       session.getSubscriptions().values().stream().filter( s -> s.getDescriptor().getChannelID() == channeID ).
         collect( Collectors.toList() );
-    emitSubscriptions( systemMetaData, session, g, entries, subFilter, uri );
+    emitSubscriptions( systemMetaData, session, g, entries, uri );
   }
 
   @Nonnull
@@ -240,44 +197,29 @@ final class Encoder
                                          @Nonnull final ReplicantSession session,
                                          @Nonnull final JsonGenerator g,
                                          @Nonnull final Collection<SubscriptionEntry> subscriptionEntries,
-                                         @Nonnull final FieldFilter filter,
                                          @Nonnull final UriInfo uri )
   {
-    if ( filter.allow( "subscriptions" ) )
+    g.writeStartArray( "subscriptions" );
+
+    final ArrayList<SubscriptionEntry> subscriptions = new ArrayList<>( subscriptionEntries );
+    Collections.sort( subscriptions );
+
+    for ( final SubscriptionEntry subscription : subscriptions )
     {
-      g.writeStartArray( "subscriptions" );
-      final FieldFilter subFilter = filter.subFilter( "subscriptions" );
-
-      final ArrayList<SubscriptionEntry> subscriptions = new ArrayList<>( subscriptionEntries );
-      Collections.sort( subscriptions );
-
-      for ( final SubscriptionEntry subscription : subscriptions )
-      {
-        if ( subFilter.allow( "channel" ) )
-        {
-          final FieldFilter subFilter1 = subFilter.subFilter( "channel" );
-          emitChannel( systemMetaData, session, g, subscription, subFilter1, uri );
-        }
-      }
-      g.writeEnd();
+      emitChannel( systemMetaData, session, g, subscription, uri );
     }
+    g.writeEnd();
   }
 
   private static void emitChannelID( @Nonnull final JsonGenerator g,
-                                     @Nonnull final FieldFilter filter,
                                      final int channelID )
   {
-    if ( filter.allow( "channelID" ) )
-    {
-      g.write( "channelID", channelID );
-    }
+    g.write( "channelID", channelID );
   }
 
-  private static void emitSubChannelID( @Nonnull final JsonGenerator g,
-                                        @Nonnull final FieldFilter filter,
-                                        final Serializable subChannelID )
+  private static void emitSubChannelID( @Nonnull final JsonGenerator g, @Nullable final Serializable subChannelID )
   {
-    if ( null != subChannelID && filter.allow( "instanceID" ) )
+    if ( null != subChannelID )
     {
       if ( subChannelID instanceof Integer )
       {
@@ -291,13 +233,12 @@ final class Encoder
   }
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
-                                              @Nonnull final Set<ChannelDescriptor> descriptors,
-                                              @Nonnull final FieldFilter filter )
+                                              @Nonnull final Set<ChannelDescriptor> descriptors )
   {
     for ( final ChannelDescriptor descriptor : descriptors )
     {
       g.writeStartObject();
-      emitChannelDescriptor( g, filter, descriptor );
+      emitChannelDescriptor( g, descriptor );
       g.writeEnd();
     }
   }
@@ -306,25 +247,15 @@ final class Encoder
                            @Nonnull final ReplicantSession session,
                            @Nonnull final JsonGenerator g,
                            @Nonnull final SubscriptionEntry entry,
-                           @Nonnull final FieldFilter filter,
                            @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
     final ChannelMetaData channelMetaData = systemMetaData.getChannelMetaData( entry.getDescriptor() );
-    if ( filter.allow( "name" ) )
-    {
-      g.write( "name", channelMetaData.getName() );
-    }
-    if ( filter.allow( "url" ) )
-    {
-      g.write( "url", getChannelURL( session, entry.getDescriptor(), uri ) );
-    }
-    emitChannelDescriptor( g, filter, entry.getDescriptor() );
-    if ( filter.allow( "explicitlySubscribed" ) )
-    {
-      g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
-    }
-    if ( channelMetaData.getFilterType() != ChannelMetaData.FilterType.NONE && filter.allow( "filter" ) )
+    g.write( "name", channelMetaData.getName() );
+    g.write( "url", getChannelURL( session, entry.getDescriptor(), uri ) );
+    emitChannelDescriptor( g, entry.getDescriptor() );
+    g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
+    if ( channelMetaData.getFilterType() != ChannelMetaData.FilterType.NONE )
     {
       final Object f = entry.getFilter();
       if ( null == f )
@@ -337,35 +268,26 @@ final class Encoder
       }
     }
 
-    emitChannelDescriptors( g,
-                            "inwardSubscriptions",
-                            entry.getInwardSubscriptions(),
-                            filter );
-    emitChannelDescriptors( g,
-                            "outwardSubscriptions",
-                            entry.getOutwardSubscriptions(),
-                            filter );
+    emitChannelDescriptors( g, "inwardSubscriptions", entry.getInwardSubscriptions() );
+    emitChannelDescriptors( g, "outwardSubscriptions", entry.getOutwardSubscriptions() );
     g.writeEnd();
   }
 
   private static void emitChannelDescriptor( @Nonnull final JsonGenerator g,
-                                             @Nonnull final FieldFilter filter,
                                              @Nonnull final ChannelDescriptor descriptor )
   {
-    emitChannelID( g, filter, descriptor.getChannelID() );
-    emitSubChannelID( g, filter, descriptor.getSubChannelID() );
+    emitChannelID( g, descriptor.getChannelID() );
+    emitSubChannelID( g, descriptor.getSubChannelID() );
   }
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
                                               @Nonnull final String key,
-                                              @Nonnull final Set<ChannelDescriptor> descriptors,
-                                              @Nonnull final FieldFilter filter )
+                                              @Nonnull final Set<ChannelDescriptor> descriptors )
   {
-    if ( !descriptors.isEmpty() && filter.allow( key ) )
+    if ( !descriptors.isEmpty() )
     {
-      final FieldFilter subFilter = filter.subFilter( key );
       g.writeStartArray( key );
-      emitChannelDescriptors( g, descriptors, subFilter );
+      emitChannelDescriptors( g, descriptors );
       g.writeEnd();
     }
   }

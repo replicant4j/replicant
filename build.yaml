@@ -47,8 +47,6 @@ artifacts:
 
   gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.9.1
 
-  field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.4
-
   objenesis: org.objenesis:objenesis:jar:2.5.1
 
   powermock_core: org.powermock:powermock-core:jar:1.6.6

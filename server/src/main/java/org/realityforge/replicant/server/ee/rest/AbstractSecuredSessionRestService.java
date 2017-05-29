@@ -11,7 +11,6 @@ import org.keycloak.adapters.OidcKeycloakAccount;
 import org.realityforge.keycloak.sks.SimpleAuthService;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.transport.ReplicantSession;
-import org.realityforge.rest.field_filter.FieldFilter;
 
 public abstract class AbstractSecuredSessionRestService
   extends AbstractSessionRestService
@@ -51,11 +50,11 @@ public abstract class AbstractSecuredSessionRestService
 
   @Nonnull
   @Override
-  protected Response doListSessions( @Nonnull final FieldFilter filter, @Nonnull final UriInfo uri )
+  protected Response doListSessions( @Nonnull final UriInfo uri )
   {
     if ( disableSecurity() )
     {
-      return super.doListSessions( filter, uri );
+      return super.doListSessions( uri );
     }
     else
     {
@@ -66,10 +65,9 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doGetSession( @Nonnull final String sessionID,
-                                   @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetSession( sessionID, filter, uri ) );
+    return guard( sessionID, () -> super.doGetSession( sessionID, uri ) );
   }
 
   @Nonnull
@@ -84,19 +82,17 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doGetChannel( @Nonnull final String sessionID,
                                    @Nonnull final ChannelDescriptor descriptor,
-                                   @Nonnull final FieldFilter filter,
                                    @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetChannel( sessionID, descriptor, filter, uri ) );
+    return guard( sessionID, () -> super.doGetChannel( sessionID, descriptor, uri ) );
   }
 
   @Nonnull
   @Override
   protected Response doGetChannels( @Nonnull final String sessionID,
-                                    @Nonnull final FieldFilter filter,
                                     @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetChannels( sessionID, filter, uri ) );
+    return guard( sessionID, () -> super.doGetChannels( sessionID, uri ) );
   }
 
   @Nonnull
@@ -122,10 +118,9 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doGetInstanceChannels( @Nonnull final String sessionID,
                                             final int channelID,
-                                            @Nonnull final FieldFilter filter,
                                             @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetInstanceChannels( sessionID, channelID, filter, uri ) );
+    return guard( sessionID, () -> super.doGetInstanceChannels( sessionID, channelID, uri ) );
   }
 
   @Nonnull
