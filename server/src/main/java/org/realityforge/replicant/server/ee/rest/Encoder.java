@@ -18,7 +18,6 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
-import org.realityforge.replicant.server.transport.SessionInfo;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.JsonUtil;
@@ -135,19 +134,19 @@ final class Encoder
   }
 
   @Nonnull
-  private static String getSessionURL( @Nonnull final SessionInfo session, @Nonnull final UriInfo uri )
+  private static String getSessionURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
     return uri.getBaseUri() + ReplicantContext.SESSION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
   }
 
   @Nonnull
-  private static String getSubscriptionsURL( @Nonnull final SessionInfo session, @Nonnull final UriInfo uri )
+  private static String getSubscriptionsURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
     return getSessionURL( session, uri ) + ReplicantContext.CHANNEL_URL_FRAGMENT;
   }
 
   @Nonnull
-  private static String getInstanceChannelURL( @Nonnull final SessionInfo session,
+  private static String getInstanceChannelURL( @Nonnull final ReplicantSession session,
                                                final int channelID,
                                                @Nonnull final UriInfo uri )
   {
@@ -155,7 +154,7 @@ final class Encoder
   }
 
   @Nonnull
-  private static String getChannelURL( @Nonnull final SessionInfo session,
+  private static String getChannelURL( @Nonnull final ReplicantSession session,
                                        @Nonnull final ChannelDescriptor descriptor,
                                        @Nonnull final UriInfo uri )
   {

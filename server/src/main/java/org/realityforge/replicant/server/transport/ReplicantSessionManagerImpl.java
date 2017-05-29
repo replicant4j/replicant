@@ -3,7 +3,10 @@ package org.realityforge.replicant.server.transport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -27,11 +30,164 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  * Base class for session managers.
  */
 public abstract class ReplicantSessionManagerImpl
-  extends InMemorySessionManager<ReplicantSession>
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
+  private final ReadWriteLock _lock = new ReentrantReadWriteLock();
+  private final Map<String, ReplicantSession> _sessions = new HashMap<>();
+  private final Map<String, ReplicantSession> _roSessions = Collections.unmodifiableMap( _sessions );
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nonnull
+  public String getSessionKey()
+  {
+    return "sid";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean invalidateSession( @Nonnull final String sessionID )
+  {
+    return null != removeSession( sessionID );
+  }
+
+  /**
+   * Remove session with specified id.
+   *
+   * @param sessionID the session id.
+   * @return the session removed if any.
+   */
+  protected ReplicantSession removeSession( final String sessionID )
+  {
+    _lock.writeLock().lock();
+    try
+    {
+      return _sessions.remove( sessionID );
+    }
+    finally
+    {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public ReplicantSession getSession( @Nonnull final String sessionID )
+  {
+    _lock.readLock().lock();
+    final ReplicantSession sessionInfo;
+    try
+    {
+      sessionInfo = _sessions.get( sessionID );
+    }
+    finally
+    {
+      _lock.readLock().unlock();
+    }
+    if ( null != sessionInfo )
+    {
+      sessionInfo.updateAccessTime();
+    }
+    return sessionInfo;
+  }
+
+  @Nonnull
+  @Override
+  public Set<String> getSessionIDs()
+  {
+    _lock.readLock().lock();
+    try
+    {
+      return new HashSet<>( _sessions.keySet() );
+    }
+    finally
+    {
+      _lock.readLock().unlock();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nonnull
+  public ReplicantSession createSession()
+  {
+    final ReplicantSession sessionInfo = newReplicantSession();
+    _lock.writeLock().lock();
+    try
+    {
+      _sessions.put( sessionInfo.getSessionID(), sessionInfo );
+    }
+    finally
+    {
+      _lock.writeLock().unlock();
+    }
+    return sessionInfo;
+  }
+
+  /**
+   * Return an unmodifiable map containing the set of sessions.
+   * The user should also acquire a read lock via {@link #getLock()} prior to invoking
+   * this method ensure it is not modified while being inspected.
+   *
+   * @return an unmodifiable map containing the set of sessions.
+   */
+  @Nonnull
+  protected Map<String, ReplicantSession> getSessions()
+  {
+    return _roSessions;
+  }
+
+  /**
+   * @return the lock used to guard access to sessions map.
+   */
+  @Nonnull
+  protected ReadWriteLock getLock()
+  {
+    return _lock;
+  }
+
+  /**
+   * Remove sessions that have not been accessed for the specified idle time.
+   *
+   * @param maxIdleTime the max idle time for a session.
+   * @return the number of sessions removed.
+   */
+  protected int removeIdleSessions( final long maxIdleTime )
+  {
+    int removedSessions = 0;
+    final long now = System.currentTimeMillis();
+    _lock.writeLock().lock();
+    try
+    {
+      final Iterator<Map.Entry<String, ReplicantSession>> iterator = _sessions.entrySet().iterator();
+      while ( iterator.hasNext() )
+      {
+        final ReplicantSession session = iterator.next().getValue();
+        if ( now - session.getLastAccessedAt() > maxIdleTime )
+        {
+          iterator.remove();
+          removedSessions++;
+        }
+      }
+    }
+    finally
+    {
+      _lock.writeLock().unlock();
+    }
+    return removedSessions;
+  }
 
   @Nullable
   protected String pollJsonData( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
@@ -74,8 +230,7 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract TransactionSynchronizationRegistry getRegistry();
 
   @Nonnull
-  @Override
-  protected ReplicantSession newSessionInfo()
+  protected ReplicantSession newReplicantSession()
   {
     return new ReplicantSession( null, UUID.randomUUID().toString() );
   }
