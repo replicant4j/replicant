@@ -1,4 +1,5 @@
 ## 0.5.85 (Pending):
+* Inline the `org.realityforge.ssf` dependency.
 * Remove the `org.realityforge.rest.field_filter` dependency and remove usage from codebase. Effectively
   unused as it only used during local debugging of replicant in which case the filters were typically left
   at default values.

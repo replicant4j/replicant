@@ -22,7 +22,6 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.json.JsonEncoder;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
-import org.realityforge.ssf.InMemorySessionManager;
 
 /**
  * Base class for session managers.

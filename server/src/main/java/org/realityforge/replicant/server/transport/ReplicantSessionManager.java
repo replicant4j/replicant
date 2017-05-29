@@ -6,12 +6,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelDescriptor;
-import org.realityforge.ssf.SessionManager;
 
 public interface ReplicantSessionManager
   extends SessionManager<ReplicantSession>
 {
-
   /**
    * Status returned when attempting to subscribe.
    */

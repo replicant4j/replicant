@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.server.ChannelDescriptor;
-import org.realityforge.ssf.SimpleSessionInfo;
 
 /**
  * Base class for sessions within replicant.

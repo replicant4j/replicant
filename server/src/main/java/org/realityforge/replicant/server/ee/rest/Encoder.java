@@ -18,11 +18,11 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
+import org.realityforge.replicant.server.transport.SessionInfo;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.JsonUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
-import org.realityforge.ssf.SessionInfo;
 
 final class Encoder
 {

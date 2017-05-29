@@ -34,8 +34,6 @@ artifacts:
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.10.19
 
-  simple_session_filter: org.realityforge.ssf:simple-session-filter:jar:0.9
-
   keycloak_core: org.keycloak:keycloak-core:jar:2.0.0.Final
   keycloak_common: org.keycloak:keycloak-common:jar:2.0.0.Final
   keycloak_adapter_core: org.keycloak:keycloak-adapter-core:jar:2.0.0.Final
