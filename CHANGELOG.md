@@ -1,4 +1,4 @@
-## 0.5.85 (Pending):
+## 0.5.85:
 * Remove attributes from `ReplicantSession`.
 * Inline the `org.realityforge.ssf` dependency and compress inheritance chain for any class incorporated from ssf.
 * Remove the `org.realityforge.rest.field_filter` dependency and remove usage from codebase. Effectively
