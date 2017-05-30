@@ -92,15 +92,15 @@ public class DataLoaderServiceTest
     final InOrder inOrder = inOrder( repository, sm, broker );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "B1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "A1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.D ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "D1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.C ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "B1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "A1" );
+    inOrder.verify( broker ).removeAllChangeListeners( "D1" );
     inOrder.verify( broker ).removeAllChangeListeners( "C1" );
     inOrder.verifyNoMoreInteractions();
   }

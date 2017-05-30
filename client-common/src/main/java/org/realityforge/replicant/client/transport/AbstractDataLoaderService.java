@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,7 +54,7 @@ public abstract class AbstractDataLoaderService
    * The list of entities that no longer part of any graph. This set is used to collect
    * entities so that their listeners can be purged at the end of the cycle.
    */
-  private final HashSet<Object> _disownedEntities = new HashSet<>();
+  private final HashSet<Object> _disownedEntities = new LinkedHashSet<>();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -237,6 +238,8 @@ public abstract class AbstractDataLoaderService
         deregisterUnOwnedEntities( entry );
       }
     }
+
+    purgeDisownedEntities();
   }
 
   protected void unsubscribeInstanceGraphs( @Nonnull final Enum graph )
@@ -818,11 +821,7 @@ public abstract class AbstractDataLoaderService
         validateRepository();
       }
 
-      for ( final Object entity : _disownedEntities )
-      {
-        getChangeBroker().removeAllChangeListeners( entity );
-      }
-      _disownedEntities.clear();
+      purgeDisownedEntities();
       return true;
     }
     final DataLoadStatus status = _currentAction.toStatus( getKey() );
@@ -890,6 +889,15 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  private void purgeDisownedEntities()
+  {
+    for ( final Object entity : _disownedEntities )
+    {
+      getChangeBroker().removeAllChangeListeners( entity );
+    }
+    _disownedEntities.clear();
   }
 
   @Nonnull
