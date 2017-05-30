@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -48,6 +49,11 @@ public abstract class AbstractDataLoaderService
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
   private final DataLoaderListenerSupport _listenerSupport = new DataLoaderListenerSupport();
+  /**
+   * The list of entities that no longer part of any graph. This set is used to collect
+   * entities so that their listeners can be purged at the end of the cycle.
+   */
+  private final HashSet<Object> _disownedEntities = new HashSet<>();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -811,6 +817,12 @@ public abstract class AbstractDataLoaderService
       {
         validateRepository();
       }
+
+      for ( final Object entity : _disownedEntities )
+      {
+        getChangeBroker().removeAllChangeListeners( entity );
+      }
+      _disownedEntities.clear();
       return true;
     }
     final DataLoadStatus status = _currentAction.toStatus( getKey() );
@@ -904,7 +916,12 @@ public abstract class AbstractDataLoaderService
         {
           removedEntities += 1;
           final Object entity = getRepository().deregisterEntity( type, entityID );
-          getChangeBroker().removeAllChangeListeners( entity );
+
+          /*
+            We need to queue up entities to have their change listeners purged on next cycle.
+            We can not do it immediately as otherwise listener will not be notified
+           */
+          _disownedEntities.add( entity );
         }
       }
     }

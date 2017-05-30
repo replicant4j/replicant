@@ -1,4 +1,5 @@
 ## 0.5.86 (Pending):
+* Ensure that disowned entities still send out events by waiting til the end of the cycle before purging listeners.
 
 ## 0.5.85:
 * Remove attributes from `ReplicantSession`.
