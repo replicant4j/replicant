@@ -1,3 +1,5 @@
+## 0.5.86 (Pending):
+
 ## 0.5.85:
 * Remove attributes from `ReplicantSession`.
 * Inline the `org.realityforge.ssf` dependency and compress inheritance chain for any class incorporated from ssf.
