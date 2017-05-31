@@ -1,4 +1,5 @@
 ## 0.5.87:
+* Remove `EeContextConvergerImpl` and `EeReplicantClientSystemImpl` to allow downstream products to define services.
 * Extract `AbstractEeContextConvergerImpl` class to simplify building ee context convergers.
 * Make the `converge()` method public in the classes `ContextConvergerImpl` and `ReplicantClientSystemImpl`
   to make it easier to schedule converges in subclasses.
