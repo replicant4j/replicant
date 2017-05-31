@@ -1,3 +1,7 @@
+## 0.5.87:
+* Make the `converge()` method public in the classes `ContextConvergerImpl` and `ReplicantClientSystemImpl`
+  to make it easier to schedule converges in subclasses.
+
 ## 0.5.86:
 * Ensure that disowned entities still send out events by waiting til the end of the cycle before purging listeners.
 

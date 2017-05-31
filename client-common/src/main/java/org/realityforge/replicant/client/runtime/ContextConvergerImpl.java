@@ -64,7 +64,7 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  protected void converge()
+  public void converge()
   {
     preConverge();
     convergeStep();

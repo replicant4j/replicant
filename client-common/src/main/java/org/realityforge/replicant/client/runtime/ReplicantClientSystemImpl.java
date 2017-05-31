@@ -84,7 +84,7 @@ public abstract class ReplicantClientSystemImpl
    * Attempt to converge the state of the system towards the desired state.
    * This should be invoked periodically.
    */
-  protected void converge()
+  public void converge()
   {
     updateStatus();
     reflectActiveState();
