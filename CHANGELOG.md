@@ -1,3 +1,5 @@
+## 0.5.88:
+
 ## 0.5.87:
 * Remove `EeContextConvergerImpl` and `EeReplicantClientSystemImpl` to allow downstream products to define services.
 * Extract `AbstractEeContextConvergerImpl` class to simplify building ee context convergers.
