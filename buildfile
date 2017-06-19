@@ -12,7 +12,7 @@ POWERMOCK = [
   :powermock_module_javaagent
 ]
 
-GWT_DEPS = [:gwt_user, :gwt_property_source] + GIN_DEPS
+GWT_DEPS = [:gwt_user] + GIN_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS

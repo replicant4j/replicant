@@ -13,11 +13,10 @@ public abstract class GwtDataLoaderService
   private final SessionContext _sessionContext;
   private final DataLoaderServiceConfig _config;
 
-  protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext,
-                                  @Nonnull final ReplicantConfig replicantConfig )
+  protected GwtDataLoaderService( @Nonnull final SessionContext sessionContext )
   {
     _sessionContext = sessionContext;
-    _config = new GwtDataLoaderServiceConfigImpl( getKey(), replicantConfig );
+    _config = new GwtDataLoaderServiceConfigImpl( getKey() );
   }
 
   @Nonnull

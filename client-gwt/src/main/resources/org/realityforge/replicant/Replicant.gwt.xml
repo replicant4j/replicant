@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
   <inherits name="org.realityforge.replicant.ReplicantClientCommon"/>
-  <inherits name="org.realityforge.gwt.propertysource.PropertySource"/>
   <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.storage.Storage"/>

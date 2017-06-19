@@ -44,10 +44,9 @@ public abstract class GwtWebPollerDataLoaderService
 
   public GwtWebPollerDataLoaderService( @Nonnull final SessionContext sessionContext,
                                         @Nonnull final EntitySystem entitySystem,
-                                        @Nonnull final CacheService cacheService,
-                                        @Nonnull final ReplicantConfig replicantConfig )
+                                        @Nonnull final CacheService cacheService )
   {
-    super( sessionContext, replicantConfig );
+    super( sessionContext );
     _entitySystem = entitySystem;
     _cacheService = cacheService;
     createWebPoller();

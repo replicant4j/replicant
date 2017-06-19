@@ -14,15 +14,12 @@ public class GwtDataLoaderServiceConfigImpl
   private static final String REPOSITORY_DEBUG = "imitRepositoryDebug";
 
   private final String _key;
-  private final ReplicantConfig _replicantConfig;
 
-  protected GwtDataLoaderServiceConfigImpl( @Nonnull final String key,
-                                            @Nonnull final ReplicantConfig replicantConfig )
+  GwtDataLoaderServiceConfigImpl( @Nonnull final String key )
   {
     _key = key;
-    _replicantConfig = replicantConfig;
 
-    if ( _replicantConfig.repositoryDebugOutputEnabled() )
+    if ( canRepositoryDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".RepositoryDebugOutput module is enabled. Run the javascript " +
@@ -32,7 +29,7 @@ public class GwtDataLoaderServiceConfigImpl
       LOG.info( message );
     }
 
-    if ( _replicantConfig.subscriptionsDebugOutputEnabled() )
+    if ( canSubscriptionsDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
@@ -42,7 +39,7 @@ public class GwtDataLoaderServiceConfigImpl
       LOG.info( message );
     }
 
-    if ( _replicantConfig.requestDebugOutputEnabled() )
+    if ( canRequestDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".RequestDebugOutput module is enabled. Run the javascript " +
@@ -56,41 +53,55 @@ public class GwtDataLoaderServiceConfigImpl
   @Override
   public boolean shouldValidateRepositoryOnLoad()
   {
-    return _replicantConfig.shouldValidateRepositoryOnLoad();
+    return isConfigTrue( "replicant.shouldValidateRepositoryOnLoad" );
   }
 
   @Override
   public boolean requestDebugOutputEnabled()
   {
-    return _replicantConfig.requestDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( _key, REQUEST_DEBUG );
+    return canRequestDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
   }
 
   @Override
   public boolean subscriptionsDebugOutputEnabled()
   {
-    return _replicantConfig.subscriptionsDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( _key, SUBSCRIPTION_DEBUG );
+    return canSubscriptionsDebugOutputBeEnabled() && isEnabled( _key, SUBSCRIPTION_DEBUG );
   }
 
   @Override
   public boolean repositoryDebugOutputEnabled()
   {
-    return _replicantConfig.repositoryDebugOutputEnabled() &&
-           RepositoryDebugEnabledChecker.isEnabled( _key, REPOSITORY_DEBUG );
+    return canRepositoryDebugOutputBeEnabled() && isEnabled( _key, REPOSITORY_DEBUG );
   }
 
-  private String toSessionSpecificJavascript( final String variable )
+  @Nonnull
+  private String toSessionSpecificJavascript( @Nonnull final String variable )
   {
     final String key = _key;
     return "( window." + key + " ? window." + key + " : window." + key + " = {} )." + variable + " = true";
   }
 
-  //Static class to help check whether debug is enabled at the current time
-  private static class RepositoryDebugEnabledChecker
+  private boolean canRepositoryDebugOutputBeEnabled()
   {
-    public static native boolean isEnabled( String sessionKey, String feature ) /*-{
-      return $wnd[feature] == true || ($wnd[sessionKey] && $wnd[sessionKey][feature] == true);
-    }-*/;
+    return isConfigTrue( "replicant.repositoryDebugOutputEnabled" );
   }
+
+  private boolean canRequestDebugOutputBeEnabled()
+  {
+    return isConfigTrue( "replicant.requestDebugOutputEnabled" );
+  }
+
+  private boolean canSubscriptionsDebugOutputBeEnabled()
+  {
+    return isConfigTrue( "replicant.subscriptionsDebugOutputEnabled" );
+  }
+
+  private boolean isConfigTrue( @Nonnull final String key )
+  {
+    return System.getProperty( key, "false" ).equals( "true" );
+  }
+
+  private static native boolean isEnabled( String sessionKey, String feature ) /*-{
+    return $wnd[feature] == true || ($wnd[sessionKey] && $wnd[sessionKey][feature] == true);
+  }-*/;
 }

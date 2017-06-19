@@ -41,8 +41,6 @@ artifacts:
 
   simple_keycloak_service: org.realityforge.keycloak.sks:simple-keycloak-service:jar:0.1
 
-  gwt_property_source: org.realityforge.gwt.property-source:gwt-property-source:jar:0.2
-
   gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.9.1
 
   objenesis: org.objenesis:objenesis:jar:2.5.1

@@ -1,4 +1,6 @@
 ## 0.5.88:
+* Remove `ReplicantConfig` and dependency on `gwt-property-source` and replace with simple access to property
+  via `System.getProperty(...)`
 
 ## 0.5.87:
 * Remove `EeContextConvergerImpl` and `EeReplicantClientSystemImpl` to allow downstream products to define services.
