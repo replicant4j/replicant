@@ -53,7 +53,7 @@ public class GwtDataLoaderServiceConfigImpl
   @Override
   public boolean shouldValidateRepositoryOnLoad()
   {
-    return isConfigTrue( "replicant.shouldValidateRepositoryOnLoad" );
+    return System.getProperty( "replicant.shouldValidateRepositoryOnLoad", "false" ).equals( "true" );
   }
 
   @Override
@@ -83,22 +83,17 @@ public class GwtDataLoaderServiceConfigImpl
 
   private boolean canRepositoryDebugOutputBeEnabled()
   {
-    return isConfigTrue( "replicant.repositoryDebugOutputEnabled" );
+    return System.getProperty( "replicant.repositoryDebugOutputEnabled", "false" ).equals( "true" );
   }
 
   private boolean canRequestDebugOutputBeEnabled()
   {
-    return isConfigTrue( "replicant.requestDebugOutputEnabled" );
+    return System.getProperty( "replicant.requestDebugOutputEnabled", "false" ).equals( "true" );
   }
 
   private boolean canSubscriptionsDebugOutputBeEnabled()
   {
-    return isConfigTrue( "replicant.subscriptionsDebugOutputEnabled" );
-  }
-
-  private boolean isConfigTrue( @Nonnull final String key )
-  {
-    return System.getProperty( key, "false" ).equals( "true" );
+    return System.getProperty( "replicant.subscriptionsDebugOutputEnabled", "false" ).equals( "true" );
   }
 
   private static native boolean isEnabled( String sessionKey, String feature ) /*-{
