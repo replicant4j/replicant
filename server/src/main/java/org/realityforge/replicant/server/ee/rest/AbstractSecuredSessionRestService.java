@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.keycloak.adapters.OidcKeycloakAccount;
@@ -73,18 +74,20 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
+                                         @Nullable final String requestID,
                                          @Nonnull final ChannelDescriptor descriptor,
                                          @Nonnull final String filterContent )
   {
-    return guard( sessionID, () -> super.doSubscribeChannel( sessionID, descriptor, filterContent ) );
+    return guard( sessionID, () -> super.doSubscribeChannel( sessionID, requestID, descriptor, filterContent ) );
   }
 
   @Nonnull
   @Override
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
+                                           @Nullable final String requestID,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
-    return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, descriptor ) );
+    return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, requestID, descriptor ) );
   }
 
   @Nonnull
@@ -107,20 +110,23 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
+                                             @Nullable final String requestID,
                                              final int channelID,
                                              @Nonnull final Collection<Serializable> subChannelIDs,
                                              @Nonnull final String filterContent )
   {
-    return guard( sessionID, () -> super.doBulkSubscribeChannel( sessionID, channelID, subChannelIDs, filterContent ) );
+    return guard( sessionID,
+                  () -> super.doBulkSubscribeChannel( sessionID, requestID, channelID, subChannelIDs, filterContent ) );
   }
 
   @Nonnull
   @Override
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
+                                               @Nullable final String requestID,
                                                final int channelID,
                                                @Nonnull final Collection<Serializable> subChannelIDs )
   {
-    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, channelID, subChannelIDs ) );
+    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestID, channelID, subChannelIDs ) );
   }
 
   @Nonnull

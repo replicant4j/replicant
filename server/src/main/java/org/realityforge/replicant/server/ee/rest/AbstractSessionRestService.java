@@ -150,12 +150,13 @@ public abstract class AbstractSessionRestService
   @DELETE
   public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                           @PathParam( "channelID" ) final int channelID,
+                                          @QueryParam( "requestID" ) @Nullable final String requestID,
                                           @QueryParam( "scid" ) @Nullable final String subChannelIDs )
   {
     if ( null == subChannelIDs )
     {
       //Handle type channel
-      return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID ) );
+      return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID ) );
     }
     else
     {
@@ -172,7 +173,7 @@ public abstract class AbstractSessionRestService
       {
         scids.add( toSubChannelID( channelMetaData, scid ) );
       }
-      return doBulkUnsubscribeChannel( sessionID, channelID, scids );
+      return doBulkUnsubscribeChannel( sessionID, requestID, channelID, scids );
     }
   }
 
@@ -181,9 +182,10 @@ public abstract class AbstractSessionRestService
   @DELETE
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                                   @PathParam( "channelID" ) final int channelID,
-                                                  @PathParam( "subChannelID" ) @NotNull final String subChannelText )
+                                                  @PathParam( "subChannelID" ) @NotNull final String subChannelText,
+                                                  @QueryParam( "requestID" ) @Nullable final String requestID )
   {
-    return doUnsubscribeChannel( sessionID, toChannelDescriptor( channelID, subChannelText ) );
+    return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ) );
   }
 
   @Replicate
@@ -191,13 +193,14 @@ public abstract class AbstractSessionRestService
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                       @PathParam( "channelID" ) @NotNull final int channelID,
+                                      @QueryParam( "requestID" ) @Nullable final String requestID,
                                       @QueryParam( "scid" ) @Nullable final String subChannelIDs,
                                       @Nonnull final String filterContent )
   {
     if ( null == subChannelIDs )
     {
       //Subscription to a type channel
-      return doSubscribeChannel( sessionID, toChannelDescriptor( channelID ), filterContent );
+      return doSubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID ), filterContent );
     }
     else
     {
@@ -214,7 +217,7 @@ public abstract class AbstractSessionRestService
       {
         scids.add( toSubChannelID( channelMetaData, scid ) );
       }
-      return doBulkSubscribeChannel( sessionID, channelID, scids, filterContent );
+      return doBulkSubscribeChannel( sessionID, requestID, channelID, scids, filterContent );
     }
   }
 
@@ -224,17 +227,19 @@ public abstract class AbstractSessionRestService
   public Response subscribeToInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                               @PathParam( "channelID" ) @NotNull final int channelID,
                                               @PathParam( "subChannelID" ) @NotNull final String subChannelText,
+                                              @QueryParam( "requestID" ) @Nullable final String requestID,
                                               @Nonnull final String filterContent )
   {
-    return doSubscribeChannel( sessionID, toChannelDescriptor( channelID, subChannelText ), filterContent );
+    return doSubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ), filterContent );
   }
 
   @Nonnull
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
+                                         @Nullable final String requestID,
                                          @Nonnull final ChannelDescriptor descriptor,
                                          @Nonnull final String filterContent )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, requestID );
     getSessionManager().subscribe( session,
                                    descriptor,
                                    true,
@@ -245,11 +250,12 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
+                                             @Nullable final String requestID,
                                              final int channelID,
                                              @Nonnull Collection<Serializable> subChannelIDs,
                                              @Nonnull final String filterContent )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, requestID );
     final Object filter = toFilter( getChannelMetaData( channelID ), filterContent );
     getSessionManager().bulkSubscribe( session,
                                        channelID,
@@ -262,10 +268,11 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
+                                               @Nullable final String requestID,
                                                final int channelID,
                                                @Nonnull Collection<Serializable> subChannelIDs )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, requestID );
     getSessionManager().bulkUnsubscribe( session,
                                          channelID,
                                          subChannelIDs,
@@ -276,9 +283,10 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
+                                           @Nullable final String requestID,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, requestID );
     getSessionManager().unsubscribe( session,
                                      descriptor,
                                      true,
@@ -291,7 +299,7 @@ public abstract class AbstractSessionRestService
                                    @Nonnull final ChannelDescriptor descriptor,
                                    @Nonnull final UriInfo uri )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, null );
     final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
     if ( null == entry )
     {
@@ -309,7 +317,7 @@ public abstract class AbstractSessionRestService
   protected Response doGetChannels( @Nonnull final String sessionID,
                                     @Nonnull final UriInfo uri )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
       json( g -> Encoder.emitChannelsList( getSessionManager().getSystemMetaData(), session, g, uri ) );
     return buildResponse( Response.ok(), content );
@@ -321,7 +329,7 @@ public abstract class AbstractSessionRestService
                                             @Nonnull final UriInfo uri )
   {
     final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
       json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelID, session, g, uri ) );
     return buildResponse( Response.ok(), content );
@@ -363,9 +371,10 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  protected Response doGetSession( @Nonnull final String sessionID, @Nonnull final UriInfo uri )
+  protected Response doGetSession( @Nonnull final String sessionID,
+                                   @Nonnull final UriInfo uri )
   {
-    final ReplicantSession session = ensureSession( sessionID );
+    final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
       json( g -> Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, true ) );
     return buildResponse( Response.ok(), content );
@@ -459,7 +468,7 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ReplicantSession ensureSession( @Nonnull final String sessionID )
+  private ReplicantSession ensureSession( @Nonnull final String sessionID, @Nullable final String requestID )
   {
     final ReplicantSession session = getSessionManager().getSession( sessionID );
     if ( null == session )
@@ -467,6 +476,7 @@ public abstract class AbstractSessionRestService
       throw new WebApplicationException( standardResponse( Response.Status.NOT_FOUND, "No such session." ) );
     }
     getRegistry().putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
+    getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, requestID );
     return session;
   }
 
