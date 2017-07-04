@@ -71,6 +71,9 @@ public abstract class AbstractDataLoaderService
     return getSessionContext().getKey();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Nonnull
   @Override
   public State getState()
