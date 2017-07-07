@@ -95,12 +95,6 @@ public abstract class GwtWebPollerDataLoaderService
     sendRequest( RequestBuilder.DELETE, getSessionURL(), null, onResponse, onError );
   }
 
-  @Nonnull
-  protected String getSessionURL()
-  {
-    return getBaseSessionURL() + "/" + ensureSession().getSessionID();
-  }
-
   protected void sendRequest( @Nonnull final RequestBuilder.Method method,
                               @Nonnull final String url,
                               @Nullable final String requestData,
