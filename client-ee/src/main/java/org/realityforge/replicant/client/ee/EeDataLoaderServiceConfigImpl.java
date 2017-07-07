@@ -15,6 +15,12 @@ public class EeDataLoaderServiceConfigImpl
   }
 
   @Override
+  public boolean shouldRecordRequestKey()
+  {
+    return isFlagTrue( "shouldRecordRequestKey" );
+  }
+
+  @Override
   public boolean shouldValidateRepositoryOnLoad()
   {
     return isFlagTrue( "shouldValidateRepositoryOnLoad" );

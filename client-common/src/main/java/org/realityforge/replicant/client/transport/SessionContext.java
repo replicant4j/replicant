@@ -76,7 +76,7 @@ public final class SessionContext
     return _request;
   }
 
-  public void request( @Nonnull final String key, @Nullable final String cacheKey, @Nonnull final RequestAction action )
+  public void request( @Nullable final String key, @Nullable final String cacheKey, @Nonnull final RequestAction action )
   {
     if ( null != _session )
     {

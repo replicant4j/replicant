@@ -51,6 +51,12 @@ public class GwtDataLoaderServiceConfigImpl
   }
 
   @Override
+  public boolean shouldRecordRequestKey()
+  {
+    return System.getProperty( "replicant.shouldRecordRequestKey", "false" ).equals( "true" );
+  }
+
+  @Override
   public boolean shouldValidateRepositoryOnLoad()
   {
     return System.getProperty( "replicant.shouldValidateRepositoryOnLoad", "false" ).equals( "true" );

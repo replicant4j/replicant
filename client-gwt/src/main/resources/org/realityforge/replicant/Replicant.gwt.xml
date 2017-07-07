@@ -15,6 +15,9 @@
     <when-type-is class="org.realityforge.replicant.client.FilterUtil"/>
   </replace-with>
 
+  <define-property name="replicant.shouldRecordRequestKey" values="true,false"/>
+  <set-property name="replicant.shouldRecordRequestKey" value="false"/>
+
   <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
   <set-property name="replicant.shouldValidateRepositoryOnLoad" value="false"/>
 

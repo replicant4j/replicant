@@ -131,7 +131,7 @@ public final class ClientSession
   }
 
   @Nonnull
-  public final RequestEntry newRequest( @Nonnull final String requestKey, @Nullable final String cacheKey )
+  public final RequestEntry newRequest( @Nullable final String requestKey, @Nullable final String cacheKey )
   {
     final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey );
     _requests.put( entry.getRequestID(), entry );
