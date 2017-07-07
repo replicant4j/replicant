@@ -1,6 +1,7 @@
 ## 0.5.89:
 * Support omitting `RequestEntry.RequestKey` during production builds. Removes a large number of strings in GWT
   compilation output. Controlled by use of setting in `ReplicantConfig`.
+* Enhance server-side rest session service to accept optional `requestID` query parameter.
 
 ## 0.5.88:
 * Remove `ReplicantConfig` and dependency on `gwt-property-source` and replace with simple access to property
