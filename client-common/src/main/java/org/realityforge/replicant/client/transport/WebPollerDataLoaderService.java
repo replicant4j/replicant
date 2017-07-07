@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -99,6 +100,17 @@ public abstract class WebPollerDataLoaderService
   protected String getSessionURL()
   {
     return getBaseSessionURL() + "/" + ensureSession().getSessionID();
+  }
+
+  /**
+   * Return URL to the specified channel for this session.
+   */
+  @Nonnull
+  protected String getChannelURL( final int channel,
+                                  @Nullable Serializable subChannelID )
+  {
+    return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT +
+           "/" + channel + ( null == subChannelID ? "" : "." + subChannelID );
   }
 
   /**
