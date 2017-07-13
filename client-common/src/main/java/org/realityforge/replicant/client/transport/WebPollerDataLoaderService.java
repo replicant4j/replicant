@@ -138,7 +138,7 @@ public abstract class WebPollerDataLoaderService
                                        @Nonnull final String statusText,
                                        @Nullable final Runnable action )
   {
-    if ( 200 == statusCode )
+    if ( HTTP_STATUS_CODE_OK == statusCode )
     {
       setSession( null, action );
     }
