@@ -162,6 +162,12 @@ public final class TestDataLoadService
     return new DataLoaderServiceConfig()
     {
       @Override
+      public boolean shouldRecordRequestKey()
+      {
+        return false;
+      }
+
+      @Override
       public boolean shouldValidateRepositoryOnLoad()
       {
         return _validateOnLoad;
