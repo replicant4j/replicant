@@ -16,6 +16,7 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
+import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class EeWebPollerDataLoaderService
@@ -30,7 +31,7 @@ public abstract class EeWebPollerDataLoaderService
     @Override
     protected Invocation.Builder getInvocation()
     {
-      return newSessionBasedInvocationBuilder( getPollURL() );
+      return newSessionBasedInvocationBuilder( getPollURL(), null );
     }
   }
 
@@ -60,9 +61,11 @@ public abstract class EeWebPollerDataLoaderService
   }
 
   @Nonnull
-  protected Invocation.Builder newSessionBasedInvocationBuilder( @Nonnull final String target )
+  protected Invocation.Builder newSessionBasedInvocationBuilder( @Nonnull final String target,
+                                                                 @Nullable final RequestEntry request )
   {
-    return newInvocationBuilder( target ).header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+    return newInvocationBuilder( target + requestSuffix( request ) ).
+      header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
   }
 
   @Nonnull
