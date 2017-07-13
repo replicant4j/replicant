@@ -2,6 +2,9 @@ package org.realityforge.replicant.server.ee;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
@@ -18,8 +21,49 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
  */
 public final class ReplicationRequestUtil
 {
+  private static final Logger LOG = Logger.getLogger( ReplicationRequestUtil.class.getName() );
+
   private ReplicationRequestUtil()
   {
+  }
+
+  public static <T> T runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                                  @Nonnull final EntityManager entityManager,
+                                  @Nonnull final EntityMessageEndpoint endpoint,
+                                  @Nonnull final String invocationKey,
+                                  @Nullable final String sessionID,
+                                  @Nullable final String requestID,
+                                  @Nonnull final Callable<T> action )
+    throws Exception
+  {
+    startReplication( registry, invocationKey, sessionID, requestID );
+    try
+    {
+      return action.call();
+    }
+    finally
+    {
+      completeReplication( registry, entityManager, endpoint, invocationKey );
+    }
+  }
+
+  public static void runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                                 @Nonnull final EntityManager entityManager,
+                                 @Nonnull final EntityMessageEndpoint endpoint,
+                                 @Nonnull final String invocationKey,
+                                 @Nullable final String sessionID,
+                                 @Nullable final String requestID,
+                                 @Nonnull final Runnable action )
+  {
+    startReplication( registry, invocationKey, sessionID, requestID );
+    try
+    {
+      action.run();
+    }
+    finally
+    {
+      completeReplication( registry, entityManager, endpoint, invocationKey );
+    }
   }
 
   /**
@@ -29,11 +73,13 @@ public final class ReplicationRequestUtil
    * @param sessionID     the id of the session that initiated change if any.
    * @param requestID     the id of the request in the session that initiated change..
    */
-  public static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
-                                       @Nonnull final String invocationKey,
-                                       @Nullable final String sessionID,
-                                       @Nullable final String requestID )
+  private static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
+                                        @Nonnull final String invocationKey,
+                                        @Nullable final String sessionID,
+                                        @Nullable final String requestID )
   {
+    // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
+    ReplicantContextHolder.clean();
     final Object existingKey = registry.getResource( ReplicantContext.REPLICATION_INVOCATION_KEY );
     if ( null != existingKey )
     {
@@ -60,17 +106,23 @@ public final class ReplicationRequestUtil
     {
       registry.putResource( ReplicantContext.REQUEST_ID_KEY, null );
     }
+    if ( LOG.isLoggable( Level.FINE ) )
+    {
+      LOG.fine( "Starting invocation of " + invocationKey + " Thread: " + Thread.currentThread().getId() );
+    }
   }
 
   /**
    * Complete a replication context and submit changes for replication.
-   *
-   * @return true if the request is complete and did not generate any change messages, false otherwise.
    */
-  public static boolean completeReplication( @Nonnull final TransactionSynchronizationRegistry registry,
-                                             @Nonnull final EntityManager entityManager,
-                                             @Nonnull final EntityMessageEndpoint endpoint )
+  private static void completeReplication( @Nonnull final TransactionSynchronizationRegistry registry,
+                                           @Nonnull final EntityManager entityManager,
+                                           @Nonnull final EntityMessageEndpoint endpoint,
+                                           @Nonnull final String invocationKey )
   {
+    // Clear the context completely to ensure it contains only the completion key.
+    ReplicantContextHolder.clean();
+
     if ( Status.STATUS_ACTIVE == registry.getTransactionStatus() &&
          entityManager.isOpen() &&
          !registry.getRollbackOnly() )
@@ -91,18 +143,22 @@ public final class ReplicationRequestUtil
         }
       }
       final Boolean complete = (Boolean) registry.getResource( ReplicantContext.REQUEST_COMPLETE_KEY );
-
       // Clear all state in case there is multiple replication contexts started in one transaction
       registry.putResource( ReplicantContext.REPLICATION_INVOCATION_KEY, null );
       registry.putResource( ReplicantContext.SESSION_ID_KEY, null );
       registry.putResource( ReplicantContext.REQUEST_ID_KEY, null );
       registry.putResource( ReplicantContext.REQUEST_COMPLETE_KEY, null );
 
-      return !( null != complete && !complete ) && requestComplete;
+      final boolean isComplete = !( null != complete && !complete ) && requestComplete;
+      ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
     }
     else
     {
-      return true;
+      ReplicantContextHolder.put( ReplicantContext.REQUEST_COMPLETE_KEY, "1" );
+    }
+    if ( LOG.isLoggable( Level.FINE ) )
+    {
+      LOG.fine( "Completed invocation of " + invocationKey + " Thread: " + Thread.currentThread().getId() );
     }
   }
 }
