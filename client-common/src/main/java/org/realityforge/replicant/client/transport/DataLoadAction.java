@@ -58,7 +58,7 @@ final class DataLoadAction
   private int _removeCount;
   private int _linkCount;
 
-  public DataLoadAction( final String rawJsonData, final boolean oob )
+  public DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
   {
     _rawJsonData = rawJsonData;
     _oob = oob;
