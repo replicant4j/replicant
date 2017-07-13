@@ -1,8 +1,10 @@
 package org.realityforge.replicant.server.ee.rest;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.ws.rs.core.Response;
+import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.testng.annotations.Test;
@@ -31,6 +33,20 @@ public class SessionRestServiceTest
   {
     return new AbstractSessionRestService()
     {
+      @Nonnull
+      @Override
+      protected EntityMessageEndpoint getEntityMessageEndpoint()
+      {
+        return mock( EntityMessageEndpoint.class );
+      }
+
+      @Nonnull
+      @Override
+      protected EntityManager getEntityManager()
+      {
+        return mock( EntityManager.class );
+      }
+
       @Nonnull
       @Override
       protected ReplicantSessionManager getSessionManager()

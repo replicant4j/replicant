@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.stream.JsonGenerator;
+import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
@@ -27,9 +28,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.server.ee.Replicate;
+import org.realityforge.replicant.server.ee.ReplicationRequestUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
@@ -78,6 +81,12 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected abstract ReplicantSessionManager getSessionManager();
+
+  @Nonnull
+  protected abstract EntityMessageEndpoint getEntityMessageEndpoint();
+
+  @Nonnull
+  protected abstract EntityManager getEntityManager();
 
   @Nonnull
   protected abstract TransactionSynchronizationRegistry getRegistry();
@@ -145,7 +154,6 @@ public abstract class AbstractSessionRestService
     return doGetChannel( sessionID, toChannelDescriptor( channelID, subChannelID ), uri );
   }
 
-  @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
   @DELETE
   public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
@@ -177,7 +185,6 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
   @DELETE
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
@@ -270,14 +277,15 @@ public abstract class AbstractSessionRestService
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
                                                @Nullable final String requestID,
                                                final int channelID,
-                                               @Nonnull Collection<Serializable> subChannelIDs )
+                                               @Nonnull final Collection<Serializable> subChannelIDs )
   {
-    final ReplicantSession session = ensureSession( sessionID, requestID );
-    getSessionManager().bulkUnsubscribe( session,
-                                         channelID,
-                                         subChannelIDs,
-                                         true,
-                                         EntityMessageCacheUtil.getSessionChanges() );
+    final Runnable action = () ->
+      getSessionManager().bulkUnsubscribe( ensureSession( sessionID, requestID ),
+                                           channelID,
+                                           subChannelIDs,
+                                           true,
+                                           EntityMessageCacheUtil.getSessionChanges() );
+    runRequest( getInvocationKey( channelID, null, "BulkUnsubscribe" ), sessionID, requestID, action );
     return standardResponse( Response.Status.OK, "Channel subscriptions removed." );
   }
 
@@ -286,11 +294,15 @@ public abstract class AbstractSessionRestService
                                            @Nullable final String requestID,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
-    final ReplicantSession session = ensureSession( sessionID, requestID );
-    getSessionManager().unsubscribe( session,
-                                     descriptor,
-                                     true,
-                                     EntityMessageCacheUtil.getSessionChanges() );
+    final Runnable action = () ->
+      getSessionManager().unsubscribe( ensureSession( sessionID, requestID ),
+                                       descriptor,
+                                       true,
+                                       EntityMessageCacheUtil.getSessionChanges() );
+    runRequest( getInvocationKey( descriptor.getChannelID(), descriptor.getSubChannelID(), "Unsubscribe" ),
+                sessionID,
+                requestID,
+                action );
     return standardResponse( Response.Status.OK, "Channel subscription removed." );
   }
 
@@ -515,5 +527,29 @@ public abstract class AbstractSessionRestService
     consumer.accept( g );
     g.close();
     return writer.toString();
+  }
+
+  private void runRequest( @Nonnull final String invocationKey,
+                           @Nonnull final String sessionID,
+                           @Nullable final String requestID,
+                           @Nonnull final Runnable action )
+  {
+    ReplicationRequestUtil.runRequest( getRegistry(),
+                                       getEntityManager(),
+                                       getEntityMessageEndpoint(),
+                                       invocationKey,
+                                       sessionID,
+                                       requestID,
+                                       action );
+  }
+
+  @Nonnull
+  private String getInvocationKey( final int channelID,
+                                   @Nullable final Serializable subChannelID,
+                                   @Nonnull final String action )
+  {
+    final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
+    return systemMetaData.getName() + "." + action + systemMetaData.getChannelMetaData( channelID ).getName() +
+           ( ( null == subChannelID ) ? "" : "." + subChannelID );
   }
 }
