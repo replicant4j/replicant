@@ -252,10 +252,10 @@ public abstract class WebPollerDataLoaderService
     }
   }
 
-  protected final void performUnsubscribe( final int channel,
-                                           @Nullable Serializable subChannelID,
-                                           @Nonnull final Runnable onSuccess,
-                                           @Nonnull final Consumer<Throwable> onError )
+  protected void performUnsubscribe( final int channel,
+                                     @Nullable Serializable subChannelID,
+                                     @Nonnull final Runnable onSuccess,
+                                     @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
       doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
