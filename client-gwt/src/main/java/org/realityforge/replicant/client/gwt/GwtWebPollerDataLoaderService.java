@@ -136,11 +136,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final ActionCallbackAdapter adapter =
       new ActionCallbackAdapter( onResponse, onError, request, session );
-    sendRequest( method,
-                 url,
-                 requestData,
-                 adapter::onSuccess,
-                 adapter::onFailure );
+    sendRequest( method, url, requestData, adapter::onSuccess, adapter::onFailure );
   }
 
   protected void sendRequest( @Nonnull final RequestBuilder.Method method,
