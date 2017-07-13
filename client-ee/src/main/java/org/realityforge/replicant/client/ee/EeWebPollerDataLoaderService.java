@@ -16,6 +16,8 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
+import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -147,5 +149,41 @@ public abstract class EeWebPollerDataLoaderService
   private <R> Consumer<R> wrap( @Nonnull final Consumer<R> action )
   {
     return getContextService().createContextualProxy( action, Consumer.class );
+  }
+
+  @Override
+  protected void doUnsubscribe( @Nullable final ClientSession session,
+                                @Nullable final RequestEntry request,
+                                @Nonnull final String channelURL,
+                                @Nonnull final Runnable onSuccess,
+                                @Nonnull final Consumer<Throwable> onError )
+  {
+    final Consumer<Response> onCompletion = r ->
+    {
+      final int statusCode = r.getStatus();
+      if ( HTTP_STATUS_CODE_OK == statusCode )
+      {
+        onSuccess.run();
+      }
+      else
+      {
+        onError.accept( new InvalidHttpResponseException( statusCode, r.getStatusInfo().getReasonPhrase() ) );
+      }
+    };
+    final Invocation.Builder builder = newSessionBasedInvocationBuilder( getSessionURL(), request );
+    builder.async().delete( new InvocationCallback<Response>()
+    {
+      @Override
+      public void completed( final Response response )
+      {
+        onCompletion.accept( response );
+      }
+
+      @Override
+      public void failed( final Throwable throwable )
+      {
+        onError.accept( throwable );
+      }
+    } );
   }
 }
