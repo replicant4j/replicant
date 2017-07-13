@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.AbstractRequestAdapter;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
+import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 final class ActionCallbackAdapter
   extends AbstractRequestAdapter
@@ -23,6 +24,16 @@ final class ActionCallbackAdapter
     _callback = callback;
   }
 
+  @Override
+  public void onFailure( @Nonnull final Throwable caught )
+  {
+    if ( null != getRequest() )
+    {
+      getRequest().setExpectingResults( false );
+    }
+    super.onFailure( caught );
+  }
+
   void onSuccess( @Nonnull final Response response )
   {
     final Runnable action = () ->
@@ -32,6 +43,11 @@ final class ActionCallbackAdapter
         _callback.accept( response );
       }
     };
+    if ( null != getRequest() )
+    {
+      final boolean messageComplete = "1".equals( response.getHeader( ReplicantContext.REQUEST_COMPLETE_HEADER ) );
+      getRequest().setExpectingResults( !messageComplete );
+    }
     completeNormalRequest( action );
   }
 }
