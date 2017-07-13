@@ -15,6 +15,9 @@ import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.transport.CacheService;
+import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
+import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -93,6 +96,51 @@ public abstract class GwtWebPollerDataLoaderService
     final Consumer<Response> onResponse = r -> onDisconnectResponse( r.getStatusCode(), r.getStatusText(), runnable );
     final Consumer<Throwable> onError = t -> onDisconnectError( t, runnable );
     sendRequest( RequestBuilder.DELETE, getSessionURL(), null, onResponse, onError );
+  }
+
+  @Override
+  protected void doUnsubscribe( @Nullable final ClientSession session,
+                                @Nullable final RequestEntry request,
+                                @Nonnull final String channelURL,
+                                @Nonnull final Runnable onSuccess,
+                                @Nonnull final Consumer<Throwable> onError )
+  {
+    final Consumer<Response> onResponse = r ->
+    {
+      final int statusCode = r.getStatusCode();
+      if ( HTTP_STATUS_CODE_OK == statusCode )
+      {
+        onSuccess.run();
+      }
+      else
+      {
+        onError.accept( new InvalidHttpResponseException( statusCode, r.getStatusText() ) );
+      }
+    };
+    httpRequest( session,
+                 request,
+                 RequestBuilder.DELETE,
+                 channelURL,
+                 null,
+                 onResponse,
+                 onError );
+  }
+
+  private void httpRequest( @Nullable final ClientSession session,
+                            @Nullable final RequestEntry request,
+                            @Nonnull final RequestBuilder.Method method,
+                            @Nonnull final String url,
+                            @Nullable final String requestData,
+                            @Nonnull final Consumer<Response> onResponse,
+                            @Nonnull final Consumer<Throwable> onError )
+  {
+    final ActionCallbackAdapter adapter =
+      new ActionCallbackAdapter( onResponse, onError, request, session );
+    sendRequest( method,
+                 url,
+                 requestData,
+                 adapter::onSuccess,
+                 adapter::onFailure );
   }
 
   protected void sendRequest( @Nonnull final RequestBuilder.Method method,

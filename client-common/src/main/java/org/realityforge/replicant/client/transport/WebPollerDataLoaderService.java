@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -15,6 +16,7 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class WebPollerDataLoaderService
   extends AbstractDataLoaderService
 {
+  protected static final int HTTP_STATUS_CODE_OK = 200;
   private WebPoller _webPoller;
 
   @Nonnull
@@ -152,7 +154,7 @@ public abstract class WebPollerDataLoaderService
                                     @Nonnull final Supplier<String> content,
                                     @Nullable final Runnable runnable )
   {
-    if ( 200 == statusCode )
+    if ( HTTP_STATUS_CODE_OK == statusCode )
     {
       onSessionCreated( content.get(), runnable );
     }
@@ -248,6 +250,29 @@ public abstract class WebPollerDataLoaderService
     {
       _webPoller.resume();
     }
+  }
+
+  protected final void performUnsubscribe( final int channel,
+                                           @Nullable Serializable subChannelID,
+                                           @Nonnull final Runnable onSuccess,
+                                           @Nonnull final Consumer<Throwable> onError )
+  {
+    getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
+      doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
+  }
+
+  protected abstract void doUnsubscribe( @Nullable ClientSession session,
+                                         @Nullable RequestEntry request,
+                                         @Nonnull String channelURL,
+                                         @Nonnull Runnable onSuccess,
+                                         @Nonnull Consumer<Throwable> onError );
+
+  @Nullable
+  private String toRequestKey( @Nonnull final String requestType, final int channel )
+  {
+    return config().shouldRecordRequestKey() ?
+           requestType + ":" + getGraphType().getEnumConstants()[ channel ] :
+           null;
   }
 
   private class ReplicantWebPollerListener
