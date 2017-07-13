@@ -19,7 +19,7 @@ final class ActionCallbackAdapter
                          @Nullable final RequestEntry request,
                          @Nullable final ClientSession session )
   {
-    super(errorCallback, request, session );
+    super( errorCallback, request, session );
     _callback = callback;
   }
 
