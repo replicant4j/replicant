@@ -485,7 +485,7 @@ public class DataLoaderServiceTest
     service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
-    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
+    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 9, 1 );
     verify( service.getSubscriptionManager() ).
       recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null, false );
 
@@ -521,7 +521,7 @@ public class DataLoaderServiceTest
     service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
-    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
+    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 9, 1 );
 
     final DataLoadAction action = actions.getLast();
 
