@@ -16,7 +16,7 @@ public abstract class AbstractInvocationAdapter
 {
   private static final Logger LOG = Logger.getLogger( AbstractInvocationAdapter.class.getName() );
 
-  protected <T> T invokeAction( @Nonnull final String key, @Nonnull Callable<T> action )
+  protected <T> T invokeAction( @Nonnull final String key, @Nonnull final Callable<T> action )
     throws Exception
   {
     final String sessionID = (String) ReplicantContextHolder.remove( ReplicantContext.SESSION_ID_KEY );
