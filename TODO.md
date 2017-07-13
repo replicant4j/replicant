@@ -14,3 +14,14 @@ Some actions that should occur at some point in the future.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
   - Stop domgen generating XMessageConstants and use generated ChannelMetaData data.
   - Stop domgen generating XReplicantGraph and use generated ChannelMetaData data.
+* Rework the request system so that all the inputs/outputs are explicit.
+    Inputs include:
+      * SessionID
+      * RequestID
+      * Job Name/Service+method name
+      * Job Parameters
+    Outputs include:
+      * Request Complete Flag
+      * Job Return value
+    This will ultimately allow the jobs and potentially polling results to move to being
+    handled across a WebSocket.
