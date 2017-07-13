@@ -23,13 +23,13 @@ final class ActionCallbackAdapter
     _callback = callback;
   }
 
-  void onSuccess( @Nonnull final Response result )
+  void onSuccess( @Nonnull final Response response )
   {
     final Runnable action = () ->
     {
       if ( null != _callback )
       {
-        _callback.accept( result );
+        _callback.accept( response );
       }
     };
     completeNormalRequest( action );
