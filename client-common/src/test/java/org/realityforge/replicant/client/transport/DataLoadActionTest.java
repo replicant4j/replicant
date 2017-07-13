@@ -3,7 +3,9 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.Change;
+import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -142,6 +144,62 @@ public class DataLoadActionTest
     action.markWorldAsNotified();
 
     assertEquals( action.hasWorldBeenNotified(), true );
+  }
+
+  @Test
+  public void needsBrokerPause()
+  {
+    {
+      //No changes and no channel actions
+      final DataLoadAction action = new DataLoadAction( "", false );
+      assertFalse( action.needsBrokerPause() );
+    }
+
+    {
+      //Changes and no channel actions
+      final DataLoadAction action = new DataLoadAction( "", false );
+      action.setChangeSet( new TestChangeSet( ValueUtil.randomInt(),
+                                              null,
+                                              new Change[]{ new TestChange( ValueUtil.randomBoolean() ) },
+                                              new ChannelAction[]{} ),
+                           null );
+      assertTrue( action.needsBrokerPause() );
+      action.markBrokerPaused();
+      // broker already paused
+      assertFalse( action.needsBrokerPause() );
+    }
+
+    {
+      //No changes and channel actions
+      final DataLoadAction action = new DataLoadAction( "", false );
+      action.setChangeSet( new TestChangeSet( ValueUtil.randomInt(),
+                                              null,
+                                              new Change[]{},
+                                              new ChannelAction[]{ new TestChannelAction( ValueUtil.randomInt(),
+                                                                                          null,
+                                                                                          ChannelAction.Action.ADD ) } ),
+                           null );
+      assertTrue( action.needsBrokerPause() );
+      action.markBrokerPaused();
+      // broker already paused
+      assertFalse( action.needsBrokerPause() );
+    }
+
+    {
+      //No changes and channel actions
+      final DataLoadAction action = new DataLoadAction( "", false );
+      action.setChangeSet( new TestChangeSet( ValueUtil.randomInt(),
+                                              null,
+                                              new Change[]{ new TestChange( ValueUtil.randomBoolean() ) },
+                                              new ChannelAction[]{ new TestChannelAction( ValueUtil.randomInt(),
+                                                                                          null,
+                                                                                          ChannelAction.Action.ADD ) } ),
+                           null );
+      assertTrue( action.needsBrokerPause() );
+      action.markBrokerPaused();
+      // broker already paused
+      assertFalse( action.needsBrokerPause() );
+    }
   }
 
   static final class MockRunner

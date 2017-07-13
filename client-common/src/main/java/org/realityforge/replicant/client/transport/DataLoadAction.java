@@ -181,7 +181,8 @@ final class DataLoadAction
 
   public boolean needsBrokerPause()
   {
-    return areChangesPending() && !_brokerPaused;
+    return !_brokerPaused &&
+           ( null != _changeSet && ( 0 != _changeSet.getChangeCount() || 0 != _changeSet.getChannelActionCount() ) );
   }
 
   public boolean hasBrokerBeenPaused()
