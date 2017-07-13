@@ -261,6 +261,12 @@ public abstract class WebPollerDataLoaderService
       doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
   }
 
+  @Nonnull
+  protected String requestSuffix( @Nullable final RequestEntry request )
+  {
+    return ( null != request ) ? "?requestID=" + request.getRequestID() : "";
+  }
+
   protected abstract void doUnsubscribe( @Nullable ClientSession session,
                                          @Nullable RequestEntry request,
                                          @Nonnull String channelURL,
