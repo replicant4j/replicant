@@ -26,7 +26,7 @@ public class SessionRestServiceTest
     assertEquals( token.getEntity(), "2222" );
   }
 
-  protected AbstractSessionRestService newResource( final ReplicantSessionManager sessionManager )
+  private AbstractSessionRestService newResource( final ReplicantSessionManager sessionManager )
     throws Exception
   {
     return new AbstractSessionRestService()
