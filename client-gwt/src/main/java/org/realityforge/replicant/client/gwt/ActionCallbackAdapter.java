@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.AbstractRequestAdapter;
 import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -36,15 +37,23 @@ final class ActionCallbackAdapter
 
   void onSuccess( @Nonnull final Response response )
   {
-    final Runnable action = () ->
+    final int statusCode = response.getStatusCode();
+    if ( Response.SC_OK == statusCode )
     {
-      if ( null != _callback )
+      final Runnable action = () ->
       {
-        _callback.accept( response );
-      }
-    };
-    calculateExpectingResults( response );
-    completeNormalRequest( action );
+        if ( null != _callback )
+        {
+          _callback.accept( response );
+        }
+      };
+      calculateExpectingResults( response );
+      completeNormalRequest( action );
+    }
+    else
+    {
+      onFailure( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
+    }
   }
 
   private void calculateExpectingResults( @Nonnull final Response response )

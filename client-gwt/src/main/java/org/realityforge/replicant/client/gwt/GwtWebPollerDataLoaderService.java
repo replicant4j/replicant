@@ -16,7 +16,6 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
@@ -105,18 +104,7 @@ public abstract class GwtWebPollerDataLoaderService
                                 @Nonnull final Runnable onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
-    final Consumer<Response> onResponse = r ->
-    {
-      final int statusCode = r.getStatusCode();
-      if ( HTTP_STATUS_CODE_OK == statusCode )
-      {
-        onSuccess.run();
-      }
-      else
-      {
-        onError.accept( new InvalidHttpResponseException( statusCode, r.getStatusText() ) );
-      }
-    };
+    final Consumer<Response> onResponse = r -> onSuccess.run();
     httpRequest( session,
                  request,
                  RequestBuilder.DELETE,
@@ -134,8 +122,7 @@ public abstract class GwtWebPollerDataLoaderService
                             @Nonnull final Consumer<Response> onResponse,
                             @Nonnull final Consumer<Throwable> onError )
   {
-    final ActionCallbackAdapter adapter =
-      new ActionCallbackAdapter( onResponse, onError, request, session );
+    final ActionCallbackAdapter adapter = new ActionCallbackAdapter( onResponse, onError, request, session );
     sendRequest( method, url, requestData, adapter::onSuccess, adapter::onFailure );
   }
 

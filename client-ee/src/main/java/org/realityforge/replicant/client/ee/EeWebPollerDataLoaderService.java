@@ -152,6 +152,42 @@ public abstract class EeWebPollerDataLoaderService
   }
 
   @Override
+  protected void doSubscribe( @Nullable final ClientSession session,
+                              @Nullable final RequestEntry request,
+                              @Nonnull final String channelURL,
+                              @Nonnull final Runnable onSuccess,
+                              @Nonnull final Consumer<Throwable> onError )
+  {
+    final Consumer<Response> onCompletion = r ->
+    {
+      final int statusCode = r.getStatus();
+      if ( HTTP_STATUS_CODE_OK == statusCode )
+      {
+        onSuccess.run();
+      }
+      else
+      {
+        onError.accept( new InvalidHttpResponseException( statusCode, r.getStatusInfo().getReasonPhrase() ) );
+      }
+    };
+    final Invocation.Builder builder = newSessionBasedInvocationBuilder( getSessionURL(), request );
+    builder.async().put( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
+    {
+      @Override
+      public void completed( final Response response )
+      {
+        onCompletion.accept( response );
+      }
+
+      @Override
+      public void failed( final Throwable throwable )
+      {
+        onError.accept( throwable );
+      }
+    } );
+  }
+
+  @Override
   protected void doUnsubscribe( @Nullable final ClientSession session,
                                 @Nullable final RequestEntry request,
                                 @Nonnull final String channelURL,
