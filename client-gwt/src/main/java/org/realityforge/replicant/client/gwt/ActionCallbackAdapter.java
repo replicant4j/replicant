@@ -43,11 +43,16 @@ final class ActionCallbackAdapter
         _callback.accept( response );
       }
     };
+    calculateExpectingResults( response );
+    completeNormalRequest( action );
+  }
+
+  private void calculateExpectingResults( @Nonnull final Response response )
+  {
     if ( null != getRequest() )
     {
       final boolean messageComplete = "1".equals( response.getHeader( ReplicantContext.REQUEST_COMPLETE_HEADER ) );
       getRequest().setExpectingResults( !messageComplete );
     }
-    completeNormalRequest( action );
   }
 }
