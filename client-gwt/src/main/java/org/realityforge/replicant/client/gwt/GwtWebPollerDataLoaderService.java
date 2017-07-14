@@ -98,6 +98,23 @@ public abstract class GwtWebPollerDataLoaderService
   }
 
   @Override
+  protected void doSubscribe( @Nullable final ClientSession session,
+                              @Nullable final RequestEntry request,
+                              @Nonnull final String channelURL,
+                              @Nonnull final Runnable onSuccess,
+                              @Nonnull final Consumer<Throwable> onError )
+  {
+    final Consumer<Response> onResponse = r -> onSuccess.run();
+    httpRequest( session,
+                 request,
+                 RequestBuilder.PUT,
+                 channelURL,
+                 "",
+                 onResponse,
+                 onError );
+  }
+
+  @Override
   protected void doUnsubscribe( @Nullable final ClientSession session,
                                 @Nullable final RequestEntry request,
                                 @Nonnull final String channelURL,

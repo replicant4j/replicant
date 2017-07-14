@@ -252,6 +252,20 @@ public abstract class WebPollerDataLoaderService
     }
   }
 
+  protected void performSubscribe( final int channel,
+                                   @Nullable Serializable subChannelID,
+                                   @Nullable String cacheKey,
+                                   @Nonnull final Runnable onSuccess,
+                                   @Nonnull final Consumer<Throwable> onError )
+  {
+    getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( session, request ) ->
+      doSubscribe( session,
+                   request,
+                   getChannelURL( channel, subChannelID ) + requestSuffix( request ),
+                   onSuccess,
+                   onError ) );
+  }
+
   protected void performUnsubscribe( final int channel,
                                      @Nullable Serializable subChannelID,
                                      @Nonnull final Runnable onSuccess,
@@ -270,6 +284,12 @@ public abstract class WebPollerDataLoaderService
   {
     return ( null != request ) ? "?requestID=" + request.getRequestID() : "";
   }
+
+  protected abstract void doSubscribe( @Nullable ClientSession session,
+                                       @Nullable RequestEntry request,
+                                       @Nonnull String channelURL,
+                                       @Nonnull Runnable onSuccess,
+                                       @Nonnull Consumer<Throwable> onError );
 
   protected abstract void doUnsubscribe( @Nullable ClientSession session,
                                          @Nullable RequestEntry request,
