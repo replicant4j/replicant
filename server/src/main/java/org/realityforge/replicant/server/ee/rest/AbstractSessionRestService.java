@@ -407,7 +407,7 @@ public abstract class AbstractSessionRestService
   @Nonnull
   private ChannelDescriptor toChannelDescriptor( final int channelID )
   {
-    if ( getChannelMetaData( channelID ).isTypeGraph() )
+    if ( getChannelMetaData( channelID ).isInstanceGraph() )
     {
       final Response response =
         standardResponse( Response.Status.BAD_REQUEST, "Failed to supply subChannelID to instance graph" );
