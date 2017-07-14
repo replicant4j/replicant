@@ -31,7 +31,6 @@ import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
-import org.realityforge.replicant.server.ee.Replicate;
 import org.realityforge.replicant.server.ee.ReplicationRequestUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
@@ -195,7 +194,6 @@ public abstract class AbstractSessionRestService
     return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ) );
   }
 
-  @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
@@ -228,7 +226,6 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Replicate
   @Path( "{sessionID}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelID}" )
   @PUT
   public Response subscribeToInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
@@ -246,12 +243,16 @@ public abstract class AbstractSessionRestService
                                          @Nonnull final ChannelDescriptor descriptor,
                                          @Nonnull final String filterContent )
   {
-    final ReplicantSession session = ensureSession( sessionID, requestID );
-    getSessionManager().subscribe( session,
-                                   descriptor,
-                                   true,
-                                   toFilter( getChannelMetaData( descriptor ), filterContent ),
-                                   EntityMessageCacheUtil.getSessionChanges() );
+    final Runnable action = () ->
+      getSessionManager().subscribe( ensureSession( sessionID, requestID ),
+                                     descriptor,
+                                     true,
+                                     toFilter( getChannelMetaData( descriptor ), filterContent ),
+                                     EntityMessageCacheUtil.getSessionChanges() );
+    runRequest( getInvocationKey( descriptor.getChannelID(), descriptor.getSubChannelID(), "Subscribe" ),
+                sessionID,
+                requestID,
+                action );
     return standardResponse( Response.Status.OK, "Channel subscription added." );
   }
 
@@ -262,14 +263,19 @@ public abstract class AbstractSessionRestService
                                              @Nonnull Collection<Serializable> subChannelIDs,
                                              @Nonnull final String filterContent )
   {
-    final ReplicantSession session = ensureSession( sessionID, requestID );
-    final Object filter = toFilter( getChannelMetaData( channelID ), filterContent );
-    getSessionManager().bulkSubscribe( session,
-                                       channelID,
-                                       subChannelIDs,
-                                       filter,
-                                       true,
-                                       EntityMessageCacheUtil.getSessionChanges() );
+    final Runnable action = () ->
+    {
+      final ReplicantSession session = ensureSession( sessionID, requestID );
+      final Object filter = toFilter( getChannelMetaData( channelID ), filterContent );
+      getSessionManager().bulkSubscribe( session,
+                                         channelID,
+                                         subChannelIDs,
+                                         filter,
+                                         true,
+                                         EntityMessageCacheUtil.getSessionChanges() );
+    };
+    runRequest( getInvocationKey( channelID, null, "BulkSubscribe" ), sessionID, requestID, action );
+
     return standardResponse( Response.Status.OK, "Channel subscriptions added." );
   }
 
