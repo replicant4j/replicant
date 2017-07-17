@@ -32,6 +32,10 @@ public final class ReplicantContext
    */
   public static final String REQUEST_ID_HEADER = "X-Replicant-RequestID";
   /**
+   * HTTP request header to indicate the cache key if any.
+   */
+  public static final String CACHE_KEY_HEADER = "X-Replicant-CacheKey";
+  /**
    * HTTP response header to indicate the whether the request is complete or a change set is expected.
    */
   public static final String REQUEST_COMPLETE_HEADER = "X-Replicant-RequestComplete";

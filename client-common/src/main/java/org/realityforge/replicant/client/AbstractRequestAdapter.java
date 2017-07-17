@@ -8,35 +8,42 @@ import org.realityforge.replicant.client.transport.RequestEntry;
 
 public abstract class AbstractRequestAdapter
 {
+  protected static final Runnable NOOP = () -> {};
+  @Nonnull
+  private final Runnable _onSuccess;
   @Nullable
-  private final Consumer<Throwable> _errorCallback;
+  private final Runnable _onCacheValid;
+  @Nonnull
+  private final Consumer<Throwable> _onError;
   @Nullable
   private final RequestEntry _request;
   @Nullable
   private final ClientSession _session;
 
-  protected AbstractRequestAdapter( @Nullable final Consumer<Throwable> errorCallback,
+  protected AbstractRequestAdapter( @Nonnull final Runnable onSuccess,
+                                    @Nullable final Runnable onCacheValid,
+                                    @Nonnull final Consumer<Throwable> onError,
                                     @Nullable final RequestEntry request,
                                     @Nullable final ClientSession session )
   {
-    _errorCallback = errorCallback;
+    _onSuccess = onSuccess;
+    _onCacheValid = onCacheValid;
+    _onError = onError;
     _request = request;
     _session = session;
   }
 
   public void onFailure( @Nonnull final Throwable caught )
   {
-    final Runnable action = () ->
+    final RequestEntry request = getRequest();
+    if ( null != request )
     {
-      if ( null != _errorCallback )
-      {
-        _errorCallback.accept( caught );
-      }
-    };
-    completeNonNormalRequest( action );
+      request.setExpectingResults( false );
+    }
+    completeNonNormalRequest( () -> _onError.accept( caught ) );
   }
 
-  protected final void completeNonNormalRequest( @Nonnull final Runnable action )
+  private void completeNonNormalRequest( @Nonnull final Runnable action )
   {
     if ( null != _request && null != _session )
     {
@@ -60,10 +67,16 @@ public abstract class AbstractRequestAdapter
     }
   }
 
-  @Nullable
-  protected final Consumer<Throwable> getErrorCallback()
+  @Nonnull
+  protected final Runnable getOnSuccess()
   {
-    return _errorCallback;
+    return _onSuccess;
+  }
+
+  @Nullable
+  protected final Runnable getOnCacheValid()
+  {
+    return _onCacheValid;
   }
 
   @Nullable

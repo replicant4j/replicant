@@ -15,16 +15,13 @@ final class ActionCallbackAdapter
   extends AbstractRequestAdapter
   implements InvocationCallback<Response>
 {
-  @Nullable
-  private final Runnable _callback;
-
-  ActionCallbackAdapter( @Nullable final Runnable callback,
-                         @Nullable final Consumer<Throwable> errorCallback,
+  ActionCallbackAdapter( @Nonnull final Runnable onSuccess,
+                         @Nullable final Runnable onCacheValid,
+                         @Nonnull final Consumer<Throwable> onError,
                          @Nullable final RequestEntry request,
                          @Nullable final ClientSession session )
   {
-    super( errorCallback, request, session );
-    _callback = callback;
+    super( onSuccess, onCacheValid, onError, request, session );
   }
 
   @Override
@@ -33,15 +30,15 @@ final class ActionCallbackAdapter
     final int statusCode = response.getStatus();
     if ( Response.Status.OK.getStatusCode() == statusCode )
     {
-      final Runnable action = () ->
-      {
-        if ( null != _callback )
-        {
-          _callback.run();
-        }
-      };
+      final Runnable onSuccess = getOnSuccess();
       calculateExpectingResults( response );
-      completeNormalRequest( action );
+      completeNormalRequest( onSuccess );
+    }
+    else if ( Response.Status.NO_CONTENT.getStatusCode() == statusCode )
+    {
+      final Runnable onCacheValid = getOnCacheValid();
+      calculateExpectingResults( response );
+      completeNormalRequest( null == onCacheValid ? NOOP : onCacheValid );
     }
     else
     {
@@ -55,23 +52,14 @@ final class ActionCallbackAdapter
     onFailure( throwable );
   }
 
-  @Override
-  public void onFailure( @Nonnull final Throwable caught )
-  {
-    if ( null != getRequest() )
-    {
-      getRequest().setExpectingResults( false );
-    }
-    super.onFailure( caught );
-  }
-
   private void calculateExpectingResults( @Nonnull final Response response )
   {
-    if ( null != getRequest() )
+    final RequestEntry request = getRequest();
+    if ( null != request )
     {
       final boolean messageComplete =
         "1".equals( response.getHeaderString( ReplicantContext.REQUEST_COMPLETE_HEADER ) );
-      getRequest().setExpectingResults( !messageComplete );
+      request.setExpectingResults( !messageComplete );
     }
   }
 }

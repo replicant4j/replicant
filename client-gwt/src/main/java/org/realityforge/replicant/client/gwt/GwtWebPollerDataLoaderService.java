@@ -86,7 +86,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final Consumer<Response> onResponse =
       r -> onConnectResponse( r.getStatusCode(), r.getStatusText(), r::getText, runnable );
-    sendRequest( RequestBuilder.POST, getBaseSessionURL(), null, onResponse, this::handleInvalidConnect );
+    sendRequest( RequestBuilder.POST, getBaseSessionURL(), onResponse, this::handleInvalidConnect );
   }
 
   @Override
@@ -94,17 +94,19 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final Consumer<Response> onResponse = r -> onDisconnectResponse( r.getStatusCode(), r.getStatusText(), runnable );
     final Consumer<Throwable> onError = t -> onDisconnectError( t, runnable );
-    sendRequest( RequestBuilder.DELETE, getSessionURL(), null, onResponse, onError );
+    sendRequest( RequestBuilder.DELETE, getSessionURL(), onResponse, onError );
   }
 
   @Override
   protected void doSubscribe( @Nullable final ClientSession session,
                               @Nullable final RequestEntry request,
                               @Nonnull final String channelURL,
+                              @Nullable final String cacheKey,
                               @Nonnull final Runnable onSuccess,
+                              @Nullable final Runnable onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
   {
-    httpRequest( session, request, RequestBuilder.PUT, channelURL + requestSuffix( request ), "", onSuccess, onError );
+    httpRequest( session, request, RequestBuilder.PUT, channelURL, cacheKey, "", onSuccess, onCacheValid, onError );
   }
 
   @Override
@@ -114,37 +116,50 @@ public abstract class GwtWebPollerDataLoaderService
                                 @Nonnull final Runnable onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
-    httpRequest( session,
-                 request,
-                 RequestBuilder.DELETE,
-                 channelURL + requestSuffix( request ),
-                 null,
-                 onSuccess,
-                 onError );
+    httpRequest( session, request, RequestBuilder.DELETE, channelURL, null, null, onSuccess, null, onError );
   }
 
   private void httpRequest( @Nullable final ClientSession session,
                             @Nullable final RequestEntry request,
                             @Nonnull final RequestBuilder.Method method,
                             @Nonnull final String url,
+                            @Nullable final String cacheKey,
                             @Nullable final String requestData,
-                            @Nonnull final Runnable onResponse,
+                            @Nonnull final Runnable onSuccess,
+                            @Nullable final Runnable onCacheValid,
                             @Nonnull final Consumer<Throwable> onError )
   {
-    final ActionCallbackAdapter adapter = new ActionCallbackAdapter( onResponse, onError, request, session );
-    sendRequest( method, url, requestData, adapter::onSuccess, adapter::onFailure );
+    final ActionCallbackAdapter adapter =
+      new ActionCallbackAdapter( onSuccess, onCacheValid, onError, request, session );
+    final String requestID = null != request ? request.getRequestID() : null;
+    final RequestBuilder rb = newRequestBuilder( method, url );
+    if ( null != requestID )
+    {
+      rb.setHeader( ReplicantContext.REQUEST_ID_HEADER, requestID );
+    }
+    if ( null != cacheKey )
+    {
+      rb.setHeader( ReplicantContext.CACHE_KEY_HEADER, cacheKey );
+    }
+    try
+    {
+      rb.sendRequest( requestData, adapter );
+    }
+    catch ( final RequestException e )
+    {
+      adapter.onError( null, e );
+    }
   }
 
-  protected void sendRequest( @Nonnull final RequestBuilder.Method method,
-                              @Nonnull final String url,
-                              @Nullable final String requestData,
-                              @Nonnull final Consumer<Response> onResponse,
-                              @Nonnull final Consumer<Throwable> onError )
+  private void sendRequest( @Nonnull final RequestBuilder.Method method,
+                            @Nonnull final String url,
+                            @Nonnull final Consumer<Response> onResponse,
+                            @Nonnull final Consumer<Throwable> onError )
   {
     final RequestBuilder rb = newRequestBuilder( method, url );
     try
     {
-      rb.sendRequest( requestData, new RequestCallback()
+      rb.sendRequest( null, new RequestCallback()
       {
         @Override
         public void onResponseReceived( final Request request, final Response response )

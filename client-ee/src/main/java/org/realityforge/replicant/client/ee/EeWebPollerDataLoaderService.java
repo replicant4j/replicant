@@ -67,8 +67,13 @@ public abstract class EeWebPollerDataLoaderService
   protected Invocation.Builder newSessionBasedInvocationBuilder( @Nonnull final String target,
                                                                  @Nullable final RequestEntry request )
   {
-    return newInvocationBuilder( target + requestSuffix( request ) ).
+    final Invocation.Builder builder = newInvocationBuilder( target ).
       header( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+    if ( null != request )
+    {
+      builder.header( ReplicantContext.REQUEST_ID_HEADER, request.getRequestID() );
+    }
+    return builder;
   }
 
   @Nonnull
@@ -161,11 +166,17 @@ public abstract class EeWebPollerDataLoaderService
   protected void doSubscribe( @Nullable final ClientSession session,
                               @Nullable final RequestEntry request,
                               @Nonnull final String channelURL,
+                              @Nullable final String cacheKey,
                               @Nonnull final Runnable onSuccess,
+                              @Nullable final Runnable onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
   {
     final ActionCallbackAdapter adapter =
-      new ActionCallbackAdapter( wrap( onSuccess ), wrap( onError ), request, session );
+      new ActionCallbackAdapter( wrap( onSuccess ),
+                                 null != onCacheValid ? wrap( onCacheValid ) : null,
+                                 wrap( onError ),
+                                 request,
+                                 session );
     final Invocation.Builder builder = newSessionBasedInvocationBuilder( channelURL, request );
     builder.async().put( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), adapter );
   }
@@ -178,7 +189,7 @@ public abstract class EeWebPollerDataLoaderService
                                 @Nonnull final Consumer<Throwable> onError )
   {
     final ActionCallbackAdapter adapter =
-      new ActionCallbackAdapter( wrap( onSuccess ), wrap( onError ), request, session );
+      new ActionCallbackAdapter( wrap( onSuccess ), null, wrap( onError ), request, session );
     final Invocation.Builder builder = newSessionBasedInvocationBuilder( channelURL, request );
     builder.async().delete( adapter );
   }
@@ -191,14 +202,25 @@ public abstract class EeWebPollerDataLoaderService
                                           @Nonnull Consumer<Runnable> completionAction,
                                           @Nonnull Consumer<Runnable> failAction )
   {
+    //If eTag passed then cache action is expected.
+    assert null == eTag || null != cacheAction;
     if ( getGraphType().isInstance( descriptor.getGraph() ) )
     {
       getListener().onSubscribeStarted( this, descriptor );
-      final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
       final Runnable onSuccess =
         () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
-      performSubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getID(), eTag, onSuccess, onError );
+      final Runnable onCacheValid =
+        null != cacheAction ?
+        () -> cacheAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) ) :
+        null;
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
+      performSubscribe( descriptor.getGraph().ordinal(),
+                        (Serializable) descriptor.getID(),
+                        eTag,
+                        onSuccess,
+                        onCacheValid,
+                        onError );
     }
     else
     {
@@ -206,6 +228,31 @@ public abstract class EeWebPollerDataLoaderService
     }
   }
 
+  @Override
+  protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
+                                            @Nonnull final Object filterParameter,
+                                            @Nonnull final Consumer<Runnable> completionAction,
+                                            @Nonnull final Consumer<Runnable> failAction )
+  {
+    if ( getGraphType().isInstance( descriptor.getGraph() ) )
+    {
+      getListener().onSubscriptionUpdateStarted( this, descriptor );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
+      performSubscribe( descriptor.getGraph().ordinal(),
+                        (Serializable) descriptor.getID(),
+                        null,
+                        onSuccess,
+                        null,
+                        onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
 
   @Override
   protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,

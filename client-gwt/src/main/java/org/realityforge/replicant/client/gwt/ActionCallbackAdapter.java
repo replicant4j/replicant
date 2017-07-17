@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client.gwt;
 
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -12,48 +14,43 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 final class ActionCallbackAdapter
   extends AbstractRequestAdapter
+  implements RequestCallback
 {
-  @Nullable
-  private final Runnable _callback;
-
-  ActionCallbackAdapter( @Nullable final Runnable callback,
-                         @Nullable final Consumer<Throwable> errorCallback,
+  ActionCallbackAdapter( @Nonnull final Runnable onSuccess,
+                         @Nullable final Runnable onCacheValid,
+                         @Nonnull final Consumer<Throwable> onError,
                          @Nullable final RequestEntry request,
                          @Nullable final ClientSession session )
   {
-    super( errorCallback, request, session );
-    _callback = callback;
+    super( onSuccess, onCacheValid, onError, request, session );
   }
 
   @Override
-  public void onFailure( @Nonnull final Throwable caught )
-  {
-    if ( null != getRequest() )
-    {
-      getRequest().setExpectingResults( false );
-    }
-    super.onFailure( caught );
-  }
-
-  void onSuccess( @Nonnull final Response response )
+  public void onResponseReceived( final Request request, final Response response )
   {
     final int statusCode = response.getStatusCode();
     if ( Response.SC_OK == statusCode )
     {
-      final Runnable action = () ->
-      {
-        if ( null != _callback )
-        {
-          _callback.run();
-        }
-      };
+      final Runnable onSuccess = getOnSuccess();
       calculateExpectingResults( response );
-      completeNormalRequest( action );
+      completeNormalRequest( onSuccess );
+    }
+    else if ( Response.SC_NO_CONTENT == statusCode )
+    {
+      final Runnable onCacheValid = getOnCacheValid();
+      calculateExpectingResults( response );
+      completeNormalRequest( null != onCacheValid ? onCacheValid : NOOP );
     }
     else
     {
       onFailure( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
     }
+  }
+
+  @Override
+  public void onError( final Request request, final Throwable exception )
+  {
+    onFailure( exception );
   }
 
   private void calculateExpectingResults( @Nonnull final Response response )
