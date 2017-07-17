@@ -86,7 +86,9 @@ public abstract class ContextConvergerImpl
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
       final HashSet<ChannelDescriptor> channels = new HashSet<>();
-      final List<Subscription> subscriptions = getSubscriptions();
+      //Need to duplicate the list of subscriptions. If an error occurs while processing subscription
+      // and the subscription is removed, it will result in concurrent exception
+      final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
       for ( final Subscription subscription : subscriptions )
       {
         channels.add( subscription.getDescriptor() );
