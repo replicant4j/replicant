@@ -14,9 +14,9 @@ final class ActionCallbackAdapter
   extends AbstractRequestAdapter
 {
   @Nullable
-  private final Consumer<Response> _callback;
+  private final Runnable _callback;
 
-  ActionCallbackAdapter( @Nullable final Consumer<Response> callback,
+  ActionCallbackAdapter( @Nullable final Runnable callback,
                          @Nullable final Consumer<Throwable> errorCallback,
                          @Nullable final RequestEntry request,
                          @Nullable final ClientSession session )
@@ -44,7 +44,7 @@ final class ActionCallbackAdapter
       {
         if ( null != _callback )
         {
-          _callback.accept( response );
+          _callback.run();
         }
       };
       calculateExpectingResults( response );

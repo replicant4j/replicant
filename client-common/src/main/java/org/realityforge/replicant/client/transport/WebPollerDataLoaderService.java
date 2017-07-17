@@ -259,11 +259,7 @@ public abstract class WebPollerDataLoaderService
                                    @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( session, request ) ->
-      doSubscribe( session,
-                   request,
-                   getChannelURL( channel, subChannelID ) + requestSuffix( request ),
-                   onSuccess,
-                   onError ) );
+      doSubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
   }
 
   protected void performUnsubscribe( final int channel,
@@ -272,11 +268,7 @@ public abstract class WebPollerDataLoaderService
                                      @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
-      doUnsubscribe( session,
-                     request,
-                     getChannelURL( channel, subChannelID ) + requestSuffix( request ),
-                     onSuccess,
-                     onError ) );
+      doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
   }
 
   @Nonnull

@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.ee;
 
+import java.io.Serializable;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,8 +17,8 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
+import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
@@ -151,6 +152,11 @@ public abstract class EeWebPollerDataLoaderService
     return getContextService().createContextualProxy( action, Consumer.class );
   }
 
+  private Runnable wrap( @Nonnull final Runnable action )
+  {
+    return getContextService().createContextualProxy( action, Runnable.class );
+  }
+
   @Override
   protected void doSubscribe( @Nullable final ClientSession session,
                               @Nullable final RequestEntry request,
@@ -158,33 +164,10 @@ public abstract class EeWebPollerDataLoaderService
                               @Nonnull final Runnable onSuccess,
                               @Nonnull final Consumer<Throwable> onError )
   {
-    final Consumer<Response> onCompletion = r ->
-    {
-      final int statusCode = r.getStatus();
-      if ( HTTP_STATUS_CODE_OK == statusCode )
-      {
-        onSuccess.run();
-      }
-      else
-      {
-        onError.accept( new InvalidHttpResponseException( statusCode, r.getStatusInfo().getReasonPhrase() ) );
-      }
-    };
-    final Invocation.Builder builder = newSessionBasedInvocationBuilder( getSessionURL(), request );
-    builder.async().put( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), new InvocationCallback<Response>()
-    {
-      @Override
-      public void completed( final Response response )
-      {
-        onCompletion.accept( response );
-      }
-
-      @Override
-      public void failed( final Throwable throwable )
-      {
-        onError.accept( throwable );
-      }
-    } );
+    final ActionCallbackAdapter adapter =
+      new ActionCallbackAdapter( wrap( onSuccess ), wrap( onError ), request, session );
+    final Invocation.Builder builder = newSessionBasedInvocationBuilder( channelURL, request );
+    builder.async().put( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), adapter );
   }
 
   @Override
@@ -194,32 +177,53 @@ public abstract class EeWebPollerDataLoaderService
                                 @Nonnull final Runnable onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
-    final Consumer<Response> onCompletion = r ->
-    {
-      final int statusCode = r.getStatus();
-      if ( HTTP_STATUS_CODE_OK == statusCode )
-      {
-        onSuccess.run();
-      }
-      else
-      {
-        onError.accept( new InvalidHttpResponseException( statusCode, r.getStatusInfo().getReasonPhrase() ) );
-      }
-    };
-    final Invocation.Builder builder = newSessionBasedInvocationBuilder( getSessionURL(), request );
-    builder.async().delete( new InvocationCallback<Response>()
-    {
-      @Override
-      public void completed( final Response response )
-      {
-        onCompletion.accept( response );
-      }
+    final ActionCallbackAdapter adapter =
+      new ActionCallbackAdapter( wrap( onSuccess ), wrap( onError ), request, session );
+    final Invocation.Builder builder = newSessionBasedInvocationBuilder( channelURL, request );
+    builder.async().delete( adapter );
+  }
 
-      @Override
-      public void failed( final Throwable throwable )
-      {
-        onError.accept( throwable );
-      }
-    } );
+  @Override
+  protected void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
+                                          @Nullable Object filterParameter,
+                                          @Nullable String eTag,
+                                          @Nullable Consumer<Runnable> cacheAction,
+                                          @Nonnull Consumer<Runnable> completionAction,
+                                          @Nonnull Consumer<Runnable> failAction )
+  {
+    if ( getGraphType().isInstance( descriptor.getGraph() ) )
+    {
+      getListener().onSubscribeStarted( this, descriptor );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
+      performSubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getID(), eTag, onSuccess, onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+
+  @Override
+  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
+                                              @Nonnull final Consumer<Runnable> completionAction,
+                                              @Nonnull final Consumer<Runnable> failAction )
+  {
+    if ( getGraphType().isInstance( descriptor.getGraph() ) )
+    {
+      getListener().onUnsubscribeStarted( this, descriptor );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, descriptor, throwable ) );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, descriptor ) );
+      performUnsubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getID(), onSuccess, onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
   }
 }

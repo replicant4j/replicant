@@ -104,14 +104,7 @@ public abstract class GwtWebPollerDataLoaderService
                               @Nonnull final Runnable onSuccess,
                               @Nonnull final Consumer<Throwable> onError )
   {
-    final Consumer<Response> onResponse = r -> onSuccess.run();
-    httpRequest( session,
-                 request,
-                 RequestBuilder.PUT,
-                 channelURL,
-                 "",
-                 onResponse,
-                 onError );
+    httpRequest( session, request, RequestBuilder.PUT, channelURL + requestSuffix( request ), "", onSuccess, onError );
   }
 
   @Override
@@ -121,13 +114,12 @@ public abstract class GwtWebPollerDataLoaderService
                                 @Nonnull final Runnable onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
-    final Consumer<Response> onResponse = r -> onSuccess.run();
     httpRequest( session,
                  request,
                  RequestBuilder.DELETE,
-                 channelURL,
+                 channelURL + requestSuffix( request ),
                  null,
-                 onResponse,
+                 onSuccess,
                  onError );
   }
 
@@ -136,7 +128,7 @@ public abstract class GwtWebPollerDataLoaderService
                             @Nonnull final RequestBuilder.Method method,
                             @Nonnull final String url,
                             @Nullable final String requestData,
-                            @Nonnull final Consumer<Response> onResponse,
+                            @Nonnull final Runnable onResponse,
                             @Nonnull final Consumer<Throwable> onError )
   {
     final ActionCallbackAdapter adapter = new ActionCallbackAdapter( onResponse, onError, request, session );
