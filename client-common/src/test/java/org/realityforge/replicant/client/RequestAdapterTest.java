@@ -81,10 +81,11 @@ public class RequestAdapterTest
     assertNull( request.getCompletionAction() );
     assertFalse( request.isCompletionDataPresent() );
 
-    adapter.onFailure( new Throwable() );
-    assertEquals( results[ 0 ], null );
-    assertTrue( request.isCompletionDataPresent() );
-    assertNotNull( request.getCompletionAction() );
-    assertFalse( request.isNormalCompletion() );
+    final Throwable caught = new Throwable();
+    adapter.onFailure( caught );
+    assertEquals( results[ 0 ], caught );
+    assertFalse( request.isCompletionDataPresent() );
+    assertNull( request.getCompletionAction() );
+    assertFalse( request.isExpectingResults() );
   }
 }
