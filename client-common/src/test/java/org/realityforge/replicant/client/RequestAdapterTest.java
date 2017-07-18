@@ -37,7 +37,6 @@ public class RequestAdapterTest
     final TestRequestAdapter adapter =
       new TestRequestAdapter( () -> results[ 0 ] = true, t -> results[ 0 ] = t, null, null );
 
-    final Object response = new Object();
     adapter.onSuccess();
     assertEquals( results[ 0 ], true );
     results[ 0 ] = null;
