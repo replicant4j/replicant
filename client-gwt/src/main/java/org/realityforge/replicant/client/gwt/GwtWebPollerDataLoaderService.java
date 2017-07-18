@@ -225,7 +225,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     //If eTag passed then cache action is expected.
     assert null == eTag || null != cacheAction;
-    if ( getGraphType().isInstance( descriptor.getGraph() ) )
+    if ( getGraphType() == descriptor.getGraph().getClass() )
     {
       final Runnable onSuccess =
         () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
