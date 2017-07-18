@@ -20,6 +20,7 @@ import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
+import org.realityforge.replicant.shared.ee.JsonUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class EeWebPollerDataLoaderService
@@ -165,6 +166,7 @@ public abstract class EeWebPollerDataLoaderService
   @Override
   protected void doSubscribe( @Nullable final ClientSession session,
                               @Nullable final RequestEntry request,
+                              @Nullable final Object filterParameter,
                               @Nonnull final String channelURL,
                               @Nullable final String cacheKey,
                               @Nonnull final Runnable onSuccess,
@@ -178,7 +180,7 @@ public abstract class EeWebPollerDataLoaderService
                                  request,
                                  session );
     final Invocation.Builder builder = newSessionBasedInvocationBuilder( channelURL, request );
-    builder.async().put( Entity.entity( "", MediaType.TEXT_PLAIN_TYPE ), adapter );
+    builder.async().put( Entity.entity( filterToString( filterParameter ), MediaType.TEXT_PLAIN_TYPE ), adapter );
   }
 
   @Override
@@ -195,12 +197,12 @@ public abstract class EeWebPollerDataLoaderService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
-                                          @Nullable Object filterParameter,
-                                          @Nullable String eTag,
-                                          @Nullable Consumer<Runnable> cacheAction,
-                                          @Nonnull Consumer<Runnable> completionAction,
-                                          @Nonnull Consumer<Runnable> failAction )
+  protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
+                                          @Nullable final Object filterParameter,
+                                          @Nullable final String eTag,
+                                          @Nullable final Consumer<Runnable> cacheAction,
+                                          @Nonnull final Consumer<Runnable> completionAction,
+                                          @Nonnull final Consumer<Runnable> failAction )
   {
     //If eTag passed then cache action is expected.
     assert null == eTag || null != cacheAction;
@@ -217,6 +219,7 @@ public abstract class EeWebPollerDataLoaderService
         throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
       performSubscribe( descriptor.getGraph().ordinal(),
                         (Serializable) descriptor.getID(),
+                        filterParameter,
                         eTag,
                         onSuccess,
                         onCacheValid,
@@ -226,6 +229,13 @@ public abstract class EeWebPollerDataLoaderService
     {
       throw new IllegalStateException();
     }
+  }
+
+  @Nonnull
+  @Override
+  protected String doFilterToString( @Nonnull final Object filterParameter )
+  {
+    return JsonUtil.toJsonString( filterParameter );
   }
 
   @Override
@@ -243,6 +253,7 @@ public abstract class EeWebPollerDataLoaderService
         throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
       performSubscribe( descriptor.getGraph().ordinal(),
                         (Serializable) descriptor.getID(),
+                        filterParameter,
                         null,
                         onSuccess,
                         null,

@@ -1,10 +1,12 @@
 package org.realityforge.replicant.client.gwt;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -100,6 +102,7 @@ public abstract class GwtWebPollerDataLoaderService
   @Override
   protected void doSubscribe( @Nullable final ClientSession session,
                               @Nullable final RequestEntry request,
+                              @Nullable final Object filterParameter,
                               @Nonnull final String channelURL,
                               @Nullable final String cacheKey,
                               @Nonnull final Runnable onSuccess,
@@ -201,5 +204,12 @@ public abstract class GwtWebPollerDataLoaderService
       rb.setHeader( "Authorization", "Bearer " + authenticationToken );
     }
     return rb;
+  }
+
+  @Nonnull
+  @Override
+  protected String doFilterToString( @Nonnull final Object filterParameter )
+  {
+    return new JSONObject( (JavaScriptObject) filterParameter ).toString();
   }
 }

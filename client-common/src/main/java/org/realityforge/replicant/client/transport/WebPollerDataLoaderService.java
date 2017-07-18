@@ -254,6 +254,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void performSubscribe( final int channel,
                                    @Nullable Serializable subChannelID,
+                                   @Nullable final Object filterParameter,
                                    @Nullable String cacheKey,
                                    @Nonnull final Runnable onSuccess,
                                    @Nullable final Runnable onCacheValid,
@@ -262,12 +263,28 @@ public abstract class WebPollerDataLoaderService
     getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( session, request ) ->
       doSubscribe( session,
                    request,
+                   filterParameter,
                    getChannelURL( channel, subChannelID ),
                    cacheKey,
                    onSuccess,
-                   onCacheValid,
-                   onError ) );
+                   onCacheValid, onError ) );
   }
+
+  @Nonnull
+  protected String filterToString( @Nullable final Object filterParameter )
+  {
+    if ( null == filterParameter )
+    {
+      return "";
+    }
+    else
+    {
+      return doFilterToString( filterParameter );
+    }
+  }
+
+  @Nonnull
+  protected abstract String doFilterToString( @Nonnull Object filterParameter );
 
   protected void performUnsubscribe( final int channel,
                                      @Nullable Serializable subChannelID,
@@ -280,6 +297,7 @@ public abstract class WebPollerDataLoaderService
 
   protected abstract void doSubscribe( @Nullable ClientSession session,
                                        @Nullable RequestEntry request,
+                                       @Nullable Object filterParameter,
                                        @Nonnull String channelURL,
                                        @Nullable String cacheKey,
                                        @Nonnull Runnable onSuccess,
