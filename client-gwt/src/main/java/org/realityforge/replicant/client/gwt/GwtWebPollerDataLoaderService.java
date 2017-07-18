@@ -225,7 +225,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     //If eTag passed then cache action is expected.
     assert null == eTag || null != cacheAction;
-    if ( getGraphType() == descriptor.getGraph().getClass() )
+    if ( isGraphValid( descriptor ) )
     {
       final Runnable onSuccess =
         () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
@@ -257,7 +257,7 @@ public abstract class GwtWebPollerDataLoaderService
                                             @Nonnull final Consumer<Runnable> completionAction,
                                             @Nonnull final Consumer<Runnable> failAction )
   {
-    if ( getGraphType().isInstance( descriptor.getGraph() ) )
+    if ( isGraphValid( descriptor ) )
     {
       final Runnable onSuccess =
         () -> completionAction.accept( () -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) );
@@ -284,7 +284,7 @@ public abstract class GwtWebPollerDataLoaderService
                                               @Nonnull final Consumer<Runnable> completionAction,
                                               @Nonnull final Consumer<Runnable> failAction )
   {
-    if ( getGraphType().isInstance( descriptor.getGraph() ) )
+    if ( isGraphValid( descriptor ) )
     {
       final Runnable callback =
         () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, descriptor ) );
@@ -297,5 +297,10 @@ public abstract class GwtWebPollerDataLoaderService
     {
       throw new IllegalStateException();
     }
+  }
+
+  private boolean isGraphValid( @Nonnull final ChannelDescriptor descriptor )
+  {
+    return getGraphType() == descriptor.getGraph().getClass();
   }
 }
