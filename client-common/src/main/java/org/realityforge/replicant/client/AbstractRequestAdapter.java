@@ -33,7 +33,7 @@ public abstract class AbstractRequestAdapter
     _session = session;
   }
 
-  public void onFailure( @Nonnull final Throwable caught )
+  protected void onFailure( @Nonnull final Throwable caught )
   {
     final RequestEntry request = getRequest();
     if ( null != request )
