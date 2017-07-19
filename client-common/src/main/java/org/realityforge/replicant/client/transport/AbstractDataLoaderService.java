@@ -477,6 +477,7 @@ public abstract class AbstractDataLoaderService
 
   protected abstract void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
                                                    @Nullable Object filterParameter,
+                                                   @Nullable String cacheKey,
                                                    @Nullable String eTag,
                                                    @Nullable Consumer<Runnable> cacheAction,
                                                    @Nonnull Consumer<Runnable> completionAction,

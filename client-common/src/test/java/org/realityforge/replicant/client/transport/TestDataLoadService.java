@@ -203,6 +203,7 @@ public final class TestDataLoadService
   @Override
   protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
                                           @Nullable final Object filterParameter,
+                                          @Nullable final String cacheKey,
                                           @Nullable final String eTag,
                                           @Nullable final Consumer<Runnable> cacheAction,
                                           @Nonnull final Consumer<Runnable> completionAction,

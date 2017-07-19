@@ -168,7 +168,7 @@ public abstract class EeWebPollerDataLoaderService
                               @Nullable final RequestEntry request,
                               @Nullable final Object filterParameter,
                               @Nonnull final String channelURL,
-                              @Nullable final String cacheKey,
+                              @Nullable final String eTag,
                               @Nonnull final Runnable onSuccess,
                               @Nullable final Runnable onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
@@ -199,6 +199,7 @@ public abstract class EeWebPollerDataLoaderService
   @Override
   protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
                                           @Nullable final Object filterParameter,
+                                          @Nullable final String cacheKey,
                                           @Nullable final String eTag,
                                           @Nullable final Consumer<Runnable> cacheAction,
                                           @Nonnull final Consumer<Runnable> completionAction,
@@ -220,6 +221,7 @@ public abstract class EeWebPollerDataLoaderService
       performSubscribe( descriptor.getGraph().ordinal(),
                         (Serializable) descriptor.getID(),
                         filterParameter,
+                        cacheKey,
                         eTag,
                         onSuccess,
                         onCacheValid,
@@ -254,6 +256,7 @@ public abstract class EeWebPollerDataLoaderService
       performSubscribe( descriptor.getGraph().ordinal(),
                         (Serializable) descriptor.getID(),
                         filterParameter,
+                        null,
                         null,
                         onSuccess,
                         null,

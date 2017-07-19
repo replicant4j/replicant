@@ -106,7 +106,7 @@ public abstract class GwtWebPollerDataLoaderService
                               @Nullable final RequestEntry request,
                               @Nullable final Object filterParameter,
                               @Nonnull final String channelURL,
-                              @Nullable final String cacheKey,
+                              @Nullable final String eTag,
                               @Nonnull final Runnable onSuccess,
                               @Nullable final Runnable onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
@@ -115,7 +115,7 @@ public abstract class GwtWebPollerDataLoaderService
                  request,
                  RequestBuilder.PUT,
                  channelURL,
-                 cacheKey,
+                 eTag,
                  filterToString( filterParameter ),
                  onSuccess,
                  onCacheValid,
@@ -136,7 +136,7 @@ public abstract class GwtWebPollerDataLoaderService
                             @Nullable final RequestEntry request,
                             @Nonnull final RequestBuilder.Method method,
                             @Nonnull final String url,
-                            @Nullable final String cacheKey,
+                            @Nullable final String eTag,
                             @Nullable final String requestData,
                             @Nonnull final Runnable onSuccess,
                             @Nullable final Runnable onCacheValid,
@@ -150,9 +150,9 @@ public abstract class GwtWebPollerDataLoaderService
     {
       rb.setHeader( ReplicantContext.REQUEST_ID_HEADER, requestID );
     }
-    if ( null != cacheKey )
+    if ( null != eTag )
     {
-      rb.setHeader( ReplicantContext.CACHE_KEY_HEADER, cacheKey );
+      rb.setHeader( ReplicantContext.CACHE_KEY_HEADER, eTag );
     }
     try
     {
@@ -226,6 +226,7 @@ public abstract class GwtWebPollerDataLoaderService
   @Override
   protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
                                           @Nullable final Object filterParameter,
+                                          @Nullable final String cacheKey,
                                           @Nullable final String eTag,
                                           @Nullable final Consumer<Runnable> cacheAction,
                                           @Nonnull final Consumer<Runnable> completionAction,
@@ -248,6 +249,7 @@ public abstract class GwtWebPollerDataLoaderService
       performSubscribe( descriptor.getGraph().ordinal(),
                         (Serializable) descriptor.getID(),
                         filterParameter,
+                        cacheKey,
                         eTag,
                         onSuccess,
                         onCacheValid,
@@ -276,6 +278,7 @@ public abstract class GwtWebPollerDataLoaderService
       performSubscribe( descriptor.getGraph().ordinal(),
                         (Serializable) descriptor.getID(),
                         filterParameter,
+                        null,
                         null,
                         onSuccess,
                         null,

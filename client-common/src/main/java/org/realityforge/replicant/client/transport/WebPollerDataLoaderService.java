@@ -256,6 +256,7 @@ public abstract class WebPollerDataLoaderService
                                    @Nullable Serializable subChannelID,
                                    @Nullable final Object filterParameter,
                                    @Nullable String cacheKey,
+                                   @Nullable String eTag,
                                    @Nonnull final Runnable onSuccess,
                                    @Nullable final Runnable onCacheValid,
                                    @Nonnull final Consumer<Throwable> onError )
@@ -265,7 +266,7 @@ public abstract class WebPollerDataLoaderService
                    request,
                    filterParameter,
                    getChannelURL( channel, subChannelID ),
-                   cacheKey,
+                   eTag,
                    onSuccess,
                    onCacheValid, onError ) );
   }
@@ -299,7 +300,7 @@ public abstract class WebPollerDataLoaderService
                                        @Nullable RequestEntry request,
                                        @Nullable Object filterParameter,
                                        @Nonnull String channelURL,
-                                       @Nullable String cacheKey,
+                                       @Nullable String eTag,
                                        @Nonnull Runnable onSuccess,
                                        @Nullable Runnable onCacheValid,
                                        @Nonnull Consumer<Throwable> onError );
