@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.ee;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -14,6 +15,7 @@ import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
@@ -40,6 +42,26 @@ public final class ReplicationRequestUtil
     try
     {
       return action.call();
+    }
+    finally
+    {
+      completeReplication( registry, entityManager, endpoint, invocationKey );
+    }
+  }
+
+  @Nullable
+  public static ReplicantSessionManager.CacheStatus runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                                                                @Nonnull final EntityManager entityManager,
+                                                                @Nonnull final EntityMessageEndpoint endpoint,
+                                                                @Nonnull final String invocationKey,
+                                                                @Nullable final String sessionID,
+                                                                @Nullable final String requestID,
+                                                                @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
+  {
+    startReplication( registry, invocationKey, sessionID, requestID );
+    try
+    {
+      return action.get();
     }
     finally
     {

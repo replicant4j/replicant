@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.stream.JsonGenerator;
@@ -244,17 +245,18 @@ public abstract class AbstractSessionRestService
                                          @Nonnull final ChannelDescriptor descriptor,
                                          @Nonnull final String filterContent )
   {
-    final Runnable action = () ->
+    final Supplier<ReplicantSessionManager.CacheStatus> action = () ->
       getSessionManager().subscribe( ensureSession( sessionID, requestID ),
                                      descriptor,
                                      true,
                                      toFilter( getChannelMetaData( descriptor ), filterContent ),
                                      EntityMessageCacheUtil.getSessionChanges() );
-    runRequest( getInvocationKey( descriptor.getChannelID(), descriptor.getSubChannelID(), "Subscribe" ),
-                sessionID,
-                requestID,
-                action );
-    return standardResponse( Response.Status.OK, "Channel subscription added." );
+    final String invocationKey =
+      getInvocationKey( descriptor.getChannelID(), descriptor.getSubChannelID(), "Subscribe" );
+    final ReplicantSessionManager.CacheStatus cacheStatus = runRequest( invocationKey, sessionID, requestID, action );
+    final Response.Status status =
+      cacheStatus == ReplicantSessionManager.CacheStatus.USE ? Response.Status.NO_CONTENT : Response.Status.OK;
+    return standardResponse( status, "Channel subscription added." );
   }
 
   @Nonnull
@@ -534,6 +536,20 @@ public abstract class AbstractSessionRestService
     consumer.accept( g );
     g.close();
     return writer.toString();
+  }
+
+  private ReplicantSessionManager.CacheStatus runRequest( @Nonnull final String invocationKey,
+                                                          @Nonnull final String sessionID,
+                                                          @Nullable final String requestID,
+                                                          @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
+  {
+    return ReplicationRequestUtil.runRequest( getRegistry(),
+                                              getEntityManager(),
+                                              getEntityMessageEndpoint(),
+                                              invocationKey,
+                                              sessionID,
+                                              requestID,
+                                              action );
   }
 
   private void runRequest( @Nonnull final String invocationKey,
