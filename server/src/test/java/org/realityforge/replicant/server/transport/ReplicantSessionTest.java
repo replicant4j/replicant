@@ -66,19 +66,19 @@ public class ReplicantSessionTest
     final String sessionID = ValueUtil.randomString();
     final ReplicantSession session = new ReplicantSession( null, sessionID );
 
-    assertEquals( session.getCacheKeys().size(), 0 );
+    assertEquals( session.getETags().size(), 0 );
 
     final ChannelDescriptor cd1 = new ChannelDescriptor( 1, null );
 
-    assertEquals( session.getCacheKey( cd1 ), null );
+    assertEquals( session.getETag( cd1 ), null );
 
-    session.setCacheKey( cd1, "X" );
+    session.setETag( cd1, "X" );
 
-    assertEquals( session.getCacheKeys().size(), 1 );
-    assertEquals( session.getCacheKey( cd1 ), "X" );
+    assertEquals( session.getETags().size(), 1 );
+    assertEquals( session.getETag( cd1 ), "X" );
     try
     {
-      session.getCacheKeys().remove( cd1 );
+      session.getETags().remove( cd1 );
       fail( "Expected to be unable to delete cacheKey as it is a read-only set" );
     }
     catch ( final UnsupportedOperationException uoe )

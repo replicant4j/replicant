@@ -34,7 +34,7 @@ public final class ReplicantContext
   /**
    * HTTP request header to indicate the cache key if any.
    */
-  public static final String CACHE_KEY_HEADER = "X-Replicant-CacheKey";
+  public static final String ETAG_HEADER = "X-Replicant-ETag";
   /**
    * HTTP response header to indicate the whether the request is complete or a change set is expected.
    */

@@ -363,11 +363,11 @@ public abstract class ReplicantSessionManagerImpl
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    session.setCacheKey( descriptor, cacheKey );
+    session.setETag( descriptor, cacheKey );
     final CacheStatus status = subscribe( session, descriptor, true, filter, changeSet );
     if ( status != CacheStatus.USE )
     {
-      session.setCacheKey( descriptor, null );
+      session.setETag( descriptor, null );
       expandLinks( session, changeSet );
     }
     return status;
@@ -621,8 +621,8 @@ public abstract class ReplicantSessionManagerImpl
     if ( channelMetaData.isCacheable() )
     {
       final ChannelCacheEntry cacheEntry = ensureCacheEntry( descriptor );
-      final String cacheKey = cacheEntry.getCacheKey();
-      if ( cacheKey.equals( session.getCacheKey( descriptor ) ) )
+      final String eTag = cacheEntry.getCacheKey();
+      if ( eTag.equals( session.getETag( descriptor ) ) )
       {
         return CacheStatus.USE;
       }
@@ -631,7 +631,7 @@ public abstract class ReplicantSessionManagerImpl
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
         cacheChangeSet.addAction( descriptor, ChannelAction.Action.ADD, filter );
-        sendPacket( session, cacheKey, cacheChangeSet );
+        sendPacket( session, eTag, cacheChangeSet );
         return CacheStatus.REFRESH;
       }
     }

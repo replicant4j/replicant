@@ -16,8 +16,8 @@ public final class ReplicantSession
   private long _createdAt;
   private long _lastAccessedAt;
   private final PacketQueue _queue = new PacketQueue();
-  private final HashMap<ChannelDescriptor, String> _cacheKeys = new HashMap<>();
-  private final Map<ChannelDescriptor, String> _roCacheKeys = Collections.unmodifiableMap( _cacheKeys );
+  private final HashMap<ChannelDescriptor, String> _eTags = new HashMap<>();
+  private final Map<ChannelDescriptor, String> _roETags = Collections.unmodifiableMap( _eTags );
   private final HashMap<ChannelDescriptor, SubscriptionEntry> _subscriptions = new HashMap<>();
   private final Map<ChannelDescriptor, SubscriptionEntry> _roSubscriptions =
     Collections.unmodifiableMap( _subscriptions );
@@ -78,26 +78,26 @@ public final class ReplicantSession
   }
 
   @Nonnull
-  public Map<ChannelDescriptor, String> getCacheKeys()
+  public Map<ChannelDescriptor, String> getETags()
   {
-    return _roCacheKeys;
+    return _roETags;
   }
 
   @Nullable
-  public String getCacheKey( @Nonnull final ChannelDescriptor descriptor )
+  public String getETag( @Nonnull final ChannelDescriptor descriptor )
   {
-    return _cacheKeys.get( descriptor );
+    return _eTags.get( descriptor );
   }
 
-  public void setCacheKey( @Nonnull final ChannelDescriptor descriptor, @Nullable final String key )
+  public void setETag( @Nonnull final ChannelDescriptor descriptor, @Nullable final String eTag )
   {
-    if ( null == key )
+    if ( null == eTag )
     {
-      _cacheKeys.remove( descriptor );
+      _eTags.remove( descriptor );
     }
     else
     {
-      _cacheKeys.put( descriptor, key );
+      _eTags.put( descriptor, eTag );
     }
   }
 

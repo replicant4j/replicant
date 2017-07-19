@@ -201,13 +201,14 @@ public abstract class AbstractSessionRestService
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                       @PathParam( "channelID" ) @NotNull final int channelID,
                                       @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
+                                      @HeaderParam( ReplicantContext.ETAG_HEADER ) @Nullable final String eTag,
                                       @QueryParam( "scid" ) @Nullable final String subChannelIDs,
                                       @Nonnull final String filterContent )
   {
     if ( null == subChannelIDs )
     {
       //Subscription to a type channel
-      return doSubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID ), filterContent );
+      return doSubscribeChannel( sessionID, requestID, eTag, toChannelDescriptor( channelID ), filterContent );
     }
     else
     {
@@ -234,23 +235,29 @@ public abstract class AbstractSessionRestService
                                               @PathParam( "channelID" ) @NotNull final int channelID,
                                               @PathParam( "subChannelID" ) @NotNull final String subChannelText,
                                               @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
+                                              @HeaderParam( ReplicantContext.ETAG_HEADER ) @Nullable final String eTag,
                                               @Nonnull final String filterContent )
   {
-    return doSubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ), filterContent );
+    return doSubscribeChannel( sessionID, requestID, eTag, toChannelDescriptor( channelID, subChannelText ), filterContent );
   }
 
   @Nonnull
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
                                          @Nullable final String requestID,
+                                         @Nullable final String eTag,
                                          @Nonnull final ChannelDescriptor descriptor,
                                          @Nonnull final String filterContent )
   {
     final Supplier<ReplicantSessionManager.CacheStatus> action = () ->
-      getSessionManager().subscribe( ensureSession( sessionID, requestID ),
-                                     descriptor,
-                                     true,
-                                     toFilter( getChannelMetaData( descriptor ), filterContent ),
-                                     EntityMessageCacheUtil.getSessionChanges() );
+    {
+      final ReplicantSession session = ensureSession( sessionID, requestID );
+      session.setETag( descriptor, eTag );
+      return getSessionManager().subscribe( session,
+                                            descriptor,
+                                            true,
+                                            toFilter( getChannelMetaData( descriptor ), filterContent ),
+                                            EntityMessageCacheUtil.getSessionChanges() );
+    };
     final String invocationKey =
       getInvocationKey( descriptor.getChannelID(), descriptor.getSubChannelID(), "Subscribe" );
     final ReplicantSessionManager.CacheStatus cacheStatus = runRequest( invocationKey, sessionID, requestID, action );

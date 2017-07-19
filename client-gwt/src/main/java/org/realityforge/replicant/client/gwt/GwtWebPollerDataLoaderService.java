@@ -152,7 +152,7 @@ public abstract class GwtWebPollerDataLoaderService
     }
     if ( null != eTag )
     {
-      rb.setHeader( ReplicantContext.CACHE_KEY_HEADER, eTag );
+      rb.setHeader( ReplicantContext.ETAG_HEADER, eTag );
     }
     try
     {

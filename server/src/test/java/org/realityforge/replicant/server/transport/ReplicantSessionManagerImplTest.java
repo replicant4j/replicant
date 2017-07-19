@@ -369,7 +369,7 @@ public class ReplicantSessionManagerImplTest
       final ReplicantSession session = sm.createSession();
       assertNull( session.findSubscriptionEntry( cd1 ) );
       resetChangeSet();
-      session.setCacheKey( cd1, "X" );
+      session.setETag( cd1, "X" );
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd1, false, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
@@ -387,7 +387,7 @@ public class ReplicantSessionManagerImplTest
       final ReplicantSession session = sm.createSession();
       assertNull( session.findSubscriptionEntry( cd1 ) );
       resetChangeSet();
-      session.setCacheKey( cd1, "Y" );
+      session.setETag( cd1, "Y" );
       final ReplicantSessionManagerImpl.CacheStatus status =
         sm.subscribe( session, cd1, false, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
@@ -446,7 +446,7 @@ public class ReplicantSessionManagerImplTest
 
     sm.setCacheKey( "X" );
 
-    assertNull( session.getCacheKey( cd1 ) );
+    assertNull( session.getETag( cd1 ) );
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
@@ -454,7 +454,7 @@ public class ReplicantSessionManagerImplTest
       sm.subscribe( session.getSessionID(), cd1, null, "X", getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
-    assertEquals( session.getCacheKey( cd1 ), "X" );
+    assertEquals( session.getETag( cd1 ), "X" );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
     assertNotNull( entry1 );
@@ -478,7 +478,7 @@ public class ReplicantSessionManagerImplTest
 
     sm.setCacheKey( "X" );
 
-    assertNull( session.getCacheKey( cd1 ) );
+    assertNull( session.getETag( cd1 ) );
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
@@ -486,7 +486,7 @@ public class ReplicantSessionManagerImplTest
       sm.subscribe( session.getSessionID(), cd1, null, "Y", getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
-    assertNull( session.getCacheKey( cd1 ) );
+    assertNull( session.getETag( cd1 ) );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
     assertNotNull( entry1 );
@@ -589,7 +589,7 @@ public class ReplicantSessionManagerImplTest
     //Locally cached
     {
       final ReplicantSession session = sm.createSession();
-      session.setCacheKey( cd1, "X" );
+      session.setETag( cd1, "X" );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
       //Rebind clears the state
       resetChangeSet();
@@ -610,7 +610,7 @@ public class ReplicantSessionManagerImplTest
     //Locally cached but an old version
     {
       final ReplicantSession session = sm.createSession();
-      session.setCacheKey( cd1, "NOT" + sm._cacheKey );
+      session.setETag( cd1, "NOT" + sm._cacheKey );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
       //Rebind clears the state
       resetChangeSet();
