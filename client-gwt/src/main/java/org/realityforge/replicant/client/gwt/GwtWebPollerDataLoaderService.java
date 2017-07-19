@@ -111,7 +111,15 @@ public abstract class GwtWebPollerDataLoaderService
                               @Nullable final Runnable onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
   {
-    httpRequest( session, request, RequestBuilder.PUT, channelURL, cacheKey, "", onSuccess, onCacheValid, onError );
+    httpRequest( session,
+                 request,
+                 RequestBuilder.PUT,
+                 channelURL,
+                 cacheKey,
+                 filterToString( filterParameter ),
+                 onSuccess,
+                 onCacheValid,
+                 onError );
   }
 
   @Override
