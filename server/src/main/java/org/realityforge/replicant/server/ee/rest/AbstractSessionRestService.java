@@ -190,7 +190,7 @@ public abstract class AbstractSessionRestService
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                                   @PathParam( "channelID" ) final int channelID,
                                                   @PathParam( "subChannelID" ) @NotNull final String subChannelText,
-                                                  @HeaderParam( ReplicantContext.REQUEST_ID_HEADER )  @Nullable final String requestID )
+                                                  @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID )
   {
     return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ) );
   }
@@ -199,7 +199,7 @@ public abstract class AbstractSessionRestService
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                       @PathParam( "channelID" ) @NotNull final int channelID,
-                                      @HeaderParam( ReplicantContext.REQUEST_ID_HEADER )  @Nullable final String requestID,
+                                      @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
                                       @QueryParam( "scid" ) @Nullable final String subChannelIDs,
                                       @Nonnull final String filterContent )
   {
@@ -232,7 +232,7 @@ public abstract class AbstractSessionRestService
   public Response subscribeToInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                               @PathParam( "channelID" ) @NotNull final int channelID,
                                               @PathParam( "subChannelID" ) @NotNull final String subChannelText,
-                                              @HeaderParam( ReplicantContext.REQUEST_ID_HEADER )  @Nullable final String requestID,
+                                              @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
                                               @Nonnull final String filterContent )
   {
     return doSubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ), filterContent );
