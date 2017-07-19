@@ -27,13 +27,13 @@ public final class ReplicationRequestUtil
   {
   }
 
-  public static <T> T runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
-                                  @Nonnull final EntityManager entityManager,
-                                  @Nonnull final EntityMessageEndpoint endpoint,
-                                  @Nonnull final String invocationKey,
-                                  @Nullable final String sessionID,
-                                  @Nullable final String requestID,
-                                  @Nonnull final Callable<T> action )
+  static <T> T runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                           @Nonnull final EntityManager entityManager,
+                           @Nonnull final EntityMessageEndpoint endpoint,
+                           @Nonnull final String invocationKey,
+                           @Nullable final String sessionID,
+                           @Nullable final String requestID,
+                           @Nonnull final Callable<T> action )
     throws Exception
   {
     startReplication( registry, invocationKey, sessionID, requestID );
