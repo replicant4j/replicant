@@ -398,8 +398,8 @@ public abstract class AbstractDataLoaderService
           completeAoiAction();
           a.run();
         };
-        LOG.info( "Subscription to " + label + " requested." );
-        requestSubscribeToGraph( descriptor, filterParameter, eTag, cacheAction, completionAction, failAction );
+        LOG.info( "Subscription to " + label + " with eTag " + cacheKey + "=" + eTag + " requested" );
+        requestSubscribeToGraph( descriptor, filterParameter, cacheKey, eTag, cacheAction, completionAction, failAction );
         return true;
       }
       else if ( action == AreaOfInterestAction.REMOVE )
@@ -654,6 +654,13 @@ public abstract class AbstractDataLoaderService
               LOG.log( getLogLevel(), "Caching ChangeSet: seq=" + sequence + " cacheKey=" + cacheKey );
             }
             getCacheService().store( cacheKey, eTag, rawJsonData );
+          }
+          else
+          {
+            if ( LOG.isLoggable( getLogLevel() ) )
+            {
+              LOG.log( getLogLevel(), "Not caching ChangeSet: seq=" + sequence + " cacheKey=" + cacheKey );
+            }
           }
         }
       }
