@@ -196,95 +196,10 @@ public abstract class EeWebPollerDataLoaderService
     builder.async().delete( adapter );
   }
 
-  @Override
-  protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
-                                          @Nullable final Object filterParameter,
-                                          @Nullable final String cacheKey,
-                                          @Nullable final String eTag,
-                                          @Nullable final Consumer<Runnable> cacheAction,
-                                          @Nonnull final Consumer<Runnable> completionAction,
-                                          @Nonnull final Consumer<Runnable> failAction )
-  {
-    //If eTag passed then cache action is expected.
-    assert null == eTag || null != cacheAction;
-    if ( getGraphType().isInstance( descriptor.getGraph() ) )
-    {
-      getListener().onSubscribeStarted( this, descriptor );
-      final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
-      final Runnable onCacheValid =
-        null != cacheAction ?
-        () -> cacheAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) ) :
-        null;
-      final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
-      performSubscribe( descriptor.getGraph().ordinal(),
-                        (Serializable) descriptor.getID(),
-                        filterParameter,
-                        cacheKey,
-                        eTag,
-                        onSuccess,
-                        onCacheValid,
-                        onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
   @Nonnull
   @Override
   protected String doFilterToString( @Nonnull final Object filterParameter )
   {
     return JsonUtil.toJsonString( filterParameter );
-  }
-
-  @Override
-  protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
-                                            @Nonnull final Object filterParameter,
-                                            @Nonnull final Consumer<Runnable> completionAction,
-                                            @Nonnull final Consumer<Runnable> failAction )
-  {
-    if ( getGraphType().isInstance( descriptor.getGraph() ) )
-    {
-      getListener().onSubscriptionUpdateStarted( this, descriptor );
-      final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) );
-      final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
-      performSubscribe( descriptor.getGraph().ordinal(),
-                        (Serializable) descriptor.getID(),
-                        filterParameter,
-                        null,
-                        null,
-                        onSuccess,
-                        null,
-                        onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
-  @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
-                                              @Nonnull final Consumer<Runnable> completionAction,
-                                              @Nonnull final Consumer<Runnable> failAction )
-  {
-    if ( getGraphType().isInstance( descriptor.getGraph() ) )
-    {
-      getListener().onUnsubscribeStarted( this, descriptor );
-      final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, descriptor, throwable ) );
-      final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, descriptor ) );
-      performUnsubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getID(), onSuccess, onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
   }
 }

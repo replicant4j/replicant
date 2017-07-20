@@ -11,6 +11,7 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
+import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class WebPollerDataLoaderService
@@ -252,6 +253,48 @@ public abstract class WebPollerDataLoaderService
     }
   }
 
+  @Override
+  protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
+                                          @Nullable final Object filterParameter,
+                                          @Nullable final String cacheKey,
+                                          @Nullable final String eTag,
+                                          @Nullable final Consumer<Runnable> cacheAction,
+                                          @Nonnull final Consumer<Runnable> completionAction,
+                                          @Nonnull final Consumer<Runnable> failAction )
+  {
+    //If eTag passed then cache action is expected.
+    assert null == eTag || null != cacheAction;
+    if ( isGraphValid( descriptor ) )
+    {
+      getListener().onSubscribeStarted( this, descriptor );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
+      final Runnable onCacheValid =
+        null != cacheAction ?
+        () -> cacheAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) ) :
+        null;
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
+      performSubscribe( descriptor.getGraph().ordinal(),
+                        (Serializable) descriptor.getID(),
+                        filterParameter,
+                        cacheKey,
+                        eTag,
+                        onSuccess,
+                        onCacheValid,
+                        onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  private boolean isGraphValid( @Nonnull final ChannelDescriptor descriptor )
+  {
+    return getGraphType() == descriptor.getGraph().getClass();
+  }
+
   protected void performSubscribe( final int channel,
                                    @Nullable Serializable subChannelID,
                                    @Nullable final Object filterParameter,
@@ -272,6 +315,49 @@ public abstract class WebPollerDataLoaderService
                    onError ) );
   }
 
+
+  @Override
+  protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
+                                            @Nonnull final Object filterParameter,
+                                            @Nonnull final Consumer<Runnable> completionAction,
+                                            @Nonnull final Consumer<Runnable> failAction )
+  {
+    if ( isGraphValid( descriptor ) )
+    {
+      getListener().onSubscriptionUpdateStarted( this, descriptor );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
+      performUpdateSubscription( descriptor.getGraph().ordinal(),
+                                 (Serializable) descriptor.getID(),
+                                 filterParameter,
+                                 onSuccess,
+                                 onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  protected void performUpdateSubscription( final int channel,
+                                            @Nullable Serializable subChannelID,
+                                            @Nullable final Object filterParameter,
+                                            @Nonnull final Runnable onSuccess,
+                                            @Nonnull final Consumer<Throwable> onError )
+  {
+    getSessionContext().request( toRequestKey( "SubscriptionUpdate", channel ), null, ( session, request ) ->
+      doSubscribe( session,
+                   request,
+                   filterParameter,
+                   getChannelURL( channel, subChannelID ),
+                   null,
+                   onSuccess,
+                   null,
+                   onError ) );
+  }
+
   @Nonnull
   protected String filterToString( @Nullable final Object filterParameter )
   {
@@ -287,6 +373,26 @@ public abstract class WebPollerDataLoaderService
 
   @Nonnull
   protected abstract String doFilterToString( @Nonnull Object filterParameter );
+
+  @Override
+  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
+                                              @Nonnull final Consumer<Runnable> completionAction,
+                                              @Nonnull final Consumer<Runnable> failAction )
+  {
+    if ( isGraphValid( descriptor ) )
+    {
+      getListener().onUnsubscribeStarted( this, descriptor );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, descriptor, throwable ) );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, descriptor ) );
+      performUnsubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getID(), onSuccess, onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
 
   protected void performUnsubscribe( final int channel,
                                      @Nullable Serializable subChannelID,
