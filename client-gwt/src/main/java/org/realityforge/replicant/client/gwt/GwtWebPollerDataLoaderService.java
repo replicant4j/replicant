@@ -36,15 +36,7 @@ public abstract class GwtWebPollerDataLoaderService
     @Override
     protected RequestBuilder getRequestBuilder()
     {
-      final RequestBuilder rb = newRequestBuilder( RequestBuilder.GET, getPollURL() );
-      rb.setHeader( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
-      rb.setHeader( "Pragma", "no-cache" );
-      final String authenticationToken = getSessionContext().getAuthenticationToken();
-      if ( null != authenticationToken )
-      {
-        rb.setHeader( "Authorization", "Bearer " + authenticationToken );
-      }
-      return rb;
+      return newSessionBasedInvocationBuilder( RequestBuilder.GET, getPollURL() );
     }
   }
 
@@ -198,6 +190,15 @@ public abstract class GwtWebPollerDataLoaderService
   protected RequestFactory newRequestFactory()
   {
     return new ReplicantRequestFactory();
+  }
+
+  @Nonnull
+  private RequestBuilder newSessionBasedInvocationBuilder( @Nonnull final RequestBuilder.Method method,
+                                                           @Nonnull final String url )
+  {
+    final RequestBuilder rb = newRequestBuilder( method, url );
+    rb.setHeader( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+    return rb;
   }
 
   @Nonnull
