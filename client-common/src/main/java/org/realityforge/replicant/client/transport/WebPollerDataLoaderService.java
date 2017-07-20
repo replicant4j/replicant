@@ -268,7 +268,8 @@ public abstract class WebPollerDataLoaderService
                    getChannelURL( channel, subChannelID ),
                    eTag,
                    onSuccess,
-                   onCacheValid, onError ) );
+                   onCacheValid,
+                   onError ) );
   }
 
   @Nonnull
