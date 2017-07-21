@@ -1,6 +1,5 @@
 ## 0.5.89:
-* Introduce `WebPollerDataLoaderService.performUnsubscribe` to support unsubscribing via a http action rather
-  than gwt_rpc.
+* Move all subscription actions in `WebPollerDataLoaderService` to work via http actions rather than gwt_rpc.
 * Introduce `ActionCallbackAdapter` to help managing replicant requests outside gwtrpc
 * Support omitting `RequestEntry.RequestKey` during production builds. Removes a large number of strings in GWT
   compilation output. Controlled by use of setting in `ReplicantConfig`.
