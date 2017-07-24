@@ -86,7 +86,7 @@ public final class ChannelMetaData
   @Nonnull
   public Class getFilterParameterType()
   {
-    if ( null == _subChannelType )
+    if ( null == _filterParameterType )
     {
       throw new IllegalStateException( "getFilterParameterType invoked on unfiltered graph" );
     }

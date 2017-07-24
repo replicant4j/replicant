@@ -1,3 +1,6 @@
+## 0.5.90:
+* Fix `ChannelMetaData` so that it supports filtered type graphs.
+
 ## 0.5.89:
 * Move all subscription actions in `WebPollerDataLoaderService` to work via http actions rather than gwt_rpc.
 * Introduce `ActionCallbackAdapter` to help managing replicant requests outside gwtrpc
