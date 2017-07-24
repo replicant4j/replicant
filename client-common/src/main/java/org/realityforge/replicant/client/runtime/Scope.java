@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class Scope
 {
@@ -143,6 +144,13 @@ public final class Scope
   public boolean isSubscriptionRequired( @Nonnull final Subscription subscription )
   {
     return _subscriptionReferences.stream().anyMatch( r -> r.getSubscription() == subscription );
+  }
+
+  @Nullable
+  public SubscriptionReference getSubscriptionReference( @Nonnull final Subscription subscription )
+  {
+    return _subscriptionReferences.stream().
+      filter( r -> r.getSubscription() == subscription ).findFirst().orElse( null );
   }
 
   void release( @Nonnull final ScopeReference ScopeReference )

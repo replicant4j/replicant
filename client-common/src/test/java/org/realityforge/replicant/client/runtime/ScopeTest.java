@@ -292,10 +292,12 @@ public class ScopeTest
     assertEquals( subscription.getReferenceCount(), 0 );
 
     assertEquals( scope.isSubscriptionRequired( subscription ), false );
+    assertEquals( scope.getSubscriptionReference( subscription ), null );
 
     final SubscriptionReference reference = scope.requireSubscription( subscription );
 
     assertEquals( scope.isSubscriptionRequired( subscription ), true );
+    assertEquals( scope.getSubscriptionReference( subscription ), reference );
 
     assertEquals( scope.isActive(), true );
     assertEquals( subscription.isActive(), true );
