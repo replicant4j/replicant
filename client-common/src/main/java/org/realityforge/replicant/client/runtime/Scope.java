@@ -108,7 +108,7 @@ public final class Scope
     purgeReleasedSubscriptionReferences();
     if ( isSubscriptionRequired( subscription ) )
     {
-      throw new SubscriptionAlreadyRequiredException();
+      throw new SubscriptionAlreadyRequiredException( subscription );
     }
     else
     {

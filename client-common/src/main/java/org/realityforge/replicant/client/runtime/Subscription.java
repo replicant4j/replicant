@@ -106,7 +106,7 @@ public final class Subscription
     assert subscription.isActive();
     if ( isSubscriptionRequired( subscription ) )
     {
-      throw new SubscriptionAlreadyRequiredException();
+      throw new SubscriptionAlreadyRequiredException( subscription );
     }
     else
     {
@@ -143,7 +143,7 @@ public final class Subscription
   {
     if ( !_active )
     {
-      throw new SubscriptionInactiveException();
+      throw new SubscriptionInactiveException( this );
     }
   }
 

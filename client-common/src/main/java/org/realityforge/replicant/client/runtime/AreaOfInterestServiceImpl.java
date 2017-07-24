@@ -123,7 +123,7 @@ public class AreaOfInterestServiceImpl
   {
     if ( _subscriptions.containsKey( descriptor ) )
     {
-      throw new SubscriptionExistsException();
+      throw new SubscriptionExistsException( _subscriptions.get( descriptor ) );
     }
     else
     {
