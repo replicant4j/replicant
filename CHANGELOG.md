@@ -1,4 +1,6 @@
 ## 0.5.90:
+* Refactor the `BaseRuntimeExtension.subscribe()` method so that it gracefully handles the scenario
+  where the scope has an existing requirement. In this requirement return the existing reference.
 * Improve generic types of `BaseRuntimeExtension.instanceSubscriptionToValues()`.
 * Add `Scope.getSubscriptionReference()` helper method.
 * Add fields to the `SubscriptionExistsException`,`SubscriptionAlreadyRequiredException` and

@@ -68,6 +68,7 @@ public class BaseRuntimeExtensionTest
       reset( aoiService );
 
       when( aoiService.findSubscription( descriptor ) ).thenReturn( null );
+      when( aoiService.createSubscription( descriptor, filter ) ).thenReturn( subscription );
       when( aoiService.createSubscriptionReference( scope, descriptor ) ).thenReturn( reference );
 
       r.subscribe( scope, descriptor, filter );
@@ -105,6 +106,25 @@ public class BaseRuntimeExtensionTest
       verify( aoiService, never() ).createSubscription( descriptor, filter );
       verify( aoiService ).updateSubscription( subscription, filter );
       verify( aoiService ).createSubscriptionReference( scope, descriptor );
+    }
+
+
+    //Existing subscription, same filter, subscription already required. Should return existing
+    {
+      subscription.setFilter( filter );
+      reset( aoiService );
+
+      when( aoiService.findSubscription( descriptor ) ).thenReturn( subscription );
+
+      final SubscriptionReference subscriptionReference = scope.requireSubscription( subscription );
+
+      final SubscriptionReference result = r.subscribe( scope, descriptor, filter );
+
+      assertEquals( result, subscriptionReference );
+
+      verify( aoiService, never() ).createSubscription( descriptor, filter );
+      verify( aoiService, never() ).updateSubscription( subscription, filter );
+      verify( aoiService, never() ).createSubscriptionReference( scope, descriptor );
     }
   }
 
@@ -176,7 +196,7 @@ public class BaseRuntimeExtensionTest
 
     when( aoiService.createSubscription( descriptor4, filter ) ).thenReturn( subscription4 );
     when( aoiService.createSubscriptionReference( scope, descriptor1 ) ).thenReturn( reference1 );
-    when( aoiService.createSubscriptionReference( scope, descriptor2 ) ).thenReturn( reference2  );
+    when( aoiService.createSubscriptionReference( scope, descriptor2 ) ).thenReturn( reference2 );
     when( aoiService.createSubscriptionReference( scope, descriptor4 ) ).thenReturn( subscription4.createReference() );
     when( aoiService.createSubscriptionReference( scope, descriptor5 ) ).thenReturn( reference5 );
 

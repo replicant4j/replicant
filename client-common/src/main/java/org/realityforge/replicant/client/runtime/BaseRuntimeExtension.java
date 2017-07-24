@@ -33,16 +33,24 @@ public interface BaseRuntimeExtension
                                            @Nonnull final ChannelDescriptor channel,
                                            @Nullable final Object filter )
   {
-    final Subscription subscription = getAreaOfInterestService().findSubscription( channel );
+    Subscription subscription = getAreaOfInterestService().findSubscription( channel );
     if ( null == subscription )
     {
-      getAreaOfInterestService().createSubscription( channel, filter );
+      subscription = getAreaOfInterestService().createSubscription( channel, filter );
     }
     else if ( !FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
     {
       getAreaOfInterestService().updateSubscription( subscription, filter );
     }
-    return getAreaOfInterestService().createSubscriptionReference( scope, channel );
+    final SubscriptionReference reference = scope.getSubscriptionReference( subscription );
+    if ( null == reference )
+    {
+      return getAreaOfInterestService().createSubscriptionReference( scope, channel );
+    }
+    else
+    {
+      return reference;
+    }
   }
 
   /**
