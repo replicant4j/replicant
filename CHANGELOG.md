@@ -68,10 +68,10 @@
 * Make the `ClientSession` methods `requestSubscribe`, `requestSubscriptionUpdate` and `requestUnsubscribe`
   public so that it can be called directly from code. This will potentially enable the elimination of the
   session subclasses.
-* Add `DataLoaderService#isAreaOfInterestActionPending()` methods to query the state of pending requests. 
-* Ensure http requests from `GwtWebPollerDataLoaderService` have a reasonable timeout specified. 
-* Significant refactoring of `AvbstractDataLoaderServiceImpl` to aid inheritance. 
-* Update `DataLoaderService` to maintain the current state of the connection. ie. CONNECTING, 
+* Add `DataLoaderService#isAreaOfInterestActionPending()` methods to query the state of pending requests.
+* Ensure http requests from `GwtWebPollerDataLoaderService` have a reasonable timeout specified.
+* Significant refactoring of `AvbstractDataLoaderServiceImpl` to aid inheritance.
+* Update `DataLoaderService` to maintain the current state of the connection. ie. CONNECTING,
   CONNECTED, DISCONNECTING, DISCONNECTED, ERROR.
 * Introduce `DataLoaderListener` to generate events from `DataLoaderService`.
 * Ensure the type parameter for enums in DataLoaderService is qualified correctly.
@@ -100,7 +100,7 @@
 * Introduce `ReplicantEntityCustomizer` to help customize replicant entities during tests.
 
 ## 0.5.75:
-* Restructure `ReplicantClientTestModule` so that it also exposes the `EntitySystem` service. 
+* Restructure `ReplicantClientTestModule` so that it also exposes the `EntitySystem` service.
 
 ## 0.5.74:
 * Introduce querying and sorting accessors to EntityRepository as default methods.
@@ -246,7 +246,7 @@
 * Remove final methods from AbstractDataLoaderService to prepare it for being a CDI bean.
 * Use a template method in AbstractDataLoaderService to create the ChangeMapper to avoid the
   need to pass it in through the constructor.
-* Migrate GwtDataLoaderService.scheduleDataLoad() implementation and supporting methods to 
+* Migrate GwtDataLoaderService.scheduleDataLoad() implementation and supporting methods to
   AbstractDataLoaderService and introduce template methods for GWT specific functionality.
 
 ## 0.5.57:
