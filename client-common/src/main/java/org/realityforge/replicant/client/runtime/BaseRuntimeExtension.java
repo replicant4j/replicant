@@ -52,9 +52,9 @@ public interface BaseRuntimeExtension
    * method.
    */
   @Nonnull
-  default <T> Stream<Object> instanceSubscriptionToValues( @Nonnull final Subscription subscription,
-                                                           @Nonnull final Class<T> type,
-                                                           @Nonnull final Function<T, Stream<Object>> rootToStream )
+  default <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Subscription subscription,
+                                                         @Nonnull final Class<T> type,
+                                                         @Nonnull final Function<T, Stream<O>> rootToStream )
   {
     final Object id = subscription.getDescriptor().getID();
     assert null != id;

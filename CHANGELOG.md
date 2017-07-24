@@ -1,4 +1,5 @@
 ## 0.5.90:
+* Improve generic types of `BaseRuntimeExtension.instanceSubscriptionToValues()`.
 * Add `Scope.getSubscriptionReference()` helper method.
 * Add fields to the `SubscriptionExistsException`,`SubscriptionAlreadyRequiredException` and
   `SubscriptionInactiveException` exceptions to aid debugging the application.
