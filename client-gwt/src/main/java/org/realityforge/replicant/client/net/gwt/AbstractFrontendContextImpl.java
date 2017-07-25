@@ -27,6 +27,11 @@ public abstract class AbstractFrontendContextImpl
     _converger = converger;
     _converger.pauseAndRun( this::initialSubscriptionSetup );
     _converger.setPreConvergeAction( this::preConverge );
+    _converger.setConvergeCompleteAction( this::convergeCompleteAction );
+  }
+
+  protected void convergeCompleteAction()
+  {
   }
 
   protected void preConverge()

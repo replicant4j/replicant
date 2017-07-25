@@ -12,6 +12,11 @@ public interface ContextConverger
    */
   void setPreConvergeAction( @Nullable Runnable preConvergeAction );
 
+  /**
+   * Set action that is runs after all the subscriptions have converged.
+   */
+  void setConvergeCompleteAction( @Nullable Runnable convergeCompleteAction );
+
   void activate();
 
   void deactivate();
@@ -23,6 +28,8 @@ public interface ContextConverger
   void resume();
 
   boolean isPaused();
+
+  boolean isConvergeComplete();
 
   /**
    * Pause the converger for the duration of the action.

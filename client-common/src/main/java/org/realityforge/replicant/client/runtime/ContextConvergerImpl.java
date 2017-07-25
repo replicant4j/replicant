@@ -29,11 +29,18 @@ public abstract class ContextConvergerImpl
   private boolean _convergeComplete;
   private boolean _paused;
   private Runnable _preConvergeAction;
+  private Runnable _convergeCompleteAction;
 
   @Override
   public void setPreConvergeAction( @Nullable final Runnable preConvergeAction )
   {
     _preConvergeAction = preConvergeAction;
+  }
+
+  @Override
+  public void setConvergeCompleteAction( @Nullable final Runnable convergeCompleteAction )
+  {
+    _convergeCompleteAction = convergeCompleteAction;
   }
 
   /**
@@ -78,6 +85,12 @@ public abstract class ContextConvergerImpl
     }
   }
 
+  @Override
+  public boolean isConvergeComplete()
+  {
+    return _convergeComplete;
+  }
+
   protected void convergeStep()
   {
     if ( isActive() &&
@@ -99,7 +112,16 @@ public abstract class ContextConvergerImpl
       }
 
       removeOrphanSubscriptions( channels );
-      _convergeComplete = true;
+      convergeComplete();
+    }
+  }
+
+  private void convergeComplete()
+  {
+    _convergeComplete = true;
+    if ( null != _convergeCompleteAction )
+    {
+      _convergeCompleteAction.run();
     }
   }
 
