@@ -43,7 +43,7 @@ public final class ChannelDescriptor
   @Override
   public String toString()
   {
-    return _graph.toString() + ( null != _id ? ":" + _id : "" );
+    return getSystem().getSimpleName() + "." + _graph.toString() + ( null != _id ? ":" + _id : "" );
   }
 
   @Override
