@@ -20,7 +20,7 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.getSystemKey(), systemKey );
     assertEquals( entry.getDescriptor(), descriptor );
     assertEquals( entry.getAction(), action );
-    assertEquals( entry.getCacheKey(), "Foo:A" );
+    assertEquals( entry.getCacheKey(), "Foo:TestGraph.A" );
     assertEquals( entry.getFilterParameter(), filterParameter );
     assertEquals( entry.match( action, descriptor, filterParameter ), true );
     assertEquals( entry.match( action, descriptor, "OtherFilter" ), false );
