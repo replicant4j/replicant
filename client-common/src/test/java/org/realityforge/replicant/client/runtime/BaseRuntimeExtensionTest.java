@@ -165,20 +165,39 @@ public class BaseRuntimeExtensionTest
   @Test
   public void doConvergeCrossDataSourceSubscriptions()
   {
+    final String filter = ValueUtil.randomString();
+
     final TestRuntime r = new TestRuntime();
     final AreaOfInterestService aoiService = r.getAreaOfInterestService();
     final Scope scope = new Scope( aoiService, ValueUtil.randomString() );
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, 2 );
-    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraph2.B, 1 );
-    final ChannelDescriptor descriptor5 = new ChannelDescriptor( TestGraph2.B, 2 );
-    final ChannelDescriptor descriptor6 = new ChannelDescriptor( TestGraph2.B, 3 );
+    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
+    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
+    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
+    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraph2.B, descriptor1.getID() );
+    final ChannelDescriptor descriptor5 = new ChannelDescriptor( TestGraph2.B, descriptor2.getID() );
+    final ChannelDescriptor descriptor6 = new ChannelDescriptor( TestGraph2.B, descriptor3.getID() );
+
+    // These descriptors have differing filters so Q should be updated
+    final ChannelDescriptor descriptorP = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
+    final ChannelDescriptor descriptorQ = new ChannelDescriptor( TestGraph2.B, descriptorP.getID() );
 
     final Subscription subscription1 = new Subscription( aoiService, descriptor1 );
     final Subscription subscription2 = new Subscription( aoiService, descriptor2 );
     final Subscription subscription4 = new Subscription( aoiService, descriptor4 );
     final Subscription subscription5 = new Subscription( aoiService, descriptor5 );
     final Subscription subscription6 = new Subscription( aoiService, descriptor6 );
+
+    final Subscription subscriptionP = new Subscription( aoiService, descriptorP );
+    final Subscription subscriptionQ = new Subscription( aoiService, descriptorQ );
+
+    subscription1.setFilter( filter );
+    subscription2.setFilter( filter );
+    subscription4.setFilter( filter );
+    subscription5.setFilter( filter );
+    subscription6.setFilter( filter );
+
+    subscriptionP.setFilter( filter );
+    subscriptionQ.setFilter( ValueUtil.randomString() );
 
     // Requires as yet uncreated subscription (subscription4)
     final SubscriptionReference reference1 = scope.requireSubscription( subscription1 );
@@ -190,15 +209,19 @@ public class BaseRuntimeExtensionTest
     final SubscriptionReference reference5 = scope.requireSubscription( subscription5 );
 
     // Next subscription should be released
-    final SubscriptionReference reference6 = scope.requireSubscription( subscription6 );
+    scope.requireSubscription( subscription6 );
 
-    final String filter = ValueUtil.randomString();
+    final SubscriptionReference referenceP = scope.requireSubscription( subscriptionP );
+    final SubscriptionReference referenceQ = scope.requireSubscription( subscriptionQ );
 
+    when( aoiService.findSubscription( descriptorQ ) ).thenReturn( subscriptionQ );
     when( aoiService.createSubscription( descriptor4, filter ) ).thenReturn( subscription4 );
     when( aoiService.createSubscriptionReference( scope, descriptor1 ) ).thenReturn( reference1 );
     when( aoiService.createSubscriptionReference( scope, descriptor2 ) ).thenReturn( reference2 );
     when( aoiService.createSubscriptionReference( scope, descriptor4 ) ).thenReturn( subscription4.createReference() );
     when( aoiService.createSubscriptionReference( scope, descriptor5 ) ).thenReturn( reference5 );
+    when( aoiService.createSubscriptionReference( scope, descriptorP ) ).thenReturn( referenceP );
+    when( aoiService.createSubscriptionReference( scope, descriptorQ ) ).thenReturn( referenceQ );
 
     r.doConvergeCrossDataSourceSubscriptions( scope,
                                               TestGraph.A,
@@ -206,12 +229,16 @@ public class BaseRuntimeExtensionTest
                                               filter,
                                               s -> Stream.of( s.getDescriptor().getID() ) );
 
-    assertEquals( scope.getRequiredSubscriptions().size(), 3 );
+    assertEquals( scope.getRequiredSubscriptions().size(), 5 );
     assertTrue( scope.getRequiredSubscriptions().contains( subscription5 ) );
     assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptor1 ) ) );
     assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptor2 ) ) );
     assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptor5 ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptorP ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptorQ ) ) );
     assertFalse( scope.getRequiredSubscriptions().contains( subscription6 ) );
+
+    verify( aoiService, atLeast( 1 ) ).updateSubscription( subscriptionQ, filter );
 
     //Will be called multiple times as we are dealing with mocks that do not callback to subscription to update state
     verify( aoiService, atLeast( 1 ) ).destroySubscription( subscription6 );
