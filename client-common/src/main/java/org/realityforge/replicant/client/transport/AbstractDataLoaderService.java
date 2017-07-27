@@ -1092,6 +1092,22 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
+  protected String filterToString( @Nullable final Object filterParameter )
+  {
+    if ( null == filterParameter )
+    {
+      return "";
+    }
+    else
+    {
+      return doFilterToString( filterParameter );
+    }
+  }
+
+  @Nonnull
+  protected abstract String doFilterToString( @Nonnull Object filterParameter );
+
+  @Nonnull
   protected Level getLogLevel()
   {
     return Level.FINEST;

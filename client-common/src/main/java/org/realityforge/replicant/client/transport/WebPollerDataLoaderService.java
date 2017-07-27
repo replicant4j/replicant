@@ -358,22 +358,6 @@ public abstract class WebPollerDataLoaderService
                    onError ) );
   }
 
-  @Nonnull
-  protected String filterToString( @Nullable final Object filterParameter )
-  {
-    if ( null == filterParameter )
-    {
-      return "";
-    }
-    else
-    {
-      return doFilterToString( filterParameter );
-    }
-  }
-
-  @Nonnull
-  protected abstract String doFilterToString( @Nonnull Object filterParameter );
-
   @Override
   protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
                                               @Nonnull final Consumer<Runnable> completionAction,
