@@ -15,6 +15,36 @@ public class AreaOfInterestServiceTest
   }
 
   @Test
+  public void releaseScopesExcept()
+  {
+    final AreaOfInterestServiceImpl service = new AreaOfInterestServiceImpl();
+
+    final String name1 = ValueUtil.randomString();
+    final String name2 = ValueUtil.randomString();
+    final String name3 = ValueUtil.randomString();
+    final String name4 = ValueUtil.randomString();
+
+    service.createScopeReference( name1 );
+    service.createScopeReference( name2 );
+    service.createScopeReference( name3 );
+    service.createScopeReference( name4 );
+
+    assertEquals( service.getScopeNames().size(), 4 );
+
+    service.releaseScopesExcept( name1, name2, name3, name4 );
+
+    assertEquals( service.getScopeNames().size(), 4 );
+
+    service.releaseScopesExcept( name1, name2, name3 );
+
+    assertEquals( service.getScopeNames().size(), 3 );
+
+    service.releaseScopesExcept( name1, ValueUtil.randomString(), ValueUtil.randomString() );
+
+    assertEquals( service.getScopeNames().size(), 1 );
+  }
+
+  @Test
   public void basicScopeManagement()
   {
     final AreaOfInterestServiceImpl service = new AreaOfInterestServiceImpl();

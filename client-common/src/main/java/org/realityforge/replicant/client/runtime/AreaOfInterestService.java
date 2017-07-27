@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.runtime;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -63,4 +64,31 @@ public interface AreaOfInterestService
   void updateSubscription( @Nonnull Subscription subscription, @Nullable Object filter );
 
   void destroySubscription( @Nonnull Subscription subscription );
+
+  /**
+   * Release all scopes except for those named.
+   * This is typically used when the caller has not kept references to the ScopeReferences and needs to align
+   * the state of the world with new structure.
+   */
+  default void releaseScopesExcept( @Nonnull final String... scopeNames )
+  {
+    new ArrayList<>( getScopes() ).
+      stream().filter( s -> !isExcepted( s, scopeNames ) ).forEach( Scope::release );
+  }
+
+  /**
+   * TODO: Mark this as private in Java9
+   */
+  default boolean isExcepted( @Nonnull final Scope scope, @Nonnull final String[] scopeNames )
+  {
+    for ( final String scopeName : scopeNames )
+    {
+      if ( null != scopeName && scopeName.equals( scope.getName() ) )
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
 }

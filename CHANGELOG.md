@@ -1,4 +1,5 @@
 ## 0.5.90:
+* Add `AreaOfInterestService.releaseScopesExcept` helper method.
 * Add mechanisms for hooking into `ContextConverger` converge completion action.
 * Refactor the `BaseRuntimeExtension.subscribe()` method so that it gracefully handles the scenario
   where the scope has an existing requirement. In this requirement return the existing reference.
