@@ -235,6 +235,13 @@ public final class TestDataLoadService
     return String.valueOf( entityID ).startsWith( "X" );
   }
 
+  @Nonnull
+  @Override
+  protected String doFilterToString( @Nonnull final Object filterParameter )
+  {
+    return String.valueOf( filterParameter );
+  }
+
   @Override
   protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
                                                        @Nullable final Object filter )
