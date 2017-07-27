@@ -15,6 +15,33 @@ public class AreaOfInterestServiceTest
   }
 
   @Test
+  public void findOrCreateScope()
+  {
+    final AreaOfInterestServiceImpl service = new AreaOfInterestServiceImpl();
+
+    assertEquals( service.getScopeNames().size(), 0 );
+
+    final String name1 = ValueUtil.randomString();
+    final String name2 = ValueUtil.randomString();
+
+    final Scope scope1 = service.findOrCreateScope( name1 );
+
+    assertEquals( service.getScopeNames().size(), 1 );
+    assertEquals( scope1.getName(), name1 );
+
+    final Scope scope1b = service.findOrCreateScope( name1 );
+
+    assertEquals( service.getScopeNames().size(), 1 );
+    assertEquals( scope1b.getName(), name1 );
+    assertEquals( scope1b, scope1 );
+
+    final Scope scope2 = service.findOrCreateScope( name2 );
+
+    assertEquals( service.getScopeNames().size(), 2 );
+    assertEquals( scope2.getName(), name2 );
+  }
+
+  @Test
   public void releaseScopesExcept()
   {
     final AreaOfInterestServiceImpl service = new AreaOfInterestServiceImpl();

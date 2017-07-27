@@ -45,7 +45,7 @@ public class AreaOfInterestServiceImpl
   @Override
   public ScopeReference createScopeReference( @Nonnull final String name )
   {
-    return findOrCreateScope( name ).createReference();
+    return _findOrCreateScope( name ).createReference();
   }
 
   @Override
@@ -109,8 +109,11 @@ public class AreaOfInterestServiceImpl
     return scope;
   }
 
+  /**
+   * Find or create a scope without creating a reference.
+   */
   @Nonnull
-  protected Scope findOrCreateScope( @Nonnull final String name )
+  protected Scope _findOrCreateScope( @Nonnull final String name )
   {
     final Scope scope = findScope( name );
     return null != scope ? scope : createScope( name );

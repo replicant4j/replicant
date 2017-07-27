@@ -66,6 +66,26 @@ public interface AreaOfInterestService
   void destroySubscription( @Nonnull Subscription subscription );
 
   /**
+   * Find or create a scope with specified name.
+   * Note that if a scope is needs to be created then a scope reference will also be
+   * created but will not be retained. In this scenario it is necessary for the application
+   * to use other mechanisms to manage liveness of scopes.
+   */
+  @Nonnull
+  default Scope findOrCreateScope( @Nonnull final String scopeName )
+  {
+    final Scope scope = findScope( scopeName );
+    if ( null != scope )
+    {
+      return scope;
+    }
+    else
+    {
+      return createScopeReference( scopeName ).getScope();
+    }
+  }
+
+  /**
    * Release all scopes except for those named.
    * This is typically used when the caller has not kept references to the ScopeReferences and needs to align
    * the state of the world with new structure.
