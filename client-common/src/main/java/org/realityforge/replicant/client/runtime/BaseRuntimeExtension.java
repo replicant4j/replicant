@@ -99,8 +99,11 @@ public interface BaseRuntimeExtension
                                                        @Nullable final Object filter,
                                                        @Nonnull final Function<Subscription, Stream<Object>> sourceSubscriptionToTargetIDs )
   {
+    // Need to check both subscription and filters are identical.
+    // If they are not the next step will either update the filters or add subscriptions
     final Map<Object, Subscription> existing =
       scope.getRequiredSubscriptionsByGraph( targetGraph ).stream().
+        filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) ).
         collect( Collectors.toMap( s -> s.getDescriptor().getID(), Function.identity() ) );
 
     //noinspection ConstantConditions
