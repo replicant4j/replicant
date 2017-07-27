@@ -339,7 +339,9 @@ public abstract class AbstractDataLoaderService
       final ChannelDescriptor descriptor = _currentAoiAction.getDescriptor();
       final Object filterParameter = _currentAoiAction.getFilterParameter();
 
-      final String label = getKey() + ":" + descriptor + ( null == filterParameter ? "" : "[" + filterParameter + "]" );
+      final String label =
+        getKey() + ":" + descriptor +
+        ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
       final String cacheKey = _currentAoiAction.getCacheKey();
       final AreaOfInterestAction action = _currentAoiAction.getAction();
       if ( action == AreaOfInterestAction.ADD )
