@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 
 /**
@@ -24,6 +25,9 @@ public interface BaseRuntimeExtension
 
   @Nonnull
   EntityRepository getRepository();
+
+  @Nonnull
+  EntitySubscriptionManager getSubscriptionManager();
 
   /**
    * Create or update a Subscription
@@ -54,18 +58,15 @@ public interface BaseRuntimeExtension
   }
 
   /**
-   * Convert an instance subscription to stream based on function.
-   * If the instance subscription is not yet present then return an empty stream.
-   * This is typically used by the function passed into the convergeCrossDataSourceSubscriptions()
-   * method.
+   * Convert object subscription to root object (specified object Type+ID) to target graphs subscription
+   * based on function. If the root object is not yet present then return an empty stream.
+   * This is typically used by the function passed into the convergeCrossDataSourceSubscriptions() method.
    */
   @Nonnull
-  default <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Subscription subscription,
-                                                         @Nonnull final Class<T> type,
+  default <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Class<T> type,
+                                                         @Nonnull final Object id,
                                                          @Nonnull final Function<T, Stream<O>> rootToStream )
   {
-    final Object id = subscription.getDescriptor().getID();
-    assert null != id;
     final T root = getRepository().findByID( type, id );
     return null != root ? rootToStream.apply( root ) : Stream.empty();
   }
@@ -81,13 +82,13 @@ public interface BaseRuntimeExtension
                                                      @Nonnull final Enum sourceGraph,
                                                      @Nonnull final Enum targetGraph,
                                                      @Nullable final Object filter,
-                                                     @Nonnull final Function<Subscription, Stream<Object>> sourceSubscriptionToTargetIDs )
+                                                     @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
     getContextConverger().pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( scope,
                                                                                      sourceGraph,
                                                                                      targetGraph,
                                                                                      filter,
-                                                                                     sourceSubscriptionToTargetIDs ) );
+                                                                                     sourceIDToTargetIDs ) );
   }
 
   /**
@@ -97,7 +98,7 @@ public interface BaseRuntimeExtension
                                                        @Nonnull final Enum sourceGraph,
                                                        @Nonnull final Enum targetGraph,
                                                        @Nullable final Object filter,
-                                                       @Nonnull final Function<Subscription, Stream<Object>> sourceSubscriptionToTargetIDs )
+                                                       @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
@@ -109,7 +110,14 @@ public interface BaseRuntimeExtension
     //noinspection ConstantConditions
     scope.getRequiredSubscriptions().stream().
       filter( s -> s.getDescriptor().getGraph() == sourceGraph ).
-      flatMap( sourceSubscriptionToTargetIDs ).
+      map( s -> s.getDescriptor().getID() ).
+      flatMap( sourceIDToTargetIDs ).
+      filter( Objects::nonNull ).
+      filter( id -> null == existing.remove( id ) ).
+      forEach( id -> subscribe( scope, new ChannelDescriptor( targetGraph, id ), filter ) );
+
+    getSubscriptionManager().getInstanceSubscriptions( sourceGraph ).stream().
+      flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
       forEach( id -> subscribe( scope, new ChannelDescriptor( targetGraph, id ), filter ) );

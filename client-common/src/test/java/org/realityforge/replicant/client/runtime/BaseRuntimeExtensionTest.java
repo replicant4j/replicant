@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -29,6 +30,7 @@ public class BaseRuntimeExtensionTest
     private AreaOfInterestService _areaOfInterestService = mock( AreaOfInterestService.class );
     private ContextConverger _contextConverger = mock( ContextConverger.class );
     private EntityRepository _repository = mock( EntityRepository.class );
+    private EntitySubscriptionManager _subscriptionManager = mock( EntitySubscriptionManager.class );
 
     @Nonnull
     @Override
@@ -49,6 +51,13 @@ public class BaseRuntimeExtensionTest
     public EntityRepository getRepository()
     {
       return _repository;
+    }
+
+    @Nonnull
+    @Override
+    public EntitySubscriptionManager getSubscriptionManager()
+    {
+      return _subscriptionManager;
     }
   }
 
@@ -132,18 +141,13 @@ public class BaseRuntimeExtensionTest
   public void instanceSubscriptionToValues()
   {
     final TestRuntime r = new TestRuntime();
-    final AreaOfInterestService aoiService = r.getAreaOfInterestService();
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, 2 );
-    final Subscription subscription1 = new Subscription( aoiService, descriptor1 );
-    final Subscription subscription2 = new Subscription( aoiService, descriptor2 );
 
     {
       reset( r.getRepository() );
       when( r.getRepository().findByID( String.class, 1 ) ).thenReturn( null );
 
       final List<Object> list =
-        r.instanceSubscriptionToValues( subscription1, String.class, Stream::of ).
+        r.instanceSubscriptionToValues( String.class, 1, Stream::of ).
           collect( Collectors.toList() );
       assertEquals( list.size(), 0 );
     }
@@ -155,7 +159,7 @@ public class BaseRuntimeExtensionTest
       when( r.getRepository().findByID( String.class, 2 ) ).thenReturn( entity2 );
 
       final List<Object> list =
-        r.instanceSubscriptionToValues( subscription2, String.class, Stream::of ).
+        r.instanceSubscriptionToValues( String.class, 2, Stream::of ).
           collect( Collectors.toList() );
       assertEquals( list.size(), 1 );
       assertTrue( list.contains( entity2 ) );
@@ -223,11 +227,7 @@ public class BaseRuntimeExtensionTest
     when( aoiService.createSubscriptionReference( scope, descriptorP ) ).thenReturn( referenceP );
     when( aoiService.createSubscriptionReference( scope, descriptorQ ) ).thenReturn( referenceQ );
 
-    r.doConvergeCrossDataSourceSubscriptions( scope,
-                                              TestGraph.A,
-                                              TestGraph2.B,
-                                              filter,
-                                              s -> Stream.of( s.getDescriptor().getID() ) );
+    r.doConvergeCrossDataSourceSubscriptions( scope, TestGraph.A, TestGraph2.B, filter, Stream::of );
 
     assertEquals( scope.getRequiredSubscriptions().size(), 5 );
     assertTrue( scope.getRequiredSubscriptions().contains( subscription5 ) );

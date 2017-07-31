@@ -1,4 +1,6 @@
 ## 0.5.90:
+* Restructure the way `BaseRuntimeExtension` converges subscriptions between graphs to take into account
+  implicit subscriptions.
 * Add `AreaOfInterestService.releaseScopesExcept` and `AreaOfInterestService.findOrCreateScope` helper methods.
 * Add mechanisms for hooking into `ContextConverger` converge completion action.
 * Refactor the `BaseRuntimeExtension.subscribe()` method so that it gracefully handles the scenario
