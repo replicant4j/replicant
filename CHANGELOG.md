@@ -1,3 +1,6 @@
+## 0.5.91:
+* Made all variants of `ReplicationRequestUtil.runRequest` public.
+
 ## 0.5.90:
 * Restructure the way `BaseRuntimeExtension` converges subscriptions between graphs to take into account
   implicit subscriptions.
