@@ -4,6 +4,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.FilterUtil;
 
 final class AreaOfInterestEntry
 {
@@ -79,14 +80,14 @@ final class AreaOfInterestEntry
   {
     return getAction().equals( action ) &&
            getDescriptor().equals( descriptor ) &&
-           ( AreaOfInterestAction.REMOVE == action || Objects.equals( filter, getFilterParameter() ) );
+           ( AreaOfInterestAction.REMOVE == action || FilterUtil.filtersEqual( filter, getFilterParameter() ) );
   }
 
   @Override
   public String toString()
   {
     final ChannelDescriptor descriptor = getDescriptor();
-    return "AOI[SystemKey=" + _systemKey + ",Channel=" + descriptor + ",filter=" + _filterParameter + "]" +
+    return "AOI[SystemKey=" + _systemKey + ",Channel=" + descriptor + ",filter=" + FilterUtil.filterToString( _filterParameter ) + "]" +
            ( _inProgress ? "(InProgress)" : "" );
   }
 }

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.FilterUtil;
 
 /**
  * Represents a subscription that a client explicitly subscribes to.
@@ -152,7 +153,7 @@ public final class Subscription
   {
     return "Subscription[" +
            _descriptor +
-           " :: Filter=" + _filter +
+           " :: Filter=" + FilterUtil.filterToString( _filter  ) +
            ", Active=" + _active +
            ", OutRefCount=" + _outwardReferences.size() +
            ", InRefCount=" + _incomingReferences.size() +

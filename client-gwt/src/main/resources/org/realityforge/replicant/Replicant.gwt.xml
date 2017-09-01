@@ -12,9 +12,7 @@
   <source path='client/runtime/gwt'/>
   <source path='client/net/gwt'/>
 
-  <replace-with class="org.realityforge.replicant.client.gwt.GwtFilterUtil">
-    <when-type-is class="org.realityforge.replicant.client.FilterUtil"/>
-  </replace-with>
+  <super-source path="sprsrc" />
 
   <define-property name="replicant.shouldRecordRequestKey" values="true,false"/>
   <set-property name="replicant.shouldRecordRequestKey" value="false"/>
