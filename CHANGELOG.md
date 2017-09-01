@@ -1,3 +1,6 @@
+## 0.5.92:
+* Use GWT super-source feature to replace `FilterUtil`.
+
 ## 0.5.91:
 * Made all variants of `ReplicationRequestUtil.runRequest` public.
 
