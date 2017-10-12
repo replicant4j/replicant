@@ -40,6 +40,8 @@ artifacts:
 
   anodoc: org.realityforge.anodoc:anodoc:jar:1.0.0
 
+  jetbrains_annotations: org.jetbrains:annotations:jar:15.0
+
   #
   # Mocking library
   mockito: org.mockito:mockito-all:jar:1.10.19
