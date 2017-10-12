@@ -16,16 +16,4 @@ public interface Linkable
    * @return true if link() has been invoked and invalidate has not been invoked, false otherwise.
    */
   boolean isLinked();
-
-  /**
-   * Invalidating the entity will delink the entity from related entities and remove the references to the
-   * repository and change broker. After invoking this method the entity is no longer valid and should not
-   * be used. This is called by the repository during delinking.
-   */
-  void invalidate();
-
-  /**
-   * @return false if invalidate has been invoked on entity, true otherwise.
-   */
-  boolean isValid();
 }

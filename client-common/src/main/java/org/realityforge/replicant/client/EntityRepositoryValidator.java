@@ -2,6 +2,7 @@ package org.realityforge.replicant.client;
 
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import org.realityforge.arez.Disposable;
 
 public class EntityRepositoryValidator
 {
@@ -10,8 +11,8 @@ public class EntityRepositoryValidator
   /**
    * Check all the entities in the repository and raise an exception if an entity fails to validate.
    *
-   * An entity can fail to validate if it is {@link Linkable} and {@link Linkable#isValid()} returns
-   * false. An entity can also fail to validate if it is {@link Verifiable} and {@link Verifiable#verify()}
+   * An entity can fail to validate if it is {@link Disposable} and {@link Disposable#isDisposed()} returns
+   * true. An entity can also fail to validate if it is {@link Verifiable} and {@link Verifiable#verify()}
    * throws an exception.
    *
    * @throws IllegalStateException if an invalid entity is found in the repository.
@@ -24,10 +25,10 @@ public class EntityRepositoryValidator
       for ( final Object entityID : repository.findAllIDs( entityType ) )
       {
         final Object entity = getEntityByID( repository, entityType, entityID );
-        if ( entity instanceof Linkable )
+        if ( entity instanceof Disposable )
         {
-          final Linkable linkable = (Linkable) entity;
-          if ( !linkable.isValid() )
+          final Disposable disposable = Disposable.asDisposable( entity );
+          if ( disposable.isDisposed() )
           {
             final String message =
               "Invalid entity " + entityType.getSimpleName() + "/" + entityID + " found. Entity = " + entity;

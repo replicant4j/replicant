@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import org.realityforge.arez.Disposable;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -13,10 +14,10 @@ public class EntityRepositoryValidatorTest
     final EntityRepository r = new EntityRepositoryImpl();
     assertValidated( r );
 
-    final Linkable linkable = mock( Linkable.class );
-    when( linkable.isValid() ).thenReturn( true );
+    final Disposable linkable = mock( Disposable.class );
+    when( linkable.isDisposed() ).thenReturn( false );
 
-    r.registerEntity( Linkable.class, "2", linkable );
+    r.registerEntity( Disposable.class, "2", linkable );
 
     assertValidated( r );
   }
@@ -28,10 +29,10 @@ public class EntityRepositoryValidatorTest
     final EntityRepository r = new EntityRepositoryImpl();
     assertValidated( r );
 
-    final Linkable linkable = mock( Linkable.class );
-    when( linkable.isValid() ).thenReturn( false );
+    final Disposable linkable = mock( Disposable.class );
+    when( linkable.isDisposed() ).thenReturn( true );
 
-    r.registerEntity( Linkable.class, "2", linkable );
+    r.registerEntity( Disposable.class, "2", linkable );
 
     assertFailedToValidate( r );
   }

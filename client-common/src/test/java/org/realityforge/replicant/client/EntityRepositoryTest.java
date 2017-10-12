@@ -3,6 +3,7 @@ package org.realityforge.replicant.client;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
+import org.realityforge.arez.Disposable;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -267,20 +268,20 @@ public class EntityRepositoryTest
 
   private static void assertInvalidated( final B entity )
   {
-    assertTrue( entity._invalidated );
+    assertTrue( entity._disposed );
   }
 
   private static void assertLinked( final B entity )
   {
-    assertFalse( entity._invalidated );
+    assertFalse( entity._disposed );
     assertTrue( entity._linked );
   }
 
   static class B
-    implements Linkable
+    implements Linkable, Disposable
   {
     boolean _linked;
-    boolean _invalidated;
+    boolean _disposed;
 
     public final void link()
     {
@@ -290,20 +291,20 @@ public class EntityRepositoryTest
     @Override
     public boolean isLinked()
     {
-      return _linked && isValid();
+      return _linked && !isDisposed();
     }
 
     @Override
-    public void invalidate()
+    public void dispose()
     {
-      assertFalse( _invalidated );
-      _invalidated = true;
+      assertFalse( _disposed );
+      _disposed = true;
     }
 
     @Override
-    public boolean isValid()
+    public boolean isDisposed()
     {
-      return !_invalidated;
+      return _disposed;
     }
   }
 

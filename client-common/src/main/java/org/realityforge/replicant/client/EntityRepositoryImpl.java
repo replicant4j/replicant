@@ -3,6 +3,7 @@ package org.realityforge.replicant.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.annotation.Nonnull;
+import org.realityforge.arez.Disposable;
 
 public class EntityRepositoryImpl
   implements EntityRepository
@@ -30,11 +31,7 @@ public class EntityRepositoryImpl
   public <T> T deregisterEntity( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     final T existing = doDeregisterEntity( type, id );
-    if ( existing instanceof Linkable )
-    {
-      final Linkable linkable = (Linkable) existing;
-      linkable.invalidate();
-    }
+    Disposable.dispose( existing );
     return existing;
   }
 
@@ -114,7 +111,6 @@ public class EntityRepositoryImpl
     if ( t instanceof Linkable )
     {
       final Linkable linkable = (Linkable) t;
-      assert linkable.isValid();
       linkable.link();
     }
   }
