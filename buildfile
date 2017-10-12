@@ -12,6 +12,10 @@ POWERMOCK = [
   :powermock_module_javaagent
 ]
 
+AREZ_DEPS = [
+ :arez_annotations, :arez_core, :arez_processor, :arez_extras, :arez_browser_extras, :braincheck, :anodoc
+]
+
 GWT_DEPS = [:gwt_user] + GIN_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
@@ -71,7 +75,7 @@ define 'replicant' do
   end
 
   define 'client-common' do
-    compile.with :javax_jsr305, :gwt_webpoller, project('shared').package(:jar)
+    compile.with :javax_jsr305, :gwt_webpoller, project('shared').package(:jar), AREZ_DEPS
 
     package(:jar).include("#{_(:source, :main, :java)}/*")
     package(:sources)
