@@ -1,3 +1,11 @@
+## Unreleased
+
+Stop using replicant specific mechanisms for managing state and instead start to move to Arez. This is
+a major rewrite of the library and involved large scale changes. Some of the more significant changes
+included:
+
+* Remove EntityChangeBroker and all supporting infrastructure.
+
 ## 0.5.92:
 * Use GWT super-source feature to replace `FilterUtil`.
 

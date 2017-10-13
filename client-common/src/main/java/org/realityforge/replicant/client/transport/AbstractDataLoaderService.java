@@ -15,13 +15,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.arez.Disposable;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntityRepositoryDebugger;
 import org.realityforge.replicant.client.EntityRepositoryValidator;
@@ -116,12 +116,6 @@ public abstract class AbstractDataLoaderService
   protected abstract CacheService getCacheService();
 
   @Nonnull
-  protected EntityChangeBroker getChangeBroker()
-  {
-    return getEntitySystem().getChangeBroker();
-  }
-
-  @Nonnull
   protected abstract ChangeMapper getChangeMapper();
 
   @Nonnull
@@ -165,31 +159,18 @@ public abstract class AbstractDataLoaderService
       getSessionContext().setSession( session );
       if ( shouldPurgeOnSessionChange() )
       {
-        final boolean enabled = getChangeBroker().isEnabled();
-        if ( enabled )
-        {
-          getChangeBroker().disable( getChangeBrokerKey() );
-        }
         //TODO: else schedule action so that it runs in loop
         // until it can disable broker. This will involve replacing _resetAction
         // with something more like existing action setup.
+
+        //TODO:AREZ: Wrap this in an action
         purgeSubscriptions();
-        if ( enabled )
-        {
-          getChangeBroker().enable( getChangeBrokerKey() );
-        }
       }
     }
     if ( null != postAction )
     {
       postAction.run();
     }
-  }
-
-  @Nonnull
-  protected String getChangeBrokerKey()
-  {
-    return getGraphType().getSimpleName();
   }
 
   /**
@@ -675,20 +656,6 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    //Step: Setup the change recording state
-    if ( _currentAction.needsBrokerPause() )
-    {
-      if ( getChangeBroker().isInTransaction() )
-      {
-        // Another DataLoaderService has temporarily paused/disabled the broker. So we will
-        // just spin waiting for it to be released.
-        return true;
-      }
-      _currentAction.markBrokerPaused();
-      getChangeBroker().pause( getChangeBrokerKey() );
-      return true;
-    }
-
     if ( _currentAction.needsChannelActionsProcessed() )
     {
       _currentAction.markChannelActionsProcessed();
@@ -817,10 +784,6 @@ public abstract class AbstractDataLoaderService
       {
         session.setLastRxSequence( set.getSequence() );
       }
-      if ( _currentAction.hasBrokerBeenPaused() )
-      {
-        getChangeBroker().resume( getChangeBrokerKey() );
-      }
       if ( config().repositoryDebugOutputEnabled() )
       {
         outputRepositoryDebug();
@@ -908,7 +871,7 @@ public abstract class AbstractDataLoaderService
   {
     for ( final Object entity : _disownedEntities )
     {
-      getChangeBroker().removeAllChangeListeners( entity );
+      Disposable.dispose( entity );
     }
     _disownedEntities.clear();
   }

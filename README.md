@@ -186,34 +186,6 @@ for ( Person p : people )
 }
 ```
 
-### EntityChangeBroker
-
-The `EntityChangeBroker` is the class responsible for registering and un-registering listeners who want to
-receive notification of replica changes. The listener implements the interface `EntityChangeListener`
-and registers to receive notifications via `EntityChangeBroker`. ie.
-
-```java
-EntityChangeBroker broker = ...;
-
-// Receive notification of any change to any replica in the system
-broker.addChangeListener( new EntityChangeListener() {...} );
-
-// Receive notification of any change to any replica of type Person in the system
-broker.addChangeListener( Person.class, new EntityChangeListener() {...} );
-
-Person person ...;
-// Receive notification of any change to the specified person in the system
-broker.addChangeListener( person, new EntityChangeListener() {...} );
-```
-
-The notifications occur in the following scenarios:
-
-* a replica is added.
-* a replica is removed.
-* an attribute on a replica is updated.
-* a reference is added from one replica to another replica.
-* a reference is removed between one replica and another replica.
-
 ### EntitySubscriptionManager
 
 The `EntitySubscriptionManager` records the state of subscriptions on the client-side. This includes

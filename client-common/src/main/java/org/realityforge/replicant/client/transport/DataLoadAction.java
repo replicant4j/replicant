@@ -51,7 +51,6 @@ final class DataLoadAction
   private boolean _entityLinksCalculated;
   private boolean _worldNotified;
   private boolean _channelActionsProcessed;
-  private boolean _brokerPaused;
   private RequestEntry _request;
 
   private int _updateCount;
@@ -177,22 +176,6 @@ final class DataLoadAction
   public void markChannelActionsProcessed()
   {
     _channelActionsProcessed = true;
-  }
-
-  public boolean needsBrokerPause()
-  {
-    return !_brokerPaused &&
-           ( null != _changeSet && ( 0 != _changeSet.getChangeCount() || 0 != _changeSet.getChannelActionCount() ) );
-  }
-
-  public boolean hasBrokerBeenPaused()
-  {
-    return _brokerPaused;
-  }
-
-  public void markBrokerPaused()
-  {
-    _brokerPaused = true;
   }
 
   public Change nextChange()

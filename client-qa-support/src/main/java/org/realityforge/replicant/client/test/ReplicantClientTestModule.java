@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.test;
 import com.google.inject.Provides;
 import javax.inject.Singleton;
 import org.realityforge.guiceyloops.shared.AbstractModule;
-import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySystem;
@@ -53,13 +52,6 @@ public class ReplicantClientTestModule
   public final EntityRepository getEntityRepository( final EntitySystem system )
   {
     return system.getRepository();
-  }
-
-  @Provides
-  @Singleton
-  public final EntityChangeBroker getEntityChangeBroker( final EntitySystem system )
-  {
-    return system.getChangeBroker();
   }
 
   @Provides

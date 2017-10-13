@@ -20,7 +20,6 @@ import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelAction.Action;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -40,7 +39,6 @@ public class DataLoaderServiceTest
     configureService( service );
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
     final EntityRepository repository = service.getRepository();
-    final EntityChangeBroker broker = service.getChangeBroker();
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
@@ -89,7 +87,7 @@ public class DataLoaderServiceTest
 
     service.purgeSubscriptions();
 
-    final InOrder inOrder = inOrder( repository, sm, broker );
+    final InOrder inOrder = inOrder( repository, sm );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) );
@@ -98,10 +96,6 @@ public class DataLoaderServiceTest
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.C ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "B1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "A1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "D1" );
-    inOrder.verify( broker ).removeAllChangeListeners( "C1" );
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -148,24 +142,17 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSessionContext().getSession(), null );
 
-    when( service.getChangeBroker().isEnabled() ).thenReturn( true );
-
     service.setSession( session1, runnable1 );
 
     assertEquals( service.getSessionContext().getSession(), session1 );
     assertEquals( service.getSession(), session1 );
     verify( runnable1, times( 1 ) ).run();
-    verify( service.getChangeBroker(), times( 1 ) ).disable( "TestGraph" );
-    verify( service.getChangeBroker(), times( 1 ) ).enable( "TestGraph" );
 
     // Should be no oob actions left
     progressWorkTillDone( service, 7, 1 );
 
     service.setSession( session1, runnable1 );
     verify( runnable1, times( 2 ) ).run();
-    // The following should not run as session is the same
-    verify( service.getChangeBroker(), times( 1 ) ).disable( "TestGraph" );
-    verify( service.getChangeBroker(), times( 1 ) ).enable( "TestGraph" );
   }
 
   @Test
@@ -280,13 +267,11 @@ public class DataLoaderServiceTest
     }
     assertTrue( service.isScheduleDataLoadCalled() );
 
-    progressWorkTillDone( service, 10, 1 );
+    progressWorkTillDone( service, 9, 1 );
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker() ).pause( "TestGraph" );
-    verify( service.getChangeBroker() ).resume( "TestGraph" );
 
     assertTrue( service.isDataLoadComplete() );
     assertNull( service.getStatus().getRequestID() );
@@ -363,8 +348,6 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
-    verify( service.getChangeBroker(), never() ).disable( "TEST" );
-    verify( service.getChangeBroker(), never() ).enable( "TEST" );
 
     assertTrue( service.isDataLoadComplete() );
     assertNotNull( service.getStatus().getRequestID() );
@@ -385,7 +368,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    progressWorkTillDone( service, 9, 1 );
+    progressWorkTillDone( service, 8, 1 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
@@ -404,15 +387,11 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    progressWorkTillDone( service, 9, 1 );
+    progressWorkTillDone( service, 8, 1 );
 
     verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
 
     assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
-
-    final EntityChangeBroker changeBroker = service.getChangeBroker();
-    verify( changeBroker ).pause( "TestGraph" );
-    verify( changeBroker ).resume( "TestGraph" );
   }
 
   @Test
@@ -425,7 +404,7 @@ public class DataLoaderServiceTest
 
     ensureEnqueueDataLoads( service );
 
-    progressWorkTillDone( service, 11, 2 );
+    progressWorkTillDone( service, 10, 2 );
 
     verify( service.getEntityRepositoryValidator(), never() ).validate( service.getRepository() );
   }
@@ -457,7 +436,7 @@ public class DataLoaderServiceTest
     verifyPostActionNotRun( changeSet1.getRunnable() );
 
     service.ensureSession().enqueueDataLoad( "jsonData" );
-    progressWorkTillDone( service, 17, 2 );
+    progressWorkTillDone( service, 15, 2 );
 
     //Progress should have been made as all sequence appears
     assertEquals( service.ensureSession().getLastRxSequence(), 2 );
@@ -485,7 +464,7 @@ public class DataLoaderServiceTest
     service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
-    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 9, 1 );
+    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
     verify( service.getSubscriptionManager() ).
       recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null, false );
 
@@ -521,7 +500,7 @@ public class DataLoaderServiceTest
     service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
-    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 9, 1 );
+    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
 
     final DataLoadAction action = actions.getLast();
 

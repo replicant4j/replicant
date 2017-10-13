@@ -9,7 +9,6 @@ import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -38,7 +37,6 @@ public final class TestDataLoadService
     _changeMapper = mock( ChangeMapper.class );
     _validator = mock( EntityRepositoryValidator.class );
     _entitySystem = new EntitySystemImpl( mock( EntityRepository.class ),
-                                          mock( EntityChangeBroker.class ),
                                           mock( EntitySubscriptionManager.class ) );
   }
 

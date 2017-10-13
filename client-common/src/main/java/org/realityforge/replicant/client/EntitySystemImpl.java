@@ -6,20 +6,17 @@ public class EntitySystemImpl
   implements EntitySystem
 {
   private final EntityRepository _repository;
-  private final EntityChangeBroker _changeBroker;
   private final EntitySubscriptionManager _subscriptionManager;
 
   public EntitySystemImpl()
   {
-    this( new EntityRepositoryImpl(), new EntityChangeBrokerImpl(), new EntitySubscriptionManagerImpl() );
+    this( new EntityRepositoryImpl(), new EntitySubscriptionManagerImpl() );
   }
 
   public EntitySystemImpl( @Nonnull final EntityRepository repository,
-                           @Nonnull final EntityChangeBroker changeBroker,
                            @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
     _repository = repository;
-    _changeBroker = changeBroker;
     _subscriptionManager = subscriptionManager;
   }
 
@@ -28,13 +25,6 @@ public class EntitySystemImpl
   public EntityRepository getRepository()
   {
     return _repository;
-  }
-
-  @Nonnull
-  @Override
-  public EntityChangeBroker getChangeBroker()
-  {
-    return _changeBroker;
   }
 
   @Nonnull
