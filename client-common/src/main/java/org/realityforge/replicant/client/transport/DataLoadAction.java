@@ -57,99 +57,64 @@ final class DataLoadAction
   private int _removeCount;
   private int _linkCount;
 
-  public DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
+  DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
   {
     _rawJsonData = rawJsonData;
     _oob = oob;
   }
 
-  public int getChannelAddCount()
+  int getChannelAddCount()
   {
     return _channelAdds.size();
   }
 
-  public int getChannelUpdateCount()
-  {
-    return _channelUpdates.size();
-  }
-
-  public int getChannelRemoveCount()
+  int getChannelRemoveCount()
   {
     return _channelRemoves.size();
   }
 
-  public LinkedList<ChannelChangeStatus> getChannelAdds()
-  {
-    return _channelAdds;
-  }
-
-  public LinkedList<ChannelChangeStatus> getChannelUpdates()
-  {
-    return _channelUpdates;
-  }
-
-  public LinkedList<ChannelChangeStatus> getChannelRemoves()
-  {
-    return _channelRemoves;
-  }
-
-  public int getUpdateCount()
-  {
-    return _updateCount;
-  }
-
-  public int getRemoveCount()
-  {
-    return _removeCount;
-  }
-
-  public int getLinkCount()
-  {
-    return _linkCount;
-  }
-
-  public void recordChannelSubscribe( final ChannelChangeStatus descriptor )
+  void recordChannelSubscribe( final ChannelChangeStatus descriptor )
   {
     _channelAdds.add( descriptor );
   }
 
-  public void recordChannelUnsubscribe( final ChannelChangeStatus descriptor )
+  void recordChannelUnsubscribe( final ChannelChangeStatus descriptor )
   {
     _channelRemoves.add( descriptor );
   }
 
-  public void recordChannelSubscriptionUpdate( final ChannelChangeStatus descriptor )
+  void recordChannelSubscriptionUpdate( final ChannelChangeStatus descriptor )
   {
     _channelUpdates.add( descriptor );
   }
 
-  public void incUpdateCount()
+  void incUpdateCount()
   {
     _updateCount++;
   }
 
-  public void incRemoveCount()
+  void incRemoveCount()
   {
     _removeCount++;
   }
 
-  public void incLinkCount()
+  void incLinkCount()
   {
     _linkCount++;
   }
 
-  public boolean isOob()
+  boolean isOob()
   {
     return _oob;
   }
 
   @Nullable
-  public String getRawJsonData()
+  String getRawJsonData()
   {
     return _rawJsonData;
   }
 
-  public void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
+  void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
     assert !isOob() || null == request;
     _request = request;
@@ -163,22 +128,22 @@ final class DataLoadAction
     return _request;
   }
 
-  public boolean areChangesPending()
+  boolean areChangesPending()
   {
     return null != _changeSet && _changeIndex < _changeSet.getChangeCount();
   }
 
-  final boolean needsChannelActionsProcessed()
+  boolean needsChannelActionsProcessed()
   {
     return null != _changeSet && 0 != _changeSet.getChannelActionCount() && !_channelActionsProcessed;
   }
 
-  public void markChannelActionsProcessed()
+  void markChannelActionsProcessed()
   {
     _channelActionsProcessed = true;
   }
 
-  public Change nextChange()
+  Change nextChange()
   {
     if ( areChangesPending() )
     {
@@ -193,7 +158,7 @@ final class DataLoadAction
     }
   }
 
-  public void changeProcessed( final boolean isUpdate, final Object entity )
+  void changeProcessed( final boolean isUpdate, final Object entity )
   {
     if ( entity instanceof Linkable )
     {
@@ -208,12 +173,12 @@ final class DataLoadAction
     }
   }
 
-  public boolean areEntityLinksCalculated()
+  boolean areEntityLinksCalculated()
   {
     return _entityLinksCalculated;
   }
 
-  public void calculateEntitiesToLink()
+  void calculateEntitiesToLink()
   {
     _entityLinksCalculated = true;
     _entitiesToLink = new LinkedList<>();
@@ -229,12 +194,12 @@ final class DataLoadAction
     _removedEntities = null;
   }
 
-  public boolean areEntityLinksPending()
+  boolean areEntityLinksPending()
   {
     return null != _entitiesToLink && !_entitiesToLink.isEmpty();
   }
 
-  public Linkable nextEntityToLink()
+  Linkable nextEntityToLink()
   {
     if ( areEntityLinksPending() )
     {
@@ -249,19 +214,19 @@ final class DataLoadAction
   }
 
   @Nullable
-  public ChangeSet getChangeSet()
+  ChangeSet getChangeSet()
   {
     return _changeSet;
   }
 
-  public void setRunnable( @Nullable final Runnable runnable )
+  void setRunnable( @Nullable final Runnable runnable )
   {
     assert isOob();
     _runnable = runnable;
   }
 
   @Nullable
-  public Runnable getRunnable()
+  Runnable getRunnable()
   {
     if ( null != _runnable )
     {
@@ -277,30 +242,30 @@ final class DataLoadAction
     }
   }
 
-  public void markWorldAsNotified()
+  void markWorldAsNotified()
   {
     _worldNotified = true;
   }
 
-  public boolean hasWorldBeenNotified()
+  boolean hasWorldBeenNotified()
   {
     return _worldNotified;
   }
 
   @Nonnull
-  public DataLoadStatus toStatus( @Nonnull final String systemKey )
+  DataLoadStatus toStatus( @Nonnull final String systemKey )
   {
     final ChangeSet changeSet = getChangeSet();
     assert null != changeSet;
     return new DataLoadStatus( systemKey,
                                changeSet.getSequence(),
                                changeSet.getRequestID(),
-                               getChannelAdds(),
+                               _channelAdds,
                                _channelUpdates,
                                _channelRemoves,
-                               getUpdateCount(),
-                               getRemoveCount(),
-                               getLinkCount() );
+                               _updateCount,
+                               _removeCount,
+                               _linkCount );
   }
 
   @Override
