@@ -11,9 +11,4 @@ public interface Linkable
    * Resolve any references to related entities.
    */
   void link();
-
-  /**
-   * @return true if link() has been invoked and invalidate has not been invoked, false otherwise.
-   */
-  boolean isLinked();
 }

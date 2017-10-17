@@ -289,12 +289,6 @@ public class EntityRepositoryTest
     }
 
     @Override
-    public boolean isLinked()
-    {
-      return _linked && !isDisposed();
-    }
-
-    @Override
     public void dispose()
     {
       assertFalse( _disposed );

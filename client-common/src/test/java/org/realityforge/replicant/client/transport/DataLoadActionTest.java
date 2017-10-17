@@ -3,9 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.Change;
-import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -172,12 +170,6 @@ public class DataLoadActionTest
   static final class MockLinkable
     implements Linkable
   {
-    @Override
-    public boolean isLinked()
-    {
-      return false;
-    }
-
     @Override
     public void link()
     {
