@@ -58,7 +58,7 @@ public class EntityRepositoryImpl
     final T t = getObjectMap( type ).get( id );
     if ( forceLink )
     {
-      linkEntity( t );
+      Linkable.link( t );
     }
     return t;
   }
@@ -72,7 +72,7 @@ public class EntityRepositoryImpl
     results.addAll( map.values() );
     for ( final T result : results )
     {
-      linkEntity( result );
+      Linkable.link( result );
     }
     return results;
   }
@@ -104,15 +104,6 @@ public class EntityRepositoryImpl
       _dataStore.put( type, objectMap );
     }
     return objectMap;
-  }
-
-  private void linkEntity( final Object t )
-  {
-    if ( t instanceof Linkable )
-    {
-      final Linkable linkable = (Linkable) t;
-      linkable.link();
-    }
   }
 
   private String describeEntity( final Class<?> type, final Object id )
