@@ -30,6 +30,14 @@ public interface Change
   boolean isUpdate();
 
   /**
+   * @return true if the change is a remove, false if it is an update.
+   */
+  default boolean isRemove()
+  {
+    return !isUpdate();
+  }
+
+  /**
    * Return true if data for the attribute identified by the key is present in the change.
    *
    * @param key the attribute key.
