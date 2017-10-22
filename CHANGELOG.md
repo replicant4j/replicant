@@ -5,6 +5,7 @@ a major rewrite of the library and involved large scale changes. Some of the mor
 included:
 
 * Remove `EntityChangeBroker` and all supporting infrastructure.
+* Remove `EntityRepositoryDebugger` and all supporting infrastructure.
 
 ## 0.5.92:
 * Use GWT super-source feature to replace `FilterUtil`.

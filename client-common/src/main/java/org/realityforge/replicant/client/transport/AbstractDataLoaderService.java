@@ -23,7 +23,6 @@ import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityRepository;
-import org.realityforge.replicant.client.EntityRepositoryDebugger;
 import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -784,10 +783,6 @@ public abstract class AbstractDataLoaderService
       {
         session.setLastRxSequence( set.getSequence() );
       }
-      if ( config().repositoryDebugOutputEnabled() )
-      {
-        outputRepositoryDebug();
-      }
       if ( config().subscriptionsDebugOutputEnabled() )
       {
         outputSubscriptionDebug();
@@ -1090,17 +1085,6 @@ public abstract class AbstractDataLoaderService
   protected EntityRepositoryValidator getEntityRepositoryValidator()
   {
     return new EntityRepositoryValidator();
-  }
-
-  protected void outputRepositoryDebug()
-  {
-    getEntityRepositoryDebugger().outputRepository( getRepository() );
-  }
-
-  @Nonnull
-  protected EntityRepositoryDebugger getEntityRepositoryDebugger()
-  {
-    return new EntityRepositoryDebugger();
   }
 
   protected void outputSubscriptionDebug()

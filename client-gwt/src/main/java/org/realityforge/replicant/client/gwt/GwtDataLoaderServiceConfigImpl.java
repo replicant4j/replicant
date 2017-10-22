@@ -11,23 +11,12 @@ public class GwtDataLoaderServiceConfigImpl
 
   private static final String REQUEST_DEBUG = "imitRequestDebug";
   private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
-  private static final String REPOSITORY_DEBUG = "imitRepositoryDebug";
 
   private final String _key;
 
   GwtDataLoaderServiceConfigImpl( @Nonnull final String key )
   {
     _key = key;
-
-    if ( canRepositoryDebugOutputBeEnabled() )
-    {
-      final String message =
-        _key + ".RepositoryDebugOutput module is enabled. Run the javascript " +
-        "'window." + REPOSITORY_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
-        "the debug output to just this data loader run the javascript '" +
-        toSessionSpecificJavascript( REPOSITORY_DEBUG ) + "'";
-      LOG.info( message );
-    }
 
     if ( canSubscriptionsDebugOutputBeEnabled() )
     {
@@ -74,22 +63,11 @@ public class GwtDataLoaderServiceConfigImpl
     return canSubscriptionsDebugOutputBeEnabled() && isEnabled( _key, SUBSCRIPTION_DEBUG );
   }
 
-  @Override
-  public boolean repositoryDebugOutputEnabled()
-  {
-    return canRepositoryDebugOutputBeEnabled() && isEnabled( _key, REPOSITORY_DEBUG );
-  }
-
   @Nonnull
   private String toSessionSpecificJavascript( @Nonnull final String variable )
   {
     final String key = _key;
     return "( window." + key + " ? window." + key + " : window." + key + " = {} )." + variable + " = true";
-  }
-
-  private boolean canRepositoryDebugOutputBeEnabled()
-  {
-    return System.getProperty( "replicant.repositoryDebugOutputEnabled", "false" ).equals( "true" );
   }
 
   private boolean canRequestDebugOutputBeEnabled()

@@ -38,12 +38,6 @@ public class EeDataLoaderServiceConfigImpl
     return isFlagTrue( "subscriptionsDebugOutputEnabled" );
   }
 
-  @Override
-  public boolean repositoryDebugOutputEnabled()
-  {
-    return isFlagTrue( "repositoryDebugOutputEnabled" );
-  }
-
   private boolean isFlagTrue( @Nonnull final String flag )
   {
     try

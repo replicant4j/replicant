@@ -172,12 +172,6 @@ public final class TestDataLoadService
       }
 
       @Override
-      public boolean repositoryDebugOutputEnabled()
-      {
-        return false;
-      }
-
-      @Override
       public boolean subscriptionsDebugOutputEnabled()
       {
         return false;

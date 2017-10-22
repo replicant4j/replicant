@@ -12,8 +12,6 @@ public interface DataLoaderServiceConfig
    */
   boolean shouldValidateRepositoryOnLoad();
 
-  boolean repositoryDebugOutputEnabled();
-
   boolean subscriptionsDebugOutputEnabled();
 
   boolean requestDebugOutputEnabled();
