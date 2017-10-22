@@ -30,11 +30,12 @@ artifacts:
 
   testng: org.testng:testng:jar:6.11
 
-  arez_annotations: org.realityforge.arez:arez-annotations:jar:gwt:0.11
-  arez_core: org.realityforge.arez:arez-core:jar:gwt:0.11
-  arez_processor: org.realityforge.arez:arez-processor:jar:0.11
-  arez_extras: org.realityforge.arez:arez-extras:jar:gwt:0.11
-  arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:gwt:0.11
+  arez_annotations: org.realityforge.arez:arez-annotations:jar:gwt:0.17
+  arez_core: org.realityforge.arez:arez-core:jar:gwt:0.17
+  arez_processor: org.realityforge.arez:arez-processor:jar:0.17
+  arez_component: org.realityforge.arez:arez-component:jar:0.17
+  arez_extras: org.realityforge.arez:arez-extras:jar:gwt:0.17
+  arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:gwt:0.17
 
   braincheck: org.realityforge.braincheck:braincheck:jar:gwt:1.1.0
 

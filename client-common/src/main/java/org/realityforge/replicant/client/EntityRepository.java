@@ -6,6 +6,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.arez.component.NoResultException;
+import org.realityforge.arez.component.NoSuchEntityException;
 
 /**
  * The service interface for storing entities locally on the client.

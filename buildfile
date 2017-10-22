@@ -13,7 +13,7 @@ POWERMOCK = [
 ]
 
 AREZ_DEPS = [
- :arez_annotations, :arez_core, :arez_processor, :arez_extras, :arez_browser_extras, :braincheck, :anodoc, :jetbrains_annotations
+ :arez_annotations, :arez_core, :arez_processor, :arez_component, :arez_extras, :arez_browser_extras, :braincheck, :anodoc, :jetbrains_annotations
 ]
 
 GWT_DEPS = [:gwt_user] + GIN_DEPS

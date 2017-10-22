@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
 import org.realityforge.arez.Disposable;
+import org.realityforge.arez.component.NoSuchEntityException;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -251,7 +252,7 @@ public class EntityRepositoryTest
     }
     catch ( final NoSuchEntityException e )
     {
-      assertEquals( e.getID(), id );
+      assertEquals( e.getId(), id );
       assertEquals( e.getType(), type );
       failed = true;
     }
