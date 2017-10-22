@@ -6,6 +6,7 @@ included:
 
 * Remove `EntityChangeBroker` and all supporting infrastructure.
 * Remove `EntityRepositoryDebugger` and all supporting infrastructure.
+* Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
 
 ## 0.5.92:
 * Use GWT super-source feature to replace `FilterUtil`.

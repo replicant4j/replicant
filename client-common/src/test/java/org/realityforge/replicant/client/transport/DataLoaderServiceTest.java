@@ -205,8 +205,8 @@ public class DataLoaderServiceTest
     progressWorkTillDone( service, 7, 1 );
 
     assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
     verify( cacheService ).store( cacheKey, etag, "Data" );
 
     assertRequestProcessed( service, request );
@@ -232,7 +232,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
+    assertEquals( service.getValidateRepositoryCallCount(), 1 );
     verify( cacheService, never() ).store( anyString(), anyString(), anyString() );
   }
 
@@ -271,7 +271,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
+    assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
     assertTrue( service.isDataLoadComplete() );
     assertNull( service.getStatus().getRequestID() );
@@ -347,7 +347,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
 
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
+    assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
     assertTrue( service.isDataLoadComplete() );
     assertNotNull( service.getStatus().getRequestID() );
@@ -370,7 +370,7 @@ public class DataLoaderServiceTest
 
     progressWorkTillDone( service, 8, 1 );
 
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
+    assertEquals( service.getValidateRepositoryCallCount(), 1 );
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity, never() ).link();
   }
@@ -389,7 +389,7 @@ public class DataLoaderServiceTest
 
     progressWorkTillDone( service, 8, 1 );
 
-    verify( service.getEntityRepositoryValidator(), times( 1 ) ).validate( service.getRepository() );
+    assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
     assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
   }
@@ -406,7 +406,7 @@ public class DataLoaderServiceTest
 
     progressWorkTillDone( service, 10, 2 );
 
-    verify( service.getEntityRepositoryValidator(), never() ).validate( service.getRepository() );
+    assertEquals( service.getValidateRepositoryCallCount(), 0 );
   }
 
   @Test
@@ -603,7 +603,6 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
     }
 
-
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
@@ -758,14 +757,5 @@ public class DataLoaderServiceTest
   private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
     assertNotNull( service.ensureSession().getRequest( request.getRequestID() ) );
-  }
-
-  private RequestEntry ensureRequest( final TestDataLoadService service, final TestChangeSet changeSet )
-  {
-    final String requestID = changeSet.getRequestID();
-    assertNotNull( requestID );
-    final RequestEntry request = service.ensureSession().getRequest( requestID );
-    assertNotNull( request );
-    return request;
   }
 }

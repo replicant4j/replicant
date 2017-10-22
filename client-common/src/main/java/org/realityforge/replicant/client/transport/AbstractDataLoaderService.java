@@ -3,10 +3,9 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,18 +15,20 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.arez.Disposable;
+import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityRepository;
-import org.realityforge.replicant.client.EntityRepositoryValidator;
+import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.Linkable;
+import org.realityforge.replicant.client.Verifiable;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
@@ -49,11 +50,6 @@ public abstract class AbstractDataLoaderService
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
   private final DataLoaderListenerSupport _listenerSupport = new DataLoaderListenerSupport();
-  /**
-   * The list of entities that no longer part of any graph. This set is used to collect
-   * entities so that their listeners can be purged at the end of the cycle.
-   */
-  private final HashSet<Object> _disownedEntities = new LinkedHashSet<>();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -124,10 +120,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  protected EntityRepository getRepository()
-  {
-    return getEntitySystem().getRepository();
-  }
+  protected abstract EntityLocator getEntityLocator();
 
   protected abstract EntitySystem getEntitySystem();
 
@@ -221,8 +214,6 @@ public abstract class AbstractDataLoaderService
         deregisterUnOwnedEntities( entry );
       }
     }
-
-    purgeDisownedEntities();
   }
 
   protected void unsubscribeInstanceGraphs( @Nonnull final Enum graph )
@@ -381,7 +372,13 @@ public abstract class AbstractDataLoaderService
           a.run();
         };
         LOG.info( "Subscription to " + label + " with eTag " + cacheKey + "=" + eTag + " requested" );
-        requestSubscribeToGraph( descriptor, filterParameter, cacheKey, eTag, cacheAction, completionAction, failAction );
+        requestSubscribeToGraph( descriptor,
+                                 filterParameter,
+                                 cacheKey,
+                                 eTag,
+                                 cacheAction,
+                                 completionAction,
+                                 failAction );
         return true;
       }
       else if ( action == AreaOfInterestAction.REMOVE )
@@ -792,7 +789,6 @@ public abstract class AbstractDataLoaderService
         validateRepository();
       }
 
-      purgeDisownedEntities();
       return true;
     }
     final DataLoadStatus status = _currentAction.toStatus( getKey() );
@@ -862,15 +858,6 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  private void purgeDisownedEntities()
-  {
-    for ( final Object entity : _disownedEntities )
-    {
-      Disposable.dispose( entity );
-    }
-    _disownedEntities.clear();
-  }
-
   @Nonnull
   private ChannelDescriptor toChannelDescriptor( final ChannelAction action )
   {
@@ -894,13 +881,7 @@ public abstract class AbstractDataLoaderService
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
           removedEntities += 1;
-          final Object entity = getRepository().deregisterEntity( type, entityID );
-
-          /*
-            We need to queue up entities to have their change listeners purged on next cycle.
-            We can not do it immediately as otherwise listener will not be notified
-           */
-          _disownedEntities.add( entity );
+          Disposable.dispose( getEntityLocator().getByID( type, entityID ) );
         }
       }
     }
@@ -909,6 +890,12 @@ public abstract class AbstractDataLoaderService
 
   @Nonnull
   public abstract Class<? extends Enum> getGraphType();
+
+  /**
+   * Return the entity types processed by this loader.
+   */
+  @Nonnull
+  public abstract Set<Class<?>> getEntityTypes();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nullable Object filter );
@@ -944,7 +931,7 @@ public abstract class AbstractDataLoaderService
         if ( deregisterEntity )
         {
           getSubscriptionManager().removeEntity( entityType, entityID );
-          getRepository().deregisterEntity( entityType, entityID );
+          Disposable.dispose( getEntityLocator().getByID( entityType, entityID ) );
           removedEntities += 1;
         }
       }
@@ -1074,17 +1061,39 @@ public abstract class AbstractDataLoaderService
   }
 
   /**
-   * Perform a validation of the EntityRepository.
+   * Check all the entities in the repository and raise an exception if an entity fails to validateRepository.
+   *
+   * An entity can fail to validateRepository if it is {@link Disposable} and {@link Disposable#isDisposed()} returns
+   * true. An entity can also fail to validateRepository if it is {@link Verifiable} and {@link Verifiable#verify()}
+   * throws an exception.
+   *
+   * @throws IllegalStateException if an invalid entity is found in the repository.
    */
   protected void validateRepository()
+    throws IllegalStateException
   {
-    getEntityRepositoryValidator().validate( getRepository() );
-  }
-
-  @Nonnull
-  protected EntityRepositoryValidator getEntityRepositoryValidator()
-  {
-    return new EntityRepositoryValidator();
+    for ( final Class<?> entityType : getEntityTypes() )
+    {
+      final List entities = getEntityLocator().findAll( entityType );
+      for ( final Object entity : entities )
+      {
+        invariant( () -> !Disposable.isDisposed( entity ),
+                   () -> "Invalid disposed entity found during validation. Entity: " + entity );
+        if ( BrainCheckConfig.checkInvariants() )
+        {
+          try
+          {
+            Verifiable.verify( entity );
+          }
+          catch ( final Exception e )
+          {
+            final String message = "Entity failed to verify. Entity = " + entity;
+            LOG.log( Level.WARNING, message, e );
+            throw new IllegalStateException( message, e );
+          }
+        }
+      }
+    }
   }
 
   protected void outputSubscriptionDebug()

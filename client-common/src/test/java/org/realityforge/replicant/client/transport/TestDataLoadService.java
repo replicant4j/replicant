@@ -10,7 +10,6 @@ import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityRepository;
-import org.realityforge.replicant.client.EntityRepositoryValidator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.EntitySystemImpl;
@@ -19,7 +18,6 @@ import static org.mockito.Mockito.*;
 public final class TestDataLoadService
   extends AbstractDataLoaderService
 {
-  private final EntityRepositoryValidator _validator;
   private boolean _validateOnLoad;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
@@ -29,15 +27,14 @@ public final class TestDataLoadService
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
   private final EntitySystem _entitySystem;
+  private int _validateRepositoryCallCount;
 
   TestDataLoadService()
   {
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
-    _validator = mock( EntityRepositoryValidator.class );
-    _entitySystem = new EntitySystemImpl( mock( EntityRepository.class ),
-                                          mock( EntitySubscriptionManager.class ) );
+    _entitySystem = new EntitySystemImpl( mock( EntityRepository.class ), mock( EntitySubscriptionManager.class ) );
   }
 
   @Nonnull
@@ -93,16 +90,21 @@ public final class TestDataLoadService
     return TestGraph.class;
   }
 
-  @Nonnull
   @Override
-  protected EntityRepositoryValidator getEntityRepositoryValidator()
+  protected void validateRepository()
+    throws IllegalStateException
   {
-    return _validator;
+    _validateRepositoryCallCount += 1;
   }
 
   void setValidateOnLoad( final boolean validateOnLoad )
   {
     _validateOnLoad = validateOnLoad;
+  }
+
+  int getValidateRepositoryCallCount()
+  {
+    return _validateRepositoryCallCount;
   }
 
   void setChangeSets( final TestChangeSet... changeSets )
