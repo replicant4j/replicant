@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
+import org.realityforge.arez.Disposable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
@@ -20,7 +21,6 @@ import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelAction.Action;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
@@ -31,6 +31,24 @@ import static org.testng.Assert.*;
 @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
 public class DataLoaderServiceTest
 {
+  static class MyType
+    implements Disposable
+  {
+    private boolean _disposed;
+
+    @Override
+    public void dispose()
+    {
+      _disposed = true;
+    }
+
+    @Override
+    public boolean isDisposed()
+    {
+      return _disposed;
+    }
+  }
+
   @Test
   public void purgeSubscriptions()
     throws Exception
@@ -38,7 +56,16 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
-    final EntityRepository repository = service.getRepository();
+
+    final MyType myTypeA = new MyType();
+    final MyType myTypeB = new MyType();
+    final MyType myTypeC = new MyType();
+    final MyType myTypeD = new MyType();
+
+    when( service.getEntityLocator().getByID( MyType.class, "A1" ) ).thenReturn( myTypeA );
+    when( service.getEntityLocator().getByID( MyType.class, "B1" ) ).thenReturn( myTypeB );
+    when( service.getEntityLocator().getByID( MyType.class, "C1" ) ).thenReturn( myTypeC );
+    when( service.getEntityLocator().getByID( MyType.class, "D1" ) ).thenReturn( myTypeD );
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
@@ -66,10 +93,10 @@ public class DataLoaderServiceTest
     final ChannelSubscriptionEntry entryD =
       new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D ), null, true );
 
-    insertSubscription( entryA, String.class, "A1" );
-    insertSubscription( entryB, String.class, "B1" );
-    insertSubscription( entryC, String.class, "C1" );
-    insertSubscription( entryD, String.class, "D1" );
+    insertSubscription( entryA, MyType.class, "A1" );
+    insertSubscription( entryB, MyType.class, "B1" );
+    insertSubscription( entryC, MyType.class, "C1" );
+    insertSubscription( entryD, MyType.class, "D1" );
 
     when( sm.getInstanceSubscriptionKeys() ).thenReturn( instanceGraphs );
     when( sm.getInstanceSubscriptions( TestGraph.A ) ).thenReturn( aGraph );
@@ -80,23 +107,24 @@ public class DataLoaderServiceTest
     when( sm.removeSubscription( new ChannelDescriptor( TestGraph.C ) ) ).thenReturn( entryC );
     when( sm.removeSubscription( new ChannelDescriptor( TestGraph.D ) ) ).thenReturn( entryD );
 
-    when( repository.deregisterEntity( String.class, "A1" ) ).thenReturn( "A1" );
-    when( repository.deregisterEntity( String.class, "B1" ) ).thenReturn( "B1" );
-    when( repository.deregisterEntity( String.class, "C1" ) ).thenReturn( "C1" );
-    when( repository.deregisterEntity( String.class, "D1" ) ).thenReturn( "D1" );
+    assertFalse( myTypeA.isDisposed() );
+    assertFalse( myTypeB.isDisposed() );
+    assertFalse( myTypeC.isDisposed() );
+    assertFalse( myTypeD.isDisposed() );
 
     service.purgeSubscriptions();
 
-    final InOrder inOrder = inOrder( repository, sm );
+    final InOrder inOrder = inOrder( sm );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) );
-    inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) );
-    inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.D ) );
-    inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
     inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.C ) );
-    inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
     inOrder.verifyNoMoreInteractions();
+
+    assertTrue( myTypeA.isDisposed() );
+    assertTrue( myTypeB.isDisposed() );
+    assertTrue( myTypeC.isDisposed() );
+    assertTrue( myTypeD.isDisposed() );
   }
 
   private void insertSubscription( final ChannelSubscriptionEntry entry, final Class<?> type, final String id )

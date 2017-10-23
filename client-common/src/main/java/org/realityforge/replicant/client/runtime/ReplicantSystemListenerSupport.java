@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.DataLoaderListener;
 
 public final class ReplicantSystemListenerSupport
   implements ReplicantSystemListener

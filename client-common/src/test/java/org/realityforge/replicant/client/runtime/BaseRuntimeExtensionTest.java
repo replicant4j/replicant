@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.ChannelDescriptor;
-import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -29,7 +29,7 @@ public class BaseRuntimeExtensionTest
   {
     private AreaOfInterestService _areaOfInterestService = mock( AreaOfInterestService.class );
     private ContextConverger _contextConverger = mock( ContextConverger.class );
-    private EntityRepository _repository = mock( EntityRepository.class );
+    private EntityLocator _entityLocator = mock( EntityLocator.class );
     private EntitySubscriptionManager _subscriptionManager = mock( EntitySubscriptionManager.class );
 
     @Nonnull
@@ -48,9 +48,9 @@ public class BaseRuntimeExtensionTest
 
     @Nonnull
     @Override
-    public EntityRepository getRepository()
+    public EntityLocator getEntityLocator()
     {
-      return _repository;
+      return _entityLocator;
     }
 
     @Nonnull
@@ -117,7 +117,6 @@ public class BaseRuntimeExtensionTest
       verify( aoiService ).createSubscriptionReference( scope, descriptor );
     }
 
-
     //Existing subscription, same filter, subscription already required. Should return existing
     {
       subscription.setFilter( filter );
@@ -143,8 +142,8 @@ public class BaseRuntimeExtensionTest
     final TestRuntime r = new TestRuntime();
 
     {
-      reset( r.getRepository() );
-      when( r.getRepository().findByID( String.class, 1 ) ).thenReturn( null );
+      reset( r.getEntityLocator() );
+      when( r.getEntityLocator().findByID( String.class, 1 ) ).thenReturn( null );
 
       final List<Object> list =
         r.instanceSubscriptionToValues( String.class, 1, Stream::of ).
@@ -155,8 +154,8 @@ public class BaseRuntimeExtensionTest
     {
       final String entity2 = ValueUtil.randomString();
 
-      reset( r.getRepository() );
-      when( r.getRepository().findByID( String.class, 2 ) ).thenReturn( entity2 );
+      reset( r.getEntityLocator() );
+      when( r.getEntityLocator().findByID( String.class, 2 ) ).thenReturn( entity2 );
 
       final List<Object> list =
         r.instanceSubscriptionToValues( String.class, 2, Stream::of ).

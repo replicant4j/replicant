@@ -1,7 +1,9 @@
 package org.realityforge.replicant.client.transport;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -9,10 +11,8 @@ import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySystem;
-import org.realityforge.replicant.client.EntitySystemImpl;
 import static org.mockito.Mockito.*;
 
 public final class TestDataLoadService
@@ -26,7 +26,8 @@ public final class TestDataLoadService
   private final CacheService _cacheService;
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
-  private final EntitySystem _entitySystem;
+  private final EntitySubscriptionManager _subscriptionManager;
+  private final EntityLocator _entityLocator;
   private int _validateRepositoryCallCount;
 
   TestDataLoadService()
@@ -34,7 +35,22 @@ public final class TestDataLoadService
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
-    _entitySystem = new EntitySystemImpl( mock( EntityRepository.class ), mock( EntitySubscriptionManager.class ) );
+    _subscriptionManager = mock( EntitySubscriptionManager.class );
+    _entityLocator = mock( EntityLocator.class );
+  }
+
+  @Nonnull
+  @Override
+  protected EntityLocator getEntityLocator()
+  {
+    return _entityLocator;
+  }
+
+  @Nonnull
+  @Override
+  public Set<Class<?>> getEntityTypes()
+  {
+    return Collections.emptySet();
   }
 
   @Nonnull
@@ -51,10 +67,11 @@ public final class TestDataLoadService
     return _cacheService;
   }
 
+  @Nonnull
   @Override
-  protected EntitySystem getEntitySystem()
+  protected EntitySubscriptionManager getSubscriptionManager()
   {
-    return _entitySystem;
+    return _subscriptionManager;
   }
 
   @Nonnull

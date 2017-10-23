@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.ee;
 
-import java.io.Serializable;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,7 +16,6 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.server.AbstractJaxrsHttpRequestFactory;
 import org.realityforge.gwt.webpoller.server.TimerBasedWebPoller;
-import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.shared.ee.JsonUtil;

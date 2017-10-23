@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
 import javax.annotation.Nonnull;
 
 public final class DisconnectEvent

@@ -8,8 +8,5 @@ import javax.annotation.Nonnull;
 public interface EntitySystem
 {
   @Nonnull
-  EntityRepository getRepository();
-
-  @Nonnull
   EntitySubscriptionManager getSubscriptionManager();
 }

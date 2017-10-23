@@ -1,12 +1,8 @@
 package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.inject.Provides;
-import javax.inject.Singleton;
-import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySystem;
-import org.realityforge.replicant.client.EntitySystemImpl;
+import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 import org.realityforge.replicant.client.transport.CacheService;
 
 /**
@@ -18,31 +14,17 @@ public class ReplicantGinModule
   @Override
   protected void configure()
   {
-    bindEntitySystem();
+    bindEntitySubscriptionManager();
     bindCacheService();
   }
 
-  protected void bindEntitySystem()
+  protected void bindEntitySubscriptionManager()
   {
-    bind( EntitySystem.class ).to( EntitySystemImpl.class ).asEagerSingleton();
+    bind( EntitySubscriptionManager.class ).to( EntitySubscriptionManagerImpl.class ).asEagerSingleton();
   }
 
   protected void bindCacheService()
   {
     bind( CacheService.class ).to( LocalCacheService.class ).asEagerSingleton();
-  }
-
-  @Provides
-  @Singleton
-  public final EntityRepository getEntityRepository( final EntitySystem system )
-  {
-    return system.getRepository();
-  }
-
-  @Provides
-  @Singleton
-  public final EntitySubscriptionManager getEntitySubscriptionManager( final EntitySystem system )
-  {
-    return system.getSubscriptionManager();
   }
 }

@@ -25,7 +25,6 @@ import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import static org.realityforge.braincheck.Guards.*;
@@ -114,15 +113,10 @@ public abstract class AbstractDataLoaderService
   protected abstract ChangeMapper getChangeMapper();
 
   @Nonnull
-  protected EntitySubscriptionManager getSubscriptionManager()
-  {
-    return getEntitySystem().getSubscriptionManager();
-  }
+  protected abstract EntitySubscriptionManager getSubscriptionManager();
 
   @Nonnull
   protected abstract EntityLocator getEntityLocator();
-
-  protected abstract EntitySystem getEntitySystem();
 
   protected boolean shouldPurgeOnSessionChange()
   {

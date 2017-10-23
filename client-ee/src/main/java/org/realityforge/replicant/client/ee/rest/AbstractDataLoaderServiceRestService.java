@@ -18,7 +18,6 @@ import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySystem;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.realityforge.replicant.shared.ee.JsonUtil;
@@ -73,7 +72,7 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
   protected abstract Class<T> getCurrentResource();
 
   @Nonnull
-  protected abstract EntitySystem getEntitySystem();
+  protected abstract EntitySubscriptionManager getEntitySubscriptionManager();
 
   @Nonnull
   protected abstract DataLoaderService getDataLoaderService();
@@ -147,7 +146,7 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
   private void emitChannels( final JsonGenerator g, final DataLoaderService service )
   {
     g.writeStartObject( "channels" );
-    final EntitySubscriptionManager subscriptionManager = getEntitySystem().getSubscriptionManager();
+    final EntitySubscriptionManager subscriptionManager = getEntitySubscriptionManager();
     final Class<? extends Enum> graphType = service.getGraphType();
     final List<Enum> typeSubscriptions =
       subscriptionManager.getTypeSubscriptions().stream().

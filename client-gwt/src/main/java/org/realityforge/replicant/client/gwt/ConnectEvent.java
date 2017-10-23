@@ -1,10 +1,7 @@
 package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
-import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.DataLoadStatus;
 
 public final class ConnectEvent
   extends AbstractDataLoaderEvent<ConnectEvent.Handler>

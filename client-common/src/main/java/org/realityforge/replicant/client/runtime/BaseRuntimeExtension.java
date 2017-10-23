@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
-import org.realityforge.replicant.client.EntityRepository;
+import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 
@@ -24,7 +24,7 @@ public interface BaseRuntimeExtension
   ContextConverger getContextConverger();
 
   @Nonnull
-  EntityRepository getRepository();
+  EntityLocator getEntityLocator();
 
   @Nonnull
   EntitySubscriptionManager getSubscriptionManager();
@@ -67,7 +67,7 @@ public interface BaseRuntimeExtension
                                                          @Nonnull final Object id,
                                                          @Nonnull final Function<T, Stream<O>> rootToStream )
   {
-    final T root = getRepository().findByID( type, id );
+    final T root = getEntityLocator().findByID( type, id );
     return null != root ? rootToStream.apply( root ) : Stream.empty();
   }
 

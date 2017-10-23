@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
  *
  * <ul>
  * <li>creating the entity if it does not already exist</li>
- * <li>registering or de-registering the entity in the {@link EntityRepository}</li>
+ * <li>registering or de-registering the entity in the EntityRepository</li>
  * <li>applying the state changes to the entity</li>
  * </ul>
  *

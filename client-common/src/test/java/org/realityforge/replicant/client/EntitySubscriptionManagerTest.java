@@ -124,12 +124,10 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null, false );
 
-    r.registerEntity( type, id, new A() );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
 
     sm.updateEntity( type,
@@ -185,12 +183,10 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null, false );
 
-    r.registerEntity( type, id, new A() );
     sm.updateEntity( type,
                      id,
                      new ChannelDescriptor[]{ new ChannelDescriptor( G.G2, 1 ) } );
@@ -215,14 +211,11 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G1 ), null, false );
     sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null, false );
-
-    r.registerEntity( type, id, new A() );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
@@ -256,7 +249,6 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntityRepository r = new EntityRepositoryImpl();
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2 ) ) );
@@ -265,8 +257,6 @@ public class EntitySubscriptionManagerTest
     assertEquals( s1.getFilter(), "X" );
     final ChannelSubscriptionEntry s2 = sm.recordSubscription( new ChannelDescriptor( G.G2 ), null, false );
     assertEquals( s2.getFilter(), null );
-
-    r.registerEntity( type, id, new A() );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, null ), type, id );

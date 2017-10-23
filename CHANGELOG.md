@@ -4,6 +4,8 @@ Stop using replicant specific mechanisms for managing state and instead start to
 a major rewrite of the library and involved large scale changes. Some of the more significant changes
 included:
 
+* Remove `EntitySystem` and all supporting infrastructure.
+* Remove `EntityRepository` and all supporting infrastructure.
 * Remove `EntityChangeBroker` and all supporting infrastructure.
 * Remove `EntityRepositoryDebugger` and all supporting infrastructure.
 * Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.

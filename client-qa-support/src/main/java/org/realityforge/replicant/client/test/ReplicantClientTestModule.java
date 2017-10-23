@@ -1,12 +1,8 @@
 package org.realityforge.replicant.client.test;
 
-import com.google.inject.Provides;
-import javax.inject.Singleton;
 import org.realityforge.guiceyloops.shared.AbstractModule;
-import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySystem;
-import org.realityforge.replicant.client.EntitySystemImpl;
+import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.AreaOfInterestServiceImpl;
 import org.realityforge.replicant.client.runtime.ContextConverger;
@@ -21,15 +17,15 @@ public class ReplicantClientTestModule
   @Override
   protected void configure()
   {
-    bindEntitySystem();
+    bindEntitySubscriptionManager();
     bindContextConverger();
     bindReplicantClientSystem();
     bindAreaOfInterestService();
   }
 
-  protected void bindEntitySystem()
+  protected void bindEntitySubscriptionManager()
   {
-    bind( EntitySystem.class ).to( EntitySystemImpl.class ).asEagerSingleton();
+    bind( EntitySubscriptionManager.class ).to( EntitySubscriptionManagerImpl.class ).asEagerSingleton();
   }
 
   protected void bindContextConverger()
@@ -45,19 +41,5 @@ public class ReplicantClientTestModule
   protected void bindAreaOfInterestService()
   {
     bind( AreaOfInterestService.class ).to( AreaOfInterestServiceImpl.class ).asEagerSingleton();
-  }
-
-  @Provides
-  @Singleton
-  public final EntityRepository getEntityRepository( final EntitySystem system )
-  {
-    return system.getRepository();
-  }
-
-  @Provides
-  @Singleton
-  public final EntitySubscriptionManager getEntitySubscriptionManager( final EntitySystem system )
-  {
-    return system.getSubscriptionManager();
   }
 }
