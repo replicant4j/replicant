@@ -19,7 +19,8 @@ public abstract class ReplicantSecuredSessionManagerImpl
   protected ReplicantSession newReplicantSession()
   {
     final OidcKeycloakAccount account = getAuthService().findAccount();
-    final String userID = null == account ? null : account.getKeycloakSecurityContext().getToken().getId();
+    final String userID =
+      null == account ? null : account.getKeycloakSecurityContext().getToken().getPreferredUsername();
     final String sessionID = UUID.randomUUID().toString();
     return new ReplicantSession( userID, sessionID );
   }
