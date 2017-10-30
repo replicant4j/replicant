@@ -1,5 +1,4 @@
 require 'buildr/git_auto_version'
-require 'buildr/jacoco'
 require 'buildr/gpg'
 require 'buildr/single_intermediate_layout'
 
@@ -124,6 +123,9 @@ define 'replicant' do
                        'org.realityforge.replicant.ReplicantDev' => false},
                       :settings => {:compilerMaxHeapSize => '1024'},
                       :gwt_dev_artifact => :gwt_dev)
+
+    # Not sure what in this project breakes jacoco
+    jacoco.enabled = false
   end
 
   define 'client-qa-support' do
