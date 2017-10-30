@@ -8,6 +8,8 @@ install:
   - rvm use 2.3.1
   - gem install bundler
   - bundle install
-script: buildr clean package
+script: buildr clean package jacoco:report
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 git:
   depth: 10
