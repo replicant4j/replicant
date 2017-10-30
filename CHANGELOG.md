@@ -10,6 +10,12 @@ included:
 * Remove `EntityRepositoryDebugger` and all supporting infrastructure.
 * Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
 
+## 0.5.93:
+* in `ReplicantSecuredSessionManagerImpl`, use the `PreferredUsename` claim as the UserID associated with the
+  Replicant Session, rather than the TokenID. The TokenID will change each time the token refreshes. An
+  alternative is the `Subject` token but everywhere this is deployed also adds the claim `PreferredUsename`
+  which is easier to read. Submitted by James Walker.
+
 ## 0.5.92:
 * Use GWT super-source feature to replace `FilterUtil`.
 
