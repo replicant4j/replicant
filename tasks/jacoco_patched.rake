@@ -198,7 +198,6 @@ module Buildr
               ant.structure(:name => 'Jacoco Report') do
                 ant.classfiles do
                   Buildr.projects.select{|p|p.jacoco.enabled?}.map(&:compile).map(&:target).flatten.map(&:to_s).each do |src|
-                    puts src if File.exist?(src)
                     ant.fileset :dir=>src.to_s if File.exist?(src)
                   end
                 end
