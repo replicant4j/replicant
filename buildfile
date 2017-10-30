@@ -120,6 +120,9 @@ define 'replicant' do
                        'org.realityforge.replicant.ReplicantDev' => false},
                       :settings => {:compilerMaxHeapSize => '1024'},
                       :gwt_dev_artifact => :gwt_dev)
+
+    # Not sure what in this project breakes jacoco
+    jacoco.enabled = false
   end
 
   define 'client-qa-support' do
