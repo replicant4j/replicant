@@ -1,3 +1,7 @@
+## 0.5.94:
+* in `AbstractSecuredSessionRestService`, check the `PreferredUsename` claim against the UserID associated with the
+  Replicant Session, rather than the TokenID. Works with the change on 0.5.93. Submitted by James Walker.
+
 ## 0.5.93:
 * in `ReplicantSecuredSessionManagerImpl`, use the `PreferredUsename` claim as the UserID associated with the
   Replicant Session, rather than the TokenID. The TokenID will change each time the token refreshes. An
