@@ -151,7 +151,7 @@ module Buildr
               desc 'Generate JaCoCo reports.'
               task 'reports' do
                 Buildr.ant 'jacoco' do |ant|
-                  ant.taskdef(:resource => 'org/jacoco/ant/antlib.xml') do |ant|
+                  ant.taskdef(:resource => 'org/jacoco/ant/antlib.xml') do
                     ant.classpath :path => Buildr.artifacts(Buildr::JaCoCo.ant_spec).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
                   end
                   ant.report do
