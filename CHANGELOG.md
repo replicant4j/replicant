@@ -1,20 +1,30 @@
-## 0.5.94:
+# Change Log
+
+### Unreleased
+
+### [v0.5.94](https://github.com/realityforge/replicant/tree/v0.5.94)
+[Full Changelog](https://github.com/realityforge/react4j/compare/v0.5.93...v0.5.94)
+
 * in `AbstractSecuredSessionRestService`, check the `PreferredUsename` claim against the UserID associated with the
   Replicant Session, rather than the TokenID. Works with the change on 0.5.93. Submitted by James Walker.
 
-## 0.5.93:
+### [v0.5.93](https://github.com/realityforge/replicant/tree/v0.5.93)
+
 * in `ReplicantSecuredSessionManagerImpl`, use the `PreferredUsename` claim as the UserID associated with the
   Replicant Session, rather than the TokenID. The TokenID will change each time the token refreshes. An
   alternative is the `Subject` token but everywhere this is deployed also adds the claim `PreferredUsename`
   which is easier to read. Submitted by James Walker.
 
-## 0.5.92:
+### [v0.5.92](https://github.com/realityforge/replicant/tree/v0.5.92)
+
 * Use GWT super-source feature to replace `FilterUtil`.
 
-## 0.5.91:
+### [v0.5.91](https://github.com/realityforge/replicant/tree/v0.5.91)
+
 * Made all variants of `ReplicationRequestUtil.runRequest` public.
 
-## 0.5.90:
+### [v0.5.90](https://github.com/realityforge/replicant/tree/v0.5.90)
+
 * Restructure the way `BaseRuntimeExtension` converges subscriptions between graphs to take into account
   implicit subscriptions.
 * Add `AreaOfInterestService.releaseScopesExcept` and `AreaOfInterestService.findOrCreateScope` helper methods.
@@ -27,27 +37,32 @@
   `SubscriptionInactiveException` exceptions to aid debugging the application.
 * Fix `ChannelMetaData` so that it supports filtered type graphs.
 
-## 0.5.89:
+### [v0.5.89](https://github.com/realityforge/replicant/tree/v0.5.89)
+
 * Move all subscription actions in `WebPollerDataLoaderService` to work via http actions rather than gwt_rpc.
 * Introduce `ActionCallbackAdapter` to help managing replicant requests outside gwtrpc
 * Support omitting `RequestEntry.RequestKey` during production builds. Removes a large number of strings in GWT
   compilation output. Controlled by use of setting in `ReplicantConfig`.
 * Enhance server-side rest session service to accept optional `requestID` query parameter.
 
-## 0.5.88:
+### [v0.5.88](https://github.com/realityforge/replicant/tree/v0.5.88)
+
 * Remove `ReplicantConfig` and dependency on `gwt-property-source` and replace with simple access to property
   via `System.getProperty(...)`
 
-## 0.5.87:
+### [v0.5.87](https://github.com/realityforge/replicant/tree/v0.5.87)
+
 * Remove `EeContextConvergerImpl` and `EeReplicantClientSystemImpl` to allow downstream products to define services.
 * Extract `AbstractEeContextConvergerImpl` class to simplify building ee context convergers.
 * Make the `converge()` method public in the classes `ContextConvergerImpl` and `ReplicantClientSystemImpl`
   to make it easier to schedule converges in subclasses.
 
-## 0.5.86:
+### [v0.5.86](https://github.com/realityforge/replicant/tree/v0.5.86)
+
 * Ensure that disowned entities still send out events by waiting til the end of the cycle before purging listeners.
 
-## 0.5.85:
+### [v0.5.85](https://github.com/realityforge/replicant/tree/v0.5.85)
+
 * Remove attributes from `ReplicantSession`.
 * Inline the `org.realityforge.ssf` dependency and compress inheritance chain for any class incorporated from ssf.
 * Remove the `org.realityforge.rest.field_filter` dependency and remove usage from codebase. Effectively
@@ -56,25 +71,31 @@
 * Extract `AbstractInvocationAdapter` from `AbstractReplicationInterceptor` to make functionality reusable
   in other contexts.
 
-## 0.5.84:
+### [v0.5.84](https://github.com/realityforge/replicant/tree/v0.5.84)
+
 * Extract a helper method `newSessionBasedInvocationBuilder` in `EeWebPollerDataLoaderService`.
 * Ensure interfaces can be bound into `EntityRepository` and generated messages via `EntityChangeBroker`.
 * Remove `ReplicantGwtClientTestModule`, `AbstractClientTest` and `AbstractGwtClientTest` as no
   downstream users make use of any of these classes.
 
-## 0.5.83:
+### [v0.5.83](https://github.com/realityforge/replicant/tree/v0.5.83)
+
 * Make `ReplicantClientTestModule` more extensible and bind some missing elements required for tests.
 
-## 0.5.82:
+### [v0.5.82](https://github.com/realityforge/replicant/tree/v0.5.82)
+
 * Update GWT module to include `AbstractFrontendContextImpl` and friends for GWT compiler.
 
-## 0.5.81:
+### [v0.5.81](https://github.com/realityforge/replicant/tree/v0.5.81)
+
 * Introduce `AreaOfInterestListenerAdapter` to simplify writing custom listeners.
 
-## 0.5.80:
+### [v0.5.80](https://github.com/realityforge/replicant/tree/v0.5.80)
+
 * Introduce `AbstractFrontendContextImpl` to simplify creation of frontend context for gwt interfaces.
 
-## 0.5.79:
+### [v0.5.79](https://github.com/realityforge/replicant/tree/v0.5.79)
+
 * Introduce `org.realityforge.replicant.client.transport.SessionContext#request()` method to simplify
   request management.
 * Enhance `ReplicantSessionManagerImpl` so support delink operations between graphs.
@@ -106,23 +127,28 @@
 * Decrease the log level from INFO to FINEST for the `AbstractDataLoaderService`.
 * Decrease the log level from WARNING to FINEST for the `WebPollerLogLevel`.
 
-## 0.5.78:
+### [v0.5.78](https://github.com/realityforge/replicant/tree/v0.5.78)
+
 * Enhance the `DataLoaderService` so that interaction between the `ClientSession` instances
   and `DataLoaderService` uses a formal contract rather than protected methods.
 * Make sure the asynchronous callbacks from JAXRS are correctly contextualized to ensure
   CDI operates as expected in `EeWebPollerDataLoaderService`.
 * Increase the log level from FINE to INFO for the `WebPoller` in `WebPollerDataLoaderService`.
 
-## 0.5.77:
+### [v0.5.77](https://github.com/realityforge/replicant/tree/v0.5.77)
+
 * Update `ReplicantEntityCustomizer.configure` to be static.
 
-## 0.5.76:
+### [v0.5.76](https://github.com/realityforge/replicant/tree/v0.5.76)
+
 * Introduce `ReplicantEntityCustomizer` to help customize replicant entities during tests.
 
-## 0.5.75:
+### [v0.5.75](https://github.com/realityforge/replicant/tree/v0.5.75)
+
 * Restructure `ReplicantClientTestModule` so that it also exposes the `EntitySystem` service.
 
-## 0.5.74:
+### [v0.5.74](https://github.com/realityforge/replicant/tree/v0.5.74)
+
 * Introduce querying and sorting accessors to EntityRepository as default methods.
 * Introduce basic locking around EeDataLoaderService operations.
 * Convert EntityRepository.getByID and EntityRepository.findByID to default methods on interface.
@@ -135,11 +161,13 @@
 * Move propagation of SystemErrorEvent from EeWebPollerDataLoaderService to EeDataLoaderService.
 * Fire ConnectEvent and DisconnectEvent from EeDataLoaderService when data loader connects and disconnects.
 
-## 0.5.73:
+### [v0.5.73](https://github.com/realityforge/replicant/tree/v0.5.73)
+
 * Add implementation EeDataLoaderService.getCacheService().
 * Change log level of WebPollerDataLoaderService to INFO.
 
-## 0.5.72:
+### [v0.5.72](https://github.com/realityforge/replicant/tree/v0.5.72)
+
 * Introduce the `EntitySystem` abstraction that collectors the EntityRepository, the EntityChangeBroker and
   the EntitySubscriptionManager services into one access point.
 * Move to Java8.
@@ -147,34 +175,42 @@
 * Refactor the AbstractDataLoader so that required services are exposed as template methods rather than
   being passed into the constructor. The aim is to enable sharing of these services for EE clients.
 
-## 0.5.71:
+### [v0.5.71](https://github.com/realityforge/replicant/tree/v0.5.71)
+
 * Introduce support interface `DataLoaderService` to make interaction with data loader generalizable.
 
-## 0.5.70:
+### [v0.5.70](https://github.com/realityforge/replicant/tree/v0.5.70)
+
 * Introduce constant `ReplicantContext.MAX_POLL_TIME_IN_SECONDS` to make it easy to determine poll
   time in both client and server code.
 
-## 0.5.69:
+### [v0.5.69](https://github.com/realityforge/replicant/tree/v0.5.69)
+
 * Change the access specifier of the class `GwtWebPollerDataLoaderService.ReplicantRequestFactory` to protected.
 
-## 0.5.68:
+### [v0.5.68](https://github.com/realityforge/replicant/tree/v0.5.68)
+
 * Introduce `AbstractSessionContextImpl` as a base class to extend as part of generation.
 
-## 0.5.67:
+### [v0.5.67](https://github.com/realityforge/replicant/tree/v0.5.67)
+
 * Add `ReplicantSessionManagerImpl.delinkDownstreamSubscriptions` and exposed to subclasses.
 * Update `ReplicantSessionManagerImpl` so that `ChannelLinks` are only expanded for updates.
 * Update `ReplicantSessionManagerImpl` to make `delinkSubscriptionEntries` and `linkSubscriptionEntries`
   protected access and available to subclasses.
 
-## 0.5.66:
+### [v0.5.66](https://github.com/realityforge/replicant/tree/v0.5.66)
+
 * Update the `ReplicantSessionManagerImpl` so the ChangeSet is passed into many methods rather than
   assuming the caller sessions ChangeSet.
 
-## 0.5.65:
+### [v0.5.65](https://github.com/realityforge/replicant/tree/v0.5.65)
+
 * Ensure `ChannelLink.hashcode()`, `ChannelLink.equals()` and `ChannelLink.toString()` take
   into consideration the source channel.
 
-## 0.5.64:
+### [v0.5.64](https://github.com/realityforge/replicant/tree/v0.5.64)
+
 * Major refactoring of `ReplicantSessionManagerImpl` so that the logic behind the
   subscribe, subscription updates and unsubscribe actions is not hidden in generated code.
   This has allowed the support of several new features, including automatic unsubscription
@@ -191,7 +227,8 @@
 * Introduce `SubscriptionEntry` to start explicitly representing subscriptions and
   make it accessible via `ReplicantSession`.
 
-## 0.5.63:
+### [v0.5.63](https://github.com/realityforge/replicant/tree/v0.5.63)
+
 * Introduced `ChainedAction` class to help when building chains of actions.
 * Convert the "cache action" in the `AbstractDataLoaderService` to be a `ChainedAction`
   to allow injections of actions after cache has been injected.
@@ -199,7 +236,8 @@
 * Move generic connect/disconnection functionality into `AbstractDataLoaderService` from
   `WebPollerDataLoaderService`.
 
-## 0.5.62:
+### [v0.5.62](https://github.com/realityforge/replicant/tree/v0.5.62)
+
 * Fix bug that required that the WebPoller factory be setup prior to creating
   `GwtWebPollerDataLoaderService`.
 * Introduce `GwtWebPollerDataLoaderService.newRequestBuilder()` template method for
@@ -209,11 +247,13 @@
   is not null.
 * Update `GwtWebPollerDataLoaderService.newRequestBuilder()` to set "Pragma: no-cache".
 
-## 0.5.61:
+### [v0.5.61](https://github.com/realityforge/replicant/tree/v0.5.61)
+
 * Add WebPollerDataLoaderService.getWebPollerLogLevel() template method to configure
   log level for WebPoller.
 
-## 0.5.60:
+### [v0.5.60](https://github.com/realityforge/replicant/tree/v0.5.60)
+
 * Break the project into several different jars to produce a cleaner dependency tree.
   This avoids scenarios where inappropriate code is included in final deployment units.
   The new packages include;
@@ -235,7 +275,8 @@
 * Update `AbstractSessionRestService` to remove `@PostConstruct` annotation and require that
   subclasses annotate the method appropriately.
 
-## 0.5.59:
+### [v0.5.59](https://github.com/realityforge/replicant/tree/v0.5.59)
+
 * Create a new WebPoller when polling starts to avoid reusing a WebPoller as pending calls may not
   be handled correctly if they were cancelled when WebPoller was stopped but did not return until
   the WebPoller was started again.
@@ -250,7 +291,8 @@
 * Fix NullPointerException in WebPollerDataLoaderService.
 * Fix several NullPointerExceptions in ChannelActionDTO.
 
-## 0.5.58:
+### [v0.5.58](https://github.com/realityforge/replicant/tree/v0.5.58)
+
 * Update to `gwt-webpoller` 0.9.1.
 * Introduce the package `org.realityforge.replicant.client.ee` to contain support required for client-side
   enterprise java replicant clients.
@@ -269,7 +311,8 @@
 * Migrate GwtDataLoaderService.scheduleDataLoad() implementation and supporting methods to
   AbstractDataLoaderService and introduce template methods for GWT specific functionality.
 
-## 0.5.57:
+### [v0.5.57](https://github.com/realityforge/replicant/tree/v0.5.57)
+
 * Rename package `org.realityforge.replicant.client.json.gwt` to `org.realityforge.replicant.client.gwt`.
 * Extract the gwt specific functionality of AbstractClientTest to AbstractGwtClientTest and move
   to a separate directory.
@@ -279,11 +322,13 @@
   org.realityforge.replicant.client.json.gwt package.
 * Remove unused org.realityforge.replicant.client.json.gwt.StringUtils.
 
-## 0.5.56:
+### [v0.5.56](https://github.com/realityforge/replicant/tree/v0.5.56)
+
 * Make it possible to store authentication token in SessionContext.
 * In AbstractDataLoaderService, reorder actions so that validation of repository occurs after debug output.
 
-## 0.5.55:
+### [v0.5.55](https://github.com/realityforge/replicant/tree/v0.5.55)
+
 * Update simple-session-filter dependency to enable CDI support for session managers.
 * Ensure ReplicantSessionManager and ReplicantJsonSessionManager can be CDI beans by removing final
   methods and adding tests to enforce this feature.
@@ -291,23 +336,28 @@
 * Rework SessionRestService to an abstract class AbstractSessionRestService with a template method
   to retrieve the SessionManager. Document how subclasses need to be defined.
 
-## 0.5.54:
+### [v0.5.54](https://github.com/realityforge/replicant/tree/v0.5.54)
+
 * Remove per request hash as the "Pragma: no-cache" header gets around caching in proxy servers.
 * Fix implementation of `JsoChange.containsKey` so that the method will return true even if the value is null.
 
-## 0.5.53:
+### [v0.5.53](https://github.com/realityforge/replicant/tree/v0.5.53)
+
 * Set "Pragma: no-cache" header when polling for changes.
 * Generate a per request hash added to each poll request to punch through overly zealous caching proxy servers.
 * Revert to using @EJB rather than @Inject for ReplicantPollSource to work-around limitations when deploying to GlassFish.
 
-## 0.5.52:
+### [v0.5.52](https://github.com/realityforge/replicant/tree/v0.5.52)
+
 * Specify further header in CacheUtil to avoid caching.
 
-## 0.5.51:
+### [v0.5.51](https://github.com/realityforge/replicant/tree/v0.5.51)
+
 * Add some documentation to README covering the basic concepts.
 * Eliminate BadSessionException and require AbstractDataLoaderService to implement ensureSession().
 
-## 0.5.50:
+### [v0.5.50](https://github.com/realityforge/replicant/tree/v0.5.50)
+
 * Update the AbstractDataLoaderService so that it only purges subscriptions that are "owned" by
   the data loader service and ignores any subscriptions owned by other data loaders.
 * Add EntityChangeBroker.removeAllChangeListeners() to purge listeners for a specific entity.
@@ -316,12 +366,14 @@
   are removed when subscriptions are removed as part of disconnect() method in AbstractDataLoaderService.
 * Update EntityRepositoryDebugger to add methods to support debugging of subscriptions.
 
-## 0.5.49:
+### [v0.5.49](https://github.com/realityforge/replicant/tree/v0.5.49)
+
 * Add a guard in EntityMessageCacheUtil so that if EntityMessageCacheUtil is accessed outside of a
   replication context, an exception is thrown. This forces all entity modifications to occur within
   a replication context.
 
-## 0.5.48:
+### [v0.5.48](https://github.com/realityforge/replicant/tree/v0.5.48)
+
 * Clear all state stored in TransactionSynchronizationRegistry in ReplicationRequestUtil.completeReplication()
   so that multiple replication contexts can be started in the scope of one transaction.
 * Update AbstractReplicationInterceptor to add useful logging at FINE level.
@@ -339,7 +391,8 @@
 * Update ReplicantContextHolder.remove() so that it returns the value that was removed.
 * Remove duplicated "lastAccessedAt" json key in output for SessionRestService.
 
-## 0.5.47:
+### [v0.5.47](https://github.com/realityforge/replicant/tree/v0.5.47)
+
 * When a client-side session is disconnected, delete the server-side session.
 * Upgrade to compile and test against GWT 2.7.0.
 * Replace TokenRestService with enhanced SessionRestService that provides status details
@@ -348,36 +401,43 @@
 * Add a template method ReplicantSession.emitStatus() to make it possible for sub-classes
   to provide additional details about session status.
 
-## 0.5.46:
+### [v0.5.46](https://github.com/realityforge/replicant/tree/v0.5.46)
+
 * Add CollectorEntityChangeListener that records entity change events, useful during testing.
 * Introduce ReplicantClientTestModule in the client-side test code that registers the standard set
   of client-side dependencies. Update AbstractClientTest to add ReplicantClientTestModule to the
   list of modules.
 
-## 0.5.45:
+### [v0.5.45](https://github.com/realityforge/replicant/tree/v0.5.45)
+
 * Remove unused EntityMessageGenerator.
 * Remove ChangeRecorder as downstream projects no longer use the class and instead
   generate the entire artifact.
 
-## 0.5.44:
+### [v0.5.44](https://github.com/realityforge/replicant/tree/v0.5.44)
+
 * Re-add inadvertently removed resumeBroker() and pauseBroker() to AbstractClientTest.
 * Add some minimal tests around how the WebPollerDataLoader will handle system failures
 
-## 0.5.43:
+### [v0.5.43](https://github.com/realityforge/replicant/tree/v0.5.43)
+
 * Add abstract method AbstractDataLoaderService.getSystemKey() that helps identify which replication
   system that the data loader is supporting. This is important when replicant is used with multiple
   replication data sources.
 * Introduce an EntityBrokerTransaction structure that identifies the data loader that initiated the
   "transaction" (a.k.a the disable or pause actions).
 
-## 0.5.42:
+### [v0.5.42](https://github.com/realityforge/replicant/tree/v0.5.42)
+
 * Ensure TokenRestService sets HTTP headers so IE performs no caching.
 
-## 0.5.41:
+### [v0.5.41](https://github.com/realityforge/replicant/tree/v0.5.41)
+
 * Ensure ReplicantPollResource sets HTTP headers to ensure IE performs no caching.
 * Extract out a constant for the query parameter used to identify the last received packet sequence.
 
-## 0.5.40:
+### [v0.5.40](https://github.com/realityforge/replicant/tree/v0.5.40)
+
 * Send a DataLoadCompleteEvent when a data load completes.
 * Send a SystemErrorEvent on the EventBus when a system error occurs.
 * Merge the WebPollerDataLoaderService.connect() method from downstream projects as they are all
@@ -385,41 +445,51 @@
 * Extract TokenRestService from downstream projects. The TokenRestService simply generates a new
   session and returns the token.
 
-## 0.5.39:
+### [v0.5.39](https://github.com/realityforge/replicant/tree/v0.5.39)
+
 * Introduce EntityChangeListenerAdapter to make writing listeners easier.
 
-## 0.5.38:
+### [v0.5.38](https://github.com/realityforge/replicant/tree/v0.5.38)
+
 * Remove the ReplicationRequestManager abstraction as it implies a transactional boundary crossing
   which is not the intention. Implement the same functionality as a collection of static methods
   in the ReplicationRequestUtil utility class.
 
-## 0.5.37:
+### [v0.5.37](https://github.com/realityforge/replicant/tree/v0.5.37)
+
 * Add AbstractDataLoaderService.supportMultipleDataLoaders() template method that should return
   true if the data loader source loader should gracefully share common resources between data
   loaders. Avoid Pausing already paused loader during data load processing when this return true.
 
-## 0.5.36:
+### [v0.5.36](https://github.com/realityforge/replicant/tree/v0.5.36)
+
 * Avoid ConcurrentModificationException in AbstractDataLoaderService.unsubscribeInstanceGraphs
   by duplicating list before unsubscribing.
 
-## 0.5.35:
+### [v0.5.35](https://github.com/realityforge/replicant/tree/v0.5.35)
+
 * Extract the handling of context management from AbstractReplicationInterceptor into
   ReplicationRequestManager and AbstractReplicationRequestManager.
 
-## 0.5.34:
+### [v0.5.34](https://github.com/realityforge/replicant/tree/v0.5.34)
+
 * Fix concurrency bug triggered in AbstractDataLoaderService.updateSubscriptionForFilteredEntities
   when entities are removed from subscription.
 
-## 0.5.33:
+### [v0.5.33](https://github.com/realityforge/replicant/tree/v0.5.33)
+
 * Add Runnable parameters to the connect and disconnect methods in WebPollerDataLoaderService.
 
-## 0.5.32:
+### [v0.5.32](https://github.com/realityforge/replicant/tree/v0.5.32)
+
 * Add source channel to ChannelLink.
 
-## 0.5.31:
+### [v0.5.31](https://github.com/realityforge/replicant/tree/v0.5.31)
+
 * Default ReplicantPollResource to 30 seconds long polling before making another request.
 
-## 0.5.30:
+### [v0.5.30](https://github.com/realityforge/replicant/tree/v0.5.30)
+
 * Add support for debugging entity subscriptions and requests as well as local
   repository state.
 * If repository debug output is enabled in application then print out a helper message
@@ -428,22 +498,26 @@
 * Associate a symbolic key with each session context. Prefix log messages using key and
   use it to restrict debugging to a particular GwtDataLoaderService subclass.
 
-## 0.5.29:
+### [v0.5.29](https://github.com/realityforge/replicant/tree/v0.5.29)
+
 * Update WebPollerDataLoaderService to annotate the exception in handleSystemFailure as nullable.
 * Make ReplicantRpcRequestBuilder a non final class.
 * Update SessionContext to have a per-session base url.
 * Remove reference to unused module (com.google.gwt.rpc.RPC) that is not present in GWT 2.7.
 
-## 0.5.28:
+### [v0.5.28](https://github.com/realityforge/replicant/tree/v0.5.28)
+
 * Support the ability to debug just a single DataSourceLoader services
   changes.
 * Add ReplicantDev.gwt.xml configuration that turns on all debug features.
 * Exclude test classes form GWT compiler's path.
 
-## 0.5.27:
+### [v0.5.27](https://github.com/realityforge/replicant/tree/v0.5.27)
+
 * Introduce AbstractClientTest to help write client-side tests.
 
-## 0.5.26:
+### [v0.5.26](https://github.com/realityforge/replicant/tree/v0.5.26)
+
 * Remove the usage of a Synchronized map and replace with ConcurrentHashMap in
   ReplicantPollResource as the version if jersey in GlassFish 4.1.0 can result in deadlocks
   when timeouts are triggered.
@@ -452,7 +526,8 @@
 * Refactor SessionContext is not static, thus allowing multiple contexts within a single
   application.
 
-## 0.5.25:
+### [v0.5.25](https://github.com/realityforge/replicant/tree/v0.5.25)
+
 * Introduce ReplicantJsonSessionManager as all downstream projects use json as their
   transport layer.
 * Rename ReplicantSessionManager.poll() to pollPacket to make it easier to sub-class.
@@ -460,36 +535,43 @@
   makes it easy to setup polling for replicant based systems. Derive the default poll
   url in the WebPollerDataLoaderService assuming the ReplicantPollResource implementation.
 
-## 0.5.24:
+### [v0.5.24](https://github.com/realityforge/replicant/tree/v0.5.24)
+
 * Extract utility method AbstractDataLoaderService.unsubscribeInstanceGraphs().
 * Add close handler in WebPollerDataLoaderService that disconnects WebPoller
   when the windows closes.
 * Correct nullability annotation for filterParameter in
   AbstractDataLoaderService.requestUpdateSubscription().
 
-## 0.5.23:
+### [v0.5.23](https://github.com/realityforge/replicant/tree/v0.5.23)
+
 * Implement WebPollerDataLoaderService to simplify construction of polling based data loaders.
 * Implement purging of subscriptions when the session changes.
 
-## 0.5.22:
+### [v0.5.22](https://github.com/realityforge/replicant/tree/v0.5.22)
+
 * Move to EE7.
 * Fix bug in ChangeAccumulator where change initiator can be incorrectly identified
   as having been routed to if a changeset was was accessed via getChangeSet()
   but no message was ever added to ChangeSet.
 
-## 0.5.21:
+### [v0.5.21](https://github.com/realityforge/replicant/tree/v0.5.21)
+
 * Remove BadSessionException and associated ensureSession so domgen can generate
   a customized implementation.
 
-## 0.5.20:
+### [v0.5.20](https://github.com/realityforge/replicant/tree/v0.5.20)
+
 * Move the responsibility for validating the entities in the EntityRepository to
   the EntitySubscriptionValidator.
 
-## 0.5.19:
+### [v0.5.19](https://github.com/realityforge/replicant/tree/v0.5.19)
+
 * Move the responsibility for deleting the entities from the EntityRepository from
   the EntitySubscriptionManager to the DataLoaderService.
 
-## 0.5.18:
+### [v0.5.18](https://github.com/realityforge/replicant/tree/v0.5.18)
+
 * Initial work to add debugging capability to the EntityRepository via a helper
   class EntityRepositoryDebugger.
 * Extract AbstractDataLoaderService.updateSubscriptionForFilteredEntities so that
@@ -497,7 +579,8 @@
   filter.
 * Add EntityRepository.findAllIDs method to get ids for entities.
 
-## 0.5.17:
+### [v0.5.17](https://github.com/realityforge/replicant/tree/v0.5.17)
+
 * Support the replication of the filter between the server and client.
 * Update the client to unregister entities that are filtered after a channels
   filter is updated.
@@ -508,27 +591,31 @@
 * Correct the namespace in ReplicantConfig so that the property is read correctly.
 * Pass ReplicantConfig through the constructor to make it easier to test.
 
-## 0.5.16:
+### [v0.5.16](https://github.com/realityforge/replicant/tree/v0.5.16)
+
 * Associated with each change, the channel(s)  (a.k.a. subscription(s)) which resulted in
   the change replicating to the client.
 * Replicate record of subscription changes to the client.
 
 NOTE: This is a large change and further details are in the source control system.
 
-## 0.5.15:
+### [v0.5.15](https://github.com/realityforge/replicant/tree/v0.5.15)
+
 * Rework ChangeRecorder to make sub-classing easier.
 * Rename SubscriptionEntry.subscriptionData to filterParameter to match domgen conventions.
 * Use constructor based injection for DataLoaders.
 * Extract a separate queue of actions to control subscription in the DataLoaders.
 
-## 0.5.14:
+### [v0.5.14](https://github.com/realityforge/replicant/tree/v0.5.14)
+
 * Associate a key with each request that corresponds to the operation being performed.
 * Merge RequestManager and AbstractSessionManager into ClientSession.
 * Add dependency on gwt-property-source library so that the choice on whether to
   validate repository after loads is controlled using a compile time configuration
   property.
 
-## 0.5.13:
+### [v0.5.13](https://github.com/realityforge/replicant/tree/v0.5.13)
+
 * Add support for Verifiable interface for entities that can validate their own state.
 * Support registration of interfaces in EntityRepository.
 * Add support for detecting whether an entity has been lined via Linkable.isLinked().
@@ -536,22 +623,27 @@ NOTE: This is a large change and further details are in the source control syste
   delink and instead rely on the repository invoking invalidate.
 * Rework ChangeRecorder to make it easier to sub-class and customize behaviour.
 
-## 0.5.12:
+### [v0.5.12](https://github.com/realityforge/replicant/tree/v0.5.12)
+
 * Mark the EntityMessageSet class as final.
 * Add EntityMessageSet.containsEntityMessage(...) to test whether the set
   contains a message.
 
-## 0.5.11:
+### [v0.5.11](https://github.com/realityforge/replicant/tree/v0.5.11)
+
 * Add support for recording arbitrary data in SubscriptionEntry.
 * Add AbstractSubscriptionManager.find(Instance|Type)GraphSubscription methods.
 
-## 0.5.10:
+### [v0.5.10](https://github.com/realityforge/replicant/tree/v0.5.10)
+
 * Restore compatibility with JDK 6.
 
-## 0.5.9:
+### [v0.5.9](https://github.com/realityforge/replicant/tree/v0.5.9)
+
 * Support encoding of Longs as strings in change sets.
 
-## 0.5.8:
+### [v0.5.8](https://github.com/realityforge/replicant/tree/v0.5.8)
+
 * Move remaining client specific state in AbstractDataLoaderService to ClientSession.
 * Enhance AbstractDataLoaderService.setSession so that it resets state on
   change. The state reset is deferred until the current action is completed.
@@ -564,7 +656,8 @@ NOTE: This is a large change and further details are in the source control syste
   raise an exception if attempting to ack a future packet sequence.
 * Add support for AbstractDataLoaderService.getSessionID() utility function.
 
-## 0.5.7:
+### [v0.5.7](https://github.com/realityforge/replicant/tree/v0.5.7)
+
 * Add AbstractDataLoaderService.onTerminatingIncrementalDataLoadProcess() template
   method to provide a useful extension point for subclasses.
 * Make it possible for the user to set explicitly set REQUEST_COMPLETE_KEY.
@@ -583,7 +676,8 @@ NOTE: This is a large change and further details are in the source control syste
 * Start to provide mechanisms for marking change sets with pseudo etags. This
   would support client-side caching of data.
 
-## 0.5.6:
+### [v0.5.6](https://github.com/realityforge/replicant/tree/v0.5.6)
+
 * In the DataLoaderService, do not execute runnable unless the RequestEntry has
   been successfully processed.
 * In the DataLoaderService, remove the RequestEntry if it has been successfully
@@ -592,7 +686,8 @@ NOTE: This is a large change and further details are in the source control syste
   the race scenario where the change set arrives prior to the the request
   returning.
 
-## 0.5.5:
+### [v0.5.5](https://github.com/realityforge/replicant/tree/v0.5.5)
+
 * Move responsibility for the determination of which change sets are bulk loads
   from the DataLoaderService to the code that creates requests on with the
   RequestManager.
@@ -612,7 +707,8 @@ NOTE: This is a large change and further details are in the source control syste
 * Introduce ReplicantContextHolder to ease passing of context information between
   tiers.
 
-## 0.5.4:
+### [v0.5.4](https://github.com/realityforge/replicant/tree/v0.5.4)
+
 * Import BadSessionException from downstream projects.
 * Add synchronized modifier to several methods of PacketQueue.
 * Import AbstractSubscriptionManager and SubscriptionEntry to help manage
@@ -627,7 +723,8 @@ NOTE: This is a large change and further details are in the source control syste
   AbstractDataLoaderService.enqueueDataLoad method.
 * Fix bug in Packet.isLessThan().
 
-## 0.5.3:
+### [v0.5.3](https://github.com/realityforge/replicant/tree/v0.5.3)
+
 * Move EntityMessageAccumulator to the transport package and re-target it to
   deliver messages to the PacketQueue.
 * Introduce the Packet and PacketQueue to support creating the transport layer.
@@ -636,7 +733,8 @@ NOTE: This is a large change and further details are in the source control syste
   and entity is added to the system.
 * Make EntityChangeBrokerImpl.shouldRaiseErrorOnEventHandlerError() final.
 
-## 0.5.2:
+### [v0.5.2](https://github.com/realityforge/replicant/tree/v0.5.2)
+
 * Add @Replicate annotation to help define interceptor in EE application.
 * Link the ChangeRecorder to the EntityMessageGenerator to reduce boilerplate
   code in dependent projects.
@@ -653,10 +751,12 @@ NOTE: This is a large change and further details are in the source control syste
 * Import EntityMessageSorter to make it easier to share sorting mechanisms
   across projects that use replicant.
 
-## 0.5.1:
+### [v0.5.1](https://github.com/realityforge/replicant/tree/v0.5.1)
+
 * Include source in jar file to make it easier to integrate with GWT.
 
-## 0.5:
+### [v0.5](https://github.com/realityforge/replicant/tree/v0.5)
+
 * Remove the Async*Callback interfaces now that they are generated by Domgen.
 * Move the RDate, Date*Serializer and Date*Deserializer classes to gwt-datatypes
   library.
@@ -667,7 +767,8 @@ NOTE: This is a large change and further details are in the source control syste
   validate the entity repository on each change. Useful to override and return true
   during development or in debug mode.
 
-## 0.4.8:
+### [v0.4.8](https://github.com/realityforge/replicant/tree/v0.4.8)
+
 * Change AbstractReplicationInterceptor so that subclasses must override a template
   method to provide the EntityManager. The purpose of this change is to allow for
   the use of this library in applications that have multiple persistence contexts.
