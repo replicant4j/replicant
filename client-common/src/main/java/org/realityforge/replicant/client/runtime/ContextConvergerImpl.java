@@ -103,7 +103,7 @@ public abstract class ContextConvergerImpl
       _isConvergingStep = true;
 
       final HashSet<ChannelDescriptor> channels = new HashSet<>();
-      //Need to duplicate the list of subscriptions. If an error occurs while processing subscription
+      // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
       final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
       for ( final Subscription subscription : subscriptions )
@@ -119,60 +119,6 @@ public abstract class ContextConvergerImpl
       convergeComplete();
       _isConvergingStep = false;
     }
-  }
-
-  private void convergeStepComplete()
-  {
-    _isConvergingStep = false;  
-  }
-
-  private void convergeComplete()
-  {
-    _convergeComplete = true;
-    if ( null != _convergeCompleteAction )
-    {
-      _convergeCompleteAction.run();
-    }
-  }
-
-  @Override
-  public void pause()
-  {
-    _paused = true;
-  }
-
-  @Override
-  public void resume()
-  {
-    unpause();
-    convergeStep();
-  }
-
-  /**
-   * Turn of paused state.
-   * Method does not schedule next converge step.
-   */
-  protected void unpause()
-  {
-    _paused = false;
-  }
-
-  @Override
-  public boolean isPaused()
-  {
-    return _paused;
-  }
-
-  private void markSubscriptionAsRequiringUpdate()
-  {
-    _subscriptionsUpToDate = false;
-    markConvergeAsIncomplete();
-  }
-
-  private void markConvergeAsIncomplete()
-  {
-    _convergeComplete = false;
-    convergeStep();
   }
 
   boolean convergeSubscription( @Nonnull final Subscription subscription )
@@ -236,6 +182,60 @@ public abstract class ContextConvergerImpl
       }
     }
     return false;
+  }
+  
+  private void convergeStepComplete()
+  {
+    _isConvergingStep = false;
+  }
+
+  private void convergeComplete()
+  {
+    _convergeComplete = true;
+    if ( null != _convergeCompleteAction )
+    {
+      _convergeCompleteAction.run();
+    }
+  }
+
+  @Override
+  public void pause()
+  {
+    _paused = true;
+  }
+
+  @Override
+  public void resume()
+  {
+    unpause();
+    convergeStep();
+  }
+
+  /**
+   * Turn of paused state.
+   * Method does not schedule next converge step.
+   */
+  protected void unpause()
+  {
+    _paused = false;
+  }
+
+  @Override
+  public boolean isPaused()
+  {
+    return _paused;
+  }
+
+  private void markSubscriptionAsRequiringUpdate()
+  {
+    _subscriptionsUpToDate = false;
+    markConvergeAsIncomplete();
+  }
+
+  private void markConvergeAsIncomplete()
+  {
+    _convergeComplete = false;
+    convergeStep();
   }
 
   @Nullable
