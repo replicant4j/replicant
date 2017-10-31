@@ -102,32 +102,34 @@ public abstract class ContextConvergerImpl
     {
       _isConvergingStep = true;
 
-      final HashSet<ChannelDescriptor> channels = new HashSet<>();
+      final HashSet<ChannelDescriptor> expectedChannels = new HashSet<>();
       // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
       final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
       for ( final Subscription subscription : subscriptions )
       {
-        channels.add( subscription.getDescriptor() );
-        if ( convergeSubscription( subscription ) )
+        expectedChannels.add( subscription.getDescriptor() );
+        if ( convergeSubscription( expectedChannels, subscription ) )
         {
           return;
         }
       }
 
-      removeOrphanSubscriptions( channels );
+      removeOrphanSubscriptions( expectedChannels );
       convergeComplete();
       _isConvergingStep = false;
     }
   }
 
-  boolean convergeSubscription( @Nonnull final Subscription subscription )
+  boolean convergeSubscription( @Nonnull final Set<ChannelDescriptor> expectedChannels,
+                                @Nonnull final Subscription subscription )
   {
     if ( subscription.isActive() )
     {
       for ( final Subscription child : subscription.getRequiredSubscriptions() )
       {
-        if ( convergeSubscription( child ) )
+        expectedChannels.add( child.getDescriptor() );
+        if ( convergeSubscription( expectedChannels, child ) )
         {
           return true;
         }
@@ -183,7 +185,7 @@ public abstract class ContextConvergerImpl
     }
     return false;
   }
-  
+
   private void convergeStepComplete()
   {
     _isConvergingStep = false;
