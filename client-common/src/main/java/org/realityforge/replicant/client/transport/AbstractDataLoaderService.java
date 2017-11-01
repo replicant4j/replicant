@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.arez.Arez;
 import org.realityforge.arez.Disposable;
 import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Change;
@@ -57,6 +58,7 @@ public abstract class AbstractDataLoaderService
   private State _state = State.DISCONNECTED;
 
   private ClientSession _session;
+  private Disposable _schedulerLock;
 
   @Nonnull
   @Override
@@ -250,6 +252,10 @@ public abstract class AbstractDataLoaderService
    */
   protected boolean stepDataLoad()
   {
+    if ( null == _schedulerLock )
+    {
+      _schedulerLock = Arez.context().pauseScheduler();
+    }
     try
     {
       final boolean aoiActionProgressed = progressAreaOfInterestActions();
@@ -261,6 +267,14 @@ public abstract class AbstractDataLoaderService
       getListener().onDataLoadFailure( this, e );
       _incrementalDataLoadInProgress = false;
       return false;
+    }
+    finally
+    {
+      if ( !_incrementalDataLoadInProgress )
+      {
+        _schedulerLock.dispose();
+        _schedulerLock = null;
+      }
     }
     return _incrementalDataLoadInProgress;
   }
@@ -708,23 +722,30 @@ public abstract class AbstractDataLoaderService
       {
         LOG.log( getLogLevel(), "Processing ChangeSet: " + _currentAction );
       }
-      Change change;
-      for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
-      {
-        final Object entity = getChangeMapper().applyChange( change );
-        if ( LOG.isLoggable( Level.INFO ) )
+
+      final String name = Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "].applyChange" : null;
+      final ChangeSet changeSet = _currentAction.getChangeSet();
+      assert null != changeSet;
+      Arez.context().safeAction( name, () -> {
+        Change change;
+        for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
         {
-          if ( change.isUpdate() )
+
+          final Object entity = getChangeMapper().applyChange( change );
+          if ( LOG.isLoggable( Level.INFO ) )
           {
-            _currentAction.incUpdateCount();
+            if ( change.isUpdate() )
+            {
+              _currentAction.incUpdateCount();
+            }
+            else
+            {
+              _currentAction.incRemoveCount();
+            }
           }
-          else
-          {
-            _currentAction.incRemoveCount();
-          }
+          _currentAction.changeProcessed( change.isUpdate(), entity );
         }
-        _currentAction.changeProcessed( change.isUpdate(), entity );
-      }
+      }, changeSet.getSequence(), changeSet.getRequestID() );
       return true;
     }
 
@@ -746,15 +767,21 @@ public abstract class AbstractDataLoaderService
       {
         LOG.log( getLogLevel(), "Linking Entities: " + _currentAction );
       }
-      Linkable linkable;
-      for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = _currentAction.nextEntityToLink() ); i++ )
-      {
-        linkable.link();
-        if ( LOG.isLoggable( Level.INFO ) )
+      final String name = Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "].link" : null;
+      final ChangeSet changeSet = _currentAction.getChangeSet();
+      assert null != changeSet;
+
+      Arez.context().safeAction( name, () -> {
+        Linkable linkable;
+        for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = _currentAction.nextEntityToLink() ); i++ )
         {
-          _currentAction.incLinkCount();
+          linkable.link();
+          if ( LOG.isLoggable( Level.INFO ) )
+          {
+            _currentAction.incLinkCount();
+          }
         }
-      }
+      }, changeSet.getSequence(), changeSet.getRequestID() );
       return true;
     }
 
