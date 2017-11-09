@@ -152,8 +152,7 @@ public abstract class AbstractDataLoaderService
         // until it can disable broker. This will involve replacing _resetAction
         // with something more like existing action setup.
 
-        //TODO:AREZ: Wrap this in an action
-        purgeSubscriptions();
+        context().safeAction( generateName( "purgeSubscriptions" ), this::purgeSubscriptions );
       }
     }
     if ( null != postAction )
