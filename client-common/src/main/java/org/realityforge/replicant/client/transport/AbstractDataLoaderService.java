@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.arez.Arez;
+import org.realityforge.arez.ArezContext;
 import org.realityforge.arez.Disposable;
 import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Change;
@@ -254,7 +255,7 @@ public abstract class AbstractDataLoaderService
   {
     if ( null == _schedulerLock )
     {
-      _schedulerLock = Arez.context().pauseScheduler();
+      _schedulerLock = context().pauseScheduler();
     }
     try
     {
@@ -723,10 +724,9 @@ public abstract class AbstractDataLoaderService
         LOG.log( getLogLevel(), "Processing ChangeSet: " + _currentAction );
       }
 
-      final String name = Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "].applyChange" : null;
       final ChangeSet changeSet = _currentAction.getChangeSet();
       assert null != changeSet;
-      Arez.context().safeAction( name, () -> {
+      context().safeAction( generateName( "applyChange" ), () -> {
         Change change;
         for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
         {
@@ -767,11 +767,10 @@ public abstract class AbstractDataLoaderService
       {
         LOG.log( getLogLevel(), "Linking Entities: " + _currentAction );
       }
-      final String name = Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "].link" : null;
       final ChangeSet changeSet = _currentAction.getChangeSet();
       assert null != changeSet;
 
-      Arez.context().safeAction( name, () -> {
+      context().safeAction( generateName( "link" ), () -> {
         Linkable linkable;
         for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = _currentAction.nextEntityToLink() ); i++ )
         {
@@ -1137,5 +1136,17 @@ public abstract class AbstractDataLoaderService
   protected RequestDebugger getRequestDebugger()
   {
     return new RequestDebugger();
+  }
+
+  @Nullable
+  protected String generateName( @Nonnull final String name )
+  {
+    return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]." + name : null;
+  }
+
+  @Nonnull
+  protected ArezContext context()
+  {
+    return Arez.context();
   }
 }
