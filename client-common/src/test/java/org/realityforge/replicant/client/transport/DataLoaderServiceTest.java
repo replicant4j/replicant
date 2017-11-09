@@ -597,7 +597,7 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
         new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
-      set( service, AbstractDataLoaderService.class, "_currentAoiAction", entry );
+      add( service, AbstractDataLoaderService.class, "_currentAoiActions", entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel3, null ),
@@ -768,7 +768,14 @@ public class DataLoaderServiceTest
     final Field field5 = clazz.getDeclaredField( fieldName );
     field5.setAccessible( true );
     field5.set( instance, value );
+  }
 
+  private void add( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
+    throws Exception
+  {
+    final Field field5 = clazz.getDeclaredField( fieldName );
+    field5.setAccessible( true );
+    ((List)field5.get( instance )).add( value );
   }
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
