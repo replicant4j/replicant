@@ -698,7 +698,9 @@ public abstract class AbstractDataLoaderService
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
           final ChannelSubscriptionEntry entry = getSubscriptionManager().removeSubscription( descriptor );
-          final int removedEntities = deregisterUnOwnedEntities( entry );
+          final int removedEntities =
+            context().safeAction( generateName( "deregisterUnOwnedEntities" ),
+                                  () -> deregisterUnOwnedEntities( entry ) );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
