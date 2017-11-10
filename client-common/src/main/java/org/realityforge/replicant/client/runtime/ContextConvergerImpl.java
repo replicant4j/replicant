@@ -28,7 +28,6 @@ public abstract class ContextConvergerImpl
   private boolean _subscriptionsUpToDate;
   private boolean _convergeComplete;
   private boolean _paused;
-  private boolean _isConvergingStep;
   private Runnable _preConvergeAction;
   private Runnable _convergeCompleteAction;
 
@@ -95,13 +94,10 @@ public abstract class ContextConvergerImpl
   protected void convergeStep()
   {
     if ( isActive() &&
-         !_isConvergingStep &&
          !_convergeComplete &&
          !isPaused() &&
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
-      _isConvergingStep = true;
-
       final HashSet<ChannelDescriptor> expectedChannels = new HashSet<>();
       // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
@@ -117,7 +113,6 @@ public abstract class ContextConvergerImpl
 
       removeOrphanSubscriptions( expectedChannels );
       convergeComplete();
-      _isConvergingStep = false;
     }
   }
 
@@ -184,11 +179,6 @@ public abstract class ContextConvergerImpl
       }
     }
     return false;
-  }
-
-  private void convergeStepComplete()
-  {
-    _isConvergingStep = false;
   }
 
   private void convergeComplete()
@@ -382,7 +372,6 @@ public abstract class ContextConvergerImpl
     public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
                                       @Nonnull final ChannelDescriptor descriptor )
     {
-      convergeStepComplete();
       convergeStep();
     }
 
@@ -391,7 +380,6 @@ public abstract class ContextConvergerImpl
                                    @Nonnull final ChannelDescriptor descriptor,
                                    @Nonnull final Throwable throwable )
     {
-      convergeStepComplete();
       removeFailedSubscription( descriptor );
     }
 
@@ -399,7 +387,6 @@ public abstract class ContextConvergerImpl
     public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
                                         @Nonnull final ChannelDescriptor descriptor )
     {
-      convergeStepComplete();
       convergeStep();
     }
 
@@ -408,7 +395,6 @@ public abstract class ContextConvergerImpl
                                      @Nonnull final ChannelDescriptor descriptor,
                                      @Nonnull final Throwable throwable )
     {
-      convergeStepComplete();
       convergeStep();
     }
 
@@ -416,7 +402,6 @@ public abstract class ContextConvergerImpl
     public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
                                                @Nonnull final ChannelDescriptor descriptor )
     {
-      convergeStepComplete();
       convergeStep();
     }
 
@@ -425,7 +410,6 @@ public abstract class ContextConvergerImpl
                                             @Nonnull final ChannelDescriptor descriptor,
                                             @Nonnull final Throwable throwable )
     {
-      convergeStepComplete();
       removeFailedSubscription( descriptor );
     }
   }
