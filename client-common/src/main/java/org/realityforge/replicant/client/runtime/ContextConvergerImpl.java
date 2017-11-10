@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -91,6 +92,15 @@ public abstract class ContextConvergerImpl
     return _convergeComplete;
   }
 
+  enum ConvergeAction
+  {
+    SUBMITTED_ADD,    // The submission has been added to the AOI queue
+    SUBMITTED_UPDATE, // The submission has been added to the AOI queue
+    TERMINATE, // The submission has been added to the AOI queue, and can't be grouped
+    IN_PROGRESS,  // The submission is already in progress, still waiting for a response
+    NO_ACTION     // Nothing was done, fully converged
+  }
+
   protected void convergeStep()
   {
     if ( isActive() &&
@@ -102,13 +112,39 @@ public abstract class ContextConvergerImpl
       // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
       final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
+      final List<Subscription> debugSubscriptions = new ArrayList<>( getSubscriptions() );
+      Subscription template = null;
+      AreaOfInterestAction aoiGroupAction = null;
       for ( final Subscription subscription : subscriptions )
       {
         expectedChannels.add( subscription.getDescriptor() );
-        if ( convergeSubscription( expectedChannels, subscription ) )
+        switch ( convergeSubscription( expectedChannels, subscription, template, aoiGroupAction, true ) )
         {
-          return;
+          case TERMINATE:
+            return;
+          case SUBMITTED_ADD:
+            aoiGroupAction = AreaOfInterestAction.ADD;
+            template = subscription;
+            break;
+          case SUBMITTED_UPDATE:
+            aoiGroupAction = AreaOfInterestAction.UPDATE;
+            template = subscription;
+            break;
+          case IN_PROGRESS:
+            if ( null == template )
+            {
+              // First thing in the subscription queue is in flight, so terminate
+              return;
+            }
+            break;
+          case NO_ACTION:
+            break;
         }
+      }
+      if ( null != template )
+      {
+        debugSubscriptions.forEach( x -> LOG.severe( x.getDescriptor().toString() ) );
+        return;
       }
 
       removeOrphanSubscriptions( expectedChannels );
@@ -116,17 +152,23 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  boolean convergeSubscription( @Nonnull final Set<ChannelDescriptor> expectedChannels,
-                                @Nonnull final Subscription subscription )
+  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelDescriptor> expectedChannels,
+                                       @Nonnull final Subscription subscription,
+                                       final Subscription templateForGrouping,
+                                       final AreaOfInterestAction aoiGroupAction,
+                                       final boolean canGroup )
   {
     if ( subscription.isActive() )
     {
       for ( final Subscription child : subscription.getRequiredSubscriptions() )
       {
         expectedChannels.add( child.getDescriptor() );
-        if ( convergeSubscription( expectedChannels, child ) )
+        switch ( convergeSubscription( expectedChannels, child, templateForGrouping, aoiGroupAction, false ) )
         {
-          return true;
+          case NO_ACTION:
+            break;
+          default:
+            return ConvergeAction.TERMINATE;
         }
       }
       final ChannelDescriptor descriptor = subscription.getDescriptor();
@@ -146,22 +188,42 @@ public abstract class ContextConvergerImpl
 
         if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
         {
-          LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
-          service.requestSubscribe( descriptor, filter );
-          return true;
+          if ( null != templateForGrouping && !canGroup )
+          {
+            return ConvergeAction.TERMINATE;
+          }
+          if ( null != templateForGrouping )
+          {
+            if ( canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
+            {
+              LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
+              service.requestSubscribe( descriptor, filter );
+              return ConvergeAction.SUBMITTED_ADD;
+            }
+            else
+            {
+              return ConvergeAction.NO_ACTION;
+            }
+          }
+          else
+          {
+            LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
+            service.requestSubscribe( descriptor, filter );
+            return ConvergeAction.SUBMITTED_ADD;
+          }
         }
         else if ( addIndex >= 0 )
         {
           //Must have add in pipeline so pause until it completed
-          return true;
+          return ConvergeAction.IN_PROGRESS;
         }
         else
         {
-          //Must be subscribed...
+          // Must be subscribed...
           if ( updateIndex >= 0 )
           {
             //Update in progress so wait till it completes
-            return true;
+            return ConvergeAction.IN_PROGRESS;
           }
 
           final Object existing = getSubscriptionManager().getSubscription( descriptor ).getFilter();
@@ -169,16 +231,51 @@ public abstract class ContextConvergerImpl
           final String existingFilter = filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
           {
-            final String message =
-              "Updating subscription: " + descriptor + ". Changing filter to " + newFilter + " from " + existingFilter;
-            LOG.info( message );
-            service.requestSubscriptionUpdate( descriptor, filter );
-            return true;
+            if ( null != templateForGrouping && !canGroup )
+            {
+              return ConvergeAction.TERMINATE;
+            }
+
+            if ( canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
+            {
+              final String message =
+                "Updating subscription: " +
+                descriptor +
+                ". Changing filter to " +
+                newFilter +
+                " from " +
+                existingFilter;
+              LOG.info( message );
+              service.requestSubscriptionUpdate( descriptor, filter );
+              return ConvergeAction.SUBMITTED_UPDATE;
+            }
+            else
+            {
+              return ConvergeAction.NO_ACTION;
+            }
           }
         }
       }
     }
-    return false;
+    return ConvergeAction.NO_ACTION;
+  }
+
+  protected boolean canGroup( @Nonnull final Subscription templateForGrouping,
+                              final AreaOfInterestAction aoiGroupAction,
+                              @Nonnull final Subscription subscription,
+                              final AreaOfInterestAction subscriptionAction )
+  {
+    if ( null != aoiGroupAction && subscriptionAction != null && !aoiGroupAction.equals( subscriptionAction ) )
+    {
+      return false;
+    }
+
+    final boolean sameGraph =
+      templateForGrouping.getDescriptor().getGraph().equals( subscription.getDescriptor().getGraph() );
+
+    return sameGraph &&
+           ( AreaOfInterestAction.REMOVE == subscriptionAction ||
+             FilterUtil.filtersEqual( templateForGrouping.getFilter(), subscription.getFilter() ) );
   }
 
   private void convergeComplete()
