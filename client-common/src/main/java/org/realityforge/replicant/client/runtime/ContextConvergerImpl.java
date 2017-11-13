@@ -190,24 +190,16 @@ public abstract class ContextConvergerImpl
           {
             return ConvergeAction.TERMINATE;
           }
-          if ( null != templateForGrouping )
-          {
-            if ( canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
-            {
-              LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
-              service.requestSubscribe( descriptor, filter );
-              return ConvergeAction.SUBMITTED_ADD;
-            }
-            else
-            {
-              return ConvergeAction.NO_ACTION;
-            }
-          }
-          else
+          if ( null == templateForGrouping ||
+               canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
           {
             LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
             service.requestSubscribe( descriptor, filter );
             return ConvergeAction.SUBMITTED_ADD;
+          }
+          else
+          {
+            return ConvergeAction.NO_ACTION;
           }
         }
         else if ( addIndex >= 0 )
@@ -234,7 +226,8 @@ public abstract class ContextConvergerImpl
               return ConvergeAction.TERMINATE;
             }
 
-            if ( canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
+            if ( null == templateForGrouping ||
+                 canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.UPDATE ) )
             {
               final String message =
                 "Updating subscription: " +
@@ -258,10 +251,10 @@ public abstract class ContextConvergerImpl
     return ConvergeAction.NO_ACTION;
   }
 
-  protected boolean canGroup( @Nonnull final Subscription templateForGrouping,
-                              final AreaOfInterestAction aoiGroupAction,
-                              @Nonnull final Subscription subscription,
-                              final AreaOfInterestAction subscriptionAction )
+  private boolean canGroup( @Nonnull final Subscription templateForGrouping,
+                            final AreaOfInterestAction aoiGroupAction,
+                            @Nonnull final Subscription subscription,
+                            final AreaOfInterestAction subscriptionAction )
   {
     if ( null != aoiGroupAction && subscriptionAction != null && !aoiGroupAction.equals( subscriptionAction ) )
     {
