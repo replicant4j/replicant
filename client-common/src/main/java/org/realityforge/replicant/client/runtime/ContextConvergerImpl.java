@@ -112,7 +112,6 @@ public abstract class ContextConvergerImpl
       // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
       final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
-      final List<Subscription> debugSubscriptions = new ArrayList<>( getSubscriptions() );
       Subscription template = null;
       AreaOfInterestAction aoiGroupAction = null;
       for ( final Subscription subscription : subscriptions )
@@ -143,7 +142,6 @@ public abstract class ContextConvergerImpl
       }
       if ( null != template )
       {
-        debugSubscriptions.forEach( x -> LOG.severe( x.getDescriptor().toString() ) );
         return;
       }
 
