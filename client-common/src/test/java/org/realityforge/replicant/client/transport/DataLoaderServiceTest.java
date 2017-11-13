@@ -851,6 +851,7 @@ public class DataLoaderServiceTest
   {
     final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
     final ChannelDescriptor channelA2 = new ChannelDescriptor( TestGraph.A, 2 );
+    final ChannelDescriptor channelA3 = new ChannelDescriptor( TestGraph.A, 3 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -879,10 +880,13 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
+    when( sm.findSubscription( eq( channelA3 ) ) ).thenReturn( new ChannelSubscriptionEntry( channelA3, "boo", false ) );
+
     service.requestUnsubscribe( channelA1 );
     service.requestUnsubscribe( channelA2 );
+    service.requestUnsubscribe( channelA3 );
 
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 3 );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
