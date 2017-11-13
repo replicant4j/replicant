@@ -251,7 +251,7 @@ public abstract class ContextConvergerImpl
     return ConvergeAction.NO_ACTION;
   }
 
-  private boolean canGroup( @Nonnull final Subscription templateForGrouping,
+  boolean canGroup( @Nonnull final Subscription templateForGrouping,
                             final AreaOfInterestAction aoiGroupAction,
                             @Nonnull final Subscription subscription,
                             final AreaOfInterestAction subscriptionAction )

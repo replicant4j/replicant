@@ -14,6 +14,7 @@ import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 public class ContextConvergerImplTest
@@ -560,5 +561,46 @@ public class ContextConvergerImplTest
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service ).requestSubscriptionUpdate( descriptor, "Filter1" );
     assertEquals( expectedChannels.size(), 0 );
+  }
+
+  @Test
+  public void canGroup()
+  {
+    final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
+    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
+
+    final ContextConvergerImpl c =
+      new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
+
+    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+
+    assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.ADD ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.UPDATE ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.REMOVE ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.UPDATE, subscription, AreaOfInterestAction.ADD ) );
+    assertTrue( c.canGroup( subscription, AreaOfInterestAction.UPDATE, subscription, AreaOfInterestAction.UPDATE ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.UPDATE, subscription, AreaOfInterestAction.REMOVE ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.ADD ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.UPDATE ) );
+    assertTrue( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.REMOVE ) );
+
+    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A, 2 );
+    final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
+    assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription2, AreaOfInterestAction.ADD ) );
+
+    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.B, 1 );
+    final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.ADD ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.UPDATE ) );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.REMOVE ) );
+
+    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraphA.A, 1 );
+    final Subscription subscription4 = new Subscription( areaOfInterestService, descriptor4 );
+    subscription4.setFilter( "Filter" );
+    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription4, AreaOfInterestAction.ADD ) );
+    subscription.setFilter( "Filter" );
+    assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription4, AreaOfInterestAction.ADD ) );
   }
 }
