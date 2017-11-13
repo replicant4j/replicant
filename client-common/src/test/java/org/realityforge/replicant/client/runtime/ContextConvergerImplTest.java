@@ -319,7 +319,7 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -364,7 +364,7 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptorB, null ) ).
       thenReturn( -1 );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service ).requestSubscribe( descriptorB, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -402,7 +402,7 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( 0 );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -440,7 +440,7 @@ public class ContextConvergerImplTest
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, null, false ) );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service, never() ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -475,7 +475,7 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service, never() ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -513,7 +513,7 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, "Filter1" ) ).
       thenReturn( 4 );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service, never() ).requestSubscribe( descriptor, "Filter1" );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -554,7 +554,7 @@ public class ContextConvergerImplTest
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, "OldFIlter", true ) );
 
-    c.convergeSubscription( expectedChannels, subscription );
+    c.convergeSubscription( expectedChannels, subscription, null, null, true );
 
     verify( service, never() ).requestSubscribe( descriptor, "Filter1" );
     verify( service, never() ).requestUnsubscribe( descriptor );
