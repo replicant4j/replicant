@@ -716,7 +716,7 @@ public class DataLoaderServiceTest
     final AreaOfInterestEntry channel2AOI = service.ensureSession().getPendingAreaOfInterestActions().get( 1 );
     when( service.getCacheService().lookup(
       eq( channel2AOI.getCacheKey() ) ) ).thenReturn(
-        new CacheEntry( channel2AOI.getCacheKey(), "woo", "har" ) );
+      new CacheEntry( channel2AOI.getCacheKey(), "woo", "har" ) );
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
@@ -843,6 +843,49 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().get( 0 ).getFilterParameter(), "FilterB" );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getFilterParameter(), "FilterB" );
+  }
+
+  @Test
+  public void progressBulkAreaOfInterestAddActionsWithIgnorableActions()
+    throws Exception
+  {
+    final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
+    final ChannelDescriptor channelA2 = new ChannelDescriptor( TestGraph.A, 2 );
+
+    final TestDataLoadService service = new TestDataLoadService();
+    configureService( service );
+    final EntitySubscriptionManager sm = service.getSubscriptionManager();
+    assertNotNull( service.getSession() );
+
+    when( sm.findSubscription( any( ChannelDescriptor.class ) ) ).thenReturn(
+      new ChannelSubscriptionEntry( channelA1, "boo", true ) );
+
+
+    service.requestSubscribe( channelA1, null );
+    service.requestSubscribe( channelA2, null );
+
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
+    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.getCurrentAOIActions().size(), 0 );
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
+
+    when( sm.findSubscription( any( ChannelDescriptor.class ) ) ).thenReturn( null );
+
+    service.requestSubscriptionUpdate( channelA1, "boo" );
+    service.requestSubscriptionUpdate( channelA2, "boo" );
+
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
+    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.getCurrentAOIActions().size(), 0 );
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
+
+    service.requestUnsubscribe( channelA1 );
+    service.requestUnsubscribe( channelA2 );
+
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
+    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.getCurrentAOIActions().size(), 0 );
+    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
   }
 
   private void completeOutstandingAOIs( final TestDataLoadService service )
