@@ -669,7 +669,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  // TODO: JWW - check impact of returning 0 for more than one action!
   public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
                                                  @Nonnull final ChannelDescriptor descriptor,
                                                  @Nullable final Object filter )
@@ -704,6 +703,12 @@ public abstract class AbstractDataLoaderService
   DataLoadAction getCurrentAction()
   {
     return _currentAction;
+  }
+
+  // Method only used in tests
+  List<AreaOfInterestEntry> getCurrentAOIActions()
+  {
+    return _currentAoiActions;
   }
 
   protected boolean progressDataLoad()
