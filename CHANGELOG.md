@@ -3,7 +3,7 @@
 ### Unreleased
 
 ### [v0.06](https://github.com/realityforge/replicant/tree/v0.06) (2017-11-14)
-[Full Changelog](https://github.com/realityforge/replicant/compare/v0.5...v0.06)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v0.5.94...v0.06)
 
 * Updated the `AbstractDataLoaderService` to support bulk loads. Aggregated consecutive AOI actions that can be
   grouped into a single bulk load. Submitted by James Walker.
