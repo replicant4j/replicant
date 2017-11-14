@@ -4,7 +4,7 @@
 
 * Updated the `AbstractDataLoaderService` to support bulk loads. Aggregated consecutive AOI actions that can be
   grouped into a single bulk load. Submitted by James Walker.
-* Updated the `ContextConvergerImpl` to schedule multiple AOI actions where they are compatible with bulk 
+* Updated the `ContextConvergerImpl` to schedule multiple AOI actions where they are compatible with bulk
   loading. Submitted by James Walker.
 
 ### [v0.5.94](https://github.com/realityforge/replicant/tree/v0.5.94)
