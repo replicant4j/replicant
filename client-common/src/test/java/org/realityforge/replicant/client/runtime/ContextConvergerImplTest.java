@@ -563,7 +563,7 @@ public class ContextConvergerImplTest
       thenReturn( new ChannelSubscriptionEntry( descriptor, "OldFIlter", true ) );
 
     assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
-                  ContextConvergerImpl.ConvergeAction.SUBMITTED_UPDATE);
+                  ContextConvergerImpl.ConvergeAction.SUBMITTED_UPDATE );
 
     verify( service, never() ).requestSubscribe( descriptor, "Filter1" );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -634,7 +634,7 @@ public class ContextConvergerImplTest
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
     assertEquals( c.convergeSubscription( expectedChannels, subscription1, null, null, true ),
-                  ContextConvergerImpl.ConvergeAction.NO_ACTION);
+                  ContextConvergerImpl.ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service, never() ).requestSubscriptionUpdate( descriptor, null );
@@ -652,10 +652,10 @@ public class ContextConvergerImplTest
     final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A, 1 );
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
 
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A,2 );
+    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A, 2 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
 
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.A,3 );
+    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.A, 3 );
     final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
 
     final ContextConvergerImpl c =
@@ -682,21 +682,33 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor3, "Filter" ) ).
       thenReturn( -1 );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription2, subscription1, AreaOfInterestAction.ADD, true ),
-                  ContextConvergerImpl.ConvergeAction.SUBMITTED_ADD);
+    assertEquals( c.convergeSubscription( expectedChannels,
+                                          subscription2,
+                                          subscription1,
+                                          AreaOfInterestAction.ADD,
+                                          true ),
+                  ContextConvergerImpl.ConvergeAction.SUBMITTED_ADD );
     verify( service ).requestSubscribe( descriptor2, null );
     verify( service, never() ).requestUnsubscribe( descriptor2 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor2, null );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription3, subscription1, AreaOfInterestAction.ADD, false ),
-                  ContextConvergerImpl.ConvergeAction.TERMINATE);
+    assertEquals( c.convergeSubscription( expectedChannels,
+                                          subscription3,
+                                          subscription1,
+                                          AreaOfInterestAction.ADD,
+                                          false ),
+                  ContextConvergerImpl.ConvergeAction.TERMINATE );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );
 
     subscription3.setFilter( "Filter" );
-    assertEquals( c.convergeSubscription( expectedChannels, subscription3, subscription1, AreaOfInterestAction.ADD, true ),
-                  ContextConvergerImpl.ConvergeAction.NO_ACTION);
+    assertEquals( c.convergeSubscription( expectedChannels,
+                                          subscription3,
+                                          subscription1,
+                                          AreaOfInterestAction.ADD,
+                                          true ),
+                  ContextConvergerImpl.ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );
@@ -714,10 +726,10 @@ public class ContextConvergerImplTest
     final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A, 1 );
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
 
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A,2 );
+    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A, 2 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
 
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.A,3 );
+    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.A, 3 );
     final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
 
     final ContextConvergerImpl c =
@@ -755,21 +767,33 @@ public class ContextConvergerImplTest
     when( subscriptionManager.getSubscription( descriptor3 ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor3, "OldFilter", true ) );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription2, subscription1, AreaOfInterestAction.UPDATE, true ),
-                  ContextConvergerImpl.ConvergeAction.SUBMITTED_UPDATE);
+    assertEquals( c.convergeSubscription( expectedChannels,
+                                          subscription2,
+                                          subscription1,
+                                          AreaOfInterestAction.UPDATE,
+                                          true ),
+                  ContextConvergerImpl.ConvergeAction.SUBMITTED_UPDATE );
     verify( service, never() ).requestSubscribe( descriptor2, null );
     verify( service, never() ).requestUnsubscribe( descriptor2 );
     verify( service ).requestSubscriptionUpdate( descriptor2, null );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription3, subscription1, AreaOfInterestAction.UPDATE, false ),
-                  ContextConvergerImpl.ConvergeAction.TERMINATE);
+    assertEquals( c.convergeSubscription( expectedChannels,
+                                          subscription3,
+                                          subscription1,
+                                          AreaOfInterestAction.UPDATE,
+                                          false ),
+                  ContextConvergerImpl.ConvergeAction.TERMINATE );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );
 
     subscription3.setFilter( "Filter" );
-    assertEquals( c.convergeSubscription( expectedChannels, subscription3, subscription1, AreaOfInterestAction.UPDATE, true ),
-                  ContextConvergerImpl.ConvergeAction.NO_ACTION);
+    assertEquals( c.convergeSubscription( expectedChannels,
+                                          subscription3,
+                                          subscription1,
+                                          AreaOfInterestAction.UPDATE,
+                                          true ),
+                  ContextConvergerImpl.ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );

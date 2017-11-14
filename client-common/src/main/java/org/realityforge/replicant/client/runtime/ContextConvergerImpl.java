@@ -252,9 +252,9 @@ public abstract class ContextConvergerImpl
   }
 
   boolean canGroup( @Nonnull final Subscription templateForGrouping,
-                            final AreaOfInterestAction aoiGroupAction,
-                            @Nonnull final Subscription subscription,
-                            final AreaOfInterestAction subscriptionAction )
+                    final AreaOfInterestAction aoiGroupAction,
+                    @Nonnull final Subscription subscription,
+                    final AreaOfInterestAction subscriptionAction )
   {
     if ( null != aoiGroupAction && subscriptionAction != null && !aoiGroupAction.equals( subscriptionAction ) )
     {
