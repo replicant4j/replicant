@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.arez.Arez;
@@ -27,6 +28,7 @@ import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import static org.realityforge.braincheck.Guards.*;
@@ -46,7 +48,7 @@ public abstract class AbstractDataLoaderService
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private DataLoadAction _currentAction;
-  private AreaOfInterestEntry _currentAoiAction;
+  private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
@@ -297,169 +299,298 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   protected abstract ChangeSet parseChangeSet( @Nonnull String rawJsonData );
 
+  /**
+   * Perform a single step in sending one (or a batch) or requests to the server.
+   *
+   * @return true if more work is to be done.
+   */
   protected boolean progressAreaOfInterestActions()
   {
-    if ( null == _currentAoiAction )
+    if ( _currentAoiActions.isEmpty() )
     {
       final LinkedList<AreaOfInterestEntry> actions = ensureSession().getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
       {
         return false;
       }
-      _currentAoiAction = actions.removeFirst();
+      final AreaOfInterestEntry first = actions.removeFirst();
+      _currentAoiActions.add( first );
+      while ( actions.size() > 0 && isCompatibleForBulkChange( first, actions.get( 0 ) ) )
+      {
+        _currentAoiActions.add( actions.removeFirst() );
+      }
     }
-    if ( _currentAoiAction.isInProgress() )
+
+    if ( _currentAoiActions.get( 0 ).isInProgress() )
     {
       return false;
     }
     else
     {
-      _currentAoiAction.markAsInProgress();
-      final ChannelDescriptor descriptor = _currentAoiAction.getDescriptor();
-      final Object filterParameter = _currentAoiAction.getFilterParameter();
-
-      final String label =
-        getKey() + ":" + descriptor +
-        ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
-      final String cacheKey = _currentAoiAction.getCacheKey();
-      final AreaOfInterestAction action = _currentAoiAction.getAction();
+      _currentAoiActions.forEach( AreaOfInterestEntry::markAsInProgress );
+      final AreaOfInterestAction action = _currentAoiActions.get( 0 ).getAction();
       if ( action == AreaOfInterestAction.ADD )
       {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( descriptor );
-        //Already subscribed
-        if ( null != entry )
-        {
-          if ( entry.isExplicitSubscription() )
-          {
-            LOG.warning( "Subscription to " + label + " requested but already subscribed." );
-            completeAoiAction();
-            return true;
-          }
-          else
-          {
-            LOG.warning( "Existing subscription to " + label + " converted to a explicit subscription." );
-            entry.setExplicitSubscription( true );
-            completeAoiAction();
-            return true;
-          }
-        }
-        final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
-        final String eTag;
-        final Consumer<Runnable> cacheAction;
-        if ( null != cacheEntry )
-        {
-          eTag = cacheEntry.getETag();
-          LOG.info( "Found locally cached data for graph " + label + " with etag " + eTag + "." );
-          cacheAction = a ->
-          {
-            LOG.info( "Loading cached data for graph " + label + " with etag " + eTag );
-            final Runnable completeAoiAction = () ->
-            {
-              LOG.info( "Completed load of cached data for graph " + label + " with etag " + eTag + "." );
-              completeAoiAction();
-              a.run();
-            };
-            ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
-          };
-        }
-        else
-        {
-          eTag = null;
-          cacheAction = null;
-        }
-        final Consumer<Runnable> completionAction = a ->
-        {
-          LOG.info( "Subscription to " + label + " completed." );
-          completeAoiAction();
-          a.run();
-        };
-        final Consumer<Runnable> failAction = a ->
-        {
-          LOG.info( "Subscription to " + label + " failed." );
-          completeAoiAction();
-          a.run();
-        };
-        LOG.info( "Subscription to " + label + " with eTag " + cacheKey + "=" + eTag + " requested" );
-        requestSubscribeToGraph( descriptor,
-                                 filterParameter,
-                                 cacheKey,
-                                 eTag,
-                                 cacheAction,
-                                 completionAction,
-                                 failAction );
-        return true;
+        return progressBulkAOIAddActions();
       }
       else if ( action == AreaOfInterestAction.REMOVE )
       {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( descriptor );
-        //Not subscribed
-        if ( null == entry )
-        {
-          LOG.warning( "Unsubscribe from " + label + " requested but not subscribed." );
-          completeAoiAction();
-          return true;
-        }
-        else if ( !entry.isExplicitSubscription() )
-        {
-          LOG.warning( "Unsubscribe from " + label + " requested but not explicitly subscribed." );
-          completeAoiAction();
-          return true;
-        }
-
-        LOG.info( "Unsubscribe from " + label + " requested." );
-        final Consumer<Runnable> completionAction = a ->
-        {
-          LOG.info( "Unsubscribe from " + label + " completed." );
-          entry.setExplicitSubscription( false );
-          completeAoiAction();
-          a.run();
-        };
-        final Consumer<Runnable> failAction = a ->
-        {
-          LOG.info( "Unsubscribe from " + label + " failed." );
-          entry.setExplicitSubscription( false );
-          completeAoiAction();
-          a.run();
-        };
-        requestUnsubscribeFromGraph( descriptor, completionAction, failAction );
-        return true;
+        return progressBulkAOIRemoveActions();
       }
       else
       {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( descriptor );
-        //Not subscribed
-        if ( null == entry )
-        {
-          LOG.warning( "Subscription update of " + label + " requested but not subscribed." );
-          completeAoiAction();
-          return true;
-        }
-
-        final Consumer<Runnable> completionAction = a ->
-        {
-          LOG.warning( "Subscription update of " + label + " completed." );
-          completeAoiAction();
-          a.run();
-        };
-        final Consumer<Runnable> failAction = a ->
-        {
-          LOG.warning( "Subscription update of " + label + " failed." );
-          completeAoiAction();
-          a.run();
-        };
-        LOG.warning( "Subscription update of " + label + " requested." );
-        assert null != filterParameter;
-        requestUpdateSubscription( descriptor, filterParameter, completionAction, failAction );
-        return true;
+        return progressBulkAOIUpdateActions();
       }
     }
+  }
+
+  private String label( AreaOfInterestEntry entry )
+  {
+    final ChannelDescriptor descriptor = entry.getDescriptor();
+    final Object filterParameter = entry.getFilterParameter();
+    return getKey() + ":" + descriptor +
+           ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
+  }
+
+  private String label( List<AreaOfInterestEntry> entries )
+  {
+    if ( entries.size() == 0 )
+    {
+      return "";
+    }
+    final Object filterParameter = entries.get( 0 ).getFilterParameter();
+    return getKey() +
+           ":" +
+           entries.stream().map( e -> e.getDescriptor().toString() ).collect( Collectors.joining( "/" ) ) +
+           ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
+  }
+
+  private boolean progressBulkAOIUpdateActions()
+  {
+    _currentAoiActions.removeIf( a -> {
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+      if ( null == entry )
+      {
+        LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
+        a.markAsComplete();
+        return true;
+      }
+      return false;
+    } );
+
+    if ( 0 == _currentAoiActions.size() )
+    {
+      completeAoiAction();
+      return true;
+    }
+
+    final Consumer<Runnable> completionAction = a ->
+    {
+      LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " completed." );
+      completeAoiAction();
+      a.run();
+    };
+    final Consumer<Runnable> failAction = a ->
+    {
+      LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " failed." );
+      completeAoiAction();
+      a.run();
+    };
+    LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " requested." );
+
+    final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
+    assert null != aoiEntry.getFilterParameter();
+    if ( _currentAoiActions.size() > 1 )
+    {
+      final List<ChannelDescriptor> ids =
+        _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
+      requestBulkUpdateSubscription( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
+    }
+    else
+    {
+      final ChannelDescriptor descriptor = aoiEntry.getDescriptor();
+      requestUpdateSubscription( descriptor, aoiEntry.getFilterParameter(), completionAction, failAction );
+    }
+    return true;
+  }
+
+  private boolean progressBulkAOIRemoveActions()
+  {
+    _currentAoiActions.removeIf( a -> {
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+      if ( null == entry )
+      {
+        LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
+        a.markAsComplete();
+        return true;
+      }
+      else if ( !entry.isExplicitSubscription() )
+      {
+        LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not explicitly subscribed." );
+        a.markAsComplete();
+        return true;
+      }
+      return false;
+    } );
+
+    if ( 0 == _currentAoiActions.size() )
+    {
+      completeAoiAction();
+      return true;
+    }
+
+    LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " requested." );
+    final Consumer<Runnable> completionAction = postAction ->
+    {
+      LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
+      _currentAoiActions.forEach( a -> {
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+        if ( null != entry )
+        {
+          entry.setExplicitSubscription( false );
+        }
+      } );
+      completeAoiAction();
+      postAction.run();
+    };
+
+    final Consumer<Runnable> failAction = postAction ->
+    {
+      LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
+      _currentAoiActions.forEach( a -> {
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+        if ( null != entry )
+        {
+          entry.setExplicitSubscription( false );
+        }
+      } );
+      completeAoiAction();
+      postAction.run();
+    };
+
+    final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
+    if ( _currentAoiActions.size() > 1 )
+    {
+      final List<ChannelDescriptor> ids =
+        _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
+      requestBulkUnsubscribeFromGraph( ids, completionAction, failAction );
+    }
+    else
+    {
+      final ChannelDescriptor descriptor = aoiEntry.getDescriptor();
+      requestUnsubscribeFromGraph( descriptor, completionAction, failAction );
+    }
+    return true;
+  }
+
+  private boolean progressBulkAOIAddActions()
+  {
+    _currentAoiActions.removeIf( a -> {
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+      if ( null != entry )
+      {
+        if ( entry.isExplicitSubscription() )
+        {
+          LOG.warning( "Subscription to " + label( a ) + " requested but already subscribed." );
+        }
+        else
+        {
+          LOG.warning( () -> "Existing subscription to " + label( a ) + " converted to a explicit subscription." );
+          entry.setExplicitSubscription( true );
+        }
+        a.markAsComplete();
+        return true;
+      }
+      return false;
+    } );
+
+    if ( 0 == _currentAoiActions.size() )
+    {
+      completeAoiAction();
+      return true;
+    }
+
+    final Consumer<Runnable> completionAction = a ->
+    {
+      LOG.info( () -> "Subscription to " + label( _currentAoiActions ) + " completed." );
+      completeAoiAction();
+      a.run();
+    };
+    final Consumer<Runnable> failAction = a ->
+    {
+      LOG.info( () -> "Subscription to " + label( _currentAoiActions ) + " failed." );
+      completeAoiAction();
+      a.run();
+    };
+
+    final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
+    if ( _currentAoiActions.size() == 1 )
+    {
+      final String cacheKey = aoiEntry.getCacheKey();
+      final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
+      final String eTag;
+      final Consumer<Runnable> cacheAction;
+      if ( null != cacheEntry )
+      {
+        eTag = cacheEntry.getETag();
+        LOG.info( () -> "Found locally cached data for graph " + label( aoiEntry ) + " with etag " + eTag + "." );
+        cacheAction = a ->
+        {
+          LOG.info( () -> "Loading cached data for graph " + label( aoiEntry ) + " with etag " + eTag );
+          final Runnable completeAoiAction = () ->
+          {
+            LOG.info( () -> "Completed load of cached data for graph " +
+                            label( aoiEntry ) +
+                            " with etag " +
+                            eTag +
+                            "." );
+            completeAoiAction();
+            a.run();
+          };
+          ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
+        };
+      }
+      else
+      {
+        eTag = null;
+        cacheAction = null;
+      }
+      LOG.info( () -> "Subscription to " + label( aoiEntry ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
+      requestSubscribeToGraph( aoiEntry.getDescriptor(),
+                               aoiEntry.getFilterParameter(),
+                               cacheKey,
+                               eTag,
+                               cacheAction,
+                               completionAction,
+                               failAction );
+    }
+    else
+    {
+      // don't support bulk loading of anything that is already cached
+      final List<ChannelDescriptor> ids =
+        _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
+      requestBulkSubscribeToGraph( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
+    }
+    return true;
+  }
+
+  private boolean isCompatibleForBulkChange( final AreaOfInterestEntry template,
+                                             final AreaOfInterestEntry match )
+  {
+    final AreaOfInterestAction action = match.getAction();
+    return null == getCacheService().lookup( template.getCacheKey() ) &&
+           null == getCacheService().lookup( match.getCacheKey() ) &&
+           template.getAction().equals( action ) &&
+           template.getDescriptor().getGraph().equals( match.getDescriptor().getGraph() ) &&
+           ( AreaOfInterestAction.REMOVE == action ||
+             FilterUtil.filtersEqual( match.getFilterParameter(), template.getFilterParameter() ) );
   }
 
   private void completeAoiAction()
   {
     scheduleDataLoad();
-    _currentAoiAction.markAsComplete();
-    _currentAoiAction = null;
+    _currentAoiActions.forEach( AreaOfInterestEntry::markAsComplete );
+    _currentAoiActions.clear();
   }
 
   protected abstract void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
@@ -479,6 +610,20 @@ public abstract class AbstractDataLoaderService
                                                      @Nonnull Consumer<Runnable> completionAction,
                                                      @Nonnull Consumer<Runnable> failAction );
 
+  protected abstract void requestBulkSubscribeToGraph( @Nonnull List<ChannelDescriptor> descriptor,
+                                                       @Nullable Object filterParameter,
+                                                       @Nonnull Consumer<Runnable> completionAction,
+                                                       @Nonnull Consumer<Runnable> failAction );
+
+  protected abstract void requestBulkUnsubscribeFromGraph( @Nonnull List<ChannelDescriptor> descriptors,
+                                                           @Nonnull Consumer<Runnable> completionAction,
+                                                           @Nonnull Consumer<Runnable> failAction );
+
+  protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelDescriptor> descriptors,
+                                                         @Nonnull Object filterParameter,
+                                                         @Nonnull Consumer<Runnable> completionAction,
+                                                         @Nonnull Consumer<Runnable> failAction );
+
   @Override
   public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
   {
@@ -492,7 +637,8 @@ public abstract class AbstractDataLoaderService
   {
     final ClientSession session = getSession();
     return
-      null != _currentAoiAction && _currentAoiAction.match( action, descriptor, filter ) ||
+      null != _currentAoiActions &&
+      _currentAoiActions.stream().anyMatch( a -> a.match( action, descriptor, filter ) ) ||
       (
         null != session &&
         session.getPendingAreaOfInterestActions().stream().
@@ -506,7 +652,8 @@ public abstract class AbstractDataLoaderService
                                                  @Nullable final Object filter )
   {
     final ClientSession session = getSession();
-    if ( null != _currentAoiAction && _currentAoiAction.match( action, descriptor, filter ) )
+    if ( null != _currentAoiActions &&
+         _currentAoiActions.stream().anyMatch( a -> a.match( action, descriptor, filter ) ) )
     {
       return 0;
     }
@@ -534,6 +681,12 @@ public abstract class AbstractDataLoaderService
   DataLoadAction getCurrentAction()
   {
     return _currentAction;
+  }
+
+  // Method only used in tests
+  List<AreaOfInterestEntry> getCurrentAOIActions()
+  {
+    return _currentAoiActions;
   }
 
   protected boolean progressDataLoad()
@@ -682,9 +835,7 @@ public abstract class AbstractDataLoaderService
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
           boolean explicitSubscribe = false;
-          if ( null != _currentAoiAction &&
-               _currentAoiAction.isInProgress() &&
-               _currentAoiAction.getDescriptor().equals( descriptor ) )
+          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getDescriptor().equals( descriptor ) ) )
           {
             if ( LOG.isLoggable( getLogLevel() ) )
             {

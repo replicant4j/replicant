@@ -12,6 +12,14 @@ included:
 * Remove `EntityRepositoryDebugger` and all supporting infrastructure.
 * Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
 
+### [v0.06](https://github.com/realityforge/replicant/tree/v0.06) (2017-11-14)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v0.5.94...v0.06)
+
+* Updated the `AbstractDataLoaderService` to support bulk loads. Aggregated consecutive AOI actions that can be
+  grouped into a single bulk load. Submitted by James Walker.
+* Updated the `ContextConvergerImpl` to schedule multiple AOI actions where they are compatible with bulk
+  loading. Submitted by James Walker.
+
 ### [v0.5.94](https://github.com/realityforge/replicant/tree/v0.5.94)
 [Full Changelog](https://github.com/realityforge/react4j/compare/v0.5.93...v0.5.94)
 
