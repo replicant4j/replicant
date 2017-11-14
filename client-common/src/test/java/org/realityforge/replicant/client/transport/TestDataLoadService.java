@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -223,6 +224,29 @@ public final class TestDataLoadService
                                             @Nonnull final Object filterParameter,
                                             @Nonnull final Consumer<Runnable> completionAction,
                                             @Nonnull final Consumer<Runnable> failAction )
+  {
+  }
+
+  @Override
+  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelDescriptor> descriptor,
+                                              @Nullable final Object filterParameter,
+                                              @Nonnull final Consumer<Runnable> completionAction,
+                                              @Nonnull final Consumer<Runnable> failAction )
+  {
+  }
+
+  @Override
+  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelDescriptor> descriptors,
+                                                  @Nonnull final Consumer<Runnable> completionAction,
+                                                  @Nonnull final Consumer<Runnable> failAction )
+  {
+  }
+
+  @Override
+  protected void requestBulkUpdateSubscription( @Nonnull final List<ChannelDescriptor> descriptors,
+                                                @Nonnull final Object filterParameter,
+                                                @Nonnull final Consumer<Runnable> completionAction,
+                                                @Nonnull final Consumer<Runnable> failAction )
   {
   }
 

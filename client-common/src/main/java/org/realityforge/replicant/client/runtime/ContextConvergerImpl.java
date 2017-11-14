@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -91,6 +92,15 @@ public abstract class ContextConvergerImpl
     return _convergeComplete;
   }
 
+  enum ConvergeAction
+  {
+    SUBMITTED_ADD,    // The submission has been added to the AOI queue
+    SUBMITTED_UPDATE, // The submission has been added to the AOI queue
+    TERMINATE, // The submission has been added to the AOI queue, and can't be grouped
+    IN_PROGRESS,  // The submission is already in progress, still waiting for a response
+    NO_ACTION     // Nothing was done, fully converged
+  }
+
   protected void convergeStep()
   {
     if ( isActive() &&
@@ -98,22 +108,165 @@ public abstract class ContextConvergerImpl
          !isPaused() &&
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
-      final HashSet<ChannelDescriptor> channels = new HashSet<>();
-      //Need to duplicate the list of subscriptions. If an error occurs while processing subscription
+      final HashSet<ChannelDescriptor> expectedChannels = new HashSet<>();
+      // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
       final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
+      Subscription template = null;
+      AreaOfInterestAction aoiGroupAction = null;
       for ( final Subscription subscription : subscriptions )
       {
-        channels.add( subscription.getDescriptor() );
-        if ( convergeSubscription( subscription ) )
+        expectedChannels.add( subscription.getDescriptor() );
+        switch ( convergeSubscription( expectedChannels, subscription, template, aoiGroupAction, true ) )
         {
-          return;
+          case TERMINATE:
+            return;
+          case SUBMITTED_ADD:
+            aoiGroupAction = AreaOfInterestAction.ADD;
+            template = subscription;
+            break;
+          case SUBMITTED_UPDATE:
+            aoiGroupAction = AreaOfInterestAction.UPDATE;
+            template = subscription;
+            break;
+          case IN_PROGRESS:
+            if ( null == template )
+            {
+              // First thing in the subscription queue is in flight, so terminate
+              return;
+            }
+            break;
+          case NO_ACTION:
+            break;
         }
       }
+      if ( null != template )
+      {
+        return;
+      }
 
-      removeOrphanSubscriptions( channels );
+      removeOrphanSubscriptions( expectedChannels );
       convergeComplete();
     }
+  }
+
+  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelDescriptor> expectedChannels,
+                                       @Nonnull final Subscription subscription,
+                                       final Subscription templateForGrouping,
+                                       final AreaOfInterestAction aoiGroupAction,
+                                       final boolean canGroup )
+  {
+    if ( subscription.isActive() )
+    {
+      for ( final Subscription child : subscription.getRequiredSubscriptions() )
+      {
+        expectedChannels.add( child.getDescriptor() );
+        switch ( convergeSubscription( expectedChannels, child, templateForGrouping, aoiGroupAction, false ) )
+        {
+          case NO_ACTION:
+            break;
+          default:
+            return ConvergeAction.TERMINATE;
+        }
+      }
+      final ChannelDescriptor descriptor = subscription.getDescriptor();
+      final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
+      // service can be disconnected if it is not a required service and will converge later when it connects
+      if ( DataLoaderService.State.CONNECTED == service.getState() )
+      {
+        final boolean subscribed = service.isSubscribed( descriptor );
+        final Object filter = subscription.getFilter();
+
+        final int addIndex =
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, filter );
+        final int removeIndex =
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null );
+        final int updateIndex =
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, filter );
+
+        if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
+        {
+          if ( null != templateForGrouping && !canGroup )
+          {
+            return ConvergeAction.TERMINATE;
+          }
+          if ( null == templateForGrouping ||
+               canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
+          {
+            LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
+            service.requestSubscribe( descriptor, filter );
+            return ConvergeAction.SUBMITTED_ADD;
+          }
+          else
+          {
+            return ConvergeAction.NO_ACTION;
+          }
+        }
+        else if ( addIndex >= 0 )
+        {
+          //Must have add in pipeline so pause until it completed
+          return ConvergeAction.IN_PROGRESS;
+        }
+        else
+        {
+          // Must be subscribed...
+          if ( updateIndex >= 0 )
+          {
+            //Update in progress so wait till it completes
+            return ConvergeAction.IN_PROGRESS;
+          }
+
+          final Object existing = getSubscriptionManager().getSubscription( descriptor ).getFilter();
+          final String newFilter = filterToString( filter );
+          final String existingFilter = filterToString( existing );
+          if ( !Objects.equals( newFilter, existingFilter ) )
+          {
+            if ( null != templateForGrouping && !canGroup )
+            {
+              return ConvergeAction.TERMINATE;
+            }
+
+            if ( null == templateForGrouping ||
+                 canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.UPDATE ) )
+            {
+              final String message =
+                "Updating subscription: " +
+                descriptor +
+                ". Changing filter to " +
+                newFilter +
+                " from " +
+                existingFilter;
+              LOG.info( message );
+              service.requestSubscriptionUpdate( descriptor, filter );
+              return ConvergeAction.SUBMITTED_UPDATE;
+            }
+            else
+            {
+              return ConvergeAction.NO_ACTION;
+            }
+          }
+        }
+      }
+    }
+    return ConvergeAction.NO_ACTION;
+  }
+
+  boolean canGroup( @Nonnull final Subscription templateForGrouping,
+                    final AreaOfInterestAction aoiGroupAction,
+                    @Nonnull final Subscription subscription,
+                    final AreaOfInterestAction subscriptionAction )
+  {
+    if ( null != aoiGroupAction && subscriptionAction != null && !aoiGroupAction.equals( subscriptionAction ) )
+    {
+      return false;
+    }
+
+    final boolean sameGraph =
+      templateForGrouping.getDescriptor().getGraph().equals( subscription.getDescriptor().getGraph() );
+
+    return sameGraph &&
+           ( AreaOfInterestAction.REMOVE == subscriptionAction ||
+             FilterUtil.filtersEqual( templateForGrouping.getFilter(), subscription.getFilter() ) );
   }
 
   private void convergeComplete()
@@ -163,69 +316,6 @@ public abstract class ContextConvergerImpl
   {
     _convergeComplete = false;
     convergeStep();
-  }
-
-  boolean convergeSubscription( @Nonnull final Subscription subscription )
-  {
-    if ( subscription.isActive() )
-    {
-      for ( final Subscription child : subscription.getRequiredSubscriptions() )
-      {
-        if ( convergeSubscription( child ) )
-        {
-          return true;
-        }
-      }
-      final ChannelDescriptor descriptor = subscription.getDescriptor();
-      final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
-      // service can be disconnected if it is not a required service and will converge later when it connects
-      if ( DataLoaderService.State.CONNECTED == service.getState() )
-      {
-        final boolean subscribed = service.isSubscribed( descriptor );
-        final Object filter = subscription.getFilter();
-
-        final int addIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, filter );
-        final int removeIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null );
-        final int updateIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, filter );
-
-        if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
-        {
-          LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
-          service.requestSubscribe( descriptor, filter );
-          return true;
-        }
-        else if ( addIndex >= 0 )
-        {
-          //Must have add in pipeline so pause until it completed
-          return true;
-        }
-        else
-        {
-          //Must be subscribed...
-          if ( updateIndex >= 0 )
-          {
-            //Update in progress so wait till it completes
-            return true;
-          }
-
-          final Object existing = getSubscriptionManager().getSubscription( descriptor ).getFilter();
-          final String newFilter = filterToString( filter );
-          final String existingFilter = filterToString( existing );
-          if ( !Objects.equals( newFilter, existingFilter ) )
-          {
-            final String message =
-              "Updating subscription: " + descriptor + ". Changing filter to " + newFilter + " from " + existingFilter;
-            LOG.info( message );
-            service.requestSubscriptionUpdate( descriptor, filter );
-            return true;
-          }
-        }
-      }
-    }
-    return false;
   }
 
   @Nullable

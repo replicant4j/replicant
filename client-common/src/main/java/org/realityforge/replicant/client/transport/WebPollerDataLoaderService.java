@@ -1,10 +1,12 @@
 package org.realityforge.replicant.client.transport;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
@@ -114,6 +116,18 @@ public abstract class WebPollerDataLoaderService
   {
     return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT +
            "/" + channel + ( null == subChannelID ? "" : "." + subChannelID );
+  }
+
+  /**
+   * Return URL to the specified channel, for the set of subChannelIDs for this session.
+   */
+  @Nonnull
+  protected String getChannelURL( final int channel,
+                                  @Nonnull List<Serializable> subChannelIDs )
+  {
+    final String queryParam = ReplicantContext.SUB_CHANNEL_ID_PARAM + "=" +
+                              subChannelIDs.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
+    return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
   }
 
   /**
@@ -315,6 +329,51 @@ public abstract class WebPollerDataLoaderService
                    onError ) );
   }
 
+  @Override
+  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelDescriptor> descriptors,
+                                              @Nullable final Object filterParameter,
+                                              @Nonnull final Consumer<Runnable> completionAction,
+                                              @Nonnull final Consumer<Runnable> failAction )
+  {
+    final ChannelDescriptor descriptor = descriptors.get( 0 );
+    if ( isGraphValid( descriptor ) )
+    {
+      descriptors.forEach( x -> getListener().onSubscribeStarted( this, x ) );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> descriptors.forEach( x -> getListener().onSubscribeCompleted( this,
+                                                                                                           x ) ) );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> descriptors.forEach( x -> getListener().onSubscribeFailed( this,
+                                                                                                         descriptor,
+                                                                                                         throwable ) ) );
+      performBulkSubscribe( descriptor.getGraph().ordinal(),
+                            descriptors.stream().map( x -> (Serializable) x.getID() ).collect( Collectors.toList() ),
+                            filterParameter,
+                            onSuccess,
+                            onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  protected void performBulkSubscribe( final int channel,
+                                       @Nonnull List<Serializable> subChannelIDs,
+                                       @Nullable final Object filterParameter,
+                                       @Nonnull final Runnable onSuccess,
+                                       @Nonnull final Consumer<Throwable> onError )
+  {
+    getSessionContext().request( toRequestKey( "BulkSubscribe", channel ), null, ( session, request ) ->
+      doSubscribe( session,
+                   request,
+                   filterParameter,
+                   getChannelURL( channel, subChannelIDs ),
+                   null,
+                   onSuccess,
+                   null,
+                   onError ) );
+  }
 
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
@@ -358,6 +417,49 @@ public abstract class WebPollerDataLoaderService
                    onError ) );
   }
 
+  protected void requestBulkUpdateSubscription( @Nonnull List<ChannelDescriptor> descriptors,
+                                                @Nonnull Object filterParameter,
+                                                @Nonnull Consumer<Runnable> completionAction,
+                                                @Nonnull Consumer<Runnable> failAction )
+  {
+    final ChannelDescriptor descriptor = descriptors.get( 0 );
+    if ( isGraphValid( descriptor ) )
+    {
+      descriptors.forEach( x -> getListener().onSubscriptionUpdateStarted( this, x ) );
+      final Runnable onSuccess = () -> completionAction.accept( () -> descriptors.forEach(
+        x -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) ) );
+      final Consumer<Throwable> onError = throwable -> failAction.accept( () -> descriptors.forEach(
+        x -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) ) );
+      performBulkUpdateSubscription( descriptor.getGraph().ordinal(),
+                                     descriptors.stream().map(
+                                       x -> (Serializable) x.getID() ).collect( Collectors.toList() ),
+                                     filterParameter,
+                                     onSuccess,
+                                     onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  protected void performBulkUpdateSubscription( final int channel,
+                                                @Nonnull List<Serializable> subChannelIDs,
+                                                @Nullable final Object filterParameter,
+                                                @Nonnull final Runnable onSuccess,
+                                                @Nonnull final Consumer<Throwable> onError )
+  {
+    getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channel ), null, ( session, request ) ->
+      doSubscribe( session,
+                   request,
+                   filterParameter,
+                   getChannelURL( channel, subChannelIDs ),
+                   null,
+                   onSuccess,
+                   null,
+                   onError ) );
+  }
+
   @Override
   protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
                                               @Nonnull final Consumer<Runnable> completionAction,
@@ -385,6 +487,46 @@ public abstract class WebPollerDataLoaderService
   {
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
       doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
+  }
+
+  @Override
+  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelDescriptor> descriptors,
+                                                  @Nonnull final Consumer<Runnable> completionAction,
+                                                  @Nonnull final Consumer<Runnable> failAction )
+  {
+    final ChannelDescriptor descriptor = descriptors.get( 0 );
+    if ( isGraphValid( descriptor ) )
+    {
+      descriptors.forEach( x -> getListener().onUnsubscribeStarted( this, x ) );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> descriptors.forEach( x -> getListener().onUnsubscribeCompleted( this,
+                                                                                                             x ) ) );
+      final Consumer<Throwable> onError =
+        throwable -> failAction.accept( () -> descriptors.forEach( x -> getListener().onUnsubscribeFailed( this,
+                                                                                                           descriptor,
+                                                                                                           throwable ) ) );
+      performBulkUnsubscribe( descriptor.getGraph().ordinal(),
+                              descriptors.stream().map( x -> (Serializable) x.getID() ).collect( Collectors.toList() ),
+                              onSuccess,
+                              onError );
+    }
+    else
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  protected void performBulkUnsubscribe( final int channel,
+                                         @Nonnull List<Serializable> subChannelIDs,
+                                         @Nonnull final Runnable onSuccess,
+                                         @Nonnull final Consumer<Throwable> onError )
+  {
+    getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( session, request ) ->
+      doUnsubscribe( session,
+                     request,
+                     getChannelURL( channel, subChannelIDs ),
+                     onSuccess,
+                     onError ) );
   }
 
   protected abstract void doSubscribe( @Nullable ClientSession session,

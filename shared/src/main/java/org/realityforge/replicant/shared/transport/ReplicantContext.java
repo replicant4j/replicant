@@ -56,6 +56,11 @@ public final class ReplicantContext
    */
   public static final String RECEIVE_SEQUENCE_PARAM = "rx";
   /**
+   * The query parameter used to identify a sub-channel id on a bulk change url.
+   */
+  public static final String SUB_CHANNEL_ID_PARAM = "scid";
+
+  /**
    * The duration of the long polls before returning in seconds.
    */
   public static final int MAX_POLL_TIME_IN_SECONDS = 30;
