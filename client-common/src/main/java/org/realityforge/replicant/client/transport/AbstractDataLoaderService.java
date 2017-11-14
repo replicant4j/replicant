@@ -383,18 +383,18 @@ public abstract class AbstractDataLoaderService
     final Object filterParameter = entries.get( 0 ).getFilterParameter();
     return getKey() +
            ":" +
-           entries.stream().map( x -> x.getDescriptor().toString() ).collect( Collectors.joining( "/" ) ) +
+           entries.stream().map( e -> e.getDescriptor().toString() ).collect( Collectors.joining( "/" ) ) +
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
 
   private boolean progressBulkAOIUpdateActions()
   {
-    _currentAoiActions.removeIf( x -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( x.getDescriptor() );
+    _currentAoiActions.removeIf( a -> {
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
       if ( null == entry )
       {
-        LOG.warning( () -> "Subscription update of " + label( x ) + " requested but not subscribed." );
-        x.markAsComplete();
+        LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
+        a.markAsComplete();
         return true;
       }
       return false;
@@ -438,18 +438,18 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIRemoveActions()
   {
-    _currentAoiActions.removeIf( x -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( x.getDescriptor() );
+    _currentAoiActions.removeIf( a -> {
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
       if ( null == entry )
       {
-        LOG.warning( () -> "Unsubscribe from " + label( x ) + " requested but not subscribed." );
-        x.markAsComplete();
+        LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
+        a.markAsComplete();
         return true;
       }
       else if ( !entry.isExplicitSubscription() )
       {
-        LOG.warning( () -> "Unsubscribe from " + label( x ) + " requested but not explicitly subscribed." );
-        x.markAsComplete();
+        LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not explicitly subscribed." );
+        a.markAsComplete();
         return true;
       }
       return false;
@@ -462,32 +462,32 @@ public abstract class AbstractDataLoaderService
     }
 
     LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " requested." );
-    final Consumer<Runnable> completionAction = a ->
+    final Consumer<Runnable> completionAction = postAction ->
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
-      _currentAoiActions.forEach( x -> {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( x.getDescriptor() );
+      _currentAoiActions.forEach( a -> {
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
         }
       } );
       completeAoiAction();
-      a.run();
+      postAction.run();
     };
 
-    final Consumer<Runnable> failAction = a ->
+    final Consumer<Runnable> failAction = postAction ->
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
-      _currentAoiActions.forEach( x -> {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( x.getDescriptor() );
+      _currentAoiActions.forEach( a -> {
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
         }
       } );
       completeAoiAction();
-      a.run();
+      postAction.run();
     };
 
     final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
@@ -507,20 +507,20 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIAddActions()
   {
-    _currentAoiActions.removeIf( x -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( x.getDescriptor() );
+    _currentAoiActions.removeIf( a -> {
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
       if ( null != entry )
       {
         if ( entry.isExplicitSubscription() )
         {
-          LOG.warning( "Subscription to " + label( x ) + " requested but already subscribed." );
+          LOG.warning( "Subscription to " + label( a ) + " requested but already subscribed." );
         }
         else
         {
-          LOG.warning( () -> "Existing subscription to " + label( x ) + " converted to a explicit subscription." );
+          LOG.warning( () -> "Existing subscription to " + label( a ) + " converted to a explicit subscription." );
           entry.setExplicitSubscription( true );
         }
-        x.markAsComplete();
+        a.markAsComplete();
         return true;
       }
       return false;
@@ -660,7 +660,7 @@ public abstract class AbstractDataLoaderService
     final ClientSession session = getSession();
     return
       null != _currentAoiActions &&
-      _currentAoiActions.stream().anyMatch( x -> x.match( action, descriptor, filter ) ) ||
+      _currentAoiActions.stream().anyMatch( a -> a.match( action, descriptor, filter ) ) ||
       (
         null != session &&
         session.getPendingAreaOfInterestActions().stream().
@@ -675,7 +675,7 @@ public abstract class AbstractDataLoaderService
   {
     final ClientSession session = getSession();
     if ( null != _currentAoiActions &&
-         _currentAoiActions.stream().anyMatch( x -> x.match( action, descriptor, filter ) ) )
+         _currentAoiActions.stream().anyMatch( a -> a.match( action, descriptor, filter ) ) )
     {
       return 0;
     }
@@ -871,7 +871,7 @@ public abstract class AbstractDataLoaderService
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
           boolean explicitSubscribe = false;
-          if ( _currentAoiActions.stream().anyMatch( x -> x.isInProgress() && x.getDescriptor().equals( descriptor ) ) )
+          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getDescriptor().equals( descriptor ) ) )
           {
             if ( LOG.isLoggable( getLogLevel() ) )
             {
