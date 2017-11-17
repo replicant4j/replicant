@@ -164,29 +164,6 @@ other calls that result in mass change may result in _bulk load_ change sets.
 
 There are several replicant components that developers directly interact with in client-side code.
 
-### EntityRepository
-
-The EntityRepository is the mechanism via which references to the client-side replica are obtained.
-At the current time, there is only one implementation of this service and it stores all replica's
-in memory.
-
-Typically it is used to access the root of an object graph, and then the code will traverse the
- relationships from the replica. i.e.
-
-```java
-EntityRepository repository = ...;
-
-// Retrieve all the people in the repository
-List<Person> people = repository.findAll( Person.class );
-
-// Sample code to retrieve all the phone numbers
-ArrayList<String> phoneNumbers = new ArrayList<String>();
-for ( Person p : people )
-{
-  phoneNumbers.add( p.getContactDetails().getPhoneNumber() );
-}
-```
-
 ### EntitySubscriptionManager
 
 The `EntitySubscriptionManager` records the state of subscriptions on the client-side. This includes
