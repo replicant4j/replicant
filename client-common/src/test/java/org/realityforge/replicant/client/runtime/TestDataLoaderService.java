@@ -108,6 +108,12 @@ final class TestDataLoaderService
     return false;
   }
 
+  @Override
+  public boolean isIdle()
+  {
+    return true;
+  }
+
   @Nullable
   @Override
   public ClientSession getSession()

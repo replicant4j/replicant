@@ -647,6 +647,13 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<Runnable> failAction );
 
   @Override
+  public boolean isIdle()
+  {
+    return _currentAoiActions.isEmpty() && _currentAction == null &&
+    _session.getPendingActions().isEmpty() && _session.getPendingAreaOfInterestActions().isEmpty();
+  }
+
+  @Override
   public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
   {
     return null != getSubscriptionManager().findSubscription( descriptor );
