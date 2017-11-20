@@ -1059,8 +1059,8 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-    onDataLoadComplete( status );
     _currentAction = null;
+    onDataLoadComplete( status );
     if ( null != _resetAction )
     {
       _resetAction.run();
