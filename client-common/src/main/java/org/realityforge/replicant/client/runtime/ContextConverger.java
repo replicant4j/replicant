@@ -31,6 +31,8 @@ public interface ContextConverger
 
   boolean isConvergeComplete();
 
+  boolean isIdle();
+
   /**
    * Pause the converger for the duration of the action.
    */
