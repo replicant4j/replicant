@@ -92,6 +92,13 @@ public abstract class ContextConvergerImpl
     return _convergeComplete;
   }
 
+  @Override
+  public boolean isIdle()
+  {
+    return isConvergeComplete() &&
+           getReplicantClientSystem().getDataLoaders().stream().allMatch( dl -> dl.getService().isIdle() );
+  }
+
   enum ConvergeAction
   {
     SUBMITTED_ADD,    // The submission has been added to the AOI queue

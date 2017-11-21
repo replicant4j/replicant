@@ -886,7 +886,9 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
-    when( sm.findSubscription( eq( channelA3 ) ) ).thenReturn( new ChannelSubscriptionEntry( channelA3, "boo", false ) );
+    when( sm.findSubscription( eq( channelA3 ) ) ).thenReturn( new ChannelSubscriptionEntry( channelA3,
+                                                                                             "boo",
+                                                                                             false ) );
 
     service.requestUnsubscribe( channelA1 );
     service.requestUnsubscribe( channelA2 );
@@ -896,6 +898,52 @@ public class DataLoaderServiceTest
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
+  }
+
+  @Test
+  public void isIdle()
+    throws Exception
+  {
+    final TestChangeSet changeSet1 =
+      new TestChangeSet( 1,
+                         mock( Runnable.class ),
+                         new Change[ 0 ],
+                         new ChannelAction[ 0 ] );
+    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
+    configureService( service );
+
+    assertTrue( service.isIdle() );
+
+    final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
+
+    // Have pending AOI
+    service.requestSubscribe( channelA1, null );
+    assertTrue( service.getCurrentAOIActions().isEmpty() );
+    assertFalse( service.isIdle() );
+
+    // Have current AOI
+    service.progressAreaOfInterestActions();
+    assertFalse( service.getCurrentAOIActions().isEmpty() );
+    assertFalse( service.isIdle() );
+
+    // Back to idle
+    completeOutstandingAOIs( service );
+    assertTrue( service.isIdle() );
+
+    // Have pending Action
+    service.ensureSession().enqueueDataLoad( "jsonData" );
+    assertNull( service.getCurrentAction() );
+    assertFalse( service.isIdle() );
+
+    // Have current Action
+    configureRequests( service, service.getChangeSets() );
+    service.progressDataLoad();
+    assertNotNull( service.getCurrentAction() );
+    assertFalse( service.isIdle() );
+
+    // Back to idle
+    progressWorkTillDone( service, 6, 1 );
+    assertTrue( service.isIdle() );
   }
 
   private void completeOutstandingAOIs( final TestDataLoadService service )

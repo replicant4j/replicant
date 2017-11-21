@@ -85,6 +85,11 @@ public interface DataLoaderService
   boolean isSubscribed( @Nonnull ChannelDescriptor descriptor );
 
   /**
+   * Return true if the DataLoader has nothing outstanding to complete
+   */
+  boolean isIdle();
+
+  /**
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
