@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
@@ -797,5 +798,43 @@ public class ContextConvergerImplTest
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );
+  }
+
+  @Test
+  public void isIdle()
+  {
+    final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
+    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final DataLoaderService service1 = mock( DataLoaderService.class );
+    final DataLoaderService service2 = mock( DataLoaderService.class );
+    final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
+
+    when( clientSystem.getState() ).thenReturn( ReplicantClientSystem.State.CONNECTED );
+    when( service1.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service2.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+
+    final List<DataLoaderEntry> dataLoaders = new ArrayList<>( 2 );
+    dataLoaders.add( new DataLoaderEntry( service1, true ) );
+    dataLoaders.add( new DataLoaderEntry( service2, true ) );
+
+    when( clientSystem.getDataLoaders() ).thenReturn( dataLoaders );
+
+    final ContextConvergerImpl c =
+      new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
+
+    when( service1.isIdle() ).thenReturn( true );
+    when( service2.isIdle() ).thenReturn( true );
+
+    // Convergers are not idle until they have attempted to converge at least once
+    assertFalse( c.isIdle() );
+    c.convergeStep();
+    assertTrue( c.isIdle() );
+    when( service1.isIdle() ).thenReturn( false );
+    when( service2.isIdle() ).thenReturn( false );
+    assertFalse( c.isIdle() );
+    when( service2.isIdle() ).thenReturn( true );
+    assertFalse( c.isIdle() );
+    when( service1.isIdle() ).thenReturn( true );
+    assertTrue( c.isIdle() );
   }
 }
