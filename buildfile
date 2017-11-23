@@ -37,6 +37,8 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
+    compile.with :javax_jsr305
+
     package(:jar)
     package(:sources)
     package(:javadoc)
