@@ -58,6 +58,7 @@ public final class ChannelDescriptor
     return result;
   }
 
+  @SuppressWarnings( "unchecked" )
   @Override
   public int compareTo( @Nonnull final ChannelDescriptor other )
   {
@@ -87,7 +88,6 @@ public final class ChannelDescriptor
       }
       else
       {
-        //noinspection unchecked
         return ( (Comparable) subChannelID ).compareTo( otherSubChannelID );
       }
     }
