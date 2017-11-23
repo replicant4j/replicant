@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+  <inherits name="org.realityforge.arez.Arez"/>
+  <inherits name="org.realityforge.arez.component.Component"/>
+  <inherits name="org.realityforge.replicant.ReplicantShared"/>
+  <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
+
+  <source path='client'>
+    <include name='*.java'/>
+    <include name='transport/**/*'/>
+    <include name='runtime/**/*'/>
+  </source>
+</module>

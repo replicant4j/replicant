@@ -37,13 +37,11 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
-    package(:jar).include("#{_(:source, :main, :java)}/*")
+    package(:jar)
     package(:sources)
     package(:javadoc)
 
-    iml.add_gwt_facet({'org.realityforge.replicant.ReplicantShared' => false},
-                      :settings => {:compilerMaxHeapSize => '1024'},
-                      :gwt_dev_artifact => :gwt_dev)
+    gwt_enhance(project)
   end
 
   define 'shared-ee' do
@@ -76,16 +74,14 @@ define 'replicant' do
   define 'client-common' do
     compile.with :javax_jsr305, :gwt_webpoller, :javax_inject, project('shared').package(:jar), AREZ_DEPS
 
-    package(:jar).include("#{_(:source, :main, :java)}/*")
+    package(:jar)
     package(:sources)
     package(:javadoc)
 
     test.using :testng
     test.compile.with TEST_DEPS
 
-    iml.add_gwt_facet({'org.realityforge.replicant.ReplicantClientCommon' => false},
-                      :settings => {:compilerMaxHeapSize => '1024'},
-                      :gwt_dev_artifact => :gwt_dev)
+    gwt_enhance(project)
   end
 
   define 'client-ee' do
@@ -109,21 +105,14 @@ define 'replicant' do
                  project('client-common').package(:jar),
                  project('client-common').compile.dependencies
 
-    gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
-        :java_args => %w(-Xms512M -Xmx1024M),
-        :draft_compile => 'true') unless ENV['GWT'] == 'no'
-
-    package(:jar).include("#{_(:source, :main, :java)}/*")
+    package(:jar)
     package(:sources)
     package(:javadoc)
 
+    gwt_enhance(project)
+
     test.using :testng
     test.compile.with TEST_DEPS
-
-    iml.add_gwt_facet({'org.realityforge.replicant.Replicant' => false,
-                       'org.realityforge.replicant.ReplicantDev' => false},
-                      :settings => {:compilerMaxHeapSize => '1024'},
-                      :gwt_dev_artifact => :gwt_dev)
 
     # Not sure what in this project breakes jacoco
     jacoco.enabled = false
