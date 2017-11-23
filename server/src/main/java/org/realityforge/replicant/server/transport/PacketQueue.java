@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.transport;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
@@ -92,7 +91,7 @@ public class PacketQueue
   {
     final Packet packet = new Packet( _nextSequence++, requestID, etag, changeSet );
     _packets.add( packet );
-    Collections.sort( _packets );
+    _packets.sort( null );
     return packet;
   }
 
