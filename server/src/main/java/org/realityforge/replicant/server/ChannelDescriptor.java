@@ -64,7 +64,7 @@ public final class ChannelDescriptor
     final int otherChannelID = other.getChannelID();
     final int channelID = getChannelID();
 
-    final int channelDiff = ( channelID < otherChannelID ) ? -1 : ( ( channelID == otherChannelID ) ? 0 : 1 );
+    final int channelDiff = Integer.compare( channelID, otherChannelID );
     if ( 0 != channelDiff )
     {
       return channelDiff;
