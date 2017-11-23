@@ -2,7 +2,7 @@
 <module>
   <inherits name="org.realityforge.replicant.ReplicantClientCommon"/>
   <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
-  <inherits name="com.google.gwt.inject.Inject"/>
+  <inherits name="javax.inject.Inject" />
   <inherits name="com.google.gwt.storage.Storage"/>
   <inherits name="com.google.gwt.user.Window"/>
   <inherits name="com.google.gwt.http.HTTP"/>

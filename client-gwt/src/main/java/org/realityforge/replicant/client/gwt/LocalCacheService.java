@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.realityforge.replicant.client.transport.CacheEntry;
 import org.realityforge.replicant.client.transport.CacheService;
 
@@ -19,6 +20,11 @@ public class LocalCacheService
 
   private static final String ETAG_SUFFIX = "_ETAG_";
   private boolean _loggedNoLocalStorage;
+
+  @Inject
+  public LocalCacheService()
+  {
+  }
 
   /**
    * {@inheritDoc}

@@ -11,6 +11,7 @@ included:
 * Remove `EntityChangeBroker` and all supporting infrastructure.
 * Remove `EntityRepositoryDebugger` and all supporting infrastructure.
 * Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
+* Replace Gin with Dagger2.
 
 ### [v5.96](https://github.com/realityforge/replicant/tree/v5.96) (2017-11-21)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v0.06...v5.96)

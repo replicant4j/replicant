@@ -2,7 +2,8 @@ require 'buildr/git_auto_version'
 require 'buildr/gpg'
 require 'buildr/single_intermediate_layout'
 
-GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject]
+GUICE_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :javax_inject]
+DAGGER_DEPS = [:javax_inject, :javapoet, :guava, :dagger_core, :dagger_producers, :dagger_compiler, :dagger_googlejavaformat, :dagger_errorprone, :dagger_gwt]
 
 POWERMOCK = [
   :objenesis, :powermock_core, :powermock_reflect, :powermock_testng_common, :powermock_testng,
@@ -14,7 +15,7 @@ AREZ_DEPS = [
  :arez_annotations, :arez_core, :arez_processor, :arez_component, :arez_extras, :arez_browser_extras, :braincheck, :anodoc, :jetbrains_annotations
 ]
 
-GWT_DEPS = [:gwt_user] + GIN_DEPS
+GWT_DEPS = [:gwt_user] + DAGGER_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS
@@ -73,7 +74,7 @@ define 'replicant' do
   end
 
   define 'client-common' do
-    compile.with :javax_jsr305, :gwt_webpoller, project('shared').package(:jar), AREZ_DEPS
+    compile.with :javax_jsr305, :gwt_webpoller, :javax_inject, project('shared').package(:jar), AREZ_DEPS
 
     package(:jar).include("#{_(:source, :main, :java)}/*")
     package(:sources)
@@ -129,7 +130,7 @@ define 'replicant' do
   end
 
   define 'client-qa-support' do
-    compile.with GWT_DEPS,
+    compile.with GUICE_DEPS,
                  TEST_INFRA_DEPS,
                  project('client-common').package(:jar),
                  project('client-common').compile.dependencies

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.realityforge.replicant.client.ChannelDescriptor;
 
 public class AreaOfInterestServiceImpl
@@ -14,6 +15,11 @@ public class AreaOfInterestServiceImpl
   private final HashMap<String, Scope> _scopes = new HashMap<>();
   private final HashMap<ChannelDescriptor, Subscription> _subscriptions = new HashMap<>();
   private final AreaOfInterestListenerSupport _listeners = new AreaOfInterestListenerSupport();
+
+  @Inject
+  public AreaOfInterestServiceImpl()
+  {
+  }
 
   @Override
   public boolean addAreaOfInterestListener( @Nonnull final AreaOfInterestListener listener )

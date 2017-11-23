@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 /**
  * A class that records the subscriptions to graphs and entities.
@@ -21,6 +22,11 @@ public class EntitySubscriptionManagerImpl
 
   // Entity map: Type => ID
   private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
+
+  @Inject
+  public EntitySubscriptionManagerImpl()
+  {
+  }
 
   @Nonnull
   @Override
