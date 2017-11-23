@@ -3,7 +3,7 @@ require 'buildr/gpg'
 require 'buildr/single_intermediate_layout'
 
 GUICE_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :javax_inject]
-DAGGER_DEPS = [:javax_inject, :javapoet, :guava, :dagger_core, :dagger_producers, :dagger_compiler, :dagger_googlejavaformat, :dagger_errorprone, :dagger_gwt]
+DAGGER_GWT_DEPS = [:javax_inject, :javax_inject_sources, :dagger_core, :dagger_core_sources, :dagger_gwt]
 
 POWERMOCK = [
   :objenesis, :powermock_core, :powermock_reflect, :powermock_testng_common, :powermock_testng,
@@ -15,7 +15,7 @@ AREZ_DEPS = [
  :arez_annotations, :arez_core, :arez_processor, :arez_component, :arez_extras, :arez_browser_extras, :braincheck, :anodoc, :jetbrains_annotations
 ]
 
-GWT_DEPS = [:gwt_user] + DAGGER_DEPS
+GWT_DEPS = [:gwt_user] + DAGGER_GWT_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS
