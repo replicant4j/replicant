@@ -27,7 +27,7 @@ module Buildr
       end
 
       def version
-        @version || Buildr.settings.build['gwt'] || '2.8.1'
+        @version || Buildr.settings.build['gwt'] || '2.8.2'
       end
 
       # The specs for requirements
