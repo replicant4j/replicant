@@ -19,6 +19,11 @@ artifacts:
   dagger_core_sources: com.google.dagger:dagger:jar:sources:2.13
   dagger_gwt: com.google.dagger:dagger-gwt:jar:2.13
 
+  dagger_producers: com.google.dagger:dagger-producers:jar:2.13
+  dagger_compiler: com.google.dagger:dagger-compiler:jar:2.13
+  googlejavaformat: com.google.googlejavaformat:google-java-format:jar:1.4
+  errorprone_javac: com.google.errorprone:javac-shaded:jar:9-dev-r4023-3
+
   google_guice: com.google.inject:guice:jar:3.0
   google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
   aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
