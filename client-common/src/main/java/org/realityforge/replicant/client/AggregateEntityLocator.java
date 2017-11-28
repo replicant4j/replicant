@@ -14,6 +14,14 @@ public class AggregateEntityLocator
 {
   private final ArrayList<EntityLocator> _entityLocators = new ArrayList<>();
 
+  public AggregateEntityLocator( @Nonnull final EntityLocator... entityLocator )
+  {
+    for ( final EntityLocator locator : entityLocator )
+    {
+      registerEntityLocator( locator );
+    }
+  }
+
   protected final <T> void registerEntityLocator( @Nonnull final EntityLocator entityLocator )
   {
     apiInvariant( () -> !_entityLocators.contains( entityLocator ),
