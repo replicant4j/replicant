@@ -1,3 +1,7 @@
+## 0.5.94.1:
+* Exposed more information in the `status` endpoint of `AbstractDataLoaderServiceRestService`.
+  Add details of the timing, errors, and properties to the connection.   Submitted by James Walker.
+
 ## 0.5.94:
 * in `AbstractSecuredSessionRestService`, check the `PreferredUsename` claim against the UserID associated with the
   Replicant Session, rather than the TokenID. Works with the change on 0.5.93. Submitted by James Walker.
