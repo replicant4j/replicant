@@ -316,12 +316,16 @@ public abstract class ReplicantClientSystemImpl
     @Override
     public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
+      LOG.log( Level.INFO,
+               "InvalidConnect: Error connecting data source " + service.getKey() + ": " + throwable.toString(),
+               throwable );
       updateStatus();
     }
 
     @Override
     public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
+      service.onCommunicationError( throwable );
       LOG.log( Level.INFO,
                "DataLoadFailure: Attempting to disconnect data source " + service.getKey() + " and restart.",
                throwable );
@@ -332,6 +336,7 @@ public abstract class ReplicantClientSystemImpl
     @Override
     public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
+      service.onCommunicationError( throwable );
       LOG.log( Level.INFO,
                "PollFailure: Attempting to disconnect data source " + service.getKey() + " and restart.",
                throwable );

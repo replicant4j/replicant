@@ -2,10 +2,12 @@ package org.realityforge.replicant.client.ee.rest;
 
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.GET;
@@ -128,6 +130,14 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
     g.writeStartObject();
     g.write( "key", service.getKey() );
     g.write( "state", service.getState().name() );
+    emit( g, "connectingAt", service.getConnectingAt() );
+    emit( g, "connectedAt", service.getConnectedAt() );
+    emit( g, "disconnectedAt", service.getDisconnectedAt() );
+    emit( g, "connectionEstablishmentError", service.getLastErrorDuringConnection() );
+    emit( g, "lastError", service.getLastError() );
+    emit( g, "lastErrorAt", service.getLastErrorAt() );
+    service.getStatusProperties().forEach( ( k, v ) -> emit( g, k, v ) );
+
     final ClientSession session = service.getSession();
     if ( null != session )
     {
@@ -142,6 +152,41 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
 
     g.close();
     return buildResponse( Response.ok(), writer.toString() );
+  }
+
+  private void emit( @Nonnull final JsonGenerator g, @Nonnull final String key, @Nullable final Date value )
+  {
+    if ( null != value )
+    {
+      emit( g, key, value.toString() );
+    }
+  }
+
+  private void emit( @Nonnull final JsonGenerator g, @Nonnull final String key, @Nullable final Throwable error )
+  {
+    if ( null != error )
+    {
+      if ( null != error.getMessage() )
+      {
+        emit( g, key, error.getMessage() );
+      }
+      else if ( null != error.getCause() && null != error.getCause().getMessage() )
+      {
+        emit( g, key, error.getCause().getMessage() );
+      }
+      else
+      {
+        emit( g, key, error.toString() );
+      }
+    }
+  }
+
+  private void emit( @Nonnull final JsonGenerator g, @Nonnull final String key, @Nullable final String value )
+  {
+    if ( null != value )
+    {
+      g.write( key, value );
+    }
   }
 
   private void emitChannels( final JsonGenerator g, final DataLoaderService service )
