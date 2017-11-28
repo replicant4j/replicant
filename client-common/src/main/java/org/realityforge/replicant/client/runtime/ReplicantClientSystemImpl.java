@@ -317,8 +317,7 @@ public abstract class ReplicantClientSystemImpl
     public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
       LOG.log( Level.INFO,
-               "InvalidConnect: Error connecting data source " + service.getKey() + ": " + throwable.toString(),
-               throwable );
+               "InvalidConnect: Error connecting data source " + service.getKey() + ": " + throwable.toString() );
       updateStatus();
     }
 
