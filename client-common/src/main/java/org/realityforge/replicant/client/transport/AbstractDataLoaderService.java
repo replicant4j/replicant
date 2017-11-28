@@ -76,7 +76,7 @@ public abstract class AbstractDataLoaderService
    * The last error that was received during connection establishment.
    * Nulled at the time of disconnection
    */
-  private Throwable lastErrorDuringConnection;
+  private Throwable _lastErrorDuringConnection;
 
   /**
    * The last error that caused whilst connected, probably caused connection to drop.
@@ -139,7 +139,7 @@ public abstract class AbstractDataLoaderService
   @Nullable
   public Throwable getLastErrorDuringConnection()
   {
-    return lastErrorDuringConnection;
+    return _lastErrorDuringConnection;
   }
 
   /**
@@ -1130,14 +1130,14 @@ public abstract class AbstractDataLoaderService
 
   protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
-    lastErrorDuringConnection = exception;
+    _lastErrorDuringConnection = exception;
     setState( State.ERROR );
     getListener().onInvalidConnect( this, exception );
   }
 
   protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
   {
-    lastErrorDuringConnection = null;
+    _lastErrorDuringConnection = null;
     _disconnectedAt = new Date();
     setState( State.ERROR );
     getListener().onInvalidDisconnect( this, exception );
