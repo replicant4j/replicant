@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.runtime;
 
+import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
@@ -106,6 +107,48 @@ final class TestDataLoaderService
   public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
   {
     return false;
+  }
+
+  @Nullable
+  @Override
+  public Date getConnectingAt()
+  {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public Date getConnectedAt()
+  {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public Date getDisconnectedAt()
+  {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public Throwable getLastErrorDuringConnection()
+  {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public Throwable getLastError()
+  {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public Date getLastErrorAt()
+  {
+    return null;
   }
 
   @Nullable
