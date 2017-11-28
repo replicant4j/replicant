@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -67,6 +68,26 @@ public abstract class AbstractDataLoaderService
 
   private ClientSession _session;
 
+  /*
+   * Timing of state changes
+   */
+  private Date _connectingAt;
+  private Date _connectedAt;
+  private Date _disconnectedAt;
+
+  /**
+   * The last error that was received during connection establishment.
+   * Nulled at the time of disconnection
+   */
+  private Throwable lastErrorDuringConnection;
+
+  /**
+   * The last error that caused whilst connected, probably caused connection to drop.
+   * Never nulled.
+   */
+  private Throwable _lastError;
+  private Date _lastErrorAt;
+
   @Nonnull
   @Override
   public String getKey()
@@ -82,6 +103,73 @@ public abstract class AbstractDataLoaderService
   public State getState()
   {
     return _state;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public Date getConnectingAt()
+  {
+    return _connectingAt;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public Date getConnectedAt()
+  {
+    return _connectedAt;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public Date getDisconnectedAt()
+  {
+    return _disconnectedAt;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public Throwable getLastErrorDuringConnection()
+  {
+    return lastErrorDuringConnection;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public Throwable getLastError()
+  {
+    return _lastError;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Nullable
+  public Date getLastErrorAt()
+  {
+    return _lastErrorAt;
+  }
+
+  @Override
+  public void onCommunicationError( @Nonnull final Throwable error )
+  {
+    _lastError = error;
+    _lastErrorAt = new Date();
   }
 
   @SuppressWarnings( "ConstantConditions" )
@@ -1179,6 +1267,9 @@ public abstract class AbstractDataLoaderService
     try
     {
       doConnect( this::completeConnect );
+      _connectingAt = new Date();
+      _connectedAt = null;
+      _disconnectedAt = null;
       state = State.CONNECTING;
     }
     finally
@@ -1189,6 +1280,7 @@ public abstract class AbstractDataLoaderService
 
   private void completeConnect()
   {
+    _connectedAt = new Date();
     setState( State.CONNECTED );
     getListener().onConnect( this );
   }
@@ -1197,12 +1289,15 @@ public abstract class AbstractDataLoaderService
 
   protected void handleInvalidConnect( @Nonnull final Throwable exception )
   {
+    lastErrorDuringConnection = exception;
     setState( State.ERROR );
     getListener().onInvalidConnect( this, exception );
   }
 
   protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
   {
+    lastErrorDuringConnection = null;
+    _disconnectedAt = new Date();
     setState( State.ERROR );
     getListener().onInvalidDisconnect( this, exception );
   }
