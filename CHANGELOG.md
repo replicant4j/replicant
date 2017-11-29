@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v5.97](https://github.com/realityforge/replicant/tree/v5.97) (2017-11-29)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v5.96...v5.97)
 
 * Exposed more information in the `status` endpoint of `AbstractDataLoaderServiceRestService`.
   Add details of the timing, errors, and properties to the connection.   Submitted by James Walker.
