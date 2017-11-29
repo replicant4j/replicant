@@ -1,6 +1,7 @@
 # Change Log
 
 ### Unreleased
+
 * Exposed more information in the `status` endpoint of `AbstractDataLoaderServiceRestService`.
   Add details of the timing, errors, and properties to the connection.   Submitted by James Walker.
 
