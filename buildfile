@@ -1,6 +1,7 @@
 require 'buildr/git_auto_version'
 require 'buildr/gpg'
 require 'buildr/gwt'
+require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
 GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject]
