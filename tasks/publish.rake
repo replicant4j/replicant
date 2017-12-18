@@ -31,7 +31,7 @@ end
 
 desc 'Publish release to maven central iff current HEAD is a tag'
 task 'publish_if_tagged' do
-  candidate_branches = %w(master)
+  candidate_branches = %w(master ArezIntegration)
   tag = get_head_tag_if_any
   if !tag.nil? && is_tag_on_candidate_branches?(tag, candidate_branches)
     task('publish_to_maven_central').invoke
