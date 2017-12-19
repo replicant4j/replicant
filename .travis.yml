@@ -16,6 +16,8 @@ install:
 script: buildr clean package jacoco:report publish_if_tagged
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+git:
+  depth: false
 env:
   global:
   - secure: a0Ecohn8N+n3W5c+DqE4zxP9oyIlNMen63EOf2G8fJm2vlZx4U4UgZWTS5H3+Ej1S6W0pS+dG44p76Ajul3S76mOUYyTN78dG3Wqb053knSsM1eiQW7lpdtX1DCuZGZUortFJ81E5WumymdA6JY5+U2EBujOXo0hYM/0QwuE4sE=
