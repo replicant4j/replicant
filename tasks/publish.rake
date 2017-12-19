@@ -24,7 +24,7 @@ end
 
 def is_tag_on_candidate_branches?(tag, branches)
   branches.each do |branch|
-    return true if is_tag_on_branch?(tag, branch)
+    return true if is_tag_on_branch?(tag, branch) || is_tag_on_branch?(tag, "origin/#{branch}")
   end
   false
 end
