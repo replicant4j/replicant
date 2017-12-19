@@ -23,8 +23,8 @@ def is_tag_on_branch?(tag, branch)
 end
 
 def is_tag_on_candidate_branches?(tag, branches)
+  sh 'git fetch origin'
   branches.each do |branch|
-    `git pull origin #{branch}`
     return true if is_tag_on_branch?(tag, branch)
   end
   false
