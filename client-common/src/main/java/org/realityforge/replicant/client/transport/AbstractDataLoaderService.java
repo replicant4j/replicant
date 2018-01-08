@@ -1053,7 +1053,8 @@ public abstract class AbstractDataLoaderService
       }
       if ( config().shouldValidateRepositoryOnLoad() )
       {
-        validateRepository();
+        // This should never need a transaction ... unless the repository is invalid and there is unlinked data.
+        context().safeAction( generateName( "validate" ), this::validateRepository );
       }
 
       return true;
