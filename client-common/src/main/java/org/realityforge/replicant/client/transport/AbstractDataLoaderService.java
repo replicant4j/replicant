@@ -716,7 +716,7 @@ public abstract class AbstractDataLoaderService
   public boolean isIdle()
   {
     return _currentAoiActions.isEmpty() && _currentAction == null &&
-    _session.getPendingActions().isEmpty() && _session.getPendingAreaOfInterestActions().isEmpty();
+           _session.getPendingActions().isEmpty() && _session.getPendingAreaOfInterestActions().isEmpty();
   }
 
   @Override
