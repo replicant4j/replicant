@@ -1,9 +1,9 @@
 package org.realityforge.replicant.client;
 
+import arez.component.NoSuchEntityException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.arez.component.NoSuchEntityException;
 
 /**
  * The service interface for looking up entities by type+id.

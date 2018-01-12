@@ -1,5 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.Arez;
+import arez.ArezContext;
+import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,9 +19,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.arez.Arez;
-import org.realityforge.arez.ArezContext;
-import org.realityforge.arez.Disposable;
 import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
