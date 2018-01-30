@@ -17,7 +17,7 @@ public interface EntityLocator
     final T entity = findByID( type, id );
     if ( null == entity )
     {
-      throw new NoSuchEntityException( type, id );
+      throw new NoSuchEntityException( id );
     }
     return entity;
   }
