@@ -46,7 +46,7 @@ artifacts:
   arez_extras: org.realityforge.arez:arez-extras:jar:gwt:0.45
   arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:gwt:0.45
 
-  braincheck: org.realityforge.braincheck:braincheck:jar:gwt:1.3.0
+  braincheck: org.realityforge.braincheck:braincheck:jar:gwt:1.5.0
 
   anodoc: org.realityforge.anodoc:anodoc:jar:1.0.0
 
