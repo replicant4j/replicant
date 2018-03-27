@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v5.98](https://github.com/realityforge/replicant/tree/v5.98) (2018-03-27)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v5.97...v5.98)
 
 * Increase timeout during replication server-to-server session establishment, to handle
   very large data sets. Bit of a hack.  Submitted by James Walker.
