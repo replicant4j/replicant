@@ -5,7 +5,8 @@ sudo: false
 rvm:
 - 2.3.1
 before_install:
-- openssl aes-256-cbc -K $encrypted_02ff0eb47d03_key -iv $encrypted_02ff0eb47d03_iv -in etc/secrets -out ../secrets.tar -d
+- openssl aes-256-cbc -K $encrypted_02ff0eb47d03_key -iv $encrypted_02ff0eb47d03_iv
+  -in etc/secrets -out ../secrets.tar -d
 - "(cd ../ && tar xvf secrets.tar)"
 - chmod 600 ../release.asc
 - gpg --import ../release.asc
