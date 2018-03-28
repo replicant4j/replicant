@@ -14,7 +14,7 @@ install:
 - rvm use 2.3.1
 - gem install bundler
 - bundle install
-script: buildr clean package jacoco:report publish_if_tagged
+script: buildr clean package jacoco:report mcrt:publish_if_tagged
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 git:
