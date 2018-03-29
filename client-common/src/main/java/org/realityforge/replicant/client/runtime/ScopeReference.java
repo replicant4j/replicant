@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.runtime;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ScopeReference
+public final class ScopeReference
 {
   @Nullable
   private Scope _scope;

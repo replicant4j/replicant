@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.runtime;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class SubscriptionReference
+public final class SubscriptionReference
 {
   @Nullable
   private Subscription _subscription;
