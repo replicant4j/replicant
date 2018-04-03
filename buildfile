@@ -26,6 +26,13 @@ TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
 TEST_DEPS = TEST_INFRA_DEPS + [:jndikit] + POWERMOCK
 
+# JDK options passed to test environment. Essentially turns assertions on.
+TEST_OPTIONS =
+  {
+    'braincheck.environment' => 'development',
+    'arez.environment' => 'development'
+  }
+
 desc 'Replicant: Client-side state representation infrastructure'
 define 'replicant' do
   project.group = 'org.realityforge.replicant'
@@ -54,6 +61,9 @@ define 'replicant' do
 
     compile.with PROVIDED_DEPS
 
+    test.options[:properties] = TEST_OPTIONS
+    test.options[:java_args] = ['-ea']
+
     test.using :testng
     test.compile.with TEST_DEPS
 
@@ -72,6 +82,9 @@ define 'replicant' do
     package(:sources)
     package(:javadoc)
 
+    test.options[:properties] = TEST_OPTIONS
+    test.options[:java_args] = ['-ea']
+
     test.using :testng
     test.compile.with TEST_DEPS
   end
@@ -82,6 +95,9 @@ define 'replicant' do
     package(:jar)
     package(:sources)
     package(:javadoc)
+
+    test.options[:properties] = TEST_OPTIONS
+    test.options[:java_args] = ['-ea']
 
     test.using :testng
     test.compile.with TEST_DEPS
@@ -100,6 +116,9 @@ define 'replicant' do
     package(:jar)
     package(:sources)
     package(:javadoc)
+
+    test.options[:properties] = TEST_OPTIONS
+    test.options[:java_args] = ['-ea']
 
     test.using :testng
     test.compile.with TEST_DEPS
@@ -120,6 +139,9 @@ define 'replicant' do
     project.compile.enhance(processor_deps)
     project.compile.options[:other] = ['-processorpath', processor_deps.collect {|d| d.to_s}.join(File::PATH_SEPARATOR)]
 
+    test.options[:properties] = TEST_OPTIONS
+    test.options[:java_args] = ['-ea']
+
     test.using :testng
     test.compile.with TEST_DEPS
 
@@ -137,10 +159,14 @@ define 'replicant' do
     package(:sources)
     package(:javadoc)
 
+    test.options[:properties] = TEST_OPTIONS
+    test.options[:java_args] = ['-ea']
+
     test.using :testng
     test.compile.with TEST_DEPS
   end
 
+  ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development')
   ipr.add_component_from_artifact(:idea_codestyle)
 
   iml.add_jruby_facet
