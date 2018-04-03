@@ -1051,7 +1051,7 @@ public abstract class AbstractDataLoaderService
       {
         outputSubscriptionDebug();
       }
-      if ( config().shouldValidateRepositoryOnLoad() )
+      if ( BrainCheckConfig.checkInvariants() && config().shouldValidateRepositoryOnLoad() )
       {
         // This should never need a transaction ... unless the repository is invalid and there is unlinked data.
         context().safeAction( generateName( "validate" ), this::validateRepository );
@@ -1347,15 +1347,15 @@ public abstract class AbstractDataLoaderService
   protected void validateRepository()
     throws IllegalStateException
   {
-    for ( final Class<?> entityType : getEntityTypes() )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      final List entities = getEntityLocator().findAll( entityType );
-      for ( final Object entity : entities )
+      for ( final Class<?> entityType : getEntityTypes() )
       {
-        invariant( () -> !Disposable.isDisposed( entity ),
-                   () -> "Invalid disposed entity found during validation. Entity: " + entity );
-        if ( BrainCheckConfig.checkInvariants() )
+        final List entities = getEntityLocator().findAll( entityType );
+        for ( final Object entity : entities )
         {
+          invariant( () -> !Disposable.isDisposed( entity ),
+                     () -> "Invalid disposed entity found during validation. Entity: " + entity );
           try
           {
             Verifiable.verify( entity );
