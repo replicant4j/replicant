@@ -87,7 +87,7 @@ public final class Scope
 
   public boolean isScopeRequired( @Nonnull final Scope scope )
   {
-    return _outwardReferences.stream().anyMatch( r -> r.getScope() == scope );
+    return _outwardReferences.stream().anyMatch( r -> r.isActive() && r.getScope() == scope );
   }
 
   @Nonnull
@@ -132,14 +132,14 @@ public final class Scope
 
   public boolean isSubscriptionRequired( @Nonnull final Subscription subscription )
   {
-    return _subscriptionReferences.stream().anyMatch( r -> r.getSubscription() == subscription );
+    return _subscriptionReferences.stream().anyMatch( r -> r.isActive() && r.getSubscription() == subscription );
   }
 
   @Nullable
   public SubscriptionReference getSubscriptionReference( @Nonnull final Subscription subscription )
   {
     return _subscriptionReferences.stream().
-      filter( r -> r.getSubscription() == subscription ).findFirst().orElse( null );
+      filter( r -> r.isActive() && r.getSubscription() == subscription ).findFirst().orElse( null );
   }
 
   void release( @Nonnull final ScopeReference ScopeReference )
