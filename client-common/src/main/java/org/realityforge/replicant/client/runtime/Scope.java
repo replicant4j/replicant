@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.anodoc.TestOnly;
 
 public final class Scope
 {
@@ -38,18 +39,6 @@ public final class Scope
   public boolean hasBeenReleased()
   {
     return !isActive();
-  }
-
-  @Nonnegative
-  public int getReferenceCount()
-  {
-    return _incomingReferences.size();
-  }
-
-  @Nonnegative
-  public int getSubscriptionReferenceCount()
-  {
-    return _subscriptionReferences.size();
   }
 
   public void release()
@@ -202,5 +191,19 @@ public final class Scope
            ", InRefCount=" + _incomingReferences.size() +
            ", SubRefCount=" + _subscriptionReferences.size() +
            "]";
+  }
+
+  @TestOnly
+  @Nonnegative
+  int getReferenceCount()
+  {
+    return _incomingReferences.size();
+  }
+
+  @TestOnly
+  @Nonnegative
+  int getSubscriptionReferenceCount()
+  {
+    return _subscriptionReferences.size();
   }
 }
