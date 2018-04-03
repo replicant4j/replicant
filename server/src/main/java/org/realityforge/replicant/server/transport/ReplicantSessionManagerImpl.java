@@ -510,6 +510,7 @@ public abstract class ReplicantSessionManagerImpl
         descriptors.add( descriptor );
       }
     }
+    Throwable t = null;
 
     if ( !newChannels.isEmpty() )
     {
@@ -523,7 +524,14 @@ public abstract class ReplicantSessionManagerImpl
       {
         for ( final ChannelDescriptor descriptor : newChannels )
         {
-          subscribe( session, descriptor, true, filter, changeSet );
+          try
+          {
+            subscribe( session, descriptor, true, filter, changeSet );
+          }
+          catch ( final Throwable e )
+          {
+            t = e;
+          }
         }
       }
     }
@@ -548,10 +556,25 @@ public abstract class ReplicantSessionManagerImpl
           for ( final ChannelDescriptor descriptor : descriptors )
           {
             //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
-            subscribe( session, descriptor, true, filter, changeSet );
+            try
+            {
+              subscribe( session, descriptor, true, filter, changeSet );
+            }
+            catch ( final Throwable e )
+            {
+              t = e;
+            }
           }
         }
       }
+    }
+    if( t instanceof Error )
+    {
+      throw (Error) t;
+    }
+    else if( t != null )
+    {
+      throw (RuntimeException) t;
     }
   }
 
@@ -590,11 +613,16 @@ public abstract class ReplicantSessionManagerImpl
     }
     else
     {
-      return performSubscribe( session,
-                               session.createSubscriptionEntry( descriptor ),
-                               explicitlySubscribe,
-                               filter,
-                               changeSet );
+      final SubscriptionEntry entry = session.createSubscriptionEntry( descriptor );
+      try
+      {
+        return performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
+      }
+      catch ( final Throwable e )
+      {
+        session.deleteSubscriptionEntry( entry );
+        throw e;
+      }
     }
   }
 
