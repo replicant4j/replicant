@@ -84,6 +84,13 @@ public abstract class AbstractFrontendContextImpl
     return _subscriptionManager;
   }
 
+  @Nonnull
+  @Override
+  public ReplicantClientSystem getReplicantClientSystem()
+  {
+    return _replicantClientSystem;
+  }
+
   protected void initialSubscriptionSetup()
   {
   }

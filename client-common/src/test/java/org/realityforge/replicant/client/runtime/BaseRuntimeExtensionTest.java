@@ -31,6 +31,7 @@ public class BaseRuntimeExtensionTest
     private ContextConverger _contextConverger = mock( ContextConverger.class );
     private EntityLocator _entityLocator = mock( EntityLocator.class );
     private EntitySubscriptionManager _subscriptionManager = mock( EntitySubscriptionManager.class );
+    private ReplicantClientSystem _replicantClientSystem = mock( ReplicantClientSystem.class );
 
     @Nonnull
     @Override
@@ -58,6 +59,13 @@ public class BaseRuntimeExtensionTest
     public EntitySubscriptionManager getSubscriptionManager()
     {
       return _subscriptionManager;
+    }
+
+    @Nonnull
+    @Override
+    public ReplicantClientSystem getReplicantClientSystem()
+    {
+      return _replicantClientSystem;
     }
   }
 

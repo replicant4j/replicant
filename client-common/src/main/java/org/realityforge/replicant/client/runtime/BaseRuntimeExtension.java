@@ -29,6 +29,9 @@ public interface BaseRuntimeExtension
   @Nonnull
   EntitySubscriptionManager getSubscriptionManager();
 
+  @Nonnull
+  ReplicantClientSystem getReplicantClientSystem();
+
   /**
    * Create or update a Subscription
    */
