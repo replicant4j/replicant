@@ -6,7 +6,7 @@ require 'buildr/single_intermediate_layout'
 
 GUICE_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :javax_inject]
 DAGGER_GWT_DEPS = [:javax_inject, :javax_inject_sources, :dagger_core, :dagger_core_sources, :dagger_gwt]
-DAGGER_COMPILER_DEPS = [:javax_inject, :dagger_core, :dagger_producers, :dagger_compiler, :googlejavaformat, :errorprone_javac, :javapoet, :guava]
+DAGGER_COMPILER_DEPS = [:javax_inject, :dagger_core, :dagger_producers, :dagger_spi, :dagger_compiler, :googlejavaformat, :errorprone_javac, :javapoet, :guava]
 
 POWERMOCK = [
   :objenesis, :powermock_core, :powermock_reflect, :powermock_testng_common, :powermock_testng,

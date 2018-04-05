@@ -14,13 +14,14 @@ artifacts:
   gwt_dev: com.google.gwt:gwt-dev:jar:2.8.2
 
   javapoet: com.squareup:javapoet:jar:1.8.0
-  guava: com.google.guava:guava:jar:21.0
-  dagger_core: com.google.dagger:dagger:jar:2.13
-  dagger_core_sources: com.google.dagger:dagger:jar:sources:2.13
-  dagger_gwt: com.google.dagger:dagger-gwt:jar:2.13
+  guava: com.google.guava:guava:jar:23.3-jre
+  dagger_core: com.google.dagger:dagger:jar:2.15
+  dagger_core_sources: com.google.dagger:dagger:jar:sources:2.15
+  dagger_gwt: com.google.dagger:dagger-gwt:jar:2.15
 
-  dagger_producers: com.google.dagger:dagger-producers:jar:2.13
-  dagger_compiler: com.google.dagger:dagger-compiler:jar:2.13
+  dagger_spi: com.google.dagger:dagger-spi:jar:2.15
+  dagger_producers: com.google.dagger:dagger-producers:jar:2.15
+  dagger_compiler: com.google.dagger:dagger-compiler:jar:2.15
   googlejavaformat: com.google.googlejavaformat:google-java-format:jar:1.4
   errorprone_javac: com.google.errorprone:javac-shaded:jar:9-dev-r4023-3
 
