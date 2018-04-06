@@ -24,7 +24,9 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class EeWebPollerDataLoaderService
   extends EeDataLoaderService
 {
-  private static final int DEFAULT_TIMEOUT = 25000;
+  // Gone with a really big number for now, as we have some really large data sets and we just need this to work
+  // for them until we stop using this mechanism of sharing data.
+  private static final int DEFAULT_TIMEOUT = 100000;
 
   private final class ReplicantRequestFactory
     extends AbstractJaxrsHttpRequestFactory

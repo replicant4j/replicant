@@ -13,6 +13,12 @@ included:
 * Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
 * Replace Gin with Dagger2.
 
+### [v5.98](https://github.com/realityforge/replicant/tree/v5.98) (2018-03-27)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v5.97...v5.98)
+
+* Increase timeout during replication server-to-server session establishment, to handle
+  very large data sets. Bit of a hack.  Submitted by James Walker.
+
 ### [v5.97](https://github.com/realityforge/replicant/tree/v5.97) (2017-11-29)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v5.96...v5.97)
 
