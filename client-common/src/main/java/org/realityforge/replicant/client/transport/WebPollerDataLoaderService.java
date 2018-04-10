@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.Disposable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -153,14 +154,22 @@ public abstract class WebPollerDataLoaderService
                                        @Nonnull final String statusText,
                                        @Nullable final Runnable action )
   {
-    if ( HTTP_STATUS_CODE_OK == statusCode )
+    final Disposable lock = context().pauseScheduler();
+    try
     {
-      setSession( null, action );
+      if ( HTTP_STATUS_CODE_OK == statusCode )
+      {
+        setSession( null, action );
+      }
+      else
+      {
+        setSession( null, action );
+        handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, statusText ) );
+      }
     }
-    else
+    finally
     {
-      setSession( null, action );
-      handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, statusText ) );
+      lock.dispose();
     }
   }
 
