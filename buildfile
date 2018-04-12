@@ -8,6 +8,8 @@ GUICE_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :javax_
 DAGGER_GWT_DEPS = [:javax_inject, :javax_inject_sources, :dagger_core, :dagger_core_sources, :dagger_gwt]
 DAGGER_COMPILER_DEPS = [:javax_inject, :dagger_core, :dagger_producers, :dagger_spi, :dagger_compiler, :googlejavaformat, :errorprone_javac, :javapoet, :guava]
 
+REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
+
 POWERMOCK = [
   :objenesis, :powermock_core, :powermock_reflect, :powermock_testng_common, :powermock_testng,
   :powermock_testng_agent, :powermock_api_mockito, :powermock_api_mockito_common, :powermock_api_support, :javassist,
@@ -18,7 +20,7 @@ AREZ_DEPS = [
  :arez_annotations, :arez_core, :arez_processor, :arez_component, :arez_extras, :arez_browser_extras, :braincheck, :anodoc, :jetbrains_annotations
 ]
 
-GWT_DEPS = [:gwt_user] + DAGGER_GWT_DEPS
+GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :jsinterop_base, :jsinterop_base_sources, :gwt_user] + DAGGER_GWT_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS
@@ -126,6 +128,7 @@ define 'replicant' do
 
   define 'client-gwt' do
     compile.with GWT_DEPS,
+                 REACT4J_DEPS,
                  project('client-common').package(:jar),
                  project('client-common').compile.dependencies
 
@@ -135,7 +138,7 @@ define 'replicant' do
 
     gwt_enhance(project)
 
-    processor_deps = Buildr.artifacts(DAGGER_COMPILER_DEPS)
+    processor_deps = Buildr.artifacts(DAGGER_COMPILER_DEPS + [:react4j_processor, :arez_processor])
     project.compile.enhance(processor_deps)
     project.compile.options[:other] = ['-processorpath', processor_deps.collect {|d| d.to_s}.join(File::PATH_SEPARATOR)]
 

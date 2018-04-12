@@ -47,6 +47,19 @@ artifacts:
   arez_extras: org.realityforge.arez:arez-extras:jar:0.73
   arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:0.73
 
+  react4j_annotation: org.realityforge.react4j:react4j-annotations:jar:0.62
+  react4j_core: org.realityforge.react4j:react4j-core:jar:0.62
+  react4j_dom: org.realityforge.react4j:react4j-dom:jar:0.62
+  react4j_arez: org.realityforge.react4j:react4j-arez:jar:0.62
+  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.62
+
+  jsinterop_base: com.google.jsinterop:base:jar:1.0.0-RC1
+  jsinterop_base_sources: com.google.jsinterop:base:jar:sources:1.0.0-RC1
+
+  elemental2_core: com.google.elemental2:elemental2-core:jar:1.0.0-RC1
+  elemental2_promise: com.google.elemental2:elemental2-promise:jar:1.0.0-RC1
+  elemental2_dom: com.google.elemental2:elemental2-dom:jar:1.0.0-RC1
+
   braincheck: org.realityforge.braincheck:braincheck:jar:1.5.0
 
   anodoc: org.realityforge.anodoc:anodoc:jar:1.0.0

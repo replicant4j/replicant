@@ -1,5 +1,7 @@
 <module>
   <inherits name="org.realityforge.replicant.ReplicantClientCommon"/>
+  <inherits name="jsinterop.base.Base" />
+  <inherits name="react4j.arez.ReactArezDev" />
   <inherits name="dagger.Dagger" />
   <inherits name="com.google.gwt.storage.Storage"/>
   <inherits name="com.google.gwt.user.Window"/>
@@ -9,6 +11,7 @@
   <source path='client/gwt'/>
   <source path='client/runtime/gwt'/>
   <source path='client/net/gwt'/>
+  <source path='client/react4j'/>
 
   <super-source path="sprsrc" />
 
