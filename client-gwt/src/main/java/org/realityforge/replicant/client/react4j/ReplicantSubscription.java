@@ -9,8 +9,8 @@ import javax.inject.Inject;
 import jsinterop.base.JsPropertyMap;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.runtime.ReplicantConnection;
 import org.realityforge.replicant.client.runtime.AreaOfInterestListenerAdapter;
-import org.realityforge.replicant.client.runtime.BaseRuntimeExtension;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.Scope;
 import org.realityforge.replicant.client.runtime.ScopeReference;
@@ -90,7 +90,7 @@ public abstract class ReplicantSubscription
   @Nonnull
   private Status _status = Status.NOT_ASKED;
   @Inject
-  BaseRuntimeExtension _subscriptionManager;
+  ReplicantConnection _replicantConnection;
 
   @Prop
   @Nonnull
@@ -185,7 +185,7 @@ public abstract class ReplicantSubscription
   @Override
   protected void postConstruct()
   {
-    _subscriptionManager.getAreaOfInterestService().addAreaOfInterestListener( _listener );
+    _replicantConnection.getAreaOfInterestService().addAreaOfInterestListener( _listener );
     getReplicantClientSystem().getDataLoaderService( getGraph() ).addDataLoaderListener( _dataLoaderListener );
   }
 
@@ -230,7 +230,7 @@ public abstract class ReplicantSubscription
   @Nonnull
   private ReplicantClientSystem getReplicantClientSystem()
   {
-    return _subscriptionManager.getReplicantClientSystem();
+    return _replicantConnection.getReplicantClientSystem();
   }
 
   private void updateReferences()
@@ -240,7 +240,7 @@ public abstract class ReplicantSubscription
     if ( null == scopeReference || scopeReference.hasBeenReleased() )
     {
       channel = buildChannelDescriptor();
-      scopeReference = _subscriptionManager.getAreaOfInterestService().createScopeReference( channel.toString() );
+      scopeReference = _replicantConnection.getAreaOfInterestService().createScopeReference( channel.toString() );
       setScopeReference( scopeReference );
     }
     scopeReference.getScope().purgeReleasedSubscriptionReferences();
@@ -251,7 +251,7 @@ public abstract class ReplicantSubscription
       {
         channel = buildChannelDescriptor();
       }
-      subscriptionReference = _subscriptionManager.subscribe( scopeReference.getScope(), channel, getFilter() );
+      subscriptionReference = _replicantConnection.subscribe( scopeReference.getScope(), channel, getFilter() );
       setSubscriptionReference( subscriptionReference );
     }
     if ( null != channel )
@@ -274,7 +274,7 @@ public abstract class ReplicantSubscription
   protected void componentWillUnmount()
   {
     releaseScopeReference();
-    _subscriptionManager.getAreaOfInterestService().removeAreaOfInterestListener( _listener );
+    _replicantConnection.getAreaOfInterestService().removeAreaOfInterestListener( _listener );
     getReplicantClientSystem().getDataLoaderService( getGraph() ).removeDataLoaderListener( _dataLoaderListener );
     super.componentWillUnmount();
   }
@@ -420,7 +420,7 @@ public abstract class ReplicantSubscription
   private boolean tryLoadSubscription( @Nonnull final ChannelDescriptor descriptor )
   {
     final ChannelSubscriptionEntry subscription =
-      _subscriptionManager.getSubscriptionManager().findSubscription( descriptor );
+      _replicantConnection.getSubscriptionManager().findSubscription( descriptor );
     setSubscription( subscription );
     if ( null != subscription )
     {
@@ -428,7 +428,7 @@ public abstract class ReplicantSubscription
       {
         final Object id = descriptor.getID();
         assert null != id;
-        setEntity( _subscriptionManager.getEntityLocator().getByID( getInstanceType(), id ) );
+        setEntity( _replicantConnection.getEntityLocator().getByID( getInstanceType(), id ) );
       }
       return true;
     }
