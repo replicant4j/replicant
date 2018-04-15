@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Disposable;
 import java.lang.reflect.Field;
@@ -14,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.braincheck.BrainCheckTestUtil;
@@ -626,7 +625,7 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
         new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
-      add( service, AbstractDataLoaderService.class, "_currentAoiActions", entry );
+      addAoiAction( service, entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel3, null ),
@@ -889,7 +888,6 @@ public class DataLoaderServiceTest
     when( sm.findSubscription( any( ChannelDescriptor.class ) ) ).thenReturn(
       new ChannelSubscriptionEntry( channelA1, "boo", true ) );
 
-
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
 
@@ -1081,12 +1079,15 @@ public class DataLoaderServiceTest
     field5.set( instance, value );
   }
 
-  private void add( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
+  @SuppressWarnings( "unchecked" )
+  private void addAoiAction( @Nonnull final AbstractDataLoaderService instance,
+                             @Nonnull final AreaOfInterestEntry value )
     throws Exception
   {
-    final Field field5 = clazz.getDeclaredField( fieldName );
-    field5.setAccessible( true );
-    ( (List) field5.get( instance ) ).add( value );
+    final Field field = AbstractDataLoaderService.class.getDeclaredField( "_currentAoiActions" );
+    field.setAccessible( true );
+    final List<AreaOfInterestEntry> currentAoiActions = (List<AreaOfInterestEntry>) field.get( instance );
+    currentAoiActions.add( value );
   }
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
