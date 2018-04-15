@@ -14,13 +14,13 @@ final class TestDataLoaderService
   implements DataLoaderService
 {
   private final String _key;
-  private final Class _graphType;
+  private final Class<? extends Enum> _graphType;
   private State _state;
   private boolean _connectCalled;
   private boolean _disconnectCalled;
   private final DataLoaderListenerSupport _listenerSupport = new DataLoaderListenerSupport();
 
-  TestDataLoaderService( final String key, final Class graphType )
+  TestDataLoaderService( @Nonnull final String key, @Nonnull final Class<? extends Enum> graphType )
   {
     _key = key;
     _graphType = graphType;
@@ -98,7 +98,7 @@ final class TestDataLoaderService
 
   @Nonnull
   @Override
-  public Class getGraphType()
+  public Class<? extends Enum> getGraphType()
   {
     return _graphType;
   }
