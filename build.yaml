@@ -3,6 +3,7 @@ repositories:
    - http://repo1.maven.org/maven2
    - https://stocksoftware.artifactoryonline.com/stocksoftware/public
    - https://stocksoftware.artifactoryonline.com/stocksoftware/oss
+   - https://stocksoftware.artifactoryonline.com/stocksoftware/staging
 
 artifacts:
   idea_codestyle: au.com.stocksoftware.idea.codestyle:idea-codestyle:xml:1.12
@@ -44,8 +45,6 @@ artifacts:
   arez_core: org.realityforge.arez:arez-core:jar:0.78
   arez_processor: org.realityforge.arez:arez-processor:jar:0.78
   arez_component: org.realityforge.arez:arez-component:jar:0.78
-  arez_extras: org.realityforge.arez:arez-extras:jar:0.78
-  arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:0.78
 
   react4j_annotation: org.realityforge.react4j:react4j-annotations:jar:0.64
   react4j_core: org.realityforge.react4j:react4j-core:jar:0.64
