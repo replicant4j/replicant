@@ -7,8 +7,10 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.realityforge.replicant.client.ChannelDescriptor;
 
+@Singleton
 public class AreaOfInterestServiceImpl
   implements AreaOfInterestService
 {
