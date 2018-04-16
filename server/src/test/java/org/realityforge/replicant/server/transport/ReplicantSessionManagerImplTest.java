@@ -107,7 +107,7 @@ public class ReplicantSessionManagerImplTest
     assertNull( sm.getSessions().get( session.getSessionID() ) );
   }
 
-   @Test
+  @Test
   public void locking()
     throws Exception
   {
