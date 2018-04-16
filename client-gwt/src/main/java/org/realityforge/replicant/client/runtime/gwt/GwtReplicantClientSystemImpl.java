@@ -4,9 +4,11 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Timer;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystemImpl;
 
+@Singleton
 public final class GwtReplicantClientSystemImpl
   extends ReplicantClientSystemImpl
 {

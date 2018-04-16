@@ -7,11 +7,13 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ContextConvergerImpl;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
+@Singleton
 public class GwtContextConvergerImpl
   extends ContextConvergerImpl
 {
