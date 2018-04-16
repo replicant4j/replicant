@@ -11,7 +11,6 @@ import org.realityforge.replicant.client.transport.CacheService;
 /**
  * A simple Dagger module that defines the repository and change broker services.
  */
-
 @Module
 public class ReplicantDaggerModule
 {
