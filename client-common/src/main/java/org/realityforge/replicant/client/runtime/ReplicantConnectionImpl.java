@@ -2,10 +2,13 @@ package org.realityforge.replicant.client.runtime;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 
-public abstract class ReplicantConnectionImpl
+@Singleton
+public class ReplicantConnectionImpl
   implements ReplicantConnection
 {
   private final EntityLocator _entityLocator;
@@ -14,6 +17,7 @@ public abstract class ReplicantConnectionImpl
   private final AreaOfInterestService _areaOfInterestService;
   private final ContextConverger _converger;
 
+  @Inject
   public ReplicantConnectionImpl( @Nonnull final ContextConverger converger,
                                   @Nonnull final EntityLocator entityLocator,
                                   @Nonnull final EntitySubscriptionManager subscriptionManager,
