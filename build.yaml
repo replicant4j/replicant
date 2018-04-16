@@ -40,12 +40,12 @@ artifacts:
 
   testng: org.testng:testng:jar:6.11
 
-  arez_annotations: org.realityforge.arez:arez-annotations:jar:0.73
-  arez_core: org.realityforge.arez:arez-core:jar:0.73
-  arez_processor: org.realityforge.arez:arez-processor:jar:0.73
-  arez_component: org.realityforge.arez:arez-component:jar:0.73
-  arez_extras: org.realityforge.arez:arez-extras:jar:0.73
-  arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:0.73
+  arez_annotations: org.realityforge.arez:arez-annotations:jar:0.78
+  arez_core: org.realityforge.arez:arez-core:jar:0.78
+  arez_processor: org.realityforge.arez:arez-processor:jar:0.78
+  arez_component: org.realityforge.arez:arez-component:jar:0.78
+  arez_extras: org.realityforge.arez:arez-extras:jar:0.78
+  arez_browser_extras: org.realityforge.arez:arez-browser-extras:jar:0.78
 
   react4j_annotation: org.realityforge.react4j:react4j-annotations:jar:0.64
   react4j_core: org.realityforge.react4j:react4j-core:jar:0.64
