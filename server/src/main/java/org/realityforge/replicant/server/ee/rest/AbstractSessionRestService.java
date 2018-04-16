@@ -162,6 +162,11 @@ public abstract class AbstractSessionRestService
                                           @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
                                           @QueryParam( "scid" ) @Nullable final String subChannelIDs )
   {
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    if ( !channelMetaData.isExternal() )
+    {
+      return standardResponse( Response.Status.BAD_REQUEST, "Attempted to unsubscribe from internal-only channel" );
+    }
     if ( null == subChannelIDs )
     {
       //Handle type channel
@@ -169,7 +174,6 @@ public abstract class AbstractSessionRestService
     }
     else
     {
-      final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
       if ( channelMetaData.isTypeGraph() )
       {
         final Response response =
@@ -193,6 +197,11 @@ public abstract class AbstractSessionRestService
                                                   @PathParam( "subChannelID" ) @NotNull final String subChannelText,
                                                   @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID )
   {
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    if ( !channelMetaData.isExternal() )
+    {
+      return standardResponse( Response.Status.BAD_REQUEST, "Attempted to unsubscribe from internal-only channel" );
+    }
     return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ) );
   }
 
@@ -205,6 +214,11 @@ public abstract class AbstractSessionRestService
                                       @QueryParam( "scid" ) @Nullable final String subChannelIDs,
                                       @Nonnull final String filterContent )
   {
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    if ( !channelMetaData.isExternal() )
+    {
+      return standardResponse( Response.Status.BAD_REQUEST, "Attempted to subscribe to internal-only channel" );
+    }
     if ( null == subChannelIDs )
     {
       //Subscription to a type channel
@@ -212,7 +226,6 @@ public abstract class AbstractSessionRestService
     }
     else
     {
-      final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
       if ( channelMetaData.isTypeGraph() )
       {
         final Response response =
@@ -238,7 +251,17 @@ public abstract class AbstractSessionRestService
                                               @HeaderParam( ReplicantContext.ETAG_HEADER ) @Nullable final String eTag,
                                               @Nonnull final String filterContent )
   {
-    return doSubscribeChannel( sessionID, requestID, eTag, toChannelDescriptor( channelID, subChannelText ), filterContent );
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    if ( !channelMetaData.isExternal() )
+    {
+      return standardResponse( Response.Status.NOT_FOUND, "Attempted to subscribe to internal-only channel" );
+    }
+
+    return doSubscribeChannel( sessionID,
+                               requestID,
+                               eTag,
+                               toChannelDescriptor( channelID, subChannelText ),
+                               filterContent );
   }
 
   @Nonnull

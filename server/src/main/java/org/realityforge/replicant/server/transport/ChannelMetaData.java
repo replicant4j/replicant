@@ -21,13 +21,19 @@ public final class ChannelMetaData
   private final FilterType _filterType;
   private final Class _filterParameterType;
   private final boolean _cacheable;
+  /**
+   * Flag indicating whether the channel should able to be subscribed to externally.
+   * i.e. Can this be explicitly subscribed.
+   */
+  private final boolean _external;
 
   public ChannelMetaData( final int channelID,
                           @Nonnull final String name,
                           @Nullable final Class subChannelType,
                           @Nonnull final FilterType filterType,
                           @Nullable final Class filterParameterType,
-                          final boolean cacheable )
+                          final boolean cacheable,
+                          final boolean external )
   {
     _channelID = channelID;
     _name = Objects.requireNonNull( name );
@@ -44,6 +50,7 @@ public final class ChannelMetaData
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is not set to NONE" );
     }
     _cacheable = cacheable;
+    _external = external;
   }
 
   public int getChannelID()
@@ -96,5 +103,10 @@ public final class ChannelMetaData
   public boolean isCacheable()
   {
     return _cacheable;
+  }
+
+  public boolean isExternal()
+  {
+    return _external;
   }
 }
