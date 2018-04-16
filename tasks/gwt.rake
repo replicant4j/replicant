@@ -25,6 +25,10 @@ def gwt_enhance(project, options = {})
       gwt_modules << filename.gsub("#{base_dir}/", '').gsub('.gwt.xml', '').gsub('/', '.')
     end
   end if gwt_modules.empty?
+
+  compile_report_dir = options[:compile_report_dir]
+  if modules_complete && compile_report_dir.nil?
+    compile_report_dir = project._(:target, :gwt_compile_reports)
   end
 
   unless modules_complete
