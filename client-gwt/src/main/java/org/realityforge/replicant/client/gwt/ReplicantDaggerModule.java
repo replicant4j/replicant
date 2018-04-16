@@ -9,7 +9,7 @@ import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 import org.realityforge.replicant.client.transport.CacheService;
 
 /**
- * A simple Dagger module that defines the repository and change broker services.
+ * A simple Dagger module for replicant.
  */
 @Module
 public class ReplicantDaggerModule
