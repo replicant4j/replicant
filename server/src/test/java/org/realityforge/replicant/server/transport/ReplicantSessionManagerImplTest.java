@@ -120,14 +120,7 @@ public class ReplicantSessionManagerImplTest
     lock.readLock().lock();
 
     // Make sure createSession can not complete if something has a read lock
-    final CyclicBarrier end = go( new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        sessions[ 0 ] = sm.createSession();
-      }
-    } );
+    final CyclicBarrier end = go( () -> sessions[ 0 ] = sm.createSession() );
 
     assertNull( sessions[ 0 ] );
     lock.readLock().unlock();
@@ -137,14 +130,7 @@ public class ReplicantSessionManagerImplTest
     lock.writeLock().lock();
 
     // Make sure getSession can acquire a read lock
-    final CyclicBarrier end2 = go( new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        sessions[ 1 ] = sm.getSession( sessions[ 0 ].getSessionID() );
-      }
-    } );
+    final CyclicBarrier end2 = go( () -> sessions[ 1 ] = sm.getSession( sessions[ 0 ].getSessionID() ) );
 
     assertNull( sessions[ 1 ] );
     lock.writeLock().unlock();
@@ -155,14 +141,7 @@ public class ReplicantSessionManagerImplTest
 
     final Boolean[] invalidated = new Boolean[ 1 ];
     // Make sure createSession can not complete if something has a read lock
-    final CyclicBarrier end3 = go( new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        invalidated[ 0 ] = sm.invalidateSession( sessions[ 0 ].getSessionID() );
-      }
-    } );
+    final CyclicBarrier end3 = go( () -> invalidated[ 0 ] = sm.invalidateSession( sessions[ 0 ].getSessionID() ) );
 
     assertNull( invalidated[ 0 ] );
     lock.readLock().unlock();
@@ -175,21 +154,16 @@ public class ReplicantSessionManagerImplTest
   {
     final CyclicBarrier start = new CyclicBarrier( 2 );
     final CyclicBarrier stop = new CyclicBarrier( 2 );
-    new Thread( new Runnable()
-    {
-      @Override
-      public void run()
+    new Thread( () -> {
+      try
       {
-        try
-        {
-          start.await();
-          target.run();
-          stop.await();
-        }
-        catch ( Exception e )
-        {
-          // Ignored
-        }
+        start.await();
+        target.run();
+        stop.await();
+      }
+      catch ( Exception e )
+      {
+        // Ignored
       }
     } ).start();
     start.await();
