@@ -258,6 +258,7 @@ public abstract class AbstractSessionRestService
                                             toFilter( getChannelMetaData( descriptor ), filterContent ),
                                             EntityMessageCacheUtil.getSessionChanges() );
     };
+
     final String invocationKey =
       getInvocationKey( descriptor.getChannelID(), descriptor.getSubChannelID(), "Subscribe" );
     final ReplicantSessionManager.CacheStatus cacheStatus = runRequest( invocationKey, sessionID, requestID, action );
