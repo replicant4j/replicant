@@ -1727,6 +1727,7 @@ public class ReplicantSessionManagerImplTest
       return _bulkCollectDataForSubscriptionUpdateCallCount;
     }
 
+    @SuppressWarnings( "SameParameterValue" )
     void setBulkCollectDataForSubscriptionUpdate( final boolean bulkCollectDataForSubscriptionUpdate )
     {
       _bulkCollectDataForSubscriptionUpdate = bulkCollectDataForSubscriptionUpdate;
