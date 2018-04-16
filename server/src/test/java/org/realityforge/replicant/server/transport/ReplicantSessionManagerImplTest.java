@@ -170,6 +170,7 @@ public class ReplicantSessionManagerImplTest
     Thread.sleep( 1 );
     return stop;
   }
+
   @Test
   public void deleteCacheEntry()
   {
