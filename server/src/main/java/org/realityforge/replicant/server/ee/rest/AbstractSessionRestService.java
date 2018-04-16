@@ -336,7 +336,7 @@ public abstract class AbstractSessionRestService
     else
     {
       final String content =
-        json( g -> Encoder.emitChannel( getSessionManager().getSystemMetaData(), session, g, entry, uri ) );
+        json( g -> Encoder.emitChannel( getSystemMetaData(), session, g, entry, uri ) );
       return buildResponse( Response.ok(), content );
     }
   }
@@ -347,7 +347,7 @@ public abstract class AbstractSessionRestService
   {
     final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
-      json( g -> Encoder.emitChannelsList( getSessionManager().getSystemMetaData(), session, g, uri ) );
+      json( g -> Encoder.emitChannelsList( getSystemMetaData(), session, g, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
@@ -356,7 +356,7 @@ public abstract class AbstractSessionRestService
                                             final int channelID,
                                             @Nonnull final UriInfo uri )
   {
-    final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
+    final SystemMetaData systemMetaData = getSystemMetaData();
     final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
       json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelID, session, g, uri ) );
@@ -392,7 +392,7 @@ public abstract class AbstractSessionRestService
       final ReplicantSession session = getSessionManager().getSession( sessionID );
       if ( null != session )
       {
-        Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, false );
+        Encoder.emitSession( getSystemMetaData(), session, g, uri, false );
       }
     }
     g.writeEnd();
@@ -404,7 +404,7 @@ public abstract class AbstractSessionRestService
   {
     final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
-      json( g -> Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, true ) );
+      json( g -> Encoder.emitSession( getSystemMetaData(), session, g, uri, true ) );
     return buildResponse( Response.ok(), content );
   }
 
@@ -462,13 +462,13 @@ public abstract class AbstractSessionRestService
   @Nonnull
   private ChannelMetaData getChannelMetaData( final int channelID )
   {
-    return getSessionManager().getSystemMetaData().getChannelMetaData( channelID );
+    return getSystemMetaData().getChannelMetaData( channelID );
   }
 
   @Nonnull
   private ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
   {
-    return getSessionManager().getSystemMetaData().getChannelMetaData( descriptor );
+    return getSystemMetaData().getChannelMetaData( descriptor );
   }
 
   @Nullable
@@ -578,8 +578,13 @@ public abstract class AbstractSessionRestService
                                    @Nullable final Serializable subChannelID,
                                    @Nonnull final String action )
   {
-    final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
-    return systemMetaData.getName() + "." + action + systemMetaData.getChannelMetaData( channelID ).getName() +
+    return getSystemMetaData().getName() + "." + action + getChannelMetaData( channelID ).getName() +
            ( ( null == subChannelID ) ? "" : "." + subChannelID );
+  }
+
+  @Nonnull
+  private SystemMetaData getSystemMetaData()
+  {
+    return getSessionManager().getSystemMetaData();
   }
 }
