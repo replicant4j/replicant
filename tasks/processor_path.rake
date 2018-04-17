@@ -55,7 +55,8 @@ module Buildr
                 xml.outputRelativeToContentRoot :value => true
                 xml.processorPath :useClasspath => true
               end
-              enabled = Buildr.projects(:no_invoke => true).select {|p| p.iml? && p.enable_annotation_processor?}
+              prjs = ([project] + project.projects)
+              enabled = prjs.select {|p| p.iml? && p.enable_annotation_processor?}
               enabled.each do |prj|
                 xml.profile(:name => "#{prj.name}", :enabled => true) do
                   xml.sourceOutputDir :name => 'generated/processors/main/java'
@@ -73,11 +74,11 @@ module Buildr
                   end
                 end
               end
-              disabled = Buildr.projects(:no_invoke => true).select {|p| p.iml? && !p.enable_annotation_processor?}
+              disabled = prjs.select {|p| p.iml? && !p.enable_annotation_processor?}
               unless disabled.empty?
                 xml.profile(:name => 'Disabled') do
                   disabled.each do |p|
-                    xml.module :name => p.name
+                    xml.module :name => p.iml.name
                   end
                 end
               end
