@@ -20,7 +20,7 @@ AREZ_DEPS = [
  :arez_annotations, :arez_core, :arez_processor, :arez_component, :braincheck, :anodoc, :jetbrains_annotations
 ]
 
-GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :jsinterop_base, :jsinterop_base_sources, :jsinterop_annotations, :jsinterop_annotations_sources, :gwt_user] + DAGGER_GWT_DEPS
+GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :jsinterop_base, :jsinterop_base_sources, :jsinterop_annotations, :jsinterop_annotations_sources, :gwt_user]
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS
@@ -51,11 +51,11 @@ define 'replicant' do
   define 'shared' do
     compile.with :javax_jsr305
 
+    gwt_enhance(project)
+
     package(:jar)
     package(:sources)
     package(:javadoc)
-
-    gwt_enhance(project)
   end
 
   define 'shared-ee' do
@@ -92,7 +92,17 @@ define 'replicant' do
   end
 
   define 'client-common' do
-    compile.with :javax_jsr305, :gwt_webpoller, :javax_inject, project('shared').package(:jar), AREZ_DEPS
+    project.processorpath << :arez_processor
+    project.processorpath << [DAGGER_COMPILER_DEPS]
+
+    compile.with project('shared').package(:jar),
+                 project('shared').compile.dependencies,
+                 :gwt_webpoller,
+                 :javax_inject,
+                 AREZ_DEPS,
+                 DAGGER_GWT_DEPS
+
+    gwt_enhance(project)
 
     package(:jar)
     package(:sources)
@@ -103,8 +113,6 @@ define 'replicant' do
 
     test.using :testng
     test.compile.with TEST_DEPS
-
-    gwt_enhance(project)
   end
 
   define 'client-ee' do
@@ -127,20 +135,20 @@ define 'replicant' do
   end
 
   define 'client-gwt' do
+    project.processorpath << :react4j_processor
+    project.processorpath << :arez_processor
+    project.processorpath << [DAGGER_COMPILER_DEPS]
+
     compile.with GWT_DEPS,
                  REACT4J_DEPS,
                  project('client-common').package(:jar),
                  project('client-common').compile.dependencies
 
+    gwt_enhance(project)
+
     package(:jar)
     package(:sources)
     package(:javadoc)
-
-    gwt_enhance(project)
-
-    processor_deps = Buildr.artifacts(DAGGER_COMPILER_DEPS + [:react4j_processor, :arez_processor])
-    project.compile.enhance(processor_deps)
-    project.compile.options[:other] = ['-processorpath', processor_deps.collect {|d| d.to_s}.join(File::PATH_SEPARATOR)]
 
     test.options[:properties] = TEST_OPTIONS
     test.options[:java_args] = ['-ea']
