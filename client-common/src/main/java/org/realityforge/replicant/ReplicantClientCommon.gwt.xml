@@ -1,5 +1,4 @@
 <module>
-  <inherits name="arez.Arez"/>
   <inherits name="arez.component.Component"/>
   <inherits name="org.realityforge.replicant.ReplicantShared"/>
   <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
