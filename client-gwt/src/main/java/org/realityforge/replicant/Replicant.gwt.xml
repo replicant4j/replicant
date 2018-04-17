@@ -1,7 +1,7 @@
 <module>
   <inherits name="org.realityforge.replicant.ReplicantClientCommon"/>
   <inherits name="jsinterop.base.Base" />
-  <inherits name="react4j.arez.ReactArezDev" />
+  <inherits name="react4j.arez.ReactArez" />
   <inherits name="dagger.Dagger" />
   <inherits name="com.google.gwt.storage.Storage"/>
   <inherits name="com.google.gwt.user.Window"/>
