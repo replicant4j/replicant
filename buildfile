@@ -181,4 +181,8 @@ define 'replicant' do
   ipr.add_component_from_artifact(:idea_codestyle)
 
   iml.add_jruby_facet
+
+  ([project] + projects).each do |p|
+    p.enable_annotation_processor = false if p.processorpath.empty?
+  end
 end
