@@ -5,17 +5,9 @@ import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-@Module( includes = { AreaOfInterestServiceImplDaggerModule.class } )
+@Module( includes = { AreaOfInterestServiceDaggerModule.class } )
 public interface ReplicantClientRuntimeDaggerModule
 {
-  @Nonnull
-  @Provides
-  @Singleton
-  static AreaOfInterestService provideAreaOfInterestService( @Nonnull final AreaOfInterestServiceImpl component )
-  {
-    return component;
-  }
-
   @Nonnull
   @Provides
   @Singleton

@@ -17,7 +17,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void findOrCreateScope()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
     assertEquals( service.getScopeNames().size(), 0 );
 
@@ -44,7 +44,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void releaseScopesExcept()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
     final String name1 = ValueUtil.randomString();
     final String name2 = ValueUtil.randomString();
@@ -74,7 +74,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void basicScopeManagement()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     assertTrue( service.addAreaOfInterestListener( listener ) );
@@ -206,7 +206,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void manualScopeRelease()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
     final String name = ValueUtil.randomString();
 
     assertNull( service.findScope( name ) );
@@ -231,7 +231,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void duplicateScopeLinkDisallowed()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
     final Scope scope1 = service.createScopeReference( ValueUtil.randomString() ).getScope();
     final Scope scope2 = service.createScopeReference( ValueUtil.randomString() ).getScope();
@@ -247,7 +247,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void basicSubscriptionManagement()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     service.addAreaOfInterestListener( listener );
@@ -316,7 +316,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void createSubscription()
   {
-    final AreaOfInterestServiceImpl service = new Arez_AreaOfInterestServiceImpl();
+    final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     service.addAreaOfInterestListener( listener );
