@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.runtime.gwt;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Timer;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -16,8 +15,7 @@ public final class GwtReplicantClientSystemImpl
 
   @SuppressWarnings( "CdiInjectionPointsInspection" )
   @Inject
-  public GwtReplicantClientSystemImpl( @Nonnull final EventBus eventBus,
-                                       @Nonnull final DataLoaderEntry[] dataLoaders )
+  public GwtReplicantClientSystemImpl( @Nonnull final DataLoaderEntry[] dataLoaders )
   {
     setDataLoaders( dataLoaders );
     _timer = new Timer()
