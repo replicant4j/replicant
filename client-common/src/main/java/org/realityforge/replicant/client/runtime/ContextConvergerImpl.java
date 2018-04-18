@@ -124,7 +124,9 @@ public abstract class ContextConvergerImpl
       for ( final Subscription subscription : subscriptions )
       {
         expectedChannels.add( subscription.getDescriptor() );
-        switch ( convergeSubscription( expectedChannels, subscription, template, aoiGroupAction, true ) )
+        final ConvergeAction convergeAction =
+          convergeSubscription( expectedChannels, subscription, template, aoiGroupAction, true );
+        switch ( convergeAction )
         {
           case TERMINATE:
             return;
