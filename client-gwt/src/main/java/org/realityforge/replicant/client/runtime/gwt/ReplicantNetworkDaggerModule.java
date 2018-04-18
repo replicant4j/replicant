@@ -17,7 +17,7 @@ public class ReplicantNetworkDaggerModule
   @Nonnull
   @Provides
   @Singleton
-  public static ContextConverger provideContextConverger( @Nonnull final GwtContextConvergerImpl service )
+  public static ContextConverger provideContextConverger( @Nonnull final Arez_GwtContextConvergerImpl service )
   {
     return service;
   }

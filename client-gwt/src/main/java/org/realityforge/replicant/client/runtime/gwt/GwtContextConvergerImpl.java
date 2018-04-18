@@ -1,12 +1,12 @@
 package org.realityforge.replicant.client.runtime.gwt;
 
+import arez.annotations.ArezComponent;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.Timer;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
@@ -14,7 +14,8 @@ import org.realityforge.replicant.client.runtime.ContextConvergerImpl;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
 @Singleton
-public class GwtContextConvergerImpl
+@ArezComponent
+public abstract class GwtContextConvergerImpl
   extends ContextConvergerImpl
 {
   private final EntitySubscriptionManager _subscriptionManager;
@@ -22,7 +23,6 @@ public class GwtContextConvergerImpl
   private final ReplicantClientSystem _replicantClientSystem;
   private Timer _timer;
 
-  @Inject
   GwtContextConvergerImpl( @Nonnull final EntitySubscriptionManager subscriptionManager,
                            @Nonnull final AreaOfInterestService areaOfInterestService,
                            @Nonnull final ReplicantClientSystem replicantClientSystem )
