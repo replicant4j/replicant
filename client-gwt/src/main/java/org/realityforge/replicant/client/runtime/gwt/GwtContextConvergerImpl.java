@@ -1,12 +1,9 @@
 package org.realityforge.replicant.client.runtime.gwt;
 
 import arez.annotations.ArezComponent;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.Timer;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
@@ -96,12 +93,5 @@ public abstract class GwtContextConvergerImpl
   protected ReplicantClientSystem getReplicantClientSystem()
   {
     return _replicantClientSystem;
-  }
-
-  @Override
-  @Nullable
-  protected String filterToString( @Nullable final Object filter )
-  {
-    return JsonUtils.stringify( (JavaScriptObject) filter );
   }
 }

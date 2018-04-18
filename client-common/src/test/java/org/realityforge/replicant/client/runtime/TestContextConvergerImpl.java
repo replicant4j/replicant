@@ -37,13 +37,6 @@ final class TestContextConvergerImpl
     return true;
   }
 
-  @Nullable
-  @Override
-  protected String filterToString( @Nullable final Object filter )
-  {
-    return Objects.toString( filter );
-  }
-
   @Nonnull
   @Override
   protected EntitySubscriptionManager getSubscriptionManager()

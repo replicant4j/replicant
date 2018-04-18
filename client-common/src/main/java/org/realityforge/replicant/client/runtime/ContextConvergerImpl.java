@@ -323,7 +323,10 @@ public abstract class ContextConvergerImpl
   }
 
   @Nullable
-  protected abstract String filterToString( @Nullable final Object filter );
+  protected String filterToString( @Nullable final Object filter )
+  {
+    return FilterUtil.filterToString( filter );
+  }
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelDescriptor> expectedChannels )
   {

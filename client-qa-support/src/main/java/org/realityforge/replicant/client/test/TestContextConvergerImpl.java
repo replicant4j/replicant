@@ -2,7 +2,6 @@ package org.realityforge.replicant.client.test;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
@@ -67,12 +66,5 @@ public class TestContextConvergerImpl
   protected ReplicantClientSystem getReplicantClientSystem()
   {
     return _replicantClientSystem;
-  }
-
-  @Override
-  @Nullable
-  protected String filterToString( @Nullable final Object filter )
-  {
-    return Objects.toString( filter );
   }
 }
