@@ -236,13 +236,8 @@ public abstract class ContextConvergerImpl
             if ( null == templateForGrouping ||
                  canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.UPDATE ) )
             {
-              final String message =
-                "Updating subscription: " +
-                descriptor +
-                ". Changing filter to " +
-                newFilter +
-                " from " +
-                existingFilter;
+              final String message = "Updating subscription: " + descriptor + ". Changing filter to " + newFilter +
+                                     " from " + existingFilter;
               LOG.info( message );
               service.requestSubscriptionUpdate( descriptor, filter );
               return ConvergeAction.SUBMITTED_UPDATE;
