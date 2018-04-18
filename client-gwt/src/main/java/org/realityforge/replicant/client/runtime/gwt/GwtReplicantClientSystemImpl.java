@@ -20,7 +20,6 @@ public final class GwtReplicantClientSystemImpl
                                        @Nonnull final DataLoaderEntry[] dataLoaders )
   {
     setDataLoaders( dataLoaders );
-    addReplicantSystemListener( new GwtReplicantSystemListenerImpl( eventBus ) );
     _timer = new Timer()
     {
       @Override
