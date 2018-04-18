@@ -18,7 +18,7 @@ public class GwtDataLoaderServiceConfigImpl
   {
     _key = key;
 
-    if ( canSubscriptionsDebugOutputBeEnabled() )
+    if ( ReplicantConfig.canSubscriptionsDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
@@ -28,7 +28,7 @@ public class GwtDataLoaderServiceConfigImpl
       LOG.info( message );
     }
 
-    if ( canRequestDebugOutputBeEnabled() )
+    if ( ReplicantConfig.canRequestDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".RequestDebugOutput module is enabled. Run the javascript " +
@@ -42,25 +42,25 @@ public class GwtDataLoaderServiceConfigImpl
   @Override
   public boolean shouldRecordRequestKey()
   {
-    return System.getProperty( "replicant.shouldRecordRequestKey", "false" ).equals( "true" );
+    return ReplicantConfig.shouldRecordRequestKey();
   }
 
   @Override
   public boolean shouldValidateRepositoryOnLoad()
   {
-    return System.getProperty( "replicant.shouldValidateRepositoryOnLoad", "false" ).equals( "true" );
+    return ReplicantConfig.shouldValidateRepositoryOnLoad();
   }
 
   @Override
   public boolean requestDebugOutputEnabled()
   {
-    return canRequestDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
+    return ReplicantConfig.canRequestDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
   }
 
   @Override
   public boolean subscriptionsDebugOutputEnabled()
   {
-    return canSubscriptionsDebugOutputBeEnabled() && isEnabled( _key, SUBSCRIPTION_DEBUG );
+    return ReplicantConfig.canSubscriptionsDebugOutputBeEnabled() && isEnabled( _key, SUBSCRIPTION_DEBUG );
   }
 
   @Nonnull
@@ -68,16 +68,6 @@ public class GwtDataLoaderServiceConfigImpl
   {
     final String key = _key;
     return "( window." + key + " ? window." + key + " : window." + key + " = {} )." + variable + " = true";
-  }
-
-  private boolean canRequestDebugOutputBeEnabled()
-  {
-    return System.getProperty( "replicant.requestDebugOutputEnabled", "false" ).equals( "true" );
-  }
-
-  private boolean canSubscriptionsDebugOutputBeEnabled()
-  {
-    return System.getProperty( "replicant.subscriptionsDebugOutputEnabled", "false" ).equals( "true" );
   }
 
   private static native boolean isEnabled( String sessionKey, String feature ) /*-{
