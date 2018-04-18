@@ -23,9 +23,9 @@ public class GwtContextConvergerImpl
   private Timer _timer;
 
   @Inject
-  public GwtContextConvergerImpl( @Nonnull final EntitySubscriptionManager subscriptionManager,
-                                  @Nonnull final AreaOfInterestService areaOfInterestService,
-                                  @Nonnull final ReplicantClientSystem replicantClientSystem )
+  GwtContextConvergerImpl( @Nonnull final EntitySubscriptionManager subscriptionManager,
+                           @Nonnull final AreaOfInterestService areaOfInterestService,
+                           @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
     _subscriptionManager = Objects.requireNonNull( subscriptionManager );
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
