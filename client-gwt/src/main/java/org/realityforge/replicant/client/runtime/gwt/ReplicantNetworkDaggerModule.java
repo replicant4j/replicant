@@ -4,44 +4,25 @@ import dagger.Module;
 import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.runtime.AreaOfInterestService;
-import org.realityforge.replicant.client.runtime.AreaOfInterestServiceImpl;
 import org.realityforge.replicant.client.runtime.ContextConverger;
+import org.realityforge.replicant.client.runtime.ReplicantClientRuntimeDaggerModule;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.runtime.ReplicantConnection;
-import org.realityforge.replicant.client.runtime.ReplicantConnectionImpl;
 
-@Module
-public class ReplicantNetworkDaggerModule
+@Module( includes = { GwtContextConvergerImplDaggerModule.class, ReplicantClientRuntimeDaggerModule.class } )
+public interface ReplicantNetworkDaggerModule
 {
   @Nonnull
   @Provides
   @Singleton
-  public static ContextConverger provideContextConverger( @Nonnull final Arez_GwtContextConvergerImpl service )
+  static ContextConverger provideContextConverger( @Nonnull final GwtContextConvergerImpl component )
   {
-    return service;
+    return component;
   }
 
   @Nonnull
   @Provides
   @Singleton
-  public static ReplicantClientSystem provideReplicantClientSystem( @Nonnull final GwtReplicantClientSystemImpl service )
-  {
-    return service;
-  }
-
-  @Nonnull
-  @Provides
-  @Singleton
-  public static AreaOfInterestService provideAreaOfInterestService( @Nonnull final AreaOfInterestServiceImpl service )
-  {
-    return service;
-  }
-
-  @Nonnull
-  @Provides
-  @Singleton
-  public static ReplicantConnection provideReplicantConnection( @Nonnull final ReplicantConnectionImpl service )
+  static ReplicantClientSystem provideReplicantClientSystem( @Nonnull final GwtReplicantClientSystemImpl service )
   {
     return service;
   }

@@ -1,24 +1,24 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.annotations.ArezComponent;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.ChannelDescriptor;
 
 @Singleton
-public class AreaOfInterestServiceImpl
+@ArezComponent( allowEmpty = true )
+public abstract class AreaOfInterestServiceImpl
   implements AreaOfInterestService
 {
   private final HashMap<String, Scope> _scopes = new HashMap<>();
   private final HashMap<ChannelDescriptor, Subscription> _subscriptions = new HashMap<>();
   private final AreaOfInterestListenerSupport _listeners = new AreaOfInterestListenerSupport();
 
-  @Inject
   public AreaOfInterestServiceImpl()
   {
   }
