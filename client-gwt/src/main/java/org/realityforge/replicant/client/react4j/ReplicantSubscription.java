@@ -19,6 +19,7 @@ import org.realityforge.replicant.client.runtime.SubscriptionReference;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import react4j.annotations.Prop;
+import react4j.annotations.PropDefault;
 import react4j.annotations.ReactComponent;
 import react4j.arez.ReactArezComponent;
 import react4j.core.ReactNode;
@@ -31,10 +32,14 @@ import react4j.core.ReactNode;
 public abstract class ReplicantSubscription
   extends ReactArezComponent
 {
+  @PropDefault
+  static final boolean DEFAULT_EXPECT_FILTER_UPDATES = false;
+
   public enum Status
   {
     NOT_ASKED,
     LOADING,
+    UPDATING,
     FAILURE,
     SUCCESS
   }
@@ -85,6 +90,20 @@ public abstract class ReplicantSubscription
                       @Nullable Object entity );
   }
 
+  @FunctionalInterface
+  public interface OnUpdateCallback
+  {
+    /**
+     * Callback invoked to render child component when subscription is update.
+     *
+     * @param entry  the entry describing subscription.
+     * @param entity the entity subscribed to. This is non-null if the subscription is to an instance graph, otherwise it is null.
+     */
+    @Nullable
+    ReactNode render( @Nonnull ChannelSubscriptionEntry entry,
+                      @Nullable Object entity );
+  }
+
   private final AreaOfInterestListenerAdapter _listener = createAreaOfInterestListener();
   private final DataLoaderListenerAdapter _dataLoaderListener = createDataLoaderListener();
   @Nonnull
@@ -106,6 +125,9 @@ public abstract class ReplicantSubscription
 
   @Prop
   abstract boolean expectFilter();
+
+  @Prop
+  abstract boolean expectFilterUpdates();
 
   /**
    * If this is non-null then it is expected that it is an instance graph.
@@ -130,6 +152,10 @@ public abstract class ReplicantSubscription
   @Prop
   @Nullable
   abstract OnSuccessCallback onSuccess();
+
+  @Prop
+  @Nullable
+  abstract OnUpdateCallback onUpdate();
 
   @Observable
   @Nonnull
@@ -225,7 +251,7 @@ public abstract class ReplicantSubscription
         if ( !FilterUtil.filtersEqual( newFilter, filter ) )
         {
           final SubscriptionReference reference = getSubscriptionReference();
-          if ( null != reference )
+          if ( null != reference && expectFilterUpdates() )
           {
             final AreaOfInterestService areaOfInterestService = _replicantConnection.getAreaOfInterestService();
             areaOfInterestService.updateSubscription( reference.getSubscription(), newFilter );
@@ -235,6 +261,10 @@ public abstract class ReplicantSubscription
               setError( null );
             }
             return;
+          }
+          else
+          {
+            releaseSubscriptionReference();
           }
         }
       }
@@ -315,6 +345,21 @@ public abstract class ReplicantSubscription
         return null;
       }
     }
+    else if ( Status.UPDATING == status )
+    {
+      assert null != getSubscription();
+      assert null == getInstanceType() || null != getEntity();
+      assert null == getError();
+      final OnUpdateCallback callback = onUpdate();
+      if ( null != callback )
+      {
+        return callback.render( getSubscription(), getEntity() );
+      }
+      else
+      {
+        return null;
+      }
+    }
     else if ( Status.SUCCESS == status )
     {
       assert null != getSubscription();
@@ -382,10 +427,29 @@ public abstract class ReplicantSubscription
   @SuppressWarnings( "PMD.CollapsibleIfStatements" )
   void onSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor )
   {
-    final SubscriptionReference subscriptionReference = getSubscriptionReference();
+    SubscriptionReference subscriptionReference = getSubscriptionReference();
+    if ( null != subscriptionReference && subscriptionReference.hasBeenReleased() )
+    {
+      // Subscription has been disposed somehow
+      setSubscriptionReference( null );
+      subscriptionReference = null;
+    }
     if ( null != subscriptionReference &&
-         !subscriptionReference.hasBeenReleased() &&
-         subscriptionReference.getSubscription().getDescriptor().equals( descriptor ) )
+         subscriptionReference.getSubscription().getDescriptor().equals( buildChannelDescriptor() ) )
+    {
+      // Channel descriptor has changed
+      setSubscriptionReference( null );
+      subscriptionReference = null;
+    }
+    if ( null == subscriptionReference )
+    {
+      if ( null != getSubscription() )
+      {
+        setEntity( null );
+        setSubscription( null );
+      }
+    }
+    else if ( subscriptionReference.getSubscription().getDescriptor().equals( descriptor ) )
     {
       if ( tryLoadSubscription( descriptor ) )
       {
