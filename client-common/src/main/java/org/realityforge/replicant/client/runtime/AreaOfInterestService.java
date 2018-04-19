@@ -1,6 +1,12 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.Arez;
+import arez.Disposable;
 import arez.annotations.ArezComponent;
+import arez.annotations.Observable;
+import arez.annotations.ObservableRef;
+import arez.annotations.PreDispose;
+import arez.component.ComponentObservable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,6 +16,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import org.realityforge.braincheck.Guards;
 import org.realityforge.replicant.client.ChannelDescriptor;
 
 /**
@@ -40,10 +47,15 @@ public abstract class AreaOfInterestService
     return _listeners.removeListener( Objects.requireNonNull( listener ) );
   }
 
+  @ObservableRef
+  @Nonnull
+  abstract arez.Observable getScopesObservable();
+
+  @Observable( name = "scopes", expectSetter = false )
   @Nonnull
   public Map<String, Scope> getScopeMap()
   {
-    return Collections.unmodifiableMap( _scopes );
+    return Arez.areRepositoryResultsModifiable() ? _scopes : Collections.unmodifiableMap( _scopes );
   }
 
   @Nonnull
@@ -61,7 +73,17 @@ public abstract class AreaOfInterestService
   @Nullable
   public Scope findScope( @Nonnull final String name )
   {
-    return _scopes.get( name );
+    final Scope scope = _scopes.get( name );
+    if ( null != scope && !Disposable.isDisposed( scope ) )
+    {
+      ComponentObservable.observe( scope );
+      return scope;
+    }
+    else
+    {
+      getScopesObservable().reportObserved();
+      return null;
+    }
   }
 
   @Nonnull
@@ -72,10 +94,21 @@ public abstract class AreaOfInterestService
 
   public void destroyScope( @Nonnull final Scope scope )
   {
-    if ( scope.isActive() && null != _scopes.remove( scope.getName() ) )
+    if ( null != _scopes.remove( scope.getName() ) )
     {
-      scope.delete();
-      _listeners.scopeDeleted( scope );
+      getScopesObservable().preReportChanged();
+      if ( scope.isActive() )
+      {
+        scope.delete();
+        _listeners.scopeDeleted( scope );
+        Disposable.dispose( scope );
+      }
+      getScopesObservable().reportChanged();
+    }
+    else
+    {
+      Guards.fail( () -> "Called AreaOfInterestService.destroyScope() passing a scope that was not in the " +
+                         "repository. Scope: " + scope );
     }
   }
 
@@ -89,14 +122,7 @@ public abstract class AreaOfInterestService
   public Scope findOrCreateScope( @Nonnull final String scopeName )
   {
     final Scope scope = findScope( scopeName );
-    if ( null != scope )
-    {
-      return scope;
-    }
-    else
-    {
-      return createScopeReference( scopeName ).getScope();
-    }
+    return null != scope ? scope : createScopeReference( scopeName ).getScope();
   }
 
   /**
@@ -122,10 +148,15 @@ public abstract class AreaOfInterestService
     return false;
   }
 
+  @ObservableRef
+  @Nonnull
+  abstract arez.Observable getSubscriptionsObservable();
+
+  @Observable( name = "subscriptions", expectSetter = false )
   @Nonnull
   public Map<ChannelDescriptor, Subscription> getSubscriptionsMap()
   {
-    return Collections.unmodifiableMap( _subscriptions );
+    return Arez.areRepositoryResultsModifiable() ? _subscriptions : Collections.unmodifiableMap( _subscriptions );
   }
 
   @Nonnull
@@ -137,7 +168,17 @@ public abstract class AreaOfInterestService
   @Nullable
   public Subscription findSubscription( @Nonnull final ChannelDescriptor channel )
   {
-    return _subscriptions.get( channel );
+    final Subscription subscription = _subscriptions.get( channel );
+    if ( null != subscription && !Disposable.isDisposed( subscription ) )
+    {
+      ComponentObservable.observe( subscription );
+      return subscription;
+    }
+    else
+    {
+      getSubscriptionsObservable().reportObserved();
+      return null;
+    }
   }
 
   @Nonnull
@@ -157,20 +198,33 @@ public abstract class AreaOfInterestService
 
   public void destroySubscription( @Nonnull final Subscription subscription )
   {
-    if ( subscription.isActive() && null != _subscriptions.remove( subscription.getDescriptor() ) )
+    if ( null != _subscriptions.remove( subscription.getDescriptor() ) )
     {
-      subscription.delete();
-      _listeners.subscriptionDeleted( subscription );
+      getSubscriptionsObservable().preReportChanged();
+      if ( subscription.isActive() )
+      {
+        subscription.delete();
+        _listeners.subscriptionDeleted( subscription );
+        Disposable.dispose( subscription );
+      }
+      getSubscriptionsObservable().reportChanged();
+    }
+    else
+    {
+      Guards.fail( () -> "Called AreaOfInterestService.destroySubscription() passing a subscription that was " +
+                         "not in the repository. Subscription: " + subscription );
     }
   }
 
   @Nonnull
   protected Scope createScope( @Nonnull final String name )
   {
+    getScopesObservable().preReportChanged();
     assert !_scopes.containsKey( name );
     final Scope scope = new Scope( this, name );
     _scopes.put( scope.getName(), scope );
     _listeners.scopeCreated( scope );
+    getScopesObservable().reportChanged();
     return scope;
   }
 
@@ -207,5 +261,18 @@ public abstract class AreaOfInterestService
   {
     final Subscription subscription = findSubscription( descriptor );
     return null != subscription ? subscription : createSubscription( descriptor, null );
+  }
+
+  @PreDispose
+  protected void preDispose()
+  {
+    getScopesObservable().preReportChanged();
+    _scopes.values().forEach( Disposable::dispose );
+    _scopes.clear();
+    getScopesObservable().reportChanged();
+    getSubscriptionsObservable().preReportChanged();
+    _subscriptions.values().forEach( Disposable::dispose );
+    _subscriptions.clear();
+    getSubscriptionsObservable().reportChanged();
   }
 }

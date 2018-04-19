@@ -1,17 +1,30 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.Arez;
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.ChannelDescriptor;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "Duplicates" )
 public class AreaOfInterestServiceTest
+  extends AbstractReplicantTest
+  implements IHookable
 {
   enum TestGraph
   {
     A, B
+  }
+
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
   }
 
   @Test
