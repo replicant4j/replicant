@@ -9,9 +9,11 @@ import javax.inject.Inject;
 import jsinterop.base.JsPropertyMap;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.runtime.ReplicantConnection;
+import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.runtime.AreaOfInterestListenerAdapter;
+import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.client.runtime.ReplicantConnection;
 import org.realityforge.replicant.client.runtime.Scope;
 import org.realityforge.replicant.client.runtime.ScopeReference;
 import org.realityforge.replicant.client.runtime.Subscription;
@@ -103,6 +105,9 @@ public abstract class ReplicantSubscription
   @Prop
   @Nullable
   abstract Object getFilter();
+
+  @Prop
+  abstract boolean expectFilter();
 
   /**
    * If this is non-null then it is expected that it is an instance graph.
@@ -221,8 +226,26 @@ public abstract class ReplicantSubscription
       {
         releaseScopeReference();
       }
-
-      // TODO: Handle changes in filter here
+      else if ( expectFilter() )
+      {
+        final Object filter = null != prevProps ? prevProps.get( "filter" ) : null;
+        final Object newFilter = getFilter();
+        if ( !FilterUtil.filtersEqual( newFilter, filter ) )
+        {
+          final SubscriptionReference reference = getSubscriptionReference();
+          if ( null != reference )
+          {
+            final AreaOfInterestService areaOfInterestService = _replicantConnection.getAreaOfInterestService();
+            areaOfInterestService.updateSubscription( reference.getSubscription(), newFilter );
+            if ( null != filter || null == newFilter )
+            {
+              setStatus( Status.UPDATING );
+              setError( null );
+            }
+            return;
+          }
+        }
+      }
     }
     updateReferences();
   }
