@@ -556,6 +556,14 @@ public abstract class ReplicantSubscription
       {
         onSubscriptionUpdate( descriptor );
       }
+
+      @Override
+      public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
+                                              @Nonnull final ChannelDescriptor descriptor,
+                                              @Nonnull final Throwable throwable )
+      {
+        onSubscriptionError( descriptor, throwable );
+      }
     };
   }
 }
