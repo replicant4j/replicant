@@ -217,7 +217,7 @@ public abstract class ReplicantSubscription
     else
     {
       final Object lastId = null != prevProps ? prevProps.get( "id" ) : null;
-      if ( getId() != lastId )
+      if ( !Objects.equals( getId(), lastId ) )
       {
         releaseScopeReference();
       }
