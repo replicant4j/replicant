@@ -448,6 +448,8 @@ public abstract class ReplicantSubscription
     {
       setStatus( Status.FAILURE );
       setError( throwable );
+      setSubscription( null );
+      setEntity( null );
     }
   }
 
