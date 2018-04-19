@@ -19,7 +19,6 @@ public class AreaOfInterestListenerSupportTest
     final AreaOfInterestListenerSupport support = new AreaOfInterestListenerSupport();
 
     final AreaOfInterestService service = mock( AreaOfInterestService.class );
-    final Scope scope = new Scope( service, ValueUtil.randomString() );
     final Subscription subscription =
       new Subscription( service, new ChannelDescriptor( TestGraph.A, ValueUtil.randomString() ) );
 
@@ -29,12 +28,6 @@ public class AreaOfInterestListenerSupportTest
     assertFalse( support.addListener( listener ), "Can not add duplicate" );
 
     assertTrue( support.getListeners().contains( listener ) );
-
-    support.scopeCreated( scope );
-    verify( listener ).scopeCreated( scope );
-
-    support.scopeDeleted( scope );
-    verify( listener ).scopeDeleted( scope );
 
     support.subscriptionCreated( subscription );
     verify( listener ).subscriptionCreated( subscription );

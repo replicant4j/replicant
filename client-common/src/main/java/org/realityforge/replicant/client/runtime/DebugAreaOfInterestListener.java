@@ -16,20 +16,6 @@ public class DebugAreaOfInterestListener
   }
 
   @Override
-  public void scopeCreated( @Nonnull final Scope scope )
-  {
-    LOG.warning( "scopeCreated: " + scope );
-    emitAreaOfInterest();
-  }
-
-  @Override
-  public void scopeDeleted( @Nonnull final Scope scope )
-  {
-    LOG.warning( "scopeDeleted: " + scope );
-    emitAreaOfInterest();
-  }
-
-  @Override
   public void subscriptionCreated( @Nonnull final Subscription subscription )
   {
     LOG.warning( "subscriptionCreated: " + subscription );
@@ -52,12 +38,7 @@ public class DebugAreaOfInterestListener
 
   private void emitAreaOfInterest()
   {
-    LOG.info( "\n\nAreaOfInterest Database\nScopes: " );
-    for ( final Scope s : _service.getScopeMap().values() )
-    {
-      LOG.info( "Scope: " + s );
-    }
-    LOG.info( "\nSubscriptions: " );
+    LOG.info( "\n\nAreaOfInterest Database\nSubscriptions: " );
     for ( final Subscription s : _service.getSubscriptionsMap().values() )
     {
       LOG.info( "Subscription: " + s );

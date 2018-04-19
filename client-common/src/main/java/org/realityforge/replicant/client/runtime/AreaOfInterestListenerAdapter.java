@@ -6,16 +6,6 @@ public class AreaOfInterestListenerAdapter
   implements AreaOfInterestListener
 {
   @Override
-  public void scopeCreated( @Nonnull final Scope scope )
-  {
-  }
-
-  @Override
-  public void scopeDeleted( @Nonnull final Scope scope )
-  {
-  }
-
-  @Override
   public void subscriptionCreated( @Nonnull final Subscription subscription )
   {
   }

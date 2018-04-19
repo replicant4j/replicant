@@ -36,18 +36,6 @@ public final class AreaOfInterestListenerSupport
   }
 
   @Override
-  public void scopeCreated( @Nonnull final Scope scope )
-  {
-    cloneListeners().forEach( l -> l.scopeCreated( scope ) );
-  }
-
-  @Override
-  public void scopeDeleted( @Nonnull final Scope scope )
-  {
-    cloneListeners().forEach( l -> l.scopeDeleted( scope ) );
-  }
-
-  @Override
   public void subscriptionCreated( @Nonnull final Subscription subscription )
   {
     cloneListeners().forEach( l -> l.subscriptionCreated( subscription ) );

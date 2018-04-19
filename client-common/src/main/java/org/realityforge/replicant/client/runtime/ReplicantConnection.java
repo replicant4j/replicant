@@ -34,34 +34,6 @@ public interface ReplicantConnection
   ReplicantClientSystem getReplicantClientSystem();
 
   /**
-   * Create or update a Subscription
-   */
-  @Nonnull
-  default SubscriptionReference subscribe( @Nonnull final Scope scope,
-                                           @Nonnull final ChannelDescriptor channel,
-                                           @Nullable final Object filter )
-  {
-    Subscription subscription = getAreaOfInterestService().findSubscription( channel );
-    if ( null == subscription )
-    {
-      subscription = getAreaOfInterestService().createSubscription( channel, filter );
-    }
-    else if ( !FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
-    {
-      getAreaOfInterestService().updateSubscription( subscription, filter );
-    }
-    final SubscriptionReference reference = scope.getSubscriptionReference( subscription );
-    if ( null == reference )
-    {
-      return getAreaOfInterestService().createSubscriptionReference( scope, channel );
-    }
-    else
-    {
-      return reference;
-    }
-  }
-
-  /**
    * Convert object subscription to root object (specified object Type+ID) to target graphs subscription
    * based on function. If the root object is not yet present then return an empty stream.
    * This is typically used by the function passed into the convergeCrossDataSourceSubscriptions() method.
@@ -82,14 +54,12 @@ public interface ReplicantConnection
    * that are reachable from the source graphs. If an expected subscription is missing it is added,
    * if an additional subscription is present then it is released.
    */
-  default void convergeCrossDataSourceSubscriptions( @Nonnull final Scope scope,
-                                                     @Nonnull final Enum sourceGraph,
+  default void convergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceGraph,
                                                      @Nonnull final Enum targetGraph,
                                                      @Nullable final Object filter,
                                                      @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
-    getContextConverger().pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( scope,
-                                                                                     sourceGraph,
+    getContextConverger().pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( sourceGraph,
                                                                                      targetGraph,
                                                                                      filter,
                                                                                      sourceIDToTargetIDs ) );
@@ -98,8 +68,7 @@ public interface ReplicantConnection
   /**
    * This is worker method for convergeCrossDataSourceSubscriptions. Do not use, do not override.
    */
-  default void doConvergeCrossDataSourceSubscriptions( @Nonnull final Scope scope,
-                                                       @Nonnull final Enum sourceGraph,
+  default void doConvergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceGraph,
                                                        @Nonnull final Enum targetGraph,
                                                        @Nullable final Object filter,
                                                        @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
@@ -107,24 +76,31 @@ public interface ReplicantConnection
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
     final Map<Object, Subscription> existing =
-      scope.getRequiredSubscriptionsByGraph( targetGraph ).stream().
-        filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) ).
-        collect( Collectors.toMap( s -> s.getDescriptor().getID(), Function.identity() ) );
+      getAreaOfInterestService()
+        .getSubscriptions()
+        .stream()
+        .filter( s -> s.getDescriptor().getGraph().equals( targetGraph ) )
+        .filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
+        .collect( Collectors.toMap( s -> s.getDescriptor().getID(), Function.identity() ) );
 
     //noinspection ConstantConditions
-    scope.getRequiredSubscriptions().stream().
-      filter( s -> s.getDescriptor().getGraph() == sourceGraph ).
-      map( s -> s.getDescriptor().getID() ).
-      flatMap( sourceIDToTargetIDs ).
-      filter( Objects::nonNull ).
-      filter( id -> null == existing.remove( id ) ).
-      forEach( id -> subscribe( scope, new ChannelDescriptor( targetGraph, id ), filter ) );
+    getAreaOfInterestService()
+      .getSubscriptions()
+      .stream()
+      .filter( s -> s.getDescriptor().getGraph() == sourceGraph )
+      .map( s -> s.getDescriptor().getID() )
+      .flatMap( sourceIDToTargetIDs )
+      .filter( Objects::nonNull )
+      .filter( id -> null == existing.remove( id ) )
+      .forEach( id -> getAreaOfInterestService().findOrCreateSubscription( new ChannelDescriptor( targetGraph, id ),
+                                                                           filter ).createReference() );
 
     getSubscriptionManager().getInstanceSubscriptions( sourceGraph ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> subscribe( scope, new ChannelDescriptor( targetGraph, id ), filter ) );
+      forEach( id -> getAreaOfInterestService().findOrCreateSubscription( new ChannelDescriptor( targetGraph, id ),
+                                                                          filter ).createReference() );
 
     existing.values().forEach( Subscription::release );
   }

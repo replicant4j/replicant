@@ -1,18 +1,24 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.Arez;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantConnectionTest
+  extends AbstractReplicantTest
+  implements IHookable
 {
   enum TestGraph
   {
@@ -24,10 +30,16 @@ public class ReplicantConnectionTest
     B
   }
 
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
+  }
+
   static class TestRuntime
     implements ReplicantConnection
   {
-    private AreaOfInterestService _areaOfInterestService = mock( AreaOfInterestService.class );
+    private AreaOfInterestService _areaOfInterestService = new Arez_AreaOfInterestService();
     private ContextConverger _contextConverger = mock( ContextConverger.class );
     private EntityLocator _entityLocator = mock( EntityLocator.class );
     private EntitySubscriptionManager _subscriptionManager = mock( EntitySubscriptionManager.class );
@@ -80,81 +92,6 @@ public class ReplicantConnectionTest
   }
 
   @Test
-  public void subscribe()
-  {
-    final TestRuntime r = new TestRuntime();
-    final AreaOfInterestService aoiService = r.getAreaOfInterestService();
-    final Scope scope = new Scope( aoiService, ValueUtil.randomString() );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
-    final Subscription subscription = new Subscription( aoiService, descriptor );
-    final SubscriptionReference reference = subscription.createReference();
-    final String filter = ValueUtil.randomString();
-
-    // No existing subscription
-    {
-      reset( aoiService );
-
-      when( aoiService.findSubscription( descriptor ) ).thenReturn( null );
-      when( aoiService.createSubscription( descriptor, filter ) ).thenReturn( subscription );
-      when( aoiService.createSubscriptionReference( scope, descriptor ) ).thenReturn( reference );
-
-      r.subscribe( scope, descriptor, filter );
-
-      verify( aoiService ).createSubscription( descriptor, filter );
-      verify( aoiService, never() ).updateSubscription( any(), eq( filter ) );
-      verify( aoiService ).createSubscriptionReference( scope, descriptor );
-    }
-
-    //Existing subscription, same filter
-    {
-      subscription.setFilter( filter );
-      reset( aoiService );
-
-      when( aoiService.findSubscription( descriptor ) ).thenReturn( subscription );
-      when( aoiService.createSubscriptionReference( scope, descriptor ) ).thenReturn( reference );
-
-      r.subscribe( scope, descriptor, filter );
-
-      verify( aoiService, never() ).createSubscription( descriptor, filter );
-      verify( aoiService, never() ).updateSubscription( any(), eq( filter ) );
-      verify( aoiService ).createSubscriptionReference( scope, descriptor );
-    }
-
-    //Existing subscription, different filter
-    {
-      subscription.setFilter( ValueUtil.randomString() );
-      reset( aoiService );
-
-      when( aoiService.findSubscription( descriptor ) ).thenReturn( subscription );
-      when( aoiService.createSubscriptionReference( scope, descriptor ) ).thenReturn( reference );
-
-      r.subscribe( scope, descriptor, filter );
-
-      verify( aoiService, never() ).createSubscription( descriptor, filter );
-      verify( aoiService ).updateSubscription( subscription, filter );
-      verify( aoiService ).createSubscriptionReference( scope, descriptor );
-    }
-
-    //Existing subscription, same filter, subscription already required. Should return existing
-    {
-      subscription.setFilter( filter );
-      reset( aoiService );
-
-      when( aoiService.findSubscription( descriptor ) ).thenReturn( subscription );
-
-      final SubscriptionReference subscriptionReference = scope.requireSubscription( subscription );
-
-      final SubscriptionReference result = r.subscribe( scope, descriptor, filter );
-
-      assertEquals( result, subscriptionReference );
-
-      verify( aoiService, never() ).createSubscription( descriptor, filter );
-      verify( aoiService, never() ).updateSubscription( subscription, filter );
-      verify( aoiService, never() ).createSubscriptionReference( scope, descriptor );
-    }
-  }
-
-  @Test
   public void instanceSubscriptionToValues()
   {
     final TestRuntime r = new TestRuntime();
@@ -182,7 +119,7 @@ public class ReplicantConnectionTest
       assertTrue( list.contains( entity2 ) );
     }
   }
-
+/*
   @Test
   public void doConvergeCrossDataSourceSubscriptions()
   {
@@ -190,7 +127,6 @@ public class ReplicantConnectionTest
 
     final TestRuntime r = new TestRuntime();
     final AreaOfInterestService aoiService = r.getAreaOfInterestService();
-    final Scope scope = new Scope( aoiService, ValueUtil.randomString() );
     final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
     final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
     final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
@@ -237,12 +173,12 @@ public class ReplicantConnectionTest
 
     when( aoiService.findSubscription( descriptorQ ) ).thenReturn( subscriptionQ );
     when( aoiService.createSubscription( descriptor4, filter ) ).thenReturn( subscription4 );
-    when( aoiService.createSubscriptionReference( scope, descriptor1 ) ).thenReturn( reference1 );
-    when( aoiService.createSubscriptionReference( scope, descriptor2 ) ).thenReturn( reference2 );
-    when( aoiService.createSubscriptionReference( scope, descriptor4 ) ).thenReturn( subscription4.createReference() );
-    when( aoiService.createSubscriptionReference( scope, descriptor5 ) ).thenReturn( reference5 );
-    when( aoiService.createSubscriptionReference( scope, descriptorP ) ).thenReturn( referenceP );
-    when( aoiService.createSubscriptionReference( scope, descriptorQ ) ).thenReturn( referenceQ );
+    when( aoiService.createSubscriptionReference( descriptor1 ) ).thenReturn( reference1 );
+    when( aoiService.createSubscriptionReference( descriptor2 ) ).thenReturn( reference2 );
+    when( aoiService.createSubscriptionReference( descriptor4 ) ).thenReturn( subscription4.createReference() );
+    when( aoiService.createSubscriptionReference( descriptor5 ) ).thenReturn( reference5 );
+    when( aoiService.createSubscriptionReference( descriptorP ) ).thenReturn( referenceP );
+    when( aoiService.createSubscriptionReference( descriptorQ ) ).thenReturn( referenceQ );
 
     r.doConvergeCrossDataSourceSubscriptions( scope, TestGraph.A, TestGraph2.B, filter, Stream::of );
 
@@ -261,4 +197,5 @@ public class ReplicantConnectionTest
     verify( aoiService, atLeast( 1 ) ).destroySubscription( subscription6 );
     verify( aoiService ).createSubscription( descriptor4, filter );
   }
+  */
 }

@@ -430,18 +430,6 @@ public abstract class ContextConvergerImpl
     implements AreaOfInterestListener
   {
     @Override
-    public void scopeCreated( @Nonnull final Scope scope )
-    {
-      markSubscriptionAsRequiringUpdate();
-    }
-
-    @Override
-    public void scopeDeleted( @Nonnull final Scope scope )
-    {
-      markSubscriptionAsRequiringUpdate();
-    }
-
-    @Override
     public void subscriptionCreated( @Nonnull final Subscription subscription )
     {
       markSubscriptionAsRequiringUpdate();

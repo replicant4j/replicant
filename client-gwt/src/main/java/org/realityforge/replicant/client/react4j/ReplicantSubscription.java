@@ -14,8 +14,6 @@ import org.realityforge.replicant.client.runtime.AreaOfInterestListenerAdapter;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.ReplicantConnection;
-import org.realityforge.replicant.client.runtime.Scope;
-import org.realityforge.replicant.client.runtime.ScopeReference;
 import org.realityforge.replicant.client.runtime.Subscription;
 import org.realityforge.replicant.client.runtime.SubscriptionReference;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
@@ -165,12 +163,6 @@ public abstract class ReplicantSubscription
 
   @Observable
   @Nullable
-  abstract ScopeReference getScopeReference();
-
-  abstract void setScopeReference( @Nullable ScopeReference scopeReference );
-
-  @Observable
-  @Nullable
   abstract SubscriptionReference getSubscriptionReference();
 
   abstract void setSubscriptionReference( @Nullable SubscriptionReference subscriptionReference );
@@ -217,14 +209,14 @@ public abstract class ReplicantSubscription
         getReplicantClientSystem().getDataLoaderService( lastGraph ).removeDataLoaderListener( _dataLoaderListener );
         getReplicantClientSystem().getDataLoaderService( getGraph() ).addDataLoaderListener( _dataLoaderListener );
       }
-      releaseScopeReference();
+      releaseSubscriptionReference();
     }
     else
     {
       final Object lastId = null != prevProps ? prevProps.get( "id" ) : null;
       if ( !Objects.equals( getId(), lastId ) )
       {
-        releaseScopeReference();
+        releaseSubscriptionReference();
       }
       else if ( expectFilter() )
       {
@@ -258,27 +250,13 @@ public abstract class ReplicantSubscription
 
   private void updateReferences()
   {
-    ChannelDescriptor channel = null;
-    ScopeReference scopeReference = getScopeReference();
-    if ( null == scopeReference || scopeReference.hasBeenReleased() )
-    {
-      channel = buildChannelDescriptor();
-      scopeReference = _replicantConnection.getAreaOfInterestService().createScopeReference( channel.toString() );
-      setScopeReference( scopeReference );
-    }
-    scopeReference.getScope().purgeReleasedSubscriptionReferences();
     SubscriptionReference subscriptionReference = getSubscriptionReference();
     if ( null == subscriptionReference || subscriptionReference.hasBeenReleased() )
     {
-      if ( null == channel )
-      {
-        channel = buildChannelDescriptor();
-      }
-      subscriptionReference = _replicantConnection.subscribe( scopeReference.getScope(), channel, getFilter() );
-      setSubscriptionReference( subscriptionReference );
-    }
-    if ( null != channel )
-    {
+      final ChannelDescriptor channel = buildChannelDescriptor();
+      setSubscriptionReference( _replicantConnection.getAreaOfInterestService()
+                                  .findOrCreateSubscription( channel, getFilter() )
+                                  .createReference() );
       if ( tryLoadSubscription( channel ) )
       {
         setStatus( Status.SUCCESS );
@@ -296,7 +274,7 @@ public abstract class ReplicantSubscription
   @Override
   protected void componentWillUnmount()
   {
-    releaseScopeReference();
+    releaseSubscriptionReference();
     _replicantConnection.getAreaOfInterestService().removeAreaOfInterestListener( _listener );
     getReplicantClientSystem().getDataLoaderService( getGraph() ).removeDataLoaderListener( _dataLoaderListener );
     super.componentWillUnmount();
@@ -368,29 +346,6 @@ public abstract class ReplicantSubscription
       else
       {
         return null;
-      }
-    }
-  }
-
-  /**
-   * Invoked when the scope has been removed from the Area of Interest.
-   *
-   * @param scope the scope.
-   */
-  @Action
-  void onScopeDeleted( @Nonnull final Scope scope )
-  {
-    final ScopeReference scopeReference = getScopeReference();
-    if ( null != scopeReference )
-    {
-      if ( scopeReference.hasBeenReleased() )
-      {
-        releaseScopeReference();
-      }
-      else if ( scope == scopeReference.getScope() )
-      {
-        assert !scopeReference.getScope().isActive();
-        releaseScopeReference();
       }
     }
   }
@@ -479,26 +434,7 @@ public abstract class ReplicantSubscription
   @Action
   void onDataLoaderDisconnect()
   {
-    releaseScopeReference();
-  }
-
-  /**
-   * Called to release and null scope reference if present.
-   * This is called when the subscription details change.
-   */
-  private void releaseScopeReference()
-  {
     releaseSubscriptionReference();
-    final ScopeReference scopeReference = getScopeReference();
-    if ( null != scopeReference )
-    {
-      scopeReference.release();
-      setScopeReference( null );
-      setSubscription( null );
-      setStatus( Status.NOT_ASKED );
-      setError( null );
-      setEntity( null );
-    }
   }
 
   /**
@@ -524,12 +460,6 @@ public abstract class ReplicantSubscription
   {
     return new AreaOfInterestListenerAdapter()
     {
-      @Override
-      public void scopeDeleted( @Nonnull final Scope scope )
-      {
-        onScopeDeleted( scope );
-      }
-
       @Override
       public void subscriptionDeleted( @Nonnull final Subscription subscription )
       {
