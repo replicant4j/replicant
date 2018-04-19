@@ -494,6 +494,7 @@ public abstract class ReplicantSubscription
     {
       scopeReference.release();
       setScopeReference( null );
+      setSubscription( null );
       setStatus( Status.NOT_ASKED );
       setError( null );
       setEntity( null );
@@ -514,6 +515,7 @@ public abstract class ReplicantSubscription
       setSubscriptionReference( null );
       setSubscription( null );
       setError( null );
+      setEntity( null );
     }
   }
 
