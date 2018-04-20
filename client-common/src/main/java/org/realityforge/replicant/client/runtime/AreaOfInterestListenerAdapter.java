@@ -1,22 +1,23 @@
 package org.realityforge.replicant.client.runtime;
 
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.Channel;
 
 public class AreaOfInterestListenerAdapter
   implements AreaOfInterestListener
 {
   @Override
-  public void subscriptionCreated( @Nonnull final Subscription subscription )
+  public void channelCreated( @Nonnull final Channel channel )
   {
   }
 
   @Override
-  public void subscriptionUpdated( @Nonnull final Subscription subscription )
+  public void channelUpdated( @Nonnull final Channel channel )
   {
   }
 
   @Override
-  public void subscriptionDeleted( @Nonnull final Subscription subscription )
+  public void channelDeleted( @Nonnull final Channel channel )
   {
   }
 }

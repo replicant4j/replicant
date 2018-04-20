@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.Channel;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
@@ -430,19 +431,19 @@ public abstract class ContextConvergerImpl
     implements AreaOfInterestListener
   {
     @Override
-    public void subscriptionCreated( @Nonnull final Subscription subscription )
+    public void channelCreated( @Nonnull final Channel channel )
     {
       markSubscriptionAsRequiringUpdate();
     }
 
     @Override
-    public void subscriptionUpdated( @Nonnull final Subscription subscription )
+    public void channelUpdated( @Nonnull final Channel channel )
     {
       markSubscriptionAsRequiringUpdate();
     }
 
     @Override
-    public void subscriptionDeleted( @Nonnull final Subscription subscription )
+    public void channelDeleted( @Nonnull final Channel channel )
     {
       markSubscriptionAsRequiringUpdate();
     }
@@ -453,14 +454,14 @@ public abstract class ContextConvergerImpl
   {
     @Override
     public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelDescriptor descriptor )
+                                      @Nonnull final ChannelAddress descriptor )
     {
       convergeStep();
     }
 
     @Override
     public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final Throwable throwable )
     {
       removeFailedSubscription( descriptor );
@@ -468,14 +469,14 @@ public abstract class ContextConvergerImpl
 
     @Override
     public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                        @Nonnull final ChannelDescriptor descriptor )
+                                        @Nonnull final ChannelAddress descriptor )
     {
       convergeStep();
     }
 
     @Override
     public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                     @Nonnull final ChannelDescriptor descriptor,
+                                     @Nonnull final ChannelAddress descriptor,
                                      @Nonnull final Throwable throwable )
     {
       convergeStep();
@@ -483,14 +484,14 @@ public abstract class ContextConvergerImpl
 
     @Override
     public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                               @Nonnull final ChannelDescriptor descriptor )
+                                               @Nonnull final ChannelAddress descriptor )
     {
       convergeStep();
     }
 
     @Override
     public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                            @Nonnull final ChannelDescriptor descriptor,
+                                            @Nonnull final ChannelAddress descriptor,
                                             @Nonnull final Throwable throwable )
     {
       removeFailedSubscription( descriptor );

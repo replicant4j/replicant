@@ -1,12 +1,13 @@
 package org.realityforge.replicant.client.runtime;
 
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.Channel;
 
 public interface AreaOfInterestListener
 {
-  void subscriptionCreated( @Nonnull Subscription subscription );
+  void channelCreated( @Nonnull Channel channel );
 
-  void subscriptionUpdated( @Nonnull Subscription subscription );
+  void channelUpdated( @Nonnull Channel channel );
 
-  void subscriptionDeleted( @Nonnull Subscription subscription );
+  void channelDeleted( @Nonnull Channel channel );
 }

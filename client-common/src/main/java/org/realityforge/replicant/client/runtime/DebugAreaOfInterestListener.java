@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.runtime;
 
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.Channel;
 
 public class DebugAreaOfInterestListener
   implements AreaOfInterestListener
@@ -16,32 +17,32 @@ public class DebugAreaOfInterestListener
   }
 
   @Override
-  public void subscriptionCreated( @Nonnull final Subscription subscription )
+  public void channelCreated( @Nonnull final Channel channel )
   {
-    LOG.warning( "subscriptionCreated: " + subscription );
+    LOG.warning( "channelCreated: " + channel );
     emitAreaOfInterest();
   }
 
   @Override
-  public void subscriptionUpdated( @Nonnull final Subscription subscription )
+  public void channelUpdated( @Nonnull final Channel channel )
   {
-    LOG.warning( "subscriptionUpdated: " + subscription );
+    LOG.warning( "channelUpdated: " + channel );
     emitAreaOfInterest();
   }
 
   @Override
-  public void subscriptionDeleted( @Nonnull final Subscription subscription )
+  public void channelDeleted( @Nonnull final Channel channel )
   {
-    LOG.warning( "subscriptionDeleted: " + subscription );
+    LOG.warning( "channelDeleted: " + channel );
     emitAreaOfInterest();
   }
 
   private void emitAreaOfInterest()
   {
     LOG.info( "\n\nAreaOfInterest Database\nSubscriptions: " );
-    for ( final Subscription s : _service.getSubscriptionsMap().values() )
+    for ( final Channel s : _service.getSubscriptionsMap().values() )
     {
-      LOG.info( "Subscription: " + s );
+      LOG.info( "Channel: " + s );
     }
     LOG.info( "\n" );
   }

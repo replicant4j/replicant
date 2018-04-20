@@ -16,7 +16,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.braincheck.Guards;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.FilterUtil;
 
 /**
@@ -29,7 +30,7 @@ import org.realityforge.replicant.client.FilterUtil;
 @ArezComponent( allowEmpty = true )
 public abstract class AreaOfInterestService
 {
-  private final HashMap<ChannelDescriptor, Subscription> _subscriptions = new HashMap<>();
+  private final HashMap<ChannelAddress, Channel> _subscriptions = new HashMap<>();
   private final AreaOfInterestListenerSupport _listeners = new AreaOfInterestListenerSupport();
 
   public AreaOfInterestService()
@@ -52,27 +53,27 @@ public abstract class AreaOfInterestService
 
   @Observable( name = "subscriptions", expectSetter = false )
   @Nonnull
-  public Map<ChannelDescriptor, Subscription> getSubscriptionsMap()
+  public Map<ChannelAddress, Channel> getSubscriptionsMap()
   {
     return Arez.areRepositoryResultsModifiable() ? _subscriptions : Collections.unmodifiableMap( _subscriptions );
   }
 
   @Nonnull
-  public Collection<Subscription> getSubscriptions()
+  public Collection<Channel> getSubscriptions()
   {
     return getSubscriptionsMap().values();
   }
 
   @Nonnull
-  public Collection<ChannelDescriptor> getSubscriptionsChannels()
+  public Collection<ChannelAddress> getSubscriptionsChannels()
   {
     return getSubscriptionsMap().keySet();
   }
 
   @Nullable
-  public Subscription findSubscription( @Nonnull final ChannelDescriptor channel )
+  public Channel findSubscription( @Nonnull final ChannelAddress channel )
   {
-    final Subscription subscription = _subscriptions.get( channel );
+    final Channel subscription = _subscriptions.get( channel );
     if ( null != subscription && !Disposable.isDisposed( subscription ) )
     {
       ComponentObservable.observe( subscription );
@@ -85,22 +86,21 @@ public abstract class AreaOfInterestService
     }
   }
 
-  public void updateSubscription( @Nonnull final Subscription subscription, @Nullable final Object filter )
+  public void updateSubscription( @Nonnull final Channel subscription, @Nullable final Object filter )
   {
-    assert subscription.isActive();
+    assert !Disposable.isDisposed( subscription );
     subscription.setFilter( filter );
-    _listeners.subscriptionUpdated( subscription );
+    _listeners.channelUpdated( subscription );
   }
 
-  public void destroySubscription( @Nonnull final Subscription subscription )
+  public void destroySubscription( @Nonnull final Channel subscription )
   {
-    if ( null != _subscriptions.remove( subscription.getDescriptor() ) )
+    if ( null != _subscriptions.remove( subscription.getAddress() ) )
     {
       getSubscriptionsObservable().preReportChanged();
-      if ( subscription.isActive() )
+      if ( !Disposable.isDisposed( subscription ) )
       {
-        subscription.delete();
-        _listeners.subscriptionDeleted( subscription );
+        _listeners.channelDeleted( subscription );
         Disposable.dispose( subscription );
       }
       getSubscriptionsObservable().reportChanged();
@@ -108,13 +108,13 @@ public abstract class AreaOfInterestService
     else
     {
       Guards.fail( () -> "Called AreaOfInterestService.destroySubscription() passing a subscription that was " +
-                         "not in the repository. Subscription: " + subscription );
+                         "not in the repository. Channel: " + subscription );
     }
   }
 
   @Nonnull
-  public Subscription createSubscription( @Nonnull final ChannelDescriptor descriptor,
-                                          @Nullable final Object filter )
+  public Channel createSubscription( @Nonnull final ChannelAddress descriptor,
+                                     @Nullable final Object filter )
   {
     if ( _subscriptions.containsKey( descriptor ) )
     {
@@ -122,19 +122,18 @@ public abstract class AreaOfInterestService
     }
     else
     {
-      final Subscription subscription = new Subscription( this, descriptor );
-      subscription.setFilter( filter );
-      _subscriptions.put( subscription.getDescriptor(), subscription );
-      _listeners.subscriptionCreated( subscription );
+      final Channel subscription = Channel.create( descriptor, filter );
+      _subscriptions.put( subscription.getAddress(), subscription );
+      _listeners.channelCreated( subscription );
       return subscription;
     }
   }
 
   @Nonnull
-  public Subscription findOrCreateSubscription( @Nonnull final ChannelDescriptor channel,
-                                                @Nullable final Object filter )
+  public Channel findOrCreateSubscription( @Nonnull final ChannelAddress channel,
+                                           @Nullable final Object filter )
   {
-    final Subscription subscription = findSubscription( channel );
+    final Channel subscription = findSubscription( channel );
     if ( null != subscription )
     {
       if ( !FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
