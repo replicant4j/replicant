@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.ArezTestUtil;
 import arez.Disposable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -16,8 +15,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
-import org.realityforge.braincheck.BrainCheckTestUtil;
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChannelAction;
@@ -27,14 +26,13 @@ import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
 public class DataLoaderServiceTest
+  extends AbstractReplicantTest
 {
   static class MyType
     implements Disposable
@@ -54,21 +52,6 @@ public class DataLoaderServiceTest
     }
   }
 
-  @BeforeMethod
-  protected void beforeTest()
-    throws Exception
-  {
-    BrainCheckTestUtil.resetConfig( false );
-    ArezTestUtil.resetConfig( false );
-  }
-
-  @AfterMethod
-  protected void afterTest()
-    throws Exception
-  {
-    BrainCheckTestUtil.resetConfig( true );
-    ArezTestUtil.resetConfig( true );
-  }
 
   @Test
   public void purgeSubscriptions()
