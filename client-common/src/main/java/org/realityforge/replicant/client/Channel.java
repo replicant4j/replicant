@@ -18,6 +18,7 @@ public abstract class Channel
   @Nullable
   private Object _filter;
 
+  @Nonnull
   public static Channel create( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     return new Arez_Channel( address, filter );
