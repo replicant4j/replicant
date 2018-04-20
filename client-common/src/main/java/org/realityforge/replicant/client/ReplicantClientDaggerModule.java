@@ -5,14 +5,7 @@ import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-@Module
+@Module( includes = { EntitySubscriptionManagerDaggerModule.class } )
 public interface ReplicantClientDaggerModule
 {
-  @Nonnull
-  @Provides
-  @Singleton
-  static EntitySubscriptionManager provideEntitySubscriptionManager( @Nonnull final EntitySubscriptionManagerImpl service )
-  {
-    return service;
-  }
 }

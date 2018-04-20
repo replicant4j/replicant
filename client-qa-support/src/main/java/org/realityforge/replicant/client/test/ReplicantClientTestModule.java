@@ -1,8 +1,8 @@
 package org.realityforge.replicant.client.test;
 
 import org.realityforge.guiceyloops.shared.AbstractModule;
+import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 import org.realityforge.replicant.client.runtime.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.Arez_AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ContextConverger;
@@ -25,7 +25,7 @@ public class ReplicantClientTestModule
 
   protected void bindEntitySubscriptionManager()
   {
-    bind( EntitySubscriptionManager.class ).to( EntitySubscriptionManagerImpl.class ).asEagerSingleton();
+    bind( EntitySubscriptionManager.class ).to( Arez_EntitySubscriptionManager.class ).asEagerSingleton();
   }
 
   protected void bindContextConverger()

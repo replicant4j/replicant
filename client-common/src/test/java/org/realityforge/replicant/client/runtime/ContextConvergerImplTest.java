@@ -1,26 +1,39 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.Arez;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.realityforge.replicant.client.AbstractReplicantTest;
+import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.EntitySubscriptionManagerImpl;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderService;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ContextConvergerImplTest
+  extends AbstractReplicantTest
+  implements IHookable
 {
   private enum TestGraphA
   {
     A, B
+  }
+
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
   }
 
   @Test
@@ -38,7 +51,7 @@ public class ContextConvergerImplTest
     dataLoaders.add( new DataLoaderEntry( dl3, false ) );
     when( system.getDataLoaders() ).thenReturn( dataLoaders );
 
-    final EntitySubscriptionManagerImpl subscriptionManager = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager subscriptionManager = new Arez_EntitySubscriptionManager();
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
     final ContextConvergerImpl c = new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, system );
 

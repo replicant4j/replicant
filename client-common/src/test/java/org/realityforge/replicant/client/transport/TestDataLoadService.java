@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelDescriptor;
@@ -36,7 +37,7 @@ public final class TestDataLoadService
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
-    _subscriptionManager = mock( EntitySubscriptionManager.class );
+    _subscriptionManager = new Arez_EntitySubscriptionManager();
     _entityLocator = mock( EntityLocator.class );
   }
 

@@ -1,14 +1,26 @@
 package org.realityforge.replicant.client;
 
+import arez.Arez;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class EntitySubscriptionManagerTest
+  extends AbstractReplicantTest
+  implements IHookable
 {
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
+  }
+
   @Test
   public void typeGraphRegistrations()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
 
     assertEquals( sm.getTypeSubscriptions().size(), 0 );
@@ -34,7 +46,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void instanceGraphRegistrations()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
 
     assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
@@ -64,7 +76,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelDescriptor( G.G1 ), null, false );
 
@@ -91,7 +103,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G1 ), null, false );
 
@@ -112,7 +124,7 @@ public class EntitySubscriptionManagerTest
 
     //assertEntityPresent( type, id, r );
 
-    sm.removeSubscription( new ChannelDescriptor( G.G1 ));
+    sm.removeSubscription( new ChannelDescriptor( G.G1 ) );
 
     // Entity still here as unsubscribe did not unload as removed from subscription manager
     //assertEntityPresent( type, id, r );
@@ -124,7 +136,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null, false );
 
@@ -146,7 +158,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void entitySubscriptionAndUpdateInInstanceGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
 
     final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), "F1", false );
@@ -163,7 +175,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void entitySubscriptionAndUpdateInTypeGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
 
     final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelDescriptor( G.G1 ), "F1", false );
@@ -183,7 +195,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G2, 1 ), null, false );
 
@@ -211,7 +223,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelDescriptor( G.G1 ), null, false );
@@ -232,12 +244,12 @@ public class EntitySubscriptionManagerTest
     assertEntitySubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
 
-    sm.removeSubscription( new ChannelDescriptor( G.G1) );
+    sm.removeSubscription( new ChannelDescriptor( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
 
-    sm.removeSubscription( new ChannelDescriptor( G.G2, 1) );
+    sm.removeSubscription( new ChannelDescriptor( G.G2, 1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelDescriptor( G.G2, 1 ), type, id );
@@ -249,7 +261,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G1 ) ) );
     assertNull( sm.findSubscription( new ChannelDescriptor( G.G2 ) ) );
 
@@ -320,7 +332,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph already subscribed: .*" )
   public void subscribe_nonExistentTypeGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.recordSubscription( new ChannelDescriptor( G.G1 ), null, false );
     sm.recordSubscription( new ChannelDescriptor( G.G1 ), null, false );
   }
@@ -329,7 +341,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void getSubscription_nonExistentTypeGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.getSubscription( new ChannelDescriptor( G.G1 ) );
   }
 
@@ -337,7 +349,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentTypeGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.removeSubscription( new ChannelDescriptor( G.G1 ) );
   }
 
@@ -345,7 +357,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph already subscribed: .*:1" )
   public void subscribe_nonExistentInstanceGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.recordSubscription( new ChannelDescriptor( G.G1, "1" ), null, false );
     sm.recordSubscription( new ChannelDescriptor( G.G1, "1" ), null, false );
   }
@@ -354,7 +366,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void getSubscription_nonExistentInstanceGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.getSubscription( new ChannelDescriptor( G.G1, "1" ) );
   }
 
@@ -362,7 +374,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceGraph()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.removeSubscription( new ChannelDescriptor( G.G1, "1" ) );
   }
 
@@ -370,7 +382,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
   {
-    final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
+    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     sm.recordSubscription( new ChannelDescriptor( G.G1 ), "1", false );
     sm.removeSubscription( new ChannelDescriptor( G.G1, "2" ) );
   }
