@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
  */
 public class EntitySubscriptionEntry
 {
-  private final Map<ChannelDescriptor, ChannelSubscriptionEntry> _graphSubscriptions = new HashMap<>();
-  private final Map<ChannelDescriptor, ChannelSubscriptionEntry> _roGraphSubscriptions =
+  private final Map<ChannelAddress, ChannelSubscriptionEntry> _graphSubscriptions = new HashMap<>();
+  private final Map<ChannelAddress, ChannelSubscriptionEntry> _roGraphSubscriptions =
     Collections.unmodifiableMap( _graphSubscriptions );
   private final Class<?> _type;
   private final Object _id;
@@ -35,18 +35,18 @@ public class EntitySubscriptionEntry
     return _id;
   }
 
-  public Map<ChannelDescriptor, ChannelSubscriptionEntry> getGraphSubscriptions()
+  public Map<ChannelAddress, ChannelSubscriptionEntry> getGraphSubscriptions()
   {
     return _roGraphSubscriptions;
   }
 
-  final Map<ChannelDescriptor, ChannelSubscriptionEntry> getRwGraphSubscriptions()
+  final Map<ChannelAddress, ChannelSubscriptionEntry> getRwGraphSubscriptions()
   {
     return _graphSubscriptions;
   }
 
   @Nullable
-  public ChannelSubscriptionEntry deregisterGraph( @Nonnull final ChannelDescriptor descriptor )
+  public ChannelSubscriptionEntry deregisterGraph( @Nonnull final ChannelAddress descriptor )
   {
     return getRwGraphSubscriptions().remove( descriptor );
   }
