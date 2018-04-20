@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import arez.Arez;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +44,14 @@ public final class ChannelDescriptor
   @Override
   public String toString()
   {
-    return getSystem().getSimpleName() + "." + _graph.toString() + ( null != _id ? ":" + _id : "" );
+    if ( Arez.areNamesEnabled() )
+    {
+      return getSystem().getSimpleName() + "." + _graph.toString() + ( null != _id ? ":" + _id : "" );
+    }
+    else
+    {
+      return super.toString();
+    }
   }
 
   @Override
