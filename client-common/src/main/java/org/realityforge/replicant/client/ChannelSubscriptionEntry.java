@@ -36,11 +36,12 @@ public final class ChannelSubscriptionEntry
     return _descriptor;
   }
 
-  void setFilter( final Object filter )
+  void setFilter( @Nullable final Object filter )
   {
     _filter = filter;
   }
 
+  @Nullable
   public Object getFilter()
   {
     return _filter;
