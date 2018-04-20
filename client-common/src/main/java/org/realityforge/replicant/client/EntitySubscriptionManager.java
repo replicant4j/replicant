@@ -73,7 +73,7 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelDescriptor graph,
+  public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelAddress graph,
                                                             @Nullable final Object filter,
                                                             final boolean explicitSubscription )
     throws IllegalStateException
@@ -82,7 +82,7 @@ public abstract class EntitySubscriptionManager
     if ( null == existing )
     {
       final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( graph, filter, explicitSubscription );
-      final Object id = graph.getID();
+      final Object id = graph.getId();
       if ( null == id )
       {
         _typeSubscriptions.put( graph.getGraph(), entry );
@@ -108,7 +108,7 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  public ChannelSubscriptionEntry updateSubscription( @Nonnull final ChannelDescriptor graph,
+  public ChannelSubscriptionEntry updateSubscription( @Nonnull final ChannelAddress graph,
                                                       @Nullable final Object filter )
     throws IllegalStateException
   {
@@ -124,9 +124,9 @@ public abstract class EntitySubscriptionManager
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelDescriptor graph )
+  public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelAddress graph )
   {
-    final Object id = graph.getID();
+    final Object id = graph.getId();
     if ( null == id )
     {
       return _typeSubscriptions.get( graph.getGraph() );
@@ -153,7 +153,7 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  public ChannelSubscriptionEntry getSubscription( @Nonnull final ChannelDescriptor graph )
+  public ChannelSubscriptionEntry getSubscription( @Nonnull final ChannelAddress graph )
     throws IllegalArgumentException
   {
     final ChannelSubscriptionEntry subscription = findSubscription( graph );
@@ -172,10 +172,10 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalStateException if graph not subscribed to.
    */
   @Nonnull
-  public final ChannelSubscriptionEntry removeSubscription( @Nonnull final ChannelDescriptor graph )
+  public final ChannelSubscriptionEntry removeSubscription( @Nonnull final ChannelAddress graph )
     throws IllegalStateException
   {
-    final Object id = graph.getID();
+    final Object id = graph.getId();
     if ( null == id )
     {
       final ChannelSubscriptionEntry entry = _typeSubscriptions.remove( graph.getGraph() );
@@ -246,10 +246,10 @@ public abstract class EntitySubscriptionManager
    */
   public void updateEntity( @Nonnull final Class<?> type,
                             @Nonnull final Object id,
-                            @Nonnull final ChannelDescriptor[] graphs )
+                            @Nonnull final ChannelAddress[] graphs )
   {
     final EntitySubscriptionEntry entityEntry = getEntitySubscriptions( type, id );
-    for ( final ChannelDescriptor graph : graphs )
+    for ( final ChannelAddress graph : graphs )
     {
       final ChannelSubscriptionEntry entry =
         entityEntry.getRwGraphSubscriptions().computeIfAbsent( graph, this::getSubscription );
@@ -281,11 +281,11 @@ public abstract class EntitySubscriptionManager
   @Nonnull
   public EntitySubscriptionEntry removeEntityFromGraph( @Nonnull final Class<?> type,
                                                         @Nonnull final Object id,
-                                                        @Nonnull final ChannelDescriptor graph )
+                                                        @Nonnull final ChannelAddress graph )
     throws IllegalStateException
   {
     final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
-    final Map<ChannelDescriptor, ChannelSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
+    final Map<ChannelAddress, ChannelSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
     final ChannelSubscriptionEntry graphEntry = subscriptions.remove( graph );
     if ( null == graphEntry )
     {
@@ -328,7 +328,7 @@ public abstract class EntitySubscriptionManager
     if ( null == removed )
     {
       final String message =
-        "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getDescriptor();
+        "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getAddress();
       throw new IllegalStateException( message );
     }
     if ( typeMap.isEmpty() )
