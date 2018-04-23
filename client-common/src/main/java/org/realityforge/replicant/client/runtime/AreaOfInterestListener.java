@@ -10,4 +10,23 @@ public interface AreaOfInterestListener
   void channelUpdated( @Nonnull Channel channel );
 
   void channelDeleted( @Nonnull Channel channel );
+
+  class Adapter
+    implements AreaOfInterestListener
+  {
+    @Override
+    public void channelCreated( @Nonnull final Channel channel )
+    {
+    }
+
+    @Override
+    public void channelUpdated( @Nonnull final Channel channel )
+    {
+    }
+
+    @Override
+    public void channelDeleted( @Nonnull final Channel channel )
+    {
+    }
+  }
 }
