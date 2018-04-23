@@ -16,8 +16,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.braincheck.Guards;
-import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.Channel;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 
 /**
