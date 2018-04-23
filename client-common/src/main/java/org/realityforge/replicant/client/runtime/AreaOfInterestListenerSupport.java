@@ -6,13 +6,13 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.Channel;
 
-public final class AreaOfInterestListenerSupport
+final class AreaOfInterestListenerSupport
   implements AreaOfInterestListener
 {
   private final ArrayList<AreaOfInterestListener> _listeners = new ArrayList<>();
   private final List<AreaOfInterestListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  public synchronized boolean addListener( @Nonnull final AreaOfInterestListener listener )
+  synchronized boolean addListener( @Nonnull final AreaOfInterestListener listener )
   {
     if ( !_listeners.contains( listener ) )
     {
@@ -25,13 +25,13 @@ public final class AreaOfInterestListenerSupport
     }
   }
 
-  public synchronized boolean removeListener( @Nonnull final AreaOfInterestListener listener )
+  synchronized boolean removeListener( @Nonnull final AreaOfInterestListener listener )
   {
     return _listeners.remove( listener );
   }
 
   @Nonnull
-  public List<AreaOfInterestListener> getListeners()
+  List<AreaOfInterestListener> getListeners()
   {
     return _roListeners;
   }
@@ -59,7 +59,7 @@ public final class AreaOfInterestListenerSupport
    * This avoids concurrent operation exceptions.
    */
   @Nonnull
-  protected synchronized ArrayList<AreaOfInterestListener> cloneListeners()
+  synchronized ArrayList<AreaOfInterestListener> cloneListeners()
   {
     final ArrayList<AreaOfInterestListener> listeners = new ArrayList<>( _listeners.size() );
     listeners.addAll( _listeners );
