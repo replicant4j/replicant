@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 /**
  * Debug listener that simply logs state transitions.
@@ -80,7 +80,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
-                                  @Nonnull final ChannelDescriptor descriptor )
+                                  @Nonnull final ChannelAddress descriptor )
   {
     LOG.warning( "onSubscribeStarted(" + service.getKey() + "," + descriptor + ")" );
   }
@@ -90,7 +90,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelDescriptor descriptor )
+                                    @Nonnull final ChannelAddress descriptor )
   {
     LOG.warning( "onSubscribeCompleted(" + service.getKey() + "," + descriptor + ")" );
   }
@@ -100,7 +100,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                 @Nonnull final ChannelDescriptor descriptor,
+                                 @Nonnull final ChannelAddress descriptor,
                                  @Nonnull final Throwable throwable )
   {
     LOG.warning( "onSubscribeFailed(" + service.getKey() + "," + descriptor + "," + throwable + ")" );
@@ -111,7 +111,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelDescriptor descriptor )
+                                    @Nonnull final ChannelAddress descriptor )
   {
     LOG.warning( "onUnsubscribeStarted(" + service.getKey() + "," + descriptor + ")" );
   }
@@ -121,7 +121,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelDescriptor descriptor )
+                                      @Nonnull final ChannelAddress descriptor )
   {
     LOG.warning( "onUnsubscribeCompleted(" + service.getKey() + "," + descriptor + ")" );
   }
@@ -131,7 +131,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final Throwable throwable )
   {
     LOG.warning( "onUnsubscribeFailed(" + service.getKey() + "," + descriptor + "," + throwable + ")" );
@@ -142,7 +142,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
-                                           @Nonnull final ChannelDescriptor descriptor )
+                                           @Nonnull final ChannelAddress descriptor )
   {
     LOG.warning( "onSubscriptionUpdateStarted(" + service.getKey() + "," + descriptor + ")" );
   }
@@ -152,7 +152,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                             @Nonnull final ChannelDescriptor descriptor )
+                                             @Nonnull final ChannelAddress descriptor )
   {
     LOG.warning( "onSubscriptionUpdateCompleted(" + service.getKey() + "," + descriptor + ")" );
   }
@@ -162,7 +162,7 @@ public class DebugDataLoaderListener
    */
   @Override
   public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                          @Nonnull final ChannelDescriptor descriptor,
+                                          @Nonnull final ChannelAddress descriptor,
                                           @Nonnull final Throwable throwable )
   {
     LOG.warning( "onSubscriptionUpdateFailed(" + service.getKey() + "," + descriptor + "," + throwable + ")" );

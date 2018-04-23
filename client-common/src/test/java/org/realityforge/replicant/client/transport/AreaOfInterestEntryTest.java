@@ -1,6 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -10,7 +10,7 @@ public class AreaOfInterestEntryTest
   public void basicOperation()
   {
     final String systemKey = "Foo";
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
     final Object filterParameter = null;
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 
@@ -25,13 +25,13 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.match( action, descriptor, filterParameter ), true );
     assertEquals( entry.match( action, descriptor, "OtherFilter" ), false );
     assertEquals( entry.match( AreaOfInterestAction.REMOVE, descriptor, filterParameter ), false );
-    assertEquals( entry.match( action, new ChannelDescriptor( TestGraph.B, "X" ), filterParameter ), false );
+    assertEquals( entry.match( action, new ChannelAddress( TestGraph.B, "X" ), filterParameter ), false );
   }
 
    @Test
   public void removeActionIgnoredFilterDuringMatch()
   {
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
     final AreaOfInterestAction action = AreaOfInterestAction.REMOVE;
 
     final AreaOfInterestEntry entry =

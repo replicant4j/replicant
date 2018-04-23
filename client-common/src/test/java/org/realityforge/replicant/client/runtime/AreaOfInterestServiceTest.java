@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.runtime;
 import arez.Arez;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
@@ -35,9 +35,9 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     service.addAreaOfInterestListener( listener );
 
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, null );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B, 1 );
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.B, 2 );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, null );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B, 1 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.B, 2 );
 
     final SubscriptionReference reference1 = service.findOrCreateSubscription( descriptor1, null ).createReference();
 
@@ -96,8 +96,8 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     service.addAreaOfInterestListener( listener );
 
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B );
 
     final String filer1 = "Filer1";
     final String filer2 = null;
@@ -122,7 +122,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void findOrCreateSubscription()
   {
-    final ChannelDescriptor channel = new ChannelDescriptor( ReplicantConnectionTest.TestGraph.A );
+    final ChannelAddress channel = new ChannelAddress( ReplicantConnectionTest.TestGraph.A );
     final String filter1 = ValueUtil.randomString();
     final String filter2 = ValueUtil.randomString();
 

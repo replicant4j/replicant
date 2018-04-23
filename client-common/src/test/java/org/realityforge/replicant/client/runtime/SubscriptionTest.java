@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -17,7 +17,7 @@ public class SubscriptionTest
   public void basicSubscriptionOperation()
   {
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A, null );
 
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
@@ -56,7 +56,7 @@ public class SubscriptionTest
   public void subscriptionReferences()
   {
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A, null );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     assertEquals( subscription.getReferenceCount(), 0 );
@@ -99,7 +99,7 @@ public class SubscriptionTest
   public void subscriptionReferencesReleasedDuringSubscriptionRelease()
   {
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A, null );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     final SubscriptionReference reference = subscription.createReference();
@@ -119,8 +119,8 @@ public class SubscriptionTest
   public void subscriptionRequirements()
   {
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, 2 );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.A, 2 );
 
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor1 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
@@ -170,7 +170,7 @@ public class SubscriptionTest
   public void releaseMultiple()
   {
     final Subscription subscription1 =
-      new Subscription( mock( AreaOfInterestService.class ), new ChannelDescriptor( TestGraph.A ) );
+      new Subscription( mock( AreaOfInterestService.class ), new ChannelAddress( TestGraph.A ) );
 
     final SubscriptionReference reference1 = subscription1.createReference();
     final SubscriptionReference reference2 = subscription1.createReference();

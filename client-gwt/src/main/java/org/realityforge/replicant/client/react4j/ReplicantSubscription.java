@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import jsinterop.base.JsPropertyMap;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.runtime.AreaOfInterestListenerAdapter;
@@ -199,9 +199,9 @@ public abstract class ReplicantSubscription
    * @return the channel descriptor.
    */
   @Nonnull
-  private ChannelDescriptor buildChannelDescriptor()
+  private ChannelAddress buildChannelDescriptor()
   {
-    return new ChannelDescriptor( getGraph(), getId() );
+    return new ChannelAddress( getGraph(), getId() );
   }
 
   @Action
@@ -283,7 +283,7 @@ public abstract class ReplicantSubscription
     SubscriptionReference subscriptionReference = getSubscriptionReference();
     if ( null == subscriptionReference || subscriptionReference.hasBeenReleased() )
     {
-      final ChannelDescriptor channel = buildChannelDescriptor();
+      final ChannelAddress channel = buildChannelDescriptor();
       setSubscriptionReference( _replicantConnection.getAreaOfInterestService()
                                   .findOrCreateSubscription( channel, getFilter() )
                                   .createReference() );
@@ -425,7 +425,7 @@ public abstract class ReplicantSubscription
    */
   @Action
   @SuppressWarnings( "PMD.CollapsibleIfStatements" )
-  void onSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor )
+  void onSubscriptionUpdate( @Nonnull final ChannelAddress descriptor )
   {
     SubscriptionReference subscriptionReference = getSubscriptionReference();
     if ( null != subscriptionReference && subscriptionReference.hasBeenReleased() )
@@ -459,7 +459,7 @@ public abstract class ReplicantSubscription
     }
   }
 
-  private boolean tryLoadSubscription( @Nonnull final ChannelDescriptor descriptor )
+  private boolean tryLoadSubscription( @Nonnull final ChannelAddress descriptor )
   {
     final ChannelSubscriptionEntry subscription =
       _replicantConnection.getSubscriptionManager().findSubscription( descriptor );
@@ -468,7 +468,7 @@ public abstract class ReplicantSubscription
     {
       if ( null != getInstanceType() )
       {
-        final Object id = descriptor.getID();
+        final Object id = descriptor.getId();
         assert null != id;
         setEntity( _replicantConnection.getEntityLocator().getByID( getInstanceType(), id ) );
       }
@@ -481,7 +481,7 @@ public abstract class ReplicantSubscription
   }
 
   @Action
-  void onSubscriptionError( @Nonnull final ChannelDescriptor descriptor, @Nonnull final Throwable throwable )
+  void onSubscriptionError( @Nonnull final ChannelAddress descriptor, @Nonnull final Throwable throwable )
   {
     final SubscriptionReference subscriptionReference = getSubscriptionReference();
     if ( null != subscriptionReference &&
@@ -551,14 +551,14 @@ public abstract class ReplicantSubscription
 
       @Override
       public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                        @Nonnull final ChannelDescriptor descriptor )
+                                        @Nonnull final ChannelAddress descriptor )
       {
         onSubscriptionUpdate( descriptor );
       }
 
       @Override
       public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                     @Nonnull final ChannelDescriptor descriptor,
+                                     @Nonnull final ChannelAddress descriptor,
                                      @Nonnull final Throwable throwable )
       {
         onSubscriptionError( descriptor, throwable );
@@ -566,21 +566,21 @@ public abstract class ReplicantSubscription
 
       @Override
       public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                                 @Nonnull final ChannelDescriptor descriptor )
+                                                 @Nonnull final ChannelAddress descriptor )
       {
         onSubscriptionUpdate( descriptor );
       }
 
       @Override
       public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                          @Nonnull final ChannelDescriptor descriptor )
+                                          @Nonnull final ChannelAddress descriptor )
       {
         onSubscriptionUpdate( descriptor );
       }
 
       @Override
       public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                              @Nonnull final ChannelDescriptor descriptor,
+                                              @Nonnull final ChannelAddress descriptor,
                                               @Nonnull final Throwable throwable )
       {
         onSubscriptionError( descriptor, throwable );

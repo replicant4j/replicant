@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.runtime;
 import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderListener;
@@ -104,7 +104,7 @@ final class TestDataLoaderService
   }
 
   @Override
-  public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
+  public boolean isSubscribed( @Nonnull final ChannelAddress descriptor )
   {
     return false;
   }
@@ -174,7 +174,7 @@ final class TestDataLoaderService
 
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final ChannelDescriptor descriptor,
+                                                @Nonnull final ChannelAddress descriptor,
                                                 @Nullable final Object filter )
   {
     return false;
@@ -182,7 +182,7 @@ final class TestDataLoaderService
 
   @Override
   public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelDescriptor descriptor,
+                                                 @Nonnull final ChannelAddress descriptor,
                                                  @Nullable final Object filter )
   {
     return -1;

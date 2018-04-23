@@ -2,18 +2,18 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 /**
  * Representation the result of channel change action in data load.
  */
 public final class ChannelChangeStatus
 {
-  private final ChannelDescriptor _descriptor;
+  private final ChannelAddress _descriptor;
   private final Object _filter;
   private final int _entityRemoveCount;
 
-  public ChannelChangeStatus( @Nonnull final ChannelDescriptor descriptor,
+  public ChannelChangeStatus( @Nonnull final ChannelAddress descriptor,
                               @Nullable final Object filter,
                               final int entityRemoveCount )
   {
@@ -26,7 +26,7 @@ public final class ChannelChangeStatus
    * @return the descriptor for the channel.
    */
   @Nonnull
-  public ChannelDescriptor getDescriptor()
+  public ChannelAddress getDescriptor()
   {
     return _descriptor;
   }

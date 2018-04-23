@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 
 final class AreaOfInterestEntry
@@ -11,7 +11,7 @@ final class AreaOfInterestEntry
   @Nonnull
   private final String _systemKey;
   @Nonnull
-  private final ChannelDescriptor _descriptor;
+  private final ChannelAddress _descriptor;
   @Nonnull
   private final AreaOfInterestAction _action;
   @Nullable
@@ -19,7 +19,7 @@ final class AreaOfInterestEntry
   private boolean _inProgress;
 
   AreaOfInterestEntry( @Nonnull final String systemKey,
-                       @Nonnull final ChannelDescriptor descriptor,
+                       @Nonnull final ChannelAddress descriptor,
                        @Nonnull final AreaOfInterestAction action,
                        @Nullable final Object filterParameter )
   {
@@ -36,7 +36,7 @@ final class AreaOfInterestEntry
   }
 
   @Nonnull
-  ChannelDescriptor getDescriptor()
+  ChannelAddress getDescriptor()
   {
     return _descriptor;
   }
@@ -75,7 +75,7 @@ final class AreaOfInterestEntry
   }
 
   boolean match( @Nonnull final AreaOfInterestAction action,
-                 @Nonnull final ChannelDescriptor descriptor,
+                 @Nonnull final ChannelAddress descriptor,
                  @Nullable final Object filter )
   {
     return getAction().equals( action ) &&
@@ -86,7 +86,7 @@ final class AreaOfInterestEntry
   @Override
   public String toString()
   {
-    final ChannelDescriptor descriptor = getDescriptor();
+    final ChannelAddress descriptor = getDescriptor();
     return "AOI[SystemKey=" + _systemKey + ",Channel=" + descriptor + ",filter=" + FilterUtil.filterToString( _filterParameter ) + "]" +
            ( _inProgress ? "(InProgress)" : "" );
   }

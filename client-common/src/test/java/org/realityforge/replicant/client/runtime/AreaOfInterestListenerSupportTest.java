@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -20,7 +20,7 @@ public class AreaOfInterestListenerSupportTest
 
     final AreaOfInterestService service = mock( AreaOfInterestService.class );
     final Subscription subscription =
-      new Subscription( service, new ChannelDescriptor( TestGraph.A, ValueUtil.randomString() ) );
+      new Subscription( service, new ChannelAddress( TestGraph.A, ValueUtil.randomString() ) );
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
 

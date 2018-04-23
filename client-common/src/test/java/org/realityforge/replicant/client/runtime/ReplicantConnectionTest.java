@@ -127,16 +127,16 @@ public class ReplicantConnectionTest
 
     final TestRuntime r = new TestRuntime();
     final AreaOfInterestService aoiService = r.getAreaOfInterestService();
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraph2.B, descriptor1.getID() );
-    final ChannelDescriptor descriptor5 = new ChannelDescriptor( TestGraph2.B, descriptor2.getID() );
-    final ChannelDescriptor descriptor6 = new ChannelDescriptor( TestGraph2.B, descriptor3.getID() );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor4 = new ChannelAddress( TestGraph2.B, descriptor1.getId() );
+    final ChannelAddress descriptor5 = new ChannelAddress( TestGraph2.B, descriptor2.getId() );
+    final ChannelAddress descriptor6 = new ChannelAddress( TestGraph2.B, descriptor3.getId() );
 
     // These descriptors have differing filters so Q should be updated
-    final ChannelDescriptor descriptorP = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptorQ = new ChannelDescriptor( TestGraph2.B, descriptorP.getID() );
+    final ChannelAddress descriptorP = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptorQ = new ChannelAddress( TestGraph2.B, descriptorP.getId() );
 
     final Subscription subscription1 = new Subscription( aoiService, descriptor1 );
     final Subscription subscription2 = new Subscription( aoiService, descriptor2 );

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -199,14 +199,14 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
         collect( Collectors.toList() );
     for ( final Enum e : typeSubscriptions )
     {
-      emitSubscription( g, subscriptionManager.getSubscription( new ChannelDescriptor( e ) ) );
+      emitSubscription( g, subscriptionManager.getSubscription( new ChannelAddress( e ) ) );
     }
     g.writeEnd();
   }
 
   private void emitSubscription( @Nonnull final JsonGenerator g, @Nonnull final ChannelSubscriptionEntry subscription )
   {
-    final ChannelDescriptor descriptor = subscription.getDescriptor();
+    final ChannelAddress descriptor = subscription.getDescriptor();
     g.writeStartObject( descriptor.getGraph().name() );
 
     emitID( g, descriptor );
@@ -233,9 +233,9 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
     g.writeEnd();
   }
 
-  private void emitID( final @Nonnull JsonGenerator g, final ChannelDescriptor descriptor )
+  private void emitID( final @Nonnull JsonGenerator g, final ChannelAddress descriptor )
   {
-    final Object id = descriptor.getID();
+    final Object id = descriptor.getId();
     if ( id instanceof String )
     {
       g.write( "id", (String) id );

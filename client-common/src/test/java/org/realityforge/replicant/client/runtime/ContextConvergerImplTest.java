@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
@@ -123,7 +123,7 @@ public class ContextConvergerImplTest
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( mock( EntitySubscriptionManager.class ),
@@ -148,7 +148,7 @@ public class ContextConvergerImplTest
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( mock( EntitySubscriptionManager.class ),
@@ -170,7 +170,7 @@ public class ContextConvergerImplTest
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( mock( EntitySubscriptionManager.class ),
@@ -195,7 +195,7 @@ public class ContextConvergerImplTest
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
 
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
 
@@ -212,7 +212,7 @@ public class ContextConvergerImplTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
-    final HashSet<ChannelDescriptor> expected = new HashSet<>();
+    final HashSet<ChannelAddress> expected = new HashSet<>();
 
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, null, true ) );
@@ -226,8 +226,8 @@ public class ContextConvergerImplTest
   public void removeSubscriptionIfOrphan_expected()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
-    final HashSet<ChannelDescriptor> expected = new HashSet<>();
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
+    final HashSet<ChannelAddress> expected = new HashSet<>();
     expected.add( descriptor );
 
     final ContextConvergerImpl c =
@@ -244,7 +244,7 @@ public class ContextConvergerImplTest
   public void removeSubscriptionIfOrphan_notExplicit()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
 
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
 
@@ -253,7 +253,7 @@ public class ContextConvergerImplTest
                                     mock( AreaOfInterestService.class ),
                                     clientSystem );
 
-    final HashSet<ChannelDescriptor> expected = new HashSet<>();
+    final HashSet<ChannelAddress> expected = new HashSet<>();
 
     when( subscriptionManager.getSubscription( descriptor ) ).
       thenReturn( new ChannelSubscriptionEntry( descriptor, null, false ) );
@@ -268,14 +268,14 @@ public class ContextConvergerImplTest
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
 
-    final HashSet<ChannelDescriptor> expected = new HashSet<>();
-    expected.add( new ChannelDescriptor( TestGraphA.B, 1 ) );
-    expected.add( new ChannelDescriptor( TestGraphA.B, 2 ) );
-    expected.add( new ChannelDescriptor( TestGraphA.B, 3 ) );
-    expected.add( new ChannelDescriptor( TestGraphA.B, 4 ) );
-    expected.add( new ChannelDescriptor( TestGraphA.B, 5 ) );
+    final HashSet<ChannelAddress> expected = new HashSet<>();
+    expected.add( new ChannelAddress( TestGraphA.B, 1 ) );
+    expected.add( new ChannelAddress( TestGraphA.B, 2 ) );
+    expected.add( new ChannelAddress( TestGraphA.B, 3 ) );
+    expected.add( new ChannelAddress( TestGraphA.B, 4 ) );
+    expected.add( new ChannelAddress( TestGraphA.B, 5 ) );
 
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
 
@@ -312,9 +312,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     final ContextConvergerImpl c =
@@ -349,12 +349,12 @@ public class ContextConvergerImplTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
-    final ChannelDescriptor descriptorB = new ChannelDescriptor( TestGraphA.B );
+    final ChannelAddress descriptorB = new ChannelAddress( TestGraphA.B );
     final Subscription subscriptionB = new Subscription( areaOfInterestService, descriptorB );
     subscription.requireSubscription( subscriptionB );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -398,9 +398,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     final ContextConvergerImpl c =
@@ -434,9 +434,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     final ContextConvergerImpl c =
@@ -473,9 +473,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     final ContextConvergerImpl c =
@@ -509,9 +509,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
     subscription.setFilter( "Filter1" );
 
@@ -548,9 +548,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
     subscription.setFilter( "Filter1" );
 
@@ -593,7 +593,7 @@ public class ContextConvergerImplTest
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.ADD ) );
@@ -606,17 +606,17 @@ public class ContextConvergerImplTest
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.UPDATE ) );
     assertTrue( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.REMOVE ) );
 
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A, 2 );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraphA.A, 2 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
     assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription2, AreaOfInterestAction.ADD ) );
 
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.B, 1 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraphA.B, 1 );
     final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.ADD ) );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.UPDATE ) );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.REMOVE ) );
 
-    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraphA.A, 1 );
+    final ChannelAddress descriptor4 = new ChannelAddress( TestGraphA.A, 1 );
     final Subscription subscription4 = new Subscription( areaOfInterestService, descriptor4 );
     subscription4.setFilter( "Filter" );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription4, AreaOfInterestAction.ADD ) );
@@ -631,9 +631,9 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A, 1 );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A, 1 );
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
     subscription1.delete();
 
@@ -659,15 +659,15 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A, 1 );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A, 1 );
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
 
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A, 2 );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraphA.A, 2 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
 
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.A, 3 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraphA.A, 3 );
     final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
 
     final ContextConvergerImpl c =
@@ -733,15 +733,15 @@ public class ContextConvergerImplTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelDescriptor> expectedChannels = new HashSet<>();
+    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraphA.A, 1 );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A, 1 );
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
 
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraphA.A, 2 );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraphA.A, 2 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
 
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraphA.A, 3 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraphA.A, 3 );
     final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
 
     final ContextConvergerImpl c =
