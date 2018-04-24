@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.Arez;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -7,7 +8,7 @@ import javax.annotation.Nullable;
 /**
  * Summary describing the result of a data load action.
  */
-public final class DataLoadStatus
+final class DataLoadStatus
 {
   /**
    * A key that uniquely identifies the data source that initiated the data load.
@@ -31,15 +32,15 @@ public final class DataLoadStatus
   // The number of entities where link() was invoked
   private final int _entityLinkCount;
 
-  public DataLoadStatus( @Nonnull final String systemKey,
-                         final int sequence,
-                         @Nullable final String requestID,
-                         @Nonnull final List<ChannelChangeStatus> channelAdds,
-                         @Nonnull final List<ChannelChangeStatus> channelUpdates,
-                         @Nonnull final List<ChannelChangeStatus> channelRemoves,
-                         final int entityUpdateCount,
-                         final int entityRemoveCount,
-                         final int entityLinkCount )
+  DataLoadStatus( @Nonnull final String systemKey,
+                  final int sequence,
+                  @Nullable final String requestID,
+                  @Nonnull final List<ChannelChangeStatus> channelAdds,
+                  @Nonnull final List<ChannelChangeStatus> channelUpdates,
+                  @Nonnull final List<ChannelChangeStatus> channelRemoves,
+                  final int entityUpdateCount,
+                  final int entityRemoveCount,
+                  final int entityLinkCount )
   {
     _systemKey = systemKey;
     _sequence = sequence;
@@ -53,51 +54,51 @@ public final class DataLoadStatus
   }
 
   @Nonnull
-  public String getSystemKey()
+  String getSystemKey()
   {
     return _systemKey;
   }
 
-  public int getSequence()
+  private int getSequence()
   {
     return _sequence;
   }
 
   @Nullable
-  public String getRequestID()
+  String getRequestID()
   {
     return _requestID;
   }
 
   @Nonnull
-  public List<ChannelChangeStatus> getChannelAdds()
+  List<ChannelChangeStatus> getChannelAdds()
   {
     return _channelAdds;
   }
 
   @Nonnull
-  public List<ChannelChangeStatus> getChannelUpdates()
+  List<ChannelChangeStatus> getChannelUpdates()
   {
     return _channelUpdates;
   }
 
   @Nonnull
-  public List<ChannelChangeStatus> getChannelRemoves()
+  List<ChannelChangeStatus> getChannelRemoves()
   {
     return _channelRemoves;
   }
 
-  public int getEntityUpdateCount()
+  int getEntityUpdateCount()
   {
     return _entityUpdateCount;
   }
 
-  public int getEntityRemoveCount()
+  int getEntityRemoveCount()
   {
     return _entityRemoveCount;
   }
 
-  public int getEntityLinkCount()
+  int getEntityLinkCount()
   {
     return _entityLinkCount;
   }
@@ -105,14 +106,21 @@ public final class DataLoadStatus
   @Override
   public String toString()
   {
-    return "[" +
-           getSystemKey() + ": ChangeSet " + getSequence() + " involved " +
-           getChannelAdds().size() + " subscribes, " +
-           getChannelUpdates().size() + " subscription updates, " +
-           getChannelRemoves().size() + " un-subscribes, " +
-           getEntityUpdateCount() + " updates, " +
-           getEntityRemoveCount() + " removes and " +
-           getEntityLinkCount() + " links" +
-           "]";
+    if ( Arez.areNamesEnabled() )
+    {
+      return "[" +
+             getSystemKey() + ": ChangeSet " + getSequence() + " involved " +
+             getChannelAdds().size() + " subscribes, " +
+             getChannelUpdates().size() + " subscription updates, " +
+             getChannelRemoves().size() + " un-subscribes, " +
+             getEntityUpdateCount() + " updates, " +
+             getEntityRemoveCount() + " removes and " +
+             getEntityLinkCount() + " links" +
+             "]";
+    }
+    else
+    {
+      return super.toString();
+    }
   }
 }
