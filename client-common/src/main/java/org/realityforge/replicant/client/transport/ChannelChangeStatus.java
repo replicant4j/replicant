@@ -11,15 +11,11 @@ public final class ChannelChangeStatus
 {
   private final ChannelAddress _descriptor;
   private final Object _filter;
-  private final int _entityRemoveCount;
 
-  public ChannelChangeStatus( @Nonnull final ChannelAddress descriptor,
-                              @Nullable final Object filter,
-                              final int entityRemoveCount )
+  ChannelChangeStatus( @Nonnull final ChannelAddress descriptor, @Nullable final Object filter )
   {
     _descriptor = descriptor;
     _filter = filter;
-    _entityRemoveCount = entityRemoveCount;
   }
 
   /**
@@ -38,14 +34,5 @@ public final class ChannelChangeStatus
   public Object getFilter()
   {
     return _filter;
-  }
-
-  /**
-   * @return the number of entities removed as a result of this channel action. Typically an unsubscribe or
-   * update can result in entities being no longer relevant and thus removed.
-   */
-  public int getEntityRemoveCount()
-  {
-    return _entityRemoveCount;
   }
 }

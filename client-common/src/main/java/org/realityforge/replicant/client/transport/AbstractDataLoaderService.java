@@ -928,7 +928,7 @@ public abstract class AbstractDataLoaderService
 
         if ( ChannelAction.Action.ADD == actionType )
         {
-          _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter, 0 ) );
+          _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter ) );
           boolean explicitSubscribe = false;
           if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getDescriptor().equals( descriptor ) ) )
           {
@@ -943,16 +943,15 @@ public abstract class AbstractDataLoaderService
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
           final ChannelSubscriptionEntry entry = getSubscriptionManager().removeSubscription( descriptor );
-          final int removedEntities =
-            context().safeAction( generateName( "deregisterUnOwnedEntities" ),
-                                  () -> deregisterUnOwnedEntities( entry ) );
-          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter, removedEntities ) );
+          context().safeAction( generateName( "deregisterUnOwnedEntities" ),
+                                () -> deregisterUnOwnedEntities( entry ) );
+          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
           final ChannelSubscriptionEntry entry = getSubscriptionManager().updateSubscription( descriptor, filter );
           final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
-          final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter, removedEntities );
+          final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
           _currentAction.recordChannelSubscriptionUpdate( status );
         }
         else
@@ -1072,14 +1071,12 @@ public abstract class AbstractDataLoaderService
       for ( final ChannelChangeStatus changeStatus : status.getChannelUpdates() )
       {
         LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " subscription update " +
-                  changeStatus.getDescriptor() + " caused " +
-                  changeStatus.getEntityRemoveCount() + " entity removes." );
+                  changeStatus.getDescriptor() + "." );
       }
       for ( final ChannelChangeStatus changeStatus : status.getChannelRemoves() )
       {
         LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " un-subscribe " +
-                  changeStatus.getDescriptor() + " caused " +
-                  changeStatus.getEntityRemoveCount() + " entity removes." );
+                  changeStatus.getDescriptor() + "." );
       }
     }
 
@@ -1135,9 +1132,8 @@ public abstract class AbstractDataLoaderService
     return new ChannelAddress( graph, subChannelID );
   }
 
-  private int deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )
+  private void deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )
   {
-    int removedEntities = 0;
     for ( final Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entitySet : entry.getEntities().entrySet() )
     {
       final Class<?> type = entitySet.getKey();
@@ -1148,12 +1144,10 @@ public abstract class AbstractDataLoaderService
         final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getAddress() );
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
-          removedEntities += 1;
           Disposable.dispose( getEntityLocator().getByID( type, entityID ) );
         }
       }
     }
-    return removedEntities;
   }
 
   @Nonnull
