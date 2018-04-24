@@ -4,7 +4,6 @@ import arez.Arez;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.EntityLocator;
@@ -25,11 +24,6 @@ public class ReplicantConnectionTest
     A
   }
 
-  enum TestGraph2
-  {
-    B
-  }
-
   @Override
   public void run( final IHookCallBack callBack, final ITestResult testResult )
   {
@@ -37,13 +31,16 @@ public class ReplicantConnectionTest
   }
 
   static class TestRuntime
-    implements ReplicantConnection
+    extends ReplicantConnection
   {
-    private AreaOfInterestService _areaOfInterestService = new Arez_AreaOfInterestService();
-    private ContextConverger _contextConverger = mock( ContextConverger.class );
-    private EntityLocator _entityLocator = mock( EntityLocator.class );
-    private EntitySubscriptionManager _subscriptionManager = mock( EntitySubscriptionManager.class );
-    private ReplicantClientSystem _replicantClientSystem = mock( ReplicantClientSystem.class );
+    TestRuntime()
+    {
+      super( mock( ContextConverger.class ),
+             mock( EntityLocator.class ),
+             mock( EntitySubscriptionManager.class ),
+             mock( ReplicantClientSystem.class ),
+             new Arez_AreaOfInterestService() );
+    }
 
     @Override
     public void connect()
@@ -53,41 +50,6 @@ public class ReplicantConnectionTest
     @Override
     public void disconnect()
     {
-    }
-
-    @Nonnull
-    @Override
-    public AreaOfInterestService getAreaOfInterestService()
-    {
-      return _areaOfInterestService;
-    }
-
-    @Nonnull
-    @Override
-    public ContextConverger getContextConverger()
-    {
-      return _contextConverger;
-    }
-
-    @Nonnull
-    @Override
-    public EntityLocator getEntityLocator()
-    {
-      return _entityLocator;
-    }
-
-    @Nonnull
-    @Override
-    public EntitySubscriptionManager getSubscriptionManager()
-    {
-      return _subscriptionManager;
-    }
-
-    @Nonnull
-    @Override
-    public ReplicantClientSystem getReplicantClientSystem()
-    {
-      return _replicantClientSystem;
     }
   }
 

@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.realityforge.replicant.client.AreaOfInterest;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
@@ -16,26 +17,70 @@ import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 
-public interface ReplicantConnection
+@Singleton
+public class ReplicantConnection
 {
-  void connect();
+  private final EntityLocator _entityLocator;
+  private final EntitySubscriptionManager _subscriptionManager;
+  private final ReplicantClientSystem _replicantClientSystem;
+  private final AreaOfInterestService _areaOfInterestService;
+  private final ContextConverger _converger;
 
-  void disconnect();
+  @Inject
+  ReplicantConnection( @Nonnull final ContextConverger converger,
+                       @Nonnull final EntityLocator entityLocator,
+                       @Nonnull final EntitySubscriptionManager subscriptionManager,
+                       @Nonnull final ReplicantClientSystem replicantClientSystem,
+                       @Nonnull final AreaOfInterestService areaOfInterestService )
+  {
+    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
+    _entityLocator = Objects.requireNonNull( entityLocator );
+    _subscriptionManager = Objects.requireNonNull( subscriptionManager );
+    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
+    _converger = Objects.requireNonNull( converger );
+  }
+
+  public void disconnect()
+  {
+    _converger.deactivate();
+    _replicantClientSystem.deactivate();
+  }
+
+  public void connect()
+  {
+    _replicantClientSystem.activate();
+    _converger.activate();
+  }
 
   @Nonnull
-  AreaOfInterestService getAreaOfInterestService();
+  public AreaOfInterestService getAreaOfInterestService()
+  {
+    return _areaOfInterestService;
+  }
 
   @Nonnull
-  ContextConverger getContextConverger();
+  public ContextConverger getContextConverger()
+  {
+    return _converger;
+  }
 
   @Nonnull
-  EntityLocator getEntityLocator();
+  public EntityLocator getEntityLocator()
+  {
+    return _entityLocator;
+  }
 
   @Nonnull
-  EntitySubscriptionManager getSubscriptionManager();
+  public EntitySubscriptionManager getSubscriptionManager()
+  {
+    return _subscriptionManager;
+  }
 
   @Nonnull
-  ReplicantClientSystem getReplicantClientSystem();
+  public ReplicantClientSystem getReplicantClientSystem()
+  {
+    return _replicantClientSystem;
+  }
 
   /**
    * Convert object subscription to root object (specified object Type+ID) to target graphs subscription
@@ -43,9 +88,9 @@ public interface ReplicantConnection
    * This is typically used by the function passed into the convergeCrossDataSourceSubscriptions() method.
    */
   @Nonnull
-  default <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Class<T> type,
-                                                         @Nonnull final Object id,
-                                                         @Nonnull final Function<T, Stream<O>> rootToStream )
+  protected <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Class<T> type,
+                                                           @Nonnull final Object id,
+                                                           @Nonnull final Function<T, Stream<O>> rootToStream )
   {
     final T root = getEntityLocator().findByID( type, id );
     return null != root ? rootToStream.apply( root ) : Stream.empty();
@@ -58,10 +103,10 @@ public interface ReplicantConnection
    * that are reachable from the source graphs. If an expected subscription is missing it is added,
    * if an additional subscription is present then it is released.
    */
-  default void convergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceGraph,
-                                                     @Nonnull final Enum targetGraph,
-                                                     @Nullable final Object filter,
-                                                     @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
+  public void convergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceGraph,
+                                                    @Nonnull final Enum targetGraph,
+                                                    @Nullable final Object filter,
+                                                    @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
     getContextConverger().pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( sourceGraph,
                                                                                      targetGraph,
@@ -72,10 +117,10 @@ public interface ReplicantConnection
   /**
    * This is worker method for convergeCrossDataSourceSubscriptions. Do not use, do not override.
    */
-  default void doConvergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceGraph,
-                                                       @Nonnull final Enum targetGraph,
-                                                       @Nullable final Object filter,
-                                                       @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
+  protected void doConvergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceGraph,
+                                                         @Nonnull final Enum targetGraph,
+                                                         @Nullable final Object filter,
+                                                         @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
@@ -109,8 +154,8 @@ public interface ReplicantConnection
     existing.values().forEach( Disposable::dispose );
   }
 
-  @NotNull
-  default ChannelAddress asAddress( final Enum graph, final Object id )
+  @Nonnull
+  protected ChannelAddress asAddress( final Enum graph, final Object id )
   {
     return new ChannelAddress( graph, id );
   }
