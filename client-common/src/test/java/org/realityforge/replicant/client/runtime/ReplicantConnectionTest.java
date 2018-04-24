@@ -8,6 +8,8 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.aoi.AreaOfInterestService;
+import org.realityforge.replicant.client.aoi.Arez_AreaOfInterestService;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
@@ -39,7 +41,7 @@ public class ReplicantConnectionTest
              mock( EntityLocator.class ),
              mock( EntitySubscriptionManager.class ),
              mock( ReplicantClientSystem.class ),
-             new Arez_AreaOfInterestService() );
+             AreaOfInterestService.create() );
     }
 
     @Override

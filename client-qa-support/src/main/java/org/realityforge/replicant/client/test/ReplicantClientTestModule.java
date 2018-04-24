@@ -3,8 +3,7 @@ package org.realityforge.replicant.client.test;
 import org.realityforge.guiceyloops.shared.AbstractModule;
 import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
-import org.realityforge.replicant.client.runtime.AreaOfInterestService;
-import org.realityforge.replicant.client.runtime.Arez_AreaOfInterestService;
+import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
@@ -40,6 +39,6 @@ public class ReplicantClientTestModule
 
   protected void bindAreaOfInterestService()
   {
-    bind( AreaOfInterestService.class ).to( Arez_AreaOfInterestService.class ).asEagerSingleton();
+    bind( AreaOfInterestService.class ).toInstance( AreaOfInterestService.create() );
   }
 }

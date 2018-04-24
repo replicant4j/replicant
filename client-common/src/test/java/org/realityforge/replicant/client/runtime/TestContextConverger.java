@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.runtime;
 
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 
 final class TestContextConverger
   extends ContextConverger
