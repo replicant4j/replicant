@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-public final class ReplicantSystemListenerSupport
+final class ReplicantSystemListenerSupport
   implements ReplicantSystemListener
 {
   private final ArrayList<ReplicantSystemListener> _listeners = new ArrayList<>();
   private final List<ReplicantSystemListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  public synchronized boolean addListener( @Nonnull final ReplicantSystemListener listener )
+  synchronized boolean addListener( @Nonnull final ReplicantSystemListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
@@ -26,13 +26,13 @@ public final class ReplicantSystemListenerSupport
     }
   }
 
-  public synchronized boolean removeListener( @Nonnull final ReplicantSystemListener listener )
+  synchronized boolean removeListener( @Nonnull final ReplicantSystemListener listener )
   {
     Objects.requireNonNull( listener );
     return _listeners.remove( listener );
   }
 
-  public List<ReplicantSystemListener> getListeners()
+  List<ReplicantSystemListener> getListeners()
   {
     return _roListeners;
   }
@@ -50,7 +50,7 @@ public final class ReplicantSystemListenerSupport
    * This avoids concurrent operation exceptions.
    */
   @Nonnull
-  protected synchronized ArrayList<ReplicantSystemListener> cloneListeners()
+  private synchronized ArrayList<ReplicantSystemListener> cloneListeners()
   {
     final ArrayList<ReplicantSystemListener> listeners = new ArrayList<>( _listeners.size() );
     listeners.addAll( _listeners );
