@@ -1,11 +1,27 @@
 package org.realityforge.replicant.client;
 
-import org.realityforge.replicant.client.transport.TestGraph;
+import arez.Arez;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ChannelAddressTest
+  extends AbstractReplicantTest
+  implements IHookable
 {
+  enum TestGraph
+  {
+    A, B
+  }
+
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
+  }
+
   @SuppressWarnings( "EqualsWithItself" )
   @Test
   public void basicOperation()

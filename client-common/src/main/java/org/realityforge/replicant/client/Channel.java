@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 /**
  * The Channel object contains the address of the channel and the optional filter for the channel.
  */
-@ArezComponent( disposeOnDeactivate = true )
+@ArezComponent
 public abstract class Channel
 {
   @Nonnull

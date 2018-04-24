@@ -1145,7 +1145,7 @@ public abstract class AbstractDataLoaderService
       {
         final Object entityID = entityEntry.getKey();
         final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
-        final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getDescriptor() );
+        final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getAddress() );
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
           removedEntities += 1;
@@ -1173,7 +1173,7 @@ public abstract class AbstractDataLoaderService
                                                        @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
-    final ChannelAddress descriptor = graphEntry.getDescriptor();
+    final ChannelAddress address = graphEntry.getAddress();
 
     final EntitySubscriptionEntry[] subscriptionEntries =
       entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );
@@ -1182,16 +1182,16 @@ public abstract class AbstractDataLoaderService
       final Class<?> entityType = entry.getType();
       final Object entityID = entry.getID();
 
-      if ( !doesEntityMatchFilter( descriptor, filter, entityType, entityID ) )
+      if ( !doesEntityMatchFilter( address, filter, entityType, entityID ) )
       {
         final EntitySubscriptionEntry entityEntry =
-          getSubscriptionManager().removeEntityFromGraph( entityType, entityID, descriptor );
+          getSubscriptionManager().removeEntityFromGraph( entityType, entityID, address );
         final boolean deregisterEntity = 0 == entityEntry.getGraphSubscriptions().size();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(),
                    "Removed entity " + entityType.getSimpleName() + "/" + entityID +
-                   " from graph " + descriptor + " resulting in " +
+                   " from graph " + address + " resulting in " +
                    entityEntry.getGraphSubscriptions().size() + " subscriptions left for entity." +
                    ( deregisterEntity ? " De-registering entity!" : "" ) );
         }

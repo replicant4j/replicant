@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.Disposable;
+import arez.annotations.Action;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
+import org.realityforge.replicant.client.AreaOfInterest;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
@@ -20,14 +23,10 @@ public abstract class ContextConvergerImpl
   implements ContextConverger
 {
   private static final Logger LOG = Logger.getLogger( ContextConvergerImpl.class.getName() );
-
   protected static final int CONVERGE_DELAY_IN_MS = 100;
-
-  private final ArrayList<Subscription> _subscriptions = new ArrayList<>();
   private final ConvergerAreaOfInterestListener _aoiListener = new ConvergerAreaOfInterestListener();
   private final ConvergerReplicantSystemListener _rsListener = new ConvergerReplicantSystemListener();
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
-  private boolean _subscriptionsUpToDate;
   private boolean _convergeComplete;
   private boolean _paused;
   private Runnable _preConvergeAction;
@@ -73,6 +72,7 @@ public abstract class ContextConvergerImpl
     }
   }
 
+  @Action
   public void converge()
   {
     preConverge();
@@ -109,6 +109,7 @@ public abstract class ContextConvergerImpl
     NO_ACTION     // Nothing was done, fully converged
   }
 
+  @Action
   protected void convergeStep()
   {
     if ( isActive() &&
@@ -116,15 +117,15 @@ public abstract class ContextConvergerImpl
          !isPaused() &&
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
-      final HashSet<ChannelDescriptor> expectedChannels = new HashSet<>();
+      final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
       // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
-      final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
-      Subscription template = null;
+      final List<Channel> subscriptions = new ArrayList<>( getSubscriptions() );
+      Channel template = null;
       AreaOfInterestAction aoiGroupAction = null;
-      for ( final Subscription subscription : subscriptions )
+      for ( final Channel subscription : subscriptions )
       {
-        expectedChannels.add( subscription.getDescriptor() );
+        expectedChannels.add( subscription.getAddress() );
         final ConvergeAction convergeAction =
           convergeSubscription( expectedChannels, subscription, template, aoiGroupAction, true );
         switch ( convergeAction )
@@ -160,26 +161,15 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelDescriptor> expectedChannels,
-                                       @Nonnull final Subscription subscription,
-                                       final Subscription templateForGrouping,
+  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelAddress> expectedChannels,
+                                       @Nonnull final Channel subscription,
+                                       final Channel templateForGrouping,
                                        final AreaOfInterestAction aoiGroupAction,
                                        final boolean canGroup )
   {
-    if ( subscription.isActive() )
+    if ( !Disposable.isDisposed( subscription ) )
     {
-      for ( final Subscription child : subscription.getRequiredSubscriptions() )
-      {
-        expectedChannels.add( child.getDescriptor() );
-        switch ( convergeSubscription( expectedChannels, child, templateForGrouping, aoiGroupAction, false ) )
-        {
-          case NO_ACTION:
-            break;
-          default:
-            return ConvergeAction.TERMINATE;
-        }
-      }
-      final ChannelDescriptor descriptor = subscription.getDescriptor();
+      final ChannelAddress descriptor = subscription.getAddress();
       final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
@@ -256,9 +246,9 @@ public abstract class ContextConvergerImpl
     return ConvergeAction.NO_ACTION;
   }
 
-  boolean canGroup( @Nonnull final Subscription templateForGrouping,
+  boolean canGroup( @Nonnull final Channel templateForGrouping,
                     final AreaOfInterestAction aoiGroupAction,
-                    @Nonnull final Subscription subscription,
+                    @Nonnull final Channel subscription,
                     final AreaOfInterestAction subscriptionAction )
   {
     if ( null != aoiGroupAction && subscriptionAction != null && !aoiGroupAction.equals( subscriptionAction ) )
@@ -267,7 +257,7 @@ public abstract class ContextConvergerImpl
     }
 
     final boolean sameGraph =
-      templateForGrouping.getDescriptor().getGraph().equals( subscription.getDescriptor().getGraph() );
+      templateForGrouping.getAddress().getGraph().equals( subscription.getAddress().getGraph() );
 
     return sameGraph &&
            ( AreaOfInterestAction.REMOVE == subscriptionAction ||
@@ -311,13 +301,15 @@ public abstract class ContextConvergerImpl
     return _paused;
   }
 
-  private void markSubscriptionAsRequiringUpdate()
+  @Action
+  protected void markSubscriptionAsRequiringUpdate()
   {
-    _subscriptionsUpToDate = false;
+    //setSubscriptionsUpToDate( false );
     markConvergeAsIncomplete();
   }
 
-  private void markConvergeAsIncomplete()
+  @Action
+  protected void markConvergeAsIncomplete()
   {
     _convergeComplete = false;
     convergeStep();
@@ -329,23 +321,23 @@ public abstract class ContextConvergerImpl
     return FilterUtil.filterToString( filter );
   }
 
-  void removeOrphanSubscriptions( @Nonnull final Set<ChannelDescriptor> expectedChannels )
+  void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
     for ( final Enum graph : getSubscriptionManager().getTypeSubscriptions() )
     {
-      removeSubscriptionIfOrphan( expectedChannels, new ChannelDescriptor( graph ) );
+      removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph ) );
     }
     for ( final Enum graph : getSubscriptionManager().getInstanceSubscriptionKeys() )
     {
       for ( final Object id : getSubscriptionManager().getInstanceSubscriptions( graph ) )
       {
-        removeSubscriptionIfOrphan( expectedChannels, new ChannelDescriptor( graph, id ) );
+        removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph, id ) );
       }
     }
   }
 
-  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelDescriptor> expected,
-                                   @Nonnull final ChannelDescriptor descriptor )
+  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
+                                   @Nonnull final ChannelAddress descriptor )
   {
     if ( !expected.contains( descriptor ) &&
          getSubscriptionManager().getSubscription( descriptor ).isExplicitSubscription() )
@@ -354,7 +346,7 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  void removeOrphanSubscription( @Nonnull final ChannelDescriptor descriptor )
+  void removeOrphanSubscription( @Nonnull final ChannelAddress descriptor )
   {
     final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
@@ -365,43 +357,38 @@ public abstract class ContextConvergerImpl
     }
   }
 
+  //TODO: @Computed
   @Nonnull
-  private synchronized List<Subscription> getSubscriptions()
+  protected List<Channel> getSubscriptions()
   {
-    if ( !_subscriptionsUpToDate )
+    final ArrayList<Channel> subscriptions = new ArrayList<>();
+    final HashSet<ChannelAddress> processed = new HashSet<>();
+    for ( final AreaOfInterest subscription : getAreaOfInterestService().getAreasOfInterest() )
     {
-      _subscriptions.clear();
-      final HashSet<ChannelDescriptor> processed = new HashSet<>();
-      for ( final Subscription subscription : getAreaOfInterestService().getSubscriptionsMap().values() )
-      {
-        collectSubscription( subscription, processed );
-      }
-      _subscriptionsUpToDate = true;
+      collectSubscription( subscription.getChannel(), processed, subscriptions );
     }
-    return _subscriptions;
+    return subscriptions;
   }
 
-  private void collectSubscription( @Nonnull final Subscription subscription,
-                                    @Nonnull final HashSet<ChannelDescriptor> processed )
+  private void collectSubscription( @Nonnull final Channel subscription,
+                                    @Nonnull final HashSet<ChannelAddress> processed,
+                                    @Nonnull final ArrayList<Channel> subscriptions )
   {
-    if ( !processed.contains( subscription.getDescriptor() ) )
+    if ( !processed.contains( subscription.getAddress() ) )
     {
-      for ( final Subscription requiredSubscription : subscription.getRequiredSubscriptions() )
-      {
-        collectSubscription( requiredSubscription, processed );
-      }
-      _subscriptions.add( subscription );
-      processed.add( subscription.getDescriptor() );
+      subscriptions.add( subscription );
+      processed.add( subscription.getAddress() );
     }
   }
 
-  private void removeFailedSubscription( @Nonnull final ChannelDescriptor descriptor )
+  @Action
+  protected void removeFailedSubscription( @Nonnull final ChannelAddress descriptor )
   {
     LOG.info( "Removing failed subscription " + descriptor );
-    final Subscription subscription = getAreaOfInterestService().findSubscription( descriptor );
+    final AreaOfInterest subscription = getAreaOfInterestService().findAreaOfInterest( descriptor );
     if ( null != subscription )
     {
-      subscription.release();
+      Disposable.dispose( subscription );
     }
     convergeStep();
   }
@@ -484,17 +471,17 @@ public abstract class ContextConvergerImpl
 
     @Override
     public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                               @Nonnull final ChannelAddress descriptor )
+                                               @Nonnull final ChannelAddress address )
     {
       convergeStep();
     }
 
     @Override
     public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                            @Nonnull final ChannelAddress descriptor,
+                                            @Nonnull final ChannelAddress address,
                                             @Nonnull final Throwable throwable )
     {
-      removeFailedSubscription( descriptor );
+      removeFailedSubscription( address );
     }
   }
 }

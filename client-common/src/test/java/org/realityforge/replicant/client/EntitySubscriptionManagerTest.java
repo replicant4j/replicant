@@ -35,7 +35,7 @@ public class EntitySubscriptionManagerTest
     final ChannelSubscriptionEntry s = sm.findSubscription( new ChannelAddress( G.G1 ) );
     assertNotNull( s );
     assertNotNull( sm.getSubscription( new ChannelAddress( G.G1 ) ) );
-    assertEquals( s.getDescriptor(), new ChannelAddress( G.G1 ) );
+    assertEquals( s.getAddress(), new ChannelAddress( G.G1 ) );
     assertEquals( s.isExplicitSubscription(), explicitSubscription );
     assertEquals( s.getEntities().size(), 0 );
 
@@ -62,7 +62,7 @@ public class EntitySubscriptionManagerTest
     final ChannelSubscriptionEntry s = sm.findSubscription( new ChannelAddress( G.G2, 1 ) );
     assertNotNull( s );
     assertNotNull( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    assertEquals( s.getDescriptor(), new ChannelAddress( G.G2, 1 ) );
+    assertEquals( s.getAddress(), new ChannelAddress( G.G2, 1 ) );
     assertEquals( s.isExplicitSubscription(), explicitSubscription );
     assertEquals( s.getEntities().size(), 0 );
 

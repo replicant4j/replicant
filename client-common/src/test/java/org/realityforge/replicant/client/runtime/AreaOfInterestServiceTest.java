@@ -1,12 +1,12 @@
 package org.realityforge.replicant.client.runtime;
 
 import arez.Arez;
+import arez.Disposable;
+import java.util.Collection;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
+import org.realityforge.replicant.client.AreaOfInterest;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.testng.IHookCallBack;
-import org.testng.IHookable;
-import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -14,17 +14,10 @@ import static org.testng.Assert.*;
 @SuppressWarnings( "Duplicates" )
 public class AreaOfInterestServiceTest
   extends AbstractReplicantTest
-  implements IHookable
 {
   enum TestGraph
   {
     A, B
-  }
-
-  @Override
-  public void run( final IHookCallBack callBack, final ITestResult testResult )
-  {
-    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
   }
 
   @Test
@@ -39,132 +32,116 @@ public class AreaOfInterestServiceTest
     final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B, 1 );
     final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.B, 2 );
 
-    final SubscriptionReference reference1 = service.findOrCreateSubscription( descriptor1, null ).createReference();
+    Arez.context().safeAction( () -> {
+      final AreaOfInterest subscription1 = service.findOrCreateSubscription( descriptor1, null );
+      assertNotNull( subscription1 );
 
-    final Subscription subscription1 = reference1.getSubscription();
-    assertNotNull( subscription1 );
+      assertEquals( subscription1.getAddress(), descriptor1 );
+      assertEquals( !Disposable.isDisposed( subscription1 ), true );
 
-    assertEquals( subscription1.getDescriptor(), descriptor1 );
-    assertEquals( subscription1.getReferenceCount(), 1 );
-    assertEquals( subscription1.isActive(), true );
+      verify( listener ).channelCreated( subscription1.getChannel() );
 
-    verify( listener ).subscriptionCreated( subscription1 );
+      final Collection<AreaOfInterest> subscriptions = service.getAreasOfInterest();
+      assertEquals( subscriptions.size(), 1 );
+      assertEquals( subscriptions.stream().anyMatch( n -> n.getChannel().getAddress().equals( descriptor1 ) ), true );
+      assertEquals( subscriptions.stream().anyMatch( n -> n.getChannel().getAddress().equals( descriptor2 ) ), false );
+      assertEquals( subscriptions.stream().anyMatch( n -> n.getChannel().getAddress().equals( descriptor3 ) ), false );
 
-    assertEquals( service.getSubscriptionsChannels().size(), 1 );
-    assertEquals( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor1 ) ), true );
-    assertEquals( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor2 ) ), false );
-    assertEquals( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor3 ) ), false );
+      final Object newFilter = new Object();
+      service.updateAreaOfInterest( subscription1, newFilter );
 
-    final Object newFilter = new Object();
-    service.updateSubscription( subscription1, newFilter );
+      assertEquals( subscription1.getChannel().getFilter(), newFilter );
 
-    assertEquals( subscription1.getFilter(), newFilter );
+      verify( listener ).channelUpdated( subscription1.getChannel() );
 
-    verify( listener ).subscriptionUpdated( subscription1 );
+      Disposable.dispose( subscription1 );
+      assertEquals( Disposable.isDisposed( subscription1 ), true );
 
-    // Verify a second reference to channel in different scope is fine
-    {
-      final SubscriptionReference reference1c = service.findOrCreateSubscription( descriptor1, null ).createReference();
+      assertEquals( service.getAreasOfInterest().size(), 0 );
+    } );
 
-      assertEquals( reference1c.getSubscription(), subscription1 );
-      assertEquals( subscription1.getReferenceCount(), 2 );
-      assertEquals( service.getSubscriptionsChannels().size(), 1 );
-
-      assertFalse( reference1c.hasBeenReleased() );
-      reference1c.release();
-      assertTrue( reference1c.hasBeenReleased() );
-
-      assertEquals( subscription1.getReferenceCount(), 1 );
-    }
-
-    assertFalse( reference1.hasBeenReleased() );
-    reference1.release();
-    assertTrue( reference1.hasBeenReleased() );
-
-    assertEquals( subscription1.isActive(), false );
-
-    assertEquals( service.getSubscriptionsChannels().size(), 0 );
-
-    verify( listener ).subscriptionDeleted( subscription1 );
+    verify( listener ).channelDeleted( any() );
   }
 
   @Test
   public void createSubscription()
   {
-    final AreaOfInterestService service = new Arez_AreaOfInterestService();
+    Arez.context().safeAction( () -> {
+      final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
-    final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
-    service.addAreaOfInterestListener( listener );
+      final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
+      service.addAreaOfInterestListener( listener );
 
-    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A );
-    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B );
+      final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A );
+      final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B );
 
-    final String filer1 = "Filer1";
-    final String filer2 = null;
+      final String filer1 = "Filer1";
+      final String filer2 = null;
 
-    final Subscription subscription1 = service.createSubscription( descriptor1, filer1 );
+      final AreaOfInterest subscription1 = service.findOrCreateSubscription( descriptor1, filer1 );
 
-    assertEquals( subscription1.getDescriptor(), descriptor1 );
-    assertEquals( subscription1.getFilter(), filer1 );
-    assertEquals( subscription1.getReferenceCount(), 0 );
+      assertEquals( subscription1.getAddress(), descriptor1 );
+      assertEquals( subscription1.getChannel().getFilter(), filer1 );
 
-    verify( listener ).subscriptionCreated( subscription1 );
+      verify( listener ).channelCreated( subscription1.getChannel() );
 
-    final Subscription subscription2 = service.createSubscription( descriptor2, filer2 );
+      final AreaOfInterest subscription2 = service.findOrCreateSubscription( descriptor2, filer2 );
 
-    assertEquals( subscription2.getDescriptor(), descriptor2 );
-    assertEquals( subscription2.getFilter(), filer2 );
-    assertEquals( subscription2.getReferenceCount(), 0 );
+      assertEquals( subscription2.getAddress(), descriptor2 );
+      assertEquals( subscription2.getChannel().getFilter(), filer2 );
 
-    verify( listener ).subscriptionCreated( subscription2 );
+      verify( listener ).channelCreated( subscription2.getChannel() );
+    } );
   }
 
   @Test
   public void findOrCreateSubscription()
   {
-    final ChannelAddress channel = new ChannelAddress( ReplicantConnectionTest.TestGraph.A );
-    final String filter1 = ValueUtil.randomString();
-    final String filter2 = ValueUtil.randomString();
+    Arez.context().safeAction( () -> {
+      final ChannelAddress channel = new ChannelAddress( ReplicantConnectionTest.TestGraph.A );
+      final String filter1 = ValueUtil.randomString();
+      final String filter2 = ValueUtil.randomString();
 
-    final AreaOfInterestService service = new Arez_AreaOfInterestService();
+      final AreaOfInterestService service = new Arez_AreaOfInterestService();
 
-    final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
-    service.addAreaOfInterestListener( listener );
+      final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
+      service.addAreaOfInterestListener( listener );
 
-    // No existing subscription
-    final Subscription subscription1 = service.findOrCreateSubscription( channel, filter1 );
-    assertEquals( subscription1.getDescriptor(), channel );
-    assertEquals( subscription1.getFilter(), filter1 );
-    assertEquals( service.findSubscription( channel ), subscription1 );
-    assertEquals( service.getSubscriptions().size(), 1 );
+      // No existing subscription
+      final AreaOfInterest subscription1 = service.findOrCreateSubscription( channel, filter1 );
+      assertEquals( subscription1.getAddress(), channel );
+      assertEquals( subscription1.getChannel().getFilter(), filter1 );
+      assertEquals( service.findAreaOfInterest( channel ), subscription1 );
+      assertEquals( service.getAreasOfInterest().size(), 1 );
 
-    verify( listener ).subscriptionCreated( subscription1 );
-    verify( listener, never() ).subscriptionUpdated( subscription1 );
+      verify( listener ).channelCreated( subscription1.getChannel() );
+      verify( listener, never() ).channelUpdated( subscription1.getChannel() );
 
-    reset( listener );
+      reset( listener );
 
-    //Existing subscription, same filter
-    final Subscription subscription2 = service.findOrCreateSubscription( channel, filter1 );
-    assertEquals( subscription2.getDescriptor(), channel );
-    assertEquals( subscription2.getFilter(), filter1 );
-    assertEquals( subscription1, subscription2 );
-    assertEquals( service.findSubscription( channel ), subscription2 );
-    assertEquals( service.getSubscriptions().size(), 1 );
+      //Existing subscription, same filter
+      final AreaOfInterest subscription2 = service.findOrCreateSubscription( channel, filter1 );
+      assertEquals( subscription2.getAddress(), channel );
+      assertEquals( subscription2.getChannel().getFilter(), filter1 );
+      assertEquals( subscription1, subscription2 );
+      assertEquals( service.findAreaOfInterest( channel ), subscription2 );
+      assertEquals( service.getAreasOfInterest().size(), 1 );
 
-    verify( listener, never() ).subscriptionCreated( subscription1 );
-    verify( listener, never() ).subscriptionUpdated( subscription1 );
+      verify( listener, never() ).channelCreated( subscription1.getChannel() );
+      verify( listener, never() ).channelUpdated( subscription1.getChannel() );
 
-    reset( listener );
+      reset( listener );
 
-    //Existing subscription, different filter
-    final Subscription subscription3 = service.findOrCreateSubscription( channel, filter2 );
-    assertEquals( subscription3.getDescriptor(), channel );
-    assertEquals( subscription3.getFilter(), filter2 );
-    assertEquals( subscription1, subscription3 );
-    assertEquals( service.findSubscription( channel ), subscription3 );
-    assertEquals( service.getSubscriptions().size(), 1 );
+      //Existing subscription, different filter
+      final AreaOfInterest subscription3 = service.findOrCreateSubscription( channel, filter2 );
+      assertEquals( subscription3.getAddress(), channel );
+      assertEquals( subscription3.getChannel().getFilter(), filter2 );
+      assertEquals( subscription1, subscription3 );
+      assertEquals( service.findAreaOfInterest( channel ), subscription3 );
+      assertEquals( service.getAreasOfInterest().size(), 1 );
 
-    verify( listener, never() ).subscriptionCreated( subscription1 );
-    verify( listener ).subscriptionUpdated( subscription1 );
+      verify( listener, never() ).channelCreated( subscription1.getChannel() );
+      verify( listener ).channelUpdated( subscription1.getChannel() );
+    } );
   }
 }

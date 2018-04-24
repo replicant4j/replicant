@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.Disposable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -7,6 +8,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.realityforge.replicant.client.AreaOfInterest;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -75,33 +79,39 @@ public interface ReplicantConnection
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
-    final Map<Object, Subscription> existing =
-      getAreaOfInterestService()
-        .getSubscriptions()
+    final AreaOfInterestService service = getAreaOfInterestService();
+    final Map<Object, Channel> existing =
+      service
+        .getAreasOfInterest()
         .stream()
-        .filter( s -> s.getDescriptor().getGraph().equals( targetGraph ) )
-        .filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
-        .collect( Collectors.toMap( s -> s.getDescriptor().getID(), Function.identity() ) );
+        .filter( s -> s.getAddress().getGraph().equals( targetGraph ) )
+        .filter( subscription -> FilterUtil.filtersEqual( subscription.getChannel().getFilter(), filter ) )
+        .map( AreaOfInterest::getChannel )
+        .collect( Collectors.toMap( s -> s.getAddress().getId(), Function.identity() ) );
 
     //noinspection ConstantConditions
-    getAreaOfInterestService()
-      .getSubscriptions()
+    service
+      .getAreasOfInterest()
       .stream()
-      .filter( s -> s.getDescriptor().getGraph() == sourceGraph )
-      .map( s -> s.getDescriptor().getID() )
+      .filter( s -> s.getAddress().getGraph() == sourceGraph )
+      .map( s -> s.getAddress().getId() )
       .flatMap( sourceIDToTargetIDs )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
-      .forEach( id -> getAreaOfInterestService().findOrCreateSubscription( new ChannelAddress( targetGraph, id ),
-                                                                           filter ).createReference() );
+      .forEach( id -> service.findOrCreateSubscription( asAddress( targetGraph, id ), filter ) );
 
     getSubscriptionManager().getInstanceSubscriptions( sourceGraph ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> getAreaOfInterestService().findOrCreateSubscription( new ChannelAddress( targetGraph, id ),
-                                                                          filter ).createReference() );
+      forEach( id -> service.findOrCreateSubscription( asAddress( targetGraph, id ), filter ) );
 
-    existing.values().forEach( Subscription::release );
+    existing.values().forEach( Disposable::dispose );
+  }
+
+  @NotNull
+  default ChannelAddress asAddress( final Enum graph, final Object id )
+  {
+    return new ChannelAddress( graph, id );
   }
 }

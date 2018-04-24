@@ -1,10 +1,12 @@
 package org.realityforge.replicant.client.transport;
 
+import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestEntryTest
+  extends AbstractReplicantTest
 {
   @Test
   public void basicOperation()

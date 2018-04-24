@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.runtime;
 
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.AreaOfInterest;
 import org.realityforge.replicant.client.Channel;
 
 public class DebugAreaOfInterestListener
@@ -40,9 +41,9 @@ public class DebugAreaOfInterestListener
   private void emitAreaOfInterest()
   {
     LOG.info( "\n\nAreaOfInterest Database\nSubscriptions: " );
-    for ( final Channel s : _service.getSubscriptionsMap().values() )
+    for ( final AreaOfInterest s : _service.getAreasOfInterest() )
     {
-      LOG.info( "Channel: " + s );
+      LOG.info( "Channel Subscription: " + s );
     }
     LOG.info( "\n" );
   }

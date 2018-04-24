@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
 import arez.Arez;
+import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
@@ -315,7 +317,7 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -342,56 +344,6 @@ public class ContextConvergerImplTest
   }
 
   @Test
-  public void convergeChildSubscription()
-  {
-    final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
-    final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-
-    final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
-    final ChannelAddress descriptorB = new ChannelAddress( TestGraphA.B );
-    final Subscription subscriptionB = new Subscription( areaOfInterestService, descriptorB );
-    subscription.requireSubscription( subscriptionB );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
-
-    final ContextConvergerImpl c =
-      new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
-
-    when( clientSystem.getDataLoaderService( descriptor.getGraph() ) ).
-      thenReturn( service );
-    when( clientSystem.getDataLoaderService( descriptorB.getGraph() ) ).
-      thenReturn( service );
-
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
-
-    when( service.isSubscribed( descriptor ) ).thenReturn( Boolean.FALSE );
-    when( service.isSubscribed( descriptorB ) ).thenReturn( Boolean.FALSE );
-
-    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, null ) ).
-      thenReturn( -1 );
-    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
-      thenReturn( -1 );
-    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptorB, null ) ).
-      thenReturn( -1 );
-    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptorB, null ) ).
-      thenReturn( -1 );
-
-    // We don't support "grouping" for subscription to required graphs
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
-                  ContextConvergerImpl.ConvergeAction.TERMINATE );
-
-    verify( service ).requestSubscribe( descriptorB, null );
-    verify( service, never() ).requestUnsubscribe( descriptor );
-    verify( service, never() ).requestUnsubscribe( descriptorB );
-    verify( service, never() ).requestSubscriptionUpdate( descriptor, null );
-    verify( service, never() ).requestSubscriptionUpdate( descriptorB, null );
-    assertEquals( expectedChannels.size(), 1 );
-    assertTrue( expectedChannels.contains( subscriptionB.getDescriptor() ) );
-  }
-
-  @Test
   public void convergeSubscription_subscribedButRemovePending()
   {
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
@@ -401,7 +353,7 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -437,7 +389,7 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -476,7 +428,7 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -512,7 +464,7 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
     subscription.setFilter( "Filter1" );
 
     final ContextConvergerImpl c =
@@ -551,7 +503,7 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
     subscription.setFilter( "Filter1" );
 
     final ContextConvergerImpl c =
@@ -594,7 +546,7 @@ public class ContextConvergerImplTest
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A );
-    final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription = Channel.create( descriptor, null );
 
     assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.ADD ) );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.UPDATE ) );
@@ -607,17 +559,17 @@ public class ContextConvergerImplTest
     assertTrue( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.REMOVE ) );
 
     final ChannelAddress descriptor2 = new ChannelAddress( TestGraphA.A, 2 );
-    final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
+    final Channel subscription2 = Channel.create( descriptor2, null );
     assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription2, AreaOfInterestAction.ADD ) );
 
     final ChannelAddress descriptor3 = new ChannelAddress( TestGraphA.B, 1 );
-    final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
+    final Channel subscription3 = Channel.create( descriptor3, null );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.ADD ) );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.UPDATE ) );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.REMOVE ) );
 
     final ChannelAddress descriptor4 = new ChannelAddress( TestGraphA.A, 1 );
-    final Subscription subscription4 = new Subscription( areaOfInterestService, descriptor4 );
+    final Channel subscription4 = Channel.create( descriptor4, null );
     subscription4.setFilter( "Filter" );
     assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription4, AreaOfInterestAction.ADD ) );
     subscription.setFilter( "Filter" );
@@ -634,8 +586,8 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A, 1 );
-    final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
-    subscription1.delete();
+    final Channel subscription1 = Channel.create( descriptor, null );
+    Disposable.dispose( subscription1 );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -662,13 +614,13 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A, 1 );
-    final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription1 = Channel.create( descriptor, null );
 
     final ChannelAddress descriptor2 = new ChannelAddress( TestGraphA.A, 2 );
-    final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
+    final Channel subscription2 = Channel.create( descriptor2, null );
 
     final ChannelAddress descriptor3 = new ChannelAddress( TestGraphA.A, 3 );
-    final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
+    final Channel subscription3 = Channel.create( descriptor3, null );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );
@@ -736,13 +688,13 @@ public class ContextConvergerImplTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestGraphA.A, 1 );
-    final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor );
+    final Channel subscription1 = Channel.create( descriptor, null );
 
     final ChannelAddress descriptor2 = new ChannelAddress( TestGraphA.A, 2 );
-    final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
+    final Channel subscription2 = Channel.create( descriptor2, null );
 
     final ChannelAddress descriptor3 = new ChannelAddress( TestGraphA.A, 3 );
-    final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
+    final Channel subscription3 = Channel.create( descriptor3, null );
 
     final ContextConvergerImpl c =
       new TestContextConvergerImpl( subscriptionManager, areaOfInterestService, clientSystem );

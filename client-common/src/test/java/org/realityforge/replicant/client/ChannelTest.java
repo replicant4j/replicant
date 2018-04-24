@@ -1,15 +1,27 @@
 package org.realityforge.replicant.client;
 
+import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Disposable;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ChannelTest
+  extends AbstractReplicantTest
+  implements IHookable
 {
   enum TestGraph
   {
     A
+  }
+
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
   }
 
   @Test
@@ -37,14 +49,15 @@ public class ChannelTest
   @Test
   public void test_toString()
   {
-    final ChannelAddress channel = new ChannelAddress( TestGraph.A, null );
+    final ChannelAddress address = new ChannelAddress( TestGraph.A, null );
 
-    final Channel subscription = Channel.create( channel, null );
+    final Channel channel = Channel.create( address, null );
 
-    assertEquals( subscription.toString(), "Channel[" + channel + " :: Filter=null]" );
+    assertEquals( channel.toString(), "Channel[" + address + " :: Filter=null]" );
 
     ArezTestUtil.disableNames();
 
-    assertEquals( subscription.toString(), "Channel@1" );
+    assertTrue( channel.toString().startsWith( "org.realityforge.replicant.client.Arez_Channel@" ),
+                channel.toString() );
   }
 }

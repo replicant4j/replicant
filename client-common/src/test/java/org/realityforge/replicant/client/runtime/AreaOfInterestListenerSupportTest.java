@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -18,9 +19,8 @@ public class AreaOfInterestListenerSupportTest
   {
     final AreaOfInterestListenerSupport support = new AreaOfInterestListenerSupport();
 
-    final AreaOfInterestService service = mock( AreaOfInterestService.class );
-    final Subscription subscription =
-      new Subscription( service, new ChannelAddress( TestGraph.A, ValueUtil.randomString() ) );
+    final Channel subscription =
+      Channel.create( new ChannelAddress( TestGraph.A, ValueUtil.randomString() ), null );
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
 
@@ -29,14 +29,14 @@ public class AreaOfInterestListenerSupportTest
 
     assertTrue( support.getListeners().contains( listener ) );
 
-    support.subscriptionCreated( subscription );
-    verify( listener ).subscriptionCreated( subscription );
+    support.channelCreated( subscription );
+    verify( listener ).channelCreated( subscription );
 
-    support.subscriptionUpdated( subscription );
-    verify( listener ).subscriptionUpdated( subscription );
+    support.channelUpdated( subscription );
+    verify( listener ).channelUpdated( subscription );
 
-    support.subscriptionDeleted( subscription );
-    verify( listener ).subscriptionDeleted( subscription );
+    support.channelDeleted( subscription );
+    verify( listener ).channelDeleted( subscription );
 
     assertTrue( support.removeListener( listener ) );
     assertFalse( support.removeListener( listener ), "Can not remove duplicate" );
@@ -44,7 +44,7 @@ public class AreaOfInterestListenerSupportTest
     assertFalse( support.getListeners().contains( listener ) );
 
     reset( listener );
-    support.subscriptionDeleted( subscription );
-    verify( listener, never() ).subscriptionDeleted( subscription );
+    support.channelDeleted( subscription );
+    verify( listener, never() ).channelDeleted( subscription );
   }
 }

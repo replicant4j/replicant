@@ -138,14 +138,14 @@ public class ReplicantConnectionTest
     final ChannelAddress descriptorP = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
     final ChannelAddress descriptorQ = new ChannelAddress( TestGraph2.B, descriptorP.getId() );
 
-    final Subscription subscription1 = new Subscription( aoiService, descriptor1 );
-    final Subscription subscription2 = new Subscription( aoiService, descriptor2 );
-    final Subscription subscription4 = new Subscription( aoiService, descriptor4 );
-    final Subscription subscription5 = new Subscription( aoiService, descriptor5 );
-    final Subscription subscription6 = new Subscription( aoiService, descriptor6 );
+    final Channel subscription1 = new Channel( aoiService, descriptor1 );
+    final Channel subscription2 = new Channel( aoiService, descriptor2 );
+    final Channel subscription4 = new Channel( aoiService, descriptor4 );
+    final Channel subscription5 = new Channel( aoiService, descriptor5 );
+    final Channel subscription6 = new Channel( aoiService, descriptor6 );
 
-    final Subscription subscriptionP = new Subscription( aoiService, descriptorP );
-    final Subscription subscriptionQ = new Subscription( aoiService, descriptorQ );
+    final Channel subscriptionP = new Channel( aoiService, descriptorP );
+    final Channel subscriptionQ = new Channel( aoiService, descriptorQ );
 
     subscription1.setFilter( filter );
     subscription2.setFilter( filter );
@@ -171,7 +171,7 @@ public class ReplicantConnectionTest
     final SubscriptionReference referenceP = scope.requireSubscription( subscriptionP );
     final SubscriptionReference referenceQ = scope.requireSubscription( subscriptionQ );
 
-    when( aoiService.findSubscription( descriptorQ ) ).thenReturn( subscriptionQ );
+    when( aoiService.findAreaOfInterest( descriptorQ ) ).thenReturn( subscriptionQ );
     when( aoiService.createSubscription( descriptor4, filter ) ).thenReturn( subscription4 );
     when( aoiService.createSubscriptionReference( descriptor1 ) ).thenReturn( reference1 );
     when( aoiService.createSubscriptionReference( descriptor2 ) ).thenReturn( reference2 );
@@ -184,14 +184,14 @@ public class ReplicantConnectionTest
 
     assertEquals( scope.getRequiredSubscriptions().size(), 5 );
     assertTrue( scope.getRequiredSubscriptions().contains( subscription5 ) );
-    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptor1 ) ) );
-    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptor2 ) ) );
-    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptor5 ) ) );
-    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptorP ) ) );
-    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getDescriptor().equals( descriptorQ ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getAddress().equals( descriptor1 ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getAddress().equals( descriptor2 ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getAddress().equals( descriptor5 ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getAddress().equals( descriptorP ) ) );
+    assertTrue( scope.getRequiredSubscriptions().stream().anyMatch( s -> s.getAddress().equals( descriptorQ ) ) );
     assertFalse( scope.getRequiredSubscriptions().contains( subscription6 ) );
 
-    verify( aoiService, atLeast( 1 ) ).updateSubscription( subscriptionQ, filter );
+    verify( aoiService, atLeast( 1 ) ).updateAreaOfInterest( subscriptionQ, filter );
 
     //Will be called multiple times as we are dealing with mocks that do not callback to subscription to update state
     verify( aoiService, atLeast( 1 ) ).destroySubscription( subscription6 );

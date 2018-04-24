@@ -38,7 +38,7 @@ public class EntitySubscriptionDebugger
   protected void outputSubscription( @Nonnull final ChannelSubscriptionEntry subscription )
   {
     final Object filter = subscription.getFilter();
-    LOG.info( "Subscription: " + subscription.getDescriptor() +
+    LOG.info( "Subscription: " + subscription.getAddress() +
               " Entities: " + subscription.getEntities().size() +
               ( null != filter ? " Filter: " + filter : "" ) );
   }

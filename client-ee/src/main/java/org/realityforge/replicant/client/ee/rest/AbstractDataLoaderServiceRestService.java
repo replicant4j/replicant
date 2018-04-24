@@ -26,45 +26,45 @@ import org.realityforge.replicant.shared.ee.JsonUtil;
 import org.realityforge.replicant.shared.ee.rest.AbstractReplicantRestService;
 
 /**
- A base class from which to derive a replicant client rest service. A basic client will look like;
-
-<code>
-\@Path( MyDataLoaderServiceRestService.BASE_URL )
-\@Produces( MediaType.WILDCARD )
-\@ApplicationScoped
-\@Transactional( Transactional.TxType.NOT_SUPPORTED )
-public class MyDataLoaderServiceRestService
-  extends AbstractDataLoaderServiceRestService&lt;MyDataLoaderServiceRestService&gt;
-{
-  public static final String BASE_URL = CLIENT_URL_PREFIX + "my";
-
-  \@Inject
-  private MyEeDataLoaderService _dataLoaderService;
-  \@Inject
-  private EntitySystem _entitySystem;
-
-  \@Override
-  protected Class&lt;MyDataLoaderServiceRestService&gt; getCurrentResource()
-  {
-    return MyDataLoaderServiceRestService.class;
-  }
-
-  \@Override
-  \@Nonnull
-  protected EntitySystem getEntitySystem()
-  {
-    return _entitySystem;
-  }
-
-  \@Override
-  \@Nonnull
-  protected DataLoaderService getDataLoaderService()
-  {
-    return _dataLoaderService;
-  }
-}
-
-</code>
+ * A base class from which to derive a replicant client rest service. A basic client will look like;
+ *
+ * <code>
+ * \@Path( MyDataLoaderServiceRestService.BASE_URL )
+ * \@Produces( MediaType.WILDCARD )
+ * \@ApplicationScoped
+ * \@Transactional( Transactional.TxType.NOT_SUPPORTED )
+ * public class MyDataLoaderServiceRestService
+ * extends AbstractDataLoaderServiceRestService&lt;MyDataLoaderServiceRestService&gt;
+ * {
+ * public static final String BASE_URL = CLIENT_URL_PREFIX + "my";
+ *
+ * \@Inject
+ * private MyEeDataLoaderService _dataLoaderService;
+ * \@Inject
+ * private EntitySystem _entitySystem;
+ *
+ * \@Override
+ * protected Class&lt;MyDataLoaderServiceRestService&gt; getCurrentResource()
+ * {
+ * return MyDataLoaderServiceRestService.class;
+ * }
+ *
+ * \@Override
+ * \@Nonnull
+ * protected EntitySystem getEntitySystem()
+ * {
+ * return _entitySystem;
+ * }
+ *
+ * \@Override
+ * \@Nonnull
+ * protected DataLoaderService getDataLoaderService()
+ * {
+ * return _dataLoaderService;
+ * }
+ * }
+ *
+ * </code>
  */
 public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDataLoaderServiceRestService>
   extends AbstractReplicantRestService
@@ -206,10 +206,10 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
 
   private void emitSubscription( @Nonnull final JsonGenerator g, @Nonnull final ChannelSubscriptionEntry subscription )
   {
-    final ChannelAddress descriptor = subscription.getDescriptor();
-    g.writeStartObject( descriptor.getGraph().name() );
+    final ChannelAddress address = subscription.getAddress();
+    g.writeStartObject( address.getGraph().name() );
 
-    emitID( g, descriptor );
+    emitID( g, address );
     final Object filter = subscription.getFilter();
     if ( null != filter )
     {

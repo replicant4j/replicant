@@ -136,7 +136,7 @@ public class DataLoaderServiceTest
     final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = getRwEntities( entry );
     final Map<Object, EntitySubscriptionEntry> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
     final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
-    getRwGraphSubscriptions( entitySubscriptionEntry ).put( entry.getDescriptor(), entry );
+    getRwGraphSubscriptions( entitySubscriptionEntry ).put( entry.getAddress(), entry );
     typeMap.put( id, entitySubscriptionEntry );
   }
 
@@ -500,7 +500,7 @@ public class DataLoaderServiceTest
 
     final ChannelSubscriptionEntry subscriptionEntry = service.getSubscriptionManager().findSubscription( descriptor );
     assertNotNull( subscriptionEntry );
-    assertEquals( subscriptionEntry.getDescriptor(), descriptor );
+    assertEquals( subscriptionEntry.getAddress(), descriptor );
     assertEquals( subscriptionEntry.getFilter(), null );
     assertEquals( subscriptionEntry.isExplicitSubscription(), false );
 
