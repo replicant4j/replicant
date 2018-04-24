@@ -8,13 +8,13 @@ import org.realityforge.replicant.client.runtime.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientRuntimeDaggerModule;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
-@Module( includes = { GwtContextConvergerImplDaggerModule.class, ReplicantClientRuntimeDaggerModule.class } )
+@Module( includes = { GwtContextConvergerDaggerModule.class, ReplicantClientRuntimeDaggerModule.class } )
 public interface ReplicantNetworkDaggerModule
 {
   @Nonnull
   @Provides
   @Singleton
-  static ContextConverger provideContextConverger( @Nonnull final GwtContextConvergerImpl component )
+  static ContextConverger provideContextConverger( @Nonnull final GwtContextConverger component )
   {
     return component;
   }

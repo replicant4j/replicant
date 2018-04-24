@@ -30,7 +30,7 @@ public class ReplicantClientTestModule
 
   protected void bindContextConverger()
   {
-    bind( ContextConverger.class ).to( TestContextConvergerImpl.class ).asEagerSingleton();
+    bind( ContextConverger.class ).to( TestContextConverger.class ).asEagerSingleton();
   }
 
   protected void bindReplicantClientSystem()
