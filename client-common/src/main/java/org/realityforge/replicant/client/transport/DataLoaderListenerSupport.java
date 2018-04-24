@@ -151,7 +151,7 @@ public final class DataLoaderListenerSupport
    * This avoids concurrent operation exceptions.
    */
   @Nonnull
-  protected synchronized ArrayList<DataLoaderListener> cloneListeners()
+  private synchronized ArrayList<DataLoaderListener> cloneListeners()
   {
     final ArrayList<DataLoaderListener> listeners = new ArrayList<>( _listeners.size() );
     listeners.addAll( _listeners );
