@@ -22,7 +22,7 @@ public interface ReplicantNetworkDaggerModule
   @Nonnull
   @Provides
   @Singleton
-  static ReplicantClientSystem provideReplicantClientSystem( @Nonnull final GwtReplicantClientSystemImpl service )
+  static ReplicantClientSystem provideReplicantClientSystem( @Nonnull final GwtReplicantClientSystem service )
   {
     return service;
   }
