@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelDescriptor;
 import org.realityforge.replicant.client.FilterUtil;
 
-final class AreaOfInterestEntry
+final public class AreaOfInterestEntry
 {
   @Nonnull
   private final String _systemKey;
