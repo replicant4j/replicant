@@ -13,6 +13,12 @@ included:
 * Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
 * Replace Gin with Dagger2.
 
+### [v5.99](https://github.com/realityforge/replicant/tree/v5.99) (2018-04-26)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v5.98...v5.99)
+
+* Make AreaOfInterest public to fix problem when deployed into EE container that attempts to proxy
+  package access method that returns AreaOfInterest.  Submitted by James Walker.
+
 ### [v5.98](https://github.com/realityforge/replicant/tree/v5.98) (2018-03-27)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v5.97...v5.98)
 
