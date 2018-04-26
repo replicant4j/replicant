@@ -35,7 +35,7 @@ public class EntitySubscriptionManagerTest
     final ChannelSubscriptionEntry s = sm.findSubscription( new ChannelAddress( G.G1 ) );
     assertNotNull( s );
     assertNotNull( sm.getSubscription( new ChannelAddress( G.G1 ) ) );
-    assertEquals( s.getAddress(), new ChannelAddress( G.G1 ) );
+    assertEquals( s.getChannel().getAddress(), new ChannelAddress( G.G1 ) );
     assertEquals( s.isExplicitSubscription(), explicitSubscription );
     assertEquals( s.getEntities().size(), 0 );
 
@@ -62,7 +62,7 @@ public class EntitySubscriptionManagerTest
     final ChannelSubscriptionEntry s = sm.findSubscription( new ChannelAddress( G.G2, 1 ) );
     assertNotNull( s );
     assertNotNull( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    assertEquals( s.getAddress(), new ChannelAddress( G.G2, 1 ) );
+    assertEquals( s.getChannel().getAddress(), new ChannelAddress( G.G2, 1 ) );
     assertEquals( s.isExplicitSubscription(), explicitSubscription );
     assertEquals( s.getEntities().size(), 0 );
 
@@ -163,11 +163,11 @@ public class EntitySubscriptionManagerTest
 
     final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelAddress( G.G2, 1 ), "F1", false );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getFilter(), "F1" );
+    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F1" );
 
     final ChannelSubscriptionEntry e2 = sm.updateSubscription( new ChannelAddress( G.G2, 1 ), "F2" );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getFilter(), "F2" );
+    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F2" );
 
     assertEquals( e1, e2 );
   }
@@ -180,11 +180,11 @@ public class EntitySubscriptionManagerTest
 
     final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelAddress( G.G1 ), "F1", false );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getFilter(), "F1" );
+    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F1" );
 
     final ChannelSubscriptionEntry e2 = sm.updateSubscription( new ChannelAddress( G.G1 ), "F2" );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getFilter(), "F2" );
+    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F2" );
 
     assertEquals( e1, e2 );
   }
@@ -266,9 +266,9 @@ public class EntitySubscriptionManagerTest
     assertNull( sm.findSubscription( new ChannelAddress( G.G2 ) ) );
 
     final ChannelSubscriptionEntry s1 = sm.recordSubscription( new ChannelAddress( G.G1 ), "X", false );
-    assertEquals( s1.getFilter(), "X" );
+    assertEquals( s1.getChannel().getFilter(), "X" );
     final ChannelSubscriptionEntry s2 = sm.recordSubscription( new ChannelAddress( G.G2 ), null, false );
-    assertEquals( s2.getFilter(), null );
+    assertEquals( s2.getChannel().getFilter(), null );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, null ), type, id );

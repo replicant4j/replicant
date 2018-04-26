@@ -1,65 +1,59 @@
 package org.realityforge.replicant.client;
 
-import java.util.Collections;
+import arez.annotations.ArezComponent;
+import arez.annotations.Feature;
+import arez.annotations.Observable;
+import arez.component.AbstractContainer;
+import arez.component.RepositoryUtil;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Representation of a subscription to a graph.
  */
-public final class ChannelSubscriptionEntry
+@ArezComponent
+public abstract class ChannelSubscriptionEntry
+  extends AbstractContainer<Class<?>, Map<Object, EntitySubscriptionEntry>>
 {
-  private final ChannelAddress _address;
-  @Nullable
-  private Object _filter;
-  private boolean _explicitSubscription;
+  @Nonnull
+  private final Channel _channel;
 
   private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _entities =
     new HashMap<>();
-  private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _roEntities =
-    Collections.unmodifiableMap( _entities );
 
-  public ChannelSubscriptionEntry( @Nonnull final ChannelAddress address,
-                                   @Nullable final Object filter,
-                                   final boolean explicitSubscription )
+  public static ChannelSubscriptionEntry create( @Nonnull final Channel channel, final boolean explicitSubscription )
   {
-    _address = Objects.requireNonNull( address );
-    _filter = filter;
-    _explicitSubscription = explicitSubscription;
+    return new Arez_ChannelSubscriptionEntry( channel, explicitSubscription );
   }
 
-  public ChannelAddress getAddress()
+  ChannelSubscriptionEntry( @Nonnull final Channel channel )
   {
-    return _address;
+    _channel = Objects.requireNonNull( channel );
   }
 
-  void setFilter( @Nullable final Object filter )
+  @Nonnull
+  public Channel getChannel()
   {
-    _filter = filter;
+    return _channel;
   }
 
-  @Nullable
-  public Object getFilter()
-  {
-    return _filter;
-  }
+  @Observable( initializer = Feature.ENABLE )
+  public abstract boolean isExplicitSubscription();
 
-  public boolean isExplicitSubscription()
-  {
-    return _explicitSubscription;
-  }
+  public abstract void setExplicitSubscription( boolean explicitSubscription );
 
-  public void setExplicitSubscription( final boolean explicitSubscription )
+  @Nonnull
+  public List<Map<Object, EntitySubscriptionEntry>> getEntitySubscriptionEntries()
   {
-    _explicitSubscription = explicitSubscription;
+    return RepositoryUtil.asList( entities() );
   }
 
   public Map<Class<?>, Map<Object, EntitySubscriptionEntry>> getEntities()
   {
-    return _roEntities;
+    return _entities;
   }
 
   final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> getRwEntities()

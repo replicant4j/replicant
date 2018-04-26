@@ -226,7 +226,7 @@ public abstract class ContextConverger
             return ConvergeAction.IN_PROGRESS;
           }
 
-          final Object existing = getSubscriptionManager().getSubscription( descriptor ).getFilter();
+          final Object existing = getSubscriptionManager().getSubscription( descriptor ).getChannel().getFilter();
           final String newFilter = filterToString( filter );
           final String existingFilter = filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )

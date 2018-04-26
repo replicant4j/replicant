@@ -1141,7 +1141,7 @@ public abstract class AbstractDataLoaderService
       {
         final Object entityID = entityEntry.getKey();
         final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
-        final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getAddress() );
+        final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getChannel().getAddress() );
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
           Disposable.dispose( getEntityLocator().getByID( type, entityID ) );
@@ -1167,7 +1167,7 @@ public abstract class AbstractDataLoaderService
                                                        @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
-    final ChannelAddress address = graphEntry.getAddress();
+    final ChannelAddress address = graphEntry.getChannel().getAddress();
 
     final EntitySubscriptionEntry[] subscriptionEntries =
       entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );

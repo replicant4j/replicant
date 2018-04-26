@@ -218,7 +218,7 @@ public class ContextConvergerTest
     final HashSet<ChannelAddress> expected = new HashSet<>();
 
     when( subscriptionManager.getSubscription( descriptor ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor, null, true ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), true ) );
 
     c.removeSubscriptionIfOrphan( expected, descriptor );
 
@@ -259,7 +259,7 @@ public class ContextConvergerTest
     final HashSet<ChannelAddress> expected = new HashSet<>();
 
     when( subscriptionManager.getSubscription( descriptor ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor, null, false ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), false ) );
 
     c.removeSubscriptionIfOrphan( expected, descriptor );
 
@@ -296,7 +296,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor, null, true ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), true ) );
 
     when( subscriptionManager.getTypeSubscriptions() ).thenReturn( Collections.singleton( TestGraphA.A ) );
     when( subscriptionManager.getInstanceSubscriptionKeys() ).thenReturn( Collections.singleton( TestGraphA.B ) );
@@ -408,7 +408,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor, null, false ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), false ) );
 
     assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
                   ContextConverger.ConvergeAction.IN_PROGRESS );
@@ -525,7 +525,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor, "OldFIlter", true ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, "OldFIlter"), true ) );
 
     assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
@@ -728,9 +728,9 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getSubscription( descriptor2 ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor2, "OldFilter", true ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor2, "OldFilter"), true ) );
     when( subscriptionManager.getSubscription( descriptor3 ) ).
-      thenReturn( new ChannelSubscriptionEntry( descriptor3, "OldFilter", true ) );
+      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor3, "OldFilter"), true ) );
 
     assertEquals( c.convergeSubscription( expectedChannels,
                                           subscription2,

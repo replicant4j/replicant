@@ -40,7 +40,7 @@ public class EntitySubscriptionEntry
     return _roGraphSubscriptions;
   }
 
-  final Map<ChannelAddress, ChannelSubscriptionEntry> getRwGraphSubscriptions()
+  public Map<ChannelAddress, ChannelSubscriptionEntry> getRwGraphSubscriptions()
   {
     return _graphSubscriptions;
   }

@@ -66,36 +66,37 @@ public abstract class EntitySubscriptionManager
   /**
    * Record a subscription for specified graph.
    *
-   * @param graph                the graph.
+   * @param address              the graph.
    * @param filter               the filter if subscription is filterable.
    * @param explicitSubscription if subscription was explicitly requested by the client.
    * @return the subscription entry.
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelAddress graph,
+  public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelAddress address,
                                                             @Nullable final Object filter,
                                                             final boolean explicitSubscription )
     throws IllegalStateException
   {
-    final ChannelSubscriptionEntry existing = findSubscription( graph );
+    final ChannelSubscriptionEntry existing = findSubscription( address );
     if ( null == existing )
     {
-      final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( graph, filter, explicitSubscription );
-      final Object id = graph.getId();
+      final ChannelSubscriptionEntry entry =
+        ChannelSubscriptionEntry.create( Channel.create( address, filter ), explicitSubscription );
+      final Object id = address.getId();
       if ( null == id )
       {
-        _typeSubscriptions.put( graph.getGraph(), entry );
+        _typeSubscriptions.put( address.getGraph(), entry );
       }
       else
       {
-        _instanceSubscriptions.computeIfAbsent( graph.getGraph(), k -> new HashMap<>() ).put( id, entry );
+        _instanceSubscriptions.computeIfAbsent( address.getGraph(), k -> new HashMap<>() ).put( id, entry );
       }
       return entry;
     }
     else
     {
-      throw new IllegalStateException( "Graph already subscribed: " + graph );
+      throw new IllegalStateException( "Graph already subscribed: " + address );
     }
   }
 
@@ -113,7 +114,7 @@ public abstract class EntitySubscriptionManager
     throws IllegalStateException
   {
     final ChannelSubscriptionEntry subscription = getSubscription( graph );
-    subscription.setFilter( filter );
+    subscription.getChannel().setFilter( filter );
     return subscription;
   }
 
@@ -251,18 +252,12 @@ public abstract class EntitySubscriptionManager
     final EntitySubscriptionEntry entityEntry = getEntitySubscriptions( type, id );
     for ( final ChannelAddress graph : graphs )
     {
-      final ChannelSubscriptionEntry entry =
-        entityEntry.getRwGraphSubscriptions().computeIfAbsent( graph, this::getSubscription );
-      Map<Object, EntitySubscriptionEntry> typeMap = entry.getEntities().get( type );
-      if ( null == typeMap )
-      {
-        typeMap = new HashMap<>();
-        entry.getRwEntities().put( type, typeMap );
-      }
-      if ( !typeMap.containsKey( id ) )
-      {
-        typeMap.put( id, entityEntry );
-      }
+      entityEntry
+        .getRwGraphSubscriptions()
+        .computeIfAbsent( graph, this::getSubscription )
+        .getRwEntities()
+        .computeIfAbsent( type, k -> new HashMap<>() )
+        .putIfAbsent( id, entityEntry );
     }
   }
 
@@ -328,7 +323,7 @@ public abstract class EntitySubscriptionManager
     if ( null == removed )
     {
       final String message =
-        "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getAddress();
+        "Unable to remove entity " + type.getSimpleName() + "/" + id + " from " + entry.getChannel().getAddress();
       throw new IllegalStateException( message );
     }
     if ( typeMap.isEmpty() )

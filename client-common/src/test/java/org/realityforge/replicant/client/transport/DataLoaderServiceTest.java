@@ -1,9 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.Arez;
 import arez.Disposable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelAction.Action;
 import org.realityforge.replicant.client.ChannelAddress;
@@ -26,6 +26,9 @@ import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
+import org.testng.IHookCallBack;
+import org.testng.IHookable;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -33,7 +36,14 @@ import static org.testng.Assert.*;
 @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
 public class DataLoaderServiceTest
   extends AbstractReplicantTest
+  implements IHookable
 {
+  @Override
+  public void run( final IHookCallBack callBack, final ITestResult testResult )
+  {
+    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
+  }
+
   static class MyType
     implements Disposable
   {
@@ -88,13 +98,13 @@ public class DataLoaderServiceTest
     bGraph.add( "2" );
 
     final ChannelSubscriptionEntry entryA =
-      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.A, "1" ), null, true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.A, "1" ), null ), true );
     final ChannelSubscriptionEntry entryB =
-      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.B, "2" ), null, true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.B, "2" ), null ), true );
     final ChannelSubscriptionEntry entryC =
-      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.C ), null, true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.C ), null ), true );
     final ChannelSubscriptionEntry entryD =
-      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.D ), null, true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.D ), null ), true );
 
     insertSubscription( entryA, MyType.class, "A1" );
     insertSubscription( entryB, MyType.class, "B1" );
@@ -131,31 +141,12 @@ public class DataLoaderServiceTest
   }
 
   private void insertSubscription( final ChannelSubscriptionEntry entry, final Class<?> type, final String id )
-    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
   {
-    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = getRwEntities( entry );
+    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = entry.getEntities();
     final Map<Object, EntitySubscriptionEntry> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
     final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
-    getRwGraphSubscriptions( entitySubscriptionEntry ).put( entry.getAddress(), entry );
+    entitySubscriptionEntry.getRwGraphSubscriptions().put( entry.getChannel().getAddress(), entry );
     typeMap.put( id, entitySubscriptionEntry );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  private Map<ChannelAddress, ChannelSubscriptionEntry> getRwGraphSubscriptions( final EntitySubscriptionEntry entry )
-    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
-  {
-    final Method method = entry.getClass().getDeclaredMethod( "getRwGraphSubscriptions" );
-    method.setAccessible( true );
-    return (Map<ChannelAddress, ChannelSubscriptionEntry>) method.invoke( entry );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  private Map<Class<?>, Map<Object, EntitySubscriptionEntry>> getRwEntities( final ChannelSubscriptionEntry entry )
-    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
-  {
-    final Method method = entry.getClass().getDeclaredMethod( "getRwEntities" );
-    method.setAccessible( true );
-    return (Map<Class<?>, Map<Object, EntitySubscriptionEntry>>) method.invoke( entry );
   }
 
   @Test
@@ -500,8 +491,8 @@ public class DataLoaderServiceTest
 
     final ChannelSubscriptionEntry subscriptionEntry = service.getSubscriptionManager().findSubscription( descriptor );
     assertNotNull( subscriptionEntry );
-    assertEquals( subscriptionEntry.getAddress(), descriptor );
-    assertEquals( subscriptionEntry.getFilter(), null );
+    assertEquals( subscriptionEntry.getChannel().getAddress(), descriptor );
+    assertEquals( subscriptionEntry.getChannel().getFilter(), null );
     assertEquals( subscriptionEntry.isExplicitSubscription(), false );
 
     final DataLoadAction action = actions.getLast();

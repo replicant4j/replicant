@@ -206,11 +206,11 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
 
   private void emitSubscription( @Nonnull final JsonGenerator g, @Nonnull final ChannelSubscriptionEntry subscription )
   {
-    final ChannelAddress address = subscription.getAddress();
+    final ChannelAddress address = subscription.getChannel().getAddress();
     g.writeStartObject( address.getGraph().name() );
 
     emitID( g, address );
-    final Object filter = subscription.getFilter();
+    final Object filter = subscription.getChannel().getFilter();
     if ( null != filter )
     {
       g.write( "filter", JsonUtil.toJsonObject( filter ) );
