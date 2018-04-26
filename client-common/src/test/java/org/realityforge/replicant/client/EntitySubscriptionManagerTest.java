@@ -82,13 +82,16 @@ public class EntitySubscriptionManagerTest
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
 
+    final A entity = new A();
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) } );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
+                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                     entity );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                     entity );
 
     final ChannelSubscriptionEntry e2 = sm.removeSubscription( new ChannelAddress( G.G1 ) );
 
@@ -107,17 +110,20 @@ public class EntitySubscriptionManagerTest
     assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
     sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
 
+    final A entity = new A();
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                     entity );
 
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
 
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                     entity );
 
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
 
     sm.removeEntity( type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
@@ -142,13 +148,16 @@ public class EntitySubscriptionManagerTest
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
+    final A entity = new A();
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) } );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
+                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                     entity );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                     entity );
 
     sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
 
@@ -199,17 +208,20 @@ public class EntitySubscriptionManagerTest
     assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
     sm.recordSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
+    final A entity = new A();
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                     entity );
 
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                     entity );
 
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
     sm.removeEntity( type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
@@ -232,22 +244,26 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
+    final A entity = new A();
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) } );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
+                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                     entity );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
+
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) } );
+                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                     entity );
 
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
     sm.removeSubscription( new ChannelAddress( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
     sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
 
@@ -273,24 +289,27 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
 
+    final A entity1 = new A();
     sm.updateEntity( type,
                      id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) } );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
+                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                     entity1 );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity1 );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
 
     sm.updateEntity( type,
                      id,
                      new ChannelAddress[]{ new ChannelAddress( G.G1 ),
-                                           new ChannelAddress( G.G2 ) } );
+                                           new ChannelAddress( G.G2 ) },
+                     entity1 );
 
-    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity1 );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id, entity1 );
 
     sm.removeEntityFromGraph( type, id, new ChannelAddress( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
-    assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
+    assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id, entity1 );
 
     final EntitySubscriptionEntry e =
       sm.removeEntityFromGraph( type, id, new ChannelAddress( G.G2 ) );
@@ -303,11 +322,14 @@ public class EntitySubscriptionManagerTest
 
   private void assertEntitySubscribed( final EntitySubscriptionManager sm,
                                        final ChannelAddress descriptor,
-                                       final Class<A> type, final Object id )
+                                       final Class<A> type,
+                                       final Object id,
+                                       final A entity )
   {
     final ChannelSubscriptionEntry entry = sm.getSubscription( descriptor );
     assertNotNull( entry.getEntities().get( type ).get( id ) );
     assertNotNull( sm.getSubscription( type, id ).getGraphSubscriptions().get( descriptor ) );
+    assertEquals( sm.getSubscription( type, id ).getEntity(), entity );
   }
 
   private void assertEntityNotSubscribed( final EntitySubscriptionManager sm,

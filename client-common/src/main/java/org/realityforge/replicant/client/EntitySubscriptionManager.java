@@ -241,23 +241,26 @@ public abstract class EntitySubscriptionManager
    * Note: It is assumed that if an entity is part of a graph, they are always part of the graph.
    * This may not be true with filters but we can assume it for all other scenarios.
    *
+   * @param <T>    the type of the entity.
    * @param type   the type of the entity.
    * @param id     the id of the entity.
    * @param graphs the graphs that the entity is part of.
    */
-  public void updateEntity( @Nonnull final Class<?> type,
-                            @Nonnull final Object id,
-                            @Nonnull final ChannelAddress[] graphs )
+  public <T> void updateEntity( @Nonnull final Class<T> type,
+                                @Nonnull final Object id,
+                                @Nonnull final ChannelAddress[] graphs,
+                                @Nonnull final T entity )
   {
-    final EntitySubscriptionEntry entityEntry = getEntitySubscriptions( type, id );
+    final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
+    entry.setEntity( entity );
     for ( final ChannelAddress graph : graphs )
     {
-      entityEntry
+      entry
         .getRwGraphSubscriptions()
         .computeIfAbsent( graph, this::getSubscription )
         .getRwEntities()
         .computeIfAbsent( type, k -> new HashMap<>() )
-        .putIfAbsent( id, entityEntry );
+        .putIfAbsent( id, entry );
     }
   }
 
