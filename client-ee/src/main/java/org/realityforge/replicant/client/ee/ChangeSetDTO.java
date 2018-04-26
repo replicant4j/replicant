@@ -7,7 +7,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.replicant.client.transport.Change;
 import org.realityforge.replicant.client.transport.ChangeSet;
-import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.transport.ChannelAction;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
 public class ChangeSetDTO

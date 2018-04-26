@@ -6,7 +6,7 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.transport.ChannelAction;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
 public class ChannelActionDTO

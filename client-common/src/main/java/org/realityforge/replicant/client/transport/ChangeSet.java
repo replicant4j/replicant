@@ -2,7 +2,6 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelAction;
 
 /**
  * The interface representing the set of changes to be applied to the EntityRepository.

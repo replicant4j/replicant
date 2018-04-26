@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.transport.ChannelAction;
 
 public class JsoChannelAction
   extends JavaScriptObject

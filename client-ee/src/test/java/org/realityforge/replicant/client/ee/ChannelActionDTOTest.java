@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.ee;
 
 import javax.json.JsonObject;
-import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.transport.ChannelAction;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

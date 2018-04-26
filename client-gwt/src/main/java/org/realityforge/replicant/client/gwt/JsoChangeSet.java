@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.Change;
 import org.realityforge.replicant.client.transport.ChangeSet;
-import org.realityforge.replicant.client.ChannelAction;
+import org.realityforge.replicant.client.transport.ChannelAction;
 
 /**
  * An overlay type representing the change set received from the client.
