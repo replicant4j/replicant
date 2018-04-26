@@ -59,8 +59,8 @@ public class EntitySubscriptionEntry
   }
 
   @Nullable
-  public ChannelSubscriptionEntry deregisterGraph( @Nonnull final ChannelAddress descriptor )
+  public ChannelSubscriptionEntry deregisterGraph( @Nonnull final ChannelAddress address )
   {
-    return getRwGraphSubscriptions().remove( descriptor );
+    return getRwGraphSubscriptions().remove( address );
   }
 }
