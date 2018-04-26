@@ -10,8 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -293,8 +291,7 @@ public abstract class AbstractDataLoaderService
     {
       if ( graph.getClass().equals( graphClass ) )
       {
-        final ChannelSubscriptionEntry entry = subscriptionManager.removeSubscription( new ChannelAddress( graph ) );
-        deregisterUnOwnedEntities( entry );
+        subscriptionManager.removeSubscription( new ChannelAddress( graph ) );
       }
     }
   }
@@ -304,7 +301,7 @@ public abstract class AbstractDataLoaderService
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
-      deregisterUnOwnedEntities( subscriptionManager.removeSubscription( new ChannelAddress( graph, id ) ) );
+      subscriptionManager.removeSubscription( new ChannelAddress( graph, id ) );
     }
   }
 
@@ -939,9 +936,7 @@ public abstract class AbstractDataLoaderService
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          final ChannelSubscriptionEntry entry = getSubscriptionManager().removeSubscription( descriptor );
-          context().safeAction( generateName( "deregisterUnOwnedEntities" ),
-                                () -> deregisterUnOwnedEntities( entry ) );
+          getSubscriptionManager().removeSubscription( descriptor );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
@@ -1127,26 +1122,6 @@ public abstract class AbstractDataLoaderService
     final Object subChannelID = action.getSubChannelID();
     final Enum graph = channelToGraph( channel );
     return new ChannelAddress( graph, subChannelID );
-  }
-
-  private void deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )
-  {
-    for ( final Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entitySet : entry.getEntities().entrySet() )
-    {
-      final Class<?> type = entitySet.getKey();
-      for ( final Entry<Object, EntitySubscriptionEntry> entityEntry : entitySet.getValue().entrySet() )
-      {
-        final Object entityID = entityEntry.getKey();
-        final EntitySubscriptionEntry entitySubscription = entityEntry.getValue();
-        final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getChannel().getAddress() );
-        if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
-        {
-          final Object entity = entitySubscription.getEntity();
-          assert null != entity;
-          Disposable.dispose( entity );
-        }
-      }
-    }
   }
 
   @Nonnull

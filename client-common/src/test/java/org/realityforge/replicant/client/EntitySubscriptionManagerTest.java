@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client;
 
 import arez.Arez;
+import arez.Disposable;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
@@ -93,11 +94,11 @@ public class EntitySubscriptionManagerTest
                      new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
                      entity );
 
-    final ChannelSubscriptionEntry e2 = sm.removeSubscription( new ChannelAddress( G.G1 ) );
+    sm.removeSubscription( new ChannelAddress( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
 
-    assertEquals( e2, e1 );
+    assertTrue( Disposable.isDisposed( e1 ) );
   }
 
   @Test
@@ -108,7 +109,8 @@ public class EntitySubscriptionManagerTest
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
     assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
-    sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
+    final ChannelSubscriptionEntry s1 =
+      sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
 
     final A entity = new A();
     sm.updateEntity( type,
@@ -131,6 +133,8 @@ public class EntitySubscriptionManagerTest
     //assertEntityPresent( type, id, r );
 
     sm.removeSubscription( new ChannelAddress( G.G1 ) );
+
+    assertTrue( Disposable.isDisposed( s1 ) );
 
     // Entity still here as unsubscribe did not unload as removed from subscription manager
     //assertEntityPresent( type, id, r );

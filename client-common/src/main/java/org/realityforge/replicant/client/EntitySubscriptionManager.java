@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import arez.Disposable;
 import arez.annotations.ArezComponent;
 import java.util.Collections;
 import java.util.HashMap;
@@ -184,6 +185,7 @@ public abstract class EntitySubscriptionManager
       {
         throw new IllegalStateException( "Graph not subscribed: " + graph );
       }
+      disposeSubscription( entry );
       return entry;
     }
     else
@@ -198,9 +200,17 @@ public abstract class EntitySubscriptionManager
       {
         throw new IllegalStateException( "Graph not subscribed: " + graph );
       }
+      disposeSubscription( entry );
       return entry;
 
     }
+  }
+
+  private void disposeSubscription( @Nonnull final ChannelSubscriptionEntry entry )
+  {
+    //TODO: Rather than manually observing this, the ChannelSubscriptionEntry should observe it and self-dispose?
+    entry.disposeUnOwnedEntities();
+    Disposable.dispose( entry );
   }
 
   /**

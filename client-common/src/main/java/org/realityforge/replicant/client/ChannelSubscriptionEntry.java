@@ -1,9 +1,10 @@
 package org.realityforge.replicant.client;
 
-import arez.annotations.Action;
+import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import arez.component.AbstractContainer;
 import arez.component.RepositoryUtil;
 import java.util.HashMap;
@@ -61,17 +62,18 @@ public abstract class ChannelSubscriptionEntry
   {
     return _entities;
   }
-  /*
 
-
-  @Action(
-      name = "create_name"
-  )
-  @Nonnull
-  public DaggerDisabledRepository create(@Nonnull final String name) {
-    final Arez_DaggerDisabledRepository entity = new Arez_DaggerDisabledRepository(name);
-    registerEntity( entity );
-    return entity;
+  void disposeUnOwnedEntities()
+  {
+    _entities.values().stream().flatMap( entitySet -> entitySet.values().stream() ).forEach( entityEntry -> {
+      final ChannelSubscriptionEntry element = entityEntry.deregisterGraph( getChannel().getAddress() );
+      assert null != element;
+      if ( entityEntry.getGraphSubscriptions().isEmpty() )
+      {
+        final Object entity = entityEntry.getEntity();
+        assert null != entity;
+        Disposable.dispose( entity );
+      }
+    } );
   }
-  */
 }
