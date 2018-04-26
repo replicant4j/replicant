@@ -1141,7 +1141,9 @@ public abstract class AbstractDataLoaderService
         final ChannelSubscriptionEntry element = entitySubscription.deregisterGraph( entry.getChannel().getAddress() );
         if ( null != element && 0 == entitySubscription.getGraphSubscriptions().size() )
         {
-          Disposable.dispose( getEntityLocator().getByID( type, entityID ) );
+          final Object entity = entitySubscription.getEntity();
+          assert null != entity;
+          Disposable.dispose( entity );
         }
       }
     }

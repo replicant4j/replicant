@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client;
 
+import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
@@ -60,4 +61,17 @@ public abstract class ChannelSubscriptionEntry
   {
     return _entities;
   }
+  /*
+
+
+  @Action(
+      name = "create_name"
+  )
+  @Nonnull
+  public DaggerDisabledRepository create(@Nonnull final String name) {
+    final Arez_DaggerDisabledRepository entity = new Arez_DaggerDisabledRepository(name);
+    registerEntity( entity );
+    return entity;
+  }
+  */
 }
