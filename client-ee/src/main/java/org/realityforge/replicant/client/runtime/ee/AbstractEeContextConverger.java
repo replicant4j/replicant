@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.runtime.ee;
 
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.runtime.ContextConverger;
+import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.shared.ee.JsonUtil;
 
 public abstract class AbstractEeContextConverger

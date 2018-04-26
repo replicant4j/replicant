@@ -17,6 +17,7 @@ import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
+import org.realityforge.replicant.client.converger.ContextConverger;
 
 @Singleton
 public class ReplicantConnection

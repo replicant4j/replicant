@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
-import org.realityforge.replicant.client.runtime.ContextConverger;
+import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
 public class TestContextConverger
