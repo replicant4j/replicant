@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Make AreaOfInterest public to fix problem when deployed into EE container that attempts to proxy
+  package access method that returns AreaOfInterest.  Submitted by James Walker.
+
 ### [v5.98](https://github.com/realityforge/replicant/tree/v5.98) (2018-03-27)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v5.97...v5.98)
 
