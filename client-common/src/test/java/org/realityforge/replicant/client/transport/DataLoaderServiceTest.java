@@ -16,8 +16,6 @@ import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.Change;
-import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelAction.Action;

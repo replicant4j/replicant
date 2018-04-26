@@ -4,8 +4,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.Change;
-import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.transport.Change;
+import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
 
 /**

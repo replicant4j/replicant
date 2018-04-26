@@ -7,7 +7,7 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import org.realityforge.replicant.client.Change;
+import org.realityforge.replicant.client.transport.Change;
 import org.realityforge.replicant.shared.json.TransportConstants;
 
 public class ChangeDTO

@@ -2,8 +2,6 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.Change;
-import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
 
 final class TestChangeSet

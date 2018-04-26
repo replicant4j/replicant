@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
-import org.realityforge.replicant.client.Change;
-import org.realityforge.replicant.client.ChangeSet;
+import org.realityforge.replicant.client.transport.Change;
+import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.shared.json.TransportConstants;
 

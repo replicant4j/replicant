@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.transport;
 import java.util.Date;
 import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.Change;
 
 final class TestChange
   implements Change

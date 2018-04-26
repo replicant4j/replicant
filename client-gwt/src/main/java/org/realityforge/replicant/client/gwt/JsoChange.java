@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.gwt;
 import com.google.gwt.core.client.JavaScriptObject;
 import java.util.Date;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.Change;
+import org.realityforge.replicant.client.transport.Change;
 
 public final class JsoChange
   extends JavaScriptObject

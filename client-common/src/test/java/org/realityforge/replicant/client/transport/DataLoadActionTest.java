@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
