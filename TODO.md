@@ -25,3 +25,11 @@ Some actions that should occur at some point in the future.
       * Job Return value
     This will ultimately allow the jobs and potentially polling results to move to being
     handled across a WebSocket.
+
+* Remove AreaOfInterestListener, ReplicantSystemListener, DataLoaderListener - replace with observable Arez state?
+
+* Merge all interface/impl separations - i.e. ReplicantConnection
+
+* All of the AreaOfInterestListener infra should move to using AreaOfInterest object?
+
+* Channel should be disposeOnDeactivate?
