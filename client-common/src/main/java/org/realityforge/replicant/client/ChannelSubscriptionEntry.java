@@ -63,7 +63,14 @@ public abstract class ChannelSubscriptionEntry
     return _entities;
   }
 
-  void disposeUnOwnedEntities()
+  @Override
+  protected void preDispose()
+  {
+    disposeUnOwnedEntities();
+    super.preDispose();
+  }
+
+  final void disposeUnOwnedEntities()
   {
     _entities.values().stream().flatMap( entitySet -> entitySet.values().stream() ).forEach( entityEntry -> {
       final ChannelSubscriptionEntry element = entityEntry.deregisterGraph( getChannel().getAddress() );
