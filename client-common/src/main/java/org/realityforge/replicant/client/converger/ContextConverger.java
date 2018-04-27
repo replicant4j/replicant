@@ -392,20 +392,14 @@ public abstract class ContextConverger
     final HashSet<ChannelAddress> processed = new HashSet<>();
     for ( final AreaOfInterest subscription : getAreaOfInterestService().getAreasOfInterest() )
     {
-      collectSubscription( subscription.getChannel(), processed, subscriptions );
+      final Channel subscription1 = subscription.getChannel();
+      if ( !processed.contains( subscription1.getAddress() ) )
+      {
+        subscriptions.add( subscription1 );
+        processed.add( subscription1.getAddress() );
+      }
     }
     return subscriptions;
-  }
-
-  private void collectSubscription( @Nonnull final Channel subscription,
-                                    @Nonnull final HashSet<ChannelAddress> processed,
-                                    @Nonnull final ArrayList<Channel> subscriptions )
-  {
-    if ( !processed.contains( subscription.getAddress() ) )
-    {
-      subscriptions.add( subscription );
-      processed.add( subscription.getAddress() );
-    }
   }
 
   @Action
