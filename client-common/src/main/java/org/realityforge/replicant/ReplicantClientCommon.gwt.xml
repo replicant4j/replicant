@@ -7,7 +7,7 @@
   <source path='client'>
     <include name='*.java'/>
     <include name='aoi/**/*'/>
-    <include name='transport/**/*'/>
     <include name='runtime/**/*'/>
+    <include name='transport/**/*'/>
   </source>
 </module>
