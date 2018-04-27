@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import static org.mockito.Mockito.*;
 
@@ -27,7 +26,6 @@ public final class TestDataLoadService
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
   private final EntitySubscriptionManager _subscriptionManager;
-  private final EntityLocator _entityLocator;
   private int _validateRepositoryCallCount;
 
   TestDataLoadService()
@@ -36,14 +34,6 @@ public final class TestDataLoadService
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
     _subscriptionManager = new Arez_EntitySubscriptionManager();
-    _entityLocator = mock( EntityLocator.class );
-  }
-
-  @Nonnull
-  @Override
-  protected EntityLocator getEntityLocator()
-  {
-    return _entityLocator;
   }
 
   @Nonnull

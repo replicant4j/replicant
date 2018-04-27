@@ -2,6 +2,7 @@ package org.realityforge.replicant.client;
 
 import arez.Disposable;
 import arez.annotations.ArezComponent;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +92,8 @@ public abstract class EntitySubscriptionManager
       }
       else
       {
-        _instanceChannelSubscriptions.computeIfAbsent( address.getChannelType(), k -> new HashMap<>() ).put( id, entry );
+        _instanceChannelSubscriptions.computeIfAbsent( address.getChannelType(), k -> new HashMap<>() )
+          .put( id, entry );
       }
       return entry;
     }
@@ -190,7 +192,8 @@ public abstract class EntitySubscriptionManager
     }
     else
     {
-      final Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceChannelSubscriptions.get( channel.getChannelType() );
+      final Map<Object, ChannelSubscriptionEntry> instanceMap =
+        _instanceChannelSubscriptions.get( channel.getChannelType() );
       if ( null == instanceMap )
       {
         throw new IllegalStateException( "Channel not subscribed: " + channel );
@@ -340,6 +343,12 @@ public abstract class EntitySubscriptionManager
   private EntitySubscriptionEntry getEntitySubscriptions( final Class<?> type, final Object id )
   {
     return getEntityTypeMap( type ).computeIfAbsent( id, k -> new EntitySubscriptionEntry( type, id ) );
+  }
+
+  @Nonnull
+  public Collection<EntitySubscriptionEntry> findEntitySubscriptionsByType( @Nonnull final Class<?> type )
+  {
+    return getEntityTypeMap( type ).values();
   }
 
   @Nonnull

@@ -20,7 +20,6 @@ import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
@@ -201,9 +200,6 @@ public abstract class AbstractDataLoaderService
 
   @Nonnull
   protected abstract EntitySubscriptionManager getSubscriptionManager();
-
-  @Nonnull
-  protected abstract EntityLocator getEntityLocator();
 
   protected boolean shouldPurgeOnSessionChange()
   {
@@ -1321,8 +1317,7 @@ public abstract class AbstractDataLoaderService
     {
       for ( final Class<?> entityType : getEntityTypes() )
       {
-        final List entities = getEntityLocator().findAll( entityType );
-        for ( final Object entity : entities )
+        for ( final Object entity : getSubscriptionManager().findEntitySubscriptionsByType( entityType ) )
         {
           invariant( () -> !Disposable.isDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );

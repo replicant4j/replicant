@@ -72,10 +72,10 @@ public class DataLoaderServiceTest
     final MyType myTypeC = new MyType();
     final MyType myTypeD = new MyType();
 
-    when( service.getEntityLocator().getByID( MyType.class, "A1" ) ).thenReturn( myTypeA );
-    when( service.getEntityLocator().getByID( MyType.class, "B1" ) ).thenReturn( myTypeB );
-    when( service.getEntityLocator().getByID( MyType.class, "C1" ) ).thenReturn( myTypeC );
-    when( service.getEntityLocator().getByID( MyType.class, "D1" ) ).thenReturn( myTypeD );
+    sm.updateEntity( MyType.class, "A1", new ChannelAddress[ 0 ], myTypeA );
+    sm.updateEntity( MyType.class, "B1", new ChannelAddress[ 0 ], myTypeB );
+    sm.updateEntity( MyType.class, "C1", new ChannelAddress[ 0 ], myTypeC );
+    sm.updateEntity( MyType.class, "D1", new ChannelAddress[ 0 ], myTypeD );
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
