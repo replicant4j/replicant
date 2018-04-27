@@ -1165,8 +1165,10 @@ public abstract class AbstractDataLoaderService
         // If there is only one subscriber then lets delete it
         if ( deregisterEntity )
         {
+          final Object entity = entityEntry.getEntity();
           getSubscriptionManager().removeEntity( entityType, entityID );
-          Disposable.dispose( getEntityLocator().getByID( entityType, entityID ) );
+          assert null != entity;
+          Disposable.dispose( entity );
           removedEntities += 1;
         }
       }
