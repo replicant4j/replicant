@@ -9,6 +9,7 @@
     <include name='aoi/**/*'/>
     <include name='converger/**/*'/>
     <include name='runtime/**/*'/>
+    <include name='subscription/**/*'/>
     <include name='transport/**/*'/>
   </source>
 </module>

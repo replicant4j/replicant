@@ -19,12 +19,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntitySubscriptionEntry;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
+import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionDebugger;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionEntry;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import static org.realityforge.braincheck.Guards.*;
 
 /**

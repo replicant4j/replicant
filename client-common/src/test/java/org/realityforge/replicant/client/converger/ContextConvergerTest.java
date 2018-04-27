@@ -9,14 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.testng.IHookCallBack;
@@ -56,7 +55,7 @@ public class ContextConvergerTest
     dataLoaders.add( new DataLoaderEntry( dl3, false ) );
     when( system.getDataLoaders() ).thenReturn( dataLoaders );
 
-    final EntitySubscriptionManager subscriptionManager = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager subscriptionManager = EntitySubscriptionManager.create();
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
     final ContextConverger c = new TestContextConverger( subscriptionManager, areaOfInterestService, system );
 

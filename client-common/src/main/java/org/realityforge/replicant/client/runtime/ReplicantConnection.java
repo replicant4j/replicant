@@ -12,11 +12,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 
 @Singleton
 public class ReplicantConnection

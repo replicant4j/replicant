@@ -8,10 +8,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.Arez_EntitySubscriptionManager;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import static org.mockito.Mockito.*;
 
 public final class TestDataLoadService
@@ -33,7 +32,7 @@ public final class TestDataLoadService
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
-    _subscriptionManager = new Arez_EntitySubscriptionManager();
+    _subscriptionManager = EntitySubscriptionManager.create();
   }
 
   @Nonnull

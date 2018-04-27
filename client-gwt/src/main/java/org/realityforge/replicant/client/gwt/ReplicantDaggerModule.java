@@ -4,10 +4,10 @@ import dagger.Module;
 import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.ReplicantClientDaggerModule;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManagerDaggerModule;
 import org.realityforge.replicant.client.transport.CacheService;
 
-@Module( includes = { ReplicantClientDaggerModule.class } )
+@Module( includes = { EntitySubscriptionManagerDaggerModule.class } )
 public class ReplicantDaggerModule
 {
   @Nonnull

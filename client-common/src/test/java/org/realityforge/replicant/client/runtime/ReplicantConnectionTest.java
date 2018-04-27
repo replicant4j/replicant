@@ -1,21 +1,14 @@
 package org.realityforge.replicant.client.runtime;
 
 import arez.Arez;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.EntityLocator;
-import org.realityforge.replicant.client.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.*;
 
 public class ReplicantConnectionTest
   extends AbstractReplicantTest

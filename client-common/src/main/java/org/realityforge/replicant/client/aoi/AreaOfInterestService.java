@@ -21,7 +21,7 @@ import org.realityforge.replicant.client.FilterUtil;
  * intends to represent the desired state that the DataSources converge towards.
  */
 @Singleton
-@ArezComponent( allowEmpty = true )
+@ArezComponent
 public abstract class AreaOfInterestService
   extends AbstractContainer<ChannelAddress, AreaOfInterest>
 {
