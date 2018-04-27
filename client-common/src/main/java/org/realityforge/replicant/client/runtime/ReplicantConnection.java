@@ -10,19 +10,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.EntityLocator;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
+import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 
 @Singleton
 public class ReplicantConnection
 {
-  private final EntityLocator _entityLocator;
   private final EntitySubscriptionManager _subscriptionManager;
   private final ReplicantClientSystem _replicantClientSystem;
   private final AreaOfInterestService _areaOfInterestService;
@@ -30,13 +28,11 @@ public class ReplicantConnection
 
   @Inject
   ReplicantConnection( @Nonnull final ContextConverger converger,
-                       @Nonnull final EntityLocator entityLocator,
                        @Nonnull final EntitySubscriptionManager subscriptionManager,
                        @Nonnull final ReplicantClientSystem replicantClientSystem,
                        @Nonnull final AreaOfInterestService areaOfInterestService )
   {
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
-    _entityLocator = Objects.requireNonNull( entityLocator );
     _subscriptionManager = Objects.requireNonNull( subscriptionManager );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     _converger = Objects.requireNonNull( converger );
@@ -67,12 +63,6 @@ public class ReplicantConnection
   }
 
   @Nonnull
-  public EntityLocator getEntityLocator()
-  {
-    return _entityLocator;
-  }
-
-  @Nonnull
   public EntitySubscriptionManager getSubscriptionManager()
   {
     return _subscriptionManager;
@@ -89,12 +79,13 @@ public class ReplicantConnection
    * based on function. If the root object is not yet present then return an empty stream.
    * This is typically used by the function passed into the convergeCrossDataSourceSubscriptions() method.
    */
+  @SuppressWarnings( "unchecked" )
   @Nonnull
   protected <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Class<T> type,
                                                            @Nonnull final Object id,
                                                            @Nonnull final Function<T, Stream<O>> rootToStream )
   {
-    final T root = getEntityLocator().findByID( type, id );
+    final T root = (T) getSubscriptionManager().getSubscription( type, id ).getEntity();
     return null != root ? rootToStream.apply( root ) : Stream.empty();
   }
 
