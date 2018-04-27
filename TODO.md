@@ -33,3 +33,9 @@ Some actions that should occur at some point in the future.
 * All of the AreaOfInterestListener infra should move to using AreaOfInterest object?
 
 * Channel should be disposeOnDeactivate?
+
+* Upgrade Arez
+
+* Figure out a way how to move Linkable, Verifiable and EntityLocator to Arez. Will need to somehow annotate
+  inverse relationships and have Arez generate glue-code to link up outside of accessor. Will also need to mark
+  some properties as links ... some of which are lazy loaded.
