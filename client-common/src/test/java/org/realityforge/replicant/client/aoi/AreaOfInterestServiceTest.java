@@ -14,7 +14,7 @@ import static org.testng.Assert.*;
 public class AreaOfInterestServiceTest
   extends AbstractReplicantTest
 {
-  enum TestGraph
+  enum TestSystem
   {
     A, B
   }
@@ -27,9 +27,9 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     service.addAreaOfInterestListener( listener );
 
-    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, null );
-    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B, 1 );
-    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.B, 2 );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestSystem.A, null );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestSystem.B, 1 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestSystem.B, 2 );
 
     Arez.context().safeAction( () -> {
       final AreaOfInterest subscription1 = service.findOrCreateSubscription( descriptor1, null );
@@ -71,8 +71,8 @@ public class AreaOfInterestServiceTest
       final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
       service.addAreaOfInterestListener( listener );
 
-      final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A );
-      final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B );
+      final ChannelAddress descriptor1 = new ChannelAddress( TestSystem.A );
+      final ChannelAddress descriptor2 = new ChannelAddress( TestSystem.B );
 
       final String filer1 = "Filer1";
       final String filer2 = null;
@@ -97,7 +97,7 @@ public class AreaOfInterestServiceTest
   public void findOrCreateSubscription()
   {
     Arez.context().safeAction( () -> {
-      final ChannelAddress channel = new ChannelAddress( TestGraph.A );
+      final ChannelAddress channel = new ChannelAddress( TestSystem.A );
       final String filter1 = ValueUtil.randomString();
       final String filter2 = ValueUtil.randomString();
 

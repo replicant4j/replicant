@@ -129,15 +129,15 @@ public abstract class ReplicantClientSystem
   }
 
   /**
-   * Retrieve the dataloader service associated with the graph.
+   * Retrieve the dataloader service associated with the channelType.
    */
   @Nonnull
-  public DataLoaderService getDataLoaderService( @Nonnull final Enum graph )
+  public DataLoaderService getDataLoaderService( @Nonnull final Enum channelType )
     throws IllegalArgumentException
   {
     for ( final DataLoaderEntry dataLoader : getDataLoaders() )
     {
-      if ( dataLoader.getService().getGraphType().equals( graph.getClass() ) )
+      if ( dataLoader.getService().getSystemType().equals( channelType.getClass() ) )
       {
         return dataLoader.getService();
       }

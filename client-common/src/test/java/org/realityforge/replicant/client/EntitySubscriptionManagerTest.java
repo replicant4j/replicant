@@ -19,67 +19,67 @@ public class EntitySubscriptionManagerTest
   }
 
   @Test
-  public void typeGraphRegistrations()
+  public void typeChannelRegistrations()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
 
-    assertEquals( sm.getTypeSubscriptions().size(), 0 );
-    assertFalse( sm.getTypeSubscriptions().contains( G.G1 ) );
+    assertEquals( sm.getTypeChannelSubscriptions().size(), 0 );
+    assertFalse( sm.getTypeChannelSubscriptions().contains( G.G1 ) );
 
     final boolean explicitSubscription = true;
-    sm.recordSubscription( new ChannelAddress( G.G1 ), null, explicitSubscription );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, explicitSubscription );
 
-    assertEquals( sm.getTypeSubscriptions().size(), 1 );
-    assertTrue( sm.getTypeSubscriptions().contains( G.G1 ) );
+    assertEquals( sm.getTypeChannelSubscriptions().size(), 1 );
+    assertTrue( sm.getTypeChannelSubscriptions().contains( G.G1 ) );
 
-    final ChannelSubscriptionEntry s = sm.findSubscription( new ChannelAddress( G.G1 ) );
+    final ChannelSubscriptionEntry s = sm.findChannelSubscription( new ChannelAddress( G.G1 ) );
     assertNotNull( s );
-    assertNotNull( sm.getSubscription( new ChannelAddress( G.G1 ) ) );
+    assertNotNull( sm.getChannelSubscription( new ChannelAddress( G.G1 ) ) );
     assertEquals( s.getChannel().getAddress(), new ChannelAddress( G.G1 ) );
     assertEquals( s.isExplicitSubscription(), explicitSubscription );
     assertEquals( s.getEntities().size(), 0 );
 
-    sm.removeSubscription( new ChannelAddress( G.G1 ) );
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1 ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
   }
 
   @Test
-  public void instanceGraphRegistrations()
+  public void instanceChannelRegistrations()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
 
-    assertEquals( sm.getInstanceSubscriptionKeys().size(), 0 );
-    assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 0 );
+    assertEquals( sm.getInstanceChannelSubscriptionKeys().size(), 0 );
+    assertEquals( sm.getInstanceChannelSubscriptions( G.G2 ).size(), 0 );
 
     final boolean explicitSubscription = false;
-    sm.recordSubscription( new ChannelAddress( G.G2, 1 ), null, explicitSubscription );
+    sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, explicitSubscription );
 
-    assertEquals( sm.getInstanceSubscriptionKeys().size(), 1 );
-    assertEquals( sm.getInstanceSubscriptions( G.G2 ).size(), 1 );
+    assertEquals( sm.getInstanceChannelSubscriptionKeys().size(), 1 );
+    assertEquals( sm.getInstanceChannelSubscriptions( G.G2 ).size(), 1 );
 
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 2 ) ) );
-    final ChannelSubscriptionEntry s = sm.findSubscription( new ChannelAddress( G.G2, 1 ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 2 ) ) );
+    final ChannelSubscriptionEntry s = sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) );
     assertNotNull( s );
-    assertNotNull( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    assertNotNull( sm.getChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
     assertEquals( s.getChannel().getAddress(), new ChannelAddress( G.G2, 1 ) );
     assertEquals( s.isExplicitSubscription(), explicitSubscription );
     assertEquals( s.getEntities().size(), 0 );
 
-    sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G2, 1 ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
   }
 
   @Test
-  public void entitySubscriptionInTypeGraph()
+  public void entitySubscriptionInTypeChannel()
   {
     final Class<A> type = A.class;
     final Object id = 1;
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
-    final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
+    final ChannelSubscriptionEntry e1 = sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
 
@@ -94,7 +94,7 @@ public class EntitySubscriptionManagerTest
                      new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
                      entity );
 
-    sm.removeSubscription( new ChannelAddress( G.G1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
 
@@ -102,15 +102,15 @@ public class EntitySubscriptionManagerTest
   }
 
   @Test
-  public void entitySubscriptionInTypeGraph_removeEntity()
+  public void entitySubscriptionInTypeChannel_removeEntity()
   {
     final Class<A> type = A.class;
     final Object id = 1;
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
     final ChannelSubscriptionEntry s1 =
-      sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
+      sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
 
     final A entity = new A();
     sm.updateEntity( type,
@@ -132,7 +132,7 @@ public class EntitySubscriptionManagerTest
 
     //assertEntityPresent( type, id, r );
 
-    sm.removeSubscription( new ChannelAddress( G.G1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1 ) );
 
     assertTrue( Disposable.isDisposed( s1 ) );
 
@@ -141,14 +141,14 @@ public class EntitySubscriptionManagerTest
   }
 
   @Test
-  public void entitySubscriptionInInstanceGraph()
+  public void entitySubscriptionInInstanceChannel()
   {
     final Class<A> type = A.class;
     final Object id = 1;
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    sm.recordSubscription( new ChannelAddress( G.G2, 1 ), null, false );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
@@ -163,54 +163,54 @@ public class EntitySubscriptionManagerTest
                      new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
                      entity );
 
-    sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G2, 1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
   }
 
   @Test
-  public void entitySubscriptionAndUpdateInInstanceGraph()
+  public void entitySubscriptionAndUpdateInInstanceChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
 
-    final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelAddress( G.G2, 1 ), "F1", false );
+    final ChannelSubscriptionEntry e1 = sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), "F1", false );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F1" );
+    assertEquals( sm.getChannelSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F1" );
 
-    final ChannelSubscriptionEntry e2 = sm.updateSubscription( new ChannelAddress( G.G2, 1 ), "F2" );
+    final ChannelSubscriptionEntry e2 = sm.updateChannelSubscription( new ChannelAddress( G.G2, 1 ), "F2" );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F2" );
+    assertEquals( sm.getChannelSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F2" );
 
     assertEquals( e1, e2 );
   }
 
   @Test
-  public void entitySubscriptionAndUpdateInTypeGraph()
+  public void entitySubscriptionAndUpdateInTypeChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
 
-    final ChannelSubscriptionEntry e1 = sm.recordSubscription( new ChannelAddress( G.G1 ), "F1", false );
+    final ChannelSubscriptionEntry e1 = sm.recordChannelSubscription( new ChannelAddress( G.G1 ), "F1", false );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F1" );
+    assertEquals( sm.getChannelSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F1" );
 
-    final ChannelSubscriptionEntry e2 = sm.updateSubscription( new ChannelAddress( G.G1 ), "F2" );
+    final ChannelSubscriptionEntry e2 = sm.updateChannelSubscription( new ChannelAddress( G.G1 ), "F2" );
 
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F2" );
+    assertEquals( sm.getChannelSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F2" );
 
     assertEquals( e1, e2 );
   }
 
   @Test
-  public void entitySubscriptionInInstanceGraph_removeEntity()
+  public void entitySubscriptionInInstanceChannel_removeEntity()
   {
     final Class<A> type = A.class;
     final Object id = 1;
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    sm.recordSubscription( new ChannelAddress( G.G2, 1 ), null, false );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
     final A entity = new A();
     sm.updateEntity( type,
@@ -230,7 +230,7 @@ public class EntitySubscriptionManagerTest
     sm.removeEntity( type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
-    sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G2, 1 ) );
   }
 
   @Test
@@ -240,10 +240,10 @@ public class EntitySubscriptionManagerTest
     final Object id = 1;
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
-    sm.recordSubscription( new ChannelAddress( G.G2, 1 ), null, false );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
+    sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
@@ -264,30 +264,30 @@ public class EntitySubscriptionManagerTest
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
-    sm.removeSubscription( new ChannelAddress( G.G1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
-    sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G2, 1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
   }
 
   @Test
-  public void removeEntityFromGraph()
+  public void removeEntityFromChannel()
   {
     final Class<A> type = A.class;
     final Object id = 1;
 
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2 ) ) );
 
-    final ChannelSubscriptionEntry s1 = sm.recordSubscription( new ChannelAddress( G.G1 ), "X", false );
+    final ChannelSubscriptionEntry s1 = sm.recordChannelSubscription( new ChannelAddress( G.G1 ), "X", false );
     assertEquals( s1.getChannel().getFilter(), "X" );
-    final ChannelSubscriptionEntry s2 = sm.recordSubscription( new ChannelAddress( G.G2 ), null, false );
+    final ChannelSubscriptionEntry s2 = sm.recordChannelSubscription( new ChannelAddress( G.G2 ), null, false );
     assertEquals( s2.getChannel().getFilter(), null );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
@@ -310,18 +310,18 @@ public class EntitySubscriptionManagerTest
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity1 );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id, entity1 );
 
-    sm.removeEntityFromGraph( type, id, new ChannelAddress( G.G1 ) );
+    sm.removeEntityFromChannel( type, id, new ChannelAddress( G.G1 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id, entity1 );
 
     final EntitySubscriptionEntry e =
-      sm.removeEntityFromGraph( type, id, new ChannelAddress( G.G2 ) );
+      sm.removeEntityFromChannel( type, id, new ChannelAddress( G.G2 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
 
-    assertEquals( e.getGraphSubscriptions().size(), 0 );
+    assertEquals( e.getChannelSubscriptions().size(), 0 );
   }
 
   private void assertEntitySubscribed( final EntitySubscriptionManager sm,
@@ -330,10 +330,10 @@ public class EntitySubscriptionManagerTest
                                        final Object id,
                                        final A entity )
   {
-    final ChannelSubscriptionEntry entry = sm.getSubscription( descriptor );
+    final ChannelSubscriptionEntry entry = sm.getChannelSubscription( descriptor );
     assertNotNull( entry.getEntities().get( type ).get( id ) );
-    assertNotNull( sm.getSubscription( type, id ).getGraphSubscriptions().get( descriptor ) );
-    assertEquals( sm.getSubscription( type, id ).getEntity(), entity );
+    assertNotNull( sm.getEntitySubscription( type, id ).getChannelSubscriptions().get( descriptor ) );
+    assertEquals( sm.getEntitySubscription( type, id ).getEntity(), entity );
   }
 
   private void assertEntityNotSubscribed( final EntitySubscriptionManager sm,
@@ -343,7 +343,7 @@ public class EntitySubscriptionManagerTest
     boolean found;
     try
     {
-      final ChannelSubscriptionEntry subscription = sm.getSubscription( descriptor );
+      final ChannelSubscriptionEntry subscription = sm.getChannelSubscription( descriptor );
       assertNotNull( subscription.getEntities().get( type ).get( id ) );
       found = true;
     }
@@ -355,62 +355,62 @@ public class EntitySubscriptionManagerTest
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph already subscribed: .*" )
-  public void subscribe_nonExistentTypeGraph()
+    expectedExceptionsMessageRegExp = "Channel already subscribed: .*" )
+  public void subscribe_nonExistentTypeChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
-    sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
-  public void getSubscription_nonExistentTypeGraph()
+    expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
+  public void getSubscription_nonExistentTypeChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.getSubscription( new ChannelAddress( G.G1 ) );
+    sm.getChannelSubscription( new ChannelAddress( G.G1 ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
-  public void unsubscribe_nonExistentTypeGraph()
+    expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
+  public void unsubscribe_nonExistentTypeChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.removeSubscription( new ChannelAddress( G.G1 ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1 ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph already subscribed: .*:1" )
-  public void subscribe_nonExistentInstanceGraph()
+    expectedExceptionsMessageRegExp = "Channel already subscribed: .*:1" )
+  public void subscribe_nonExistentInstanceChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.recordSubscription( new ChannelAddress( G.G1, "1" ), null, false );
-    sm.recordSubscription( new ChannelAddress( G.G1, "1" ), null, false );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1, "1" ), null, false );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1, "1" ), null, false );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
-  public void getSubscription_nonExistentInstanceGraph()
+    expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
+  public void getSubscription_nonExistentInstanceChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.getSubscription( new ChannelAddress( G.G1, "1" ) );
+    sm.getChannelSubscription( new ChannelAddress( G.G1, "1" ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
-  public void unsubscribe_nonExistentInstanceGraph()
+    expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
+  public void unsubscribe_nonExistentInstanceChannel()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.removeSubscription( new ChannelAddress( G.G1, "1" ) );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1, "1" ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
-    expectedExceptionsMessageRegExp = "Graph not subscribed: .*" )
-  public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
+    expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
+  public void unsubscribe_nonExistentInstanceChannel_whenTypeCreated()
   {
     final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
-    sm.recordSubscription( new ChannelAddress( G.G1 ), "1", false );
-    sm.removeSubscription( new ChannelAddress( G.G1, "2" ) );
+    sm.recordChannelSubscription( new ChannelAddress( G.G1 ), "1", false );
+    sm.removeChannelSubscription( new ChannelAddress( G.G1, "2" ) );
   }
 
   enum G

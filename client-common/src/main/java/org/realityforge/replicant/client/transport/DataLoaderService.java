@@ -80,10 +80,10 @@ public interface DataLoaderService
   String getKey();
 
   /**
-   * Return the class of graphs that this loader processes.
+   * Return the class of channels that this loader processes.
    */
   @Nonnull
-  Class<? extends Enum> getGraphType();
+  Class<? extends Enum> getSystemType();
 
   boolean isSubscribed( @Nonnull ChannelAddress descriptor );
 

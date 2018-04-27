@@ -9,7 +9,7 @@ import static org.testng.Assert.*;
 
 public class AreaOfInterestListenerSupportTest
 {
-  enum TestGraph
+  enum TestSystem
   {
     A
   }
@@ -20,7 +20,7 @@ public class AreaOfInterestListenerSupportTest
     final AreaOfInterestListenerSupport support = new AreaOfInterestListenerSupport();
 
     final Channel subscription =
-      Channel.create( new ChannelAddress( TestGraph.A, ValueUtil.randomString() ), null );
+      Channel.create( new ChannelAddress( TestSystem.A, ValueUtil.randomString() ), null );
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
 

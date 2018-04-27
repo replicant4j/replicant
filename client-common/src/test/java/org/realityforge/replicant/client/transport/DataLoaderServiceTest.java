@@ -17,12 +17,12 @@ import org.mockito.InOrder;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Channel;
-import org.realityforge.replicant.client.transport.ChannelAction.Action;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
+import org.realityforge.replicant.client.transport.ChannelAction.Action;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
@@ -79,43 +79,43 @@ public class DataLoaderServiceTest
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
-    final HashSet<Enum> instanceGraphs = new LinkedHashSet<>();
-    instanceGraphs.add( TestGraph.B );
-    instanceGraphs.add( TestGraph.A );
+    final HashSet<Enum> instanceChannelTypes = new LinkedHashSet<>();
+    instanceChannelTypes.add( TestSystem.B );
+    instanceChannelTypes.add( TestSystem.A );
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
-    final HashSet<Enum> typeGraphs = new LinkedHashSet<>();
-    typeGraphs.add( TestGraph.D );
-    typeGraphs.add( TestGraph.C );
+    final HashSet<Enum> typeChannels = new LinkedHashSet<>();
+    typeChannels.add( TestSystem.D );
+    typeChannels.add( TestSystem.C );
 
-    final HashSet<Object> aGraph = new HashSet<>();
-    aGraph.add( "1" );
-    final HashSet<Object> bGraph = new HashSet<>();
-    bGraph.add( "2" );
+    final HashSet<Object> aChannelType = new HashSet<>();
+    aChannelType.add( "1" );
+    final HashSet<Object> bChannelType = new HashSet<>();
+    bChannelType.add( "2" );
 
     final ChannelSubscriptionEntry entryA =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.A, "1" ), null ), true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.A, "1" ), null ), true );
     final ChannelSubscriptionEntry entryB =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.B, "2" ), null ), true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.B, "2" ), null ), true );
     final ChannelSubscriptionEntry entryC =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.C ), null ), true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.C ), null ), true );
     final ChannelSubscriptionEntry entryD =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestGraph.D ), null ), true );
+      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.D ), null ), true );
 
     insertSubscription( entryA, MyType.class, "A1" );
     insertSubscription( entryB, MyType.class, "B1" );
     insertSubscription( entryC, MyType.class, "C1" );
     insertSubscription( entryD, MyType.class, "D1" );
 
-    when( sm.getInstanceSubscriptionKeys() ).thenReturn( instanceGraphs );
-    when( sm.getInstanceSubscriptions( TestGraph.A ) ).thenReturn( aGraph );
-    when( sm.getInstanceSubscriptions( TestGraph.B ) ).thenReturn( bGraph );
-    when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
-    when( sm.removeSubscription( new ChannelAddress( TestGraph.A, "1" ) ) ).thenReturn( entryA );
-    when( sm.removeSubscription( new ChannelAddress( TestGraph.B, "2" ) ) ).thenReturn( entryB );
-    when( sm.removeSubscription( new ChannelAddress( TestGraph.C ) ) ).thenReturn( entryC );
-    when( sm.removeSubscription( new ChannelAddress( TestGraph.D ) ) ).thenReturn( entryD );
+    when( sm.getInstanceChannelSubscriptionKeys() ).thenReturn( instanceChannelTypes );
+    when( sm.getInstanceChannelSubscriptions( TestSystem.A ) ).thenReturn( aChannelType );
+    when( sm.getInstanceChannelSubscriptions( TestSystem.B ) ).thenReturn( bChannelType );
+    when( sm.getTypeChannelSubscriptions() ).thenReturn( typeChannels );
+    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.A, "1" ) ) ).thenReturn( entryA );
+    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.B, "2" ) ) ).thenReturn( entryB );
+    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.C ) ) ).thenReturn( entryC );
+    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.D ) ) ).thenReturn( entryD );
 
     assertFalse( myTypeA.isDisposed() );
     assertFalse( myTypeB.isDisposed() );
@@ -125,10 +125,10 @@ public class DataLoaderServiceTest
     service.purgeSubscriptions();
 
     final InOrder inOrder = inOrder( sm );
-    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.B, "2" ) );
-    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.A, "1" ) );
-    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.D ) );
-    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.C ) );
+    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.B, "2" ) );
+    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.A, "1" ) );
+    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.D ) );
+    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.C ) );
     inOrder.verifyNoMoreInteractions();
 
     assertTrue( myTypeA.isDisposed() );
@@ -142,7 +142,7 @@ public class DataLoaderServiceTest
     final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = entry.getEntities();
     final Map<Object, EntitySubscriptionEntry> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
     final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
-    entitySubscriptionEntry.getRwGraphSubscriptions().put( entry.getChannel().getAddress(), entry );
+    entitySubscriptionEntry.getRwChannelSubscriptions().put( entry.getChannel().getAddress(), entry );
     typeMap.put( id, entitySubscriptionEntry );
   }
 
@@ -473,7 +473,7 @@ public class DataLoaderServiceTest
       new TestChangeSet( 1,
                          mock( Runnable.class ),
                          new Change[ 0 ],
-                         new ChannelAction[]{ new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD ) } );
+                         new ChannelAction[]{ new TestChannelAction( TestSystem.B.ordinal(), "S", Action.ADD ) } );
 
     final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
 
@@ -484,9 +484,10 @@ public class DataLoaderServiceTest
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
-    final ChannelAddress descriptor = new ChannelAddress( TestGraph.B, "S" );
+    final ChannelAddress descriptor = new ChannelAddress( TestSystem.B, "S" );
 
-    final ChannelSubscriptionEntry subscriptionEntry = service.getSubscriptionManager().findSubscription( descriptor );
+    final ChannelSubscriptionEntry subscriptionEntry =
+      service.getSubscriptionManager().findChannelSubscription( descriptor );
     assertNotNull( subscriptionEntry );
     assertEquals( subscriptionEntry.getChannel().getAddress(), descriptor );
     assertEquals( subscriptionEntry.getChannel().getFilter(), null );
@@ -502,10 +503,10 @@ public class DataLoaderServiceTest
   public void multipleChannelActions()
     throws Exception
   {
-    final TestChannelAction a1 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.ADD );
-    final TestChannelAction a2 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.REMOVE );
-    final TestChannelAction a3 = new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD );
-    final TestChannelAction a4 = new TestChannelAction( TestGraph.B.ordinal(), 33, Action.REMOVE );
+    final TestChannelAction a1 = new TestChannelAction( TestSystem.A.ordinal(), null, Action.ADD );
+    final TestChannelAction a2 = new TestChannelAction( TestSystem.A.ordinal(), null, Action.REMOVE );
+    final TestChannelAction a3 = new TestChannelAction( TestSystem.B.ordinal(), "S", Action.ADD );
+    final TestChannelAction a4 = new TestChannelAction( TestSystem.B.ordinal(), 33, Action.REMOVE );
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
                          mock( Runnable.class ),
@@ -517,7 +518,7 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
-    sm.recordSubscription( new ChannelAddress( TestGraph.B, 33 ), null, true );
+    sm.recordChannelSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
 
     configureRequests( service, service.getChangeSets() );
     service.ensureSession().enqueueDataLoad( "jsonData" );
@@ -530,9 +531,9 @@ public class DataLoaderServiceTest
     assertEquals( action.getChannelAddCount(), 2 );
     assertEquals( action.getChannelRemoveCount(), 2 );
 
-    assertNull( sm.findSubscription( new ChannelAddress( TestGraph.A ) ) );
-    assertNull( sm.findSubscription( new ChannelAddress( TestGraph.B, 33 ) ) );
-    assertNotNull( sm.findSubscription( new ChannelAddress( TestGraph.B, "S" ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( TestSystem.A ) ) );
+    assertNull( sm.findChannelSubscription( new ChannelAddress( TestSystem.B, 33 ) ) );
+    assertNotNull( sm.findChannelSubscription( new ChannelAddress( TestSystem.B, "S" ) ) );
   }
 
   @Test
@@ -543,11 +544,11 @@ public class DataLoaderServiceTest
     configureService( service );
     assertNotNull( service.getSession() );
 
-    // type graph
+    // type channel
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelAddress channel1 = new ChannelAddress( TestGraph.A );
+      final ChannelAddress channel1 = new ChannelAddress( TestSystem.A );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
       assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel1, null ), -1 );
 
@@ -565,12 +566,12 @@ public class DataLoaderServiceTest
                     -1 );
     }
 
-    // instance graph
+    // instance channel
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelAddress channel2 = new ChannelAddress( TestGraph.B, 2 );
-      final ChannelAddress channel2b = new ChannelAddress( TestGraph.B );
+      final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 2 );
+      final ChannelAddress channel2b = new ChannelAddress( TestSystem.B );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2, null ) );
@@ -590,7 +591,7 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelAddress channel3 = new ChannelAddress( TestGraph.C, 2 );
+      final ChannelAddress channel3 = new ChannelAddress( TestSystem.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
         new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
@@ -601,12 +602,12 @@ public class DataLoaderServiceTest
                     0 );
     }
 
-    // instance graph with filter
+    // instance channel with filter
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
       final Object filter = new Object();
-      final ChannelAddress channel4 = new ChannelAddress( TestGraph.B, 55 );
+      final ChannelAddress channel4 = new ChannelAddress( TestSystem.B, 55 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, filter ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, filter ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
@@ -624,10 +625,10 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelAddress channel1 = new ChannelAddress( TestGraph.B, 1 );
-      final ChannelAddress channel2 = new ChannelAddress( TestGraph.B, 2 );
-      final ChannelAddress channel3 = new ChannelAddress( TestGraph.B, 3 );
-      final ChannelAddress channel4 = new ChannelAddress( TestGraph.B, 4 );
+      final ChannelAddress channel1 = new ChannelAddress( TestSystem.B, 1 );
+      final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 2 );
+      final ChannelAddress channel3 = new ChannelAddress( TestSystem.B, 3 );
+      final ChannelAddress channel4 = new ChannelAddress( TestSystem.B, 4 );
 
       service.requestSubscribe( channel1, null );
       service.requestSubscribe( channel2, null );
@@ -662,8 +663,8 @@ public class DataLoaderServiceTest
   public void progressAreaOfInterestActions()
     throws Exception
   {
-    final ChannelAddress channel1 = new ChannelAddress( TestGraph.A, 1 );
-    final ChannelAddress channel2 = new ChannelAddress( TestGraph.B, 1 );
+    final ChannelAddress channel1 = new ChannelAddress( TestSystem.A, 1 );
+    final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 1 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -697,9 +698,9 @@ public class DataLoaderServiceTest
   public void dontGroupActionsWithETags()
     throws Exception
   {
-    final ChannelAddress channel1 = new ChannelAddress( TestGraph.A, 1 );
-    final ChannelAddress channel2 = new ChannelAddress( TestGraph.A, 2 );
-    final ChannelAddress channel3 = new ChannelAddress( TestGraph.A, 3 );
+    final ChannelAddress channel1 = new ChannelAddress( TestSystem.A, 1 );
+    final ChannelAddress channel2 = new ChannelAddress( TestSystem.A, 2 );
+    final ChannelAddress channel3 = new ChannelAddress( TestSystem.A, 3 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -736,11 +737,11 @@ public class DataLoaderServiceTest
   public void progressBulkAreaOfInterestAddActions()
     throws Exception
   {
-    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
-    final ChannelAddress channelA2 = new ChannelAddress( TestGraph.A, 2 );
-    final ChannelAddress channelA3 = new ChannelAddress( TestGraph.A, 3 );
-    final ChannelAddress channelB1 = new ChannelAddress( TestGraph.B, 1 );
-    final ChannelAddress channelB2 = new ChannelAddress( TestGraph.B, 2 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestSystem.A, 1 );
+    final ChannelAddress channelA2 = new ChannelAddress( TestSystem.A, 2 );
+    final ChannelAddress channelA3 = new ChannelAddress( TestSystem.A, 3 );
+    final ChannelAddress channelB1 = new ChannelAddress( TestSystem.B, 1 );
+    final ChannelAddress channelB2 = new ChannelAddress( TestSystem.B, 2 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -777,8 +778,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA3 );
 
-    sm.recordSubscription( channelA1, null, true );
-    sm.recordSubscription( channelA2, null, true );
+    sm.recordChannelSubscription( channelA1, null, true );
+    sm.recordChannelSubscription( channelA2, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
@@ -786,7 +787,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
 
-    sm.recordSubscription( channelB1, null, true );
+    sm.recordChannelSubscription( channelB1, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
@@ -802,8 +803,8 @@ public class DataLoaderServiceTest
   public void progressBulkAreaOfInterestAddActionsWithFilters()
     throws Exception
   {
-    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
-    final ChannelAddress channelA2 = new ChannelAddress( TestGraph.A, 2 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestSystem.A, 1 );
+    final ChannelAddress channelA2 = new ChannelAddress( TestSystem.A, 2 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -831,8 +832,8 @@ public class DataLoaderServiceTest
 
     completeOutstandingAOIs( service );
 
-    sm.recordSubscription( channelA1, null, true );
-    sm.recordSubscription( channelA2, "FilterB", true );
+    sm.recordChannelSubscription( channelA1, null, true );
+    sm.recordChannelSubscription( channelA2, "FilterB", true );
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
@@ -846,9 +847,9 @@ public class DataLoaderServiceTest
   public void progressBulkAreaOfInterestAddActionsWithIgnorableActions()
     throws Exception
   {
-    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
-    final ChannelAddress channelA2 = new ChannelAddress( TestGraph.A, 2 );
-    final ChannelAddress channelA3 = new ChannelAddress( TestGraph.A, 3 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestSystem.A, 1 );
+    final ChannelAddress channelA2 = new ChannelAddress( TestSystem.A, 2 );
+    final ChannelAddress channelA3 = new ChannelAddress( TestSystem.A, 3 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -856,8 +857,8 @@ public class DataLoaderServiceTest
 
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
 
-    sm.recordSubscription( channelA1, "boo", true );
-    sm.recordSubscription( channelA2, "boo", true );
+    sm.recordChannelSubscription( channelA1, "boo", true );
+    sm.recordChannelSubscription( channelA2, "boo", true );
 
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
@@ -867,8 +868,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
-    sm.removeSubscription( channelA1 );
-    sm.removeSubscription( channelA2 );
+    sm.removeChannelSubscription( channelA1 );
+    sm.removeChannelSubscription( channelA2 );
 
     service.requestSubscriptionUpdate( channelA1, "boo" );
     service.requestSubscriptionUpdate( channelA2, "boo" );
@@ -902,7 +903,7 @@ public class DataLoaderServiceTest
 
     assertTrue( service.isIdle() );
 
-    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestSystem.A, 1 );
 
     // Have pending AOI
     service.requestSubscribe( channelA1, null );

@@ -17,7 +17,7 @@ import react4j.arez.ReactArezComponent;
 import react4j.core.ReactNode;
 
 /**
- * An abstract React4j component that manages subscription to graphs.
+ * An abstract React4j component that manages subscription to channels.
  */
 public abstract class ReplicantSubscription<T>
   extends ReactArezComponent
@@ -54,7 +54,7 @@ public abstract class ReplicantSubscription<T>
   AreaOfInterestService _areaOfInterestService;
 
   @Nonnull
-  protected abstract Enum getGraph();
+  protected abstract Enum getChannelType();
 
   @Nullable
   protected Object getId()
@@ -134,8 +134,8 @@ public abstract class ReplicantSubscription<T>
                                      @Nullable final JsPropertyMap<Object> prevState )
   {
     super.componentDidUpdate( prevProps, prevState );
-    final Enum lastGraph = (Enum) ( null != prevProps ? prevProps.get( "graph" ) : null );
-    if ( null != lastGraph && getGraph() != lastGraph )
+    final Enum lastChannelType = (Enum) ( null != prevProps ? prevProps.get( "channelType" ) : null );
+    if ( null != lastChannelType && getChannelType() != lastChannelType )
     {
       setChannelSubscription( null );
     }
@@ -169,7 +169,7 @@ public abstract class ReplicantSubscription<T>
 
   private void updateChannelSubscription()
   {
-    final ChannelAddress address = new ChannelAddress( getGraph(), getId() );
+    final ChannelAddress address = new ChannelAddress( getChannelType(), getId() );
     setChannelSubscription( _areaOfInterestService.findOrCreateSubscription( address, getFilter() ) );
   }
 

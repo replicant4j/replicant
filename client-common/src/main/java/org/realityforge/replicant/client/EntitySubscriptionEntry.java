@@ -12,9 +12,9 @@ import javax.annotation.Nullable;
  */
 public class EntitySubscriptionEntry
 {
-  private final Map<ChannelAddress, ChannelSubscriptionEntry> _graphSubscriptions = new HashMap<>();
-  private final Map<ChannelAddress, ChannelSubscriptionEntry> _roGraphSubscriptions =
-    Collections.unmodifiableMap( _graphSubscriptions );
+  private final Map<ChannelAddress, ChannelSubscriptionEntry> _channelSubscriptions = new HashMap<>();
+  private final Map<ChannelAddress, ChannelSubscriptionEntry> _roChannelSubscriptions =
+    Collections.unmodifiableMap( _channelSubscriptions );
   private final Class<?> _type;
   private final Object _id;
   private Object _entity;
@@ -48,19 +48,19 @@ public class EntitySubscriptionEntry
     _entity = Objects.requireNonNull( entity );
   }
 
-  public Map<ChannelAddress, ChannelSubscriptionEntry> getGraphSubscriptions()
+  public Map<ChannelAddress, ChannelSubscriptionEntry> getChannelSubscriptions()
   {
-    return _roGraphSubscriptions;
+    return _roChannelSubscriptions;
   }
 
-  public Map<ChannelAddress, ChannelSubscriptionEntry> getRwGraphSubscriptions()
+  public Map<ChannelAddress, ChannelSubscriptionEntry> getRwChannelSubscriptions()
   {
-    return _graphSubscriptions;
+    return _channelSubscriptions;
   }
 
   @Nullable
-  public ChannelSubscriptionEntry deregisterGraph( @Nonnull final ChannelAddress address )
+  public ChannelSubscriptionEntry deregisterChannel( @Nonnull final ChannelAddress address )
   {
-    return getRwGraphSubscriptions().remove( address );
+    return getRwChannelSubscriptions().remove( address );
   }
 }

@@ -20,7 +20,7 @@ public class ChannelActionDTO
   }
 
   @Override
-  public int getChannelID()
+  public int getChannelId()
   {
     return _object.getInt( TransportConstants.CHANNEL_ID );
   }

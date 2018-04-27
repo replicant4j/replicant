@@ -33,7 +33,7 @@ class TestChannelAction
   }
 
   @Override
-  public int getChannelID()
+  public int getChannelId()
   {
     return _channelID;
   }

@@ -277,36 +277,36 @@ public abstract class AbstractDataLoaderService
     /*
      * Ensure that we only purge subscriptions that are managed by this data loader.
      */
-    final Class graphClass = getGraphType();
+    final Class systemType = getSystemType();
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
+    for ( final Enum channelType : sortChannelTypes( subscriptionManager.getInstanceChannelSubscriptionKeys() ) )
     {
-      if ( graph.getClass().equals( graphClass ) )
+      if ( channelType.getClass().equals( systemType ) )
       {
-        unsubscribeInstanceGraphs( graph );
+        unsubscribeInstanceChannels( channelType );
       }
     }
-    for ( final Enum graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
+    for ( final Enum channelType : sortChannelTypes( subscriptionManager.getTypeChannelSubscriptions() ) )
     {
-      if ( graph.getClass().equals( graphClass ) )
+      if ( channelType.getClass().equals( systemType ) )
       {
-        subscriptionManager.removeSubscription( new ChannelAddress( graph ) );
+        subscriptionManager.removeChannelSubscription( new ChannelAddress( channelType ) );
       }
     }
   }
 
-  protected void unsubscribeInstanceGraphs( @Nonnull final Enum graph )
+  protected void unsubscribeInstanceChannels( @Nonnull final Enum channelType )
   {
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
+    for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceChannelSubscriptions( channelType ) ) )
     {
-      subscriptionManager.removeSubscription( new ChannelAddress( graph, id ) );
+      subscriptionManager.removeChannelSubscription( new ChannelAddress( channelType, id ) );
     }
   }
 
   @SuppressWarnings( "unchecked" )
   @Nonnull
-  private ArrayList<Enum> sortGraphs( @Nonnull final Set<Enum> enums )
+  private ArrayList<Enum> sortChannelTypes( @Nonnull final Set<Enum> enums )
   {
     final ArrayList<Enum> list = new ArrayList<>( enums );
     Collections.sort( list );
@@ -449,7 +449,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
       if ( null == entry )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -498,7 +498,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
       if ( null == entry )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -525,7 +525,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
@@ -539,7 +539,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+        final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
@@ -554,12 +554,12 @@ public abstract class AbstractDataLoaderService
     {
       final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
-      requestBulkUnsubscribeFromGraph( ids, completionAction, failAction );
+      requestBulkUnsubscribeFromChannel( ids, completionAction, failAction );
     }
     else
     {
       final ChannelAddress descriptor = aoiEntry.getDescriptor();
-      requestUnsubscribeFromGraph( descriptor, completionAction, failAction );
+      requestUnsubscribeFromChannel( descriptor, completionAction, failAction );
     }
     return true;
   }
@@ -567,7 +567,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIAddActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
+      final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
       if ( null != entry )
       {
         if ( entry.isExplicitSubscription() )
@@ -614,13 +614,13 @@ public abstract class AbstractDataLoaderService
       if ( null != cacheEntry )
       {
         eTag = cacheEntry.getETag();
-        LOG.info( () -> "Found locally cached data for graph " + label( aoiEntry ) + " with etag " + eTag + "." );
+        LOG.info( () -> "Found locally cached data for channel " + label( aoiEntry ) + " with etag " + eTag + "." );
         cacheAction = a ->
         {
-          LOG.info( () -> "Loading cached data for graph " + label( aoiEntry ) + " with etag " + eTag );
+          LOG.info( () -> "Loading cached data for channel " + label( aoiEntry ) + " with etag " + eTag );
           final Runnable completeAoiAction = () ->
           {
-            LOG.info( () -> "Completed load of cached data for graph " +
+            LOG.info( () -> "Completed load of cached data for channel " +
                             label( aoiEntry ) +
                             " with etag " +
                             eTag +
@@ -637,20 +637,20 @@ public abstract class AbstractDataLoaderService
         cacheAction = null;
       }
       LOG.info( () -> "Subscription to " + label( aoiEntry ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
-      requestSubscribeToGraph( aoiEntry.getDescriptor(),
-                               aoiEntry.getFilterParameter(),
-                               cacheKey,
-                               eTag,
-                               cacheAction,
-                               completionAction,
-                               failAction );
+      requestSubscribeToChannel( aoiEntry.getDescriptor(),
+                                 aoiEntry.getFilterParameter(),
+                                 cacheKey,
+                                 eTag,
+                                 cacheAction,
+                                 completionAction,
+                                 failAction );
     }
     else
     {
       // don't support bulk loading of anything that is already cached
       final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
-      requestBulkSubscribeToGraph( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
+      requestBulkSubscribeToChannel( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
     return true;
   }
@@ -662,7 +662,7 @@ public abstract class AbstractDataLoaderService
     return null == getCacheService().lookup( template.getCacheKey() ) &&
            null == getCacheService().lookup( match.getCacheKey() ) &&
            template.getAction().equals( action ) &&
-           template.getDescriptor().getGraph().equals( match.getDescriptor().getGraph() ) &&
+           template.getDescriptor().getChannelType().equals( match.getDescriptor().getChannelType() ) &&
            ( AreaOfInterestAction.REMOVE == action ||
              FilterUtil.filtersEqual( match.getFilterParameter(), template.getFilterParameter() ) );
   }
@@ -674,31 +674,31 @@ public abstract class AbstractDataLoaderService
     _currentAoiActions.clear();
   }
 
-  protected abstract void requestSubscribeToGraph( @Nonnull ChannelAddress descriptor,
-                                                   @Nullable Object filterParameter,
-                                                   @Nullable String cacheKey,
-                                                   @Nullable String eTag,
-                                                   @Nullable Consumer<Runnable> cacheAction,
-                                                   @Nonnull Consumer<Runnable> completionAction,
-                                                   @Nonnull Consumer<Runnable> failAction );
+  protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress descriptor,
+                                                     @Nullable Object filterParameter,
+                                                     @Nullable String cacheKey,
+                                                     @Nullable String eTag,
+                                                     @Nullable Consumer<Runnable> cacheAction,
+                                                     @Nonnull Consumer<Runnable> completionAction,
+                                                     @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestUnsubscribeFromGraph( @Nonnull ChannelAddress descriptor,
-                                                       @Nonnull Consumer<Runnable> completionAction,
-                                                       @Nonnull Consumer<Runnable> failAction );
+  protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress descriptor,
+                                                         @Nonnull Consumer<Runnable> completionAction,
+                                                         @Nonnull Consumer<Runnable> failAction );
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress descriptor,
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Consumer<Runnable> completionAction,
                                                      @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestBulkSubscribeToGraph( @Nonnull List<ChannelAddress> descriptor,
-                                                       @Nullable Object filterParameter,
-                                                       @Nonnull Consumer<Runnable> completionAction,
-                                                       @Nonnull Consumer<Runnable> failAction );
+  protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> descriptor,
+                                                         @Nullable Object filterParameter,
+                                                         @Nonnull Consumer<Runnable> completionAction,
+                                                         @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestBulkUnsubscribeFromGraph( @Nonnull List<ChannelAddress> descriptors,
-                                                           @Nonnull Consumer<Runnable> completionAction,
-                                                           @Nonnull Consumer<Runnable> failAction );
+  protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> descriptors,
+                                                             @Nonnull Consumer<Runnable> completionAction,
+                                                             @Nonnull Consumer<Runnable> failAction );
 
   protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
                                                          @Nonnull Object filterParameter,
@@ -715,7 +715,7 @@ public abstract class AbstractDataLoaderService
   @Override
   public boolean isSubscribed( @Nonnull final ChannelAddress descriptor )
   {
-    return null != getSubscriptionManager().findSubscription( descriptor );
+    return null != getSubscriptionManager().findChannelSubscription( descriptor );
   }
 
   @Override
@@ -931,16 +931,17 @@ public abstract class AbstractDataLoaderService
             }
             explicitSubscribe = true;
           }
-          getSubscriptionManager().recordSubscription( descriptor, filter, explicitSubscribe );
+          getSubscriptionManager().recordChannelSubscription( descriptor, filter, explicitSubscribe );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          getSubscriptionManager().removeSubscription( descriptor );
+          getSubscriptionManager().removeChannelSubscription( descriptor );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
-          final ChannelSubscriptionEntry entry = getSubscriptionManager().updateSubscription( descriptor, filter );
+          final ChannelSubscriptionEntry entry =
+            getSubscriptionManager().updateChannelSubscription( descriptor, filter );
           final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
           _currentAction.recordChannelSubscriptionUpdate( status );
@@ -1115,16 +1116,16 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  private ChannelAddress toChannelDescriptor( final ChannelAction action )
+  private ChannelAddress toChannelDescriptor( @Nonnull final ChannelAction action )
   {
-    final int channel = action.getChannelID();
+    final int channelId = action.getChannelId();
     final Object subChannelID = action.getSubChannelID();
-    final Enum graph = channelToGraph( channel );
-    return new ChannelAddress( graph, subChannelID );
+    final Enum channelType = channelIdToType( channelId );
+    return new ChannelAddress( channelType, subChannelID );
   }
 
   @Nonnull
-  public abstract Class<? extends Enum> getGraphType();
+  public abstract Class<? extends Enum> getSystemType();
 
   /**
    * Return the entity types processed by this loader.
@@ -1132,15 +1133,15 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   public abstract Set<Class<?>> getEntityTypes();
 
-  protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
+  protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry channelSubscriptionEntry,
                                                                 @Nullable Object filter );
 
-  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
+  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry channelSubscriptionEntry,
                                                        @Nullable final Object filter,
                                                        @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
-    final ChannelAddress address = graphEntry.getChannel().getAddress();
+    final ChannelAddress address = channelSubscriptionEntry.getChannel().getAddress();
 
     final EntitySubscriptionEntry[] subscriptionEntries =
       entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );
@@ -1152,14 +1153,14 @@ public abstract class AbstractDataLoaderService
       if ( !doesEntityMatchFilter( address, filter, entityType, entityID ) )
       {
         final EntitySubscriptionEntry entityEntry =
-          getSubscriptionManager().removeEntityFromGraph( entityType, entityID, address );
-        final boolean deregisterEntity = 0 == entityEntry.getGraphSubscriptions().size();
+          getSubscriptionManager().removeEntityFromChannel( entityType, entityID, address );
+        final boolean deregisterEntity = 0 == entityEntry.getChannelSubscriptions().size();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(),
                    "Removed entity " + entityType.getSimpleName() + "/" + entityID +
-                   " from graph " + address + " resulting in " +
-                   entityEntry.getGraphSubscriptions().size() + " subscriptions left for entity." +
+                   " from channel " + address + " resulting in " +
+                   entityEntry.getChannelSubscriptions().size() + " subscriptions left for entity." +
                    ( deregisterEntity ? " De-registering entity!" : "" ) );
         }
         // If there is only one subscriber then lets delete it
@@ -1251,18 +1252,18 @@ public abstract class AbstractDataLoaderService
   protected abstract void doDisconnect( @Nullable Runnable runnable );
 
   /**
-   * Return the graph for specified channel.
+   * Return the type for specified channel.
    *
    * @param channel the channel code.
-   * @return the graph enum associated with channel.
+   * @return the channelType associated with channelId.
    * @throws IllegalArgumentException if no such channel
    */
   @Nonnull
-  protected Enum channelToGraph( final int channel )
+  protected Enum channelIdToType( final int channel )
     throws IllegalArgumentException
   {
-    assert getGraphType().isEnum();
-    return getGraphType().getEnumConstants()[ channel ];
+    assert getSystemType().isEnum();
+    return getSystemType().getEnumConstants()[ channel ];
   }
 
   /**

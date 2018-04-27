@@ -192,14 +192,14 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
   {
     g.writeStartObject( "channels" );
     final EntitySubscriptionManager subscriptionManager = getEntitySubscriptionManager();
-    final Class<? extends Enum> graphType = service.getGraphType();
+    final Class<? extends Enum> systemType = service.getSystemType();
     final List<Enum> typeSubscriptions =
-      subscriptionManager.getTypeSubscriptions().stream().
-        filter( e -> e.getClass() == graphType ).
+      subscriptionManager.getTypeChannelSubscriptions().stream().
+        filter( e -> e.getClass() == systemType ).
         collect( Collectors.toList() );
     for ( final Enum e : typeSubscriptions )
     {
-      emitSubscription( g, subscriptionManager.getSubscription( new ChannelAddress( e ) ) );
+      emitSubscription( g, subscriptionManager.getChannelSubscription( new ChannelAddress( e ) ) );
     }
     g.writeEnd();
   }
@@ -207,7 +207,7 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
   private void emitSubscription( @Nonnull final JsonGenerator g, @Nonnull final ChannelSubscriptionEntry subscription )
   {
     final ChannelAddress address = subscription.getChannel().getAddress();
-    g.writeStartObject( address.getGraph().name() );
+    g.writeStartObject( address.getChannelType().name() );
 
     emitID( g, address );
     final Object filter = subscription.getChannel().getFilter();

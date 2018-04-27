@@ -12,7 +12,7 @@ public class AreaOfInterestEntryTest
   public void basicOperation()
   {
     final String systemKey = "Foo";
-    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestSystem.A );
     final Object filterParameter = null;
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 
@@ -22,18 +22,18 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.getSystemKey(), systemKey );
     assertEquals( entry.getDescriptor(), descriptor );
     assertEquals( entry.getAction(), action );
-    assertEquals( entry.getCacheKey(), "Foo:TestGraph.A" );
+    assertEquals( entry.getCacheKey(), "Foo:TestSystem.A" );
     assertEquals( entry.getFilterParameter(), filterParameter );
     assertEquals( entry.match( action, descriptor, filterParameter ), true );
     assertEquals( entry.match( action, descriptor, "OtherFilter" ), false );
     assertEquals( entry.match( AreaOfInterestAction.REMOVE, descriptor, filterParameter ), false );
-    assertEquals( entry.match( action, new ChannelAddress( TestGraph.B, "X" ), filterParameter ), false );
+    assertEquals( entry.match( action, new ChannelAddress( TestSystem.B, "X" ), filterParameter ), false );
   }
 
    @Test
   public void removeActionIgnoredFilterDuringMatch()
   {
-    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestSystem.A );
     final AreaOfInterestAction action = AreaOfInterestAction.REMOVE;
 
     final AreaOfInterestEntry entry =

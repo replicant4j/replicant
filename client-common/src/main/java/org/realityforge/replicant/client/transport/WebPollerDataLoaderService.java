@@ -277,29 +277,29 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull final ChannelAddress descriptor,
-                                          @Nullable final Object filterParameter,
-                                          @Nullable final String cacheKey,
-                                          @Nullable final String eTag,
-                                          @Nullable final Consumer<Runnable> cacheAction,
-                                          @Nonnull final Consumer<Runnable> completionAction,
-                                          @Nonnull final Consumer<Runnable> failAction )
+  protected void requestSubscribeToChannel( @Nonnull final ChannelAddress address,
+                                            @Nullable final Object filterParameter,
+                                            @Nullable final String cacheKey,
+                                            @Nullable final String eTag,
+                                            @Nullable final Consumer<Runnable> cacheAction,
+                                            @Nonnull final Consumer<Runnable> completionAction,
+                                            @Nonnull final Consumer<Runnable> failAction )
   {
     //If eTag passed then cache action is expected.
     assert null == eTag || null != cacheAction;
-    if ( isGraphValid( descriptor ) )
+    if ( isChannelTypeValid( address ) )
     {
-      getListener().onSubscribeStarted( this, descriptor );
+      getListener().onSubscribeStarted( this, address );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) );
+        () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, address ) );
       final Runnable onCacheValid =
         null != cacheAction ?
-        () -> cacheAction.accept( () -> getListener().onSubscribeCompleted( this, descriptor ) ) :
+        () -> cacheAction.accept( () -> getListener().onSubscribeCompleted( this, address ) ) :
         null;
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
-      performSubscribe( descriptor.getGraph().ordinal(),
-                        (Serializable) descriptor.getId(),
+        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, address, throwable ) );
+      performSubscribe( address.getChannelType().ordinal(),
+                        (Serializable) address.getId(),
                         filterParameter,
                         cacheKey,
                         eTag,
@@ -313,9 +313,9 @@ public abstract class WebPollerDataLoaderService
     }
   }
 
-  private boolean isGraphValid( @Nonnull final ChannelAddress descriptor )
+  private boolean isChannelTypeValid( @Nonnull final ChannelAddress address )
   {
-    return getGraphType() == descriptor.getGraph().getClass();
+    return getSystemType() == address.getChannelType().getClass();
   }
 
   protected void performSubscribe( final int channel,
@@ -339,24 +339,23 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelAddress> descriptors,
-                                              @Nullable final Object filterParameter,
-                                              @Nonnull final Consumer<Runnable> completionAction,
-                                              @Nonnull final Consumer<Runnable> failAction )
+  protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> addresses,
+                                                @Nullable final Object filterParameter,
+                                                @Nonnull final Consumer<Runnable> completionAction,
+                                                @Nonnull final Consumer<Runnable> failAction )
   {
-    final ChannelAddress descriptor = descriptors.get( 0 );
-    if ( isGraphValid( descriptor ) )
+    final ChannelAddress descriptor = addresses.get( 0 );
+    if ( isChannelTypeValid( descriptor ) )
     {
-      descriptors.forEach( x -> getListener().onSubscribeStarted( this, x ) );
+      addresses.forEach( x -> getListener().onSubscribeStarted( this, x ) );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> descriptors.forEach( x -> getListener().onSubscribeCompleted( this,
-                                                                                                           x ) ) );
+        () -> completionAction.accept( () -> addresses.forEach( x -> getListener().onSubscribeCompleted( this, x ) ) );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> descriptors.forEach( x -> getListener().onSubscribeFailed( this,
-                                                                                                         descriptor,
-                                                                                                         throwable ) ) );
-      performBulkSubscribe( descriptor.getGraph().ordinal(),
-                            descriptors.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
+        throwable -> failAction.accept( () -> addresses.forEach( x -> getListener().onSubscribeFailed( this,
+                                                                                                       descriptor,
+                                                                                                       throwable ) ) );
+      performBulkSubscribe( descriptor.getChannelType().ordinal(),
+                            addresses.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
                             filterParameter,
                             onSuccess,
                             onError );
@@ -390,14 +389,14 @@ public abstract class WebPollerDataLoaderService
                                             @Nonnull final Consumer<Runnable> completionAction,
                                             @Nonnull final Consumer<Runnable> failAction )
   {
-    if ( isGraphValid( descriptor ) )
+    if ( isChannelTypeValid( descriptor ) )
     {
       getListener().onSubscriptionUpdateStarted( this, descriptor );
       final Runnable onSuccess =
         () -> completionAction.accept( () -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) );
       final Consumer<Throwable> onError =
         throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
-      performUpdateSubscription( descriptor.getGraph().ordinal(),
+      performUpdateSubscription( descriptor.getChannelType().ordinal(),
                                  (Serializable) descriptor.getId(),
                                  filterParameter,
                                  onSuccess,
@@ -432,14 +431,14 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull Consumer<Runnable> failAction )
   {
     final ChannelAddress descriptor = descriptors.get( 0 );
-    if ( isGraphValid( descriptor ) )
+    if ( isChannelTypeValid( descriptor ) )
     {
       descriptors.forEach( x -> getListener().onSubscriptionUpdateStarted( this, x ) );
       final Runnable onSuccess = () -> completionAction.accept( () -> descriptors.forEach(
         x -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) ) );
       final Consumer<Throwable> onError = throwable -> failAction.accept( () -> descriptors.forEach(
         x -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) ) );
-      performBulkUpdateSubscription( descriptor.getGraph().ordinal(),
+      performBulkUpdateSubscription( descriptor.getChannelType().ordinal(),
                                      descriptors.stream().map(
                                        x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
                                      filterParameter,
@@ -470,18 +469,20 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelAddress descriptor,
-                                              @Nonnull final Consumer<Runnable> completionAction,
-                                              @Nonnull final Consumer<Runnable> failAction )
+  protected void requestUnsubscribeFromChannel( @Nonnull final ChannelAddress address,
+                                                @Nonnull final Consumer<Runnable> completionAction,
+                                                @Nonnull final Consumer<Runnable> failAction )
   {
-    if ( isGraphValid( descriptor ) )
+    if ( isChannelTypeValid( address ) )
     {
-      getListener().onUnsubscribeStarted( this, descriptor );
+      getListener().onUnsubscribeStarted( this, address );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, descriptor, throwable ) );
+        throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, address, throwable ) );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, descriptor ) );
-      performUnsubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getId(), onSuccess, onError );
+        () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, address ) );
+      final int channelId = address.getChannelType().ordinal();
+      final Serializable subChannelId = (Serializable) address.getId();
+      performUnsubscribe( channelId, subChannelId, onSuccess, onError );
     }
     else
     {
@@ -490,32 +491,32 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performUnsubscribe( final int channel,
-                                     @Nullable Serializable subChannelID,
+                                     @Nullable Serializable subChannelId,
                                      @Nonnull final Runnable onSuccess,
                                      @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
-      doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
+      doUnsubscribe( session, request, getChannelURL( channel, subChannelId ), onSuccess, onError ) );
   }
 
   @Override
-  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelAddress> descriptors,
-                                                  @Nonnull final Consumer<Runnable> completionAction,
-                                                  @Nonnull final Consumer<Runnable> failAction )
+  protected void requestBulkUnsubscribeFromChannel( @Nonnull final List<ChannelAddress> addresses,
+                                                    @Nonnull final Consumer<Runnable> completionAction,
+                                                    @Nonnull final Consumer<Runnable> failAction )
   {
-    final ChannelAddress descriptor = descriptors.get( 0 );
-    if ( isGraphValid( descriptor ) )
+    final ChannelAddress descriptor = addresses.get( 0 );
+    if ( isChannelTypeValid( descriptor ) )
     {
-      descriptors.forEach( x -> getListener().onUnsubscribeStarted( this, x ) );
+      addresses.forEach( x -> getListener().onUnsubscribeStarted( this, x ) );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> descriptors.forEach( x -> getListener().onUnsubscribeCompleted( this,
-                                                                                                             x ) ) );
+        () -> completionAction.accept( () -> addresses.forEach( x -> getListener().onUnsubscribeCompleted( this,
+                                                                                                           x ) ) );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> descriptors.forEach( x -> getListener().onUnsubscribeFailed( this,
-                                                                                                           descriptor,
-                                                                                                           throwable ) ) );
-      performBulkUnsubscribe( descriptor.getGraph().ordinal(),
-                              descriptors.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
+        throwable -> failAction.accept( () -> addresses.forEach( x -> getListener().onUnsubscribeFailed( this,
+                                                                                                         descriptor,
+                                                                                                         throwable ) ) );
+      performBulkUnsubscribe( descriptor.getChannelType().ordinal(),
+                              addresses.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
                               onSuccess,
                               onError );
     }
@@ -557,7 +558,7 @@ public abstract class WebPollerDataLoaderService
   private String toRequestKey( @Nonnull final String requestType, final int channel )
   {
     return config().shouldRecordRequestKey() ?
-           requestType + ":" + getGraphType().getEnumConstants()[ channel ] :
+           requestType + ":" + getSystemType().getEnumConstants()[ channel ] :
            null;
   }
 

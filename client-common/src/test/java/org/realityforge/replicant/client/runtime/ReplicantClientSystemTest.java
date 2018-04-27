@@ -8,17 +8,17 @@ import static org.testng.Assert.*;
 
 public class ReplicantClientSystemTest
 {
-  private enum TestGraphA
+  private enum TestSystemA
   {
     A
   }
 
-  private enum TestGraphB
+  private enum TestSystemB
   {
     B
   }
 
-  private enum TestGraphC
+  private enum TestSystemC
   {
     C
   }
@@ -32,10 +32,10 @@ public class ReplicantClientSystemTest
     final ReplicantClientSystem system =
       new TestReplicantClientSystem( new DataLoaderEntry[]{ requiredEntry( service1 ), requiredEntry( service2 ) } );
 
-    assertEquals( system.getDataLoaderService( TestGraphA.A ), service1 );
-    assertEquals( system.getDataLoaderService( TestGraphB.B ), service2 );
+    assertEquals( system.getDataLoaderService( TestSystemA.A ), service1 );
+    assertEquals( system.getDataLoaderService( TestSystemB.B ), service2 );
 
-    assertThrows( IllegalArgumentException.class, () -> system.getDataLoaderService( TestGraphC.C ) );
+    assertThrows( IllegalArgumentException.class, () -> system.getDataLoaderService( TestSystemC.C ) );
   }
 
   @Test
@@ -567,16 +567,16 @@ public class ReplicantClientSystemTest
 
   private TestDataLoaderService newServiceA()
   {
-    return new TestDataLoaderService( "A", TestGraphA.class );
+    return new TestDataLoaderService( "A", TestSystemA.class );
   }
 
   private TestDataLoaderService newServiceB()
   {
-    return new TestDataLoaderService( "B", TestGraphB.class );
+    return new TestDataLoaderService( "B", TestSystemB.class );
   }
 
   private TestDataLoaderService newServiceC()
   {
-    return new TestDataLoaderService( "C", TestGraphC.class );
+    return new TestDataLoaderService( "C", TestSystemC.class );
   }
 }

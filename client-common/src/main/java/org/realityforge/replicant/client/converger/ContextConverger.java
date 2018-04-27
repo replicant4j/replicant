@@ -10,11 +10,11 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
+import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestListener;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
@@ -183,7 +183,7 @@ public abstract class ContextConverger
     if ( !Disposable.isDisposed( subscription ) )
     {
       final ChannelAddress descriptor = subscription.getAddress();
-      final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
+      final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getChannelType() );
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
       {
@@ -229,7 +229,8 @@ public abstract class ContextConverger
             return ConvergeAction.IN_PROGRESS;
           }
 
-          final Object existing = getSubscriptionManager().getSubscription( descriptor ).getChannel().getFilter();
+          final Object existing =
+            getSubscriptionManager().getChannelSubscription( descriptor ).getChannel().getFilter();
           final String newFilter = filterToString( filter );
           final String existingFilter = filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
@@ -269,10 +270,10 @@ public abstract class ContextConverger
       return false;
     }
 
-    final boolean sameGraph =
-      templateForGrouping.getAddress().getGraph().equals( subscription.getAddress().getGraph() );
+    final boolean sameChannel =
+      templateForGrouping.getAddress().getChannelType().equals( subscription.getAddress().getChannelType() );
 
-    return sameGraph &&
+    return sameChannel &&
            ( AreaOfInterestAction.REMOVE == subscriptionAction ||
              FilterUtil.filtersEqual( templateForGrouping.getFilter(), subscription.getFilter() ) );
   }
@@ -349,15 +350,15 @@ public abstract class ContextConverger
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
-    for ( final Enum graph : getSubscriptionManager().getTypeSubscriptions() )
+    for ( final Enum channelType : getSubscriptionManager().getTypeChannelSubscriptions() )
     {
-      removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph ) );
+      removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( channelType ) );
     }
-    for ( final Enum graph : getSubscriptionManager().getInstanceSubscriptionKeys() )
+    for ( final Enum channelType : getSubscriptionManager().getInstanceChannelSubscriptionKeys() )
     {
-      for ( final Object id : getSubscriptionManager().getInstanceSubscriptions( graph ) )
+      for ( final Object id : getSubscriptionManager().getInstanceChannelSubscriptions( channelType ) )
       {
-        removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph, id ) );
+        removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( channelType, id ) );
       }
     }
   }
@@ -366,7 +367,7 @@ public abstract class ContextConverger
                                    @Nonnull final ChannelAddress descriptor )
   {
     if ( !expected.contains( descriptor ) &&
-         getSubscriptionManager().getSubscription( descriptor ).isExplicitSubscription() )
+         getSubscriptionManager().getChannelSubscription( descriptor ).isExplicitSubscription() )
     {
       removeOrphanSubscription( descriptor );
     }
@@ -374,7 +375,7 @@ public abstract class ContextConverger
 
   void removeOrphanSubscription( @Nonnull final ChannelAddress descriptor )
   {
-    final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
+    final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getChannelType() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) )
     {

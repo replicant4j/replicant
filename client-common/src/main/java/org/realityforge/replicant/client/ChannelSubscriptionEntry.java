@@ -4,7 +4,6 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.PreDispose;
 import arez.component.AbstractContainer;
 import arez.component.RepositoryUtil;
 import java.util.HashMap;
@@ -14,7 +13,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Representation of a subscription to a graph.
+ * Representation of a subscription to a channel.
  */
 @ArezComponent
 public abstract class ChannelSubscriptionEntry
@@ -70,12 +69,12 @@ public abstract class ChannelSubscriptionEntry
     super.preDispose();
   }
 
-  final void disposeUnOwnedEntities()
+  private final void disposeUnOwnedEntities()
   {
     _entities.values().stream().flatMap( entitySet -> entitySet.values().stream() ).forEach( entityEntry -> {
-      final ChannelSubscriptionEntry element = entityEntry.deregisterGraph( getChannel().getAddress() );
+      final ChannelSubscriptionEntry element = entityEntry.deregisterChannel( getChannel().getAddress() );
       assert null != element;
-      if ( entityEntry.getGraphSubscriptions().isEmpty() )
+      if ( entityEntry.getChannelSubscriptions().isEmpty() )
       {
         final Object entity = entityEntry.getEntity();
         assert null != entity;

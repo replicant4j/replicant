@@ -7,7 +7,7 @@ import static org.testng.Assert.*;
 
 public class DataLoaderListenerSupportTest
 {
-  enum TestGraph
+  enum TestSystem
   {
     A
   }
@@ -22,7 +22,7 @@ public class DataLoaderListenerSupportTest
 
     final DataLoaderListener listener = mock( DataLoaderListener.class );
     final Throwable throwable = new Throwable();
-    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestSystem.A );
 
     assertEquals( support.getListeners().size(), 0 );
 

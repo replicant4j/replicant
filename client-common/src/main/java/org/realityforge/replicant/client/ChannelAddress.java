@@ -7,37 +7,37 @@ import javax.annotation.Nullable;
 
 /**
  * A channel address is immutable reference that defines the channel address.
- * A "type" graph is addressed by the type while an "instance" graph is addressed
+ * A "type" channel is addressed by the type while an "instance" channel is addressed
  * by the "type" and the instance "id"
  */
 public final class ChannelAddress
 {
   @Nonnull
-  private final Enum _graph;
+  private final Enum _channelType;
   @Nullable
   private final Object _id;
 
-  public ChannelAddress( @Nonnull final Enum graph )
+  public ChannelAddress( @Nonnull final Enum channelType )
   {
-    this( graph, null );
+    this( channelType, null );
   }
 
-  public ChannelAddress( @Nonnull final Enum graph, @Nullable final Object id )
+  public ChannelAddress( @Nonnull final Enum channelType, @Nullable final Object id )
   {
-    _graph = Objects.requireNonNull( graph );
+    _channelType = Objects.requireNonNull( channelType );
     _id = id;
   }
 
   @Nonnull
   public Class getSystem()
   {
-    return _graph.getDeclaringClass();
+    return _channelType.getDeclaringClass();
   }
 
   @Nonnull
-  public Enum getGraph()
+  public Enum getChannelType()
   {
-    return _graph;
+    return _channelType;
   }
 
   @Nullable
@@ -51,7 +51,7 @@ public final class ChannelAddress
   {
     if ( Arez.areNamesEnabled() )
     {
-      return getSystem().getSimpleName() + "." + _graph.toString() + ( null != _id ? ":" + _id : "" );
+      return getSystem().getSimpleName() + "." + _channelType.toString() + ( null != _id ? ":" + _id : "" );
     }
     else
     {
@@ -72,13 +72,13 @@ public final class ChannelAddress
     }
 
     final ChannelAddress that = (ChannelAddress) o;
-    return Objects.equals( _graph, that._graph ) && Objects.equals( _id, that._id );
+    return Objects.equals( _channelType, that._channelType ) && Objects.equals( _id, that._id );
   }
 
   @Override
   public int hashCode()
   {
-    int result = _graph.hashCode();
+    int result = _channelType.hashCode();
     result = 31 * result + ( _id != null ? _id.hashCode() : 0 );
     return result;
   }

@@ -21,7 +21,7 @@ public class ReplicantConnectionTest
   extends AbstractReplicantTest
   implements IHookable
 {
-  enum TestGraph
+  enum TestSystem
   {
     A
   }
@@ -38,7 +38,6 @@ public class ReplicantConnectionTest
     TestRuntime()
     {
       super( mock( ContextConverger.class ),
-             mock( EntityLocator.class ),
              mock( EntitySubscriptionManager.class ),
              mock( ReplicantClientSystem.class ),
              AreaOfInterestService.create() );
@@ -54,7 +53,7 @@ public class ReplicantConnectionTest
     {
     }
   }
-
+/*
   @Test
   public void instanceSubscriptionToValues()
   {
@@ -83,7 +82,7 @@ public class ReplicantConnectionTest
       assertTrue( list.contains( entity2 ) );
     }
   }
-/*
+
   @Test
   public void doConvergeCrossDataSourceSubscriptions()
   {
@@ -91,16 +90,16 @@ public class ReplicantConnectionTest
 
     final TestRuntime r = new TestRuntime();
     final AreaOfInterestService aoiService = r.getAreaOfInterestService();
-    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
-    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
-    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
-    final ChannelAddress descriptor4 = new ChannelAddress( TestGraph2.B, descriptor1.getId() );
-    final ChannelAddress descriptor5 = new ChannelAddress( TestGraph2.B, descriptor2.getId() );
-    final ChannelAddress descriptor6 = new ChannelAddress( TestGraph2.B, descriptor3.getId() );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestSystem.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestSystem.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestSystem.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor4 = new ChannelAddress( TestSystem2.B, descriptor1.getId() );
+    final ChannelAddress descriptor5 = new ChannelAddress( TestSystem2.B, descriptor2.getId() );
+    final ChannelAddress descriptor6 = new ChannelAddress( TestSystem2.B, descriptor3.getId() );
 
     // These descriptors have differing filters so Q should be updated
-    final ChannelAddress descriptorP = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
-    final ChannelAddress descriptorQ = new ChannelAddress( TestGraph2.B, descriptorP.getId() );
+    final ChannelAddress descriptorP = new ChannelAddress( TestSystem.A, ValueUtil.nextID() );
+    final ChannelAddress descriptorQ = new ChannelAddress( TestSystem2.B, descriptorP.getId() );
 
     final Channel subscription1 = new Channel( aoiService, descriptor1 );
     final Channel subscription2 = new Channel( aoiService, descriptor2 );
@@ -144,7 +143,7 @@ public class ReplicantConnectionTest
     when( aoiService.createSubscriptionReference( descriptorP ) ).thenReturn( referenceP );
     when( aoiService.createSubscriptionReference( descriptorQ ) ).thenReturn( referenceQ );
 
-    r.doConvergeCrossDataSourceSubscriptions( scope, TestGraph.A, TestGraph2.B, filter, Stream::of );
+    r.doConvergeCrossDataSourceSubscriptions( scope, TestSystem.A, TestSystem2.B, filter, Stream::of );
 
     assertEquals( scope.getRequiredSubscriptions().size(), 5 );
     assertTrue( scope.getRequiredSubscriptions().contains( subscription5 ) );

@@ -13,7 +13,7 @@ public class ChannelTest
   extends AbstractReplicantTest
   implements IHookable
 {
-  enum TestGraph
+  enum TestSystem
   {
     A
   }
@@ -27,7 +27,7 @@ public class ChannelTest
   @Test
   public void basicChannelOperation()
   {
-    final ChannelAddress address = new ChannelAddress( TestGraph.A, null );
+    final ChannelAddress address = new ChannelAddress( TestSystem.A, null );
 
     final Channel subscription = Channel.create( address, null );
 
@@ -49,7 +49,7 @@ public class ChannelTest
   @Test
   public void test_toString()
   {
-    final ChannelAddress address = new ChannelAddress( TestGraph.A, null );
+    final ChannelAddress address = new ChannelAddress( TestSystem.A, null );
 
     final Channel channel = Channel.create( address, null );
 

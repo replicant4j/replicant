@@ -102,9 +102,9 @@ public final class TestDataLoadService
 
   @Nonnull
   @Override
-  public Class<? extends Enum> getGraphType()
+  public Class<? extends Enum> getSystemType()
   {
-    return TestGraph.class;
+    return TestSystem.class;
   }
 
   @Override
@@ -212,20 +212,20 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull final ChannelAddress descriptor,
-                                          @Nullable final Object filterParameter,
-                                          @Nullable final String cacheKey,
-                                          @Nullable final String eTag,
-                                          @Nullable final Consumer<Runnable> cacheAction,
-                                          @Nonnull final Consumer<Runnable> completionAction,
-                                          @Nonnull final Consumer<Runnable> failAction )
+  protected void requestSubscribeToChannel( @Nonnull final ChannelAddress descriptor,
+                                            @Nullable final Object filterParameter,
+                                            @Nullable final String cacheKey,
+                                            @Nullable final String eTag,
+                                            @Nullable final Consumer<Runnable> cacheAction,
+                                            @Nonnull final Consumer<Runnable> completionAction,
+                                            @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
   @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelAddress descriptor,
-                                              @Nonnull final Consumer<Runnable> completionAction,
-                                              @Nonnull final Consumer<Runnable> failAction )
+  protected void requestUnsubscribeFromChannel( @Nonnull final ChannelAddress descriptor,
+                                                @Nonnull final Consumer<Runnable> completionAction,
+                                                @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
@@ -238,17 +238,17 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelAddress> descriptor,
-                                              @Nullable final Object filterParameter,
-                                              @Nonnull final Consumer<Runnable> completionAction,
-                                              @Nonnull final Consumer<Runnable> failAction )
+  protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> descriptor,
+                                                @Nullable final Object filterParameter,
+                                                @Nonnull final Consumer<Runnable> completionAction,
+                                                @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
   @Override
-  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelAddress> descriptors,
-                                                  @Nonnull final Consumer<Runnable> completionAction,
-                                                  @Nonnull final Consumer<Runnable> failAction )
+  protected void requestBulkUnsubscribeFromChannel( @Nonnull final List<ChannelAddress> descriptors,
+                                                    @Nonnull final Consumer<Runnable> completionAction,
+                                                    @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
@@ -277,7 +277,7 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry graphEntry,
+  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry channelSubscriptionEntry,
                                                        @Nullable final Object filter )
   {
     return 0;

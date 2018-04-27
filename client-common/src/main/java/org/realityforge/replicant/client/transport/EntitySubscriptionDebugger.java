@@ -18,20 +18,20 @@ public class EntitySubscriptionDebugger
 
   protected void outputInstanceSubscriptions( @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
-    for ( final Enum key : subscriptionManager.getInstanceSubscriptionKeys() )
+    for ( final Enum key : subscriptionManager.getInstanceChannelSubscriptionKeys() )
     {
-      for ( final Object id : subscriptionManager.getInstanceSubscriptions( key ) )
+      for ( final Object id : subscriptionManager.getInstanceChannelSubscriptions( key ) )
       {
-        outputSubscription( subscriptionManager.getSubscription( new ChannelAddress( key, id ) ) );
+        outputSubscription( subscriptionManager.getChannelSubscription( new ChannelAddress( key, id ) ) );
       }
     }
   }
 
   protected void outputTypeSubscriptions( @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
-    for ( final Enum type : subscriptionManager.getTypeSubscriptions() )
+    for ( final Enum type : subscriptionManager.getTypeChannelSubscriptions() )
     {
-      outputSubscription( subscriptionManager.getSubscription( new ChannelAddress( type ) ) );
+      outputSubscription( subscriptionManager.getChannelSubscription( new ChannelAddress( type ) ) );
     }
   }
 

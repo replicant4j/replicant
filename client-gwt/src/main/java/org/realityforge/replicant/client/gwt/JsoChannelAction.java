@@ -13,7 +13,7 @@ public class JsoChannelAction
   }
 
   @Override
-  public final native int getChannelID() /*-{
+  public final native int getChannelId() /*-{
     return this.cid;
   }-*/;
 

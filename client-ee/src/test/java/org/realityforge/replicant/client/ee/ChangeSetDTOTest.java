@@ -46,7 +46,7 @@ public class ChangeSetDTOTest
     assertEquals( change.getRequestID(), "2" );
     assertEquals( change.getETag(), null );
     assertEquals( change.getChannelActionCount(), 1 );
-    assertEquals( change.getChannelAction( 0 ).getChannelID(), 33 );
+    assertEquals( change.getChannelAction( 0 ).getChannelId(), 33 );
     assertEquals( change.getChangeCount(), 1 );
     assertEquals( change.getChange( 0 ).getDesignatorAsInt(), 2 );
   }

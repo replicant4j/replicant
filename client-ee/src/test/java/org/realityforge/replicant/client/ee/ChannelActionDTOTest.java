@@ -18,7 +18,7 @@ public class ChannelActionDTOTest
       "  \"filter\": {}\n" +
       "}\n";
     final ChannelAction action = toChannelAction( content );
-    assertEquals( action.getChannelID(), 1 );
+    assertEquals( action.getChannelId(), 1 );
     assertEquals( action.getSubChannelID(), null );
     assertEquals( action.getAction(), ChannelAction.Action.ADD );
     assertTrue( action.getChannelFilter() instanceof JsonObject );
@@ -36,7 +36,7 @@ public class ChannelActionDTOTest
       "  \"filter\": null\n" +
       "}\n";
     final ChannelAction action = toChannelAction( content );
-    assertEquals( action.getChannelID(), 1 );
+    assertEquals( action.getChannelId(), 1 );
     assertEquals( action.getSubChannelID(), 2 );
     assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
     assertNull( action.getChannelFilter() );
@@ -55,7 +55,7 @@ public class ChannelActionDTOTest
       "  \"filter\": 22\n" +
       "}\n";
     final ChannelAction action = toChannelAction( content );
-    assertEquals( action.getChannelID(), 1 );
+    assertEquals( action.getChannelId(), 1 );
     assertEquals( action.getSubChannelID(), "X" );
     assertEquals( action.getAction(), ChannelAction.Action.UPDATE );
     assertEquals( action.getChannelFilter(), 22.0D );
