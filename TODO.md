@@ -37,3 +37,24 @@ Some actions that should occur at some point in the future.
 * Figure out a way how to move Linkable, Verifiable and EntityLocator to Arez. Will need to somehow annotate
   inverse relationships and have Arez generate glue-code to link up outside of accessor. Will also need to mark
   some properties as links ... some of which are lazy loaded.
+
+  - `Verifiable`: Is only used to verify that:
+    * the entity is not disposed.
+    * the `EntityLocator` when passed own `ComponentId` and type returns self.
+    * All relationships are verified.
+  - `Verifiable` should be completely optimized out in production builds.
+  - `EntityLocator` should be passed in constructor to any entity that has relationships defined. The entity
+    uses the `EntityLocator` to lookup any relationships. The lookup can occur on access or lazily (typically
+    used for cross system links ala `acal` -> `calendar`). The lookup can also occur when `Linkable.link()`
+    is invoked (for all non-lazy relationships). `link()` is typically after a message/transaction has updated
+    all the required entities within the system.
+
+
+* Consider extracting out transport layer of replicant or maybe making replicant V10
+
+  * Rename org.realityforge.replicant.client.subscription.EntitySubscriptionEntry to Entity and it contains an
+    optional Map with current data for entity in map and an optional reference to java object that represents
+    entity. The optional representation could be lazily created on access via `EntityLocator`.
+  * The whole system could be relatively easily tested in isolation with `ChangeMapper` updating this entity
+    and all driven by metadata loaded into system.
+  * CBOR could be used as the transport system.
