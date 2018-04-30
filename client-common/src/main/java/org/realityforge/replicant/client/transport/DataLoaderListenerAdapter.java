@@ -67,7 +67,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
-                                  @Nonnull final ChannelAddress descriptor )
+                                  @Nonnull final ChannelAddress address )
   {
   }
 
@@ -76,7 +76,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelAddress descriptor )
+                                    @Nonnull final ChannelAddress address )
   {
   }
 
@@ -85,7 +85,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                 @Nonnull final ChannelAddress descriptor,
+                                 @Nonnull final ChannelAddress address,
                                  @Nonnull final Throwable throwable )
   {
   }
@@ -95,7 +95,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelAddress descriptor )
+                                    @Nonnull final ChannelAddress address )
   {
   }
 
@@ -104,7 +104,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelAddress descriptor )
+                                      @Nonnull final ChannelAddress address )
   {
   }
 
@@ -113,7 +113,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelAddress descriptor,
+                                   @Nonnull final ChannelAddress address,
                                    @Nonnull final Throwable throwable )
   {
   }
@@ -123,7 +123,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
-                                           @Nonnull final ChannelAddress descriptor )
+                                           @Nonnull final ChannelAddress address )
   {
   }
 
