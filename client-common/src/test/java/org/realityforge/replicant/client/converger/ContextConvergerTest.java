@@ -11,6 +11,7 @@ import java.util.Set;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
+import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
@@ -316,10 +317,10 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
+    final Channel channel = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -336,13 +337,12 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_ADD );
 
     verify( service ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service, never() ).requestSubscriptionUpdate( descriptor, null );
-    assertEquals( expectedChannels.size(), 0 );
   }
 
   @Test
@@ -352,10 +352,10 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
+    final Channel channel = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -372,13 +372,12 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( 0 );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_ADD );
 
     verify( service ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service, never() ).requestSubscriptionUpdate( descriptor, null );
-    assertEquals( expectedChannels.size(), 0 );
   }
 
   @Test
@@ -388,10 +387,10 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
+    final Channel channel = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -411,13 +410,12 @@ public class ContextConvergerTest
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
       thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), false ) );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.IN_PROGRESS );
 
     verify( service, never() ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service, never() ).requestSubscriptionUpdate( descriptor, null );
-    assertEquals( expectedChannels.size(), 0 );
   }
 
   @Test
@@ -427,10 +425,10 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
+    final Channel channel = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -447,13 +445,12 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.IN_PROGRESS );
 
     verify( service, never() ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service, never() ).requestSubscriptionUpdate( descriptor, null );
-    assertEquals( expectedChannels.size(), 0 );
   }
 
   @Test
@@ -463,11 +460,11 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
-    subscription.setFilter( "Filter1" );
+    final Channel channel = Channel.create( descriptor, null );
+    channel.setFilter( "Filter1" );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -486,13 +483,12 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, "Filter1" ) ).
       thenReturn( 4 );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.IN_PROGRESS );
 
     verify( service, never() ).requestSubscribe( descriptor, "Filter1" );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service, never() ).requestSubscriptionUpdate( descriptor, "Filter1" );
-    assertEquals( expectedChannels.size(), 0 );
   }
 
   @Test
@@ -502,11 +498,11 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
-    subscription.setFilter( "Filter1" );
+    final Channel channel = Channel.create( descriptor, null );
+    channel.setFilter( "Filter1" );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -528,13 +524,12 @@ public class ContextConvergerTest
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
       thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, "OldFIlter" ), true ) );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
 
     verify( service, never() ).requestSubscribe( descriptor, "Filter1" );
     verify( service, never() ).requestUnsubscribe( descriptor );
     verify( service ).requestSubscriptionUpdate( descriptor, "Filter1" );
-    assertEquals( expectedChannels.size(), 0 );
   }
 
   @Test
@@ -548,34 +543,49 @@ public class ContextConvergerTest
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A );
-    final Channel subscription = Channel.create( descriptor, null );
+    final Channel channel = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.ADD ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.UPDATE ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription, AreaOfInterestAction.REMOVE ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.UPDATE, subscription, AreaOfInterestAction.ADD ) );
-    assertTrue( c.canGroup( subscription, AreaOfInterestAction.UPDATE, subscription, AreaOfInterestAction.UPDATE ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.UPDATE, subscription, AreaOfInterestAction.REMOVE ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.ADD ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.UPDATE ) );
-    assertTrue( c.canGroup( subscription, AreaOfInterestAction.REMOVE, subscription, AreaOfInterestAction.REMOVE ) );
+    assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.ADD ) );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.UPDATE ) );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.REMOVE ) );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.UPDATE, areaOfInterest, AreaOfInterestAction.ADD ) );
+    assertTrue( c.canGroup( areaOfInterest,
+                            AreaOfInterestAction.UPDATE,
+                            areaOfInterest,
+                            AreaOfInterestAction.UPDATE ) );
+    assertFalse( c.canGroup( areaOfInterest,
+                             AreaOfInterestAction.UPDATE,
+                             areaOfInterest,
+                             AreaOfInterestAction.REMOVE ) );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.REMOVE, areaOfInterest, AreaOfInterestAction.ADD ) );
+    assertFalse( c.canGroup( areaOfInterest,
+                             AreaOfInterestAction.REMOVE,
+                             areaOfInterest,
+                             AreaOfInterestAction.UPDATE ) );
+    assertTrue( c.canGroup( areaOfInterest,
+                            AreaOfInterestAction.REMOVE,
+                            areaOfInterest,
+                            AreaOfInterestAction.REMOVE ) );
 
-    final ChannelAddress descriptor2 = new ChannelAddress( TestSystemA.A, 2 );
-    final Channel subscription2 = Channel.create( descriptor2, null );
-    assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription2, AreaOfInterestAction.ADD ) );
+    final ChannelAddress channel2 = new ChannelAddress( TestSystemA.A, 2 );
+    final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( Channel.create( channel2, null ) );
+    assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest2, AreaOfInterestAction.ADD ) );
 
     final ChannelAddress descriptor3 = new ChannelAddress( TestSystemA.B, 1 );
-    final Channel subscription3 = Channel.create( descriptor3, null );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.ADD ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.UPDATE ) );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription3, AreaOfInterestAction.REMOVE ) );
+    final Channel channel3 = Channel.create( descriptor3, null );
+    final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.ADD ) );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.UPDATE ) );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.REMOVE ) );
 
     final ChannelAddress descriptor4 = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel subscription4 = Channel.create( descriptor4, null );
-    subscription4.setFilter( "Filter" );
-    assertFalse( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription4, AreaOfInterestAction.ADD ) );
-    subscription.setFilter( "Filter" );
-    assertTrue( c.canGroup( subscription, AreaOfInterestAction.ADD, subscription4, AreaOfInterestAction.ADD ) );
+    final Channel channel4 = Channel.create( descriptor4, null );
+    channel4.setFilter( "Filter" );
+    final AreaOfInterest areaOfInterest4 = AreaOfInterest.create( channel4 );
+    assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
+    areaOfInterest.getChannel().setFilter( "Filter" );
+    assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
   }
 
   @Test
@@ -588,8 +598,9 @@ public class ContextConvergerTest
     final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel subscription1 = Channel.create( descriptor, null );
-    Disposable.dispose( subscription1 );
+    final Channel channel = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    Disposable.dispose( areaOfInterest );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -599,7 +610,7 @@ public class ContextConvergerTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    assertEquals( c.convergeSubscription( expectedChannels, subscription1, null, null, true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( descriptor, null );
     verify( service, never() ).requestUnsubscribe( descriptor );
@@ -613,16 +624,18 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel subscription1 = Channel.create( descriptor, null );
+    final Channel channel1 = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest1 = AreaOfInterest.create( channel1 );
 
     final ChannelAddress descriptor2 = new ChannelAddress( TestSystemA.A, 2 );
-    final Channel subscription2 = Channel.create( descriptor2, null );
+    final Channel channel2 = Channel.create( descriptor2, null );
+    final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( channel2 );
 
     final ChannelAddress descriptor3 = new ChannelAddress( TestSystemA.A, 3 );
-    final Channel subscription3 = Channel.create( descriptor3, null );
+    final Channel channel3 = Channel.create( descriptor3, null );
+    final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -648,32 +661,20 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor3, "Filter" ) ).
       thenReturn( -1 );
 
-    assertEquals( c.convergeSubscription( expectedChannels,
-                                          subscription2,
-                                          subscription1,
-                                          AreaOfInterestAction.ADD,
-                                          true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestAction.ADD, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_ADD );
     verify( service ).requestSubscribe( descriptor2, null );
     verify( service, never() ).requestUnsubscribe( descriptor2 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor2, null );
 
-    assertEquals( c.convergeSubscription( expectedChannels,
-                                          subscription3,
-                                          subscription1,
-                                          AreaOfInterestAction.ADD,
-                                          false ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.ADD, false ),
                   ContextConverger.ConvergeAction.TERMINATE );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );
 
-    subscription3.setFilter( "Filter" );
-    assertEquals( c.convergeSubscription( expectedChannels,
-                                          subscription3,
-                                          subscription1,
-                                          AreaOfInterestAction.ADD,
-                                          true ),
+    areaOfInterest3.getChannel().setFilter( "Filter" );
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.ADD, true ),
                   ContextConverger.ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
@@ -687,16 +688,18 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel subscription1 = Channel.create( descriptor, null );
+    final Channel channel1 = Channel.create( descriptor, null );
+    final AreaOfInterest areaOfInterest1 = AreaOfInterest.create( channel1 );
 
     final ChannelAddress descriptor2 = new ChannelAddress( TestSystemA.A, 2 );
-    final Channel subscription2 = Channel.create( descriptor2, null );
+    final Channel channel2 = Channel.create( descriptor2, null );
+    final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( channel2 );
 
     final ChannelAddress descriptor3 = new ChannelAddress( TestSystemA.A, 3 );
-    final Channel subscription3 = Channel.create( descriptor3, null );
+    final Channel channel3 = Channel.create( descriptor3, null );
+    final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
     final ContextConverger c =
       new TestContextConverger( subscriptionManager, areaOfInterestService, clientSystem );
@@ -733,32 +736,20 @@ public class ContextConvergerTest
     when( subscriptionManager.getChannelSubscription( descriptor3 ) ).
       thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor3, "OldFilter" ), true ) );
 
-    assertEquals( c.convergeSubscription( expectedChannels,
-                                          subscription2,
-                                          subscription1,
-                                          AreaOfInterestAction.UPDATE,
-                                          true ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestAction.UPDATE, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
     verify( service, never() ).requestSubscribe( descriptor2, null );
     verify( service, never() ).requestUnsubscribe( descriptor2 );
     verify( service ).requestSubscriptionUpdate( descriptor2, null );
 
-    assertEquals( c.convergeSubscription( expectedChannels,
-                                          subscription3,
-                                          subscription1,
-                                          AreaOfInterestAction.UPDATE,
-                                          false ),
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.UPDATE, false ),
                   ContextConverger.ConvergeAction.TERMINATE );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );
     verify( service, never() ).requestSubscriptionUpdate( descriptor3, null );
 
-    subscription3.setFilter( "Filter" );
-    assertEquals( c.convergeSubscription( expectedChannels,
-                                          subscription3,
-                                          subscription1,
-                                          AreaOfInterestAction.UPDATE,
-                                          true ),
+    areaOfInterest3.getChannel().setFilter( "Filter" );
+    assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.UPDATE, true ),
                   ContextConverger.ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( descriptor3, null );
     verify( service, never() ).requestUnsubscribe( descriptor3 );

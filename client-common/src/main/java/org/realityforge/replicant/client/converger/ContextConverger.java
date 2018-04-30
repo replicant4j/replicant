@@ -4,13 +4,11 @@ import arez.Disposable;
 import arez.annotations.Action;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterest;
@@ -131,30 +129,29 @@ public abstract class ContextConverger
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
       final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
-      // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
-      // and the subscription is removed, it will result in concurrent exception
-      final List<Channel> subscriptions = new ArrayList<>( getSubscriptions() );
-      Channel template = null;
-      AreaOfInterestAction aoiGroupAction = null;
-      for ( final Channel subscription : subscriptions )
+      AreaOfInterest groupTemplate = null;
+      AreaOfInterestAction groupAction = null;
+      // Need to duplicate the list of AreasOfInterest. If an error occurs while processing AreaOfInterest
+      // and the AreaOfInterest is removed, it will result in concurrent exception
+      for ( final AreaOfInterest areaOfInterest : new ArrayList<>( getAreaOfInterestService().getAreasOfInterest() ) )
       {
-        expectedChannels.add( subscription.getAddress() );
+        expectedChannels.add( areaOfInterest.getAddress() );
         final ConvergeAction convergeAction =
-          convergeSubscription( expectedChannels, subscription, template, aoiGroupAction, true );
+          convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
         switch ( convergeAction )
         {
           case TERMINATE:
             return;
           case SUBMITTED_ADD:
-            aoiGroupAction = AreaOfInterestAction.ADD;
-            template = subscription;
+            groupAction = AreaOfInterestAction.ADD;
+            groupTemplate = areaOfInterest;
             break;
           case SUBMITTED_UPDATE:
-            aoiGroupAction = AreaOfInterestAction.UPDATE;
-            template = subscription;
+            groupAction = AreaOfInterestAction.UPDATE;
+            groupTemplate = areaOfInterest;
             break;
           case IN_PROGRESS:
-            if ( null == template )
+            if ( null == groupTemplate )
             {
               // First thing in the subscription queue is in flight, so terminate
               return;
@@ -164,7 +161,7 @@ public abstract class ContextConverger
             break;
         }
       }
-      if ( null != template )
+      if ( null != groupTemplate )
       {
         return;
       }
@@ -174,21 +171,20 @@ public abstract class ContextConverger
     }
   }
 
-  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelAddress> expectedChannels,
-                                       @Nonnull final Channel subscription,
-                                       final Channel templateForGrouping,
-                                       final AreaOfInterestAction aoiGroupAction,
-                                       final boolean canGroup )
+  final ConvergeAction convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
+                                               @Nullable final AreaOfInterest groupTemplate,
+                                               @Nullable final AreaOfInterestAction groupAction,
+                                               final boolean canGroup )
   {
-    if ( !Disposable.isDisposed( subscription ) )
+    if ( !Disposable.isDisposed( areaOfInterest ) )
     {
-      final ChannelAddress descriptor = subscription.getAddress();
+      final ChannelAddress descriptor = areaOfInterest.getAddress();
       final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getChannelType() );
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
       {
         final boolean subscribed = service.isSubscribed( descriptor );
-        final Object filter = subscription.getFilter();
+        final Object filter = areaOfInterest.getChannel().getFilter();
 
         final int addIndex =
           service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, filter );
@@ -199,12 +195,12 @@ public abstract class ContextConverger
 
         if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
         {
-          if ( null != templateForGrouping && !canGroup )
+          if ( null != groupTemplate && !canGroup )
           {
             return ConvergeAction.TERMINATE;
           }
-          if ( null == templateForGrouping ||
-               canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.ADD ) )
+          if ( null == groupTemplate ||
+               canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
           {
             LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
             service.requestSubscribe( descriptor, filter );
@@ -235,16 +231,16 @@ public abstract class ContextConverger
           final String existingFilter = filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
           {
-            if ( null != templateForGrouping && !canGroup )
+            if ( null != groupTemplate && !canGroup )
             {
               return ConvergeAction.TERMINATE;
             }
 
-            if ( null == templateForGrouping ||
-                 canGroup( templateForGrouping, aoiGroupAction, subscription, AreaOfInterestAction.UPDATE ) )
+            if ( null == groupTemplate ||
+                 canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
             {
-              final String message = "Updating subscription: " + descriptor + ". Changing filter to " + newFilter +
-                                     " from " + existingFilter;
+              final String message =
+                "Updating subscription " + descriptor + ". Changing filter to " + newFilter + " from " + existingFilter;
               LOG.info( message );
               service.requestSubscriptionUpdate( descriptor, filter );
               return ConvergeAction.SUBMITTED_UPDATE;
@@ -260,22 +256,25 @@ public abstract class ContextConverger
     return ConvergeAction.NO_ACTION;
   }
 
-  boolean canGroup( @Nonnull final Channel templateForGrouping,
-                    final AreaOfInterestAction aoiGroupAction,
-                    @Nonnull final Channel subscription,
-                    final AreaOfInterestAction subscriptionAction )
+  boolean canGroup( @Nonnull final AreaOfInterest groupTemplate,
+                    @Nullable final AreaOfInterestAction groupAction,
+                    @Nonnull final AreaOfInterest areaOfInterest,
+                    @Nullable final AreaOfInterestAction action )
   {
-    if ( null != aoiGroupAction && subscriptionAction != null && !aoiGroupAction.equals( subscriptionAction ) )
+    if ( null != groupAction && null != action && !groupAction.equals( action ) )
     {
       return false;
     }
+    else
+    {
+      final boolean sameChannel =
+        groupTemplate.getAddress().getChannelType().equals( areaOfInterest.getAddress().getChannelType() );
 
-    final boolean sameChannel =
-      templateForGrouping.getAddress().getChannelType().equals( subscription.getAddress().getChannelType() );
-
-    return sameChannel &&
-           ( AreaOfInterestAction.REMOVE == subscriptionAction ||
-             FilterUtil.filtersEqual( templateForGrouping.getFilter(), subscription.getFilter() ) );
+      return sameChannel &&
+             ( AreaOfInterestAction.REMOVE == action ||
+               FilterUtil.filtersEqual( groupTemplate.getChannel().getFilter(),
+                                        areaOfInterest.getChannel().getFilter() ) );
+    }
   }
 
   private void convergeComplete()
@@ -382,24 +381,6 @@ public abstract class ContextConverger
       LOG.info( "Removing orphan subscription: " + descriptor );
       service.requestUnsubscribe( descriptor );
     }
-  }
-
-  //TODO: @Computed
-  @Nonnull
-  protected List<Channel> getSubscriptions()
-  {
-    final ArrayList<Channel> subscriptions = new ArrayList<>();
-    final HashSet<ChannelAddress> processed = new HashSet<>();
-    for ( final AreaOfInterest subscription : getAreaOfInterestService().getAreasOfInterest() )
-    {
-      final Channel subscription1 = subscription.getChannel();
-      if ( !processed.contains( subscription1.getAddress() ) )
-      {
-        subscriptions.add( subscription1 );
-        processed.add( subscription1.getAddress() );
-      }
-    }
-    return subscriptions;
   }
 
   @Action
