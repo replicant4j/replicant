@@ -27,7 +27,7 @@ public abstract class EntitySubscriptionManager
   private final HashMap<Enum, ChannelSubscriptionEntry> _typeChannelSubscriptions = new HashMap<>();
 
   // Entity map: Type => ID
-  private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
+  private final HashMap<Class<?>, Map<Object, Entity>> _entityMapping = new HashMap<>();
 
   @Nonnull
   public static EntitySubscriptionManager create()
@@ -230,9 +230,9 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  public EntitySubscriptionEntry getEntitySubscription( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public Entity getEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    final EntitySubscriptionEntry entityEntry = findEntitySubscription( type, id );
+    final Entity entityEntry = findEntity( type, id );
     if ( null == entityEntry )
     {
       throw new IllegalStateException( "Entity not subscribed: " + type.getSimpleName() + "/" + id );
@@ -248,7 +248,7 @@ public abstract class EntitySubscriptionManager
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  public EntitySubscriptionEntry findEntitySubscription( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public Entity findEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     return getEntityTypeMap( type ).get( id );
   }
@@ -267,10 +267,10 @@ public abstract class EntitySubscriptionManager
   public <T> void updateEntity( @Nonnull final Class<T> type,
                                 @Nonnull final Object id,
                                 @Nonnull final ChannelAddress[] channels,
-                                @Nonnull final T entity )
+                                @Nonnull final T userObject )
   {
-    final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
-    entry.setEntity( entity );
+    final Entity entry = findOrCreateEntity( type, id );
+    entry.setUserObject( userObject );
     for ( final ChannelAddress channel : channels )
     {
       entry
@@ -295,12 +295,12 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalStateException if no such entity or the entity is not associated with the channel.
    */
   @Nonnull
-  public EntitySubscriptionEntry removeEntityFromChannel( @Nonnull final Class<?> type,
-                                                          @Nonnull final Object id,
-                                                          @Nonnull final ChannelAddress channel )
+  public Entity removeEntityFromChannel( @Nonnull final Class<?> type,
+                                         @Nonnull final Object id,
+                                         @Nonnull final ChannelAddress channel )
     throws IllegalStateException
   {
-    final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
+    final Entity entry = findOrCreateEntity( type, id );
     final Map<ChannelAddress, ChannelSubscriptionEntry> subscriptions = entry.getRwChannelSubscriptions();
     final ChannelSubscriptionEntry channelSubscriptionEntry = subscriptions.remove( channel );
     if ( null == channelSubscriptionEntry )
@@ -320,27 +320,29 @@ public abstract class EntitySubscriptionManager
    */
   public void removeEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    final Map<Object, EntitySubscriptionEntry> typeMap = _entityMapping.get( type );
-    if ( null == typeMap )
+    final Map<Object, Entity> entityTypeMap = _entityMapping.get( type );
+    if ( null == entityTypeMap )
     {
       return;
     }
-    final EntitySubscriptionEntry entityEntry = typeMap.remove( id );
-    if ( null == entityEntry )
+    final Entity entity = entityTypeMap.remove( id );
+    if ( null == entity )
     {
       return;
     }
-    for ( final ChannelSubscriptionEntry entry : entityEntry.getRwChannelSubscriptions().values() )
+    for ( final ChannelSubscriptionEntry entry : entity.getChannelSubscriptions().values() )
     {
       removeEntityFromChannel( type, id, entry );
     }
   }
 
-  private void removeEntityFromChannel( final Class<?> type, final Object id, final ChannelSubscriptionEntry entry )
+  private void removeEntityFromChannel( @Nonnull final Class<?> type,
+                                        @Nonnull final Object id,
+                                        @Nonnull final ChannelSubscriptionEntry entry )
   {
-    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> map = entry.getRwEntities();
-    final Map<Object, EntitySubscriptionEntry> typeMap = map.get( type );
-    final EntitySubscriptionEntry removed = null != typeMap ? typeMap.remove( id ) : null;
+    final Map<Class<?>, Map<Object, Entity>> map = entry.getRwEntities();
+    final Map<Object, Entity> typeMap = map.get( type );
+    final Entity removed = null != typeMap ? typeMap.remove( id ) : null;
     if ( null == removed )
     {
       final String message =
@@ -353,19 +355,20 @@ public abstract class EntitySubscriptionManager
     }
   }
 
-  private EntitySubscriptionEntry getEntitySubscriptions( final Class<?> type, final Object id )
+  @Nonnull
+  private Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    return getEntityTypeMap( type ).computeIfAbsent( id, k -> new EntitySubscriptionEntry( type, id ) );
+    return getEntityTypeMap( type ).computeIfAbsent( id, k -> new Entity( type, id ) );
   }
 
   @Nonnull
-  public Collection<EntitySubscriptionEntry> findEntitySubscriptionsByType( @Nonnull final Class<?> type )
+  public Collection<Entity> findEntitiesByType( @Nonnull final Class<?> type )
   {
     return getEntityTypeMap( type ).values();
   }
 
   @Nonnull
-  private Map<Object, EntitySubscriptionEntry> getEntityTypeMap( @Nonnull final Class<?> type )
+  private Map<Object, Entity> getEntityTypeMap( @Nonnull final Class<?> type )
   {
     return _entityMapping.computeIfAbsent( type, k -> new HashMap<>() );
   }

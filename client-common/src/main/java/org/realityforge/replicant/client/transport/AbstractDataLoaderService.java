@@ -23,8 +23,8 @@ import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionDebugger;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionEntry;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -1135,38 +1135,35 @@ public abstract class AbstractDataLoaderService
 
   protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry channelSubscriptionEntry,
                                                        @Nullable final Object filter,
-                                                       @Nonnull final Collection<EntitySubscriptionEntry> entities )
+                                                       @Nonnull final Collection<Entity> entities )
   {
     int removedEntities = 0;
     final ChannelAddress address = channelSubscriptionEntry.getChannel().getAddress();
 
-    final EntitySubscriptionEntry[] subscriptionEntries =
-      entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );
-    for ( final EntitySubscriptionEntry entry : subscriptionEntries )
+    for ( final Entity entry : new ArrayList<>( entities ) )
     {
       final Class<?> entityType = entry.getType();
-      final Object entityID = entry.getID();
+      final Object entityID = entry.getId();
 
       if ( !doesEntityMatchFilter( address, filter, entityType, entityID ) )
       {
-        final EntitySubscriptionEntry entityEntry =
-          getSubscriptionManager().removeEntityFromChannel( entityType, entityID, address );
-        final boolean deregisterEntity = 0 == entityEntry.getChannelSubscriptions().size();
+        final Entity entity = getSubscriptionManager().removeEntityFromChannel( entityType, entityID, address );
+        final boolean deregisterEntity = 0 == entity.getChannelSubscriptions().size();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(),
                    "Removed entity " + entityType.getSimpleName() + "/" + entityID +
                    " from channel " + address + " resulting in " +
-                   entityEntry.getChannelSubscriptions().size() + " subscriptions left for entity." +
+                   entity.getChannelSubscriptions().size() + " subscriptions left for entity." +
                    ( deregisterEntity ? " De-registering entity!" : "" ) );
         }
         // If there is only one subscriber then lets delete it
         if ( deregisterEntity )
         {
-          final Object entity = entityEntry.getEntity();
           getSubscriptionManager().removeEntity( entityType, entityID );
-          assert null != entity;
-          Disposable.dispose( entity );
+          final Object userObject = entity.getUserObject();
+          assert null != userObject;
+          Disposable.dispose( userObject );
           removedEntities += 1;
         }
       }
@@ -1318,7 +1315,7 @@ public abstract class AbstractDataLoaderService
     {
       for ( final Class<?> entityType : getEntityTypes() )
       {
-        for ( final Object entity : getSubscriptionManager().findEntitySubscriptionsByType( entityType ) )
+        for ( final Object entity : getSubscriptionManager().findEntitiesByType( entityType ) )
         {
           invariant( () -> !Disposable.isDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );

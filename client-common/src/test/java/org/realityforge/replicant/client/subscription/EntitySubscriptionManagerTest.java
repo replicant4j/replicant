@@ -317,8 +317,7 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, null ), type, id, entity1 );
 
-    final EntitySubscriptionEntry e =
-      sm.removeEntityFromChannel( type, id, new ChannelAddress( G.G2 ) );
+    final Entity e = sm.removeEntityFromChannel( type, id, new ChannelAddress( G.G2 ) );
 
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
@@ -334,8 +333,8 @@ public class EntitySubscriptionManagerTest
   {
     final ChannelSubscriptionEntry entry = sm.getChannelSubscription( descriptor );
     assertNotNull( entry.getEntities().get( type ).get( id ) );
-    assertNotNull( sm.getEntitySubscription( type, id ).getChannelSubscriptions().get( descriptor ) );
-    assertEquals( sm.getEntitySubscription( type, id ).getEntity(), entity );
+    assertNotNull( sm.getEntity( type, id ).getChannelSubscriptions().get( descriptor ) );
+    assertEquals( sm.getEntity( type, id ).getUserObject(), entity );
   }
 
   private void assertEntityNotSubscribed( final EntitySubscriptionManager sm,

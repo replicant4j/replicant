@@ -18,7 +18,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -225,8 +225,7 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
   private void emitEntities( @Nonnull final JsonGenerator g, @Nonnull final ChannelSubscriptionEntry subscription )
   {
     g.writeStartObject( "entities" );
-    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = subscription.getEntities();
-    for ( final Map.Entry<Class<?>, Map<Object, EntitySubscriptionEntry>> entry : entities.entrySet() )
+    for ( final Map.Entry<Class<?>, Map<Object, Entity>> entry : subscription.getEntities().entrySet() )
     {
       g.write( entry.getKey().getName(), entry.getValue().size() );
     }

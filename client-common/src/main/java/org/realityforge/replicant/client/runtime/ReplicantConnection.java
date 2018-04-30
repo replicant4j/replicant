@@ -85,7 +85,7 @@ public class ReplicantConnection
                                                            @Nonnull final Object id,
                                                            @Nonnull final Function<T, Stream<O>> rootToStream )
   {
-    final T root = (T) getSubscriptionManager().getEntitySubscription( type, id ).getEntity();
+    final T root = (T) getSubscriptionManager().getEntity( type, id ).getUserObject();
     return null != root ? rootToStream.apply( root ) : Stream.empty();
   }
 

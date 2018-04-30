@@ -18,10 +18,10 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionEntry;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.Linkable;
+import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Entity;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.ChannelAction.Action;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
@@ -103,10 +103,10 @@ public class DataLoaderServiceTest
     final ChannelSubscriptionEntry entryD =
       ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.D ), null ), true );
 
-    insertSubscription( entryA, MyType.class, "A1" );
-    insertSubscription( entryB, MyType.class, "B1" );
-    insertSubscription( entryC, MyType.class, "C1" );
-    insertSubscription( entryD, MyType.class, "D1" );
+    registerEntity( entryA, MyType.class, "A1" );
+    registerEntity( entryB, MyType.class, "B1" );
+    registerEntity( entryC, MyType.class, "C1" );
+    registerEntity( entryD, MyType.class, "D1" );
 
     when( sm.getInstanceChannelSubscriptionKeys() ).thenReturn( instanceChannelTypes );
     when( sm.getInstanceChannelSubscriptions( TestSystem.A ) ).thenReturn( aChannelType );
@@ -137,13 +137,15 @@ public class DataLoaderServiceTest
     assertTrue( myTypeD.isDisposed() );
   }
 
-  private void insertSubscription( final ChannelSubscriptionEntry entry, final Class<?> type, final String id )
+  private void registerEntity( @Nonnull final ChannelSubscriptionEntry entry,
+                               @Nonnull final Class<?> type,
+                               @Nonnull final String id )
   {
-    final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> entities = entry.getEntities();
-    final Map<Object, EntitySubscriptionEntry> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
-    final EntitySubscriptionEntry entitySubscriptionEntry = new EntitySubscriptionEntry( type, id );
-    entitySubscriptionEntry.getRwChannelSubscriptions().put( entry.getChannel().getAddress(), entry );
-    typeMap.put( id, entitySubscriptionEntry );
+    final Map<Class<?>, Map<Object, Entity>> entities = entry.getEntities();
+    final Map<Object, Entity> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
+    final Entity entity = new Entity( type, id );
+    entity.getRwChannelSubscriptions().put( entry.getChannel().getAddress(), entry );
+    typeMap.put( id, entity );
   }
 
   @Test

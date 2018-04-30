@@ -18,13 +18,12 @@ import org.realityforge.replicant.client.Channel;
  */
 @ArezComponent
 public abstract class ChannelSubscriptionEntry
-  extends AbstractContainer<Class<?>, Map<Object, EntitySubscriptionEntry>>
+  extends AbstractContainer<Class<?>, Map<Object, Entity>>
 {
   @Nonnull
   private final Channel _channel;
 
-  private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _entities =
-    new HashMap<>();
+  private final Map<Class<?>, Map<Object, Entity>> _entities = new HashMap<>();
 
   public static ChannelSubscriptionEntry create( @Nonnull final Channel channel, final boolean explicitSubscription )
   {
@@ -48,17 +47,17 @@ public abstract class ChannelSubscriptionEntry
   public abstract void setExplicitSubscription( boolean explicitSubscription );
 
   @Nonnull
-  public List<Map<Object, EntitySubscriptionEntry>> getEntitySubscriptionEntries()
+  public List<Map<Object, Entity>> getEntitySubscriptionEntries()
   {
     return RepositoryUtil.asList( entities() );
   }
 
-  public Map<Class<?>, Map<Object, EntitySubscriptionEntry>> getEntities()
+  public Map<Class<?>, Map<Object, Entity>> getEntities()
   {
     return _entities;
   }
 
-  final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> getRwEntities()
+  final Map<Class<?>, Map<Object, Entity>> getRwEntities()
   {
     return _entities;
   }
@@ -77,9 +76,9 @@ public abstract class ChannelSubscriptionEntry
       assert null != element;
       if ( entityEntry.getChannelSubscriptions().isEmpty() )
       {
-        final Object entity = entityEntry.getEntity();
-        assert null != entity;
-        Disposable.dispose( entity );
+        final Object userObject = entityEntry.getUserObject();
+        assert null != userObject;
+        Disposable.dispose( userObject );
       }
     } );
   }
