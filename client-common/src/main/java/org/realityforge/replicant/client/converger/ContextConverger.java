@@ -406,7 +406,7 @@ public abstract class ContextConverger
   protected void removeFailedSubscription( @Nonnull final ChannelAddress descriptor )
   {
     LOG.info( "Removing failed subscription " + descriptor );
-    final AreaOfInterest subscription = getAreaOfInterestService().findAreaOfInterest( descriptor );
+    final AreaOfInterest subscription = getAreaOfInterestService().findAreaOfInterestByAddress( descriptor );
     if ( null != subscription )
     {
       Disposable.dispose( subscription );

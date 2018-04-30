@@ -136,13 +136,13 @@ public class ReplicantConnection
       .flatMap( sourceIDToTargetIDs )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
-      .forEach( id -> service.findOrCreateSubscription( asAddress( targetChannelType, id ), filter ) );
+      .forEach( id -> service.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
 
     getSubscriptionManager().getInstanceChannelSubscriptions( sourceChannelType ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> service.findOrCreateSubscription( asAddress( targetChannelType, id ), filter ) );
+      forEach( id -> service.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
 
     existing.values().forEach( Disposable::dispose );
   }

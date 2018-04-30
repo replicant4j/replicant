@@ -170,7 +170,7 @@ public abstract class ReplicantSubscription<T>
   private void updateChannelSubscription()
   {
     final ChannelAddress address = new ChannelAddress( getChannelType(), getId() );
-    setChannelSubscription( _areaOfInterestService.findOrCreateSubscription( address, getFilter() ) );
+    setChannelSubscription( _areaOfInterestService.findOrCreateAreaOfInterest( address, getFilter() ) );
   }
 
   @Nullable

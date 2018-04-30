@@ -127,7 +127,7 @@ public class ReplicantConnectionTest
     final SubscriptionReference referenceP = scope.requireSubscription( subscriptionP );
     final SubscriptionReference referenceQ = scope.requireSubscription( subscriptionQ );
 
-    when( aoiService.findAreaOfInterest( descriptorQ ) ).thenReturn( subscriptionQ );
+    when( aoiService.findAreaOfInterestByAddress( descriptorQ ) ).thenReturn( subscriptionQ );
     when( aoiService.createSubscription( descriptor4, filter ) ).thenReturn( subscription4 );
     when( aoiService.createSubscriptionReference( descriptor1 ) ).thenReturn( reference1 );
     when( aoiService.createSubscriptionReference( descriptor2 ) ).thenReturn( reference2 );

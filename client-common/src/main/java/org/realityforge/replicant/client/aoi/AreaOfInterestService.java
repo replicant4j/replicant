@@ -52,39 +52,39 @@ public abstract class AreaOfInterestService
   }
 
   @Nullable
-  public AreaOfInterest findAreaOfInterest( @Nonnull final ChannelAddress address )
+  public AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
   {
     return super.findByArezId( address );
   }
 
-  public void updateAreaOfInterest( @Nonnull final AreaOfInterest subscription, @Nullable final Object filter )
+  public void updateAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest, @Nullable final Object filter )
   {
-    assert !Disposable.isDisposed( subscription );
-    final Channel channel = subscription.getChannel();
+    assert !Disposable.isDisposed( areaOfInterest );
+    final Channel channel = areaOfInterest.getChannel();
     channel.setFilter( filter );
     _listeners.channelUpdated( channel );
   }
 
   @Nonnull
-  public AreaOfInterest findOrCreateSubscription( @Nonnull final ChannelAddress address,
-                                                  @Nullable final Object filter )
+  public AreaOfInterest findOrCreateAreaOfInterest( @Nonnull final ChannelAddress address,
+                                                    @Nullable final Object filter )
   {
-    final AreaOfInterest subscription = findAreaOfInterest( address );
-    if ( null != subscription )
+    final AreaOfInterest areaOfInterest = findAreaOfInterestByAddress( address );
+    if ( null != areaOfInterest )
     {
-      if ( !FilterUtil.filtersEqual( subscription.getChannel().getFilter(), filter ) )
+      if ( !FilterUtil.filtersEqual( areaOfInterest.getChannel().getFilter(), filter ) )
       {
-        updateAreaOfInterest( subscription, filter );
+        updateAreaOfInterest( areaOfInterest, filter );
       }
-      return subscription;
+      return areaOfInterest;
     }
     else
     {
       final Channel channel = Channel.create( address, filter );
-      final AreaOfInterest newSubscription = AreaOfInterest.create( channel );
-      registerEntity( newSubscription );
+      final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( channel );
+      registerEntity( newAreaOfInterest );
       _listeners.channelCreated( channel );
-      return newSubscription;
+      return newAreaOfInterest;
     }
   }
 
@@ -92,9 +92,9 @@ public abstract class AreaOfInterestService
    * {@inheritDoc}
    */
   @Override
-  public boolean contains( @Nonnull final AreaOfInterest entity )
+  public boolean contains( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    return super.contains( entity );
+    return super.contains( areaOfInterest );
   }
 
   /**
@@ -102,9 +102,9 @@ public abstract class AreaOfInterestService
    */
   @Action
   @Override
-  public void destroy( @Nonnull final AreaOfInterest entity )
+  public void destroy( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    super.destroy( entity );
-    _listeners.channelDeleted( entity.getChannel() );
+    super.destroy( areaOfInterest );
+    _listeners.channelDeleted( areaOfInterest.getChannel() );
   }
 }
