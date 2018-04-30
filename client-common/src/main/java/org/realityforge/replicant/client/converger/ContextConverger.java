@@ -384,15 +384,32 @@ public abstract class ContextConverger
   }
 
   @Action
-  protected void removeFailedSubscription( @Nonnull final ChannelAddress descriptor )
+  protected void removeFailedSubscription( @Nonnull final ChannelAddress address,
+                                           @Nonnull final Throwable error )
   {
-    LOG.info( "Removing failed subscription " + descriptor );
-    final AreaOfInterest subscription = getAreaOfInterestService().findAreaOfInterestByAddress( descriptor );
-    if ( null != subscription )
+    LOG.info( "Removing failed subscription " + address );
+    final AreaOfInterest areaOfInterest = getAreaOfInterestService().findAreaOfInterestByAddress( address );
+    if ( null != areaOfInterest )
     {
-      Disposable.dispose( subscription );
+      Disposable.dispose( areaOfInterest );
     }
     convergeStep();
+  }
+
+  @Action
+  protected void setAreaOfInterestState( @Nonnull final ChannelAddress address,
+                                         @Nonnull final AreaOfInterest.Status status,
+                                         final boolean attemptEntryLoad,
+                                         @Nullable final Throwable throwable )
+  {
+    LOG.info( "Update AreaOfInterest " + address + " to status " + status );
+    final AreaOfInterest areaOfInterest = getAreaOfInterestService().findAreaOfInterestByAddress( address );
+    if ( null != areaOfInterest )
+    {
+      areaOfInterest.setStatus( status );
+      areaOfInterest.setEntry( attemptEntryLoad ? getSubscriptionManager().findChannelSubscription( address ) : null );
+      areaOfInterest.setError( throwable );
+    }
   }
 
   @Nonnull
@@ -442,39 +459,66 @@ public abstract class ContextConverger
     extends DataLoaderListenerAdapter
   {
     @Override
-    public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelAddress descriptor )
+    public void onSubscribeStarted( @Nonnull final DataLoaderService service, @Nonnull final ChannelAddress address )
     {
+      setAreaOfInterestState( address, AreaOfInterest.Status.LOADING, false, null );
+    }
+
+    @Override
+    public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
+                                      @Nonnull final ChannelAddress address )
+    {
+      setAreaOfInterestState( address, AreaOfInterest.Status.LOADED, true, null );
       convergeStep();
     }
 
     @Override
     public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelAddress descriptor,
+                                   @Nonnull final ChannelAddress address,
                                    @Nonnull final Throwable throwable )
     {
-      removeFailedSubscription( descriptor );
+      setAreaOfInterestState( address, AreaOfInterest.Status.LOAD_FAILED, false, throwable );
+      removeFailedSubscription( address, throwable );
+    }
+
+    @Override
+    public void onUnsubscribeStarted( @Nonnull final DataLoaderService service, @Nonnull final ChannelAddress address )
+    {
+      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADING, false, null );
     }
 
     @Override
     public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                        @Nonnull final ChannelAddress descriptor )
+                                        @Nonnull final ChannelAddress address )
     {
+      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, null );
       convergeStep();
     }
 
     @Override
     public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                     @Nonnull final ChannelAddress descriptor,
+                                     @Nonnull final ChannelAddress address,
                                      @Nonnull final Throwable throwable )
     {
+      // Note can not call removeFailedSubscription( address, throwable ) as the unsubscribe failure
+      // may be due to the server going away and thus unsubscribe expected to fail. But we should not
+      // then remove subscription
+      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, throwable );
       convergeStep();
+    }
+
+    @Override
+    public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
+                                             @Nonnull final ChannelAddress address )
+    {
+      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATING, true, null );
     }
 
     @Override
     public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
                                                @Nonnull final ChannelAddress address )
     {
+      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATED, true, null );
       convergeStep();
     }
 
@@ -483,7 +527,8 @@ public abstract class ContextConverger
                                             @Nonnull final ChannelAddress address,
                                             @Nonnull final Throwable throwable )
     {
-      removeFailedSubscription( address );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATE_FAILED, false, throwable );
+      removeFailedSubscription( address, throwable );
     }
   }
 }

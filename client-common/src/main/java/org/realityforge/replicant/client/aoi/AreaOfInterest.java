@@ -71,7 +71,7 @@ public abstract class AreaOfInterest
     return _status;
   }
 
-  void setStatus( @Nonnull final Status status )
+  public void setStatus( @Nonnull final Status status )
   {
     _status = Objects.requireNonNull( status );
   }
