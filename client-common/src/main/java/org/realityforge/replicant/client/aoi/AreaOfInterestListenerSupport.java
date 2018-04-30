@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.Channel;
 
 final class AreaOfInterestListenerSupport
   implements AreaOfInterestListener
@@ -37,21 +36,21 @@ final class AreaOfInterestListenerSupport
   }
 
   @Override
-  public void channelCreated( @Nonnull final Channel channel )
+  public void areaOfInterestCreated( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    cloneListeners().forEach( l -> l.channelCreated( channel ) );
+    cloneListeners().forEach( l -> l.areaOfInterestCreated( areaOfInterest ) );
   }
 
   @Override
-  public void channelUpdated( @Nonnull final Channel channel )
+  public void areaOfInterestUpdated( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    cloneListeners().forEach( l -> l.channelUpdated( channel ) );
+    cloneListeners().forEach( l -> l.areaOfInterestUpdated( areaOfInterest ) );
   }
 
   @Override
-  public void channelDeleted( @Nonnull final Channel channel )
+  public void areaOfInterestDeleted( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    cloneListeners().forEach( l -> l.channelDeleted( channel ) );
+    cloneListeners().forEach( l -> l.areaOfInterestDeleted( areaOfInterest ) );
   }
 
   /**

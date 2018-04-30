@@ -5,27 +5,27 @@ import org.realityforge.replicant.client.Channel;
 
 public interface AreaOfInterestListener
 {
-  void channelCreated( @Nonnull Channel channel );
+  void areaOfInterestCreated( @Nonnull AreaOfInterest areaOfInterest );
 
-  void channelUpdated( @Nonnull Channel channel );
+  void areaOfInterestUpdated( @Nonnull AreaOfInterest areaOfInterest );
 
-  void channelDeleted( @Nonnull Channel channel );
+  void areaOfInterestDeleted( @Nonnull AreaOfInterest areaOfInterest );
 
   class Adapter
     implements AreaOfInterestListener
   {
     @Override
-    public void channelCreated( @Nonnull final Channel channel )
+    public void areaOfInterestCreated( @Nonnull final AreaOfInterest areaOfInterest )
     {
     }
 
     @Override
-    public void channelUpdated( @Nonnull final Channel channel )
+    public void areaOfInterestUpdated( @Nonnull final AreaOfInterest areaOfInterest )
     {
     }
 
     @Override
-    public void channelDeleted( @Nonnull final Channel channel )
+    public void areaOfInterestDeleted( @Nonnull final AreaOfInterest areaOfInterest )
     {
     }
   }

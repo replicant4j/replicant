@@ -19,8 +19,8 @@ public class AreaOfInterestListenerSupportTest
   {
     final AreaOfInterestListenerSupport support = new AreaOfInterestListenerSupport();
 
-    final Channel subscription =
-      Channel.create( new ChannelAddress( TestSystem.A, ValueUtil.randomString() ), null );
+    final Channel channel = Channel.create( new ChannelAddress( TestSystem.A, ValueUtil.randomString() ), null );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
 
@@ -29,14 +29,14 @@ public class AreaOfInterestListenerSupportTest
 
     assertTrue( support.getListeners().contains( listener ) );
 
-    support.channelCreated( subscription );
-    verify( listener ).channelCreated( subscription );
+    support.areaOfInterestCreated( areaOfInterest );
+    verify( listener ).areaOfInterestCreated( areaOfInterest );
 
-    support.channelUpdated( subscription );
-    verify( listener ).channelUpdated( subscription );
+    support.areaOfInterestUpdated( areaOfInterest );
+    verify( listener ).areaOfInterestUpdated( areaOfInterest );
 
-    support.channelDeleted( subscription );
-    verify( listener ).channelDeleted( subscription );
+    support.areaOfInterestDeleted( areaOfInterest );
+    verify( listener ).areaOfInterestDeleted( areaOfInterest );
 
     assertTrue( support.removeListener( listener ) );
     assertFalse( support.removeListener( listener ), "Can not remove duplicate" );
@@ -44,7 +44,7 @@ public class AreaOfInterestListenerSupportTest
     assertFalse( support.getListeners().contains( listener ) );
 
     reset( listener );
-    support.channelDeleted( subscription );
-    verify( listener, never() ).channelDeleted( subscription );
+    support.areaOfInterestDeleted( areaOfInterest );
+    verify( listener, never() ).areaOfInterestDeleted( areaOfInterest );
   }
 }

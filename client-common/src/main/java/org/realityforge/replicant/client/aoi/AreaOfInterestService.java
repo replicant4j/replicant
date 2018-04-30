@@ -60,9 +60,8 @@ public abstract class AreaOfInterestService
   public void updateAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest, @Nullable final Object filter )
   {
     assert !Disposable.isDisposed( areaOfInterest );
-    final Channel channel = areaOfInterest.getChannel();
-    channel.setFilter( filter );
-    _listeners.channelUpdated( channel );
+    areaOfInterest.getChannel().setFilter( filter );
+    _listeners.areaOfInterestUpdated( areaOfInterest );
   }
 
   @Nonnull
@@ -83,7 +82,7 @@ public abstract class AreaOfInterestService
       final Channel channel = Channel.create( address, filter );
       final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( channel );
       registerEntity( newAreaOfInterest );
-      _listeners.channelCreated( channel );
+      _listeners.areaOfInterestCreated( newAreaOfInterest );
       return newAreaOfInterest;
     }
   }
@@ -105,6 +104,6 @@ public abstract class AreaOfInterestService
   public void destroy( @Nonnull final AreaOfInterest areaOfInterest )
   {
     super.destroy( areaOfInterest );
-    _listeners.channelDeleted( areaOfInterest.getChannel() );
+    _listeners.areaOfInterestDeleted( areaOfInterest );
   }
 }

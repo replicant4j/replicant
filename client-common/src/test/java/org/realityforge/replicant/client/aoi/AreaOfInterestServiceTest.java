@@ -32,13 +32,13 @@ public class AreaOfInterestServiceTest
     final ChannelAddress descriptor3 = new ChannelAddress( TestSystem.B, 2 );
 
     Arez.context().safeAction( () -> {
-      final AreaOfInterest subscription1 = service.findOrCreateAreaOfInterest( descriptor1, null );
-      assertNotNull( subscription1 );
+      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( descriptor1, null );
+      assertNotNull( areaOfInterest1 );
 
-      assertEquals( subscription1.getAddress(), descriptor1 );
-      assertEquals( !Disposable.isDisposed( subscription1 ), true );
+      assertEquals( areaOfInterest1.getAddress(), descriptor1 );
+      assertEquals( !Disposable.isDisposed( areaOfInterest1 ), true );
 
-      verify( listener ).channelCreated( subscription1.getChannel() );
+      verify( listener ).areaOfInterestCreated( areaOfInterest1 );
 
       final Collection<AreaOfInterest> subscriptions = service.getAreasOfInterest();
       assertEquals( subscriptions.size(), 1 );
@@ -47,19 +47,19 @@ public class AreaOfInterestServiceTest
       assertEquals( subscriptions.stream().anyMatch( n -> n.getChannel().getAddress().equals( descriptor3 ) ), false );
 
       final Object newFilter = new Object();
-      service.updateAreaOfInterest( subscription1, newFilter );
+      service.updateAreaOfInterest( areaOfInterest1, newFilter );
 
-      assertEquals( subscription1.getChannel().getFilter(), newFilter );
+      assertEquals( areaOfInterest1.getChannel().getFilter(), newFilter );
 
-      verify( listener ).channelUpdated( subscription1.getChannel() );
+      verify( listener ).areaOfInterestUpdated( areaOfInterest1 );
 
-      Disposable.dispose( subscription1 );
-      assertEquals( Disposable.isDisposed( subscription1 ), true );
+      Disposable.dispose( areaOfInterest1 );
+      assertEquals( Disposable.isDisposed( areaOfInterest1 ), true );
 
       assertEquals( service.getAreasOfInterest().size(), 0 );
     } );
 
-    verify( listener ).channelDeleted( any() );
+    verify( listener ).areaOfInterestDeleted( any() );
   }
 
   @Test
@@ -77,19 +77,19 @@ public class AreaOfInterestServiceTest
       final String filer1 = "Filer1";
       final String filer2 = null;
 
-      final AreaOfInterest subscription1 = service.findOrCreateAreaOfInterest( descriptor1, filer1 );
+      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( descriptor1, filer1 );
 
-      assertEquals( subscription1.getAddress(), descriptor1 );
-      assertEquals( subscription1.getChannel().getFilter(), filer1 );
+      assertEquals( areaOfInterest1.getAddress(), descriptor1 );
+      assertEquals( areaOfInterest1.getChannel().getFilter(), filer1 );
 
-      verify( listener ).channelCreated( subscription1.getChannel() );
+      verify( listener ).areaOfInterestCreated( areaOfInterest1 );
 
-      final AreaOfInterest subscription2 = service.findOrCreateAreaOfInterest( descriptor2, filer2 );
+      final AreaOfInterest areaOfInterest2 = service.findOrCreateAreaOfInterest( descriptor2, filer2 );
 
-      assertEquals( subscription2.getAddress(), descriptor2 );
-      assertEquals( subscription2.getChannel().getFilter(), filer2 );
+      assertEquals( areaOfInterest2.getAddress(), descriptor2 );
+      assertEquals( areaOfInterest2.getChannel().getFilter(), filer2 );
 
-      verify( listener ).channelCreated( subscription2.getChannel() );
+      verify( listener ).areaOfInterestCreated( areaOfInterest2 );
     } );
   }
 
@@ -107,27 +107,27 @@ public class AreaOfInterestServiceTest
       service.addAreaOfInterestListener( listener );
 
       // No existing subscription
-      final AreaOfInterest subscription1 = service.findOrCreateAreaOfInterest( channel, filter1 );
-      assertEquals( subscription1.getAddress(), channel );
-      assertEquals( subscription1.getChannel().getFilter(), filter1 );
-      assertEquals( service.findAreaOfInterestByAddress( channel ), subscription1 );
+      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( channel, filter1 );
+      assertEquals( areaOfInterest1.getAddress(), channel );
+      assertEquals( areaOfInterest1.getChannel().getFilter(), filter1 );
+      assertEquals( service.findAreaOfInterestByAddress( channel ), areaOfInterest1 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
 
-      verify( listener ).channelCreated( subscription1.getChannel() );
-      verify( listener, never() ).channelUpdated( subscription1.getChannel() );
+      verify( listener ).areaOfInterestCreated( areaOfInterest1 );
+      verify( listener, never() ).areaOfInterestUpdated( areaOfInterest1 );
 
       reset( listener );
 
       //Existing subscription, same filter
-      final AreaOfInterest subscription2 = service.findOrCreateAreaOfInterest( channel, filter1 );
-      assertEquals( subscription2.getAddress(), channel );
-      assertEquals( subscription2.getChannel().getFilter(), filter1 );
-      assertEquals( subscription1, subscription2 );
-      assertEquals( service.findAreaOfInterestByAddress( channel ), subscription2 );
+      final AreaOfInterest areaOfInterest2 = service.findOrCreateAreaOfInterest( channel, filter1 );
+      assertEquals( areaOfInterest2.getAddress(), channel );
+      assertEquals( areaOfInterest2.getChannel().getFilter(), filter1 );
+      assertEquals( areaOfInterest1, areaOfInterest2 );
+      assertEquals( service.findAreaOfInterestByAddress( channel ), areaOfInterest2 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
 
-      verify( listener, never() ).channelCreated( subscription1.getChannel() );
-      verify( listener, never() ).channelUpdated( subscription1.getChannel() );
+      verify( listener, never() ).areaOfInterestCreated( areaOfInterest1 );
+      verify( listener, never() ).areaOfInterestUpdated( areaOfInterest1 );
 
       reset( listener );
 
@@ -135,12 +135,12 @@ public class AreaOfInterestServiceTest
       final AreaOfInterest subscription3 = service.findOrCreateAreaOfInterest( channel, filter2 );
       assertEquals( subscription3.getAddress(), channel );
       assertEquals( subscription3.getChannel().getFilter(), filter2 );
-      assertEquals( subscription1, subscription3 );
+      assertEquals( areaOfInterest1, subscription3 );
       assertEquals( service.findAreaOfInterestByAddress( channel ), subscription3 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
 
-      verify( listener, never() ).channelCreated( subscription1.getChannel() );
-      verify( listener ).channelUpdated( subscription1.getChannel() );
+      verify( listener, never() ).areaOfInterestCreated( areaOfInterest1 );
+      verify( listener ).areaOfInterestUpdated( areaOfInterest1 );
     } );
   }
 }
