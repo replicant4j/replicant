@@ -104,7 +104,8 @@ public abstract class EntitySubscriptionManager
       }
       else
       {
-        _instanceChannelSubscriptions.computeIfAbsent( address.getChannelType(), k -> new HashMap<>() )
+        _instanceChannelSubscriptions
+          .computeIfAbsent( address.getChannelType(), k -> new HashMap<>() )
           .put( id, entry );
       }
       return entry;
