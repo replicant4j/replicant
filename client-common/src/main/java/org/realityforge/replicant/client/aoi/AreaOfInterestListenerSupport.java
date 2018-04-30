@@ -58,7 +58,7 @@ final class AreaOfInterestListenerSupport
    * This avoids concurrent operation exceptions.
    */
   @Nonnull
-  synchronized ArrayList<AreaOfInterestListener> cloneListeners()
+  private synchronized ArrayList<AreaOfInterestListener> cloneListeners()
   {
     final ArrayList<AreaOfInterestListener> listeners = new ArrayList<>( _listeners.size() );
     listeners.addAll( _listeners );
