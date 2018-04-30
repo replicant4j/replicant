@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterest;
-import org.realityforge.replicant.client.aoi.AreaOfInterestListener;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
@@ -26,7 +25,6 @@ public abstract class ContextConverger
 {
   private static final Logger LOG = Logger.getLogger( ContextConverger.class.getName() );
   protected static final int CONVERGE_DELAY_IN_MS = 100;
-  private final ConvergerAreaOfInterestListener _aoiListener = new ConvergerAreaOfInterestListener();
   private final ConvergerReplicantSystemListener _rsListener = new ConvergerReplicantSystemListener();
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   private boolean _convergeComplete;
@@ -67,7 +65,6 @@ public abstract class ContextConverger
 
   protected void addListeners()
   {
-    getAreaOfInterestService().addAreaOfInterestListener( _aoiListener );
     getReplicantClientSystem().addReplicantSystemListener( _rsListener );
     for ( final DataLoaderEntry entry : getReplicantClientSystem().getDataLoaders() )
     {
@@ -77,7 +74,6 @@ public abstract class ContextConverger
 
   protected void removeListeners()
   {
-    getAreaOfInterestService().removeAreaOfInterestListener( _aoiListener );
     getReplicantClientSystem().removeReplicantSystemListener( _rsListener );
     for ( final DataLoaderEntry entry : getReplicantClientSystem().getDataLoaders() )
     {
@@ -410,6 +406,7 @@ public abstract class ContextConverger
       areaOfInterest.setEntry( attemptEntryLoad ? getSubscriptionManager().findChannelSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
+    markConvergeAsIncomplete();
   }
 
   @Nonnull
@@ -430,28 +427,6 @@ public abstract class ContextConverger
                               @Nonnull final ReplicantClientSystem.State oldState )
     {
       markConvergeAsIncomplete();
-    }
-  }
-
-  final class ConvergerAreaOfInterestListener
-    implements AreaOfInterestListener
-  {
-    @Override
-    public void areaOfInterestCreated( @Nonnull final AreaOfInterest areaOfInterest )
-    {
-      markSubscriptionAsRequiringUpdate();
-    }
-
-    @Override
-    public void areaOfInterestUpdated( @Nonnull final AreaOfInterest areaOfInterest )
-    {
-      markSubscriptionAsRequiringUpdate();
-    }
-
-    @Override
-    public void areaOfInterestDeleted( @Nonnull final AreaOfInterest areaOfInterest )
-    {
-      markSubscriptionAsRequiringUpdate();
     }
   }
 

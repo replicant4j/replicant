@@ -6,7 +6,6 @@ import arez.annotations.ArezComponent;
 import arez.component.AbstractContainer;
 import arez.component.RepositoryUtil;
 import java.util.List;
-import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -25,24 +24,10 @@ import org.realityforge.replicant.client.FilterUtil;
 public abstract class AreaOfInterestService
   extends AbstractContainer<ChannelAddress, AreaOfInterest>
 {
-  private final AreaOfInterestListenerSupport _listeners = new AreaOfInterestListenerSupport();
-
   @Nonnull
   public static AreaOfInterestService create()
   {
     return new Arez_AreaOfInterestService();
-  }
-
-  @SuppressWarnings( "UnusedReturnValue" )
-  public boolean addAreaOfInterestListener( @Nonnull final AreaOfInterestListener listener )
-  {
-    return _listeners.addListener( Objects.requireNonNull( listener ) );
-  }
-
-  @SuppressWarnings( "UnusedReturnValue" )
-  public boolean removeAreaOfInterestListener( @Nonnull final AreaOfInterestListener listener )
-  {
-    return _listeners.removeListener( Objects.requireNonNull( listener ) );
   }
 
   @Nonnull
@@ -61,7 +46,6 @@ public abstract class AreaOfInterestService
   {
     assert !Disposable.isDisposed( areaOfInterest );
     areaOfInterest.getChannel().setFilter( filter );
-    _listeners.areaOfInterestUpdated( areaOfInterest );
   }
 
   @Nonnull
@@ -82,7 +66,6 @@ public abstract class AreaOfInterestService
       final Channel channel = Channel.create( address, filter );
       final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( channel );
       registerEntity( newAreaOfInterest );
-      _listeners.areaOfInterestCreated( newAreaOfInterest );
       return newAreaOfInterest;
     }
   }
@@ -104,6 +87,5 @@ public abstract class AreaOfInterestService
   public void destroy( @Nonnull final AreaOfInterest areaOfInterest )
   {
     super.destroy( areaOfInterest );
-    _listeners.areaOfInterestDeleted( areaOfInterest );
   }
 }

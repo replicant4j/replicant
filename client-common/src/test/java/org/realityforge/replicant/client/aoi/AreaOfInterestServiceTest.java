@@ -7,7 +7,6 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "Duplicates" )
@@ -24,9 +23,6 @@ public class AreaOfInterestServiceTest
   {
     final AreaOfInterestService service = AreaOfInterestService.create();
 
-    final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
-    service.addAreaOfInterestListener( listener );
-
     final ChannelAddress descriptor1 = new ChannelAddress( TestSystem.A, null );
     final ChannelAddress descriptor2 = new ChannelAddress( TestSystem.B, 1 );
     final ChannelAddress descriptor3 = new ChannelAddress( TestSystem.B, 2 );
@@ -37,8 +33,6 @@ public class AreaOfInterestServiceTest
 
       assertEquals( areaOfInterest1.getAddress(), descriptor1 );
       assertEquals( !Disposable.isDisposed( areaOfInterest1 ), true );
-
-      verify( listener ).areaOfInterestCreated( areaOfInterest1 );
 
       final Collection<AreaOfInterest> subscriptions = service.getAreasOfInterest();
       assertEquals( subscriptions.size(), 1 );
@@ -51,15 +45,11 @@ public class AreaOfInterestServiceTest
 
       assertEquals( areaOfInterest1.getChannel().getFilter(), newFilter );
 
-      verify( listener ).areaOfInterestUpdated( areaOfInterest1 );
-
       Disposable.dispose( areaOfInterest1 );
       assertEquals( Disposable.isDisposed( areaOfInterest1 ), true );
 
       assertEquals( service.getAreasOfInterest().size(), 0 );
     } );
-
-    verify( listener ).areaOfInterestDeleted( any() );
   }
 
   @Test
@@ -67,9 +57,6 @@ public class AreaOfInterestServiceTest
   {
     Arez.context().safeAction( () -> {
       final AreaOfInterestService service = AreaOfInterestService.create();
-
-      final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
-      service.addAreaOfInterestListener( listener );
 
       final ChannelAddress descriptor1 = new ChannelAddress( TestSystem.A );
       final ChannelAddress descriptor2 = new ChannelAddress( TestSystem.B );
@@ -82,14 +69,10 @@ public class AreaOfInterestServiceTest
       assertEquals( areaOfInterest1.getAddress(), descriptor1 );
       assertEquals( areaOfInterest1.getChannel().getFilter(), filer1 );
 
-      verify( listener ).areaOfInterestCreated( areaOfInterest1 );
-
       final AreaOfInterest areaOfInterest2 = service.findOrCreateAreaOfInterest( descriptor2, filer2 );
 
       assertEquals( areaOfInterest2.getAddress(), descriptor2 );
       assertEquals( areaOfInterest2.getChannel().getFilter(), filer2 );
-
-      verify( listener ).areaOfInterestCreated( areaOfInterest2 );
     } );
   }
 
@@ -103,20 +86,12 @@ public class AreaOfInterestServiceTest
 
       final AreaOfInterestService service = AreaOfInterestService.create();
 
-      final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
-      service.addAreaOfInterestListener( listener );
-
       // No existing subscription
       final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( channel, filter1 );
       assertEquals( areaOfInterest1.getAddress(), channel );
       assertEquals( areaOfInterest1.getChannel().getFilter(), filter1 );
       assertEquals( service.findAreaOfInterestByAddress( channel ), areaOfInterest1 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
-
-      verify( listener ).areaOfInterestCreated( areaOfInterest1 );
-      verify( listener, never() ).areaOfInterestUpdated( areaOfInterest1 );
-
-      reset( listener );
 
       //Existing subscription, same filter
       final AreaOfInterest areaOfInterest2 = service.findOrCreateAreaOfInterest( channel, filter1 );
@@ -126,11 +101,6 @@ public class AreaOfInterestServiceTest
       assertEquals( service.findAreaOfInterestByAddress( channel ), areaOfInterest2 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
 
-      verify( listener, never() ).areaOfInterestCreated( areaOfInterest1 );
-      verify( listener, never() ).areaOfInterestUpdated( areaOfInterest1 );
-
-      reset( listener );
-
       //Existing subscription, different filter
       final AreaOfInterest subscription3 = service.findOrCreateAreaOfInterest( channel, filter2 );
       assertEquals( subscription3.getAddress(), channel );
@@ -138,9 +108,6 @@ public class AreaOfInterestServiceTest
       assertEquals( areaOfInterest1, subscription3 );
       assertEquals( service.findAreaOfInterestByAddress( channel ), subscription3 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
-
-      verify( listener, never() ).areaOfInterestCreated( areaOfInterest1 );
-      verify( listener ).areaOfInterestUpdated( areaOfInterest1 );
     } );
   }
 }

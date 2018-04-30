@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
@@ -67,8 +66,6 @@ public class ContextConvergerTest
     verify( dl3 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
 
     verify( system ).addReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
-    verify( areaOfInterestService ).
-      addAreaOfInterestListener( any( ContextConverger.ConvergerAreaOfInterestListener.class ) );
 
     c.removeListeners();
 
@@ -78,8 +75,6 @@ public class ContextConvergerTest
 
     verify( system ).
       removeReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
-    verify( areaOfInterestService ).
-      removeAreaOfInterestListener( any( ContextConverger.ConvergerAreaOfInterestListener.class ) );
 
     c.release();
 
@@ -89,8 +84,6 @@ public class ContextConvergerTest
 
     verify( system, times( 2 ) ).
       removeReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
-    verify( areaOfInterestService, times( 2 ) ).
-      removeAreaOfInterestListener( any( ContextConverger.ConvergerAreaOfInterestListener.class ) );
   }
 
   @Test
@@ -595,7 +588,6 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final EntitySubscriptionManager subscriptionManager = mock( EntitySubscriptionManager.class );
-    final Set<ChannelAddress> expectedChannels = new HashSet<>();
 
     final ChannelAddress descriptor = new ChannelAddress( TestSystemA.A, 1 );
     final Channel channel = Channel.create( descriptor, null );
