@@ -2,6 +2,10 @@ package org.realityforge.replicant.client.subscription;
 
 import arez.Disposable;
 import arez.annotations.ArezComponent;
+import arez.annotations.Observable;
+import arez.annotations.ObservableRef;
+import arez.component.ComponentObservable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,8 +16,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A class that records the subscriptions to channels and entities.
@@ -29,7 +35,7 @@ public abstract class EntitySubscriptionManager
   private final HashMap<Enum, Subscription> _typeSubscriptions = new HashMap<>();
 
   // Entity map: Type => ID
-  private final HashMap<Class<?>, EntityTypeRepository> _entityMapping = new HashMap<>();
+  private final Map<Class<?>, Map<Object, Entity>> _entities = new HashMap<>();
 
   @Nonnull
   public static EntitySubscriptionManager create()
@@ -212,6 +218,60 @@ public abstract class EntitySubscriptionManager
     }
   }
 
+  @ObservableRef
+  protected abstract arez.Observable getEntitiesObservable();
+
+  @Observable( expectSetter = false )
+  Map<Class<?>, Map<Object, Entity>> getEntities()
+  {
+    return _entities;
+  }
+
+  @Nonnull
+  public Collection<Class<?>> findAllEntityTypes()
+  {
+    return getEntities().keySet();
+  }
+
+  /**
+   * Find the subscription details for entity.
+   *
+   * @param type the type of the entity.
+   * @param id   the id of the entity.
+   * @return the subscription entry if it exists, null otherwise.
+   */
+  @Nullable
+  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
+  {
+    final Map<Object, Entity> typeMap = _entities.get( type );
+    if ( null == typeMap )
+    {
+      getEntitiesObservable().reportObserved();
+      return null;
+    }
+    else
+    {
+      final Entity entity = typeMap.get( id );
+      if ( null == entity )
+      {
+        getEntitiesObservable().reportObserved();
+        return null;
+      }
+      else
+      {
+        ComponentObservable.observe( entity );
+        return entity;
+      }
+    }
+  }
+
+  @Nonnull
+  public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
+  {
+    final Map<Object, Entity> typeMap = getEntities().get( type );
+    return null == typeMap ? Collections.emptyList() : new ArrayList<>( typeMap.values() );
+  }
+
   /**
    * Return the subscription details for entity.
    *
@@ -223,25 +283,12 @@ public abstract class EntitySubscriptionManager
   @Nonnull
   public Entity getEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    final Entity entityEntry = findEntity( type, id );
+    final Entity entityEntry = findEntityByTypeAndId( type, id );
     if ( null == entityEntry )
     {
       throw new IllegalStateException( "Entity not subscribed: " + type.getSimpleName() + "/" + id );
     }
     return entityEntry;
-  }
-
-  /**
-   * Find the subscription details for entity.
-   *
-   * @param type the type of the entity.
-   * @param id   the id of the entity.
-   * @return the subscription entry if it exists, null otherwise.
-   */
-  @Nullable
-  public Entity findEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
-  {
-    return getEntityTypeMap( type ).findEntityById( id );
   }
 
   /**
@@ -286,7 +333,7 @@ public abstract class EntitySubscriptionManager
                                               @Nonnull final ChannelAddress channel )
     throws IllegalStateException
   {
-    final Entity entity = findOrCreateEntity( type, id );
+    final Entity entity = getEntity( type, id );
     final Subscription channelSubscription = getSubscription( channel );
     entity.delinkFromSubscription( channelSubscription );
     return entity;
@@ -295,37 +342,74 @@ public abstract class EntitySubscriptionManager
   /**
    * Remove entity and all associated subscriptions.
    *
-   * @param type the type of the entity.
-   * @param id   the id of the entity.
+   * @param entityType the type of the entity.
+   * @param id         the id of the entity.
    */
-  public void removeEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public void removeEntity( @Nonnull final Class<?> entityType, @Nonnull final Object id )
   {
-    final EntityTypeRepository entityTypeRepository = _entityMapping.get( type );
-    if ( null != entityTypeRepository )
+    getEntitiesObservable().preReportChanged();
+    final Map<Object, Entity> typeMap = _entities.get( entityType );
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      final Entity entity = entityTypeRepository.findEntityById( id );
-      if ( null != entity )
-      {
-        entityTypeRepository.destroy( entity );
-      }
+      invariant( () -> null != typeMap,
+                 () -> "Entity type " + entityType.getSimpleName() + " not present in EntitySubscriptionManager" );
     }
+    assert null != typeMap;
+    final Entity removed = typeMap.remove( id );
+    if ( BrainCheckConfig.checkInvariants() )
+    {
+      invariant( () -> null != removed,
+                 () -> "Entity instance " + descEntity( entityType, id ) + " not present " +
+                       "in EntitySubscriptionManager" );
+    }
+    Disposable.dispose( removed );
+    if ( typeMap.isEmpty() )
+    {
+      _entities.remove( entityType );
+    }
+    getEntitiesObservable().reportChanged();
   }
 
   @Nonnull
   private Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    return getEntityTypeMap( type ).findOrCreateEntity( id );
+    final Map<Object, Entity> typeMap = _entities.get( type );
+    if ( null == typeMap )
+    {
+      final HashMap<Object, Entity> newTypeMap = new HashMap<>();
+      _entities.put( type, newTypeMap );
+      return createEntity( newTypeMap, type, id );
+    }
+    else
+    {
+      final Entity entity = typeMap.get( id );
+      if ( null == entity )
+      {
+        return createEntity( typeMap, type, id );
+      }
+      else
+      {
+        ComponentObservable.observe( entity );
+        return entity;
+      }
+    }
   }
 
   @Nonnull
-  public List<Entity> findEntitiesByType( @Nonnull final Class<?> type )
+  private Entity createEntity( @Nonnull final Map<Object, Entity> typeMap,
+                               @Nonnull final Class<?> type,
+                               @Nonnull final Object id )
   {
-    return getEntityTypeMap( type ).getEntities();
+    getEntitiesObservable().preReportChanged();
+    final Entity entity = Entity.create( type, id );
+    typeMap.put( id, entity );
+    getEntitiesObservable().reportChanged();
+    return entity;
   }
 
   @Nonnull
-  private EntityTypeRepository getEntityTypeMap( @Nonnull final Class<?> type )
+  private String descEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    return _entityMapping.computeIfAbsent( type, EntityTypeRepository::create );
+    return type.getSimpleName() + "/" + id;
   }
 }

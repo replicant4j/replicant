@@ -327,7 +327,7 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, null ), type, id );
 
-    assertEquals( e.getSubscriptions().size(), 0 );
+    assertEquals( e.subscriptions().size(), 0 );
   }
 
   private void assertEntitySubscribed( final EntitySubscriptionManager sm,

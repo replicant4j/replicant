@@ -1286,7 +1286,7 @@ public abstract class AbstractDataLoaderService
     {
       for ( final Class<?> entityType : getEntityTypes() )
       {
-        for ( final Object entity : getSubscriptionManager().findEntitiesByType( entityType ) )
+        for ( final Object entity : getSubscriptionManager().findAllEntitiesByType( entityType ) )
         {
           invariant( () -> !Disposable.isDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );
