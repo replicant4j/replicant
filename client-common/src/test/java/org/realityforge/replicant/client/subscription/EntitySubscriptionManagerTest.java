@@ -175,40 +175,6 @@ public class EntitySubscriptionManagerTest
   }
 
   @Test
-  public void entitySubscriptionAndUpdateInInstanceChannel()
-  {
-    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-
-    final Subscription e1 = sm.recordSubscription( new ChannelAddress( G.G2, 1 ), "F1", false );
-
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F1" );
-
-    final Subscription e2 = sm.updateSubscription( new ChannelAddress( G.G2, 1 ), "F2" );
-
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G2, 1 ) ).getChannel().getFilter(), "F2" );
-
-    assertEquals( e1, e2 );
-  }
-
-  @Test
-  public void entitySubscriptionAndUpdateInTypeChannel()
-  {
-    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
-    assertNull( sm.findSubscription( new ChannelAddress( G.G1 ) ) );
-
-    final Subscription e1 = sm.recordSubscription( new ChannelAddress( G.G1 ), "F1", false );
-
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F1" );
-
-    final Subscription e2 = sm.updateSubscription( new ChannelAddress( G.G1 ), "F2" );
-
-    assertEquals( sm.getSubscription( new ChannelAddress( G.G1 ) ).getChannel().getFilter(), "F2" );
-
-    assertEquals( e1, e2 );
-  }
-
-  @Test
   public void entitySubscriptionInInstanceChannel_removeEntity()
   {
     final Class<A> type = A.class;

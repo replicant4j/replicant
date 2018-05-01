@@ -908,9 +908,9 @@ public abstract class AbstractDataLoaderService
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
-          final Subscription entry =
-            getSubscriptionManager().updateSubscription( descriptor, filter );
-          final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
+          final Subscription subscription = getSubscriptionManager().getSubscription( descriptor );
+          subscription.getChannel().setFilter( filter );
+          final int removedEntities = updateSubscriptionForFilteredEntities( subscription, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
           _currentAction.recordChannelSubscriptionUpdate( status );
         }

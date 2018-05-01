@@ -122,23 +122,6 @@ public abstract class EntitySubscriptionManager
   }
 
   /**
-   * Update subscription details for the specified channel.
-   *
-   * @param address the channel address.
-   * @param filter  the filter being updated.
-   * @return the subscription entry.
-   * @throws IllegalStateException if channel already subscribed to.
-   */
-  @Nonnull
-  public Subscription updateSubscription( @Nonnull final ChannelAddress address, @Nullable final Object filter )
-    throws IllegalStateException
-  {
-    final Subscription subscription = getSubscription( address );
-    subscription.getChannel().setFilter( filter );
-    return subscription;
-  }
-
-  /**
    * Return the subscription details for the specified channel if a subscription is recorded.
    *
    * @param channel the channel.
