@@ -19,7 +19,7 @@ import org.realityforge.replicant.client.ChannelAddress;
  * A class that records the subscriptions to channels and entities.
  */
 @Singleton
-@ArezComponent( allowEmpty = true )
+@ArezComponent
 public abstract class EntitySubscriptionManager
 {
   //ChannelType => InstanceID
