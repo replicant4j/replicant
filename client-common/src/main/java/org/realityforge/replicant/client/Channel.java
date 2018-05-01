@@ -6,12 +6,14 @@ import arez.annotations.Observable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The Channel object contains the address of the channel and the optional filter for the channel.
  */
 @ArezComponent
 public abstract class Channel
+  implements Comparable<Channel>
 {
   @Nonnull
   private final ChannelAddress _address;
@@ -65,5 +67,14 @@ public abstract class Channel
     {
       return super.toString();
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compareTo( @NotNull final Channel o )
+  {
+    return getAddress().compareTo( o.getAddress() );
   }
 }

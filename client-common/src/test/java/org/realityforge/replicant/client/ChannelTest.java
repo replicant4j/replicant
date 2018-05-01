@@ -15,7 +15,7 @@ public class ChannelTest
 {
   enum TestSystem
   {
-    A
+    A, B
   }
 
   @Override
@@ -44,6 +44,23 @@ public class ChannelTest
     Disposable.dispose( subscription );
 
     assertEquals( Disposable.isDisposed( subscription ), true );
+  }
+
+  @SuppressWarnings( "EqualsWithItself" )
+  @Test
+  public void comparable()
+  {
+
+    final ChannelAddress address1 = new ChannelAddress( TestSystem.A );
+    final ChannelAddress address2 = new ChannelAddress( TestSystem.B );
+
+    final Channel channel1 = Channel.create( address1 );
+    final Channel channel2 = Channel.create( address2 );
+
+    assertEquals( channel1.compareTo( channel1 ), 0 );
+    assertEquals( channel1.compareTo( channel2 ), -1 );
+    assertEquals( channel2.compareTo( channel1 ), 1 );
+    assertEquals( channel2.compareTo( channel2 ), 0 );
   }
 
   @Test
