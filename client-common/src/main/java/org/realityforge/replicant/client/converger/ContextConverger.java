@@ -109,7 +109,7 @@ public abstract class ContextConverger
     convergeStep();
   }
 
-  protected void preConverge()
+  void preConverge()
   {
     if ( null != _preConvergeAction )
     {
