@@ -32,7 +32,11 @@ Some actions that should occur at some point in the future.
 
 * All of the AreaOfInterestListener infra should move to using AreaOfInterest object?
 
+* Merge `client-common` and `client-gwt` into `client`
+
 * Channel should be disposeOnDeactivate?
+
+* `ContextConverger` can have timer removed and instead have an `@Autorun` or `@Track` that schedules updates.
 
 * Figure out a way how to move Linkable, Verifiable and EntityLocator to Arez. Will need to somehow annotate
   inverse relationships and have Arez generate glue-code to link up outside of accessor. Will also need to mark
