@@ -21,7 +21,7 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent
 public abstract class Entity
 {
-  private final Map<ChannelAddress, ChannelSubscriptionEntry> _channelSubscriptions = new HashMap<>();
+  private final Map<ChannelAddress, Subscription> _channelSubscriptions = new HashMap<>();
   private final Class<?> _type;
   private final Object _id;
   private Object _userObject;
@@ -79,7 +79,7 @@ public abstract class Entity
    */
   @Nonnull
   @Observable( expectSetter = false )
-  public Collection<ChannelSubscriptionEntry> getChannelSubscriptions()
+  public Collection<Subscription> getChannelSubscriptions()
   {
     // This return result is already immutable as it is part of map so no need to convert to immutable
     return _channelSubscriptions.values();
@@ -93,18 +93,18 @@ public abstract class Entity
    *
    * @param subscription the channel subscription.
    */
-  void addChannelSubscription( @Nonnull final ChannelSubscriptionEntry subscription )
+  void addChannelSubscription( @Nonnull final Subscription subscription )
   {
     linkEntityToChannel( subscription );
     linkChannelToEntity( subscription );
   }
 
-  private void linkChannelToEntity( @Nonnull final ChannelSubscriptionEntry subscription )
+  private void linkChannelToEntity( @Nonnull final Subscription subscription )
   {
     subscription.getRwEntities().computeIfAbsent( getType(), k -> new HashMap<>() ).put( getId(), this );
   }
 
-  private void linkEntityToChannel( @Nonnull final ChannelSubscriptionEntry subscription )
+  private void linkEntityToChannel( @Nonnull final Subscription subscription )
   {
     getChannelSubscriptionsObservable().preReportChanged();
     final ChannelAddress address = subscription.getChannel().getAddress();
@@ -120,7 +120,7 @@ public abstract class Entity
    *
    * @param subscription the channel subscription.
    */
-  void removeChannelSubscription( @Nonnull final ChannelSubscriptionEntry subscription )
+  void removeChannelSubscription( @Nonnull final Subscription subscription )
   {
     delinkChannelFromEntity( subscription );
     delinkEntityFromChannel( subscription );
@@ -129,15 +129,15 @@ public abstract class Entity
   /**
    * De-register the specified channel subscription from this entity.
    * This method does not deregister entity from channel and it is assumed this is achieved through
-   * other means such as {@link #delinkEntityFromChannel(ChannelSubscriptionEntry)}.
+   * other means such as {@link #delinkEntityFromChannel(Subscription)}.
    *
    * @param subscription the channel subscription.
    */
-  void delinkChannelFromEntity( @Nonnull final ChannelSubscriptionEntry subscription )
+  void delinkChannelFromEntity( @Nonnull final Subscription subscription )
   {
     getChannelSubscriptionsObservable().preReportChanged();
     final ChannelAddress address = subscription.getChannel().getAddress();
-    final ChannelSubscriptionEntry candidate = _channelSubscriptions.remove( address );
+    final Subscription candidate = _channelSubscriptions.remove( address );
     getChannelSubscriptionsObservable().reportChanged();
     if ( BrainCheckConfig.checkApiInvariants() )
     {
@@ -149,11 +149,11 @@ public abstract class Entity
   /**
    * Deregister this entity from the specified channel subscription.
    * This method does not deregister channel from entity and it is assumed this is achieved through
-   * other means such as {@link #delinkChannelFromEntity(ChannelSubscriptionEntry)}.
+   * other means such as {@link #delinkChannelFromEntity(Subscription)}.
    *
    * @param subscription the channel subscription.
    */
-  final void delinkEntityFromChannel( @Nonnull final ChannelSubscriptionEntry subscription )
+  final void delinkEntityFromChannel( @Nonnull final Subscription subscription )
   {
     final Map<Class<?>, Map<Object, Entity>> map = subscription.getRwEntities();
     final Map<Object, Entity> typeMap = map.get( _type );
@@ -201,7 +201,7 @@ public abstract class Entity
   }
 
   @TestOnly
-  final Map<ChannelAddress, ChannelSubscriptionEntry> channelSubscriptions()
+  final Map<ChannelAddress, Subscription> channelSubscriptions()
   {
     return _channelSubscriptions;
   }

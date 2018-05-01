@@ -11,7 +11,7 @@ import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Subscription;
 import react4j.annotations.Prop;
 import react4j.arez.ReactArezComponent;
 import react4j.core.ReactNode;
@@ -47,7 +47,7 @@ public abstract class ReplicantSubscription<T>
   public interface UpdateErrorCallback
   {
     @Nullable
-    ReactNode render( @Nonnull ChannelSubscriptionEntry entry, @Nonnull Throwable error );
+    ReactNode render( @Nonnull Subscription entry, @Nonnull Throwable error );
   }
 
   @Inject

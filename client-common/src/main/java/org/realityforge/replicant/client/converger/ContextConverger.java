@@ -16,7 +16,7 @@ import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.ReplicantSystemListener;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
@@ -346,7 +346,7 @@ public abstract class ContextConverger
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
-    for ( final ChannelSubscriptionEntry channel : getSubscriptionManager().getTypeChannelSubscriptions() )
+    for ( final Subscription channel : getSubscriptionManager().getTypeChannelSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, channel );
     }
@@ -360,7 +360,7 @@ public abstract class ContextConverger
   }
 
   void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
-                                   @Nonnull final ChannelSubscriptionEntry channel )
+                                   @Nonnull final Subscription channel )
   {
     final ChannelAddress address = channel.getChannel().getAddress();
     if ( !expected.contains( address ) && channel.isExplicitSubscription() )

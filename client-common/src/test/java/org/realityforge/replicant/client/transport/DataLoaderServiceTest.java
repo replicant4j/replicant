@@ -5,10 +5,8 @@ import arez.Disposable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
@@ -16,8 +14,7 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.Linkable;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
-import org.realityforge.replicant.client.subscription.Entity;
+import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.ChannelAction.Action;
 import org.testng.IHookCallBack;
@@ -92,14 +89,14 @@ public class DataLoaderServiceTest
     final HashSet<Object> bChannelType = new HashSet<>();
     bChannelType.add( "2" );
 
-    final ChannelSubscriptionEntry entryA =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.A, "1" ), null ), true );
-    final ChannelSubscriptionEntry entryB =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.B, "2" ), null ), true );
-    final ChannelSubscriptionEntry entryC =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.C ), null ), true );
-    final ChannelSubscriptionEntry entryD =
-      ChannelSubscriptionEntry.create( Channel.create( new ChannelAddress( TestSystem.D ), null ), true );
+    final Subscription entryA =
+      Subscription.create( Channel.create( new ChannelAddress( TestSystem.A, "1" ), null ), true );
+    final Subscription entryB =
+      Subscription.create( Channel.create( new ChannelAddress( TestSystem.B, "2" ), null ), true );
+    final Subscription entryC =
+      Subscription.create( Channel.create( new ChannelAddress( TestSystem.C ), null ), true );
+    final Subscription entryD =
+      Subscription.create( Channel.create( new ChannelAddress( TestSystem.D ), null ), true );
 
     registerEntity( entryA, MyType.class, "A1" );
     registerEntity( entryB, MyType.class, "B1" );
@@ -136,14 +133,14 @@ public class DataLoaderServiceTest
   }
 
 
-  private void registerEntity( @Nonnull final ChannelSubscriptionEntry entry,
+  private void registerEntity( @Nonnull final Subscription entry,
                                @Nonnull final Class<?> type,
                                @Nonnull final String id )
   {
     final Map<Class<?>, Map<Object, Entity>> entities = entry.getEntities();
     final Map<Object, Entity> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
     final Entity entity = Entity.create( type, id );
-    entity.addChannelSubscriptions( new ChannelSubscriptionEntry[]{ entry}, new Object() );
+    entity.addChannelSubscriptions( new Subscription[]{ entry}, new Object() );
     typeMap.put( id, entity );
   }
   */
@@ -488,7 +485,7 @@ public class DataLoaderServiceTest
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
     final ChannelAddress descriptor = new ChannelAddress( TestSystem.B, "S" );
 
-    final ChannelSubscriptionEntry subscriptionEntry =
+    final Subscription subscriptionEntry =
       service.getSubscriptionManager().findChannelSubscription( descriptor );
     assertNotNull( subscriptionEntry );
     assertEquals( subscriptionEntry.getChannel().getAddress(), descriptor );

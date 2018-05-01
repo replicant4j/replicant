@@ -23,7 +23,7 @@ import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionDebugger;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
@@ -447,7 +447,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+      final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
       if ( null == entry )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -496,7 +496,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+      final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
       if ( null == entry )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -523,7 +523,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+        final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
@@ -537,7 +537,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+        final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
@@ -565,7 +565,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIAddActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final ChannelSubscriptionEntry entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+      final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
       if ( null != entry )
       {
         if ( entry.isExplicitSubscription() )
@@ -938,7 +938,7 @@ public abstract class AbstractDataLoaderService
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
-          final ChannelSubscriptionEntry entry =
+          final Subscription entry =
             getSubscriptionManager().updateChannelSubscription( descriptor, filter );
           final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
@@ -1131,15 +1131,15 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   public abstract Set<Class<?>> getEntityTypes();
 
-  protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry channelSubscriptionEntry,
+  protected abstract int updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
                                                                 @Nullable Object filter );
 
-  protected int updateSubscriptionForFilteredEntities( @Nonnull final ChannelSubscriptionEntry channelSubscriptionEntry,
+  protected int updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription,
                                                        @Nullable final Object filter,
                                                        @Nonnull final Collection<Entity> entities )
   {
     int removedEntities = 0;
-    final ChannelAddress address = channelSubscriptionEntry.getChannel().getAddress();
+    final ChannelAddress address = subscription.getChannel().getAddress();
 
     for ( final Entity entry : new ArrayList<>( entities ) )
     {

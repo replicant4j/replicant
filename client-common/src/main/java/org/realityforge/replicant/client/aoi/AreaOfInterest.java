@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Subscription;
 
 /**
  * The channel description declares a desired channel subscription and also
@@ -36,7 +36,7 @@ public abstract class AreaOfInterest
   @Nonnull
   private Status _status = Status.NOT_ASKED;
   @Nullable
-  private ChannelSubscriptionEntry _entry;
+  private Subscription _entry;
   @Nullable
   private Throwable _error;
 
@@ -90,12 +90,12 @@ public abstract class AreaOfInterest
 
   @Observable
   @Nullable
-  public ChannelSubscriptionEntry getEntry()
+  public Subscription getEntry()
   {
     return _entry;
   }
 
-  public void setEntry( @Nullable final ChannelSubscriptionEntry entry )
+  public void setEntry( @Nullable final Subscription entry )
   {
     _entry = entry;
   }

@@ -20,7 +20,7 @@ public class EntitySubscriptionDebugger
     }
   }
 
-  private void outputSubscription( @Nonnull final ChannelSubscriptionEntry subscription )
+  private void outputSubscription( @Nonnull final Subscription subscription )
   {
     final Object filter = subscription.getChannel().getFilter();
     LOG.info( "Subscription: " + subscription.getChannel().getAddress() +

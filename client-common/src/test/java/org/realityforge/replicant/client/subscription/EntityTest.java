@@ -80,8 +80,8 @@ public class EntityTest
     final String id = ValueUtil.randomString();
     final Entity entity = Entity.create( type, id );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription( new ChannelAddress( G.G1 ) );
-    final ChannelSubscriptionEntry subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1 ) );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -133,8 +133,8 @@ public class EntityTest
     final String id = ValueUtil.randomString();
     final Entity entity = Entity.create( type, id );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
-    final ChannelSubscriptionEntry subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -187,8 +187,8 @@ public class EntityTest
     final String id = ValueUtil.randomString();
     final Entity entity = Entity.create( type, id );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
-    final ChannelSubscriptionEntry subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
 
     Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
     Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
@@ -209,7 +209,7 @@ public class EntityTest
   {
     final Entity entity = Entity.create( A.class, ValueUtil.randomString() );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription();
+    final Subscription subscription1 = createSubscription();
 
     expectThrows( UnsupportedOperationException.class,
                   () -> Arez.context().safeAction( () -> entity.getChannelSubscriptions().add( subscription1 ) ) );
@@ -220,7 +220,7 @@ public class EntityTest
   {
     final Entity entity = Entity.create( A.class, "123" );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 
     Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
     Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
@@ -239,7 +239,7 @@ public class EntityTest
   {
     final Entity entity = Entity.create( A.class, "123" );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 
     entity.channelSubscriptions().put( subscription1.getChannel().getAddress(), subscription1 );
     Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
@@ -256,7 +256,7 @@ public class EntityTest
     final Entity entity = Entity.create( A.class, "123" );
     final Entity entity2 = Entity.create( A.class, ValueUtil.randomString() );
 
-    final ChannelSubscriptionEntry subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 
     Arez.context().safeAction( () -> entity2.addChannelSubscription( subscription1 ) );
 
@@ -270,15 +270,15 @@ public class EntityTest
   }
 
   @Nonnull
-  private ChannelSubscriptionEntry createSubscription()
+  private Subscription createSubscription()
   {
     return createSubscription( new ChannelAddress( G.G1 ) );
   }
 
   @Nonnull
-  private ChannelSubscriptionEntry createSubscription( @Nonnull final ChannelAddress address )
+  private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
-    return ChannelSubscriptionEntry.create( Channel.create( address ), true );
+    return Subscription.create( Channel.create( address ), true );
   }
 
   enum G

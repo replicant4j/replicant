@@ -3,23 +3,23 @@ package org.realityforge.replicant.client.react4j;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Subscription;
 
 public class SubscriptionResult<T>
 {
   @Nonnull
-  private final ChannelSubscriptionEntry _entry;
+  private final Subscription _entry;
   @Nullable
   private final T _instanceRoot;
 
-  SubscriptionResult( @Nonnull final ChannelSubscriptionEntry entry, @Nullable final T instanceRoot )
+  SubscriptionResult( @Nonnull final Subscription entry, @Nullable final T instanceRoot )
   {
     _entry = Objects.requireNonNull( entry );
     _instanceRoot = instanceRoot;
   }
 
   @Nonnull
-  public ChannelSubscriptionEntry getEntry()
+  public Subscription getEntry()
   {
     return _entry;
   }

@@ -14,7 +14,7 @@ import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
+import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -213,7 +213,7 @@ public class ContextConvergerTest
     final HashSet<ChannelAddress> expected = new HashSet<>();
 
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), true ) );
+      thenReturn( Subscription.create( Channel.create( descriptor, null ), true ) );
 
     c.removeSubscriptionIfOrphan( expected, descriptor );
 
@@ -254,7 +254,7 @@ public class ContextConvergerTest
     final HashSet<ChannelAddress> expected = new HashSet<>();
 
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), false ) );
+      thenReturn( Subscription.create( Channel.create( descriptor, null ), false ) );
 
     c.removeSubscriptionIfOrphan( expected, descriptor );
 
@@ -290,7 +290,7 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
-    final ChannelSubscriptionEntry entry = ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), true );
+    final Subscription entry = Subscription.create( Channel.create( descriptor, null ), true );
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
       thenReturn( entry );
 
@@ -402,7 +402,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), false ) );
+      thenReturn( Subscription.create( Channel.create( descriptor, null ), false ) );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.IN_PROGRESS );
@@ -516,7 +516,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, "OldFIlter" ), true ) );
+      thenReturn( Subscription.create( Channel.create( descriptor, "OldFIlter" ), true ) );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
@@ -725,9 +725,9 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     when( subscriptionManager.getChannelSubscription( descriptor2 ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor2, "OldFilter" ), true ) );
+      thenReturn( Subscription.create( Channel.create( descriptor2, "OldFilter" ), true ) );
     when( subscriptionManager.getChannelSubscription( descriptor3 ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor3, "OldFilter" ), true ) );
+      thenReturn( Subscription.create( Channel.create( descriptor3, "OldFilter" ), true ) );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestAction.UPDATE, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
