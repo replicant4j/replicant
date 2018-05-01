@@ -58,27 +58,11 @@ define 'replicant' do
     package(:javadoc)
   end
 
-  define 'shared-ee' do
-    pom.provided_dependencies.concat PROVIDED_DEPS
-
-    compile.with PROVIDED_DEPS
-
-    test.options[:properties] = TEST_OPTIONS
-    test.options[:java_args] = ['-ea']
-
-    test.using :testng
-    test.compile.with TEST_DEPS
-
-    package(:jar)
-    package(:sources)
-    package(:javadoc)
-  end
-
   define 'server' do
     pom.provided_dependencies.concat PROVIDED_DEPS
     pom.optional_dependencies.concat OPTIONAL_DEPS
 
-    compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar), project('shared-ee').package(:jar)
+    compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar)
 
     package(:jar)
     package(:sources)

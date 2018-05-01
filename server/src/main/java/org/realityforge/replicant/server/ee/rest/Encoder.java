@@ -14,13 +14,13 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
-import org.realityforge.replicant.shared.ee.JsonUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 final class Encoder

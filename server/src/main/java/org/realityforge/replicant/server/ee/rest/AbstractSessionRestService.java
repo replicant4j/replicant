@@ -39,7 +39,6 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
-import org.realityforge.replicant.shared.ee.rest.AbstractReplicantRestService;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**

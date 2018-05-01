@@ -21,7 +21,6 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ConnectionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-import org.realityforge.replicant.shared.ee.rest.CacheUtil;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 /**
