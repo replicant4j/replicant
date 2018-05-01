@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
  * by the "type" and the instance "id"
  */
 public final class ChannelAddress
+  implements Comparable<ChannelAddress>
 {
   @Nonnull
   private final Enum _channelType;
@@ -81,5 +82,15 @@ public final class ChannelAddress
     int result = _channelType.hashCode();
     result = 31 * result + ( _id != null ? _id.hashCode() : 0 );
     return result;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public int compareTo( @Nonnull final ChannelAddress o )
+  {
+    return getChannelType().compareTo( o.getChannelType() );
   }
 }

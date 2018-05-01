@@ -35,6 +35,8 @@ public class ChannelAddressTest
     assertEquals( descriptor1.toString(), "TestSystem.A" );
     assertEquals( descriptor1.equals( descriptor1 ), true );
     assertEquals( descriptor1.equals( descriptor2 ), false );
+    assertEquals( descriptor1.compareTo( descriptor1 ), 0 );
+    assertEquals( descriptor1.compareTo( descriptor2 ), -1 );
 
     assertEquals( descriptor2.getSystem(), TestSystem.class );
     assertEquals( descriptor2.getChannelType(), TestSystem.B );
@@ -42,5 +44,7 @@ public class ChannelAddressTest
     assertEquals( descriptor2.toString(), "TestSystem.B:1" );
     assertEquals( descriptor2.equals( descriptor1 ), false );
     assertEquals( descriptor2.equals( descriptor2 ), true );
+    assertEquals( descriptor2.compareTo( descriptor1 ), 1 );
+    assertEquals( descriptor2.compareTo( descriptor2 ), 0 );
   }
 }
