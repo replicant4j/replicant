@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.Subscription;
 import static org.mockito.Mockito.*;
 
 public final class TestDataLoadService
@@ -266,9 +266,8 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected int updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription,
-                                                       @Nullable final Object filter )
+  protected void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription,
+                                                        @Nullable final Object filter )
   {
-    return 0;
   }
 }

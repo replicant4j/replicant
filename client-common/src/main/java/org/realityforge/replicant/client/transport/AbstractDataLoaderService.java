@@ -910,7 +910,7 @@ public abstract class AbstractDataLoaderService
         {
           final Subscription subscription = getSubscriptionManager().getSubscription( descriptor );
           subscription.getChannel().setFilter( filter );
-          final int removedEntities = updateSubscriptionForFilteredEntities( subscription, filter );
+          updateSubscriptionForFilteredEntities( subscription, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
           _currentAction.recordChannelSubscriptionUpdate( status );
         }
@@ -1101,14 +1101,13 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   public abstract Set<Class<?>> getEntityTypes();
 
-  protected abstract int updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
-                                                                @Nullable Object filter );
+  protected abstract void updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
+                                                                 @Nullable Object filter );
 
-  protected int updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription,
-                                                       @Nullable final Object filter,
-                                                       @Nonnull final Collection<Entity> entities )
+  protected void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription,
+                                                        @Nullable final Object filter,
+                                                        @Nonnull final Collection<Entity> entities )
   {
-    int removedEntities = 0;
     final ChannelAddress address = subscription.getChannel().getAddress();
 
     for ( final Entity entry : new ArrayList<>( entities ) )
@@ -1135,11 +1134,9 @@ public abstract class AbstractDataLoaderService
           final Object userObject = entity.getUserObject();
           assert null != userObject;
           Disposable.dispose( userObject );
-          removedEntities += 1;
         }
       }
     }
-    return removedEntities;
   }
 
   protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelAddress descriptor,
