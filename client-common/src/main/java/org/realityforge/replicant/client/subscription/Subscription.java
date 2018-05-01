@@ -33,12 +33,12 @@ public abstract class Subscription
   @Nonnull
   private final Channel _channel;
 
-  public static Subscription create( @Nonnull final Channel channel )
+  static Subscription create( @Nonnull final Channel channel )
   {
     return create( channel, true );
   }
 
-  public static Subscription create( @Nonnull final Channel channel, final boolean explicitSubscription )
+  static Subscription create( @Nonnull final Channel channel, final boolean explicitSubscription )
   {
     return new Arez_Subscription( channel, explicitSubscription );
   }
