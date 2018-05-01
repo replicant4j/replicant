@@ -1008,7 +1008,7 @@ public abstract class AbstractDataLoaderService
       }
       if ( config().subscriptionsDebugOutputEnabled() )
       {
-        outputSubscriptionDebug();
+        getSubscriptionDebugger().outputSubscriptionManager( getSubscriptionManager() );
       }
       if ( BrainCheckConfig.checkInvariants() && config().shouldValidateRepositoryOnLoad() )
       {
@@ -1303,11 +1303,6 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-  }
-
-  protected void outputSubscriptionDebug()
-  {
-    getSubscriptionDebugger().outputSubscriptionManager( getSubscriptionManager() );
   }
 
   @Nonnull
