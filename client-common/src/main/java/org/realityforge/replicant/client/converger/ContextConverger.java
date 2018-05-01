@@ -26,12 +26,32 @@ public abstract class ContextConverger
 {
   private static final Logger LOG = Logger.getLogger( ContextConverger.class.getName() );
   protected static final int CONVERGE_DELAY_IN_MS = 100;
+  @Nonnull
   private final ConvergerReplicantSystemListener _rsListener = new ConvergerReplicantSystemListener();
+  @Nonnull
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
+  @Nonnull
+  private final EntitySubscriptionManager _subscriptionManager;
+  @Nonnull
+  private final AreaOfInterestService _areaOfInterestService;
+  @Nonnull
+  private final ReplicantClientSystem _replicantClientSystem;
   private boolean _convergeComplete;
   private boolean _paused;
+  @Nullable
   private Runnable _preConvergeAction;
+  @Nullable
   private Runnable _convergeCompleteAction;
+
+  public ContextConverger( @Nonnull final EntitySubscriptionManager subscriptionManager,
+                           @Nonnull final AreaOfInterestService areaOfInterestService,
+                           @Nonnull final ReplicantClientSystem replicantClientSystem )
+  {
+    _subscriptionManager = Objects.requireNonNull( subscriptionManager );
+    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
+    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
+    addListeners();
+  }
 
   public abstract void activate();
 
@@ -64,19 +84,19 @@ public abstract class ContextConverger
     removeListeners();
   }
 
-  protected void addListeners()
+  private void addListeners()
   {
-    getReplicantClientSystem().addReplicantSystemListener( _rsListener );
-    for ( final DataLoaderEntry entry : getReplicantClientSystem().getDataLoaders() )
+    _replicantClientSystem.addReplicantSystemListener( _rsListener );
+    for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
     {
       entry.getService().addDataLoaderListener( _dlListener );
     }
   }
 
-  protected void removeListeners()
+  void removeListeners()
   {
-    getReplicantClientSystem().removeReplicantSystemListener( _rsListener );
-    for ( final DataLoaderEntry entry : getReplicantClientSystem().getDataLoaders() )
+    _replicantClientSystem.removeReplicantSystemListener( _rsListener );
+    for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
     {
       entry.getService().removeDataLoaderListener( _dlListener );
     }
@@ -105,7 +125,7 @@ public abstract class ContextConverger
   public boolean isIdle()
   {
     return isConvergeComplete() &&
-           getReplicantClientSystem().getDataLoaders().stream().allMatch( dl -> dl.getService().isIdle() );
+           _replicantClientSystem.getDataLoaders().stream().allMatch( dl -> dl.getService().isIdle() );
   }
 
   enum ConvergeAction
@@ -123,14 +143,14 @@ public abstract class ContextConverger
     if ( isActive() &&
          !_convergeComplete &&
          !isPaused() &&
-         getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
+         _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
     {
       final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
       AreaOfInterest groupTemplate = null;
       AreaOfInterestAction groupAction = null;
       // Need to duplicate the list of AreasOfInterest. If an error occurs while processing AreaOfInterest
       // and the AreaOfInterest is removed, it will result in concurrent exception
-      for ( final AreaOfInterest areaOfInterest : new ArrayList<>( getAreaOfInterestService().getAreasOfInterest() ) )
+      for ( final AreaOfInterest areaOfInterest : new ArrayList<>( _areaOfInterestService.getAreasOfInterest() ) )
       {
         expectedChannels.add( areaOfInterest.getAddress() );
         final ConvergeAction convergeAction =
@@ -176,7 +196,7 @@ public abstract class ContextConverger
     if ( !Disposable.isDisposed( areaOfInterest ) )
     {
       final ChannelAddress descriptor = areaOfInterest.getAddress();
-      final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getChannelType() );
+      final DataLoaderService service = _replicantClientSystem.getDataLoaderService( descriptor.getChannelType() );
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
       {
@@ -223,7 +243,7 @@ public abstract class ContextConverger
           }
 
           final Object existing =
-            getSubscriptionManager().getSubscription( descriptor ).getChannel().getFilter();
+            _subscriptionManager.getSubscription( descriptor ).getChannel().getFilter();
           final String newFilter = filterToString( filter );
           final String existingFilter = filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
@@ -311,7 +331,7 @@ public abstract class ContextConverger
   }
 
   /**
-   * Turn of paused state.
+   * Turn off paused state.
    * Method does not schedule next converge step.
    */
   protected void unpause()
@@ -346,11 +366,11 @@ public abstract class ContextConverger
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
-    for ( final Subscription channel : getSubscriptionManager().getTypeSubscriptions() )
+    for ( final Subscription subscription : _subscriptionManager.getTypeSubscriptions() )
     {
-      removeSubscriptionIfOrphan( expectedChannels, channel );
+      removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
-    for ( final Subscription subscription : getSubscriptionManager().getInstanceSubscriptions() )
+    for ( final Subscription subscription : _subscriptionManager.getInstanceSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
@@ -370,7 +390,7 @@ public abstract class ContextConverger
                                    @Nonnull final ChannelAddress descriptor )
   {
     if ( !expected.contains( descriptor ) &&
-         getSubscriptionManager().getSubscription( descriptor ).isExplicitSubscription() )
+         _subscriptionManager.getSubscription( descriptor ).isExplicitSubscription() )
     {
       removeOrphanSubscription( descriptor );
     }
@@ -378,7 +398,7 @@ public abstract class ContextConverger
 
   void removeOrphanSubscription( @Nonnull final ChannelAddress descriptor )
   {
-    final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getChannelType() );
+    final DataLoaderService service = _replicantClientSystem.getDataLoaderService( descriptor.getChannelType() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) )
     {
@@ -392,7 +412,7 @@ public abstract class ContextConverger
                                            @Nonnull final Throwable error )
   {
     LOG.info( "Removing failed subscription " + address );
-    final AreaOfInterest areaOfInterest = getAreaOfInterestService().findAreaOfInterestByAddress( address );
+    final AreaOfInterest areaOfInterest = _areaOfInterestService.findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
       Disposable.dispose( areaOfInterest );
@@ -407,24 +427,15 @@ public abstract class ContextConverger
                                          @Nullable final Throwable throwable )
   {
     LOG.info( "Update AreaOfInterest " + address + " to status " + status );
-    final AreaOfInterest areaOfInterest = getAreaOfInterestService().findAreaOfInterestByAddress( address );
+    final AreaOfInterest areaOfInterest = _areaOfInterestService.findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );
-      areaOfInterest.setEntry( attemptEntryLoad ? getSubscriptionManager().findSubscription( address ) : null );
+      areaOfInterest.setEntry( attemptEntryLoad ? _subscriptionManager.findSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
     markConvergeAsIncomplete();
   }
-
-  @Nonnull
-  protected abstract EntitySubscriptionManager getSubscriptionManager();
-
-  @Nonnull
-  protected abstract AreaOfInterestService getAreaOfInterestService();
-
-  @Nonnull
-  protected abstract ReplicantClientSystem getReplicantClientSystem();
 
   final class ConvergerReplicantSystemListener
     implements ReplicantSystemListener

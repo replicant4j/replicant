@@ -2,7 +2,6 @@ package org.realityforge.replicant.client.runtime.gwt;
 
 import arez.annotations.ArezComponent;
 import com.google.gwt.user.client.Timer;
-import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
@@ -15,19 +14,13 @@ import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 public abstract class GwtContextConverger
   extends ContextConverger
 {
-  private final EntitySubscriptionManager _subscriptionManager;
-  private final AreaOfInterestService _areaOfInterestService;
-  private final ReplicantClientSystem _replicantClientSystem;
   private Timer _timer;
 
   GwtContextConverger( @Nonnull final EntitySubscriptionManager subscriptionManager,
                        @Nonnull final AreaOfInterestService areaOfInterestService,
                        @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    _subscriptionManager = Objects.requireNonNull( subscriptionManager );
-    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
-    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
-    addListeners();
+    super( subscriptionManager, areaOfInterestService, replicantClientSystem );
   }
 
   @Override
@@ -72,26 +65,5 @@ public abstract class GwtContextConverger
       _timer.cancel();
       _timer = null;
     }
-  }
-
-  @Override
-  @Nonnull
-  protected EntitySubscriptionManager getSubscriptionManager()
-  {
-    return _subscriptionManager;
-  }
-
-  @Override
-  @Nonnull
-  protected AreaOfInterestService getAreaOfInterestService()
-  {
-    return _areaOfInterestService;
-  }
-
-  @Override
-  @Nonnull
-  protected ReplicantClientSystem getReplicantClientSystem()
-  {
-    return _replicantClientSystem;
   }
 }

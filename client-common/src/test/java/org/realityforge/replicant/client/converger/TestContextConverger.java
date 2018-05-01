@@ -1,24 +1,18 @@
 package org.realityforge.replicant.client.converger;
 
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 
 final class TestContextConverger
   extends ContextConverger
 {
-  private final EntitySubscriptionManager _subscriptionManager;
-  private final AreaOfInterestService _areaOfInterestService;
-  private final ReplicantClientSystem _replicantClientSystem;
-
-  TestContextConverger( final EntitySubscriptionManager subscriptionManager,
-                        final AreaOfInterestService areaOfInterestService,
-                        final ReplicantClientSystem replicantClientSystem )
+  TestContextConverger( @Nonnull final EntitySubscriptionManager subscriptionManager,
+                        @Nonnull final AreaOfInterestService areaOfInterestService,
+                        @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    _subscriptionManager = subscriptionManager;
-    _areaOfInterestService = areaOfInterestService;
-    _replicantClientSystem = replicantClientSystem;
+    super( subscriptionManager, areaOfInterestService, replicantClientSystem );
   }
 
   @Override
@@ -35,26 +29,5 @@ final class TestContextConverger
   public boolean isActive()
   {
     return true;
-  }
-
-  @Nonnull
-  @Override
-  protected EntitySubscriptionManager getSubscriptionManager()
-  {
-    return _subscriptionManager;
-  }
-
-  @Nonnull
-  @Override
-  protected AreaOfInterestService getAreaOfInterestService()
-  {
-    return _areaOfInterestService;
-  }
-
-  @Nonnull
-  @Override
-  protected ReplicantClientSystem getReplicantClientSystem()
-  {
-    return _replicantClientSystem;
   }
 }

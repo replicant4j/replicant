@@ -60,30 +60,19 @@ public class ContextConvergerTest
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
     final ContextConverger c = new TestContextConverger( subscriptionManager, areaOfInterestService, system );
 
-    c.addListeners();
-
     verify( dl1 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
     verify( dl2 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
     verify( dl3 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
 
     verify( system ).addReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
 
-    c.removeListeners();
+    c.release();
 
     verify( dl1 ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
     verify( dl2 ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
     verify( dl3 ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
 
     verify( system ).
-      removeReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
-
-    c.release();
-
-    verify( dl1, times( 2 ) ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-    verify( dl2, times( 2 ) ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-    verify( dl3, times( 2 ) ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-
-    verify( system, times( 2 ) ).
       removeReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
   }
 
