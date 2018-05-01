@@ -27,7 +27,7 @@ public abstract class Entity
   private final Object _id;
   private Object _userObject;
 
-  public static Entity create( @Nonnull final Class<?> type, @Nonnull final Object id )
+  static Entity create( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     return new Arez_Entity( type, id );
   }
