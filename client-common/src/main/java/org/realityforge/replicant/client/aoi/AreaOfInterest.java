@@ -35,10 +35,6 @@ public abstract class AreaOfInterest
   private final Channel _channel;
   @Nonnull
   private Status _status = Status.NOT_ASKED;
-  @Nullable
-  private Subscription _entry;
-  @Nullable
-  private Throwable _error;
 
   @Nonnull
   public static AreaOfInterest create( @Nonnull final Channel channel )
@@ -59,7 +55,7 @@ public abstract class AreaOfInterest
   }
 
   @Nonnull
-  public Channel getChannel()
+  public final Channel getChannel()
   {
     return _channel;
   }
@@ -78,27 +74,15 @@ public abstract class AreaOfInterest
 
   @Observable
   @Nullable
-  public Throwable getError()
-  {
-    return _error;
-  }
+  public abstract Throwable getError();
 
-  public void setError( @Nullable final Throwable error )
-  {
-    _error = error;
-  }
+  public abstract void setError( @Nullable Throwable error );
 
   @Observable
   @Nullable
-  public Subscription getEntry()
-  {
-    return _entry;
-  }
+  public abstract Subscription getEntry();
 
-  public void setEntry( @Nullable final Subscription entry )
-  {
-    _entry = entry;
-  }
+  public abstract void setEntry( @Nullable Subscription entry );
 
   @Override
   public String toString()
