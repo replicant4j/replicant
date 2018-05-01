@@ -290,10 +290,11 @@ public class ContextConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null ) ).
       thenReturn( -1 );
 
+    final ChannelSubscriptionEntry entry = ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), true );
     when( subscriptionManager.getChannelSubscription( descriptor ) ).
-      thenReturn( ChannelSubscriptionEntry.create( Channel.create( descriptor, null ), true ) );
+      thenReturn( entry );
 
-    when( subscriptionManager.getTypeChannelSubscriptions() ).thenReturn( Collections.singleton( TestSystemA.A ) );
+    when( subscriptionManager.getTypeChannelSubscriptions() ).thenReturn( Collections.singleton( entry ) );
     when( subscriptionManager.getInstanceChannelSubscriptionKeys() ).thenReturn( Collections.singleton( TestSystemA.B ) );
     when( subscriptionManager.getInstanceChannelSubscriptions( TestSystemA.B ) ).
       thenReturn( new HashSet<>( Arrays.asList( 1, 2, 3, 4, 5 ) ) );

@@ -4,6 +4,7 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import arez.component.AbstractContainer;
 import arez.component.RepositoryUtil;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import org.realityforge.replicant.client.Channel;
 
 /**
@@ -19,6 +21,7 @@ import org.realityforge.replicant.client.Channel;
 @ArezComponent
 public abstract class ChannelSubscriptionEntry
   extends AbstractContainer<Class<?>, Map<Object, Entity>>
+  implements Comparable<ChannelSubscriptionEntry>
 {
   @Nonnull
   private final Channel _channel;
@@ -62,6 +65,7 @@ public abstract class ChannelSubscriptionEntry
     return _entities;
   }
 
+  @PreDispose
   @Override
   protected void preDispose()
   {
@@ -69,14 +73,20 @@ public abstract class ChannelSubscriptionEntry
     super.preDispose();
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public int compareTo( @NotNull final ChannelSubscriptionEntry o )
+  {
+    return getChannel().getAddress().getChannelType().compareTo( o.getChannel().getAddress().getChannelType() );
+  }
+
   private void disposeUnOwnedEntities()
   {
-    _entities.values().stream().flatMap( entitySet -> entitySet.values().stream() ).forEach( entityEntry -> {
-      final ChannelSubscriptionEntry element = entityEntry.deregisterChannel( getChannel().getAddress() );
-      assert null != element;
-      if ( entityEntry.getChannelSubscriptions().isEmpty() )
+    _entities.values().stream().flatMap( entitySet -> entitySet.values().stream() ).forEachOrdered( entity -> {
+      entity.delinkChannelFromEntity( this );
+      if ( entity.getChannelSubscriptions().isEmpty() )
       {
-        final Object userObject = entityEntry.getUserObject();
+        final Object userObject = entity.getUserObject();
         assert null != userObject;
         Disposable.dispose( userObject );
       }

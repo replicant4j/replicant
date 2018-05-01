@@ -6,8 +6,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +14,6 @@ import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry;
@@ -59,6 +56,7 @@ public class DataLoaderServiceTest
     }
   }
 
+  /*
   @Test( enabled = false )
   public void purgeSubscriptions()
     throws Exception
@@ -72,10 +70,10 @@ public class DataLoaderServiceTest
     final MyType myTypeC = new MyType();
     final MyType myTypeD = new MyType();
 
-    sm.updateEntity( MyType.class, "A1", new ChannelAddress[ 0 ], myTypeA );
-    sm.updateEntity( MyType.class, "B1", new ChannelAddress[ 0 ], myTypeB );
-    sm.updateEntity( MyType.class, "C1", new ChannelAddress[ 0 ], myTypeC );
-    sm.updateEntity( MyType.class, "D1", new ChannelAddress[ 0 ], myTypeD );
+    sm.addChannelSubscriptions( MyType.class, "A1", new ChannelAddress[ 0 ], myTypeA );
+    sm.addChannelSubscriptions( MyType.class, "B1", new ChannelAddress[ 0 ], myTypeB );
+    sm.addChannelSubscriptions( MyType.class, "C1", new ChannelAddress[ 0 ], myTypeC );
+    sm.addChannelSubscriptions( MyType.class, "D1", new ChannelAddress[ 0 ], myTypeD );
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
@@ -137,16 +135,18 @@ public class DataLoaderServiceTest
     assertTrue( myTypeD.isDisposed() );
   }
 
+
   private void registerEntity( @Nonnull final ChannelSubscriptionEntry entry,
                                @Nonnull final Class<?> type,
                                @Nonnull final String id )
   {
     final Map<Class<?>, Map<Object, Entity>> entities = entry.getEntities();
     final Map<Object, Entity> typeMap = entities.computeIfAbsent( type, k -> new HashMap<>() );
-    final Entity entity = new Entity( type, id );
-    entity.getRwChannelSubscriptions().put( entry.getChannel().getAddress(), entry );
+    final Entity entity = Entity.create( type, id );
+    entity.addChannelSubscriptions( new ChannelSubscriptionEntry[]{ entry}, new Object() );
     typeMap.put( id, entity );
   }
+  */
 
   @Test
   public void setSession()

@@ -3,9 +3,7 @@ package org.realityforge.replicant.client.ee.rest;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
@@ -191,16 +189,11 @@ public abstract class AbstractDataLoaderServiceRestService<T extends AbstractDat
   private void emitChannels( final JsonGenerator g, final DataLoaderService service )
   {
     g.writeStartObject( "channels" );
-    final EntitySubscriptionManager subscriptionManager = getEntitySubscriptionManager();
-    final Class<? extends Enum> systemType = service.getSystemType();
-    final List<Enum> typeSubscriptions =
-      subscriptionManager.getTypeChannelSubscriptions().stream().
-        filter( e -> e.getClass() == systemType ).
-        collect( Collectors.toList() );
-    for ( final Enum e : typeSubscriptions )
-    {
-      emitSubscription( g, subscriptionManager.getChannelSubscription( new ChannelAddress( e ) ) );
-    }
+    getEntitySubscriptionManager()
+      .getTypeChannelSubscriptions()
+      .stream()
+      .filter( e -> e.getChannel().getAddress().getSystem() == service.getSystemType() )
+      .forEachOrdered( subscription -> emitSubscription( g, subscription ) );
     g.writeEnd();
   }
 

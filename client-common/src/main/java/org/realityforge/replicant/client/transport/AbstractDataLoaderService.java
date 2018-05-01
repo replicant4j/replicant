@@ -6,6 +6,7 @@ import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -283,13 +284,13 @@ public abstract class AbstractDataLoaderService
         unsubscribeInstanceChannels( channelType );
       }
     }
-    for ( final Enum channelType : sortChannelTypes( subscriptionManager.getTypeChannelSubscriptions() ) )
-    {
-      if ( channelType.getClass().equals( systemType ) )
-      {
-        subscriptionManager.removeChannelSubscription( new ChannelAddress( channelType ) );
-      }
-    }
+    subscriptionManager.getTypeChannelSubscriptions()
+      .stream()
+      .filter( s -> s.getChannel().getAddress().getSystem().equals( systemType ) )
+      .sorted( Comparator.reverseOrder() )
+      .forEachOrdered( subscription -> {
+         subscriptionManager.removeChannelSubscription( subscription.getChannel().getAddress() );
+      } );
   }
 
   protected void unsubscribeInstanceChannels( @Nonnull final Enum channelType )

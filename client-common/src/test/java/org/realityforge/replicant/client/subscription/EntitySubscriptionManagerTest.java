@@ -27,13 +27,17 @@ public class EntitySubscriptionManagerTest
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
 
     assertEquals( sm.getTypeChannelSubscriptions().size(), 0 );
-    assertFalse( sm.getTypeChannelSubscriptions().contains( G.G1 ) );
+    assertFalse( sm.getTypeChannelSubscriptions()
+                   .stream()
+                   .anyMatch( s -> s.getChannel().getAddress().getChannelType().equals( G.G1 ) ) );
 
     final boolean explicitSubscription = true;
     sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, explicitSubscription );
 
     assertEquals( sm.getTypeChannelSubscriptions().size(), 1 );
-    assertTrue( sm.getTypeChannelSubscriptions().contains( G.G1 ) );
+    assertTrue( sm.getTypeChannelSubscriptions()
+                  .stream()
+                  .anyMatch( s -> s.getChannel().getAddress().getChannelType().equals( G.G1 ) ) );
 
     final ChannelSubscriptionEntry s = sm.findChannelSubscription( new ChannelAddress( G.G1 ) );
     assertNotNull( s );
