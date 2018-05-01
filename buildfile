@@ -115,25 +115,6 @@ define 'replicant' do
     test.compile.with TEST_DEPS
   end
 
-  define 'client-ee' do
-    pom.provided_dependencies.concat PROVIDED_DEPS
-
-    compile.with PROVIDED_DEPS,
-                 project('shared-ee').package(:jar),
-                 project('client-common').package(:jar),
-                 project('client-common').compile.dependencies
-
-    package(:jar)
-    package(:sources)
-    package(:javadoc)
-
-    test.options[:properties] = TEST_OPTIONS
-    test.options[:java_args] = ['-ea']
-
-    test.using :testng
-    test.compile.with TEST_DEPS
-  end
-
   define 'client-gwt' do
     project.processorpath << :react4j_processor
     project.processorpath << :arez_processor
