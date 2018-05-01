@@ -345,13 +345,6 @@ public abstract class ContextConverger
   }
 
   @Action
-  protected void markSubscriptionAsRequiringUpdate()
-  {
-    //setSubscriptionsUpToDate( false );
-    markConvergeAsIncomplete();
-  }
-
-  @Action
   protected void markConvergeAsIncomplete()
   {
     _convergeComplete = false;
