@@ -93,7 +93,7 @@ public abstract class ContextConverger
     }
   }
 
-  void removeListeners()
+  private void removeListeners()
   {
     _replicantClientSystem.removeReplicantSystemListener( _rsListener );
     for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
