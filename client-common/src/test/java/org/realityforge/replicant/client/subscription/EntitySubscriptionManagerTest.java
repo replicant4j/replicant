@@ -23,7 +23,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void typeChannelRegistrations()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
 
     assertEquals( sm.getTypeChannelSubscriptions().size(), 0 );
@@ -49,7 +49,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void instanceChannelRegistrations()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
 
     assertEquals( sm.getInstanceChannelSubscriptionKeys().size(), 0 );
@@ -79,7 +79,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
     final ChannelSubscriptionEntry e1 = sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
 
@@ -109,7 +109,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
     final ChannelSubscriptionEntry s1 =
       sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
@@ -148,7 +148,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
     sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
@@ -173,7 +173,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void entitySubscriptionAndUpdateInInstanceChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
 
     final ChannelSubscriptionEntry e1 = sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), "F1", false );
@@ -190,7 +190,7 @@ public class EntitySubscriptionManagerTest
   @Test
   public void entitySubscriptionAndUpdateInTypeChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
 
     final ChannelSubscriptionEntry e1 = sm.recordChannelSubscription( new ChannelAddress( G.G1 ), "F1", false );
@@ -210,7 +210,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
     sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
@@ -241,9 +241,10 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2, 1 ) ) );
+
     sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
     sm.recordChannelSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
@@ -283,7 +284,7 @@ public class EntitySubscriptionManagerTest
     final Class<A> type = A.class;
     final Object id = 1;
 
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G1 ) ) );
     assertNull( sm.findChannelSubscription( new ChannelAddress( G.G2 ) ) );
 
@@ -333,7 +334,10 @@ public class EntitySubscriptionManagerTest
   {
     final ChannelSubscriptionEntry entry = sm.getChannelSubscription( descriptor );
     assertNotNull( entry.getEntities().get( type ).get( id ) );
-    assertNotNull( sm.getEntity( type, id ).getChannelSubscriptions().get( descriptor ) );
+    assertTrue( sm.getEntity( type, id )
+                  .getChannelSubscriptions()
+                  .stream()
+                  .anyMatch( s -> s.getChannel().getAddress().equals( descriptor ) ) );
     assertEquals( sm.getEntity( type, id ).getUserObject(), entity );
   }
 
@@ -359,7 +363,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel already subscribed: .*" )
   public void subscribe_nonExistentTypeChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
     sm.recordChannelSubscription( new ChannelAddress( G.G1 ), null, false );
   }
@@ -368,7 +372,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
   public void getSubscription_nonExistentTypeChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.getChannelSubscription( new ChannelAddress( G.G1 ) );
   }
 
@@ -376,7 +380,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
   public void unsubscribe_nonExistentTypeChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.removeChannelSubscription( new ChannelAddress( G.G1 ) );
   }
 
@@ -384,7 +388,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel already subscribed: .*:1" )
   public void subscribe_nonExistentInstanceChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.recordChannelSubscription( new ChannelAddress( G.G1, "1" ), null, false );
     sm.recordChannelSubscription( new ChannelAddress( G.G1, "1" ), null, false );
   }
@@ -393,7 +397,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
   public void getSubscription_nonExistentInstanceChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.getChannelSubscription( new ChannelAddress( G.G1, "1" ) );
   }
 
@@ -401,7 +405,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceChannel()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.removeChannelSubscription( new ChannelAddress( G.G1, "1" ) );
   }
 
@@ -409,7 +413,7 @@ public class EntitySubscriptionManagerTest
     expectedExceptionsMessageRegExp = "Channel not subscribed: .*" )
   public void unsubscribe_nonExistentInstanceChannel_whenTypeCreated()
   {
-    final EntitySubscriptionManager sm = new Arez_EntitySubscriptionManager();
+    final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.recordChannelSubscription( new ChannelAddress( G.G1 ), "1", false );
     sm.removeChannelSubscription( new ChannelAddress( G.G1, "2" ) );
   }
