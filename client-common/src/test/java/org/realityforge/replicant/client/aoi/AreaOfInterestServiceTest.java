@@ -41,7 +41,7 @@ public class AreaOfInterestServiceTest
       assertEquals( subscriptions.stream().anyMatch( n -> n.getChannel().getAddress().equals( descriptor3 ) ), false );
 
       final Object newFilter = new Object();
-      service.updateAreaOfInterest( areaOfInterest1, newFilter );
+      areaOfInterest1.getChannel().setFilter( newFilter );
 
       assertEquals( areaOfInterest1.getChannel().getFilter(), newFilter );
 

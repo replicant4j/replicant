@@ -155,7 +155,7 @@ public abstract class ReplicantSubscription<T>
           final AreaOfInterest areaOfInterest = getChannelSubscription();
           if ( null != areaOfInterest && expectFilterUpdates() )
           {
-            _areaOfInterestService.updateAreaOfInterest( areaOfInterest, newFilter );
+            areaOfInterest.getChannel().setFilter( newFilter );
           }
           else
           {

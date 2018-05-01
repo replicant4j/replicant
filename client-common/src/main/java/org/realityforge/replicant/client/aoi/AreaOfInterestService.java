@@ -1,7 +1,5 @@
 package org.realityforge.replicant.client.aoi;
 
-import arez.Disposable;
-import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.component.AbstractContainer;
 import arez.component.RepositoryUtil;
@@ -42,12 +40,6 @@ public abstract class AreaOfInterestService
     return super.findByArezId( address );
   }
 
-  public void updateAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest, @Nullable final Object filter )
-  {
-    assert !Disposable.isDisposed( areaOfInterest );
-    areaOfInterest.getChannel().setFilter( filter );
-  }
-
   @Nonnull
   public AreaOfInterest findOrCreateAreaOfInterest( @Nonnull final ChannelAddress address,
                                                     @Nullable final Object filter )
@@ -57,7 +49,7 @@ public abstract class AreaOfInterestService
     {
       if ( !FilterUtil.filtersEqual( areaOfInterest.getChannel().getFilter(), filter ) )
       {
-        updateAreaOfInterest( areaOfInterest, filter );
+        areaOfInterest.getChannel().setFilter( filter );
       }
       return areaOfInterest;
     }
@@ -68,24 +60,5 @@ public abstract class AreaOfInterestService
       registerEntity( newAreaOfInterest );
       return newAreaOfInterest;
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean contains( @Nonnull final AreaOfInterest areaOfInterest )
-  {
-    return super.contains( areaOfInterest );
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Action
-  @Override
-  public void destroy( @Nonnull final AreaOfInterest areaOfInterest )
-  {
-    super.destroy( areaOfInterest );
   }
 }
