@@ -219,7 +219,8 @@ public abstract class ContextConverger
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
           {
-            LOG.info( "Adding subscription: " + descriptor + ". Setting filter to: " + filterToString( filter ) );
+            LOG.info( "Adding subscription: " + descriptor + ". " +
+                      "Setting filter to: " + FilterUtil.filterToString( filter ) );
             service.requestSubscribe( descriptor, filter );
             return ConvergeAction.SUBMITTED_ADD;
           }
@@ -244,8 +245,8 @@ public abstract class ContextConverger
 
           final Object existing =
             _subscriptionManager.getSubscription( descriptor ).getChannel().getFilter();
-          final String newFilter = filterToString( filter );
-          final String existingFilter = filterToString( existing );
+          final String newFilter = FilterUtil.filterToString( filter );
+          final String existingFilter = FilterUtil.filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
           {
             if ( null != groupTemplate && !canGroup )
@@ -349,12 +350,6 @@ public abstract class ContextConverger
   {
     _convergeComplete = false;
     convergeStep();
-  }
-
-  @Nullable
-  protected String filterToString( @Nullable final Object filter )
-  {
-    return FilterUtil.filterToString( filter );
   }
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
