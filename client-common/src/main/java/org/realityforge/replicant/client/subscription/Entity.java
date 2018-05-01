@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.subscription;
 
 import arez.Arez;
+import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
@@ -21,7 +22,7 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent
 public abstract class Entity
 {
-  private final Map<ChannelAddress, Subscription> _channelSubscriptions = new HashMap<>();
+  private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
   private final Class<?> _type;
   private final Object _id;
   private Object _userObject;
@@ -73,122 +74,95 @@ public abstract class Entity
   }
 
   /**
-   * Return the collection of channel subscriptions for the entity.
+   * Return the collection of subscriptions for the entity.
    *
-   * @return the channel subscriptions.
+   * @return the subscriptions.
    */
   @Nonnull
   @Observable( expectSetter = false )
-  public Collection<Subscription> getChannelSubscriptions()
+  public Collection<Subscription> getSubscriptions()
   {
     // This return result is already immutable as it is part of map so no need to convert to immutable
-    return _channelSubscriptions.values();
+    return _subscriptions.values();
   }
 
   @ObservableRef
-  protected abstract arez.Observable getChannelSubscriptionsObservable();
+  protected abstract arez.Observable getSubscriptionsObservable();
 
   /**
-   * Add channel subscription if it does not exist.
+   * Link to subscription if it does not exist.
    *
-   * @param subscription the channel subscription.
+   * @param subscription the subscription.
    */
-  void addChannelSubscription( @Nonnull final Subscription subscription )
+  final void linkToSubscription( @Nonnull final Subscription subscription )
   {
-    linkEntityToChannel( subscription );
-    linkChannelToEntity( subscription );
+    linkEntityToSubscription( subscription );
+    subscription.linkSubscriptionToEntity( this );
   }
 
-  private void linkChannelToEntity( @Nonnull final Subscription subscription )
+  private void linkEntityToSubscription( @Nonnull final Subscription subscription )
   {
-    subscription.getRwEntities().computeIfAbsent( getType(), k -> new HashMap<>() ).put( getId(), this );
-  }
-
-  private void linkEntityToChannel( @Nonnull final Subscription subscription )
-  {
-    getChannelSubscriptionsObservable().preReportChanged();
+    getSubscriptionsObservable().preReportChanged();
     final ChannelAddress address = subscription.getChannel().getAddress();
-    if ( !_channelSubscriptions.containsKey( address ) )
+    if ( !_subscriptions.containsKey( address ) )
     {
-      _channelSubscriptions.put( address, subscription );
-      getChannelSubscriptionsObservable().reportChanged();
+      _subscriptions.put( address, subscription );
+      getSubscriptionsObservable().reportChanged();
     }
   }
 
   /**
-   * Remove specified channel subscription.
+   * Remove the specified subscription.
    *
-   * @param subscription the channel subscription.
+   * @param subscription the subscription.
    */
-  void removeChannelSubscription( @Nonnull final Subscription subscription )
+  final void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
-    delinkChannelFromEntity( subscription );
-    delinkEntityFromChannel( subscription );
+    subscription.delinkEntityFromSubscription( this );
+    delinkSubscriptionFromEntity( subscription );
   }
 
   /**
-   * De-register the specified channel subscription from this entity.
-   * This method does not deregister entity from channel and it is assumed this is achieved through
-   * other means such as {@link #delinkEntityFromChannel(Subscription)}.
+   * Delink the specified subscription from this entity.
+   * This method does not delink entity from subscription and it is assumed this is achieved through
+   * other means such as {@link Subscription#delinkEntityFromSubscription(Entity)}.
    *
-   * @param subscription the channel subscription.
+   * @param subscription the subscription.
    */
-  void delinkChannelFromEntity( @Nonnull final Subscription subscription )
+  final void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription )
   {
-    getChannelSubscriptionsObservable().preReportChanged();
+    getSubscriptionsObservable().preReportChanged();
     final ChannelAddress address = subscription.getChannel().getAddress();
-    final Subscription candidate = _channelSubscriptions.remove( address );
-    getChannelSubscriptionsObservable().reportChanged();
+    final Subscription candidate = _subscriptions.remove( address );
+    getSubscriptionsObservable().reportChanged();
     if ( BrainCheckConfig.checkApiInvariants() )
     {
       apiInvariant( () -> null != candidate,
                     () -> "Unable to locate subscription for channel " + address + " on entity " + this );
     }
-  }
-
-  /**
-   * Deregister this entity from the specified channel subscription.
-   * This method does not deregister channel from entity and it is assumed this is achieved through
-   * other means such as {@link #delinkChannelFromEntity(Subscription)}.
-   *
-   * @param subscription the channel subscription.
-   */
-  final void delinkEntityFromChannel( @Nonnull final Subscription subscription )
-  {
-    final Map<Class<?>, Map<Object, Entity>> map = subscription.getRwEntities();
-    final Map<Object, Entity> typeMap = map.get( _type );
-    final ChannelAddress address = subscription.getChannel().getAddress();
-    if ( BrainCheckConfig.checkInvariants() )
+    if ( _subscriptions.isEmpty() )
     {
-      invariant( () -> null != typeMap,
-                 () -> "Entity type " + _type.getSimpleName() + " not present in channel " + address );
-    }
-    assert null != typeMap;
-    final Entity entity = typeMap.remove( _id );
-    if ( BrainCheckConfig.checkInvariants() )
-    {
-      invariant( () -> null != entity,
-                 () -> "Entity instance " + this + " not present in channel " + address );
-    }
-    if ( typeMap.isEmpty() )
-    {
-      map.remove( _type );
+      Disposable.dispose( this );
     }
   }
 
   @PreDispose
   final void preDispose()
   {
-    removeFromAllChannels();
+    delinkEntityFromAllSubscriptions();
+    if ( null != _userObject )
+    {
+      Disposable.dispose( _userObject );
+    }
   }
 
-  private void removeFromAllChannels()
+  private void delinkEntityFromAllSubscriptions()
   {
-    _channelSubscriptions.values().forEach( this::delinkEntityFromChannel );
+    _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this ) );
   }
 
   @Override
-  public String toString()
+  public final String toString()
   {
     if ( Arez.areNamesEnabled() )
     {
@@ -201,8 +175,8 @@ public abstract class Entity
   }
 
   @TestOnly
-  final Map<ChannelAddress, Subscription> channelSubscriptions()
+  final Map<ChannelAddress, Subscription> subscriptions()
   {
-    return _channelSubscriptions;
+    return _subscriptions;
   }
 }

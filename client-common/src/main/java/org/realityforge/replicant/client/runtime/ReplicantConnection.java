@@ -138,7 +138,7 @@ public class ReplicantConnection
       .filter( id -> null == existing.remove( id ) )
       .forEach( id -> service.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
 
-    getSubscriptionManager().getInstanceChannelSubscriptions( sourceChannelType ).stream().
+    getSubscriptionManager().getInstanceSubscriptionIds( sourceChannelType ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).

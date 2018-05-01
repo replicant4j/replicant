@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckConfig;
@@ -23,10 +24,10 @@ import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
-import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionDebugger;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.Subscription;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -272,44 +273,13 @@ public abstract class AbstractDataLoaderService
 
   protected void purgeSubscriptions()
   {
-    /*
-     * Ensure that we only purge subscriptions that are managed by this data loader.
-     */
-    final Class systemType = getSystemType();
-    final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Enum channelType : sortChannelTypes( subscriptionManager.getInstanceChannelSubscriptionKeys() ) )
-    {
-      if ( channelType.getClass().equals( systemType ) )
-      {
-        unsubscribeInstanceChannels( channelType );
-      }
-    }
-    subscriptionManager.getTypeChannelSubscriptions()
-      .stream()
-      .filter( s -> s.getChannel().getAddress().getSystem().equals( systemType ) )
+    final EntitySubscriptionManager sm = getSubscriptionManager();
+    Stream.concat( sm.getTypeSubscriptions().stream(), sm.getInstanceSubscriptions().stream() )
+      // Only purge subscriptions for current system
+      .filter( s -> s.getChannel().getAddress().getSystem().equals( getSystemType() ) )
+      // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
-      .forEachOrdered( subscription -> {
-         subscriptionManager.removeChannelSubscription( subscription.getChannel().getAddress() );
-      } );
-  }
-
-  protected void unsubscribeInstanceChannels( @Nonnull final Enum channelType )
-  {
-    final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceChannelSubscriptions( channelType ) ) )
-    {
-      subscriptionManager.removeChannelSubscription( new ChannelAddress( channelType, id ) );
-    }
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Nonnull
-  private ArrayList<Enum> sortChannelTypes( @Nonnull final Set<Enum> enums )
-  {
-    final ArrayList<Enum> list = new ArrayList<>( enums );
-    Collections.sort( list );
-    Collections.reverse( list );
-    return list;
+      .forEachOrdered( s -> sm.removeSubscription( s.getChannel().getAddress() ) );
   }
 
   /**
@@ -447,7 +417,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+      final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
       if ( null == entry )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -496,7 +466,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+      final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
       if ( null == entry )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -523,7 +493,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+        final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
@@ -537,7 +507,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+        final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
         if ( null != entry )
         {
           entry.setExplicitSubscription( false );
@@ -565,7 +535,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIAddActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription entry = getSubscriptionManager().findChannelSubscription( a.getDescriptor() );
+      final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
       if ( null != entry )
       {
         if ( entry.isExplicitSubscription() )
@@ -713,7 +683,7 @@ public abstract class AbstractDataLoaderService
   @Override
   public boolean isSubscribed( @Nonnull final ChannelAddress descriptor )
   {
-    return null != getSubscriptionManager().findChannelSubscription( descriptor );
+    return null != getSubscriptionManager().findSubscription( descriptor );
   }
 
   @Override
@@ -929,17 +899,17 @@ public abstract class AbstractDataLoaderService
             }
             explicitSubscribe = true;
           }
-          getSubscriptionManager().recordChannelSubscription( descriptor, filter, explicitSubscribe );
+          getSubscriptionManager().recordSubscription( descriptor, filter, explicitSubscribe );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          getSubscriptionManager().removeChannelSubscription( descriptor );
+          getSubscriptionManager().removeSubscription( descriptor );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
           final Subscription entry =
-            getSubscriptionManager().updateChannelSubscription( descriptor, filter );
+            getSubscriptionManager().updateSubscription( descriptor, filter );
           final int removedEntities = updateSubscriptionForFilteredEntities( entry, filter );
           final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
           _currentAction.recordChannelSubscriptionUpdate( status );
@@ -1148,14 +1118,14 @@ public abstract class AbstractDataLoaderService
 
       if ( !doesEntityMatchFilter( address, filter, entityType, entityID ) )
       {
-        final Entity entity = getSubscriptionManager().removeEntityFromChannel( entityType, entityID, address );
-        final boolean deregisterEntity = 0 == entity.getChannelSubscriptions().size();
+        final Entity entity = getSubscriptionManager().removeEntityFromSubscription( entityType, entityID, address );
+        final boolean deregisterEntity = 0 == entity.getSubscriptions().size();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(),
                    "Removed entity " + entityType.getSimpleName() + "/" + entityID +
                    " from channel " + address + " resulting in " +
-                   entity.getChannelSubscriptions().size() + " subscriptions left for entity." +
+                   entity.getSubscriptions().size() + " subscriptions left for entity." +
                    ( deregisterEntity ? " De-registering entity!" : "" ) );
         }
         // If there is only one subscriber then lets delete it

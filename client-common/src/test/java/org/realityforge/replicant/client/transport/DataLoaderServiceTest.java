@@ -103,14 +103,14 @@ public class DataLoaderServiceTest
     registerEntity( entryC, MyType.class, "C1" );
     registerEntity( entryD, MyType.class, "D1" );
 
-    when( sm.getInstanceChannelSubscriptionKeys() ).thenReturn( instanceChannelTypes );
-    when( sm.getInstanceChannelSubscriptions( TestSystem.A ) ).thenReturn( aChannelType );
-    when( sm.getInstanceChannelSubscriptions( TestSystem.B ) ).thenReturn( bChannelType );
-    when( sm.getTypeChannelSubscriptions() ).thenReturn( typeChannels );
-    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.A, "1" ) ) ).thenReturn( entryA );
-    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.B, "2" ) ) ).thenReturn( entryB );
-    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.C ) ) ).thenReturn( entryC );
-    when( sm.removeChannelSubscription( new ChannelAddress( TestSystem.D ) ) ).thenReturn( entryD );
+    when( sm.getInstanceSubscriptions() ).thenReturn( instanceChannelTypes );
+    when( sm.getInstanceSubscriptionIds( TestSystem.A ) ).thenReturn( aChannelType );
+    when( sm.getInstanceSubscriptionIds( TestSystem.B ) ).thenReturn( bChannelType );
+    when( sm.getTypeSubscriptions() ).thenReturn( typeChannels );
+    when( sm.removeSubscription( new ChannelAddress( TestSystem.A, "1" ) ) ).thenReturn( entryA );
+    when( sm.removeSubscription( new ChannelAddress( TestSystem.B, "2" ) ) ).thenReturn( entryB );
+    when( sm.removeSubscription( new ChannelAddress( TestSystem.C ) ) ).thenReturn( entryC );
+    when( sm.removeSubscription( new ChannelAddress( TestSystem.D ) ) ).thenReturn( entryD );
 
     assertFalse( myTypeA.isDisposed() );
     assertFalse( myTypeB.isDisposed() );
@@ -120,10 +120,10 @@ public class DataLoaderServiceTest
     service.purgeSubscriptions();
 
     final InOrder inOrder = inOrder( sm );
-    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.B, "2" ) );
-    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.A, "1" ) );
-    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.D ) );
-    inOrder.verify( sm ).removeChannelSubscription( new ChannelAddress( TestSystem.C ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestSystem.B, "2" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestSystem.A, "1" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestSystem.D ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestSystem.C ) );
     inOrder.verifyNoMoreInteractions();
 
     assertTrue( myTypeA.isDisposed() );
@@ -486,7 +486,7 @@ public class DataLoaderServiceTest
     final ChannelAddress descriptor = new ChannelAddress( TestSystem.B, "S" );
 
     final Subscription subscriptionEntry =
-      service.getSubscriptionManager().findChannelSubscription( descriptor );
+      service.getSubscriptionManager().findSubscription( descriptor );
     assertNotNull( subscriptionEntry );
     assertEquals( subscriptionEntry.getChannel().getAddress(), descriptor );
     assertEquals( subscriptionEntry.getChannel().getFilter(), null );
@@ -517,7 +517,7 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
-    sm.recordChannelSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
+    sm.recordSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
 
     configureRequests( service, service.getChangeSets() );
     service.ensureSession().enqueueDataLoad( "jsonData" );
@@ -530,9 +530,9 @@ public class DataLoaderServiceTest
     assertEquals( action.getChannelAddCount(), 2 );
     assertEquals( action.getChannelRemoveCount(), 2 );
 
-    assertNull( sm.findChannelSubscription( new ChannelAddress( TestSystem.A ) ) );
-    assertNull( sm.findChannelSubscription( new ChannelAddress( TestSystem.B, 33 ) ) );
-    assertNotNull( sm.findChannelSubscription( new ChannelAddress( TestSystem.B, "S" ) ) );
+    assertNull( sm.findSubscription( new ChannelAddress( TestSystem.A ) ) );
+    assertNull( sm.findSubscription( new ChannelAddress( TestSystem.B, 33 ) ) );
+    assertNotNull( sm.findSubscription( new ChannelAddress( TestSystem.B, "S" ) ) );
   }
 
   @Test
@@ -777,8 +777,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA3 );
 
-    sm.recordChannelSubscription( channelA1, null, true );
-    sm.recordChannelSubscription( channelA2, null, true );
+    sm.recordSubscription( channelA1, null, true );
+    sm.recordSubscription( channelA2, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
@@ -786,7 +786,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
 
-    sm.recordChannelSubscription( channelB1, null, true );
+    sm.recordSubscription( channelB1, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
@@ -831,8 +831,8 @@ public class DataLoaderServiceTest
 
     completeOutstandingAOIs( service );
 
-    sm.recordChannelSubscription( channelA1, null, true );
-    sm.recordChannelSubscription( channelA2, "FilterB", true );
+    sm.recordSubscription( channelA1, null, true );
+    sm.recordSubscription( channelA2, "FilterB", true );
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
@@ -856,8 +856,8 @@ public class DataLoaderServiceTest
 
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
 
-    sm.recordChannelSubscription( channelA1, "boo", true );
-    sm.recordChannelSubscription( channelA2, "boo", true );
+    sm.recordSubscription( channelA1, "boo", true );
+    sm.recordSubscription( channelA2, "boo", true );
 
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
@@ -867,8 +867,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
-    sm.removeChannelSubscription( channelA1 );
-    sm.removeChannelSubscription( channelA2 );
+    sm.removeSubscription( channelA1 );
+    sm.removeSubscription( channelA2 );
 
     service.requestSubscriptionUpdate( channelA1, "boo" );
     service.requestSubscriptionUpdate( channelA2, "boo" );

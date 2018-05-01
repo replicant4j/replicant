@@ -26,7 +26,7 @@ public class EntityTest
     assertEquals( entity.getId(), id );
 
     Arez.context().safeAction( () -> assertEquals( entity.getUserObject(), null ) );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
   }
 
   @Test
@@ -85,44 +85,57 @@ public class EntityTest
 
     final AtomicInteger callCount = new AtomicInteger();
     Arez.context().autorun( () -> {
-      // Access observable next line
-      entity.getChannelSubscriptions();
+      if ( !Disposable.isDisposed( entity ) )
+      {
+        // Access observable next line
+        entity.getSubscriptions();
+      }
       callCount.incrementAndGet();
     } );
 
     assertEquals( callCount.get(), 1 );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
 
     // Add initial subscription
     {
-      Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
+      Arez.context().safeAction( () -> entity.linkToSubscription( subscription1 ) );
 
       assertEquals( callCount.get(), 2 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
     }
 
     // Add same subscription so no notification or change
     {
-      Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
+      Arez.context().safeAction( () -> entity.linkToSubscription( subscription1 ) );
 
       assertEquals( callCount.get(), 2 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
     }
 
     // Add second subscription and thus get notified
     {
-      Arez.context().safeAction( () -> entity.addChannelSubscription( subscription2 ) );
+      Arez.context().safeAction( () -> entity.linkToSubscription( subscription2 ) );
 
       assertEquals( callCount.get(), 3 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 2 ) );
     }
 
     // Remove subscription and thus get notified
     {
-      Arez.context().safeAction( () -> entity.removeChannelSubscription( subscription2 ) );
+      Arez.context().safeAction( () -> entity.delinkFromSubscription( subscription2 ) );
 
       assertEquals( callCount.get(), 4 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+    }
+
+    // Remove last subscription and thus get notified, also entity should now be disposed
+    {
+      Arez.context().safeAction( () -> entity.delinkFromSubscription( subscription1 ) );
+
+      assertEquals( callCount.get(), 5 );
+      assertEquals( Disposable.isDisposed( entity ), true );
+      // Have to access test-only method as entity is disposed
+      assertEquals( entity.subscriptions().size(), 0 );
     }
   }
 
@@ -138,45 +151,58 @@ public class EntityTest
 
     final AtomicInteger callCount = new AtomicInteger();
     Arez.context().autorun( () -> {
-      // Access observable next line
-      entity.getChannelSubscriptions();
+      if ( !Disposable.isDisposed( entity ) )
+      {
+        // Access observable next line
+        entity.getSubscriptions();
+      }
       callCount.incrementAndGet();
     } );
 
     assertEquals( callCount.get(), 1 );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
 
     // Add initial subscription
     {
-      Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
+      Arez.context().safeAction( () -> entity.linkToSubscription( subscription1 ) );
 
       assertEquals( callCount.get(), 2 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
     }
 
     // Add second subscription and thus get notified
     // second subscription is of the same channelType, so should go through second path
     {
-      Arez.context().safeAction( () -> entity.addChannelSubscription( subscription2 ) );
+      Arez.context().safeAction( () -> entity.linkToSubscription( subscription2 ) );
 
       assertEquals( callCount.get(), 3 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 2 ) );
     }
 
     // Add same subscription again and thus not notified
     {
-      Arez.context().safeAction( () -> entity.addChannelSubscription( subscription2 ) );
+      Arez.context().safeAction( () -> entity.linkToSubscription( subscription2 ) );
 
       assertEquals( callCount.get(), 3 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 2 ) );
     }
 
     // Remove subscription and thus get notified
     {
-      Arez.context().safeAction( () -> entity.removeChannelSubscription( subscription2 ) );
+      Arez.context().safeAction( () -> entity.delinkFromSubscription( subscription2 ) );
 
       assertEquals( callCount.get(), 4 );
-      Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+    }
+
+    // Remove last subscription and thus get notified, also entity should now be disposed
+    {
+      Arez.context().safeAction( () -> entity.delinkFromSubscription( subscription1 ) );
+
+      assertEquals( callCount.get(), 5 );
+      assertEquals( Disposable.isDisposed( entity ), true );
+      // Have to access test-only method as entity is disposed
+      assertEquals( entity.subscriptions().size(), 0 );
     }
   }
 
@@ -190,18 +216,36 @@ public class EntityTest
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
 
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
-    Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
-    Arez.context().safeAction( () -> entity.addChannelSubscription( subscription2 ) );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 2 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
+    Arez.context().safeAction( () -> entity.linkToSubscription( subscription1 ) );
+    Arez.context().safeAction( () -> entity.linkToSubscription( subscription2 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 2 ) );
 
-    Arez.context().safeAction( () -> assertEquals( subscription1.getEntities().get( type ).get( id ), entity ) );
-    Arez.context().safeAction( () -> assertEquals( subscription2.getEntities().get( type ).get( id ), entity ) );
+    Arez.context().safeAction( () -> assertEquals( subscription1.findEntityByTypeAndId( type, id ), entity ) );
+    Arez.context().safeAction( () -> assertEquals( subscription2.findEntityByTypeAndId( type, id ), entity ) );
 
     Disposable.dispose( entity );
 
-    Arez.context().safeAction( () -> assertNull( subscription1.getEntities().get( type ) ) );
-    Arez.context().safeAction( () -> assertNull( subscription2.getEntities().get( type ) ) );
+    Arez.context().safeAction( () -> assertEquals( subscription1.findAllEntitiesByType( type ).size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( subscription2.findAllEntitiesByType( type ).size(), 0 ) );
+  }
+
+  @Test
+  public void disposeWillDisposeUserObject()
+  {
+    final Class<A> type = A.class;
+    final String id = ValueUtil.randomString();
+    final Entity entity = Entity.create( type, id );
+    final A userObject = new A();
+    Arez.context().safeAction( () -> entity.setUserObject( userObject ) );
+
+    assertFalse( Disposable.isDisposed( entity ) );
+    assertFalse( userObject.isDisposed() );
+
+    Disposable.dispose( entity );
+
+    assertTrue( Disposable.isDisposed( entity ) );
+    assertTrue( userObject.isDisposed() );
   }
 
   @Test
@@ -212,7 +256,7 @@ public class EntityTest
     final Subscription subscription1 = createSubscription();
 
     expectThrows( UnsupportedOperationException.class,
-                  () -> Arez.context().safeAction( () -> entity.getChannelSubscriptions().add( subscription1 ) ) );
+                  () -> Arez.context().safeAction( () -> entity.getSubscriptions().add( subscription1 ) ) );
   }
 
   @Test
@@ -222,51 +266,16 @@ public class EntityTest
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 0 ) );
-    Arez.context().safeAction( () -> entity.addChannelSubscription( subscription1 ) );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
+    Arez.context().safeAction( () -> entity.linkToSubscription( subscription1 ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
-    entity.channelSubscriptions().remove( subscription1.getChannel().getAddress() );
+    entity.subscriptions().remove( subscription1.getChannel().getAddress() );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> entity.delinkChannelFromEntity( subscription1 ) ) );
+                    () -> Arez.context().safeAction( () -> entity.delinkSubscriptionFromEntity( subscription1 ) ) );
     assertEquals( exception.getMessage(), "Unable to locate subscription for channel G.G1:1 on entity A/123" );
-  }
-
-  @Test
-  public void delinkEntityFromChannel_noSuchType()
-  {
-    final Entity entity = Entity.create( A.class, "123" );
-
-    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
-
-    entity.channelSubscriptions().put( subscription1.getChannel().getAddress(), subscription1 );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> entity.delinkEntityFromChannel( subscription1 ) ) );
-    assertEquals( exception.getMessage(), "Entity type A not present in channel G.G1:1" );
-  }
-
-  @Test
-  public void delinkEntityFromChannel_noSuchInstance()
-  {
-    final Entity entity = Entity.create( A.class, "123" );
-    final Entity entity2 = Entity.create( A.class, ValueUtil.randomString() );
-
-    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
-
-    Arez.context().safeAction( () -> entity2.addChannelSubscription( subscription1 ) );
-
-    entity.channelSubscriptions().put( subscription1.getChannel().getAddress(), subscription1 );
-    Arez.context().safeAction( () -> assertEquals( entity.getChannelSubscriptions().size(), 1 ) );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> entity.delinkEntityFromChannel( subscription1 ) ) );
-    assertEquals( exception.getMessage(), "Entity instance A/123 not present in channel G.G1:1" );
   }
 
   @Nonnull
@@ -278,7 +287,7 @@ public class EntityTest
   @Nonnull
   private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
-    return Subscription.create( Channel.create( address ), true );
+    return Subscription.create( Channel.create( address ) );
   }
 
   enum G
@@ -287,6 +296,20 @@ public class EntityTest
   }
 
   static class A
+    implements Disposable
   {
+    private boolean _disposed;
+
+    @Override
+    public void dispose()
+    {
+      _disposed = true;
+    }
+
+    @Override
+    public boolean isDisposed()
+    {
+      return _disposed;
+    }
   }
 }

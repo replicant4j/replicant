@@ -4,29 +4,39 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
+import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
-import arez.component.AbstractContainer;
-import arez.component.RepositoryUtil;
+import arez.component.ComponentObservable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Channel;
+import org.realityforge.replicant.client.ChannelAddress;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Representation of a subscription to a channel.
  */
 @ArezComponent
 public abstract class Subscription
-  extends AbstractContainer<Class<?>, Map<Object, Entity>>
   implements Comparable<Subscription>
 {
+  private final Map<Class<?>, Map<Object, EntityEntry>> _entities = new HashMap<>();
   @Nonnull
   private final Channel _channel;
 
-  private final Map<Class<?>, Map<Object, Entity>> _entities = new HashMap<>();
+  public static Subscription create( @Nonnull final Channel channel )
+  {
+    return create( channel, true );
+  }
 
   public static Subscription create( @Nonnull final Channel channel, final boolean explicitSubscription )
   {
@@ -49,29 +59,54 @@ public abstract class Subscription
 
   public abstract void setExplicitSubscription( boolean explicitSubscription );
 
+  @Observable( expectSetter = false )
+  Map<Class<?>, Map<Object, EntityEntry>> getEntities()
+  {
+    return _entities;
+  }
+
   @Nonnull
-  public List<Map<Object, Entity>> getEntitySubscriptionEntries()
+  public Collection<Class<?>> findAllEntityTypes()
   {
-    return RepositoryUtil.asList( entities() );
+    return getEntities().keySet();
   }
 
-  public Map<Class<?>, Map<Object, Entity>> getEntities()
+  @Nonnull
+  public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    return _entities;
+    final Map<Object, EntityEntry> typeMap = getEntities().get( type );
+    return null == typeMap ?
+           Collections.emptyList() :
+           typeMap.values().stream().map( EntityEntry::getEntity ).collect( Collectors.toList() );
   }
 
-  final Map<Class<?>, Map<Object, Entity>> getRwEntities()
+  @Nullable
+  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    return _entities;
+    final Map<Object, EntityEntry> typeMap = _entities.get( type );
+    if ( null == typeMap )
+    {
+      getEntitiesObservable().reportObserved();
+      return null;
+    }
+    else
+    {
+      final EntityEntry entry = typeMap.get( id );
+      if ( null == entry )
+      {
+        getEntitiesObservable().reportObserved();
+        return null;
+      }
+      else
+      {
+        ComponentObservable.observe( entry );
+        return entry.getEntity();
+      }
+    }
   }
 
-  @PreDispose
-  @Override
-  protected void preDispose()
-  {
-    disposeUnOwnedEntities();
-    super.preDispose();
-  }
+  @ObservableRef
+  protected abstract arez.Observable getEntitiesObservable();
 
   @SuppressWarnings( "unchecked" )
   @Override
@@ -80,16 +115,74 @@ public abstract class Subscription
     return getChannel().getAddress().getChannelType().compareTo( o.getChannel().getAddress().getChannelType() );
   }
 
-  private void disposeUnOwnedEntities()
+  final void linkSubscriptionToEntity( @Nonnull final Entity entity )
   {
-    _entities.values().stream().flatMap( entitySet -> entitySet.values().stream() ).forEachOrdered( entity -> {
-      entity.delinkChannelFromEntity( this );
-      if ( entity.getChannelSubscriptions().isEmpty() )
+    getEntitiesObservable().preReportChanged();
+    final Class<?> type = entity.getType();
+    final Object id = entity.getId();
+    Map<Object, EntityEntry> typeMap = _entities.get( type );
+    if ( null == typeMap )
+    {
+      typeMap = new HashMap<>();
+      typeMap.put( id, EntityEntry.create( entity ) );
+      _entities.put( type, typeMap );
+      getEntitiesObservable().reportChanged();
+    }
+    else
+    {
+      if ( !typeMap.containsKey( id ) )
       {
-        final Object userObject = entity.getUserObject();
-        assert null != userObject;
-        Disposable.dispose( userObject );
+        typeMap.put( id, EntityEntry.create( entity ) );
+        getEntitiesObservable().reportChanged();
       }
-    } );
+    }
+  }
+
+  /**
+   * Unlink the specified entity from this subscription.
+   * This method does not delink channel from entity and it is assumed this is achieved through
+   * other means such as {@link Entity#delinkSubscriptionFromEntity(Subscription)}.
+   *
+   * @param entity the entity.
+   */
+  final void delinkEntityFromSubscription( @Nonnull final Entity entity )
+  {
+    getEntitiesObservable().preReportChanged();
+    final Class<?> entityType = entity.getType();
+    final Map<Object, EntityEntry> typeMap = _entities.get( entityType );
+    final ChannelAddress address = getChannel().getAddress();
+    if ( BrainCheckConfig.checkInvariants() )
+    {
+      invariant( () -> null != typeMap,
+                 () -> "Entity type " + entityType.getSimpleName() + " not present in subscription " +
+                       "to channel " + address );
+    }
+    assert null != typeMap;
+    final EntityEntry removed = typeMap.remove( entity.getId() );
+    if ( BrainCheckConfig.checkInvariants() )
+    {
+      invariant( () -> null != removed,
+                 () -> "Entity instance " + entity + " not present in subscription to channel " + address );
+    }
+    Disposable.dispose( removed );
+    if ( typeMap.isEmpty() )
+    {
+      _entities.remove( entityType );
+    }
+    getEntitiesObservable().reportChanged();
+  }
+
+  @PreDispose
+  final void preDispose()
+  {
+    delinkSubscriptionFromAllEntities();
+  }
+
+  private void delinkSubscriptionFromAllEntities()
+  {
+    _entities.values()
+      .stream()
+      .flatMap( entitySet -> entitySet.values().stream() )
+      .forEachOrdered( entity -> entity.getEntity().delinkSubscriptionFromEntity( this ) );
   }
 }

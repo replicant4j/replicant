@@ -16,8 +16,8 @@ import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.ReplicantSystemListener;
-import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -223,7 +223,7 @@ public abstract class ContextConverger
           }
 
           final Object existing =
-            getSubscriptionManager().getChannelSubscription( descriptor ).getChannel().getFilter();
+            getSubscriptionManager().getSubscription( descriptor ).getChannel().getFilter();
           final String newFilter = filterToString( filter );
           final String existingFilter = filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
@@ -346,24 +346,21 @@ public abstract class ContextConverger
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
-    for ( final Subscription channel : getSubscriptionManager().getTypeChannelSubscriptions() )
+    for ( final Subscription channel : getSubscriptionManager().getTypeSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, channel );
     }
-    for ( final Enum channelType : getSubscriptionManager().getInstanceChannelSubscriptionKeys() )
+    for ( final Subscription subscription : getSubscriptionManager().getInstanceSubscriptions() )
     {
-      for ( final Object id : getSubscriptionManager().getInstanceChannelSubscriptions( channelType ) )
-      {
-        removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( channelType, id ) );
-      }
+      removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
   }
 
-  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
-                                   @Nonnull final Subscription channel )
+  private void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
+                                           @Nonnull final Subscription subscription )
   {
-    final ChannelAddress address = channel.getChannel().getAddress();
-    if ( !expected.contains( address ) && channel.isExplicitSubscription() )
+    final ChannelAddress address = subscription.getChannel().getAddress();
+    if ( !expected.contains( address ) && subscription.isExplicitSubscription() )
     {
       removeOrphanSubscription( address );
     }
@@ -373,7 +370,7 @@ public abstract class ContextConverger
                                    @Nonnull final ChannelAddress descriptor )
   {
     if ( !expected.contains( descriptor ) &&
-         getSubscriptionManager().getChannelSubscription( descriptor ).isExplicitSubscription() )
+         getSubscriptionManager().getSubscription( descriptor ).isExplicitSubscription() )
     {
       removeOrphanSubscription( descriptor );
     }
@@ -414,7 +411,7 @@ public abstract class ContextConverger
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );
-      areaOfInterest.setEntry( attemptEntryLoad ? getSubscriptionManager().findChannelSubscription( address ) : null );
+      areaOfInterest.setEntry( attemptEntryLoad ? getSubscriptionManager().findSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
     markConvergeAsIncomplete();

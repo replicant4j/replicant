@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.subscription;
 
-import arez.Arez;
 import arez.Disposable;
 import arez.annotations.ArezComponent;
 import java.util.Collection;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -23,10 +23,10 @@ import org.realityforge.replicant.client.ChannelAddress;
 public abstract class EntitySubscriptionManager
 {
   //ChannelType => InstanceID
-  private final HashMap<Enum, Map<Object, Subscription>> _instanceChannelSubscriptions = new HashMap<>();
+  private final HashMap<Enum, Map<Object, Subscription>> _instanceSubscriptions = new HashMap<>();
 
   //ChannelType => Type
-  private final HashMap<Enum, Subscription> _typeChannelSubscriptions = new HashMap<>();
+  private final HashMap<Enum, Subscription> _typeSubscriptions = new HashMap<>();
 
   // Entity map: Type => ID
   private final HashMap<Class<?>, EntityTypeRepository> _entityMapping = new HashMap<>();
@@ -42,42 +42,39 @@ public abstract class EntitySubscriptionManager
   }
 
   /**
-   * Return the collection of current type subscriptions.
-   * These keys can be directly used to unsubscribe from the channel.
+   * Return the collection of type subscriptions.
+   *
+   * @return the collection of type subscriptions.
    */
   @Nonnull
-  public Collection<Subscription> getTypeChannelSubscriptions()
+  public Collection<Subscription> getTypeSubscriptions()
   {
-    final Collection<Subscription> values = _typeChannelSubscriptions.values();
-    return Arez.areRepositoryResultsModifiable() ? values : Collections.unmodifiableCollection( values );
+    return _typeSubscriptions.values();
   }
 
   /**
-   * Return the collection of enums that represent instance subscriptions.
-   * These can be used to further interrogate the EntitySubscriptionManager
-   * to retrieve the set of instance subscriptions.
+   * Return the collection of instance subscriptions.
+   *
+   * @return the collection of instance subscriptions.
    */
   @Nonnull
-  public Set<Enum> getInstanceChannelSubscriptionKeys()
+  public Collection<Subscription> getInstanceSubscriptions()
   {
-    return Collections.unmodifiableSet( _instanceChannelSubscriptions.keySet() );
+    return _instanceSubscriptions
+      .values()
+      .stream()
+      .flatMap( s -> s.values().stream() )
+      .collect( Collectors.toList() );
   }
 
   /**
    * Return the collection of instance subscriptions for channel.
    */
   @Nonnull
-  public Set<Object> getInstanceChannelSubscriptions( @Nonnull final Enum channel )
+  public Set<Object> getInstanceSubscriptionIds( @Nonnull final Enum channelType )
   {
-    final Map<Object, Subscription> map = _instanceChannelSubscriptions.get( channel );
-    if ( null == map )
-    {
-      return Collections.emptySet();
-    }
-    else
-    {
-      return Collections.unmodifiableSet( map.keySet() );
-    }
+    final Map<Object, Subscription> map = _instanceSubscriptions.get( channelType );
+    return null == map ? Collections.emptySet() : map.keySet();
   }
 
   /**
@@ -90,24 +87,23 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalStateException if channel already subscribed to.
    */
   @Nonnull
-  public final Subscription recordChannelSubscription( @Nonnull final ChannelAddress address,
-                                                       @Nullable final Object filter,
-                                                       final boolean explicitSubscription )
+  public final Subscription recordSubscription( @Nonnull final ChannelAddress address,
+                                                @Nullable final Object filter,
+                                                final boolean explicitSubscription )
     throws IllegalStateException
   {
-    final Subscription existing = findChannelSubscription( address );
+    final Subscription existing = findSubscription( address );
     if ( null == existing )
     {
-      final Subscription entry =
-        Subscription.create( Channel.create( address, filter ), explicitSubscription );
+      final Subscription entry = Subscription.create( Channel.create( address, filter ), explicitSubscription );
       final Object id = address.getId();
       if ( null == id )
       {
-        _typeChannelSubscriptions.put( address.getChannelType(), entry );
+        _typeSubscriptions.put( address.getChannelType(), entry );
       }
       else
       {
-        _instanceChannelSubscriptions
+        _instanceSubscriptions
           .computeIfAbsent( address.getChannelType(), k -> new HashMap<>() )
           .put( id, entry );
       }
@@ -122,17 +118,16 @@ public abstract class EntitySubscriptionManager
   /**
    * Update subscription details for the specified channel.
    *
-   * @param channel the channel.
+   * @param address the channel address.
    * @param filter  the filter being updated.
    * @return the subscription entry.
    * @throws IllegalStateException if channel already subscribed to.
    */
   @Nonnull
-  public Subscription updateChannelSubscription( @Nonnull final ChannelAddress channel,
-                                                 @Nullable final Object filter )
+  public Subscription updateSubscription( @Nonnull final ChannelAddress address, @Nullable final Object filter )
     throws IllegalStateException
   {
-    final Subscription subscription = getChannelSubscription( channel );
+    final Subscription subscription = getSubscription( address );
     subscription.getChannel().setFilter( filter );
     return subscription;
   }
@@ -144,24 +139,18 @@ public abstract class EntitySubscriptionManager
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  public final Subscription findChannelSubscription( @Nonnull final ChannelAddress channel )
+  public final Subscription findSubscription( @Nonnull final ChannelAddress channel )
   {
+    final Enum channelType = channel.getChannelType();
     final Object id = channel.getId();
     if ( null == id )
     {
-      return _typeChannelSubscriptions.get( channel.getChannelType() );
+      return _typeSubscriptions.get( channelType );
     }
     else
     {
-      Map<Object, Subscription> instanceMap = _instanceChannelSubscriptions.get( channel.getChannelType() );
-      if ( null == instanceMap )
-      {
-        return null;
-      }
-      else
-      {
-        return instanceMap.get( id );
-      }
+      final Map<Object, Subscription> instanceMap = _instanceSubscriptions.get( channelType );
+      return null == instanceMap ? null : instanceMap.get( id );
     }
   }
 
@@ -173,10 +162,10 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  public Subscription getChannelSubscription( @Nonnull final ChannelAddress channel )
+  public Subscription getSubscription( @Nonnull final ChannelAddress channel )
     throws IllegalArgumentException
   {
-    final Subscription subscription = findChannelSubscription( channel );
+    final Subscription subscription = findSubscription( channel );
     if ( null == subscription )
     {
       throw new IllegalStateException( "Channel not subscribed: " + channel );
@@ -187,37 +176,36 @@ public abstract class EntitySubscriptionManager
   /**
    * Remove subscription details for specified channel.
    *
-   * @param channel the channel.
-   * @return the subscription entry.
+   * @param address the channel.
+   * @return the subscription.
    * @throws IllegalStateException if channel not subscribed to.
    */
   @Nonnull
-  public final Subscription removeChannelSubscription( @Nonnull final ChannelAddress channel )
+  public final Subscription removeSubscription( @Nonnull final ChannelAddress address )
     throws IllegalStateException
   {
-    final Object id = channel.getId();
+    final Object id = address.getId();
     if ( null == id )
     {
-      final Subscription entry = _typeChannelSubscriptions.remove( channel.getChannelType() );
+      final Subscription entry = _typeSubscriptions.remove( address.getChannelType() );
       if ( null == entry )
       {
-        throw new IllegalStateException( "Channel not subscribed: " + channel );
+        throw new IllegalStateException( "Channel not subscribed: " + address );
       }
       Disposable.dispose( entry );
       return entry;
     }
     else
     {
-      final Map<Object, Subscription> instanceMap =
-        _instanceChannelSubscriptions.get( channel.getChannelType() );
+      final Map<Object, Subscription> instanceMap = _instanceSubscriptions.get( address.getChannelType() );
       if ( null == instanceMap )
       {
-        throw new IllegalStateException( "Channel not subscribed: " + channel );
+        throw new IllegalStateException( "Channel not subscribed: " + address );
       }
       final Subscription entry = instanceMap.remove( id );
       if ( null == entry )
       {
-        throw new IllegalStateException( "Channel not subscribed: " + channel );
+        throw new IllegalStateException( "Channel not subscribed: " + address );
       }
       Disposable.dispose( entry );
       return entry;
@@ -276,7 +264,7 @@ public abstract class EntitySubscriptionManager
     entity.setUserObject( userObject );
     for ( final ChannelAddress channel : channels )
     {
-      entity.addChannelSubscription( getChannelSubscription( channel ) );
+      entity.linkToSubscription( getSubscription( channel ) );
     }
   }
 
@@ -293,14 +281,14 @@ public abstract class EntitySubscriptionManager
    * @throws IllegalStateException if no such entity or the entity is not associated with the channel.
    */
   @Nonnull
-  public Entity removeEntityFromChannel( @Nonnull final Class<?> type,
-                                         @Nonnull final Object id,
-                                         @Nonnull final ChannelAddress channel )
+  public Entity removeEntityFromSubscription( @Nonnull final Class<?> type,
+                                              @Nonnull final Object id,
+                                              @Nonnull final ChannelAddress channel )
     throws IllegalStateException
   {
     final Entity entity = findOrCreateEntity( type, id );
-    final Subscription channelSubscription = getChannelSubscription( channel );
-    entity.removeChannelSubscription( channelSubscription );
+    final Subscription channelSubscription = getSubscription( channel );
+    entity.delinkFromSubscription( channelSubscription );
     return entity;
   }
 
