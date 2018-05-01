@@ -10,12 +10,7 @@ public class EntitySubscriptionDebugger
 
   public void outputSubscriptionManager( @Nonnull final EntitySubscriptionManager subscriptionManager )
   {
-    outputTypeSubscriptions( subscriptionManager );
-    outputInstanceSubscriptions( subscriptionManager );
-  }
-
-  protected void outputInstanceSubscriptions( @Nonnull final EntitySubscriptionManager subscriptionManager )
-  {
+    subscriptionManager.getTypeChannelSubscriptions().forEach( this::outputSubscription );
     for ( final Enum key : subscriptionManager.getInstanceChannelSubscriptionKeys() )
     {
       for ( final Object id : subscriptionManager.getInstanceChannelSubscriptions( key ) )
@@ -25,15 +20,7 @@ public class EntitySubscriptionDebugger
     }
   }
 
-  protected void outputTypeSubscriptions( @Nonnull final EntitySubscriptionManager subscriptionManager )
-  {
-    for ( final Enum type : subscriptionManager.getTypeChannelSubscriptions() )
-    {
-      outputSubscription( subscriptionManager.getChannelSubscription( new ChannelAddress( type ) ) );
-    }
-  }
-
-  protected void outputSubscription( @Nonnull final ChannelSubscriptionEntry subscription )
+  private void outputSubscription( @Nonnull final ChannelSubscriptionEntry subscription )
   {
     final Object filter = subscription.getChannel().getFilter();
     LOG.info( "Subscription: " + subscription.getChannel().getAddress() +
