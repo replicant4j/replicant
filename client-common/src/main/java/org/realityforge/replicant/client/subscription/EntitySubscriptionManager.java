@@ -111,7 +111,7 @@ public abstract class EntitySubscriptionManager
     if ( BrainCheckConfig.checkInvariants() )
     {
       invariant( () -> null != removed,
-                 () -> "Entity instance " + descEntity( entityType, id ) + " not present " +
+                 () -> "Entity instance " + entityType.getSimpleName() + "/" + id + " not present " +
                        "in EntitySubscriptionManager" );
     }
     Disposable.dispose( removed );
@@ -157,11 +157,5 @@ public abstract class EntitySubscriptionManager
     typeMap.put( id, entity );
     getEntitiesObservable().reportChanged();
     return entity;
-  }
-
-  @Nonnull
-  private String descEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
-  {
-    return type.getSimpleName() + "/" + id;
   }
 }
