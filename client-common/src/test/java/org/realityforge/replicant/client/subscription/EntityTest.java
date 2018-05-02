@@ -18,9 +18,11 @@ public class EntityTest
   @Test
   public void basicConstruction()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<A> type = A.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     assertEquals( entity.getType(), type );
     assertEquals( entity.getId(), id );
@@ -32,9 +34,11 @@ public class EntityTest
   @Test
   public void toStringTest()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<A> type = A.class;
     final String id = "123";
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     assertEquals( entity.toString(), "A/123" );
     ArezTestUtil.disableNames();
@@ -45,9 +49,11 @@ public class EntityTest
   @Test
   public void userObject()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<A> type = A.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     Arez.context().safeAction( () -> assertEquals( entity.getUserObject(), null ) );
 
@@ -59,9 +65,11 @@ public class EntityTest
   @Test
   public void userObjectBadType()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<A> type = A.class;
     final String id = "1234";
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     Arez.context().safeAction( () -> assertEquals( entity.getUserObject(), null ) );
 
@@ -76,9 +84,11 @@ public class EntityTest
   @Test
   public void typeChannelSubscriptions()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<String> type = String.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
@@ -142,9 +152,11 @@ public class EntityTest
   @Test
   public void instanceChannelSubscriptions()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<String> type = String.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
@@ -209,9 +221,11 @@ public class EntityTest
   @Test
   public void disposeRemovesEntityFromChannels()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<A> type = A.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
@@ -233,9 +247,11 @@ public class EntityTest
   @Test
   public void disposeWillDisposeUserObject()
   {
+    final EntityService entityService = EntityService.create();
+
     final Class<A> type = A.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
     final A userObject = new A();
     Arez.context().safeAction( () -> entity.setUserObject( userObject ) );
 
@@ -251,7 +267,10 @@ public class EntityTest
   @Test
   public void getChannelSubscriptions_mutability()
   {
-    final Entity entity = Entity.create( A.class, ValueUtil.randomString() );
+    final EntityService entityService = EntityService.create();
+
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, ValueUtil.randomString() ) );
 
     final Subscription subscription1 = createSubscription();
 
@@ -262,7 +281,9 @@ public class EntityTest
   @Test
   public void delinkChannelFromEntity_whenSubscriptionMissing()
   {
-    final Entity entity = Entity.create( A.class, "123" );
+    final EntityService entityService = EntityService.create();
+
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "123" ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 

@@ -5,10 +5,12 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
+import arez.annotations.PostDispose;
 import arez.annotations.PreDispose;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.anodoc.TestOnly;
@@ -23,19 +25,32 @@ import static org.realityforge.braincheck.Guards.*;
 public abstract class Entity
 {
   private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
+  /**
+   * Reference to the container that created entity.
+   * In the future this reference should be eliminated when there is a way to get to the singleton
+   * EntityService. (Similar to the way we have Arez.context().X we should have Replicant.context().X)
+   * This will save memory resources on the client.
+   */
+  @Nonnull
+  private final EntityService _entityService;
+  @Nonnull
   private final Class<?> _type;
+  @Nonnull
   private final Object _id;
   private Object _userObject;
 
-  static Entity create( @Nonnull final Class<?> type, @Nonnull final Object id )
+  static Entity create( @Nonnull final EntityService entityService,
+                        @Nonnull final Class<?> type,
+                        @Nonnull final Object id )
   {
-    return new Arez_Entity( type, id );
+    return new Arez_Entity( entityService, type, id );
   }
 
-  Entity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity( @Nonnull final EntityService entityService, @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    _type = type;
-    _id = id;
+    _entityService = Objects.requireNonNull( entityService );
+    _type = Objects.requireNonNull( type );
+    _id = Objects.requireNonNull( id );
   }
 
   @Nonnull
@@ -144,7 +159,6 @@ public abstract class Entity
     }
     if ( _subscriptions.isEmpty() )
     {
-      //TODO: Need to remove self from EntityService
       Disposable.dispose( this );
     }
   }
@@ -154,15 +168,29 @@ public abstract class Entity
   {
     //TODO: FIgure out how this next line works - it is READ-WRITE transaction inside DISPOSE????
     delinkEntityFromAllSubscriptions();
+    _entityService.unlinkEntity( this );
+
     if ( null != _userObject )
     {
       Disposable.dispose( _userObject );
     }
   }
 
+  @PostDispose
+  final void postDispose()
+  {
+    if ( BrainCheckConfig.checkApiInvariants() )
+    {
+      apiInvariant( _subscriptions::isEmpty,
+                    () -> "Entity " + this + " was disposed in non-standard way that left " +
+                          _subscriptions.size() + " subscriptions linked." );
+    }
+  }
+
   private void delinkEntityFromAllSubscriptions()
   {
     _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this ) );
+    _subscriptions.clear();
   }
 
   @Override

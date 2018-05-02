@@ -18,7 +18,7 @@ import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
- * A class that records the subscriptions to channels and entities.
+ * The container of Entity instances within replicant system.
  */
 @Singleton
 @ArezComponent
@@ -46,6 +46,12 @@ public abstract class EntityService
     return _entities;
   }
 
+  /**
+   * Return the collection of entity types that exist in the system.
+   * Only entity types that have at least one instance will be returned from this method.
+   *
+   * @return the collection of entity types.
+   */
   @Nonnull
   public Collection<Class<?>> findAllEntityTypes()
   {
@@ -53,11 +59,11 @@ public abstract class EntityService
   }
 
   /**
-   * Find the subscription details for entity.
+   * Find the Entity by type and id.
    *
    * @param type the type of the entity.
    * @param id   the id of the entity.
-   * @return the subscription entry if it exists, null otherwise.
+   * @return the Entity if it exists, null otherwise.
    */
   @Nullable
   public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
@@ -92,14 +98,16 @@ public abstract class EntityService
   }
 
   /**
-   * Remove entity and all associated subscriptions.
+   * Remove the entity and delink from associated subscriptions.
    *
-   * @param entityType the type of the entity.
-   * @param id         the id of the entity.
+   * @param entity the entity.
    */
-  public void removeEntity( @Nonnull final Class<?> entityType, @Nonnull final Object id )
+  void unlinkEntity( @Nonnull final Entity entity )
   {
     getEntitiesObservable().preReportChanged();
+
+    final Class<?> entityType = entity.getType();
+    final Object id = entity.getId();
     final Map<Object, Entity> typeMap = _entities.get( entityType );
     if ( BrainCheckConfig.checkInvariants() )
     {
@@ -122,6 +130,13 @@ public abstract class EntityService
     getEntitiesObservable().reportChanged();
   }
 
+  /**
+   * Return the entity specified by type and id, creating an Entity if one does not already exist.
+   *
+   * @param type the type of the entity.
+   * @param id   the id of the entity.
+   * @return the existing Entity if it exists, otherwise the newly created entity.
+   */
   @Nonnull
   Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
@@ -153,7 +168,7 @@ public abstract class EntityService
                                @Nonnull final Object id )
   {
     getEntitiesObservable().preReportChanged();
-    final Entity entity = Entity.create( type, id );
+    final Entity entity = Entity.create( this, type, id );
     typeMap.put( id, entity );
     getEntitiesObservable().reportChanged();
     return entity;

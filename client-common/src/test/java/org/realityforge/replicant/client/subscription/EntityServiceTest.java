@@ -2,278 +2,202 @@ package org.realityforge.replicant.client.subscription;
 
 import arez.Arez;
 import arez.Disposable;
-import javax.annotation.Nonnull;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.testng.IHookCallBack;
-import org.testng.IHookable;
-import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class EntityServiceTest
   extends AbstractReplicantTest
-  implements IHookable
 {
-  @Override
-  public void run( final IHookCallBack callBack, final ITestResult testResult )
-  {
-    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
-  }
-
   @Test
-  public void entitySubscriptionInTypeChannel()
+  public void basicEntityLifecycle()
   {
-    final Class<A> type = A.class;
-    final Object id = 1;
+    final EntityService service = EntityService.create();
 
-    final EntityService sm = EntityService.create();
-    final SubscriptionService ss = SubscriptionService.create();
-    assertNull( ss.findSubscription( new ChannelAddress( G.G1 ) ) );
-    final Subscription e1 = ss.createSubscription( new ChannelAddress( G.G1 ), null, false );
+    final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
+    Arez.context().autorun( () -> {
+      if ( !Disposable.isDisposed( service ) )
+      {
+        // Access observable next line
+        service.findAllEntityTypes();
+      }
 
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G1, null ), type, id );
+      findAllEntityTypesCallCount.incrementAndGet();
+    } );
 
-    final A entity = new A();
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                  entity );
-    assertEntitySubscribed( ss, new ChannelAddress( G.G1, null ), type, id, entity );
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                  entity );
+    final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
+    Arez.context().autorun( () -> {
+      if ( !Disposable.isDisposed( service ) )
+      {
+        // Access observable next line
+        service.findAllEntitiesByType( A.class );
+      }
 
-    Disposable.dispose( e1 );
+      findAllEntitiesByTypeACallCount.incrementAndGet();
+    } );
 
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G1, null ), type, id );
+    final AtomicInteger findAllEntitiesByTypeBCallCount = new AtomicInteger();
+    Arez.context().autorun( () -> {
+      if ( !Disposable.isDisposed( service ) )
+      {
+        // Access observable next line
+        service.findAllEntitiesByType( B.class );
+      }
 
-    assertTrue( Disposable.isDisposed( e1 ) );
-  }
+      findAllEntitiesByTypeBCallCount.incrementAndGet();
+    } );
 
-  @Test
-  public void entitySubscriptionInTypeChannel_removeEntity()
-  {
-    final Class<A> type = A.class;
-    final Object id = 1;
+    final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
+    Arez.context().autorun( () -> {
+      if ( !Disposable.isDisposed( service ) )
+      {
+        // Access observable next line
+        service.findEntityByTypeAndId( A.class, 1 );
+      }
 
-    final EntityService sm = EntityService.create();
-    final SubscriptionService ss = SubscriptionService.create();
-    assertNull( ss.findSubscription( new ChannelAddress( G.G1 ) ) );
-    final Subscription s1 =
-      ss.createSubscription( new ChannelAddress( G.G1 ), null, false );
+      findEntityByTypeAndId1CallCount.incrementAndGet();
+    } );
 
-    final A entity = new A();
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                  entity );
+    final AtomicInteger findEntityByTypeAndId2CallCount = new AtomicInteger();
+    Arez.context().autorun( () -> {
+      if ( !Disposable.isDisposed( service ) )
+      {
+        // Access observable next line
+        service.findEntityByTypeAndId( A.class, 2 );
+      }
 
-    assertEntitySubscribed( ss, new ChannelAddress( G.G1, null ), type, id, entity );
+      findEntityByTypeAndId2CallCount.incrementAndGet();
+    } );
 
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                  entity );
+    assertEquals( findAllEntityTypesCallCount.get(), 1 );
+    assertEquals( findAllEntitiesByTypeACallCount.get(), 1 );
+    assertEquals( findAllEntitiesByTypeBCallCount.get(), 1 );
+    assertEquals( findEntityByTypeAndId1CallCount.get(), 1 );
+    assertEquals( findEntityByTypeAndId2CallCount.get(), 1 );
 
-    assertEntitySubscribed( ss, new ChannelAddress( G.G1, null ), type, id, entity );
+    Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+    Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+    Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
 
-    sm.removeEntity( type, id );
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G1, null ), type, id );
-
-    //assertEntityPresent( type, id, r );
-
-    Disposable.dispose( s1 );
-
-    assertTrue( Disposable.isDisposed( s1 ) );
-
-    // Entity still here as unsubscribe did not unload as removed from subscription manager
-    //assertEntityPresent( type, id, r );
-  }
-
-  @Test
-  public void entitySubscriptionInInstanceChannel()
-  {
-    final Class<A> type = A.class;
-    final Object id = 1;
-
-    final EntityService sm = EntityService.create();
-    final SubscriptionService ss = SubscriptionService.create();
-    assertNull( ss.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    final Subscription subscription = ss.createSubscription( new ChannelAddress( G.G2, 1 ), null, false );
-
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id );
-
-    final A entity = new A();
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                  entity );
-    assertEntitySubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id, entity );
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                  entity );
-
-    Disposable.dispose( subscription );
-
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id );
-  }
-
-  @Test
-  public void entitySubscriptionInInstanceChannel_removeEntity()
-  {
-    final Class<A> type = A.class;
-    final Object id = 1;
-
-    final EntityService sm = EntityService.create();
-    final SubscriptionService ss = SubscriptionService.create();
-    assertNull( ss.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-    final Subscription subscription = ss.createSubscription( new ChannelAddress( G.G2, 1 ), null, false );
-
-    final A entity = new A();
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                  entity );
-
-    assertEntitySubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id, entity );
-
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                  entity );
-
-    assertEntitySubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id, entity );
-
-    sm.removeEntity( type, id );
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id );
-
-    Disposable.dispose( subscription );
-  }
-
-  @Test
-  public void entityOverlappingSubscriptions()
-  {
-    final Class<A> type = A.class;
-    final Object id = 1;
-
-    final EntityService sm = EntityService.create();
-    final SubscriptionService ss = SubscriptionService.create();
-    assertNull( ss.findSubscription( new ChannelAddress( G.G1 ) ) );
-    assertNull( ss.findSubscription( new ChannelAddress( G.G2, 1 ) ) );
-
-    final Subscription subscription1 = ss.createSubscription( new ChannelAddress( G.G1 ), null, true );
-    final Subscription subscription2 = ss.createSubscription( new ChannelAddress( G.G2, 1 ), null, true );
-
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G1, null ), type, id );
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id );
-
-    final A userObject = new A();
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                  userObject );
-    assertEntitySubscribed( ss, new ChannelAddress( G.G1, null ), type, id, userObject );
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id );
-
-    updateEntity( sm,
-                  ss,
-                  type,
-                  id,
-                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                  userObject );
-
-    assertEntitySubscribed( ss, new ChannelAddress( G.G1, null ), type, id, userObject );
-    assertEntitySubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id, userObject );
-
-    Disposable.dispose( subscription1 );
-
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G1, null ), type, id );
-    assertEntitySubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id, userObject );
-
-    Disposable.dispose( subscription2 );
-
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G1, null ), type, id );
-    assertEntityNotSubscribed( ss, new ChannelAddress( G.G2, 1 ), type, id );
-  }
-
-  private void assertEntitySubscribed( final SubscriptionService subscriptionService,
-                                       final ChannelAddress address,
-                                       final Class<A> type,
-                                       final Object id,
-                                       final A entity )
-  {
-    final Subscription subscription = subscriptionService.findSubscription( address );
-    assertNotNull( subscription );
-    final Entity slot = subscription.findEntityByTypeAndId( type, id );
-    assertNotNull( slot );
-    assertTrue( slot.getSubscriptions().stream().anyMatch( s -> s.getChannel().getAddress().equals( address ) ) );
-    assertEquals( slot.getUserObject(), entity );
-  }
-
-  private void assertEntityNotSubscribed( final SubscriptionService subscriptionService,
-                                          final ChannelAddress address,
-                                          final Class<A> type,
-                                          final Object id )
-  {
-    boolean found;
-    try
+    // add first entity
     {
-      final Subscription subscription = subscriptionService.findSubscription( address );
-      assertNotNull( subscription );
-      assertNotNull( subscription.findEntityByTypeAndId( type, id ) );
-      found = true;
-    }
-    catch ( final Throwable t )
-    {
-      found = false;
-    }
-    assertFalse( found, "Found subscription unexpectedly" );
-  }
+      Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 1 ) );
 
-  private <T> void updateEntity( @Nonnull final EntityService sm,
-                                 @Nonnull final SubscriptionService ss,
-                                 @Nonnull final Class<T> type,
-                                 @Nonnull final Object id,
-                                 @Nonnull final ChannelAddress[] channels,
-                                 @Nonnull final T userObject )
-  {
-    final Entity entity = sm.findOrCreateEntity( type, id );
-    entity.setUserObject( userObject );
-    for ( final ChannelAddress channel : channels )
-    {
-      final Subscription subscription = ss.findSubscription( channel );
-      assert null != subscription;
-      entity.linkToSubscription( subscription );
-    }
-  }
+      assertEquals( findAllEntityTypesCallCount.get(), 2 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
+      assertEquals( findAllEntitiesByTypeBCallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId2CallCount.get(), 2 );
 
-  enum G
-  {
-    G1, G2
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    }
+
+    // Attempt to add same entity
+    {
+      Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 1 ) );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 2 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
+      assertEquals( findAllEntitiesByTypeBCallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId2CallCount.get(), 2 );
+
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    }
+
+    // add an entity of the same type
+    {
+      Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 2 ) );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 3 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 3 );
+      assertEquals( findAllEntitiesByTypeBCallCount.get(), 3 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
+
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    }
+
+    // Add an entity of a different type
+    {
+      Arez.context().safeAction( () -> service.findOrCreateEntity( B.class, "X" ) );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 4 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 4 );
+      assertEquals( findAllEntitiesByTypeBCallCount.get(), 4 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
+
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 1 ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    }
+
+    // Dispose entity of different type
+    {
+      Arez.context().safeAction( () -> {
+        final Entity entity = service.findEntityByTypeAndId( B.class, "X" );
+        assertNotNull( entity );
+        Disposable.dispose( entity );
+      } );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 5 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 5 );
+      assertEquals( findAllEntitiesByTypeBCallCount.get(), 5 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
+
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    }
+
+    // Dispose entity of A type
+    {
+      Arez.context().safeAction( () -> {
+        final Entity entity = service.findEntityByTypeAndId( A.class, 1 );
+        assertNotNull( entity );
+        Disposable.dispose( entity );
+      } );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 6 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 6 );
+      assertEquals( findAllEntitiesByTypeBCallCount.get(), 6 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 3 );
+      assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
+
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    }
   }
 
   static class A
+  {
+  }
+
+  static class B
   {
   }
 }

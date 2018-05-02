@@ -1120,31 +1120,9 @@ public abstract class AbstractDataLoaderService
       final ChannelAddress address = subscription.getChannel().getAddress();
       for ( final Entity entity : new ArrayList<>( entities ) )
       {
-        final Class<?> entityType = entity.getType();
-        final Object entityId = entity.getId();
-
-        if ( !doesEntityMatchFilter( address, filter, entityType, entityId ) )
+        if ( !doesEntityMatchFilter( address, filter, entity.getType(), entity.getId() ) )
         {
           entity.delinkFromSubscription( subscription );
-
-          final boolean deregisterEntity = 0 == entity.getSubscriptions().size();
-          if ( LOG.isLoggable( getLogLevel() ) )
-          {
-            LOG.log( getLogLevel(),
-                     "Removed entity " + entityType.getSimpleName() + "/" + entityId +
-                     " from channel " + address + " resulting in " +
-                     entity.getSubscriptions().size() + " subscriptions left for entity." +
-                     ( deregisterEntity ? " De-registering entity!" : "" ) );
-          }
-          // If there is only one subscriber then lets delete it
-          if ( deregisterEntity )
-          {
-            //TODO: This next line still needed but the deregistering should already occur at low level
-            getSubscriptionManager().removeEntity( entityType, entityId );
-            final Object userObject = entity.getUserObject();
-            assert null != userObject;
-            Disposable.dispose( userObject );
-          }
         }
       }
     }
