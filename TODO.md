@@ -30,8 +30,6 @@ Some actions that should occur at some point in the future.
 
 * Merge all interface/impl separations - i.e. ReplicantConnection
 
-* All of the AreaOfInterestListener infra should move to using AreaOfInterest object?
-
 * Merge `client-common` and `client-gwt` into `client`
 
 * Handle TODOs in Entity
