@@ -193,6 +193,35 @@ public class EntityServiceTest
     }
   }
 
+  @Test
+  public void unlinkEntity_missingType()
+  {
+    final EntityService service = EntityService.create();
+
+    final Entity entity = Entity.create( service, A.class, 1 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> service.unlinkEntity( entity ) ) );
+
+    assertEquals( exception.getMessage(), "Entity type A not present in EntityService" );
+  }
+
+  @Test
+  public void unlinkEntity_missingInstance()
+  {
+    final EntityService service = EntityService.create();
+
+    Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 1 ) );
+    final Entity entity = Entity.create( service, A.class, 2 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> service.unlinkEntity( entity ) ) );
+
+    assertEquals( exception.getMessage(), "Entity instance A/2 not present in EntityService" );
+  }
+
   static class A
   {
   }
