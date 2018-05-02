@@ -17,13 +17,13 @@ import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.EntityService;
 import org.realityforge.replicant.client.subscription.SubscriptionService;
 
 @Singleton
 public class ReplicantConnection
 {
-  private final EntitySubscriptionManager _subscriptionManager;
+  private final EntityService _subscriptionManager;
   private final SubscriptionService _subscriptionService;
   private final ReplicantClientSystem _replicantClientSystem;
   private final AreaOfInterestService _areaOfInterestService;
@@ -31,7 +31,7 @@ public class ReplicantConnection
 
   @Inject
   ReplicantConnection( @Nonnull final ContextConverger converger,
-                       @Nonnull final EntitySubscriptionManager subscriptionManager,
+                       @Nonnull final EntityService subscriptionManager,
                        @Nonnull final SubscriptionService subscriptionService,
                        @Nonnull final ReplicantClientSystem replicantClientSystem,
                        @Nonnull final AreaOfInterestService areaOfInterestService )
@@ -68,7 +68,7 @@ public class ReplicantConnection
   }
 
   @Nonnull
-  public EntitySubscriptionManager getSubscriptionManager()
+  public EntityService getSubscriptionManager()
   {
     return _subscriptionManager;
   }

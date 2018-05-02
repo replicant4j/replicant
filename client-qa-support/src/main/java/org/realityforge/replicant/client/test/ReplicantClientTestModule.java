@@ -4,7 +4,7 @@ import org.realityforge.guiceyloops.shared.AbstractModule;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.EntityService;
 
 /**
  * Module containing all the common client services.
@@ -23,7 +23,7 @@ public class ReplicantClientTestModule
 
   protected void bindEntitySubscriptionManager()
   {
-    bind( EntitySubscriptionManager.class ).toInstance( EntitySubscriptionManager.create() );
+    bind( EntityService.class ).toInstance( EntityService.create() );
   }
 
   protected void bindContextConverger()

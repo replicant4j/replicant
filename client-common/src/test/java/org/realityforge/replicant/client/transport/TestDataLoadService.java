@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.EntityService;
 import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.SubscriptionService;
 import static org.mockito.Mockito.*;
@@ -25,7 +25,7 @@ public final class TestDataLoadService
   private final CacheService _cacheService;
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
-  private final EntitySubscriptionManager _subscriptionManager;
+  private final EntityService _subscriptionManager;
   private final SubscriptionService _subscriptionService;
   private int _validateRepositoryCallCount;
 
@@ -34,7 +34,7 @@ public final class TestDataLoadService
     _sessionContext = new SessionContext( "X" );
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
-    _subscriptionManager = EntitySubscriptionManager.create();
+    _subscriptionManager = EntityService.create();
     _subscriptionService = SubscriptionService.create();
   }
 
@@ -61,7 +61,7 @@ public final class TestDataLoadService
 
   @Nonnull
   @Override
-  protected EntitySubscriptionManager getSubscriptionManager()
+  protected EntityService getSubscriptionManager()
   {
     return _subscriptionManager;
   }

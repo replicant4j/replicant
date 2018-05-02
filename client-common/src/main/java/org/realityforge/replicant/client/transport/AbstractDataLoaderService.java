@@ -25,7 +25,7 @@ import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.EntityService;
 import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.SubscriptionService;
 import static org.realityforge.braincheck.Guards.*;
@@ -202,7 +202,7 @@ public abstract class AbstractDataLoaderService
   protected abstract ChangeMapper getChangeMapper();
 
   @Nonnull
-  protected abstract EntitySubscriptionManager getSubscriptionManager();
+  protected abstract EntityService getSubscriptionManager();
 
   @Nonnull
   protected abstract SubscriptionService getSubscriptionService();

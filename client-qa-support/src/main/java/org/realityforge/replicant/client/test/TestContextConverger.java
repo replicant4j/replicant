@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 
 public class TestContextConverger
   extends ContextConverger
@@ -13,7 +13,7 @@ public class TestContextConverger
   private boolean _active;
 
   @Inject
-  public TestContextConverger( @Nonnull final EntitySubscriptionManager subscriptionManager,
+  public TestContextConverger( @Nonnull final SubscriptionService subscriptionManager,
                                @Nonnull final AreaOfInterestService areaOfInterestService,
                                @Nonnull final ReplicantClientSystem replicantClientSystem )
   {

@@ -424,10 +424,27 @@ public class SubscriptionServiceTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.removeSubscription( address ) ) );
+                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
-                  "removeSubscription invoked with address G.G1 but no subscription with that address exists." );
+                  "unlinkSubscription invoked with address G.G1 but no subscription with that address exists." );
+  }
+
+  @Test
+  public void removeSubscription_typeSubscription_notDisposed()
+  {
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    final SubscriptionService service = SubscriptionService.create();
+
+    Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "unlinkSubscription invoked with address G.G1 but subscription has not already been disposed." );
   }
 
   @Test
@@ -439,10 +456,10 @@ public class SubscriptionServiceTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.removeSubscription( address ) ) );
+                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
-                  "removeSubscription invoked with address G.G1:1 but no subscription with that address exists." );
+                  "unlinkSubscription invoked with address G.G1:1 but no subscription with that address exists." );
   }
 
   @Test
@@ -457,10 +474,27 @@ public class SubscriptionServiceTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.removeSubscription( address1 ) ) );
+                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address1 ) ) );
 
     assertEquals( exception.getMessage(),
-                  "removeSubscription invoked with address G.G1:1 but no subscription with that address exists." );
+                  "unlinkSubscription invoked with address G.G1:1 but no subscription with that address exists." );
+  }
+
+  @Test
+  public void removeSubscription_instanceSubscription_notDisposed()
+  {
+    final ChannelAddress address = new ChannelAddress( G.G1, 2 );
+
+    final SubscriptionService service = SubscriptionService.create();
+
+    Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "unlinkSubscription invoked with address G.G1:2 but subscription has not already been disposed." );
   }
 
   enum G

@@ -4,7 +4,7 @@ import arez.Arez;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.EntityService;
 import org.realityforge.replicant.client.subscription.SubscriptionService;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
@@ -32,7 +32,7 @@ public class ReplicantConnectionTest
     TestRuntime()
     {
       super( mock( ContextConverger.class ),
-             mock( EntitySubscriptionManager.class ),
+             mock( EntityService.class ),
              SubscriptionService.create(),
              mock( ReplicantClientSystem.class ),
              AreaOfInterestService.create() );

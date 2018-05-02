@@ -186,7 +186,7 @@ public abstract class SubscriptionService
                          Arez.areNamesEnabled() ? getComponentName() + ".SubscriptionWatcher." + arezId : null,
                          true,
                          () -> !ComponentObservable.observe( subscription ),
-                         () -> removeSubscription( subscription.getChannel().getAddress() ),
+                         () -> unlinkSubscription( subscription.getChannel().getAddress() ),
                          true,
                          true );
     entry.setMonitor( monitor );
@@ -279,7 +279,7 @@ public abstract class SubscriptionService
    * @return the subscription.
    */
   @Nonnull
-  final Subscription removeSubscription( @Nonnull final ChannelAddress address )
+  final Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
   {
     final Object id = address.getId();
     if ( null == id )
@@ -289,10 +289,12 @@ public abstract class SubscriptionService
       if ( BrainCheckConfig.checkInvariants() )
       {
         invariant( () -> null != entry,
-                   () -> "removeSubscription invoked with address " + address +
+                   () -> "unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
+        invariant( () -> Disposable.isDisposed( entry ),
+                   () -> "unlinkSubscription invoked with address " + address +
+                         " but subscription has not already been disposed." );
       }
-      Disposable.dispose( entry );
       getTypeSubscriptionsObservable().reportChanged();
       return entry.getSubscription();
     }
@@ -303,19 +305,21 @@ public abstract class SubscriptionService
       if ( BrainCheckConfig.checkInvariants() )
       {
         invariant( () -> null != instanceMap,
-                   () -> "removeSubscription invoked with address " + address +
+                   () -> "unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
       }
-      final Subscription entry = instanceMap.remove( id );
+      final Subscription subscription = instanceMap.remove( id );
       if ( BrainCheckConfig.checkInvariants() )
       {
-        invariant( () -> null != entry,
-                   () -> "removeSubscription invoked with address " + address +
+        invariant( () -> null != subscription,
+                   () -> "unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
+        invariant( () -> Disposable.isDisposed( subscription ),
+                   () -> "unlinkSubscription invoked with address " + address +
+                         " but subscription has not already been disposed." );
       }
-      Disposable.dispose( entry );
       getInstanceSubscriptionsObservable().reportChanged();
-      return entry;
+      return subscription;
     }
   }
 

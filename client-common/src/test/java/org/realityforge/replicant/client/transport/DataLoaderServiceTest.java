@@ -60,7 +60,7 @@ public class DataLoaderServiceTest
   {
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
-    final EntitySubscriptionManager sm = service.getSubscriptionManager();
+    final EntityService sm = service.getSubscriptionManager();
 
     final MyType myTypeA = new MyType();
     final MyType myTypeB = new MyType();

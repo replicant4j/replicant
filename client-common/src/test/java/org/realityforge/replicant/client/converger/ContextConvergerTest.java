@@ -440,7 +440,7 @@ public class ContextConvergerTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    when( service.isSubscribed( address ) ).thenReturn( Boolean.TRUE );
+    subscriptionService.createSubscription( address, "Filter1", true );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, "Filter1" ) ).
       thenReturn( -1 );
