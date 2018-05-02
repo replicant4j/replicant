@@ -94,7 +94,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  final void linkToSubscription( @Nonnull final Subscription subscription )
+  public final void linkToSubscription( @Nonnull final Subscription subscription )
   {
     linkEntityToSubscription( subscription );
     subscription.linkSubscriptionToEntity( this );
