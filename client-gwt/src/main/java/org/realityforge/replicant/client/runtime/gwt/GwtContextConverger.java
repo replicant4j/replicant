@@ -7,7 +7,7 @@ import javax.inject.Singleton;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 
 @Singleton
 @ArezComponent
@@ -16,11 +16,11 @@ public abstract class GwtContextConverger
 {
   private Timer _timer;
 
-  GwtContextConverger( @Nonnull final EntitySubscriptionManager subscriptionManager,
+  GwtContextConverger( @Nonnull final SubscriptionService subscriptionService,
                        @Nonnull final AreaOfInterestService areaOfInterestService,
                        @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    super( subscriptionManager, areaOfInterestService, replicantClientSystem );
+    super( subscriptionService, areaOfInterestService, replicantClientSystem );
   }
 
   @Override
