@@ -82,7 +82,7 @@ public class EntityTest
   }
 
   @Test
-  public void typeChannelSubscriptions()
+  public void typeSubscriptions()
   {
     final EntityService entityService = EntityService.create();
 
@@ -150,7 +150,7 @@ public class EntityTest
   }
 
   @Test
-  public void instanceChannelSubscriptions()
+  public void instanceSubscriptions()
   {
     final EntityService entityService = EntityService.create();
 
@@ -219,7 +219,7 @@ public class EntityTest
   }
 
   @Test
-  public void disposeRemovesEntityFromChannels()
+  public void disposeRemovesEntityFromSubscriptions()
   {
     final EntityService entityService = EntityService.create();
 
@@ -265,7 +265,7 @@ public class EntityTest
   }
 
   @Test
-  public void getChannelSubscriptions_mutability()
+  public void getSubscriptions_mutability()
   {
     final EntityService entityService = EntityService.create();
 
@@ -279,7 +279,7 @@ public class EntityTest
   }
 
   @Test
-  public void delinkChannelFromEntity_whenSubscriptionMissing()
+  public void delinkSubscriptionFromEntity_whenSubscriptionMissing()
   {
     final EntityService entityService = EntityService.create();
 
