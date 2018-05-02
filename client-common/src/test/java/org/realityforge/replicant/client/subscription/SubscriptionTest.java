@@ -29,8 +29,9 @@ public class SubscriptionTest
   @Test
   public void entities()
   {
-    final Entity entity1 = Entity.create( A.class, "1" );
-    final Entity entity2 = Entity.create( A.class, "2" );
+    final EntityService entityService = EntityService.create();
+    final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "1" ) );
+    final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "2" ) );
 
     final Subscription subscription = Subscription.create( Channel.create( new ChannelAddress( G.G1, 1 ) ) );
 
@@ -118,8 +119,9 @@ public class SubscriptionTest
   @Test
   public void dispose_delinksFromEntity()
   {
-    final Entity entity1 = Entity.create( A.class, "1" );
-    final Entity entity2 = Entity.create( A.class, "2" );
+    final EntityService entityService = EntityService.create();
+    final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "1" ) );
+    final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "2" ) );
 
     final Subscription subscription1 = Subscription.create( Channel.create( new ChannelAddress( G.G1, 1 ) ) );
     final Subscription subscription2 = Subscription.create( Channel.create( new ChannelAddress( G.G1, 2 ) ) );
@@ -150,7 +152,9 @@ public class SubscriptionTest
   @Test
   public void delinkEntityFromChannel_noSuchType()
   {
-    final Entity entity = Entity.create( EntityTest.A.class, "123" );
+    final EntityService entityService = EntityService.create();
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, ValueUtil.randomString() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( EntityTest.G.G1, 1 ) );
 
@@ -166,8 +170,11 @@ public class SubscriptionTest
   @Test
   public void delinkEntityFromChannel_noSuchInstance()
   {
-    final Entity entity = Entity.create( EntityTest.A.class, "123" );
-    final Entity entity2 = Entity.create( EntityTest.A.class, ValueUtil.randomString() );
+    final EntityService entityService = EntityService.create();
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "123" ) );
+    final Entity entity2 =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, ValueUtil.randomString() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( EntityTest.G.G1, 1 ) );
 
