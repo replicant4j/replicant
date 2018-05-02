@@ -1118,15 +1118,13 @@ public abstract class AbstractDataLoaderService
     if ( !entities.isEmpty() )
     {
       final ChannelAddress address = subscription.getChannel().getAddress();
-      for ( final Entity entry : new ArrayList<>( entities ) )
+      for ( final Entity entity : new ArrayList<>( entities ) )
       {
-        final Class<?> entityType = entry.getType();
-        final Object entityId = entry.getId();
+        final Class<?> entityType = entity.getType();
+        final Object entityId = entity.getId();
 
         if ( !doesEntityMatchFilter( address, filter, entityType, entityId ) )
         {
-          final Entity entity = getSubscriptionManager().getEntity( entityType, entityId );
-
           entity.delinkFromSubscription( subscription );
 
           final boolean deregisterEntity = 0 == entity.getSubscriptions().size();

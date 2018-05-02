@@ -16,6 +16,7 @@ import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
+import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.subscription.SubscriptionService;
 
@@ -95,7 +96,9 @@ public class ReplicantConnection
                                                            @Nonnull final Object id,
                                                            @Nonnull final Function<T, Stream<O>> rootToStream )
   {
-    final T root = (T) getSubscriptionManager().getEntity( type, id ).getUserObject();
+    final Entity entity = getSubscriptionManager().findEntityByTypeAndId( type, id );
+    assert null != entity;
+    final T root = (T) entity.getUserObject();
     return null != root ? rootToStream.apply( root ) : Stream.empty();
   }
 

@@ -11,14 +11,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.braincheck.BrainCheckConfig;
-import org.realityforge.replicant.client.Channel;
-import org.realityforge.replicant.client.ChannelAddress;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -93,25 +89,6 @@ public abstract class EntitySubscriptionManager
   {
     final Map<Object, Entity> typeMap = getEntities().get( type );
     return null == typeMap ? Collections.emptyList() : new ArrayList<>( typeMap.values() );
-  }
-
-  /**
-   * Return the subscription details for entity.
-   *
-   * @param type the type of the entity.
-   * @param id   the id of the entity.
-   * @return the subscription entry.
-   * @throws IllegalArgumentException if no such subscription
-   */
-  @Nonnull
-  public Entity getEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
-  {
-    final Entity entityEntry = findEntityByTypeAndId( type, id );
-    if ( null == entityEntry )
-    {
-      throw new IllegalStateException( "Entity not subscribed: " + type.getSimpleName() + "/" + id );
-    }
-    return entityEntry;
   }
 
   /**
