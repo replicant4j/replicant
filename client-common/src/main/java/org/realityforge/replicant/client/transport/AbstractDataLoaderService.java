@@ -25,9 +25,9 @@ import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionDebugger;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.subscription.Subscription;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -203,6 +203,9 @@ public abstract class AbstractDataLoaderService
 
   @Nonnull
   protected abstract EntitySubscriptionManager getSubscriptionManager();
+
+  @Nonnull
+  protected abstract SubscriptionService getSubscriptionService();
 
   protected boolean shouldPurgeOnSessionChange()
   {
@@ -1008,7 +1011,8 @@ public abstract class AbstractDataLoaderService
       }
       if ( config().subscriptionsDebugOutputEnabled() )
       {
-        getSubscriptionDebugger().outputSubscriptionManager( getSubscriptionManager() );
+        getSubscriptionService().getTypeSubscriptions().forEach( this::outputSubscription );
+        getSubscriptionService().getInstanceSubscriptions().forEach( this::outputSubscription );
       }
       if ( BrainCheckConfig.checkInvariants() && config().shouldValidateRepositoryOnLoad() )
       {
@@ -1302,11 +1306,11 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  @Nonnull
-  protected EntitySubscriptionDebugger getSubscriptionDebugger()
+  private void outputSubscription( @Nonnull final Subscription subscription )
   {
-    return new EntitySubscriptionDebugger();
+    LOG.info( subscription.getChannel().toString() );
   }
+
 
   protected void outputRequestDebug()
   {

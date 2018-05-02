@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.subscription.Subscription;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 import static org.mockito.Mockito.*;
 
 public final class TestDataLoadService
@@ -25,6 +26,7 @@ public final class TestDataLoadService
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
   private final EntitySubscriptionManager _subscriptionManager;
+  private final SubscriptionService _subscriptionService;
   private int _validateRepositoryCallCount;
 
   TestDataLoadService()
@@ -33,6 +35,7 @@ public final class TestDataLoadService
     _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
     _subscriptionManager = EntitySubscriptionManager.create();
+    _subscriptionService = SubscriptionService.create();
   }
 
   @Nonnull
@@ -61,6 +64,13 @@ public final class TestDataLoadService
   protected EntitySubscriptionManager getSubscriptionManager()
   {
     return _subscriptionManager;
+  }
+
+  @Nonnull
+  @Override
+  protected SubscriptionService getSubscriptionService()
+  {
+    return _subscriptionService;
   }
 
   @Nonnull
