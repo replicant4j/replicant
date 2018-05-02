@@ -16,8 +16,8 @@ import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.ReplicantSystemListener;
-import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
 import org.realityforge.replicant.client.subscription.Subscription;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -31,7 +31,7 @@ public abstract class ContextConverger
   @Nonnull
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   @Nonnull
-  private final EntitySubscriptionManager _subscriptionManager;
+  private final SubscriptionService _subscriptionService;
   @Nonnull
   private final AreaOfInterestService _areaOfInterestService;
   @Nonnull
@@ -43,11 +43,11 @@ public abstract class ContextConverger
   @Nullable
   private Runnable _convergeCompleteAction;
 
-  public ContextConverger( @Nonnull final EntitySubscriptionManager subscriptionManager,
+  public ContextConverger( @Nonnull final SubscriptionService subscriptionService,
                            @Nonnull final AreaOfInterestService areaOfInterestService,
                            @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    _subscriptionManager = Objects.requireNonNull( subscriptionManager );
+    _subscriptionService = Objects.requireNonNull( subscriptionService );
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     addListeners();
@@ -195,20 +195,21 @@ public abstract class ContextConverger
   {
     if ( !Disposable.isDisposed( areaOfInterest ) )
     {
-      final ChannelAddress descriptor = areaOfInterest.getAddress();
-      final DataLoaderService service = _replicantClientSystem.getDataLoaderService( descriptor.getChannelType() );
+      final ChannelAddress address = areaOfInterest.getAddress();
+      final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
       {
-        final boolean subscribed = service.isSubscribed( descriptor );
+        final Subscription subscription = _subscriptionService.findSubscription( address );
+        final boolean subscribed = null != subscription;
         final Object filter = areaOfInterest.getChannel().getFilter();
 
         final int addIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, descriptor, filter );
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
         final int removeIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, descriptor, null );
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null );
         final int updateIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, descriptor, filter );
+          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, filter );
 
         if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
         {
@@ -219,9 +220,9 @@ public abstract class ContextConverger
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
           {
-            LOG.info( "Adding subscription: " + descriptor + ". " +
+            LOG.info( "Adding subscription: " + address + ". " +
                       "Setting filter to: " + FilterUtil.filterToString( filter ) );
-            service.requestSubscribe( descriptor, filter );
+            service.requestSubscribe( address, filter );
             return ConvergeAction.SUBMITTED_ADD;
           }
           else
@@ -243,8 +244,7 @@ public abstract class ContextConverger
             return ConvergeAction.IN_PROGRESS;
           }
 
-          final Object existing =
-            _subscriptionManager.getSubscription( descriptor ).getChannel().getFilter();
+          final Object existing = subscription.getChannel().getFilter();
           final String newFilter = FilterUtil.filterToString( filter );
           final String existingFilter = FilterUtil.filterToString( existing );
           if ( !Objects.equals( newFilter, existingFilter ) )
@@ -258,9 +258,9 @@ public abstract class ContextConverger
                  canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
             {
               final String message =
-                "Updating subscription " + descriptor + ". Changing filter to " + newFilter + " from " + existingFilter;
+                "Updating subscription " + address + ". Changing filter to " + newFilter + " from " + existingFilter;
               LOG.info( message );
-              service.requestSubscriptionUpdate( descriptor, filter );
+              service.requestSubscriptionUpdate( address, filter );
               return ConvergeAction.SUBMITTED_UPDATE;
             }
             else
@@ -354,33 +354,23 @@ public abstract class ContextConverger
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
-    for ( final Subscription subscription : _subscriptionManager.getTypeSubscriptions() )
+    for ( final Subscription subscription : _subscriptionService.getTypeSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
-    for ( final Subscription subscription : _subscriptionManager.getInstanceSubscriptions() )
+    for ( final Subscription subscription : _subscriptionService.getInstanceSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
   }
 
-  private void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
-                                           @Nonnull final Subscription subscription )
+  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
+                                   @Nonnull final Subscription subscription )
   {
     final ChannelAddress address = subscription.getChannel().getAddress();
     if ( !expected.contains( address ) && subscription.isExplicitSubscription() )
     {
       removeOrphanSubscription( address );
-    }
-  }
-
-  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
-                                   @Nonnull final ChannelAddress descriptor )
-  {
-    if ( !expected.contains( descriptor ) &&
-         _subscriptionManager.getSubscription( descriptor ).isExplicitSubscription() )
-    {
-      removeOrphanSubscription( descriptor );
     }
   }
 
@@ -419,7 +409,7 @@ public abstract class ContextConverger
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );
-      areaOfInterest.setEntry( attemptEntryLoad ? _subscriptionManager.findSubscription( address ) : null );
+      areaOfInterest.setEntry( attemptEntryLoad ? _subscriptionService.findSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
     markConvergeAsIncomplete();

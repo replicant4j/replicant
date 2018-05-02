@@ -17,11 +17,13 @@ import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.subscription.EntitySubscriptionManager;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 
 @Singleton
 public class ReplicantConnection
 {
   private final EntitySubscriptionManager _subscriptionManager;
+  private final SubscriptionService _subscriptionService;
   private final ReplicantClientSystem _replicantClientSystem;
   private final AreaOfInterestService _areaOfInterestService;
   private final ContextConverger _converger;
@@ -29,11 +31,13 @@ public class ReplicantConnection
   @Inject
   ReplicantConnection( @Nonnull final ContextConverger converger,
                        @Nonnull final EntitySubscriptionManager subscriptionManager,
+                       @Nonnull final SubscriptionService subscriptionService,
                        @Nonnull final ReplicantClientSystem replicantClientSystem,
                        @Nonnull final AreaOfInterestService areaOfInterestService )
   {
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _subscriptionManager = Objects.requireNonNull( subscriptionManager );
+    _subscriptionService = Objects.requireNonNull( subscriptionService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     _converger = Objects.requireNonNull( converger );
   }
@@ -72,6 +76,12 @@ public class ReplicantConnection
   public ReplicantClientSystem getReplicantClientSystem()
   {
     return _replicantClientSystem;
+  }
+
+  @Nonnull
+  public SubscriptionService getSubscriptionService()
+  {
+    return _subscriptionService;
   }
 
   /**
@@ -138,7 +148,7 @@ public class ReplicantConnection
       .filter( id -> null == existing.remove( id ) )
       .forEach( id -> service.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
 
-    getSubscriptionManager().getInstanceSubscriptionIds( sourceChannelType ).stream().
+    getSubscriptionService().getInstanceSubscriptionIds( sourceChannelType ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).

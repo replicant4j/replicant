@@ -276,13 +276,13 @@ public abstract class AbstractDataLoaderService
 
   protected void purgeSubscriptions()
   {
-    final EntitySubscriptionManager sm = getSubscriptionManager();
-    Stream.concat( sm.getTypeSubscriptions().stream(), sm.getInstanceSubscriptions().stream() )
+    final SubscriptionService ss = getSubscriptionService();
+    Stream.concat( ss.getTypeSubscriptions().stream(), ss.getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
       .filter( s -> s.getChannel().getAddress().getSystem().equals( getSystemType() ) )
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
-      .forEachOrdered( s -> sm.removeSubscription( s.getChannel().getAddress() ) );
+      .forEachOrdered( Disposable::dispose );
   }
 
   /**
@@ -420,8 +420,8 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
-      if ( null == entry )
+      final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+      if ( null == subscription )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
         a.markAsComplete();
@@ -469,14 +469,14 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
-      if ( null == entry )
+      final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+      if ( null == subscription )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
         a.markAsComplete();
         return true;
       }
-      else if ( !entry.isExplicitSubscription() )
+      else if ( !subscription.isExplicitSubscription() )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not explicitly subscribed." );
         a.markAsComplete();
@@ -496,10 +496,10 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
-        if ( null != entry )
+        final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+        if ( null != subscription )
         {
-          entry.setExplicitSubscription( false );
+          subscription.setExplicitSubscription( false );
         }
       } );
       completeAoiAction();
@@ -510,10 +510,10 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
-        if ( null != entry )
+        final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+        if ( null != subscription )
         {
-          entry.setExplicitSubscription( false );
+          subscription.setExplicitSubscription( false );
         }
       } );
       completeAoiAction();
@@ -538,17 +538,17 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIAddActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription entry = getSubscriptionManager().findSubscription( a.getDescriptor() );
-      if ( null != entry )
+      final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+      if ( null != subscription )
       {
-        if ( entry.isExplicitSubscription() )
+        if ( subscription.isExplicitSubscription() )
         {
           LOG.warning( "Subscription to " + label( a ) + " requested but already subscribed." );
         }
         else
         {
           LOG.warning( () -> "Existing subscription to " + label( a ) + " converted to a explicit subscription." );
-          entry.setExplicitSubscription( true );
+          subscription.setExplicitSubscription( true );
         }
         a.markAsComplete();
         return true;
@@ -684,9 +684,9 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  public boolean isSubscribed( @Nonnull final ChannelAddress descriptor )
+  public boolean isSubscribed( @Nonnull final ChannelAddress address )
   {
-    return null != getSubscriptionManager().findSubscription( descriptor );
+    return null != getSubscriptionService().findSubscription( address );
   }
 
   @Override
@@ -881,40 +881,43 @@ public abstract class AbstractDataLoaderService
       for ( int i = 0; i < channelActionCount; i++ )
       {
         final ChannelAction action = changeSet.getChannelAction( i );
-        final ChannelAddress descriptor = toChannelDescriptor( action );
+        final ChannelAddress address = toChannelDescriptor( action );
         final Object filter = action.getChannelFilter();
         final ChannelAction.Action actionType = action.getAction();
         if ( LOG.isLoggable( getLogLevel() ) )
         {
-          final String message = "ChannelAction:: " + actionType.name() + " " + descriptor + " filter=" + filter;
+          final String message = "ChannelAction:: " + actionType.name() + " " + address + " filter=" + filter;
           LOG.log( getLogLevel(), message );
         }
 
         if ( ChannelAction.Action.ADD == actionType )
         {
-          _currentAction.recordChannelSubscribe( new ChannelChangeStatus( descriptor, filter ) );
+          _currentAction.recordChannelSubscribe( new ChannelChangeStatus( address, filter ) );
           boolean explicitSubscribe = false;
-          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getDescriptor().equals( descriptor ) ) )
+          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getDescriptor().equals( address ) ) )
           {
             if ( LOG.isLoggable( getLogLevel() ) )
             {
-              LOG.log( getLogLevel(), "Recording explicit subscription for " + descriptor );
+              LOG.log( getLogLevel(), "Recording explicit subscription for " + address );
             }
             explicitSubscribe = true;
           }
-          getSubscriptionManager().recordSubscription( descriptor, filter, explicitSubscribe );
+          getSubscriptionService().createSubscription( address, filter, explicitSubscribe );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          getSubscriptionManager().removeSubscription( descriptor );
-          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( descriptor, filter ) );
+          final Subscription subscription = getSubscriptionService().findSubscription( address );
+          assert null != subscription;
+          Disposable.dispose( subscription );
+          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( address, filter ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
-          final Subscription subscription = getSubscriptionManager().getSubscription( descriptor );
+          final Subscription subscription = getSubscriptionService().findSubscription( address );
+          assert null != subscription;
           subscription.getChannel().setFilter( filter );
           updateSubscriptionForFilteredEntities( subscription, filter );
-          final ChannelChangeStatus status = new ChannelChangeStatus( descriptor, filter );
+          final ChannelChangeStatus status = new ChannelChangeStatus( address, filter );
           _currentAction.recordChannelSubscriptionUpdate( status );
         }
         else
@@ -1316,7 +1319,6 @@ public abstract class AbstractDataLoaderService
   {
     LOG.info( subscription.getChannel().toString() );
   }
-
 
   protected void outputRequestDebug()
   {
