@@ -44,6 +44,7 @@ def gwt_enhance(project, options = {})
 <module>
   <inherits name="#{gwt_module}"/>
   <inherits name="com.google.gwt.user.User"/>
+  <source path='ignored'/>
   <collapse-all-properties/>
 </module>
 CONTENT
