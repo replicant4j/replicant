@@ -116,7 +116,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  final void delinkFromSubscription( @Nonnull final Subscription subscription )
+  public final void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
     subscription.delinkEntityFromSubscription( this );
     delinkSubscriptionFromEntity( subscription );

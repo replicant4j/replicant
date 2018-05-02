@@ -1112,32 +1112,38 @@ public abstract class AbstractDataLoaderService
                                                         @Nullable final Object filter,
                                                         @Nonnull final Collection<Entity> entities )
   {
-    final ChannelAddress address = subscription.getChannel().getAddress();
-
-    for ( final Entity entry : new ArrayList<>( entities ) )
+    if ( !entities.isEmpty() )
     {
-      final Class<?> entityType = entry.getType();
-      final Object entityID = entry.getId();
-
-      if ( !doesEntityMatchFilter( address, filter, entityType, entityID ) )
+      final ChannelAddress address = subscription.getChannel().getAddress();
+      for ( final Entity entry : new ArrayList<>( entities ) )
       {
-        final Entity entity = getSubscriptionManager().removeEntityFromSubscription( entityType, entityID, address );
-        final boolean deregisterEntity = 0 == entity.getSubscriptions().size();
-        if ( LOG.isLoggable( getLogLevel() ) )
+        final Class<?> entityType = entry.getType();
+        final Object entityId = entry.getId();
+
+        if ( !doesEntityMatchFilter( address, filter, entityType, entityId ) )
         {
-          LOG.log( getLogLevel(),
-                   "Removed entity " + entityType.getSimpleName() + "/" + entityID +
-                   " from channel " + address + " resulting in " +
-                   entity.getSubscriptions().size() + " subscriptions left for entity." +
-                   ( deregisterEntity ? " De-registering entity!" : "" ) );
-        }
-        // If there is only one subscriber then lets delete it
-        if ( deregisterEntity )
-        {
-          getSubscriptionManager().removeEntity( entityType, entityID );
-          final Object userObject = entity.getUserObject();
-          assert null != userObject;
-          Disposable.dispose( userObject );
+          final Entity entity = getSubscriptionManager().getEntity( entityType, entityId );
+
+          entity.delinkFromSubscription( subscription );
+
+          final boolean deregisterEntity = 0 == entity.getSubscriptions().size();
+          if ( LOG.isLoggable( getLogLevel() ) )
+          {
+            LOG.log( getLogLevel(),
+                     "Removed entity " + entityType.getSimpleName() + "/" + entityId +
+                     " from channel " + address + " resulting in " +
+                     entity.getSubscriptions().size() + " subscriptions left for entity." +
+                     ( deregisterEntity ? " De-registering entity!" : "" ) );
+          }
+          // If there is only one subscriber then lets delete it
+          if ( deregisterEntity )
+          {
+            //TODO: This next line still needed but the deregistering should already occur at low level
+            getSubscriptionManager().removeEntity( entityType, entityId );
+            final Object userObject = entity.getUserObject();
+            assert null != userObject;
+            Disposable.dispose( userObject );
+          }
         }
       }
     }
