@@ -98,7 +98,7 @@ public abstract class EntityService
   }
 
   /**
-   * Remove the entity and delink from associated subscriptions.
+   * Remove the entity and unlink from associated subscriptions.
    *
    * @param entity the entity.
    */
