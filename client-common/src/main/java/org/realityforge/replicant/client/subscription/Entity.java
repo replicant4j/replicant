@@ -96,6 +96,7 @@ public abstract class Entity
    */
   public final void linkToSubscription( @Nonnull final Subscription subscription )
   {
+    //TODO: Add additional guards here
     linkEntityToSubscription( subscription );
     subscription.linkSubscriptionToEntity( this );
   }
@@ -118,6 +119,7 @@ public abstract class Entity
    */
   public final void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
+    // TODO: This next method should have better defensive programming inside
     subscription.delinkEntityFromSubscription( this );
     delinkSubscriptionFromEntity( subscription );
   }
@@ -142,6 +144,7 @@ public abstract class Entity
     }
     if ( _subscriptions.isEmpty() )
     {
+      //TODO: Need to remove self from EntityService
       Disposable.dispose( this );
     }
   }
@@ -149,6 +152,7 @@ public abstract class Entity
   @PreDispose
   final void preDispose()
   {
+    //TODO: FIgure out how this next line works - it is READ-WRITE transaction inside DISPOSE????
     delinkEntityFromAllSubscriptions();
     if ( null != _userObject )
     {
