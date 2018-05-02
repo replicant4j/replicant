@@ -34,6 +34,8 @@ Some actions that should occur at some point in the future.
 
 * Merge `client-common` and `client-gwt` into `client`
 
+* Handle TODOs in Entity
+
 * Channel should be disposeOnDeactivate?
 
 * `ContextConverger` can have timer removed and instead have an `@Autorun` or `@Track` that schedules updates.
