@@ -30,8 +30,6 @@ Some actions that should occur at some point in the future.
 
 * Merge all interface/impl separations - i.e. ReplicantConnection
 
-* Merge `client-common` and `client-gwt` into `client`
-
 * Handle TODOs in Entity
 
 * Channel should be disposeOnDeactivate?

@@ -75,7 +75,8 @@ define 'replicant' do
     test.compile.with TEST_DEPS
   end
 
-  define 'client-common' do
+  define 'client' do
+    project.processorpath << :react4j_processor
     project.processorpath << :arez_processor
     project.processorpath << [DAGGER_COMPILER_DEPS]
 
@@ -83,10 +84,12 @@ define 'replicant' do
                  project('shared').compile.dependencies,
                  :gwt_webpoller,
                  :javax_inject,
+                 GWT_DEPS,
+                 REACT4J_DEPS,
                  AREZ_DEPS,
                  DAGGER_GWT_DEPS
 
-    gwt_enhance(project)
+    gwt_enhance(project, :extra_deps => [_('src/main/super')])
 
     package(:jar)
     package(:sources)
@@ -97,39 +100,13 @@ define 'replicant' do
 
     test.using :testng
     test.compile.with TEST_DEPS
-  end
-
-  define 'client-gwt' do
-    project.processorpath << :react4j_processor
-    project.processorpath << :arez_processor
-    project.processorpath << [DAGGER_COMPILER_DEPS]
-
-    compile.with GWT_DEPS,
-                 REACT4J_DEPS,
-                 project('client-common').package(:jar),
-                 project('client-common').compile.dependencies
-
-    gwt_enhance(project)
-
-    package(:jar)
-    package(:sources)
-    package(:javadoc)
-
-    test.options[:properties] = TEST_OPTIONS
-    test.options[:java_args] = ['-ea']
-
-    test.using :testng
-    test.compile.with TEST_DEPS
-
-    # Not sure what in this project breakes jacoco
-    jacoco.enabled = false
   end
 
   define 'client-qa-support' do
     compile.with GUICE_DEPS,
                  TEST_INFRA_DEPS,
-                 project('client-common').package(:jar),
-                 project('client-common').compile.dependencies
+                 project('client').package(:jar),
+                 project('client').compile.dependencies
 
     package(:jar)
     package(:sources)
