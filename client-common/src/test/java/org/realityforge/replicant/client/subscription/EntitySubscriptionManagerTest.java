@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.subscription;
 
 import arez.Arez;
 import arez.Disposable;
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.IHookCallBack;
@@ -90,15 +91,17 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G1, null ), type, id );
 
     final A entity = new A();
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                  entity );
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                  entity );
 
     sm.removeSubscription( new ChannelAddress( G.G1 ) );
 
@@ -119,17 +122,19 @@ public class EntitySubscriptionManagerTest
       sm.recordSubscription( new ChannelAddress( G.G1 ), null, false );
 
     final A entity = new A();
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                  entity );
 
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
 
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                  entity );
 
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
 
@@ -159,15 +164,17 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
     final A entity = new A();
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                  entity );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                  entity );
 
     sm.removeSubscription( new ChannelAddress( G.G2, 1 ) );
 
@@ -185,17 +192,17 @@ public class EntitySubscriptionManagerTest
     sm.recordSubscription( new ChannelAddress( G.G2, 1 ), null, false );
 
     final A entity = new A();
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                     entity );
+    updateEntity( sm, type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                  entity );
 
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                     entity );
+    updateEntity( sm, type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                  entity );
 
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
 
@@ -222,17 +229,19 @@ public class EntitySubscriptionManagerTest
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
     final A entity = new A();
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G1 ) },
+                  entity );
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
     assertEntityNotSubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id );
 
-    sm.updateEntity( type,
-                     id,
-                     new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
-                     entity );
+    updateEntity( sm,
+                  type,
+                  id,
+                  new ChannelAddress[]{ new ChannelAddress( G.G2, 1 ) },
+                  entity );
 
     assertEntitySubscribed( sm, new ChannelAddress( G.G1, null ), type, id, entity );
     assertEntitySubscribed( sm, new ChannelAddress( G.G2, 1 ), type, id, entity );
@@ -386,6 +395,22 @@ public class EntitySubscriptionManagerTest
     final EntitySubscriptionManager sm = EntitySubscriptionManager.create();
     sm.recordSubscription( new ChannelAddress( G.G1 ), "1", false );
     sm.removeSubscription( new ChannelAddress( G.G1, "2" ) );
+  }
+
+  private <T> void updateEntity( @Nonnull final EntitySubscriptionManager sm,
+                                 @Nonnull final Class<T> type,
+                                 @Nonnull final Object id,
+                                 @Nonnull final ChannelAddress[] channels,
+                                 @Nonnull final T userObject )
+  {
+    final Entity entity = sm.findOrCreateEntity( type, id );
+    entity.setUserObject( userObject );
+    for ( final ChannelAddress channel : channels )
+    {
+      final Subscription subscription = sm.findSubscription( channel );
+      assert null != subscription;
+      entity.linkToSubscription( subscription );
+    }
   }
 
   enum G
