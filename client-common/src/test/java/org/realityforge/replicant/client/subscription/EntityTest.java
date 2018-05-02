@@ -299,6 +299,26 @@ public class EntityTest
     assertEquals( exception.getMessage(), "Unable to locate subscription for channel G.G1:1 on entity A/123" );
   }
 
+  @Test
+  public void postDispose_whenSubscriptionsExist()
+  {
+    final EntityService entityService = EntityService.create();
+
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "123" ) );
+
+    final Subscription subscription = createSubscription( new ChannelAddress( G.G1, 1 ) );
+
+    Arez.context().safeAction( () -> entity.linkToSubscription( subscription ) );
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> Arez.context().safeAction( entity::postDispose ) );
+    assertEquals( exception.getMessage(),
+                  "Entity A/123 was disposed in non-standard way that left 1 subscriptions linked." );
+
+    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+  }
+
   @Nonnull
   private Subscription createSubscription()
   {
