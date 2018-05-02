@@ -39,7 +39,7 @@ module Buildr
           project.test.compile.options.merge!(:other => ['-s', project._(:generated, 'processors/test/java')])
           if project.iml? && project.enable_annotation_processor?
             project.iml.main_generated_source_directories << project._(:generated, 'processors/main/java')
-            project.iml.test_generated_source_directories << project._(:generated, 'processors/main/java')
+            project.iml.test_generated_source_directories << project._(:generated, 'processors/test/java')
           end
           project.clean do
             # Clean the IDE generated sources
