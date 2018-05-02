@@ -63,25 +63,6 @@ public class EntityTest
   }
 
   @Test
-  public void userObjectBadType()
-  {
-    final EntityService entityService = EntityService.create();
-
-    final Class<A> type = A.class;
-    final String id = "1234";
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
-
-    Arez.context().safeAction( () -> assertEquals( entity.getUserObject(), null ) );
-
-    final Object userObject = new Object();
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> entity.setUserObject( userObject ) ) );
-    assertEquals( exception.getMessage(),
-                  "Entity A/1234 specified non-null userObject of type java.lang.Object but the entity expected type org.realityforge.replicant.client.subscription.EntityTest$A" );
-  }
-
-  @Test
   public void typeSubscriptions()
   {
     final EntityService entityService = EntityService.create();

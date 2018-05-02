@@ -74,17 +74,6 @@ public abstract class Entity
 
   public void setUserObject( @Nullable final Object userObject )
   {
-    if ( BrainCheckConfig.checkApiInvariants() )
-    {
-      if ( null != userObject )
-      {
-        //noinspection NonJREEmulationClassesInClientCode
-        apiInvariant( () -> getType().isInstance( userObject ),
-                      () -> "Entity " + this + " specified non-null userObject of type " +
-                            userObject.getClass().getName() + " but the entity expected type " +
-                            _type.getName() );
-      }
-    }
     _userObject = userObject;
   }
 
