@@ -354,7 +354,7 @@ public abstract class EntitySubscriptionManager
   }
 
   @Nonnull
-  private Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     final Map<Object, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
