@@ -1,9 +1,7 @@
 <module>
   <inherits name="org.realityforge.replicant.Replicant"/>
 
-  <source path=''>
-    <exclude name='**/*'/>
-  </source>
+  <source path='ignored'/>
 
   <set-property name="replicant.shouldRecordRequestKey" value="true"/>
   <set-property name="replicant.shouldValidateRepositoryOnLoad" value="true"/>
