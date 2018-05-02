@@ -119,8 +119,7 @@ public abstract class EntityService
     if ( BrainCheckConfig.checkInvariants() )
     {
       invariant( () -> null != removed,
-                 () -> "Entity instance " + entityType.getSimpleName() + "/" + id + " not present " +
-                       "in EntityService" );
+                 () -> "Entity instance " + entityType.getSimpleName() + "/" + id + " not present in EntityService" );
     }
     Disposable.dispose( removed );
     if ( typeMap.isEmpty() )
