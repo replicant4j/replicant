@@ -275,54 +275,6 @@ public abstract class EntitySubscriptionManager
   }
 
   /**
-   * Register specified entity as being part of specified channels.
-   *
-   * Note: It is assumed that if an entity is part of a channel, they are always part of the channel.
-   * This may not be true with filters but we can assume it for all other scenarios.
-   *
-   * @param <T>      the type of the entity.
-   * @param type     the type of the entity.
-   * @param id       the id of the entity.
-   * @param channels the channels that the entity is part of.
-   */
-  public <T> void updateEntity( @Nonnull final Class<T> type,
-                                @Nonnull final Object id,
-                                @Nonnull final ChannelAddress[] channels,
-                                @Nonnull final T userObject )
-  {
-    final Entity entity = findOrCreateEntity( type, id );
-    entity.setUserObject( userObject );
-    for ( final ChannelAddress channel : channels )
-    {
-      entity.linkToSubscription( getSubscription( channel ) );
-    }
-  }
-
-  /**
-   * Disassociate entity from specified channel.
-   *
-   * Note: It is assumed that the caller will remove the entity from the subscription manager and
-   * repository if there are no more subscriptions.
-   *
-   * @param type    the type of the entity.
-   * @param id      the id of the entity.
-   * @param channel the channel that the entity is to be disassociated from.
-   * @return the entry representing entities subscription state.
-   * @throws IllegalStateException if no such entity or the entity is not associated with the channel.
-   */
-  @Nonnull
-  public Entity removeEntityFromSubscription( @Nonnull final Class<?> type,
-                                              @Nonnull final Object id,
-                                              @Nonnull final ChannelAddress channel )
-    throws IllegalStateException
-  {
-    final Entity entity = getEntity( type, id );
-    final Subscription channelSubscription = getSubscription( channel );
-    entity.delinkFromSubscription( channelSubscription );
-    return entity;
-  }
-
-  /**
    * Remove entity and all associated subscriptions.
    *
    * @param entityType the type of the entity.
