@@ -1,6 +1,8 @@
 package replicant;
 
+import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Provide access to global configuration settings.
@@ -9,6 +11,16 @@ public final class Replicant
 {
   private Replicant()
   {
+  }
+
+  /**
+   * Return true if zones are enabled, false otherwise.
+   *
+   * @return true if zones are enabled, false otherwise.
+   */
+  public static boolean areZonesEnabled()
+  {
+    return ReplicantConfig.areZonesEnabled();
   }
 
   /**
@@ -69,5 +81,52 @@ public final class Replicant
   public static boolean canSubscriptionsDebugOutputBeEnabled()
   {
     return ReplicantConfig.canSubscriptionsDebugOutputBeEnabled();
+  }
+
+  /**
+   * Create a new zone.
+   * This zone is not yet activated.
+   *
+   * @return the new zone.
+   */
+  @Nonnull
+  public static Zone createZone()
+  {
+    if ( shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::areZonesEnabled, () -> "Replicant-0001: Invoked Replicant.createZone() but zones are not enabled." );
+    }
+    return new Zone();
+  }
+
+  /**
+   * Save the old zone and make the specified zone the current zone.
+   */
+  @SuppressWarnings( "ConstantConditions" )
+  static void activateZone( @Nonnull final Zone zone )
+  {
+    ReplicantZoneHolder.activateZone( zone );
+  }
+
+  /**
+   * Restore the old zone.
+   * This takes the zone that was current when {@link #activateZone(Zone)} was called for the active zone
+   * and restores it to being the current zone.
+   */
+  @SuppressWarnings( "ConstantConditions" )
+  static void deactivateZone( @Nonnull final Zone zone )
+  {
+    ReplicantZoneHolder.deactivateZone( zone );
+  }
+
+  /**
+   * Return the current zone.
+   *
+   * @return the current zone.
+   */
+  @Nonnull
+  static Zone currentZone()
+  {
+    return ReplicantZoneHolder.currentZone();
   }
 }

@@ -45,6 +45,8 @@ public final class ReplicantTestUtil
       checkInvariants();
       checkApiInvariants();
     }
+    disableZones();
+    ReplicantZoneHolder.reset();
   }
 
   /**
@@ -201,6 +203,32 @@ public final class ReplicantTestUtil
   private static void setCheckApiInvariants( final boolean checkApiInvariants )
   {
     setConstant( "CHECK_API_INVARIANTS", checkApiInvariants );
+  }
+
+  /**
+   * Set `replicant.enable_zones` setting to true.
+   */
+  public static void enableZones()
+  {
+    setEnableZones( true );
+  }
+
+  /**
+   * Set `replicant.enable_zones` setting to false.
+   */
+  public static void disableZones()
+  {
+    setEnableZones( false );
+  }
+
+  /**
+   * Configure the `replicant.enable_zones` setting.
+   *
+   * @param value the setting.
+   */
+  private static void setEnableZones( final boolean value )
+  {
+    setConstant( "ENABLE_ZONES", value );
   }
 
   /**

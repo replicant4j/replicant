@@ -14,6 +14,7 @@ final class ReplicantConfig
     "true".equals( System.getProperty( "replicant.check_invariants", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean CHECK_API_INVARIANTS =
     "true".equals( System.getProperty( "replicant.check_api_invariants", PRODUCTION_MODE ? "false" : "true" ) );
+  private static boolean ENABLE_ZONES = "true".equals( System.getProperty( "replicant.enable_zones", "false" ) );
   private static boolean RECORD_REQUEST_KEY =
     "true".equals( System.getProperty( "replicant.recordRequestKey", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean VALIDATE_REPOSITORY_ON_LOAD =
@@ -42,6 +43,11 @@ final class ReplicantConfig
   static boolean checkApiInvariants()
   {
     return CHECK_API_INVARIANTS;
+  }
+
+  static boolean areZonesEnabled()
+  {
+    return ENABLE_ZONES;
   }
 
   static boolean shouldRecordRequestKey()
