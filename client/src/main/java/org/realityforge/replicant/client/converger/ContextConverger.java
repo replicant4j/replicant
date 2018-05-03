@@ -374,14 +374,14 @@ public abstract class ContextConverger
     }
   }
 
-  void removeOrphanSubscription( @Nonnull final ChannelAddress descriptor )
+  void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
-    final DataLoaderService service = _replicantClientSystem.getDataLoaderService( descriptor.getChannelType() );
+    final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
-         !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, descriptor, null ) )
+         !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
-      LOG.info( "Removing orphan subscription: " + descriptor );
-      service.requestUnsubscribe( descriptor );
+      LOG.info( "Removing orphan subscription: " + address );
+      service.requestUnsubscribe( address );
     }
   }
 
