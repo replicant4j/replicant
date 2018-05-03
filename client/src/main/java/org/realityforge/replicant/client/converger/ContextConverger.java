@@ -191,7 +191,7 @@ public abstract class ContextConverger
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
       {
-        final Subscription subscription = _subscriptionService.findSubscription( address );
+        final Subscription subscription = Replicant.context().findSubscription( address );
         final boolean subscribed = null != subscription;
         final Object filter = areaOfInterest.getChannel().getFilter();
 
@@ -345,11 +345,11 @@ public abstract class ContextConverger
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
-    for ( final Subscription subscription : _subscriptionService.getTypeSubscriptions() )
+    for ( final Subscription subscription : Replicant.context().getTypeSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
-    for ( final Subscription subscription : _subscriptionService.getInstanceSubscriptions() )
+    for ( final Subscription subscription : Replicant.context().getInstanceSubscriptions() )
     {
       removeSubscriptionIfOrphan( expectedChannels, subscription );
     }
@@ -400,7 +400,7 @@ public abstract class ContextConverger
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );
-      areaOfInterest.setSubscription( attemptEntryLoad ? _subscriptionService.findSubscription( address ) : null );
+      areaOfInterest.setSubscription( attemptEntryLoad ? Replicant.context().findSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
     markConvergeAsIncomplete();
