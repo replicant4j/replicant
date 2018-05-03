@@ -20,9 +20,7 @@ final class TestDataLoadService
   extends AbstractDataLoaderService
 {
   private final SubscriptionService _subscriptionService;
-  private final EntityService _entityService;
   private final CacheService _cacheService;
-  private boolean _validateOnLoad;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
@@ -44,7 +42,6 @@ final class TestDataLoadService
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
     _subscriptionService = subscriptionService;
-    _entityService = entityService;
     _cacheService = cacheService;
   }
 
@@ -52,12 +49,6 @@ final class TestDataLoadService
   SubscriptionService getSubscriptionService()
   {
     return _subscriptionService;
-  }
-
-  @Nonnull
-  EntityService getEntityService()
-  {
-    return _entityService;
   }
 
   CacheService getCacheService()
@@ -119,11 +110,6 @@ final class TestDataLoadService
     _validateRepositoryCallCount += 1;
   }
 
-  void setValidateOnLoad( final boolean validateOnLoad )
-  {
-    _validateOnLoad = validateOnLoad;
-  }
-
   int getValidateRepositoryCallCount()
   {
     return _validateRepositoryCallCount;
@@ -183,18 +169,6 @@ final class TestDataLoadService
   {
     return new DataLoaderServiceConfig()
     {
-      @Override
-      public boolean shouldRecordRequestKey()
-      {
-        return false;
-      }
-
-      @Override
-      public boolean shouldValidateRepositoryOnLoad()
-      {
-        return _validateOnLoad;
-      }
-
       @Override
       public boolean subscriptionsDebugOutputEnabled()
       {

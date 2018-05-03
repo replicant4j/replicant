@@ -14,7 +14,6 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.anodoc.TestOnly;
-import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -140,7 +139,7 @@ public abstract class Entity
     final ChannelAddress address = subscription.getChannel().getAddress();
     final Subscription candidate = _subscriptions.remove( address );
     getSubscriptionsObservable().reportChanged();
-    if ( BrainCheckConfig.checkApiInvariants() )
+    if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> null != candidate,
                     () -> "Unable to locate subscription for channel " + address + " on entity " + this );
@@ -167,7 +166,7 @@ public abstract class Entity
   @PostDispose
   final void postDispose()
   {
-    if ( BrainCheckConfig.checkApiInvariants() )
+    if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( _subscriptions::isEmpty,
                     () -> "Entity " + this + " was disposed in non-standard way that left " +

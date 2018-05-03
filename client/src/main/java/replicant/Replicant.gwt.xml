@@ -5,14 +5,17 @@
   <source path='' includes='*.java'/>
   <super-source path='super'/>
 
-  <define-property name='replicant.shouldRecordRequestKey' values='true,false'/>
-  <set-property name='replicant.shouldRecordRequestKey' value='false'/>
+  <define-property name='replicant.check_invariants' values='true,false'/>
+  <set-property name='replicant.check_invariants' value='false'/>
 
-  <define-property name='replicant.shouldValidateRepositoryOnLoad' values='true,false'/>
-  <set-property name='replicant.shouldValidateRepositoryOnLoad' value='false'/>
+  <define-property name='replicant.check_api_invariants' values='true,false'/>
+  <set-property name='replicant.check_api_invariants' value='false'/>
 
-  <define-property name='replicant.repositoryDebugOutputEnabled' values='true,false'/>
-  <set-property name='replicant.repositoryDebugOutputEnabled' value='false'/>
+  <define-property name='replicant.recordRequestKey' values='true,false'/>
+  <set-property name='replicant.recordRequestKey' value='false'/>
+
+  <define-property name='replicant.validateRepositoryOnLoad' values='true,false'/>
+  <set-property name='replicant.validateRepositoryOnLoad' value='false'/>
 
   <define-property name='replicant.subscriptionsDebugOutputEnabled' values='true,false'/>
   <set-property name='replicant.subscriptionsDebugOutputEnabled' value='false'/>

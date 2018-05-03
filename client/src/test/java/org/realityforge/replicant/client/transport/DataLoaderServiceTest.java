@@ -12,15 +12,16 @@ import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import replicant.ChannelAddress;
 import org.realityforge.replicant.client.Linkable;
-import replicant.Subscription;
-import replicant.SubscriptionService;
 import org.realityforge.replicant.client.transport.ChannelAction.Action;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
 import org.testng.annotations.Test;
+import replicant.ChannelAddress;
+import replicant.ReplicantTestUtil;
+import replicant.Subscription;
+import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -195,7 +196,7 @@ public class DataLoaderServiceTest
   public void getSessionID()
     throws Exception
   {
-    final TestDataLoadService service = newService( new TestChangeSet[ 0 ], true );
+    final TestDataLoadService service = newService();
     assertEquals( service.getSessionID(), service.ensureSession().getSessionID() );
   }
 
@@ -416,9 +417,10 @@ public class DataLoaderServiceTest
   public void verifyValidateIsNotCalled()
     throws Exception
   {
+    ReplicantTestUtil.noValidateRepositoryOnLoad();
     final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
 
-    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet, changeSet }, false );
+    final TestDataLoadService service = newService( changeSet, changeSet );
 
     ensureEnqueueDataLoads( service );
 
@@ -437,7 +439,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet2 =
       new TestChangeSet( 2, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
 
-    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet2, changeSet1 }, true );
+    final TestDataLoadService service = newService( changeSet2, changeSet1 );
     final ChangeMapper changeMapper = service.getChangeMapper();
     when( changeMapper.applyChange( changeSet1.getChange( 0 ) ) ).thenReturn( entity );
     when( changeMapper.applyChange( changeSet2.getChange( 0 ) ) ).thenReturn( entity );
@@ -474,7 +476,7 @@ public class DataLoaderServiceTest
                          new Change[ 0 ],
                          new ChannelAction[]{ new TestChannelAction( TestSystem.B.ordinal(), "S", Action.ADD ) } );
 
-    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
+    final TestDataLoadService service = newService( changeSet1 );
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
@@ -511,7 +513,7 @@ public class DataLoaderServiceTest
                          new Change[ 0 ],
                          new ChannelAction[]{ a1, a2, a3, a4 } );
 
-    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
+    final TestDataLoadService service = newService( changeSet1 );
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
@@ -896,7 +898,7 @@ public class DataLoaderServiceTest
                          mock( Runnable.class ),
                          new Change[ 0 ],
                          new ChannelAction[ 0 ] );
-    final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
+    final TestDataLoadService service = newService( changeSet1 );
     configureService( service );
 
     assertTrue( service.isIdle() );
@@ -1009,23 +1011,12 @@ public class DataLoaderServiceTest
     return actionsProcessed;
   }
 
-  private TestDataLoadService newService( final TestChangeSet changeSet )
+  private TestDataLoadService newService( final TestChangeSet... changeSet )
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    service.setValidateOnLoad( true );
     service.setChangeSets( changeSet );
-    return service;
-  }
-
-  private TestDataLoadService newService( final TestChangeSet[] changeSets, final boolean validateOnLoad )
-    throws Exception
-  {
-    final TestDataLoadService service = TestDataLoadService.create();
-    configureService( service );
-    service.setValidateOnLoad( validateOnLoad );
-    service.setChangeSets( changeSets );
     return service;
   }
 

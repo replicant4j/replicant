@@ -1,11 +1,12 @@
 <module>
-  <inherits name="replicant.Replicant"/>
+  <inherits name='replicant.Replicant'/>
 
   <source path='ignored'/>
 
-  <set-property name="replicant.shouldRecordRequestKey" value="true"/>
-  <set-property name="replicant.shouldValidateRepositoryOnLoad" value="true"/>
-  <set-property name="replicant.repositoryDebugOutputEnabled" value="true"/>
-  <set-property name="replicant.subscriptionsDebugOutputEnabled" value="true"/>
-  <set-property name="replicant.requestDebugOutputEnabled" value="true"/>
+  <set-property name='replicant.check_invariants' value='true'/>
+  <set-property name='replicant.check_api_invariants' value='true'/>
+  <set-property name='replicant.recordRequestKey' value='true'/>
+  <set-property name='replicant.validateRepositoryOnLoad' value='true'/>
+  <set-property name='replicant.subscriptionsDebugOutputEnabled' value='true'/>
+  <set-property name='replicant.requestDebugOutputEnabled' value='true'/>
 </module>

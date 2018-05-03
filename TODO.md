@@ -60,3 +60,5 @@ Some actions that should occur at some point in the future.
   * The whole system could be relatively easily tested in isolation with `ChangeMapper` updating this entity
     and all driven by metadata loaded into system.
   * CBOR could be used as the transport system.
+
+* `Replicant.canRequestDebugOutputBeEnabled()` should move to a spy like system as with Arez.

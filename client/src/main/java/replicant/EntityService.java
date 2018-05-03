@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -109,14 +108,14 @@ public abstract class EntityService
     final Class<?> entityType = entity.getType();
     final Object id = entity.getId();
     final Map<Object, Entity> typeMap = _entities.get( entityType );
-    if ( BrainCheckConfig.checkInvariants() )
+    if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,
                  () -> "Entity type " + entityType.getSimpleName() + " not present in EntityService" );
     }
     assert null != typeMap;
     final Entity removed = typeMap.remove( id );
-    if ( BrainCheckConfig.checkInvariants() )
+    if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed,
                  () -> "Entity instance " + entityType.getSimpleName() + "/" + id + " not present in EntityService" );

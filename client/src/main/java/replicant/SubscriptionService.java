@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -142,7 +141,7 @@ public abstract class SubscriptionService
                                                 @Nullable final Object filter,
                                                 final boolean explicitSubscription )
   {
-    if ( BrainCheckConfig.checkApiInvariants() )
+    if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> null == findSubscription( address ),
                     () -> "createSubscription invoked with address " + address +
@@ -284,7 +283,7 @@ public abstract class SubscriptionService
     {
       getTypeSubscriptionsObservable().preReportChanged();
       final SubscriptionEntry entry = _typeSubscriptions.remove( address.getChannelType() );
-      if ( BrainCheckConfig.checkInvariants() )
+      if ( Replicant.shouldCheckInvariants() )
       {
         invariant( () -> null != entry,
                    () -> "unlinkSubscription invoked with address " + address +
@@ -300,14 +299,14 @@ public abstract class SubscriptionService
     {
       getInstanceSubscriptionsObservable().preReportChanged();
       final Map<Object, Subscription> instanceMap = _instanceSubscriptions.get( address.getChannelType() );
-      if ( BrainCheckConfig.checkInvariants() )
+      if ( Replicant.shouldCheckInvariants() )
       {
         invariant( () -> null != instanceMap,
                    () -> "unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
       }
       final Subscription subscription = instanceMap.remove( id );
-      if ( BrainCheckConfig.checkInvariants() )
+      if ( Replicant.shouldCheckInvariants() )
       {
         invariant( () -> null != subscription,
                    () -> "unlinkSubscription invoked with address " + address +

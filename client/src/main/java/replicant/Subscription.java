@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -149,7 +148,7 @@ public abstract class Subscription
     final Class<?> entityType = entity.getType();
     final Map<Object, EntityEntry> typeMap = _entities.get( entityType );
     final ChannelAddress address = getChannel().getAddress();
-    if ( BrainCheckConfig.checkInvariants() )
+    if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,
                  () -> "Entity type " + entityType.getSimpleName() + " not present in subscription " +
@@ -157,7 +156,7 @@ public abstract class Subscription
     }
     assert null != typeMap;
     final EntityEntry removed = typeMap.remove( entity.getId() );
-    if ( BrainCheckConfig.checkInvariants() )
+    if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed,
                  () -> "Entity instance " + entity + " not present in subscription to channel " + address );

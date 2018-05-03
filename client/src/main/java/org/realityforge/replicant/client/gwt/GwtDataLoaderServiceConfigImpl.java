@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.gwt;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.DataLoaderServiceConfig;
+import replicant.Replicant;
 
 public class GwtDataLoaderServiceConfigImpl
   implements DataLoaderServiceConfig
@@ -18,7 +19,7 @@ public class GwtDataLoaderServiceConfigImpl
   {
     _key = key;
 
-    if ( ReplicantConfig.canSubscriptionsDebugOutputBeEnabled() )
+    if ( Replicant.canSubscriptionsDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
@@ -28,7 +29,7 @@ public class GwtDataLoaderServiceConfigImpl
       LOG.info( message );
     }
 
-    if ( ReplicantConfig.canRequestDebugOutputBeEnabled() )
+    if ( Replicant.canRequestDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".RequestDebugOutput module is enabled. Run the javascript " +
@@ -40,27 +41,15 @@ public class GwtDataLoaderServiceConfigImpl
   }
 
   @Override
-  public boolean shouldRecordRequestKey()
-  {
-    return ReplicantConfig.shouldRecordRequestKey();
-  }
-
-  @Override
-  public boolean shouldValidateRepositoryOnLoad()
-  {
-    return ReplicantConfig.shouldValidateRepositoryOnLoad();
-  }
-
-  @Override
   public boolean requestDebugOutputEnabled()
   {
-    return ReplicantConfig.canRequestDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
+    return Replicant.canRequestDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
   }
 
   @Override
   public boolean subscriptionsDebugOutputEnabled()
   {
-    return ReplicantConfig.canSubscriptionsDebugOutputBeEnabled() && isEnabled( _key, SUBSCRIPTION_DEBUG );
+    return Replicant.canSubscriptionsDebugOutputBeEnabled() && isEnabled( _key, SUBSCRIPTION_DEBUG );
   }
 
   @Nonnull

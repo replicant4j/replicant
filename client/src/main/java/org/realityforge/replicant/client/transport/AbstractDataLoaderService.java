@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.braincheck.BrainCheckConfig;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.Channel;
@@ -27,6 +26,7 @@ import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.EntityService;
 import replicant.FilterUtil;
+import replicant.Replicant;
 import replicant.Subscription;
 import replicant.SubscriptionService;
 import static org.realityforge.braincheck.Guards.*;
@@ -887,7 +887,7 @@ public abstract class AbstractDataLoaderService
         _subscriptionService.getTypeSubscriptions().forEach( this::outputSubscription );
         _subscriptionService.getInstanceSubscriptions().forEach( this::outputSubscription );
       }
-      if ( BrainCheckConfig.checkInvariants() && config().shouldValidateRepositoryOnLoad() )
+      if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
         // This should never need a transaction ... unless the repository is invalid and there is unlinked data.
         context().safeAction( generateName( "validate" ), this::validateRepository );
@@ -1183,7 +1183,7 @@ public abstract class AbstractDataLoaderService
   protected void validateRepository()
     throws IllegalStateException
   {
-    if ( BrainCheckConfig.checkInvariants() )
+    if ( Replicant.shouldCheckInvariants() )
     {
       for ( final Class<?> entityType : getEntityTypes() )
       {

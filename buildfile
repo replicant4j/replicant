@@ -32,7 +32,8 @@ TEST_DEPS = TEST_INFRA_DEPS + [:jndikit] + POWERMOCK
 TEST_OPTIONS =
   {
     'braincheck.environment' => 'development',
-    'arez.environment' => 'development'
+    'arez.environment' => 'development',
+    'replicant.environment' => 'development'
   }
 
 desc 'Replicant: Client-side state representation infrastructure'
@@ -119,7 +120,7 @@ define 'replicant' do
     test.compile.with TEST_DEPS
   end
 
-  ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development')
+  ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development')
   ipr.add_component_from_artifact(:idea_codestyle)
 
   iml.add_jruby_facet

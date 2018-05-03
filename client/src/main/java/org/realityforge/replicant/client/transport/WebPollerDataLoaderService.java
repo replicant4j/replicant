@@ -17,6 +17,7 @@ import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import replicant.ChannelAddress;
 import replicant.EntityService;
+import replicant.Replicant;
 import replicant.SubscriptionService;
 
 public abstract class WebPollerDataLoaderService
@@ -566,7 +567,7 @@ public abstract class WebPollerDataLoaderService
   @Nullable
   private String toRequestKey( @Nonnull final String requestType, final int channel )
   {
-    return config().shouldRecordRequestKey() ?
+    return Replicant.shouldRecordRequestKey() ?
            requestType + ":" + getSystemType().getEnumConstants()[ channel ] :
            null;
   }
