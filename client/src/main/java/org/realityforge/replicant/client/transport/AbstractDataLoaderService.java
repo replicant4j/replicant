@@ -111,9 +111,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  protected abstract DataLoaderServiceConfig config();
-
-  @Nonnull
   protected DataLoaderListener getListener()
   {
     return _listenerSupport;
@@ -881,7 +878,7 @@ public abstract class AbstractDataLoaderService
       {
         session.setLastRxSequence( set.getSequence() );
       }
-      if ( config().subscriptionsDebugOutputEnabled() )
+      if ( subscriptionsDebugOutputEnabled() )
       {
         final ReplicantContext context = Replicant.context();
         context.getTypeSubscriptions().forEach( this::outputSubscription );
@@ -944,7 +941,7 @@ public abstract class AbstractDataLoaderService
           LOG.severe( "ChangeSet " + set.getSequence() + " expected to complete request '" +
                       requestID + "' but no request was registered with session." );
         }
-        if ( config().requestDebugOutputEnabled() )
+        if ( requestDebugOutputEnabled() )
         {
           outputRequestDebug();
         }
@@ -1014,6 +1011,10 @@ public abstract class AbstractDataLoaderService
       }
     }
   }
+
+  protected abstract boolean requestDebugOutputEnabled();
+
+  protected abstract boolean subscriptionsDebugOutputEnabled();
 
   @Nonnull
   private ChannelAddress toChannelDescriptor( @Nonnull final ChannelAction action )

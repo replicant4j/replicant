@@ -151,24 +151,16 @@ final class TestDataLoadService
     _scheduleDataLoadCalled = true;
   }
 
-  @Nonnull
   @Override
-  protected DataLoaderServiceConfig config()
+  protected boolean subscriptionsDebugOutputEnabled()
   {
-    return new DataLoaderServiceConfig()
-    {
-      @Override
-      public boolean subscriptionsDebugOutputEnabled()
-      {
-        return false;
-      }
+    return false;
+  }
 
-      @Override
-      public boolean requestDebugOutputEnabled()
-      {
-        return false;
-      }
-    };
+  @Override
+  protected boolean requestDebugOutputEnabled()
+  {
+    return false;
   }
 
   @Nonnull
