@@ -82,7 +82,7 @@ public abstract class AreaOfInterest
   @Nullable
   public abstract Subscription getEntry();
 
-  public abstract void setEntry( @Nullable Subscription entry );
+  public abstract void setEntry( @Nullable Subscription subscription );
 
   @Override
   public String toString()
