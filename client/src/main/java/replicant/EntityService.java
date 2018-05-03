@@ -21,13 +21,13 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @Singleton
 @ArezComponent
-public abstract class EntityService
+abstract class EntityService
 {
   // Entity map: Type => ID
   private final Map<Class<?>, Map<Object, Entity>> _entities = new HashMap<>();
 
   @Nonnull
-  public static EntityService create()
+  static EntityService create()
   {
     return new Arez_EntityService();
   }
@@ -52,7 +52,7 @@ public abstract class EntityService
    * @return the collection of entity types.
    */
   @Nonnull
-  public Collection<Class<?>> findAllEntityTypes()
+  Collection<Class<?>> findAllEntityTypes()
   {
     return getEntities().keySet();
   }
@@ -65,7 +65,7 @@ public abstract class EntityService
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     final Map<Object, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
@@ -90,7 +90,7 @@ public abstract class EntityService
   }
 
   @Nonnull
-  public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
+  List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
     final Map<Object, Entity> typeMap = getEntities().get( type );
     return null == typeMap ? Collections.emptyList() : new ArrayList<>( typeMap.values() );
@@ -136,7 +136,7 @@ public abstract class EntityService
    * @return the existing Entity if it exists, otherwise the newly created entity.
    */
   @Nonnull
-  public Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     final Map<Object, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )

@@ -15,7 +15,6 @@ import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
-import replicant.EntityService;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -24,18 +23,15 @@ import replicant.SubscriptionService;
 @Singleton
 public class ReplicantConnection
 {
-  private final EntityService _subscriptionManager;
   private final SubscriptionService _subscriptionService;
   private final ReplicantClientSystem _replicantClientSystem;
   private final ContextConverger _converger;
 
   @Inject
   ReplicantConnection( @Nonnull final ContextConverger converger,
-                       @Nonnull final EntityService subscriptionManager,
                        @Nonnull final SubscriptionService subscriptionService,
                        @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    _subscriptionManager = Objects.requireNonNull( subscriptionManager );
     _subscriptionService = Objects.requireNonNull( subscriptionService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     _converger = Objects.requireNonNull( converger );
@@ -57,12 +53,6 @@ public class ReplicantConnection
   public ContextConverger getContextConverger()
   {
     return _converger;
-  }
-
-  @Nonnull
-  public EntityService getSubscriptionManager()
-  {
-    return _subscriptionManager;
   }
 
   @Nonnull
@@ -88,7 +78,7 @@ public class ReplicantConnection
                                                            @Nonnull final Object id,
                                                            @Nonnull final Function<T, Stream<O>> rootToStream )
   {
-    final Entity entity = getSubscriptionManager().findEntityByTypeAndId( type, id );
+    final Entity entity = Replicant.context().findEntityByTypeAndId( type, id );
     assert null != entity;
     final T root = (T) entity.getUserObject();
     return null != root ? rootToStream.apply( root ) : Stream.empty();

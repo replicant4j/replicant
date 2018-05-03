@@ -16,7 +16,6 @@ import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import replicant.ChannelAddress;
-import replicant.EntityService;
 import replicant.Replicant;
 import replicant.SubscriptionService;
 
@@ -27,10 +26,9 @@ public abstract class WebPollerDataLoaderService
   private WebPoller _webPoller;
 
   protected WebPollerDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
-                                        @Nonnull final EntityService entityService,
                                         @Nonnull final CacheService cacheService )
   {
-    super( subscriptionService, entityService, cacheService );
+    super( subscriptionService, cacheService );
   }
 
   @Nonnull

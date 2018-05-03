@@ -7,7 +7,6 @@ import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.DataLoaderServiceConfig;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
-import replicant.EntityService;
 import replicant.SubscriptionService;
 
 public abstract class GwtDataLoaderService
@@ -17,11 +16,10 @@ public abstract class GwtDataLoaderService
   private final DataLoaderServiceConfig _config;
 
   protected GwtDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
-                                  @Nonnull final EntityService entityService,
                                   @Nonnull final CacheService cacheService,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( subscriptionService, entityService, cacheService );
+    super( subscriptionService, cacheService );
     _sessionContext = sessionContext;
     _config = new GwtDataLoaderServiceConfigImpl( getKey() );
   }

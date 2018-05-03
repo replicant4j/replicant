@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
-import replicant.EntityService;
 import replicant.Subscription;
 import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
@@ -31,14 +30,13 @@ final class TestDataLoadService
 
   static TestDataLoadService create()
   {
-    return new TestDataLoadService( SubscriptionService.create(), EntityService.create(), mock( CacheService.class ) );
+    return new TestDataLoadService( SubscriptionService.create(), mock( CacheService.class ) );
   }
 
   private TestDataLoadService( @Nonnull final SubscriptionService subscriptionService,
-                               @Nonnull final EntityService entityService,
                                @Nonnull final CacheService cacheService )
   {
-    super( subscriptionService, entityService, cacheService );
+    super( subscriptionService, cacheService );
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
     _subscriptionService = subscriptionService;

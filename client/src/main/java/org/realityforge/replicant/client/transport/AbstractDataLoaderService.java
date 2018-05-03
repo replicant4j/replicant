@@ -24,7 +24,6 @@ import org.realityforge.replicant.client.Verifiable;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
-import replicant.EntityService;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
@@ -46,7 +45,6 @@ public abstract class AbstractDataLoaderService
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private final SubscriptionService _subscriptionService;
-  private final EntityService _entityService;
   private final CacheService _cacheService;
 
   private DataLoadAction _currentAction;
@@ -66,11 +64,9 @@ public abstract class AbstractDataLoaderService
   private Disposable _schedulerLock;
 
   protected AbstractDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
-                                       @Nonnull final EntityService entityService,
                                        @Nonnull final CacheService cacheService )
   {
     _subscriptionService = Objects.requireNonNull( subscriptionService );
-    _entityService = Objects.requireNonNull( entityService );
     _cacheService = Objects.requireNonNull( cacheService );
   }
 
@@ -1187,7 +1183,7 @@ public abstract class AbstractDataLoaderService
     {
       for ( final Class<?> entityType : getEntityTypes() )
       {
-        for ( final Object entity : _entityService.findAllEntitiesByType( entityType ) )
+        for ( final Object entity : Replicant.context().findAllEntitiesByType( entityType ) )
         {
           invariant( () -> !Disposable.isDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );
