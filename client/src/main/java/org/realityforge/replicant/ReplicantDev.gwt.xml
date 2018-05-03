@@ -1,11 +1,6 @@
 <module>
   <inherits name='org.realityforge.replicant.Replicant'/>
+  <inherits name='replicant.ReplicantDev'/>
 
   <source path='ignored'/>
-
-  <set-property name="replicant.shouldRecordRequestKey" value="true"/>
-  <set-property name="replicant.shouldValidateRepositoryOnLoad" value="true"/>
-  <set-property name="replicant.repositoryDebugOutputEnabled" value="true"/>
-  <set-property name="replicant.subscriptionsDebugOutputEnabled" value="true"/>
-  <set-property name="replicant.requestDebugOutputEnabled" value="true"/>
 </module>
