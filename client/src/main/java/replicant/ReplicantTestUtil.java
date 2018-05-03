@@ -256,7 +256,8 @@ public final class ReplicantTestUtil
        * This should not happen but if it does then just fail with an assertion or error.
        */
       assert !ReplicantConfig.isProductionMode();
-      throw new IllegalStateException( "Unable to change constant " + fieldName + " as Replicant is in production mode" );
+      throw new IllegalStateException( "Unable to change constant " + fieldName +
+                                       " as Replicant is in production mode" );
     }
   }
 }
