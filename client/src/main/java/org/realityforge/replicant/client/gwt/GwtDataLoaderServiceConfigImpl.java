@@ -29,7 +29,7 @@ public class GwtDataLoaderServiceConfigImpl
       LOG.info( message );
     }
 
-    if ( Replicant.canRequestDebugOutputBeEnabled() )
+    if ( Replicant.canRequestsDebugOutputBeEnabled() )
     {
       final String message =
         _key + ".RequestDebugOutput module is enabled. Run the javascript " +
@@ -43,7 +43,7 @@ public class GwtDataLoaderServiceConfigImpl
   @Override
   public boolean requestDebugOutputEnabled()
   {
-    return Replicant.canRequestDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
+    return Replicant.canRequestsDebugOutputBeEnabled() && isEnabled( _key, REQUEST_DEBUG );
   }
 
   @Override
