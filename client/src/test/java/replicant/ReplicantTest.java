@@ -155,7 +155,8 @@ public class ReplicantTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Replicant.activateZone( new Zone() ) );
-    assertEquals( exception.getMessage(), "Replicant-0002: Invoked Replicant.activateZone() but zones are not enabled." );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0002: Invoked Replicant.activateZone() but zones are not enabled." );
   }
 
   @Test
@@ -165,7 +166,8 @@ public class ReplicantTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Replicant.deactivateZone( new Zone() ) );
-    assertEquals( exception.getMessage(), "Replicant-0003: Invoked Replicant.deactivateZone() but zones are not enabled." );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0003: Invoked Replicant.deactivateZone() but zones are not enabled." );
   }
 
   @Test
@@ -174,7 +176,8 @@ public class ReplicantTest
     ReplicantTestUtil.disableZones();
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, Replicant::currentZone );
-    assertEquals( exception.getMessage(), "Replicant-0005: Invoked Replicant.currentZone() but zones are not enabled." );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0005: Invoked Replicant.currentZone() but zones are not enabled." );
   }
 
   @Test
