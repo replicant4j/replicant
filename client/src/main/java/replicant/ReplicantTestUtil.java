@@ -36,12 +36,18 @@ public final class ReplicantTestUtil
     if ( productionMode )
     {
       noRecordRequestKey();
+      noValidateRepositoryOnLoad();
+      noRequestDebugOutputEnabled();
+      noSubscriptionsDebugOutputEnabled();
       noCheckInvariants();
       noCheckApiInvariants();
     }
     else
     {
       recordRequestKey();
+      validateRepositoryOnLoad();
+      requestDebugOutputEnabled();
+      subscriptionsDebugOutputEnabled();
       checkInvariants();
       checkApiInvariants();
     }
