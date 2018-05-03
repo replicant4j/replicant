@@ -12,13 +12,11 @@ import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.Subscription;
-import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
 
 final class TestDataLoadService
   extends AbstractDataLoaderService
 {
-  private final SubscriptionService _subscriptionService;
   private final CacheService _cacheService;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
@@ -30,23 +28,15 @@ final class TestDataLoadService
 
   static TestDataLoadService create()
   {
-    return new TestDataLoadService( SubscriptionService.create(), mock( CacheService.class ) );
+    return new TestDataLoadService( mock( CacheService.class ) );
   }
 
-  private TestDataLoadService( @Nonnull final SubscriptionService subscriptionService,
-                               @Nonnull final CacheService cacheService )
+  private TestDataLoadService( @Nonnull final CacheService cacheService )
   {
-    super( subscriptionService, cacheService );
+    super( cacheService );
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
-    _subscriptionService = subscriptionService;
     _cacheService = cacheService;
-  }
-
-  @Nonnull
-  SubscriptionService getSubscriptionService()
-  {
-    return _subscriptionService;
   }
 
   CacheService getCacheService()

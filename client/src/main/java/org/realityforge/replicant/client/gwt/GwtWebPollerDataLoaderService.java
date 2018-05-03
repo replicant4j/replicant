@@ -20,7 +20,6 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
-import replicant.SubscriptionService;
 
 public abstract class GwtWebPollerDataLoaderService
   extends GwtDataLoaderService
@@ -35,11 +34,10 @@ public abstract class GwtWebPollerDataLoaderService
     }
   }
 
-  public GwtWebPollerDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
-                                        @Nonnull final CacheService cacheService,
+  public GwtWebPollerDataLoaderService( @Nonnull final CacheService cacheService,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( subscriptionService, cacheService, sessionContext );
+    super( cacheService, sessionContext );
     createWebPoller();
     setupCloseHandler();
   }

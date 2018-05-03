@@ -26,8 +26,8 @@ import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.FilterUtil;
 import replicant.Replicant;
+import replicant.ReplicantContext;
 import replicant.Subscription;
-import replicant.SubscriptionService;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -44,7 +44,6 @@ public abstract class AbstractDataLoaderService
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
-  private final SubscriptionService _subscriptionService;
   private final CacheService _cacheService;
 
   private DataLoadAction _currentAction;
@@ -63,10 +62,8 @@ public abstract class AbstractDataLoaderService
   private ClientSession _session;
   private Disposable _schedulerLock;
 
-  protected AbstractDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
-                                       @Nonnull final CacheService cacheService )
+  protected AbstractDataLoaderService( @Nonnull final CacheService cacheService )
   {
-    _subscriptionService = Objects.requireNonNull( subscriptionService );
     _cacheService = Objects.requireNonNull( cacheService );
   }
 
@@ -190,8 +187,8 @@ public abstract class AbstractDataLoaderService
 
   protected void purgeSubscriptions()
   {
-    Stream.concat( _subscriptionService.getTypeSubscriptions().stream(),
-                   _subscriptionService.getInstanceSubscriptions().stream() )
+    Stream.concat( Replicant.context().getTypeSubscriptions().stream(),
+                   Replicant.context().getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
       .filter( s -> s.getChannel().getAddress().getSystem().equals( getSystemType() ) )
       // Purge in reverse order. First instance subscriptions then type subscriptions
@@ -334,7 +331,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
+      final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
       if ( null == subscription )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -383,7 +380,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
+      final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
       if ( null == subscription )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -410,7 +407,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
+        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -424,7 +421,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
+        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -454,7 +451,7 @@ public abstract class AbstractDataLoaderService
     // Remove all Add Aoi actions that need no action as they are already present locally
     context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
       _currentAoiActions.removeIf( a -> {
-        final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
+        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           if ( subscription.isExplicitSubscription() )
@@ -603,7 +600,7 @@ public abstract class AbstractDataLoaderService
   @Override
   public boolean isSubscribed( @Nonnull final ChannelAddress address )
   {
-    return null != _subscriptionService.findSubscription( address );
+    return null != Replicant.context().findSubscription( address );
   }
 
   @Override
@@ -880,8 +877,9 @@ public abstract class AbstractDataLoaderService
       }
       if ( config().subscriptionsDebugOutputEnabled() )
       {
-        _subscriptionService.getTypeSubscriptions().forEach( this::outputSubscription );
-        _subscriptionService.getInstanceSubscriptions().forEach( this::outputSubscription );
+        final ReplicantContext context = Replicant.context();
+        context.getTypeSubscriptions().forEach( this::outputSubscription );
+        context.getInstanceSubscriptions().forEach( this::outputSubscription );
       }
       if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
@@ -986,18 +984,18 @@ public abstract class AbstractDataLoaderService
           }
           explicitSubscribe = true;
         }
-        _subscriptionService.createSubscription( address, filter, explicitSubscribe );
+        Replicant.context().createSubscription( address, filter, explicitSubscribe );
       }
       else if ( ChannelAction.Action.REMOVE == actionType )
       {
-        final Subscription subscription = _subscriptionService.findSubscription( address );
+        final Subscription subscription = Replicant.context().findSubscription( address );
         assert null != subscription;
         Disposable.dispose( subscription );
         _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( address, filter ) );
       }
       else if ( ChannelAction.Action.UPDATE == actionType )
       {
-        final Subscription subscription = _subscriptionService.findSubscription( address );
+        final Subscription subscription = Replicant.context().findSubscription( address );
         assert null != subscription;
         subscription.getChannel().setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription, filter );

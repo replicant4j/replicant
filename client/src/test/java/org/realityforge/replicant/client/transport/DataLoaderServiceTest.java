@@ -19,9 +19,9 @@ import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
+import replicant.Replicant;
 import replicant.ReplicantTestUtil;
 import replicant.Subscription;
-import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -487,7 +487,7 @@ public class DataLoaderServiceTest
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
     final ChannelAddress address = new ChannelAddress( TestSystem.B, "S" );
 
-    final Subscription subscription = service.getSubscriptionService().findSubscription( address );
+    final Subscription subscription = Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.getChannel().getAddress(), address );
     assertEquals( subscription.getChannel().getFilter(), null );
@@ -517,8 +517,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    final SubscriptionService ss = service.getSubscriptionService();
-    ss.createSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
+    Replicant.context().createSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
 
     configureRequests( service, service.getChangeSets() );
     service.ensureSession().enqueueDataLoad( "jsonData" );
@@ -531,9 +530,9 @@ public class DataLoaderServiceTest
     assertEquals( action.getChannelAddCount(), 2 );
     assertEquals( action.getChannelRemoveCount(), 2 );
 
-    assertNull( ss.findSubscription( new ChannelAddress( TestSystem.A ) ) );
-    assertNull( ss.findSubscription( new ChannelAddress( TestSystem.B, 33 ) ) );
-    assertNotNull( ss.findSubscription( new ChannelAddress( TestSystem.B, "S" ) ) );
+    assertNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.A ) ) );
+    assertNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.B, 33 ) ) );
+    assertNotNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.B, "S" ) ) );
   }
 
   @Test
@@ -745,7 +744,6 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    final SubscriptionService ss = service.getSubscriptionService();
     assertNotNull( service.getSession() );
 
     assertEquals( false, service.progressAreaOfInterestActions() );
@@ -778,8 +776,8 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA3 );
 
-    ss.createSubscription( channelA1, null, true );
-    ss.createSubscription( channelA2, null, true );
+    Replicant.context().createSubscription( channelA1, null, true );
+    Replicant.context().createSubscription( channelA2, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
@@ -787,7 +785,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelA2 );
 
-    ss.createSubscription( channelB1, null, true );
+    Replicant.context().createSubscription( channelB1, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
@@ -808,7 +806,6 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    final SubscriptionService ss = service.getSubscriptionService();
     assertNotNull( service.getSession() );
 
     assertEquals( false, service.progressAreaOfInterestActions() );
@@ -832,8 +829,8 @@ public class DataLoaderServiceTest
 
     completeOutstandingAOIs( service );
 
-    ss.createSubscription( channelA1, null, true );
-    ss.createSubscription( channelA2, "FilterB", true );
+    Replicant.context().createSubscription( channelA1, null, true );
+    Replicant.context().createSubscription( channelA2, "FilterB", true );
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
@@ -855,10 +852,8 @@ public class DataLoaderServiceTest
     configureService( service );
     assertNotNull( service.getSession() );
 
-    final SubscriptionService ss = service.getSubscriptionService();
-
-    final Subscription subscriptionA1 = ss.createSubscription( channelA1, "boo", true );
-    final Subscription subscriptionA2 = ss.createSubscription( channelA2, "boo", true );
+    final Subscription subscriptionA1 = Replicant.context().createSubscription( channelA1, "boo", true );
+    final Subscription subscriptionA2 = Replicant.context().createSubscription( channelA2, "boo", true );
 
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
@@ -1029,6 +1024,7 @@ public class DataLoaderServiceTest
     service.setLinksToProcessPerTick( 1 );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
   private void set( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
     throws Exception
   {

@@ -6,7 +6,6 @@ import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
 import replicant.AbstractReplicantTest;
-import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
 
 public class ReplicantConnectionTest
@@ -29,7 +28,7 @@ public class ReplicantConnectionTest
   {
     TestRuntime()
     {
-      super( mock( ContextConverger.class ), SubscriptionService.create(), mock( ReplicantClientSystem.class ) );
+      super( mock( ContextConverger.class ), mock( ReplicantClientSystem.class ) );
     }
 
     @Override

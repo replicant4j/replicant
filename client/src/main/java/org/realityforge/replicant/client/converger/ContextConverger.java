@@ -20,7 +20,6 @@ import replicant.ChannelAddress;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
-import replicant.SubscriptionService;
 
 public abstract class ContextConverger
 {
@@ -31,8 +30,6 @@ public abstract class ContextConverger
   @Nonnull
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   @Nonnull
-  private final SubscriptionService _subscriptionService;
-  @Nonnull
   private final ReplicantClientSystem _replicantClientSystem;
   private boolean _convergeComplete;
   private boolean _paused;
@@ -41,10 +38,8 @@ public abstract class ContextConverger
   @Nullable
   private Runnable _convergeCompleteAction;
 
-  public ContextConverger( @Nonnull final SubscriptionService subscriptionService,
-                           @Nonnull final ReplicantClientSystem replicantClientSystem )
+  public ContextConverger( @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    _subscriptionService = Objects.requireNonNull( subscriptionService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     addListeners();
   }

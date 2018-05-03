@@ -40,7 +40,7 @@ public abstract class SubscriptionService
   private final HashMap<Enum, SubscriptionEntry> _typeSubscriptions = new HashMap<>();
 
   @Nonnull
-  public static SubscriptionService create()
+  static SubscriptionService create()
   {
     return new Arez_SubscriptionService();
   }
@@ -83,7 +83,7 @@ public abstract class SubscriptionService
    */
   @Nonnull
   @Observable( expectSetter = false )
-  public List<Subscription> getTypeSubscriptions()
+  List<Subscription> getTypeSubscriptions()
   {
     return _typeSubscriptions
       .values()
@@ -103,7 +103,7 @@ public abstract class SubscriptionService
    */
   @Nonnull
   @Observable( expectSetter = false )
-  public Collection<Subscription> getInstanceSubscriptions()
+  Collection<Subscription> getInstanceSubscriptions()
   {
     return _instanceSubscriptions
       .values()
@@ -118,9 +118,12 @@ public abstract class SubscriptionService
 
   /**
    * Return the collection of instance subscriptions for channel.
+   *
+   * @param channelType the channel type.
+   * @return the set of ids for all instance subscriptions with specified channel type.
    */
   @Nonnull
-  public Set<Object> getInstanceSubscriptionIds( @Nonnull final Enum channelType )
+  Set<Object> getInstanceSubscriptionIds( @Nonnull final Enum channelType )
   {
     getInstanceSubscriptionsObservable().reportObserved();
     final Map<Object, Subscription> map = _instanceSubscriptions.get( channelType );
@@ -137,9 +140,9 @@ public abstract class SubscriptionService
    * @return the subscription.
    */
   @Nonnull
-  public final Subscription createSubscription( @Nonnull final ChannelAddress address,
-                                                @Nullable final Object filter,
-                                                final boolean explicitSubscription )
+  final Subscription createSubscription( @Nonnull final ChannelAddress address,
+                                         @Nullable final Object filter,
+                                         final boolean explicitSubscription )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -200,7 +203,7 @@ public abstract class SubscriptionService
    * @return the subscription if it exists, null otherwise.
    */
   @Nullable
-  public final Subscription findSubscription( @Nonnull final ChannelAddress address )
+  final Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
     final Enum channelType = address.getChannelType();
     final Object id = address.getId();
