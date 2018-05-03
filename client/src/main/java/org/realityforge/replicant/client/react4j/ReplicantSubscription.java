@@ -116,9 +116,9 @@ public abstract class ReplicantSubscription<T>
 
   @Observable
   @Nullable
-  protected abstract AreaOfInterest getChannelSubscription();
+  protected abstract AreaOfInterest getAreaOfInterest();
 
-  protected abstract void setChannelSubscription( @Nullable AreaOfInterest subscription );
+  protected abstract void setAreaOfInterest( @Nullable AreaOfInterest areaOfInterest );
 
   @Action
   @Override
@@ -137,14 +137,14 @@ public abstract class ReplicantSubscription<T>
     final Enum lastChannelType = (Enum) ( null != prevProps ? prevProps.get( "channelType" ) : null );
     if ( null != lastChannelType && getChannelType() != lastChannelType )
     {
-      setChannelSubscription( null );
+      setAreaOfInterest( null );
     }
     else
     {
       final Object lastId = null != prevProps ? prevProps.get( "id" ) : null;
       if ( !Objects.equals( getId(), lastId ) )
       {
-        setChannelSubscription( null );
+        setAreaOfInterest( null );
       }
       else if ( expectFilter() )
       {
@@ -152,14 +152,14 @@ public abstract class ReplicantSubscription<T>
         final Object newFilter = getFilter();
         if ( !FilterUtil.filtersEqual( newFilter, filter ) )
         {
-          final AreaOfInterest areaOfInterest = getChannelSubscription();
+          final AreaOfInterest areaOfInterest = getAreaOfInterest();
           if ( null != areaOfInterest && expectFilterUpdates() )
           {
             areaOfInterest.getChannel().setFilter( newFilter );
           }
           else
           {
-            setChannelSubscription( null );
+            setAreaOfInterest( null );
           }
         }
       }
@@ -170,21 +170,21 @@ public abstract class ReplicantSubscription<T>
   private void updateChannelSubscription()
   {
     final ChannelAddress address = new ChannelAddress( getChannelType(), getId() );
-    setChannelSubscription( _areaOfInterestService.findOrCreateAreaOfInterest( address, getFilter() ) );
+    setAreaOfInterest( _areaOfInterestService.findOrCreateAreaOfInterest( address, getFilter() ) );
   }
 
   @Nullable
   @Override
   protected ReactNode render()
   {
-    final AreaOfInterest subscription = getChannelSubscription();
-    if ( null == subscription )
+    final AreaOfInterest areaOfInterest = getAreaOfInterest();
+    if ( null == areaOfInterest )
     {
       return null;
     }
     else
     {
-      final AreaOfInterest.Status status = getChannelSubscription().getStatus();
+      final AreaOfInterest.Status status = areaOfInterest.getStatus();
       if ( AreaOfInterest.Status.NOT_ASKED == status )
       {
         final BasicCallback callback = onNotAsked();
@@ -198,35 +198,35 @@ public abstract class ReplicantSubscription<T>
       else if ( AreaOfInterest.Status.LOADED == status )
       {
         final EntryCallback<T> callback = onLoaded();
-        return null != callback ? callback.render( asResult( subscription ) ) : null;
+        return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
       }
       else if ( AreaOfInterest.Status.LOAD_FAILED == status )
       {
         final ErrorCallback callback = onLoadFailed();
-        return null != callback ? callback.render( Objects.requireNonNull( subscription.getError() ) ) : null;
+        return null != callback ? callback.render( Objects.requireNonNull( areaOfInterest.getError() ) ) : null;
       }
       else if ( AreaOfInterest.Status.UPDATING == status )
       {
         final EntryCallback<T> callback = onUpdating();
-        return null != callback ? callback.render( asResult( subscription ) ) : null;
+        return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
       }
       else if ( AreaOfInterest.Status.UPDATED == status )
       {
         final EntryCallback<T> callback = onUpdated();
-        return null != callback ? callback.render( asResult( subscription ) ) : null;
+        return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
       }
       else if ( AreaOfInterest.Status.UPDATE_FAILED == status )
       {
         final UpdateErrorCallback callback = onUpdateFailed();
         return null != callback ?
-               callback.render( Objects.requireNonNull( subscription.getSubscription() ),
-                                Objects.requireNonNull( subscription.getError() ) ) :
+               callback.render( Objects.requireNonNull( areaOfInterest.getSubscription() ),
+                                Objects.requireNonNull( areaOfInterest.getError() ) ) :
                null;
       }
       else if ( AreaOfInterest.Status.UNLOADING == status )
       {
         final EntryCallback<T> callback = onUnloading();
-        return null != callback ? callback.render( asResult( subscription ) ) : null;
+        return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
       }
       else
       {
