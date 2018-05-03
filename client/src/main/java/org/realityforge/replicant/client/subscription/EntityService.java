@@ -137,7 +137,7 @@ public abstract class EntityService
    * @return the existing Entity if it exists, otherwise the newly created entity.
    */
   @Nonnull
-  Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     final Map<Object, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
