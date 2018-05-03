@@ -221,7 +221,7 @@ public abstract class ReplicantClientSystem
     boolean disconnecting = false;
     // Are any required disconnecting?
     boolean disconnected = false;
-    // Are any required in errror?
+    // Are any required in error?
     boolean error = false;
 
     for ( final DataLoaderEntry entry : _dataLoaders )
