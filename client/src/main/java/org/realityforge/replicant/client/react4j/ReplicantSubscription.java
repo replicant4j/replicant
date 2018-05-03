@@ -140,33 +140,25 @@ public abstract class ReplicantSubscription<T>
                                      @Nullable final JsPropertyMap<Object> prevState )
   {
     super.componentDidUpdate( prevProps, prevState );
-    final Enum lastChannelType = (Enum) ( null != prevProps ? prevProps.get( "channelType" ) : null );
-    if ( null != lastChannelType && getChannelType() != lastChannelType )
+    final Object lastId = null != prevProps ? prevProps.get( "id" ) : null;
+    if ( !Objects.equals( getId(), lastId ) )
     {
       setAreaOfInterest( null );
     }
-    else
+    else if ( expectFilter() )
     {
-      final Object lastId = null != prevProps ? prevProps.get( "id" ) : null;
-      if ( !Objects.equals( getId(), lastId ) )
+      final Object filter = null != prevProps ? prevProps.get( "filter" ) : null;
+      final Object newFilter = getFilter();
+      if ( !FilterUtil.filtersEqual( newFilter, filter ) )
       {
-        setAreaOfInterest( null );
-      }
-      else if ( expectFilter() )
-      {
-        final Object filter = null != prevProps ? prevProps.get( "filter" ) : null;
-        final Object newFilter = getFilter();
-        if ( !FilterUtil.filtersEqual( newFilter, filter ) )
+        final AreaOfInterest areaOfInterest = getAreaOfInterest();
+        if ( null != areaOfInterest && expectFilterUpdates() )
         {
-          final AreaOfInterest areaOfInterest = getAreaOfInterest();
-          if ( null != areaOfInterest && expectFilterUpdates() )
-          {
-            areaOfInterest.getChannel().setFilter( newFilter );
-          }
-          else
-          {
-            setAreaOfInterest( null );
-          }
+          areaOfInterest.getChannel().setFilter( newFilter );
+        }
+        else
+        {
+          setAreaOfInterest( null );
         }
       }
     }
