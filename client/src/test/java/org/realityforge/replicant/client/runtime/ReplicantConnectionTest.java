@@ -2,13 +2,14 @@ package org.realityforge.replicant.client.runtime;
 
 import arez.Arez;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import replicant.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
-import replicant.EntityService;
-import replicant.SubscriptionService;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
+import replicant.AbstractReplicantTest;
+import replicant.AreaOfInterestService;
+import replicant.EntityService;
+import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
 
 public class ReplicantConnectionTest

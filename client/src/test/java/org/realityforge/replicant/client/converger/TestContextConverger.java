@@ -1,8 +1,8 @@
 package org.realityforge.replicant.client.converger;
 
 import javax.annotation.Nonnull;
-import replicant.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import replicant.AreaOfInterestService;
 import replicant.SubscriptionService;
 
 final class TestContextConverger

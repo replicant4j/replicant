@@ -1,8 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import replicant.ChannelAddress;
 import org.testng.annotations.Test;
+import replicant.ChannelAddress;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestEntryTest
