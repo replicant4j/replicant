@@ -8,5 +8,5 @@
   <set-property name='replicant.recordRequestKey' value='true'/>
   <set-property name='replicant.validateRepositoryOnLoad' value='true'/>
   <set-property name='replicant.subscriptionsDebugOutputEnabled' value='true'/>
-  <set-property name='replicant.requestDebugOutputEnabled' value='true'/>
+  <set-property name='replicant.requestsDebugOutputEnabled' value='true'/>
 </module>

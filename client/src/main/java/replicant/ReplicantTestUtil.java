@@ -37,7 +37,7 @@ public final class ReplicantTestUtil
     {
       noRecordRequestKey();
       noValidateRepositoryOnLoad();
-      noRequestDebugOutputEnabled();
+      noRequestsDebugOutputEnabled();
       noSubscriptionsDebugOutputEnabled();
       noCheckInvariants();
       noCheckApiInvariants();
@@ -46,7 +46,7 @@ public final class ReplicantTestUtil
     {
       recordRequestKey();
       validateRepositoryOnLoad();
-      requestDebugOutputEnabled();
+      requestsDebugOutputEnabled();
       subscriptionsDebugOutputEnabled();
       checkInvariants();
       checkApiInvariants();
@@ -108,19 +108,19 @@ public final class ReplicantTestUtil
   }
 
   /**
-   * Set `replicant.requestDebugOutputEnabled` setting to true.
+   * Set `replicant.requestsDebugOutputEnabled` setting to true.
    */
-  public static void requestDebugOutputEnabled()
+  public static void requestsDebugOutputEnabled()
   {
-    setRequestDebugOutputEnabled( true );
+    setRequestsDebugOutputEnabled( true );
   }
 
   /**
-   * Set `replicant.requestDebugOutputEnabled` setting to false.
+   * Set `replicant.requestsDebugOutputEnabled` setting to false.
    */
-  public static void noRequestDebugOutputEnabled()
+  public static void noRequestsDebugOutputEnabled()
   {
-    setRequestDebugOutputEnabled( false );
+    setRequestsDebugOutputEnabled( false );
   }
 
   /**
@@ -128,9 +128,9 @@ public final class ReplicantTestUtil
    *
    * @param value the setting.
    */
-  private static void setRequestDebugOutputEnabled( final boolean value )
+  private static void setRequestsDebugOutputEnabled( final boolean value )
   {
-    setConstant( "REQUEST_DEBUG_OUTPUT_ENABLED", value );
+    setConstant( "REQUESTS_DEBUG_OUTPUT_ENABLED", value );
   }
 
   /**

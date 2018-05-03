@@ -68,7 +68,7 @@ public final class Replicant
    *
    * @return true if request debugging can be enabled at runtime, false otherwise.
    */
-  public static boolean canRequestDebugOutputBeEnabled()
+  public static boolean canRequestsDebugOutputBeEnabled()
   {
     return ReplicantConfig.canRequestDebugOutputBeEnabled();
   }
