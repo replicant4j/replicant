@@ -4,7 +4,6 @@ import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

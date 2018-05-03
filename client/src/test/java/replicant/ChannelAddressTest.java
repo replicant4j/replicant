@@ -1,7 +1,6 @@
 package replicant;
 
 import arez.ArezTestUtil;
-import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

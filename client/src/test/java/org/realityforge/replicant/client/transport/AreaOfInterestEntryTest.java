@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
-import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
 import static org.testng.Assert.*;
 

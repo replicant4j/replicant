@@ -3,7 +3,6 @@ package replicant;
 import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Disposable;
-import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;

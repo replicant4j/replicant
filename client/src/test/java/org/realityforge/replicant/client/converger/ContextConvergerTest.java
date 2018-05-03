@@ -5,7 +5,6 @@ import arez.Disposable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;

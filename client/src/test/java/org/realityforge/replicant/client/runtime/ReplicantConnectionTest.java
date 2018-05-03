@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client.runtime;
 
 import arez.Arez;
-import org.realityforge.replicant.client.AbstractReplicantTest;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
