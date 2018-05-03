@@ -10,8 +10,6 @@
   <source path='client/runtime/gwt'/>
   <source path='client/react4j'/>
 
-  <super-source path='sprsrc' />
-
   <define-property name='replicant.shouldRecordRequestKey' values='true,false'/>
   <set-property name='replicant.shouldRecordRequestKey' value='false'/>
 
