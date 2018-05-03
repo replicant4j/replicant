@@ -339,7 +339,6 @@ public abstract class ReplicantClientSystem
     @Override
     public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
-      service.onCommunicationError( throwable );
       LOG.log( Level.INFO,
                "DataLoadFailure: Attempting to disconnect data source " + service.getKey() + " and restart.",
                throwable );
@@ -350,7 +349,6 @@ public abstract class ReplicantClientSystem
     @Override
     public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
-      service.onCommunicationError( throwable );
       LOG.log( Level.INFO,
                "PollFailure: Attempting to disconnect data source " + service.getKey() + " and restart.",
                throwable );

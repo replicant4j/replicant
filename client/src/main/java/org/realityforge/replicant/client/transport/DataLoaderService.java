@@ -1,8 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.ChannelAddress;
@@ -93,44 +90,6 @@ public interface DataLoaderService
   boolean isIdle();
 
   /**
-   * Return the time at which the connection establishment started
-   */
-  @Nullable
-  Date getConnectingAt();
-
-  /**
-   * Return the time at which the connection establishment completed
-   */
-  @Nullable
-  Date getConnectedAt();
-
-  /**
-   * Return the time at which the connection last disconnected in error
-   */
-  @Nullable
-  Date getDisconnectedAt();
-
-  /**
-   * Return the latest error that occurred during current connection establishment.
-   * Will be null if no error occurred during the establishment of the current connection
-   */
-  @Nullable
-  Throwable getLastErrorDuringConnection();
-
-  /**
-   * Return the last error that occurred whilst connected, probably triggered a disconnection.
-   * Never nulled
-   */
-  @Nullable
-  Throwable getLastError();
-
-  /**
-   * Return the time at which the LastError occurred
-   */
-  @Nullable
-  Date getLastErrorAt();
-
-  /**
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
@@ -159,18 +118,5 @@ public interface DataLoaderService
   default void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
   {
     ensureSession().requestUnsubscribe( descriptor );
-  }
-
-  default void onCommunicationError( @Nonnull final Throwable error )
-  {
-  }
-
-  /**
-   * Return a set of properties that can be included in the 'status' report for this DataLoader
-   */
-  default @Nonnull
-  Map<String, String> getStatusProperties()
-  {
-    return new HashMap<>();
   }
 }
