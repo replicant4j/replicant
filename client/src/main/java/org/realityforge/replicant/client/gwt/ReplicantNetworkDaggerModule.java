@@ -4,21 +4,13 @@ import dagger.Module;
 import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.converger.ContextConverger;
+import org.realityforge.replicant.client.converger.ContextConvergerDaggerModule;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.AreaOfInterestServiceDaggerModule;
 
-@Module( includes = { GwtContextConvergerDaggerModule.class, AreaOfInterestServiceDaggerModule.class } )
+@Module( includes = { ContextConvergerDaggerModule.class, AreaOfInterestServiceDaggerModule.class } )
 public interface ReplicantNetworkDaggerModule
 {
-  @Nonnull
-  @Provides
-  @Singleton
-  static ContextConverger provideContextConverger( @Nonnull final GwtContextConverger component )
-  {
-    return component;
-  }
-
   @Nonnull
   @Provides
   @Singleton

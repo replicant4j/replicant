@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.converger;
 
 import arez.Disposable;
 import arez.annotations.Action;
+import arez.annotations.ArezComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.ReplicantSystemListener;
@@ -21,10 +23,11 @@ import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
 
+@Singleton
+@ArezComponent
 public abstract class ContextConverger
 {
   private static final Logger LOG = Logger.getLogger( ContextConverger.class.getName() );
-  protected static final int CONVERGE_DELAY_IN_MS = 100;
   @Nonnull
   private final ConvergerReplicantSystemListener _rsListener = new ConvergerReplicantSystemListener();
   @Nonnull
@@ -38,17 +41,16 @@ public abstract class ContextConverger
   @Nullable
   private Runnable _convergeCompleteAction;
 
-  public ContextConverger( @Nonnull final ReplicantClientSystem replicantClientSystem )
+  public static ContextConverger create( @Nonnull final ReplicantClientSystem replicantClientSystem )
+  {
+    return new Arez_ContextConverger( replicantClientSystem );
+  }
+
+  ContextConverger( @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     addListeners();
   }
-
-  public abstract void activate();
-
-  public abstract void deactivate();
-
-  public abstract boolean isActive();
 
   /**
    * Set action that is run prior to converging.
@@ -131,8 +133,7 @@ public abstract class ContextConverger
   @Action
   protected void convergeStep()
   {
-    if ( isActive() &&
-         !_convergeComplete &&
+    if ( !_convergeComplete &&
          !isPaused() &&
          _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
     {

@@ -52,8 +52,7 @@ public class ContextConvergerTest
     dataLoaders.add( new DataLoaderEntry( dl3, false ) );
     when( system.getDataLoaders() ).thenReturn( dataLoaders );
 
-    final ContextConverger c =
-      new TestContextConverger( system );
+    final ContextConverger c = ContextConverger.create( system );
 
     verify( dl1 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
     verify( dl2 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
@@ -74,7 +73,7 @@ public class ContextConvergerTest
   @Test
   public void preConvergeAction()
   {
-    final ContextConverger c = new TestContextConverger( mock( ReplicantClientSystem.class ) );
+    final ContextConverger c = ContextConverger.create( mock( ReplicantClientSystem.class ) );
 
     // should do nothing ... particularly not crash
     c.preConverge();
@@ -105,7 +104,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -127,7 +126,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -146,7 +145,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -168,7 +167,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -195,7 +194,7 @@ public class ContextConvergerTest
     final HashSet<ChannelAddress> expected = new HashSet<>();
     expected.add( address );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     final Subscription subscription = Replicant.context().createSubscription( address, null, true );
     c.removeSubscriptionIfOrphan( expected, subscription );
@@ -209,7 +208,7 @@ public class ContextConvergerTest
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     final HashSet<ChannelAddress> expected = new HashSet<>();
 
@@ -234,7 +233,7 @@ public class ContextConvergerTest
     expected.add( new ChannelAddress( TestSystemA.B, 4 ) );
     expected.add( new ChannelAddress( TestSystemA.B, 5 ) );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -261,7 +260,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -292,7 +291,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -323,7 +322,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -353,7 +352,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -384,7 +383,7 @@ public class ContextConvergerTest
     channel.setFilter( "Filter1" );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -420,7 +419,7 @@ public class ContextConvergerTest
     channel.setFilter( "Filter1" );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -447,7 +446,7 @@ public class ContextConvergerTest
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final Channel channel = Channel.create( address, null );
@@ -506,7 +505,7 @@ public class ContextConvergerTest
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
     Disposable.dispose( areaOfInterest );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -538,7 +537,7 @@ public class ContextConvergerTest
     final Channel channel3 = Channel.create( address3, null );
     final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -598,7 +597,7 @@ public class ContextConvergerTest
     final Channel channel3 = Channel.create( address3, null );
     final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -661,7 +660,7 @@ public class ContextConvergerTest
 
     when( clientSystem.getDataLoaders() ).thenReturn( dataLoaders );
 
-    final ContextConverger c = new TestContextConverger( clientSystem );
+    final ContextConverger c = ContextConverger.create( clientSystem );
 
     when( service1.isIdle() ).thenReturn( true );
     when( service2.isIdle() ).thenReturn( true );

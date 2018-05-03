@@ -35,26 +35,14 @@ public class ReplicantConnection
 
   public void disconnect()
   {
-    _converger.deactivate();
+    _converger.pause();
     _replicantClientSystem.deactivate();
   }
 
   public void connect()
   {
     _replicantClientSystem.activate();
-    _converger.activate();
-  }
-
-  @Nonnull
-  public ContextConverger getContextConverger()
-  {
-    return _converger;
-  }
-
-  @Nonnull
-  public ReplicantClientSystem getReplicantClientSystem()
-  {
-    return _replicantClientSystem;
+    _converger.resume();
   }
 
   /**
@@ -86,10 +74,10 @@ public class ReplicantConnection
                                                     @Nullable final Object filter,
                                                     @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
-    getContextConverger().pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( sourceChannelType,
-                                                                                     targetChannelType,
-                                                                                     filter,
-                                                                                     sourceIDToTargetIDs ) );
+    _converger.pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( sourceChannelType,
+                                                                          targetChannelType,
+                                                                          filter,
+                                                                          sourceIDToTargetIDs ) );
   }
 
   /**
@@ -132,7 +120,7 @@ public class ReplicantConnection
   }
 
   @Nonnull
-  protected ChannelAddress asAddress( @Nonnull final Enum channel, @Nullable final Object id )
+  private ChannelAddress asAddress( @Nonnull final Enum channel, @Nullable final Object id )
   {
     return new ChannelAddress( channel, id );
   }
