@@ -63,6 +63,12 @@ public abstract class ReplicantSubscription<T>
   }
 
   @Nullable
+  protected Class getInstanceType()
+  {
+    return null;
+  }
+
+  @Nullable
   protected Object getFilter()
   {
     return null;
@@ -237,9 +243,16 @@ public abstract class ReplicantSubscription<T>
     }
   }
 
+  @SuppressWarnings( "unchecked" )
   @Nonnull
-  private SubscriptionResult<T> asResult( @Nonnull final AreaOfInterest subscription )
+  private SubscriptionResult<T> asResult( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    return new SubscriptionResult<>( Objects.requireNonNull( subscription.getSubscription() ), null );
+    final ChannelAddress address = areaOfInterest.getChannel().getAddress();
+    final Subscription subscription = areaOfInterest.getSubscription();
+    assert null != subscription;
+    final Object id = address.getId();
+    final T instanceRoot =
+      null != id ? (T) subscription.findEntityByTypeAndId( Objects.requireNonNull( getInstanceType() ), id ) : null;
+    return new SubscriptionResult<>( Objects.requireNonNull( subscription ), instanceRoot );
   }
 }
