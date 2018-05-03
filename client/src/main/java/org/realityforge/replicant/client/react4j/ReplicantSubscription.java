@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.react4j;
 
+import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.Observable;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.aoi.AreaOfInterest;
 import org.realityforge.replicant.client.aoi.AreaOfInterestService;
+import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.Subscription;
 import react4j.annotations.Prop;
 import react4j.arez.ReactArezComponent;
@@ -131,7 +133,7 @@ public abstract class ReplicantSubscription<T>
   protected void componentDidMount()
   {
     super.componentDidMount();
-    updateChannelSubscription();
+    updateAreaOfInterest();
   }
 
   @Action
@@ -143,7 +145,7 @@ public abstract class ReplicantSubscription<T>
     final Object lastId = null != prevProps ? prevProps.get( "id" ) : null;
     if ( !Objects.equals( getId(), lastId ) )
     {
-      setAreaOfInterest( null );
+      clearAreaOfInterest();
     }
     else if ( expectFilter() )
     {
@@ -158,17 +160,40 @@ public abstract class ReplicantSubscription<T>
         }
         else
         {
-          setAreaOfInterest( null );
+          clearAreaOfInterest();
         }
       }
     }
-    updateChannelSubscription();
+    updateAreaOfInterest();
   }
 
-  private void updateChannelSubscription()
+  @Action
+  @Override
+  protected void componentWillUnmount()
   {
-    final ChannelAddress address = new ChannelAddress( getChannelType(), getId() );
-    setAreaOfInterest( _areaOfInterestService.findOrCreateAreaOfInterest( address, getFilter() ) );
+    clearAreaOfInterest();
+  }
+
+  private void clearAreaOfInterest()
+  {
+    final AreaOfInterest areaOfInterest = getAreaOfInterest();
+    if ( null != areaOfInterest )
+    {
+      //TODO: Rather than trying to manually clear AreaOfInterest, should make it disposeOnDeactivate and manage it thusly
+      Disposable.dispose( areaOfInterest );
+      setAreaOfInterest( null );
+    }
+  }
+
+  private void updateAreaOfInterest()
+  {
+    final AreaOfInterest newAreaOfInterest =
+      _areaOfInterestService.findOrCreateAreaOfInterest( new ChannelAddress( getChannelType(), getId() ), getFilter() );
+    if ( getAreaOfInterest() != newAreaOfInterest )
+    {
+      clearAreaOfInterest();
+      setAreaOfInterest( newAreaOfInterest );
+    }
   }
 
   @Nullable
@@ -243,8 +268,18 @@ public abstract class ReplicantSubscription<T>
     final Subscription subscription = areaOfInterest.getSubscription();
     assert null != subscription;
     final Object id = address.getId();
-    final T instanceRoot =
-      null != id ? (T) subscription.findEntityByTypeAndId( Objects.requireNonNull( getInstanceType() ), id ) : null;
+    final T instanceRoot;
+    if ( null != id )
+    {
+      final Class type = Objects.requireNonNull( getInstanceType() );
+      final Entity entity = subscription.findEntityByTypeAndId( type, id );
+      assert null != entity;
+      instanceRoot = (T) entity.getUserObject();
+    }
+    else
+    {
+      instanceRoot = null;
+    }
     return new SubscriptionResult<>( Objects.requireNonNull( subscription ), instanceRoot );
   }
 }
