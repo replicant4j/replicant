@@ -813,7 +813,6 @@ public abstract class AbstractDataLoaderService
         Change change;
         for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
         {
-
           final Object entity = getChangeMapper().applyChange( change );
           if ( LOG.isLoggable( Level.INFO ) )
           {
