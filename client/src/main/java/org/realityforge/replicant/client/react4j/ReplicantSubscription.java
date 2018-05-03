@@ -219,7 +219,7 @@ public abstract class ReplicantSubscription<T>
       {
         final UpdateErrorCallback callback = onUpdateFailed();
         return null != callback ?
-               callback.render( Objects.requireNonNull( subscription.getEntry() ),
+               callback.render( Objects.requireNonNull( subscription.getSubscription() ),
                                 Objects.requireNonNull( subscription.getError() ) ) :
                null;
       }
@@ -240,6 +240,6 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   private SubscriptionResult<T> asResult( @Nonnull final AreaOfInterest subscription )
   {
-    return new SubscriptionResult<>( Objects.requireNonNull( subscription.getEntry() ), null );
+    return new SubscriptionResult<>( Objects.requireNonNull( subscription.getSubscription() ), null );
   }
 }

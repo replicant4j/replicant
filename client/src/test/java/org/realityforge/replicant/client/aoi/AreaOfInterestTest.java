@@ -25,7 +25,7 @@ public class AreaOfInterestTest
     Arez.context().safeAction( () -> {
       assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
       assertEquals( areaOfInterest.getChannel(), channel );
-      assertEquals( areaOfInterest.getEntry(), null );
+      assertEquals( areaOfInterest.getSubscription(), null );
       assertEquals( areaOfInterest.getError(), null );
     } );
   }
@@ -63,7 +63,7 @@ public class AreaOfInterestTest
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state
-        areaOfInterest.getEntry();
+        areaOfInterest.getSubscription();
       }
       getSubscriptionCallCount.incrementAndGet();
     } );
@@ -80,7 +80,7 @@ public class AreaOfInterestTest
 
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
     Arez.context().safeAction( () -> assertNull( areaOfInterest.getError() ) );
-    Arez.context().safeAction( () -> assertNull( areaOfInterest.getEntry() ) );
+    Arez.context().safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
     Arez.context().safeAction( () -> areaOfInterest.setError( new Throwable() ) );
 
@@ -90,14 +90,14 @@ public class AreaOfInterestTest
 
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
     Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
-    Arez.context().safeAction( () -> assertNull( areaOfInterest.getEntry() ) );
+    Arez.context().safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
     Arez.context()
       .safeAction( () -> {
         final SubscriptionService subscriptionService = SubscriptionService.create();
         final Subscription subscription =
           subscriptionService.createSubscription( channel.getAddress(), channel.getFilter(), true );
-        areaOfInterest.setEntry( subscription );
+        areaOfInterest.setSubscription( subscription );
       } );
 
     assertEquals( getStatusCallCount.get(), 2 );
@@ -106,7 +106,7 @@ public class AreaOfInterestTest
 
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
     Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
-    Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getEntry() ) );
+    Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getSubscription() ) );
   }
 
   @Test

@@ -80,9 +80,9 @@ public abstract class AreaOfInterest
 
   @Observable
   @Nullable
-  public abstract Subscription getEntry();
+  public abstract Subscription getSubscription();
 
-  public abstract void setEntry( @Nullable Subscription subscription );
+  public abstract void setSubscription( @Nullable Subscription subscription );
 
   @Override
   public String toString()

@@ -409,7 +409,7 @@ public abstract class ContextConverger
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );
-      areaOfInterest.setEntry( attemptEntryLoad ? _subscriptionService.findSubscription( address ) : null );
+      areaOfInterest.setSubscription( attemptEntryLoad ? _subscriptionService.findSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
     markConvergeAsIncomplete();
