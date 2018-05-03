@@ -543,23 +543,26 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIAddActions()
   {
-    _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
-      if ( null != subscription )
-      {
-        if ( subscription.isExplicitSubscription() )
+    // Remove all Add Aoi actions that need no action as they are already present locally
+    context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
+      _currentAoiActions.removeIf( a -> {
+        final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
+        if ( null != subscription )
         {
-          LOG.warning( "Subscription to " + label( a ) + " requested but already subscribed." );
+          if ( subscription.isExplicitSubscription() )
+          {
+            LOG.warning( "Subscription to " + label( a ) + " requested but already subscribed." );
+          }
+          else
+          {
+            LOG.warning( () -> "Existing subscription to " + label( a ) + " converted to a explicit subscription." );
+            subscription.setExplicitSubscription( true );
+          }
+          a.markAsComplete();
+          return true;
         }
-        else
-        {
-          LOG.warning( () -> "Existing subscription to " + label( a ) + " converted to a explicit subscription." );
-          subscription.setExplicitSubscription( true );
-        }
-        a.markAsComplete();
-        return true;
-      }
-      return false;
+        return false;
+      } );
     } );
 
     if ( 0 == _currentAoiActions.size() )
@@ -880,57 +883,7 @@ public abstract class AbstractDataLoaderService
 
     if ( _currentAction.needsChannelActionsProcessed() )
     {
-      _currentAction.markChannelActionsProcessed();
-      final ChangeSet changeSet = _currentAction.getChangeSet();
-      assert null != changeSet;
-      final int channelActionCount = changeSet.getChannelActionCount();
-      for ( int i = 0; i < channelActionCount; i++ )
-      {
-        final ChannelAction action = changeSet.getChannelAction( i );
-        final ChannelAddress address = toChannelDescriptor( action );
-        final Object filter = action.getChannelFilter();
-        final ChannelAction.Action actionType = action.getAction();
-        if ( LOG.isLoggable( getLogLevel() ) )
-        {
-          final String message = "ChannelAction:: " + actionType.name() + " " + address + " filter=" + filter;
-          LOG.log( getLogLevel(), message );
-        }
-
-        if ( ChannelAction.Action.ADD == actionType )
-        {
-          _currentAction.recordChannelSubscribe( new ChannelChangeStatus( address, filter ) );
-          boolean explicitSubscribe = false;
-          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
-          {
-            if ( LOG.isLoggable( getLogLevel() ) )
-            {
-              LOG.log( getLogLevel(), "Recording explicit subscription for " + address );
-            }
-            explicitSubscribe = true;
-          }
-          _subscriptionService.createSubscription( address, filter, explicitSubscribe );
-        }
-        else if ( ChannelAction.Action.REMOVE == actionType )
-        {
-          final Subscription subscription = _subscriptionService.findSubscription( address );
-          assert null != subscription;
-          Disposable.dispose( subscription );
-          _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( address, filter ) );
-        }
-        else if ( ChannelAction.Action.UPDATE == actionType )
-        {
-          final Subscription subscription = _subscriptionService.findSubscription( address );
-          assert null != subscription;
-          subscription.getChannel().setFilter( filter );
-          updateSubscriptionForFilteredEntities( subscription, filter );
-          final ChannelChangeStatus status = new ChannelChangeStatus( address, filter );
-          _currentAction.recordChannelSubscriptionUpdate( status );
-        }
-        else
-        {
-          throw new IllegalStateException();
-        }
-      }
+      context().safeAction( generateName( "processChannelActions" ), this::processChannelActions );
       return true;
     }
 
@@ -1094,6 +1047,61 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  private void processChannelActions()
+  {
+    _currentAction.markChannelActionsProcessed();
+    final ChangeSet changeSet = _currentAction.getChangeSet();
+    assert null != changeSet;
+    final int channelActionCount = changeSet.getChannelActionCount();
+    for ( int i = 0; i < channelActionCount; i++ )
+    {
+      final ChannelAction action = changeSet.getChannelAction( i );
+      final ChannelAddress address = toChannelDescriptor( action );
+      final Object filter = action.getChannelFilter();
+      final ChannelAction.Action actionType = action.getAction();
+      if ( LOG.isLoggable( getLogLevel() ) )
+      {
+        final String message = "ChannelAction:: " + actionType.name() + " " + address + " filter=" + filter;
+        LOG.log( getLogLevel(), message );
+      }
+
+      if ( ChannelAction.Action.ADD == actionType )
+      {
+        _currentAction.recordChannelSubscribe( new ChannelChangeStatus( address, filter ) );
+        boolean explicitSubscribe = false;
+        if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
+        {
+          if ( LOG.isLoggable( getLogLevel() ) )
+          {
+            LOG.log( getLogLevel(), "Recording explicit subscription for " + address );
+          }
+          explicitSubscribe = true;
+        }
+        _subscriptionService.createSubscription( address, filter, explicitSubscribe );
+      }
+      else if ( ChannelAction.Action.REMOVE == actionType )
+      {
+        final Subscription subscription = _subscriptionService.findSubscription( address );
+        assert null != subscription;
+        Disposable.dispose( subscription );
+        _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( address, filter ) );
+      }
+      else if ( ChannelAction.Action.UPDATE == actionType )
+      {
+        final Subscription subscription = _subscriptionService.findSubscription( address );
+        assert null != subscription;
+        subscription.getChannel().setFilter( filter );
+        updateSubscriptionForFilteredEntities( subscription, filter );
+        final ChannelChangeStatus status = new ChannelChangeStatus( address, filter );
+        _currentAction.recordChannelSubscriptionUpdate( status );
+      }
+      else
+      {
+        throw new IllegalStateException();
+      }
+    }
   }
 
   @Nonnull
