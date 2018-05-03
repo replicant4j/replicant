@@ -9,18 +9,18 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.FilterUtil;
-import org.realityforge.replicant.client.aoi.AreaOfInterest;
-import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.runtime.ReplicantSystemListener;
-import org.realityforge.replicant.client.subscription.Subscription;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
+import replicant.AreaOfInterest;
+import replicant.AreaOfInterestService;
+import replicant.ChannelAddress;
+import replicant.FilterUtil;
+import replicant.Subscription;
+import replicant.SubscriptionService;
 
 public abstract class ContextConverger
 {

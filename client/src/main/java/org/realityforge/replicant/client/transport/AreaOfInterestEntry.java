@@ -3,8 +3,8 @@ package org.realityforge.replicant.client.transport;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.FilterUtil;
+import replicant.ChannelAddress;
+import replicant.FilterUtil;
 
 final class AreaOfInterestEntry
 {

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 
 /**
  * Basic interface for interacting with data loader services.

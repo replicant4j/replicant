@@ -1,6 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;

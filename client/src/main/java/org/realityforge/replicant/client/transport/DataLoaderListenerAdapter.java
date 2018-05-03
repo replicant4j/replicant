@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 
 public abstract class DataLoaderListenerAdapter
   implements DataLoaderListener

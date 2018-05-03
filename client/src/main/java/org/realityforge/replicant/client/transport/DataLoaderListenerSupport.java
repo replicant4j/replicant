@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 
 public final class DataLoaderListenerSupport
   implements DataLoaderListener

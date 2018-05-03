@@ -14,10 +14,10 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.subscription.EntityService;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
+import replicant.ChannelAddress;
+import replicant.EntityService;
+import replicant.SubscriptionService;
 
 public abstract class WebPollerDataLoaderService
   extends AbstractDataLoaderService

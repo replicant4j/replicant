@@ -8,12 +8,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.Channel;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.EntityService;
-import org.realityforge.replicant.client.subscription.Subscription;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
+import replicant.Channel;
+import replicant.ChannelAddress;
+import replicant.Entity;
+import replicant.EntityService;
+import replicant.Subscription;
+import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
 
 final class TestDataLoadService

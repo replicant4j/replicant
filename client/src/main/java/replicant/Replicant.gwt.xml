@@ -1,0 +1,7 @@
+<module>
+  <inherits name='arez.component.Component'/>
+  <inherits name='dagger.Dagger'/>
+
+  <source path='' includes='*.java'/>
+  <super-source path='super'/>
+</module>

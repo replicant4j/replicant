@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.react4j;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.subscription.Subscription;
+import replicant.Subscription;
 
 public class SubscriptionResult<T>
 {

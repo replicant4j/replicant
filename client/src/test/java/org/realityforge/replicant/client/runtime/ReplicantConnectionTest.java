@@ -2,10 +2,10 @@ package org.realityforge.replicant.client.runtime;
 
 import arez.Arez;
 import org.realityforge.replicant.client.AbstractReplicantTest;
-import org.realityforge.replicant.client.aoi.AreaOfInterestService;
+import replicant.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
-import org.realityforge.replicant.client.subscription.EntityService;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
+import replicant.EntityService;
+import replicant.SubscriptionService;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;

@@ -8,15 +8,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import jsinterop.base.JsPropertyMap;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.FilterUtil;
-import org.realityforge.replicant.client.aoi.AreaOfInterest;
-import org.realityforge.replicant.client.aoi.AreaOfInterestService;
-import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.Subscription;
 import react4j.annotations.Prop;
 import react4j.arez.ReactArezComponent;
 import react4j.core.ReactNode;
+import replicant.AreaOfInterest;
+import replicant.AreaOfInterestService;
+import replicant.ChannelAddress;
+import replicant.Entity;
+import replicant.FilterUtil;
+import replicant.Subscription;
 
 /**
  * An abstract React4j component that manages subscription to channels.

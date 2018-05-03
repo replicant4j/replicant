@@ -1,29 +1,29 @@
 <module>
-  <inherits name="org.realityforge.replicant.ReplicantClientCommon"/>
-  <inherits name="jsinterop.base.Base" />
-  <inherits name="react4j.arez.ReactArez" />
-  <inherits name="com.google.gwt.storage.Storage"/>
-  <inherits name="com.google.gwt.user.Window"/>
-  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name='org.realityforge.replicant.ReplicantClientCommon'/>
+  <inherits name='jsinterop.base.Base' />
+  <inherits name='react4j.arez.ReactArez' />
+  <inherits name='com.google.gwt.storage.Storage'/>
+  <inherits name='com.google.gwt.user.Window'/>
+  <inherits name='com.google.gwt.json.JSON'/>
 
   <source path='client/gwt'/>
   <source path='client/runtime/gwt'/>
   <source path='client/react4j'/>
 
-  <super-source path="sprsrc" />
+  <super-source path='sprsrc' />
 
-  <define-property name="replicant.shouldRecordRequestKey" values="true,false"/>
-  <set-property name="replicant.shouldRecordRequestKey" value="false"/>
+  <define-property name='replicant.shouldRecordRequestKey' values='true,false'/>
+  <set-property name='replicant.shouldRecordRequestKey' value='false'/>
 
-  <define-property name="replicant.shouldValidateRepositoryOnLoad" values="true,false"/>
-  <set-property name="replicant.shouldValidateRepositoryOnLoad" value="false"/>
+  <define-property name='replicant.shouldValidateRepositoryOnLoad' values='true,false'/>
+  <set-property name='replicant.shouldValidateRepositoryOnLoad' value='false'/>
 
-  <define-property name="replicant.repositoryDebugOutputEnabled" values="true,false"/>
-  <set-property name="replicant.repositoryDebugOutputEnabled" value="false"/>
+  <define-property name='replicant.repositoryDebugOutputEnabled' values='true,false'/>
+  <set-property name='replicant.repositoryDebugOutputEnabled' value='false'/>
 
-  <define-property name="replicant.subscriptionsDebugOutputEnabled" values="true,false"/>
-  <set-property name="replicant.subscriptionsDebugOutputEnabled" value="false"/>
+  <define-property name='replicant.subscriptionsDebugOutputEnabled' values='true,false'/>
+  <set-property name='replicant.subscriptionsDebugOutputEnabled' value='false'/>
 
-  <define-property name="replicant.requestDebugOutputEnabled" values="true,false"/>
-  <set-property name="replicant.requestDebugOutputEnabled" value="false"/>
+  <define-property name='replicant.requestDebugOutputEnabled' values='true,false'/>
+  <set-property name='replicant.requestDebugOutputEnabled' value='false'/>
 </module>

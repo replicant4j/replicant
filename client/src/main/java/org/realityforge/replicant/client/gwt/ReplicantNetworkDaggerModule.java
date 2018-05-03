@@ -4,9 +4,9 @@ import dagger.Module;
 import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.aoi.AreaOfInterestServiceDaggerModule;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import replicant.AreaOfInterestServiceDaggerModule;
 
 @Module( includes = { GwtContextConvergerDaggerModule.class, AreaOfInterestServiceDaggerModule.class } )
 public interface ReplicantNetworkDaggerModule

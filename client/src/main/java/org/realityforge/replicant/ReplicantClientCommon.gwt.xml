@@ -1,8 +1,7 @@
 <module>
-  <inherits name="arez.component.Component"/>
-  <inherits name="dagger.Dagger" />
-  <inherits name="org.realityforge.replicant.ReplicantShared"/>
-  <inherits name="org.realityforge.gwt.webpoller.WebPoller"/>
+  <inherits name='replicant.Replicant'/>
+  <inherits name='org.realityforge.replicant.ReplicantShared'/>
+  <inherits name='org.realityforge.gwt.webpoller.WebPoller'/>
 
   <source path='client'>
     <include name='*.java'/>

@@ -21,15 +21,15 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckConfig;
-import org.realityforge.replicant.client.Channel;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
-import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.EntityService;
-import org.realityforge.replicant.client.subscription.Subscription;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
+import replicant.Channel;
+import replicant.ChannelAddress;
+import replicant.Entity;
+import replicant.EntityService;
+import replicant.FilterUtil;
+import replicant.Subscription;
+import replicant.SubscriptionService;
 import static org.realityforge.braincheck.Guards.*;
 
 /**

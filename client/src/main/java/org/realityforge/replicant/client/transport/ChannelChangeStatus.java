@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 
 /**
  * Representation the result of channel change action in data load.

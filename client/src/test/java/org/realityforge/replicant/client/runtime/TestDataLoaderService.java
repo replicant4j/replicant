@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.runtime;
 import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderListener;

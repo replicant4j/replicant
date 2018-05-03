@@ -4,10 +4,10 @@ import arez.annotations.ArezComponent;
 import com.google.gwt.user.client.Timer;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
+import replicant.AreaOfInterestService;
+import replicant.SubscriptionService;
 
 @Singleton
 @ArezComponent

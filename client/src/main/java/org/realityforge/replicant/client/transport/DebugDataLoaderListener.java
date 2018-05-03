@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelAddress;
+import replicant.ChannelAddress;
 
 /**
  * Debug listener that simply logs state transitions.

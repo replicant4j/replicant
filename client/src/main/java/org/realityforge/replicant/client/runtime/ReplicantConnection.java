@@ -10,15 +10,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.Channel;
-import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.client.FilterUtil;
-import org.realityforge.replicant.client.aoi.AreaOfInterest;
-import org.realityforge.replicant.client.aoi.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
-import org.realityforge.replicant.client.subscription.Entity;
-import org.realityforge.replicant.client.subscription.EntityService;
-import org.realityforge.replicant.client.subscription.SubscriptionService;
+import replicant.AreaOfInterest;
+import replicant.AreaOfInterestService;
+import replicant.Channel;
+import replicant.ChannelAddress;
+import replicant.Entity;
+import replicant.EntityService;
+import replicant.FilterUtil;
+import replicant.SubscriptionService;
 
 @Singleton
 public class ReplicantConnection
