@@ -30,6 +30,7 @@ public class AreaOfInterestTest
     } );
   }
 
+  @SuppressWarnings( { "ThrowableNotThrown", "ResultOfMethodCallIgnored" } )
   @Test
   public void notifications()
   {
@@ -42,7 +43,6 @@ public class AreaOfInterestTest
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state
-        //noinspection ResultOfMethodCallIgnored
         areaOfInterest.getStatus();
       }
       getStatusCallCount.incrementAndGet();
@@ -53,7 +53,6 @@ public class AreaOfInterestTest
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state
-        //noinspection ResultOfMethodCallIgnored
         areaOfInterest.getError();
       }
       getErrorCallCount.incrementAndGet();
@@ -64,7 +63,6 @@ public class AreaOfInterestTest
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state
-        //noinspection ResultOfMethodCallIgnored
         areaOfInterest.getEntry();
       }
       getSubscriptionCallCount.incrementAndGet();
