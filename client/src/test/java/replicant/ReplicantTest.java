@@ -7,6 +7,62 @@ public class ReplicantTest
   extends AbstractReplicantTest
 {
   @Test
+  public void setting_areZonesEnabled()
+  {
+    assertFalse( Replicant.areZonesEnabled() );
+    ReplicantTestUtil.enableZones();
+    assertTrue( Replicant.areZonesEnabled() );
+  }
+
+  @Test
+  public void setting_shouldValidateRepositoryOnLoad()
+  {
+    assertTrue( Replicant.shouldValidateRepositoryOnLoad() );
+    ReplicantTestUtil.noValidateRepositoryOnLoad();
+    assertFalse( Replicant.shouldValidateRepositoryOnLoad() );
+  }
+
+  @Test
+  public void setting_shouldRecordRequestKey()
+  {
+    assertTrue( Replicant.shouldRecordRequestKey() );
+    ReplicantTestUtil.noRecordRequestKey();
+    assertFalse( Replicant.shouldRecordRequestKey() );
+  }
+
+  @Test
+  public void setting_shouldCheckInvariants()
+  {
+    assertTrue( Replicant.shouldCheckInvariants() );
+    ReplicantTestUtil.noCheckInvariants();
+    assertFalse( Replicant.shouldCheckInvariants() );
+  }
+
+  @Test
+  public void setting_shouldCheckApiInvariants()
+  {
+    assertTrue( Replicant.shouldCheckApiInvariants() );
+    ReplicantTestUtil.noCheckApiInvariants();
+    assertFalse( Replicant.shouldCheckApiInvariants() );
+  }
+
+  @Test
+  public void setting_canRequestDebugOutputBeEnabled()
+  {
+    assertTrue( Replicant.canRequestsDebugOutputBeEnabled() );
+    ReplicantTestUtil.noRequestsDebugOutputEnabled();
+    assertFalse( Replicant.canRequestsDebugOutputBeEnabled() );
+  }
+
+  @Test
+  public void setting_canSubscriptionsDebugOutputBeEnabled()
+  {
+    assertTrue( Replicant.canSubscriptionsDebugOutputBeEnabled() );
+    ReplicantTestUtil.noSubscriptionsDebugOutputEnabled();
+    assertFalse( Replicant.canSubscriptionsDebugOutputBeEnabled() );
+  }
+
+  @Test
   public void context_when_zones_disabled()
   {
     ReplicantTestUtil.disableZones();
