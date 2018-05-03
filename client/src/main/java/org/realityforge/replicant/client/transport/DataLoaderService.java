@@ -69,8 +69,6 @@ public interface DataLoaderService
   @Nonnull
   Class<? extends Enum> getSystemType();
 
-  boolean isSubscribed( @Nonnull ChannelAddress descriptor );
-
   /**
    * Return true if the DataLoader has nothing outstanding to complete
    */

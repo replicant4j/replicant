@@ -288,6 +288,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
+    Replicant.context().createSubscription( address, null, true );
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
@@ -297,8 +298,6 @@ public class ContextConvergerTest
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
-
-    when( service.isSubscribed( address ) ).thenReturn( Boolean.TRUE );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, null ) ).
       thenReturn( -1 );
@@ -320,6 +319,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
+    Replicant.context().createSubscription( address, null, true );
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
@@ -330,14 +330,10 @@ public class ContextConvergerTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    when( service.isSubscribed( address ) ).thenReturn( Boolean.TRUE );
-
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, null ) ).
       thenReturn( -1 );
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( -1 );
-
-    Replicant.context().createSubscription( address, null, false );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.IN_PROGRESS );
@@ -419,6 +415,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
+    Replicant.context().createSubscription( address, "OldFilter", false );
     final Channel channel = Channel.create( address, null );
     channel.setFilter( "Filter1" );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
@@ -430,16 +427,12 @@ public class ContextConvergerTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    when( service.isSubscribed( address ) ).thenReturn( Boolean.TRUE );
-
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, "Filter1" ) ).
       thenReturn( -1 );
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( -1 );
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, "Filter1" ) ).
       thenReturn( -1 );
-
-    Replicant.context().createSubscription( address, "OldFIlter", false );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
@@ -596,10 +589,12 @@ public class ContextConvergerTest
     final AreaOfInterest areaOfInterest1 = AreaOfInterest.create( channel1 );
 
     final ChannelAddress address2 = new ChannelAddress( TestSystemA.A, 2 );
+    Replicant.context().createSubscription( address2, "OldFilter", true );
     final Channel channel2 = Channel.create( address2, null );
     final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( channel2 );
 
     final ChannelAddress address3 = new ChannelAddress( TestSystemA.A, 3 );
+    Replicant.context().createSubscription( address3, "OldFilter", true );
     final Channel channel3 = Channel.create( address3, null );
     final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
@@ -609,9 +604,6 @@ public class ContextConvergerTest
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
-
-    when( service.isSubscribed( address2 ) ).thenReturn( Boolean.TRUE );
-    when( service.isSubscribed( address3 ) ).thenReturn( Boolean.TRUE );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address2, null ) ).
       thenReturn( -1 );
@@ -631,9 +623,6 @@ public class ContextConvergerTest
       thenReturn( -1 );
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address3, "Filter" ) ).
       thenReturn( -1 );
-
-    Replicant.context().createSubscription( address2, "OldFilter", true );
-    Replicant.context().createSubscription( address3, "OldFilter", true );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestAction.UPDATE, true ),
                   ContextConverger.ConvergeAction.SUBMITTED_UPDATE );

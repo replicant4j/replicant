@@ -102,12 +102,6 @@ final class TestDataLoaderService
   }
 
   @Override
-  public boolean isSubscribed( @Nonnull final ChannelAddress descriptor )
-  {
-    return false;
-  }
-
-  @Override
   public boolean isIdle()
   {
     return true;

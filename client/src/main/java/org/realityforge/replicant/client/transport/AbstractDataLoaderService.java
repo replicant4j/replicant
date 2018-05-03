@@ -610,12 +610,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  public boolean isSubscribed( @Nonnull final ChannelAddress address )
-  {
-    return null != Replicant.context().findSubscription( address );
-  }
-
-  @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
                                                 @Nonnull final ChannelAddress descriptor,
                                                 @Nullable final Object filter )
