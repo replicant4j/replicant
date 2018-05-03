@@ -11,7 +11,7 @@ final class AreaOfInterestEntry
   @Nonnull
   private final String _systemKey;
   @Nonnull
-  private final ChannelAddress _descriptor;
+  private final ChannelAddress _address;
   @Nonnull
   private final AreaOfInterestAction _action;
   @Nullable
@@ -19,12 +19,12 @@ final class AreaOfInterestEntry
   private boolean _inProgress;
 
   AreaOfInterestEntry( @Nonnull final String systemKey,
-                       @Nonnull final ChannelAddress descriptor,
+                       @Nonnull final ChannelAddress address,
                        @Nonnull final AreaOfInterestAction action,
                        @Nullable final Object filterParameter )
   {
     _systemKey = Objects.requireNonNull( systemKey );
-    _descriptor = Objects.requireNonNull( descriptor );
+    _address = Objects.requireNonNull( address );
     _action = Objects.requireNonNull( action );
     _filterParameter = filterParameter;
   }
@@ -36,9 +36,9 @@ final class AreaOfInterestEntry
   }
 
   @Nonnull
-  ChannelAddress getDescriptor()
+  ChannelAddress getAddress()
   {
-    return _descriptor;
+    return _address;
   }
 
   @Nonnull
@@ -50,7 +50,7 @@ final class AreaOfInterestEntry
   @Nonnull
   String getCacheKey()
   {
-    return _systemKey + ":" + getDescriptor().toString();
+    return _systemKey + ":" + getAddress().toString();
   }
 
   @Nullable
@@ -79,14 +79,14 @@ final class AreaOfInterestEntry
                  @Nullable final Object filter )
   {
     return getAction().equals( action ) &&
-           getDescriptor().equals( descriptor ) &&
+           getAddress().equals( descriptor ) &&
            ( AreaOfInterestAction.REMOVE == action || FilterUtil.filtersEqual( filter, getFilterParameter() ) );
   }
 
   @Override
   public String toString()
   {
-    final ChannelAddress descriptor = getDescriptor();
+    final ChannelAddress descriptor = getAddress();
     return "AOI[SystemKey=" + _systemKey + ",Channel=" + descriptor + ",filter=" + FilterUtil.filterToString( _filterParameter ) + "]" +
            ( _inProgress ? "(InProgress)" : "" );
   }

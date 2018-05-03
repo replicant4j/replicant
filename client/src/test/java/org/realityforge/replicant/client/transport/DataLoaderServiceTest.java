@@ -675,21 +675,21 @@ public class DataLoaderServiceTest
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
 
     // Nothing to do until the first AOI completes
     assertEquals( false, service.progressAreaOfInterestActions() );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
     service.requestSubscribe( channel2, null );
     assertEquals( false, service.progressAreaOfInterestActions() );
     assertEquals( 1, service.getCurrentAOIActions().size() );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
 
     completeOutstandingAOIs( service );
 
     assertEquals( true, service.progressAreaOfInterestActions() );
     assertEquals( 1, service.getCurrentAOIActions().size() );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel2 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel2 );
   }
 
   @Test
@@ -716,19 +716,19 @@ public class DataLoaderServiceTest
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel2 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel2 );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel3 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel3 );
   }
 
   @Test
@@ -762,19 +762,19 @@ public class DataLoaderServiceTest
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
-    assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
+    assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelA2 );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelB1 );
-    assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelB2 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelB1 );
+    assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelB2 );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA3 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA3 );
 
     ss.createSubscription( channelA1, null, true );
     ss.createSubscription( channelA2, null, true );
@@ -782,15 +782,15 @@ public class DataLoaderServiceTest
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
-    assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
+    assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelA2 );
 
     ss.createSubscription( channelB1, null, true );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelB1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelB1 );
 
     assertEquals( service.progressAreaOfInterestActions(), false );
     completeOutstandingAOIs( service );
@@ -821,12 +821,12 @@ public class DataLoaderServiceTest
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
 
     completeOutstandingAOIs( service );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA2 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA2 );
 
     completeOutstandingAOIs( service );
 
@@ -835,9 +835,9 @@ public class DataLoaderServiceTest
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
+    assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getFilterParameter(), "FilterB" );
-    assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
+    assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelA2 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getFilterParameter(), "FilterB" );
   }
 

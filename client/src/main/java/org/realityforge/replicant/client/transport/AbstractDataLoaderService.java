@@ -404,7 +404,7 @@ public abstract class AbstractDataLoaderService
 
   private String label( AreaOfInterestEntry entry )
   {
-    final ChannelAddress descriptor = entry.getDescriptor();
+    final ChannelAddress descriptor = entry.getAddress();
     final Object filterParameter = entry.getFilterParameter();
     return getKey() + ":" + descriptor +
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
@@ -419,14 +419,14 @@ public abstract class AbstractDataLoaderService
     final Object filterParameter = entries.get( 0 ).getFilterParameter();
     return getKey() +
            ":" +
-           entries.stream().map( e -> e.getDescriptor().toString() ).collect( Collectors.joining( "/" ) ) +
+           entries.stream().map( e -> e.getAddress().toString() ).collect( Collectors.joining( "/" ) ) +
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
 
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
+      final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
       if ( null == subscription )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -461,12 +461,12 @@ public abstract class AbstractDataLoaderService
     if ( _currentAoiActions.size() > 1 )
     {
       final List<ChannelAddress> ids =
-        _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
+        _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
       requestBulkUpdateSubscription( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
     else
     {
-      final ChannelAddress descriptor = aoiEntry.getDescriptor();
+      final ChannelAddress descriptor = aoiEntry.getAddress();
       requestUpdateSubscription( descriptor, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
     return true;
@@ -475,7 +475,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
+      final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
       if ( null == subscription )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -502,7 +502,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
+        final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -516,7 +516,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
+        final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -530,12 +530,12 @@ public abstract class AbstractDataLoaderService
     if ( _currentAoiActions.size() > 1 )
     {
       final List<ChannelAddress> ids =
-        _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
+        _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
       requestBulkUnsubscribeFromChannel( ids, completionAction, failAction );
     }
     else
     {
-      final ChannelAddress descriptor = aoiEntry.getDescriptor();
+      final ChannelAddress descriptor = aoiEntry.getAddress();
       requestUnsubscribeFromChannel( descriptor, completionAction, failAction );
     }
     return true;
@@ -544,7 +544,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIAddActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
+      final Subscription subscription = _subscriptionService.findSubscription( a.getAddress() );
       if ( null != subscription )
       {
         if ( subscription.isExplicitSubscription() )
@@ -614,7 +614,7 @@ public abstract class AbstractDataLoaderService
         cacheAction = null;
       }
       LOG.info( () -> "Subscription to " + label( aoiEntry ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
-      requestSubscribeToChannel( aoiEntry.getDescriptor(),
+      requestSubscribeToChannel( aoiEntry.getAddress(),
                                  aoiEntry.getFilterParameter(),
                                  cacheKey,
                                  eTag,
@@ -626,7 +626,7 @@ public abstract class AbstractDataLoaderService
     {
       // don't support bulk loading of anything that is already cached
       final List<ChannelAddress> ids =
-        _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
+        _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
       requestBulkSubscribeToChannel( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
     return true;
@@ -639,7 +639,7 @@ public abstract class AbstractDataLoaderService
     return null == _cacheService.lookup( template.getCacheKey() ) &&
            null == _cacheService.lookup( match.getCacheKey() ) &&
            template.getAction().equals( action ) &&
-           template.getDescriptor().getChannelType().equals( match.getDescriptor().getChannelType() ) &&
+           template.getAddress().getChannelType().equals( match.getAddress().getChannelType() ) &&
            ( AreaOfInterestAction.REMOVE == action ||
              FilterUtil.filtersEqual( match.getFilterParameter(), template.getFilterParameter() ) );
   }
@@ -900,7 +900,7 @@ public abstract class AbstractDataLoaderService
         {
           _currentAction.recordChannelSubscribe( new ChannelChangeStatus( address, filter ) );
           boolean explicitSubscribe = false;
-          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getDescriptor().equals( address ) ) )
+          if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
           {
             if ( LOG.isLoggable( getLogLevel() ) )
             {
