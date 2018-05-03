@@ -52,6 +52,7 @@ public final class ReplicantTestUtil
       checkApiInvariants();
     }
     disableZones();
+    ReplicantContextHolder.reset();
     ReplicantZoneHolder.reset();
   }
 

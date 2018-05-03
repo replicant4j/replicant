@@ -6,16 +6,15 @@ import arez.annotations.Observable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import jsinterop.base.JsPropertyMap;
 import react4j.annotations.Prop;
 import react4j.arez.ReactArezComponent;
 import react4j.core.ReactNode;
 import replicant.AreaOfInterest;
-import replicant.AreaOfInterestService;
 import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.FilterUtil;
+import replicant.Replicant;
 import replicant.Subscription;
 
 /**
@@ -51,9 +50,6 @@ public abstract class ReplicantSubscription<T>
     @Nullable
     ReactNode render( @Nonnull Subscription entry, @Nonnull Throwable error );
   }
-
-  @Inject
-  AreaOfInterestService _areaOfInterestService;
 
   @Nonnull
   protected abstract Enum getChannelType();
@@ -188,7 +184,7 @@ public abstract class ReplicantSubscription<T>
   private void updateAreaOfInterest()
   {
     final AreaOfInterest newAreaOfInterest =
-      _areaOfInterestService.findOrCreateAreaOfInterest( new ChannelAddress( getChannelType(), getId() ), getFilter() );
+      Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( getChannelType(), getId() ), getFilter() );
     if ( getAreaOfInterest() != newAreaOfInterest )
     {
       clearAreaOfInterest();

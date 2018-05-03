@@ -6,7 +6,6 @@ import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
 import replicant.AbstractReplicantTest;
-import replicant.AreaOfInterestService;
 import replicant.EntityService;
 import replicant.SubscriptionService;
 import static org.mockito.Mockito.*;
@@ -34,8 +33,7 @@ public class ReplicantConnectionTest
       super( mock( ContextConverger.class ),
              mock( EntityService.class ),
              SubscriptionService.create(),
-             mock( ReplicantClientSystem.class ),
-             AreaOfInterestService.create() );
+             mock( ReplicantClientSystem.class ) );
     }
 
     @Override

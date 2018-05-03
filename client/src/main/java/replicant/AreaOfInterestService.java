@@ -18,7 +18,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 @ArezComponent
-public abstract class AreaOfInterestService
+abstract class AreaOfInterestService
   extends AbstractContainer<ChannelAddress, AreaOfInterest>
 {
   /**
@@ -27,7 +27,7 @@ public abstract class AreaOfInterestService
    * @return an instance of the AreaOfInterestService.
    */
   @Nonnull
-  public static AreaOfInterestService create()
+  static AreaOfInterestService create()
   {
     return new Arez_AreaOfInterestService();
   }
@@ -38,7 +38,7 @@ public abstract class AreaOfInterestService
    * @return the collection of AreaOfInterest that have been declared.
    */
   @Nonnull
-  public List<AreaOfInterest> getAreasOfInterest()
+  List<AreaOfInterest> getAreasOfInterest()
   {
     return RepositoryUtil.asList( entities() );
   }
@@ -50,7 +50,7 @@ public abstract class AreaOfInterestService
    * @return the AreaOfInterest that matches if any.
    */
   @Nullable
-  public AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
+  AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
   {
     return super.findByArezId( address );
   }
@@ -64,8 +64,7 @@ public abstract class AreaOfInterestService
    * @return the AreaOfInterest.
    */
   @Nonnull
-  public AreaOfInterest findOrCreateAreaOfInterest( @Nonnull final ChannelAddress address,
-                                                    @Nullable final Object filter )
+  AreaOfInterest findOrCreateAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     final AreaOfInterest areaOfInterest = findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )

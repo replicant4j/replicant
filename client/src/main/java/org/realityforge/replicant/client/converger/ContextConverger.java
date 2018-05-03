@@ -16,9 +16,9 @@ import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import replicant.AreaOfInterest;
-import replicant.AreaOfInterestService;
 import replicant.ChannelAddress;
 import replicant.FilterUtil;
+import replicant.Replicant;
 import replicant.Subscription;
 import replicant.SubscriptionService;
 
@@ -33,8 +33,6 @@ public abstract class ContextConverger
   @Nonnull
   private final SubscriptionService _subscriptionService;
   @Nonnull
-  private final AreaOfInterestService _areaOfInterestService;
-  @Nonnull
   private final ReplicantClientSystem _replicantClientSystem;
   private boolean _convergeComplete;
   private boolean _paused;
@@ -44,11 +42,9 @@ public abstract class ContextConverger
   private Runnable _convergeCompleteAction;
 
   public ContextConverger( @Nonnull final SubscriptionService subscriptionService,
-                           @Nonnull final AreaOfInterestService areaOfInterestService,
                            @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
     _subscriptionService = Objects.requireNonNull( subscriptionService );
-    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     addListeners();
   }
@@ -150,7 +146,7 @@ public abstract class ContextConverger
       AreaOfInterestAction groupAction = null;
       // Need to duplicate the list of AreasOfInterest. If an error occurs while processing AreaOfInterest
       // and the AreaOfInterest is removed, it will result in concurrent exception
-      for ( final AreaOfInterest areaOfInterest : new ArrayList<>( _areaOfInterestService.getAreasOfInterest() ) )
+      for ( final AreaOfInterest areaOfInterest : new ArrayList<>( Replicant.context().getAreasOfInterest() ) )
       {
         expectedChannels.add( areaOfInterest.getAddress() );
         final ConvergeAction convergeAction =
@@ -390,7 +386,7 @@ public abstract class ContextConverger
                                            @Nonnull final Throwable error )
   {
     LOG.info( "Removing failed subscription " + address );
-    final AreaOfInterest areaOfInterest = _areaOfInterestService.findAreaOfInterestByAddress( address );
+    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
       Disposable.dispose( areaOfInterest );
@@ -405,7 +401,7 @@ public abstract class ContextConverger
                                          @Nullable final Throwable throwable )
   {
     LOG.info( "Update AreaOfInterest " + address + " to status " + status );
-    final AreaOfInterest areaOfInterest = _areaOfInterestService.findAreaOfInterestByAddress( address );
+    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );

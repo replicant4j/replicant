@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client.test;
 
 import org.realityforge.guiceyloops.shared.AbstractModule;
-import replicant.AreaOfInterestService;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.EntityService;
@@ -18,7 +17,6 @@ public class ReplicantClientTestModule
     bindEntitySubscriptionManager();
     bindContextConverger();
     bindReplicantClientSystem();
-    bindAreaOfInterestService();
   }
 
   protected void bindEntitySubscriptionManager()
@@ -34,10 +32,5 @@ public class ReplicantClientTestModule
   protected void bindReplicantClientSystem()
   {
     bindMock( ReplicantClientSystem.class );
-  }
-
-  protected void bindAreaOfInterestService()
-  {
-    bind( AreaOfInterestService.class ).toInstance( AreaOfInterestService.create() );
   }
 }

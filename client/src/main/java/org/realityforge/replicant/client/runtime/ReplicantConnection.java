@@ -12,12 +12,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import replicant.AreaOfInterest;
-import replicant.AreaOfInterestService;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.EntityService;
 import replicant.FilterUtil;
+import replicant.Replicant;
+import replicant.ReplicantContext;
 import replicant.SubscriptionService;
 
 @Singleton
@@ -26,17 +27,14 @@ public class ReplicantConnection
   private final EntityService _subscriptionManager;
   private final SubscriptionService _subscriptionService;
   private final ReplicantClientSystem _replicantClientSystem;
-  private final AreaOfInterestService _areaOfInterestService;
   private final ContextConverger _converger;
 
   @Inject
   ReplicantConnection( @Nonnull final ContextConverger converger,
                        @Nonnull final EntityService subscriptionManager,
                        @Nonnull final SubscriptionService subscriptionService,
-                       @Nonnull final ReplicantClientSystem replicantClientSystem,
-                       @Nonnull final AreaOfInterestService areaOfInterestService )
+                       @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _subscriptionManager = Objects.requireNonNull( subscriptionManager );
     _subscriptionService = Objects.requireNonNull( subscriptionService );
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
@@ -53,12 +51,6 @@ public class ReplicantConnection
   {
     _replicantClientSystem.activate();
     _converger.activate();
-  }
-
-  @Nonnull
-  public AreaOfInterestService getAreaOfInterestService()
-  {
-    return _areaOfInterestService;
   }
 
   @Nonnull
@@ -130,9 +122,9 @@ public class ReplicantConnection
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
-    final AreaOfInterestService service = getAreaOfInterestService();
+    final ReplicantContext context = Replicant.context();
     final Map<Object, Channel> existing =
-      service
+      context
         .getAreasOfInterest()
         .stream()
         .filter( s -> s.getAddress().getChannelType().equals( targetChannelType ) )
@@ -140,8 +132,7 @@ public class ReplicantConnection
         .map( AreaOfInterest::getChannel )
         .collect( Collectors.toMap( s -> s.getAddress().getId(), Function.identity() ) );
 
-    //noinspection ConstantConditions
-    service
+    context
       .getAreasOfInterest()
       .stream()
       .filter( s -> s.getAddress().getChannelType() == sourceChannelType )
@@ -149,13 +140,13 @@ public class ReplicantConnection
       .flatMap( sourceIDToTargetIDs )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
-      .forEach( id -> service.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
+      .forEach( id -> context.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
 
     getSubscriptionService().getInstanceSubscriptionIds( sourceChannelType ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> service.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
+      forEach( id -> context.findOrCreateAreaOfInterest( asAddress( targetChannelType, id ), filter ) );
 
     existing.values().forEach( Disposable::dispose );
   }

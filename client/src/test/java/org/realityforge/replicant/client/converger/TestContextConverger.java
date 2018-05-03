@@ -2,17 +2,15 @@ package org.realityforge.replicant.client.converger;
 
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import replicant.AreaOfInterestService;
 import replicant.SubscriptionService;
 
 final class TestContextConverger
   extends ContextConverger
 {
   TestContextConverger( @Nonnull final SubscriptionService subscriptionService,
-                        @Nonnull final AreaOfInterestService areaOfInterestService,
                         @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    super( subscriptionService, areaOfInterestService, replicantClientSystem );
+    super( subscriptionService, replicantClientSystem );
   }
 
   @Override

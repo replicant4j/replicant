@@ -15,7 +15,6 @@ import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
-import replicant.AreaOfInterestService;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Subscription;
@@ -54,7 +53,7 @@ public class ContextConvergerTest
     when( system.getDataLoaders() ).thenReturn( dataLoaders );
 
     final ContextConverger c =
-      new TestContextConverger( SubscriptionService.create(), AreaOfInterestService.create(), system );
+      new TestContextConverger( SubscriptionService.create(), system );
 
     verify( dl1 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
     verify( dl2 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
@@ -77,7 +76,6 @@ public class ContextConvergerTest
   {
     final ContextConverger c =
       new TestContextConverger( SubscriptionService.create(),
-                                AreaOfInterestService.create(),
                                 mock( ReplicantClientSystem.class ) );
 
     // should do nothing ... particularly not crash
@@ -109,10 +107,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c =
-      new TestContextConverger( SubscriptionService.create(),
-                                AreaOfInterestService.create(),
-                                clientSystem );
+    final ContextConverger c = new TestContextConverger( SubscriptionService.create(), clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -134,10 +129,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c =
-      new TestContextConverger( SubscriptionService.create(),
-                                AreaOfInterestService.create(),
-                                clientSystem );
+    final ContextConverger c = new TestContextConverger( SubscriptionService.create(), clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -156,10 +148,7 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final ContextConverger c =
-      new TestContextConverger( SubscriptionService.create(),
-                                AreaOfInterestService.create(),
-                                clientSystem );
+    final ContextConverger c = new TestContextConverger( SubscriptionService.create(), clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -183,10 +172,7 @@ public class ContextConvergerTest
 
     final SubscriptionService subscriptionService = SubscriptionService.create();
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService,
-                                AreaOfInterestService.create(),
-                                clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -214,8 +200,7 @@ public class ContextConvergerTest
     expected.add( address );
 
     final SubscriptionService subscriptionService = SubscriptionService.create();
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, AreaOfInterestService.create(), clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     final Subscription subscription = subscriptionService.createSubscription( address, null, true );
     c.removeSubscriptionIfOrphan( expected, subscription );
@@ -231,10 +216,7 @@ public class ContextConvergerTest
 
     final SubscriptionService subscriptionService = SubscriptionService.create();
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService,
-                                AreaOfInterestService.create(),
-                                clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     final HashSet<ChannelAddress> expected = new HashSet<>();
 
@@ -261,10 +243,7 @@ public class ContextConvergerTest
 
     final SubscriptionService subscriptionService = SubscriptionService.create();
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService,
-                                AreaOfInterestService.create(),
-                                clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
       thenReturn( service );
@@ -284,7 +263,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -293,8 +271,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -317,7 +294,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_subscribedButRemovePending()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -326,8 +302,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -352,7 +327,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_subscribed()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -361,8 +335,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -389,7 +362,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_addPending()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -398,8 +370,7 @@ public class ContextConvergerTest
     final Channel channel = Channel.create( address, null );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -422,7 +393,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_updatePending()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -432,8 +402,7 @@ public class ContextConvergerTest
     channel.setFilter( "Filter1" );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -460,7 +429,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_requestSubscriptionUpdate()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -470,8 +438,7 @@ public class ContextConvergerTest
     channel.setFilter( "Filter1" );
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -500,12 +467,10 @@ public class ContextConvergerTest
   @Test
   public void canGroup()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final Channel channel = Channel.create( address, null );
@@ -556,7 +521,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_inactiveSubscription()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -566,8 +530,7 @@ public class ContextConvergerTest
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
     Disposable.dispose( areaOfInterest );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -584,7 +547,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_groupWithAdd()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -601,8 +563,7 @@ public class ContextConvergerTest
     final Channel channel3 = Channel.create( address3, null );
     final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -645,7 +606,6 @@ public class ContextConvergerTest
   @Test
   public void convergeSubscription_groupWithUpdate()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service = mock( DataLoaderService.class );
     final SubscriptionService subscriptionService = SubscriptionService.create();
@@ -662,8 +622,7 @@ public class ContextConvergerTest
     final Channel channel3 = Channel.create( address3, null );
     final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
       thenReturn( service );
@@ -718,7 +677,6 @@ public class ContextConvergerTest
   @Test
   public void isIdle()
   {
-    final AreaOfInterestService areaOfInterestService = AreaOfInterestService.create();
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
     final DataLoaderService service1 = mock( DataLoaderService.class );
     final DataLoaderService service2 = mock( DataLoaderService.class );
@@ -734,8 +692,7 @@ public class ContextConvergerTest
 
     when( clientSystem.getDataLoaders() ).thenReturn( dataLoaders );
 
-    final ContextConverger c =
-      new TestContextConverger( subscriptionService, areaOfInterestService, clientSystem );
+    final ContextConverger c = new TestContextConverger( subscriptionService, clientSystem );
 
     when( service1.isIdle() ).thenReturn( true );
     when( service2.isIdle() ).thenReturn( true );

@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.converger.ContextConverger;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import replicant.AreaOfInterestService;
 import replicant.SubscriptionService;
 
 @Singleton
@@ -17,10 +16,9 @@ public abstract class GwtContextConverger
   private Timer _timer;
 
   GwtContextConverger( @Nonnull final SubscriptionService subscriptionService,
-                       @Nonnull final AreaOfInterestService areaOfInterestService,
                        @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    super( subscriptionService, areaOfInterestService, replicantClientSystem );
+    super( subscriptionService, replicantClientSystem );
   }
 
   @Override

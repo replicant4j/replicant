@@ -84,6 +84,17 @@ public final class Replicant
   }
 
   /**
+   * Return the ReplicantContext from the provider.
+   *
+   * @return the ReplicantContext.
+   */
+  @Nonnull
+  public static ReplicantContext context()
+  {
+    return areZonesEnabled() ? ReplicantZoneHolder.context() : ReplicantContextHolder.context();
+  }
+
+  /**
    * Create a new zone.
    * This zone is not yet activated.
    *
