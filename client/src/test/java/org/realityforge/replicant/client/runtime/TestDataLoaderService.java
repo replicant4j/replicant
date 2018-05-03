@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.runtime;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
-import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderListener;
 import org.realityforge.replicant.client.transport.DataLoaderListenerSupport;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -114,27 +113,28 @@ final class TestDataLoaderService
     return true;
   }
 
-  @Nullable
-  @Override
-  public ClientSession getSession()
-  {
-    return null;
-  }
-
-  @SuppressWarnings( "ConstantConditions" )
-  @Nonnull
-  @Override
-  public ClientSession ensureSession()
-  {
-    return null;
-  }
-
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
                                                 @Nonnull final ChannelAddress descriptor,
                                                 @Nullable final Object filter )
   {
     return false;
+  }
+
+  @Override
+  public void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
+  {
+  }
+
+  @Override
+  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
+                                         @Nullable final Object filterParameter )
+  {
+  }
+
+  @Override
+  public void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
+  {
   }
 
   @Override

@@ -30,19 +30,6 @@ public interface DataLoaderService
   State getState();
 
   /**
-   * Return a session if present.
-   * The session is present if the service is in CONNECTED state or is transitioning states.
-   */
-  @Nullable
-  ClientSession getSession();
-
-  /**
-   * Return a session and raise an exception if no session is present.
-   */
-  @Nonnull
-  ClientSession ensureSession();
-
-  /**
    * Connect to the underlying data source.
    * When connection is complete then execute passed runnable.
    */
@@ -104,19 +91,9 @@ public interface DataLoaderService
                                           @Nonnull ChannelAddress descriptor,
                                           @Nullable Object filter );
 
-  default void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
-  {
-    ensureSession().requestSubscribe( descriptor, filterParameter );
-  }
+  void requestSubscribe( @Nonnull ChannelAddress descriptor, @Nullable Object filterParameter );
 
-  default void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
-                                          @Nullable final Object filterParameter )
-  {
-    ensureSession().requestSubscriptionUpdate( descriptor, filterParameter );
-  }
+  void requestSubscriptionUpdate( @Nonnull ChannelAddress descriptor, @Nullable Object filterParameter );
 
-  default void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
-  {
-    ensureSession().requestUnsubscribe( descriptor );
-  }
+  void requestUnsubscribe( @Nonnull ChannelAddress descriptor );
 }

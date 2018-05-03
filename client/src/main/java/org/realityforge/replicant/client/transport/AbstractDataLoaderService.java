@@ -67,6 +67,25 @@ public abstract class AbstractDataLoaderService
     _cacheService = Objects.requireNonNull( cacheService );
   }
 
+  @Override
+  public final void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
+  {
+    ensureSession().requestSubscribe( descriptor, filterParameter );
+  }
+
+  @Override
+  public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
+                                               @Nullable final Object filterParameter )
+  {
+    ensureSession().requestSubscriptionUpdate( descriptor, filterParameter );
+  }
+
+  @Override
+  public final void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
+  {
+    ensureSession().requestUnsubscribe( descriptor );
+  }
+
   @Nonnull
   @Override
   public String getKey()
@@ -158,21 +177,14 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nullable
-  @Override
-  public ClientSession getSession()
+  protected final ClientSession getSession()
   {
     return _session;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
-  public abstract ClientSession ensureSession();
+  protected abstract ClientSession ensureSession();
 
   /**
    * Return the id of the session associated with the service.
