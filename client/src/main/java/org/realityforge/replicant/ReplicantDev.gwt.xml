@@ -1,5 +1,5 @@
 <module>
-  <inherits name="org.realityforge.replicant.Replicant"/>
+  <inherits name='org.realityforge.replicant.Replicant'/>
 
   <source path='ignored'/>
 
