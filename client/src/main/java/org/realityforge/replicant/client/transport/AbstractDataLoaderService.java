@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckConfig;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.Linkable;
@@ -43,6 +45,10 @@ public abstract class AbstractDataLoaderService
 
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
+
+  private final SubscriptionService _subscriptionService;
+  private final EntityService _entityService;
+  private final CacheService _cacheService;
 
   private DataLoadAction _currentAction;
   private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
@@ -79,6 +85,15 @@ public abstract class AbstractDataLoaderService
    */
   private Throwable _lastError;
   private Date _lastErrorAt;
+
+  protected AbstractDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
+                                       @Nonnull final EntityService entityService,
+                                       @Nonnull final CacheService cacheService )
+  {
+    _subscriptionService = Objects.requireNonNull( subscriptionService );
+    _entityService = Objects.requireNonNull( entityService );
+    _cacheService = Objects.requireNonNull( cacheService );
+  }
 
   @Nonnull
   @Override
@@ -196,16 +211,7 @@ public abstract class AbstractDataLoaderService
   protected abstract SessionContext getSessionContext();
 
   @Nonnull
-  protected abstract CacheService getCacheService();
-
-  @Nonnull
   protected abstract ChangeMapper getChangeMapper();
-
-  @Nonnull
-  protected abstract EntityService getSubscriptionManager();
-
-  @Nonnull
-  protected abstract SubscriptionService getSubscriptionService();
 
   protected boolean shouldPurgeOnSessionChange()
   {
@@ -276,8 +282,8 @@ public abstract class AbstractDataLoaderService
 
   protected void purgeSubscriptions()
   {
-    final SubscriptionService ss = getSubscriptionService();
-    Stream.concat( ss.getTypeSubscriptions().stream(), ss.getInstanceSubscriptions().stream() )
+    Stream.concat( _subscriptionService.getTypeSubscriptions().stream(),
+                   _subscriptionService.getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
       .filter( s -> s.getChannel().getAddress().getSystem().equals( getSystemType() ) )
       // Purge in reverse order. First instance subscriptions then type subscriptions
@@ -420,7 +426,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIUpdateActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+      final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
       if ( null == subscription )
       {
         LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -469,7 +475,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIRemoveActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+      final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
       if ( null == subscription )
       {
         LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -496,7 +502,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+        final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -510,7 +516,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       _currentAoiActions.forEach( a -> {
-        final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+        final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -538,7 +544,7 @@ public abstract class AbstractDataLoaderService
   private boolean progressBulkAOIAddActions()
   {
     _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = getSubscriptionService().findSubscription( a.getDescriptor() );
+      final Subscription subscription = _subscriptionService.findSubscription( a.getDescriptor() );
       if ( null != subscription )
       {
         if ( subscription.isExplicitSubscription() )
@@ -579,7 +585,7 @@ public abstract class AbstractDataLoaderService
     if ( _currentAoiActions.size() == 1 )
     {
       final String cacheKey = aoiEntry.getCacheKey();
-      final CacheEntry cacheEntry = getCacheService().lookup( cacheKey );
+      final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
       final String eTag;
       final Consumer<Runnable> cacheAction;
       if ( null != cacheEntry )
@@ -630,8 +636,8 @@ public abstract class AbstractDataLoaderService
                                              final AreaOfInterestEntry match )
   {
     final AreaOfInterestAction action = match.getAction();
-    return null == getCacheService().lookup( template.getCacheKey() ) &&
-           null == getCacheService().lookup( match.getCacheKey() ) &&
+    return null == _cacheService.lookup( template.getCacheKey() ) &&
+           null == _cacheService.lookup( match.getCacheKey() ) &&
            template.getAction().equals( action ) &&
            template.getDescriptor().getChannelType().equals( match.getDescriptor().getChannelType() ) &&
            ( AreaOfInterestAction.REMOVE == action ||
@@ -686,7 +692,7 @@ public abstract class AbstractDataLoaderService
   @Override
   public boolean isSubscribed( @Nonnull final ChannelAddress address )
   {
-    return null != getSubscriptionService().findSubscription( address );
+    return null != _subscriptionService.findSubscription( address );
   }
 
   @Override
@@ -853,7 +859,7 @@ public abstract class AbstractDataLoaderService
             {
               LOG.log( getLogLevel(), "Caching ChangeSet: seq=" + sequence + " cacheKey=" + cacheKey );
             }
-            getCacheService().store( cacheKey, eTag, rawJsonData );
+            _cacheService.store( cacheKey, eTag, rawJsonData );
           }
           else
           {
@@ -902,18 +908,18 @@ public abstract class AbstractDataLoaderService
             }
             explicitSubscribe = true;
           }
-          getSubscriptionService().createSubscription( address, filter, explicitSubscribe );
+          _subscriptionService.createSubscription( address, filter, explicitSubscribe );
         }
         else if ( ChannelAction.Action.REMOVE == actionType )
         {
-          final Subscription subscription = getSubscriptionService().findSubscription( address );
+          final Subscription subscription = _subscriptionService.findSubscription( address );
           assert null != subscription;
           Disposable.dispose( subscription );
           _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( address, filter ) );
         }
         else if ( ChannelAction.Action.UPDATE == actionType )
         {
-          final Subscription subscription = getSubscriptionService().findSubscription( address );
+          final Subscription subscription = _subscriptionService.findSubscription( address );
           assert null != subscription;
           subscription.getChannel().setFilter( filter );
           updateSubscriptionForFilteredEntities( subscription, filter );
@@ -1014,8 +1020,8 @@ public abstract class AbstractDataLoaderService
       }
       if ( config().subscriptionsDebugOutputEnabled() )
       {
-        getSubscriptionService().getTypeSubscriptions().forEach( this::outputSubscription );
-        getSubscriptionService().getInstanceSubscriptions().forEach( this::outputSubscription );
+        _subscriptionService.getTypeSubscriptions().forEach( this::outputSubscription );
+        _subscriptionService.getInstanceSubscriptions().forEach( this::outputSubscription );
       }
       if ( BrainCheckConfig.checkInvariants() && config().shouldValidateRepositoryOnLoad() )
       {
@@ -1117,10 +1123,10 @@ public abstract class AbstractDataLoaderService
   {
     if ( !entities.isEmpty() )
     {
-      final ChannelAddress address = subscription.getChannel().getAddress();
+      final Channel channel = subscription.getChannel();
       for ( final Entity entity : new ArrayList<>( entities ) )
       {
-        if ( !doesEntityMatchFilter( address, filter, entity.getType(), entity.getId() ) )
+        if ( !doesEntityMatchFilter( channel, entity ) )
         {
           entity.delinkFromSubscription( subscription );
         }
@@ -1128,10 +1134,7 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelAddress descriptor,
-                                                    @Nullable Object filter,
-                                                    @Nonnull Class<?> entityType,
-                                                    @Nonnull Object entityID );
+  protected abstract boolean doesEntityMatchFilter( @Nonnull Channel channel, @Nonnull Entity entity );
 
   @Override
   public void connect()
@@ -1272,7 +1275,7 @@ public abstract class AbstractDataLoaderService
     {
       for ( final Class<?> entityType : getEntityTypes() )
       {
-        for ( final Object entity : getSubscriptionManager().findAllEntitiesByType( entityType ) )
+        for ( final Object entity : _entityService.findAllEntitiesByType( entityType ) )
         {
           invariant( () -> !Disposable.isDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );

@@ -58,9 +58,9 @@ public class DataLoaderServiceTest
   public void purgeSubscriptions()
     throws Exception
   {
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    final EntityService sm = service.getSubscriptionManager();
+    final EntityService sm = service.getEntityService();
 
     final MyType myTypeA = new MyType();
     final MyType myTypeB = new MyType();
@@ -538,7 +538,7 @@ public class DataLoaderServiceTest
   public void isAreaOfInterestActionPending()
     throws Exception
   {
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     assertNotNull( service.getSession() );
 
@@ -664,7 +664,7 @@ public class DataLoaderServiceTest
     final ChannelAddress channel1 = new ChannelAddress( TestSystem.A, 1 );
     final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 1 );
 
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     assertNotNull( service.getSession() );
 
@@ -700,7 +700,7 @@ public class DataLoaderServiceTest
     final ChannelAddress channel2 = new ChannelAddress( TestSystem.A, 2 );
     final ChannelAddress channel3 = new ChannelAddress( TestSystem.A, 3 );
 
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     assertNotNull( service.getSession() );
 
@@ -741,7 +741,7 @@ public class DataLoaderServiceTest
     final ChannelAddress channelB1 = new ChannelAddress( TestSystem.B, 1 );
     final ChannelAddress channelB2 = new ChannelAddress( TestSystem.B, 2 );
 
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     final SubscriptionService ss = service.getSubscriptionService();
     assertNotNull( service.getSession() );
@@ -804,7 +804,7 @@ public class DataLoaderServiceTest
     final ChannelAddress channelA1 = new ChannelAddress( TestSystem.A, 1 );
     final ChannelAddress channelA2 = new ChannelAddress( TestSystem.A, 2 );
 
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     final SubscriptionService ss = service.getSubscriptionService();
     assertNotNull( service.getSession() );
@@ -849,7 +849,7 @@ public class DataLoaderServiceTest
     final ChannelAddress channelA2 = new ChannelAddress( TestSystem.A, 2 );
     final ChannelAddress channelA3 = new ChannelAddress( TestSystem.A, 3 );
 
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     assertNotNull( service.getSession() );
 
@@ -1012,7 +1012,7 @@ public class DataLoaderServiceTest
   private TestDataLoadService newService( final TestChangeSet changeSet )
     throws Exception
   {
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     service.setValidateOnLoad( true );
     service.setChangeSets( changeSet );
@@ -1022,7 +1022,7 @@ public class DataLoaderServiceTest
   private TestDataLoadService newService( final TestChangeSet[] changeSets, final boolean validateOnLoad )
     throws Exception
   {
-    final TestDataLoadService service = new TestDataLoadService();
+    final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
     service.setValidateOnLoad( validateOnLoad );
     service.setChangeSets( changeSets );

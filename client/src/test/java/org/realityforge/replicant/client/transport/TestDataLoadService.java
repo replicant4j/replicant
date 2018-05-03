@@ -8,34 +8,61 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.Channel;
 import org.realityforge.replicant.client.ChannelAddress;
+import org.realityforge.replicant.client.subscription.Entity;
 import org.realityforge.replicant.client.subscription.EntityService;
 import org.realityforge.replicant.client.subscription.Subscription;
 import org.realityforge.replicant.client.subscription.SubscriptionService;
 import static org.mockito.Mockito.*;
 
-public final class TestDataLoadService
+final class TestDataLoadService
   extends AbstractDataLoaderService
 {
+  private final SubscriptionService _subscriptionService;
+  private final EntityService _entityService;
+  private final CacheService _cacheService;
   private boolean _validateOnLoad;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
   private DataLoadStatus _status;
-  private final CacheService _cacheService;
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
-  private final EntityService _subscriptionManager;
-  private final SubscriptionService _subscriptionService;
   private int _validateRepositoryCallCount;
 
-  TestDataLoadService()
+  static TestDataLoadService create()
   {
+    return new TestDataLoadService( SubscriptionService.create(), EntityService.create(), mock( CacheService.class ) );
+  }
+
+  private TestDataLoadService( @Nonnull final SubscriptionService subscriptionService,
+                               @Nonnull final EntityService entityService,
+                               @Nonnull final CacheService cacheService )
+  {
+    super( subscriptionService, entityService, cacheService );
     _sessionContext = new SessionContext( "X" );
-    _cacheService = mock( CacheService.class );
     _changeMapper = mock( ChangeMapper.class );
-    _subscriptionManager = EntityService.create();
-    _subscriptionService = SubscriptionService.create();
+    _subscriptionService = subscriptionService;
+    _entityService = entityService;
+    _cacheService = cacheService;
+  }
+
+  @Nonnull
+  SubscriptionService getSubscriptionService()
+  {
+    return _subscriptionService;
+  }
+
+  @Nonnull
+  EntityService getEntityService()
+  {
+    return _entityService;
+  }
+
+  CacheService getCacheService()
+  {
+    return _cacheService;
   }
 
   @Nonnull
@@ -50,27 +77,6 @@ public final class TestDataLoadService
   protected SessionContext getSessionContext()
   {
     return _sessionContext;
-  }
-
-  @Nonnull
-  @Override
-  protected CacheService getCacheService()
-  {
-    return _cacheService;
-  }
-
-  @Nonnull
-  @Override
-  protected EntityService getSubscriptionManager()
-  {
-    return _subscriptionManager;
-  }
-
-  @Nonnull
-  @Override
-  protected SubscriptionService getSubscriptionService()
-  {
-    return _subscriptionService;
   }
 
   @Nonnull
@@ -260,12 +266,9 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected boolean doesEntityMatchFilter( @Nonnull final ChannelAddress descriptor,
-                                           @Nullable final Object filter,
-                                           @Nonnull final Class<?> entityType,
-                                           @Nonnull final Object entityID )
+  protected boolean doesEntityMatchFilter( @Nonnull final Channel channel, @Nonnull final Entity entity )
   {
-    return String.valueOf( entityID ).startsWith( "X" );
+    return String.valueOf( entity.getId() ).startsWith( "X" );
   }
 
   @Nonnull

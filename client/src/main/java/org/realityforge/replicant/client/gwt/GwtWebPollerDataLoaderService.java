@@ -16,6 +16,7 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.subscription.EntityService;
+import org.realityforge.replicant.client.subscription.SubscriptionService;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
@@ -25,9 +26,6 @@ import org.realityforge.replicant.shared.transport.ReplicantContext;
 public abstract class GwtWebPollerDataLoaderService
   extends GwtDataLoaderService
 {
-  private final CacheService _cacheService;
-  private final EntityService _entityService;
-
   protected class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
   {
@@ -38,29 +36,14 @@ public abstract class GwtWebPollerDataLoaderService
     }
   }
 
-  public GwtWebPollerDataLoaderService( @Nonnull final SessionContext sessionContext,
+  public GwtWebPollerDataLoaderService( @Nonnull final SubscriptionService subscriptionService,
                                         @Nonnull final EntityService entityService,
-                                        @Nonnull final CacheService cacheService )
+                                        @Nonnull final CacheService cacheService,
+                                        @Nonnull final SessionContext sessionContext )
   {
-    super( sessionContext );
-    _entityService = entityService;
-    _cacheService = cacheService;
+    super( subscriptionService, entityService, cacheService, sessionContext );
     createWebPoller();
     setupCloseHandler();
-  }
-
-  @Nonnull
-  @Override
-  protected EntityService getSubscriptionManager()
-  {
-    return _entityService;
-  }
-
-  @Nonnull
-  @Override
-  protected CacheService getCacheService()
-  {
-    return _cacheService;
   }
 
   @Nonnull
