@@ -10,7 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.converger.ContextConverger;
 import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;
@@ -23,14 +22,11 @@ import replicant.ReplicantContext;
 public class ReplicantConnection
 {
   private final ReplicantClientSystem _replicantClientSystem;
-  private final ContextConverger _converger;
 
   @Inject
-  ReplicantConnection( @Nonnull final ContextConverger converger,
-                       @Nonnull final ReplicantClientSystem replicantClientSystem )
+  ReplicantConnection( @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
-    _converger = Objects.requireNonNull( converger );
   }
 
   public void disconnect()
