@@ -443,16 +443,16 @@ public class ReplicantClientSystemTest
 
   private TestDataLoaderService newServiceA()
   {
-    return new TestDataLoaderService( "A", TestSystemA.class );
+    return new TestDataLoaderService( TestSystemA.class );
   }
 
   private TestDataLoaderService newServiceB()
   {
-    return new TestDataLoaderService( "B", TestSystemB.class );
+    return new TestDataLoaderService( TestSystemB.class );
   }
 
   private TestDataLoaderService newServiceC()
   {
-    return new TestDataLoaderService( "C", TestSystemC.class );
+    return new TestDataLoaderService( TestSystemC.class );
   }
 }

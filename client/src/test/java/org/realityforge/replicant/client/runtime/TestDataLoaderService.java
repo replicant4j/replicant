@@ -10,15 +10,13 @@ import replicant.ChannelAddress;
 final class TestDataLoaderService
   implements DataLoaderService
 {
-  private final String _key;
   private final Class<? extends Enum> _systemType;
   private State _state;
   private boolean _connectCalled;
   private boolean _disconnectCalled;
 
-  TestDataLoaderService( @Nonnull final String key, @Nonnull final Class<? extends Enum> systemType )
+  TestDataLoaderService( @Nonnull final Class<? extends Enum> systemType )
   {
-    _key = key;
     _systemType = systemType;
     _state = State.DISCONNECTED;
   }
