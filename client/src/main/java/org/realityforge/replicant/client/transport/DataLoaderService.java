@@ -58,12 +58,6 @@ public interface DataLoaderService
   void removeDataLoaderListener( @Nonnull DataLoaderListener listener );
 
   /**
-   * A symbolic key for describing system.
-   */
-  @Nonnull
-  String getKey();
-
-  /**
    * Return the class of channels that this loader processes.
    */
   @Nonnull

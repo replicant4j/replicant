@@ -86,9 +86,11 @@ public abstract class AbstractDataLoaderService
     ensureSession().requestUnsubscribe( address );
   }
 
+  /**
+   * A symbolic key for describing system.
+   */
   @Nonnull
-  @Override
-  public String getKey()
+  protected String getKey()
   {
     return getSessionContext().getKey();
   }
