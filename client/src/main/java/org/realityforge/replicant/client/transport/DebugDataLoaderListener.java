@@ -18,7 +18,7 @@ public class DebugDataLoaderListener
   @Override
   public void onDisconnect( @Nonnull final DataLoaderService service )
   {
-    LOG.warning( "onDisconnect(" + service.getKey() + ")" );
+    LOG.warning( "onDisconnect(" + service + ")" );
   }
 
   /**
@@ -27,7 +27,7 @@ public class DebugDataLoaderListener
   @Override
   public void onInvalidDisconnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onInvalidDisconnect(" + service.getKey() + "," + throwable + ")" );
+    LOG.warning( "onInvalidDisconnect(" + service + "," + throwable + ")" );
   }
 
   /**
@@ -36,7 +36,7 @@ public class DebugDataLoaderListener
   @Override
   public void onConnect( @Nonnull final DataLoaderService service )
   {
-    LOG.warning( "onConnect(" + service.getKey() + ")" );
+    LOG.warning( "onConnect(" + service + ")" );
   }
 
   /**
@@ -45,7 +45,7 @@ public class DebugDataLoaderListener
   @Override
   public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onInvalidConnect(" + service.getKey() + "," + throwable + ")" );
+    LOG.warning( "onInvalidConnect(" + service + "," + throwable + ")" );
   }
 
   /**
@@ -54,7 +54,7 @@ public class DebugDataLoaderListener
   @Override
   public void onDataLoadComplete( @Nonnull final DataLoaderService service, @Nonnull final DataLoadStatus status )
   {
-    LOG.warning( "onDataLoadComplete(" + service.getKey() + "," + status + ")" );
+    LOG.warning( "onDataLoadComplete(" + service + "," + status + ")" );
   }
 
   /**
@@ -63,7 +63,7 @@ public class DebugDataLoaderListener
   @Override
   public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onDataLoadFailure(" + service.getKey() + "," + throwable + ")" );
+    LOG.warning( "onDataLoadFailure(" + service + "," + throwable + ")" );
   }
 
   /**
@@ -72,7 +72,7 @@ public class DebugDataLoaderListener
   @Override
   public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onPollFailure(" + service.getKey() + "," + throwable + ")" );
+    LOG.warning( "onPollFailure(" + service + "," + throwable + ")" );
   }
 
   /**
@@ -82,7 +82,7 @@ public class DebugDataLoaderListener
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
                                   @Nonnull final ChannelAddress descriptor )
   {
-    LOG.warning( "onSubscribeStarted(" + service.getKey() + "," + descriptor + ")" );
+    LOG.warning( "onSubscribeStarted(" + service + "," + descriptor + ")" );
   }
 
   /**
@@ -92,7 +92,7 @@ public class DebugDataLoaderListener
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
                                     @Nonnull final ChannelAddress descriptor )
   {
-    LOG.warning( "onSubscribeCompleted(" + service.getKey() + "," + descriptor + ")" );
+    LOG.warning( "onSubscribeCompleted(" + service + "," + descriptor + ")" );
   }
 
   /**
@@ -103,7 +103,7 @@ public class DebugDataLoaderListener
                                  @Nonnull final ChannelAddress descriptor,
                                  @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onSubscribeFailed(" + service.getKey() + "," + descriptor + "," + throwable + ")" );
+    LOG.warning( "onSubscribeFailed(" + service + "," + descriptor + "," + throwable + ")" );
   }
 
   /**
@@ -113,7 +113,7 @@ public class DebugDataLoaderListener
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
                                     @Nonnull final ChannelAddress descriptor )
   {
-    LOG.warning( "onUnsubscribeStarted(" + service.getKey() + "," + descriptor + ")" );
+    LOG.warning( "onUnsubscribeStarted(" + service + "," + descriptor + ")" );
   }
 
   /**
@@ -123,7 +123,7 @@ public class DebugDataLoaderListener
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
                                       @Nonnull final ChannelAddress descriptor )
   {
-    LOG.warning( "onUnsubscribeCompleted(" + service.getKey() + "," + descriptor + ")" );
+    LOG.warning( "onUnsubscribeCompleted(" + service + "," + descriptor + ")" );
   }
 
   /**
@@ -134,7 +134,7 @@ public class DebugDataLoaderListener
                                    @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onUnsubscribeFailed(" + service.getKey() + "," + descriptor + "," + throwable + ")" );
+    LOG.warning( "onUnsubscribeFailed(" + service + "," + descriptor + "," + throwable + ")" );
   }
 
   /**
@@ -144,7 +144,7 @@ public class DebugDataLoaderListener
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
                                            @Nonnull final ChannelAddress descriptor )
   {
-    LOG.warning( "onSubscriptionUpdateStarted(" + service.getKey() + "," + descriptor + ")" );
+    LOG.warning( "onSubscriptionUpdateStarted(" + service + "," + descriptor + ")" );
   }
 
   /**
@@ -154,7 +154,7 @@ public class DebugDataLoaderListener
   public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
                                              @Nonnull final ChannelAddress descriptor )
   {
-    LOG.warning( "onSubscriptionUpdateCompleted(" + service.getKey() + "," + descriptor + ")" );
+    LOG.warning( "onSubscriptionUpdateCompleted(" + service + "," + descriptor + ")" );
   }
 
   /**
@@ -165,6 +165,6 @@ public class DebugDataLoaderListener
                                           @Nonnull final ChannelAddress descriptor,
                                           @Nonnull final Throwable throwable )
   {
-    LOG.warning( "onSubscriptionUpdateFailed(" + service.getKey() + "," + descriptor + "," + throwable + ")" );
+    LOG.warning( "onSubscriptionUpdateFailed(" + service + "," + descriptor + "," + throwable + ")" );
   }
 }

@@ -1226,6 +1226,12 @@ public abstract class AbstractDataLoaderService
     return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]." + name : null;
   }
 
+  @Override
+  public String toString()
+  {
+    return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]" : super.toString();
+  }
+
   @Nonnull
   protected ArezContext context()
   {

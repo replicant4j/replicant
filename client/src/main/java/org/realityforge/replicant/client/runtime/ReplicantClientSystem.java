@@ -159,7 +159,7 @@ public abstract class ReplicantClientSystem
 
   private void doConnectDataLoaderService( @Nonnull final DataLoaderService service )
   {
-    LOG.info( "Connecting replicant data source " + service.getKey() + ". Initial state: " + service.getState() );
+    LOG.info( "Connecting " + service + ". Initial state: " + service.getState() );
     service.connect();
   }
 
@@ -186,8 +186,7 @@ public abstract class ReplicantClientSystem
 
   private void doDisconnectDataLoaderService( final DataLoaderService service )
   {
-    final String message =
-      "Disconnecting replicant data source " + service.getKey() + ". Initial state: " + service.getState();
+    final String message = "Disconnecting " + service + ". Initial state: " + service.getState();
     LOG.info( message );
     service.disconnect();
   }
@@ -308,7 +307,7 @@ public abstract class ReplicantClientSystem
     public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
       LOG.log( Level.INFO,
-               "InvalidConnect: Error connecting data source " + service.getKey() + ": " + throwable.toString() );
+               "InvalidConnect: Error connecting " + service + ": " + throwable.toString() );
       updateStatus();
     }
 
@@ -316,7 +315,7 @@ public abstract class ReplicantClientSystem
     public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
       LOG.log( Level.INFO,
-               "DataLoadFailure: Attempting to disconnect data source " + service.getKey() + " and restart.",
+               "DataLoadFailure: Attempting to disconnect " + service + " and restart.",
                throwable );
       disconnectIfPossible( service );
       updateStatus();
@@ -326,7 +325,7 @@ public abstract class ReplicantClientSystem
     public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
       LOG.log( Level.INFO,
-               "PollFailure: Attempting to disconnect data source " + service.getKey() + " and restart.",
+               "PollFailure: Attempting to disconnect " + service + " and restart.",
                throwable );
       disconnectIfPossible( service );
       updateStatus();
