@@ -90,7 +90,11 @@ public abstract class ContextConverger
   void converge()
   {
     preConverge();
-    convergeStep();
+    removeOrphanSubscriptions();
+    if ( _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
+    {
+      convergeStep();
+    }
   }
 
   void preConverge()
@@ -102,47 +106,43 @@ public abstract class ContextConverger
     }
   }
 
-  protected void convergeStep()
+  private void convergeStep()
   {
-    removeOrphanSubscriptions();
-    if ( _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
+    AreaOfInterest groupTemplate = null;
+    AreaOfInterestAction groupAction = null;
+    for ( final AreaOfInterest areaOfInterest : Replicant.context().getAreasOfInterest() )
     {
-      AreaOfInterest groupTemplate = null;
-      AreaOfInterestAction groupAction = null;
-      for ( final AreaOfInterest areaOfInterest : Replicant.context().getAreasOfInterest() )
+      final ConvergeAction convergeAction =
+        convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
+      switch ( convergeAction )
       {
-        final ConvergeAction convergeAction =
-          convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
-        switch ( convergeAction )
-        {
-          case TERMINATE:
+        case TERMINATE:
+          return;
+        case SUBMITTED_ADD:
+          groupAction = AreaOfInterestAction.ADD;
+          groupTemplate = areaOfInterest;
+          break;
+        case SUBMITTED_UPDATE:
+          groupAction = AreaOfInterestAction.UPDATE;
+          groupTemplate = areaOfInterest;
+          break;
+        case IN_PROGRESS:
+          if ( null == groupTemplate )
+          {
+            // First thing in the subscription queue is in flight, so terminate
             return;
-          case SUBMITTED_ADD:
-            groupAction = AreaOfInterestAction.ADD;
-            groupTemplate = areaOfInterest;
-            break;
-          case SUBMITTED_UPDATE:
-            groupAction = AreaOfInterestAction.UPDATE;
-            groupTemplate = areaOfInterest;
-            break;
-          case IN_PROGRESS:
-            if ( null == groupTemplate )
-            {
-              // First thing in the subscription queue is in flight, so terminate
-              return;
-            }
-            break;
-          case NO_ACTION:
-            break;
-        }
+          }
+          break;
+        case NO_ACTION:
+          break;
       }
-      if ( null != groupTemplate )
-      {
-        return;
-      }
-
-      convergeComplete();
     }
+    if ( null != groupTemplate )
+    {
+      return;
+    }
+
+    convergeComplete();
   }
 
   final ConvergeAction convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
