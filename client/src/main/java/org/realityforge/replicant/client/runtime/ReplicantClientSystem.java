@@ -1,5 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
+import arez.annotations.Action;
+import arez.annotations.Observable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -68,9 +70,15 @@ public abstract class ReplicantClientSystem
   /**
    * Return the actual state of the system.
    */
+  @Observable
   public State getState()
   {
     return _state;
+  }
+
+  protected void setState( @Nonnull final State state )
+  {
+    _state = Objects.requireNonNull( state );
   }
 
   /**
@@ -188,7 +196,8 @@ public abstract class ReplicantClientSystem
     service.disconnect();
   }
 
-  void updateStatus()
+  @Action
+  protected void updateStatus()
   {
     // Are any required connecting?
     boolean connecting = false;
@@ -224,23 +233,23 @@ public abstract class ReplicantClientSystem
     }
     if ( error )
     {
-      _state = State.ERROR;
+      setState( State.ERROR );
     }
     else if ( disconnected )
     {
-      _state = State.DISCONNECTED;
+      setState( State.DISCONNECTED );
     }
     else if ( disconnecting )
     {
-      _state = State.DISCONNECTING;
+      setState( State.DISCONNECTING );
     }
     else if ( connecting )
     {
-      _state = State.CONNECTING;
+      setState( State.CONNECTING );
     }
     else
     {
-      _state = State.CONNECTED;
+      setState( State.CONNECTED );
     }
     reflectActiveState();
   }
