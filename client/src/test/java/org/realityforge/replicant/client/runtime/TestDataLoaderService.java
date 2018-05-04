@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListener;
-import org.realityforge.replicant.client.transport.DataLoaderListenerSupport;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import replicant.ChannelAddress;
 
@@ -16,7 +15,6 @@ final class TestDataLoaderService
   private State _state;
   private boolean _connectCalled;
   private boolean _disconnectCalled;
-  private final DataLoaderListenerSupport _listenerSupport = new DataLoaderListenerSupport();
 
   TestDataLoaderService( @Nonnull final String key, @Nonnull final Class<? extends Enum> systemType )
   {
@@ -71,20 +69,13 @@ final class TestDataLoaderService
   }
 
   @Override
-  public boolean addDataLoaderListener( @Nonnull final DataLoaderListener listener )
+  public void addDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    return _listenerSupport.addListener( listener );
   }
 
   @Override
-  public boolean removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
+  public void removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    return _listenerSupport.removeListener( listener );
-  }
-
-  DataLoaderListenerSupport getListener()
-  {
-    return _listenerSupport;
   }
 
   @Nonnull
