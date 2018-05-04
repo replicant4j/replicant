@@ -39,6 +39,7 @@ public final class ReplicantTestUtil
       noValidateRepositoryOnLoad();
       noRequestsDebugOutputEnabled();
       noSubscriptionsDebugOutputEnabled();
+      disableSpies();
       noCheckInvariants();
       noCheckApiInvariants();
     }
@@ -48,6 +49,7 @@ public final class ReplicantTestUtil
       validateRepositoryOnLoad();
       requestsDebugOutputEnabled();
       subscriptionsDebugOutputEnabled();
+      enableSpies();
       checkInvariants();
       checkApiInvariants();
     }
@@ -210,6 +212,32 @@ public final class ReplicantTestUtil
   private static void setCheckApiInvariants( final boolean checkApiInvariants )
   {
     setConstant( "CHECK_API_INVARIANTS", checkApiInvariants );
+  }
+
+  /**
+   * Set `replicant.enable_spies` setting to true.
+   */
+  public static void enableSpies()
+  {
+    setEnableSpies( true );
+  }
+
+  /**
+   * Set `replicant.enable_spies` setting to false.
+   */
+  public static void disableSpies()
+  {
+    setEnableSpies( false );
+  }
+
+  /**
+   * Configure the "replicant.enable_spies" setting.
+   *
+   * @param value the setting.
+   */
+  private static void setEnableSpies( final boolean value )
+  {
+    setConstant( "ENABLE_SPIES", value );
   }
 
   /**

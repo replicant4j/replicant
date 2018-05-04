@@ -3,5 +3,6 @@
 
   <source path='ignored'/>
 
+  <set-property name='replicant.enable_spies' value='true'/>
   <set-property name='replicant.check_invariants' value='true'/>
 </module>

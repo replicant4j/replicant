@@ -23,6 +23,9 @@
   <define-property name='replicant.requestsDebugOutputEnabled' values='true,false'/>
   <set-property name='replicant.requestsDebugOutputEnabled' value='false'/>
 
+  <define-property name='replicant.enable_spies' values='true,false'/>
+  <set-property name='replicant.enable_spies' value='false'/>
+
   <define-property name='replicant.enable_zones' values='true,false'/>
   <set-property name='replicant.enable_zones' value='false'/>
 </module>

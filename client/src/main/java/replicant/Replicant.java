@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Arez;
 import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
@@ -21,6 +22,19 @@ public final class Replicant
   public static boolean areZonesEnabled()
   {
     return ReplicantConfig.areZonesEnabled();
+  }
+
+  /**
+   * Return true if spies are enabled.
+   *
+   * @return true if spies are enabled, false otherwise.
+   */
+  public static boolean areSpiesEnabled()
+  {
+    /*
+     * Spy's use debug names so we can not enable spies without names.
+     */
+    return Arez.areNamesEnabled() && ReplicantConfig.areSpiesEnabled();
   }
 
   /**

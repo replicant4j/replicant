@@ -25,6 +25,8 @@ final class ReplicantConfig
   private static boolean SUBSCRIPTION_DEBUG_OUTPUT_ENABLED =
     "true".equals( System.getProperty( "replicant.subscriptionsDebugOutputEnabled",
                                        PRODUCTION_MODE ? "false" : "true" ) );
+  private static boolean ENABLE_SPIES =
+    "true".equals( System.getProperty( "replicant.enable_spies", PRODUCTION_MODE ? "false" : "true" ) );
 
   private ReplicantConfig()
   {
@@ -43,6 +45,11 @@ final class ReplicantConfig
   static boolean checkApiInvariants()
   {
     return CHECK_API_INVARIANTS;
+  }
+
+  static boolean areSpiesEnabled()
+  {
+    return ENABLE_SPIES;
   }
 
   static boolean areZonesEnabled()

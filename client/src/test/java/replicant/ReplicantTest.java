@@ -7,6 +7,14 @@ public class ReplicantTest
   extends AbstractReplicantTest
 {
   @Test
+  public void setting_areSpiesEnabled()
+  {
+    assertFalse( Replicant.areSpiesEnabled() );
+    ReplicantTestUtil.enableSpies();
+    assertTrue( Replicant.areSpiesEnabled() );
+  }
+
+  @Test
   public void setting_areZonesEnabled()
   {
     assertFalse( Replicant.areZonesEnabled() );
