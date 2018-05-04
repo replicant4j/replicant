@@ -9,9 +9,9 @@ public class ReplicantTest
   @Test
   public void setting_areSpiesEnabled()
   {
-    assertFalse( Replicant.areSpiesEnabled() );
-    ReplicantTestUtil.enableSpies();
     assertTrue( Replicant.areSpiesEnabled() );
+    ReplicantTestUtil.disableSpies();
+    assertFalse( Replicant.areSpiesEnabled() );
   }
 
   @Test
