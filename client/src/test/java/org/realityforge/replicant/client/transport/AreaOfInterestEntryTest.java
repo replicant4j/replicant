@@ -19,7 +19,7 @@ public class AreaOfInterestEntryTest
 
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getAction(), action );
-    assertEquals( entry.getCacheKey(), "Foo:TestSystem.A" );
+    assertEquals( entry.getCacheKey(), "TestSystem:TestSystem.A" );
     assertEquals( entry.getFilterParameter(), filterParameter );
     assertEquals( entry.match( action, address, filterParameter ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), false );
