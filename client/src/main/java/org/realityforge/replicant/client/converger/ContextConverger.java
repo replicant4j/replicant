@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.converger;
 import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
+import arez.annotations.Autorun;
 import arez.annotations.Observable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -87,8 +88,8 @@ public abstract class ContextConverger
     }
   }
 
-  @Action
-  public void converge()
+  @Autorun
+  void converge()
   {
     preConverge();
     convergeStep();
@@ -103,11 +104,6 @@ public abstract class ContextConverger
     }
   }
 
-  public boolean isConvergeComplete()
-  {
-    return _convergeComplete;
-  }
-
   enum ConvergeAction
   {
     SUBMITTED_ADD,    // The submission has been added to the AOI queue
@@ -117,11 +113,9 @@ public abstract class ContextConverger
     NO_ACTION     // Nothing was done, fully converged
   }
 
-  @Action
   protected void convergeStep()
   {
-    if ( !_convergeComplete &&
-         _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
+    if ( _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
     {
       final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
       AreaOfInterest groupTemplate = null;
@@ -275,19 +269,11 @@ public abstract class ContextConverger
 
   private void convergeComplete()
   {
-    _convergeComplete = true;
     final Runnable convergeCompleteAction = getConvergeCompleteAction();
     if ( null != convergeCompleteAction )
     {
       convergeCompleteAction.run();
     }
-  }
-
-  @Action
-  protected void markConvergeAsIncomplete()
-  {
-    _convergeComplete = false;
-    convergeStep();
   }
 
   void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
@@ -337,7 +323,6 @@ public abstract class ContextConverger
       areaOfInterest.setSubscription( attemptEntryLoad ? Replicant.context().findSubscription( address ) : null );
       areaOfInterest.setError( throwable );
     }
-    markConvergeAsIncomplete();
   }
 
   final class ConvergerDataLoaderListener
@@ -354,7 +339,6 @@ public abstract class ContextConverger
                                       @Nonnull final ChannelAddress address )
     {
       setAreaOfInterestState( address, AreaOfInterest.Status.LOADED, true, null );
-      convergeStep();
     }
 
     @Override
@@ -376,7 +360,6 @@ public abstract class ContextConverger
                                         @Nonnull final ChannelAddress address )
     {
       setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, null );
-      convergeStep();
     }
 
     @Override
@@ -385,7 +368,6 @@ public abstract class ContextConverger
                                      @Nonnull final Throwable throwable )
     {
       setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, throwable );
-      convergeStep();
     }
 
     @Override
@@ -400,7 +382,6 @@ public abstract class ContextConverger
                                                @Nonnull final ChannelAddress address )
     {
       setAreaOfInterestState( address, AreaOfInterest.Status.UPDATED, true, null );
-      convergeStep();
     }
 
     @Override
