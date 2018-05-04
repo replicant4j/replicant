@@ -103,15 +103,6 @@ public abstract class ContextConverger
     }
   }
 
-  enum ConvergeAction
-  {
-    SUBMITTED_ADD,    // The submission has been added to the AOI queue
-    SUBMITTED_UPDATE, // The submission has been added to the AOI queue
-    TERMINATE, // The submission has been added to the AOI queue, and can't be grouped
-    IN_PROGRESS,  // The submission is already in progress, still waiting for a response
-    NO_ACTION     // Nothing was done, fully converged
-  }
-
   protected void convergeStep()
   {
     if ( _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )

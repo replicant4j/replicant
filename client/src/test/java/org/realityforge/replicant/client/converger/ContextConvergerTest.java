@@ -237,7 +237,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.SUBMITTED_ADD );
+                  ConvergeAction.SUBMITTED_ADD );
 
     verify( service ).requestSubscribe( address, null );
     verify( service, never() ).requestUnsubscribe( address );
@@ -268,7 +268,7 @@ public class ContextConvergerTest
       thenReturn( 0 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.SUBMITTED_ADD );
+                  ConvergeAction.SUBMITTED_ADD );
 
     verify( service ).requestSubscribe( address, null );
     verify( service, never() ).requestUnsubscribe( address );
@@ -299,7 +299,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.IN_PROGRESS );
+                  ConvergeAction.IN_PROGRESS );
 
     verify( service, never() ).requestSubscribe( address, null );
     verify( service, never() ).requestUnsubscribe( address );
@@ -329,7 +329,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.IN_PROGRESS );
+                  ConvergeAction.IN_PROGRESS );
 
     verify( service, never() ).requestSubscribe( address, null );
     verify( service, never() ).requestUnsubscribe( address );
@@ -364,7 +364,7 @@ public class ContextConvergerTest
       thenReturn( 4 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.IN_PROGRESS );
+                  ConvergeAction.IN_PROGRESS );
 
     verify( service, never() ).requestSubscribe( address, "Filter1" );
     verify( service, never() ).requestUnsubscribe( address );
@@ -398,7 +398,7 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
+                  ConvergeAction.SUBMITTED_UPDATE );
 
     verify( service, never() ).requestSubscribe( address, "Filter1" );
     verify( service, never() ).requestUnsubscribe( address );
@@ -477,7 +477,7 @@ public class ContextConvergerTest
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ContextConverger.ConvergeAction.NO_ACTION );
+                  ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( address, null );
     verify( service, never() ).requestUnsubscribe( address );
     verify( service, never() ).requestSubscriptionUpdate( address, null );
@@ -522,20 +522,20 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestAction.ADD, true ),
-                  ContextConverger.ConvergeAction.SUBMITTED_ADD );
+                  ConvergeAction.SUBMITTED_ADD );
     verify( service ).requestSubscribe( address2, null );
     verify( service, never() ).requestUnsubscribe( address2 );
     verify( service, never() ).requestSubscriptionUpdate( address2, null );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.ADD, false ),
-                  ContextConverger.ConvergeAction.TERMINATE );
+                  ConvergeAction.TERMINATE );
     verify( service, never() ).requestSubscribe( address3, null );
     verify( service, never() ).requestUnsubscribe( address3 );
     verify( service, never() ).requestSubscriptionUpdate( address3, null );
 
     areaOfInterest3.getChannel().setFilter( "Filter" );
     assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.ADD, true ),
-                  ContextConverger.ConvergeAction.NO_ACTION );
+                  ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( address3, null );
     verify( service, never() ).requestUnsubscribe( address3 );
     verify( service, never() ).requestSubscriptionUpdate( address3, null );
@@ -588,20 +588,20 @@ public class ContextConvergerTest
       thenReturn( -1 );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestAction.UPDATE, true ),
-                  ContextConverger.ConvergeAction.SUBMITTED_UPDATE );
+                  ConvergeAction.SUBMITTED_UPDATE );
     verify( service, never() ).requestSubscribe( address2, null );
     verify( service, never() ).requestUnsubscribe( address2 );
     verify( service ).requestSubscriptionUpdate( address2, null );
 
     assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.UPDATE, false ),
-                  ContextConverger.ConvergeAction.TERMINATE );
+                  ConvergeAction.TERMINATE );
     verify( service, never() ).requestSubscribe( address3, null );
     verify( service, never() ).requestUnsubscribe( address3 );
     verify( service, never() ).requestSubscriptionUpdate( address3, null );
 
     areaOfInterest3.getChannel().setFilter( "Filter" );
     assertEquals( c.convergeAreaOfInterest( areaOfInterest3, areaOfInterest1, AreaOfInterestAction.UPDATE, true ),
-                  ContextConverger.ConvergeAction.NO_ACTION );
+                  ConvergeAction.NO_ACTION );
     verify( service, never() ).requestSubscribe( address3, null );
     verify( service, never() ).requestUnsubscribe( address3 );
     verify( service, never() ).requestSubscriptionUpdate( address3, null );
