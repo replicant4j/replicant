@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.converger;
 import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
+import arez.annotations.Observable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -31,10 +32,6 @@ public abstract class ContextConverger
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   @Nonnull
   private final ReplicantClientSystem _replicantClientSystem;
-  @Nullable
-  private Runnable _preConvergeAction;
-  @Nullable
-  private Runnable _convergeCompleteAction;
 
   public static ContextConverger create( @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
@@ -51,18 +48,20 @@ public abstract class ContextConverger
    * Set action that is run prior to converging.
    * This is typically used to ensure the subscriptions are uptodate prior to attempting to convergeStep.
    */
-  public void setPreConvergeAction( @Nullable final Runnable preConvergeAction )
-  {
-    _preConvergeAction = preConvergeAction;
-  }
+  @Observable
+  public abstract void setPreConvergeAction( @Nullable Runnable preConvergeAction );
+
+  @Nullable
+  public abstract Runnable getPreConvergeAction();
 
   /**
    * Set action that is runs after all the subscriptions have converged.
    */
-  public void setConvergeCompleteAction( @Nullable final Runnable convergeCompleteAction )
-  {
-    _convergeCompleteAction = convergeCompleteAction;
-  }
+  @Observable
+  public abstract void setConvergeCompleteAction( @Nullable Runnable convergeCompleteAction );
+
+  @Nullable
+  public abstract Runnable getConvergeCompleteAction();
 
   /**
    * Release resources associated with the system.
@@ -97,9 +96,10 @@ public abstract class ContextConverger
 
   void preConverge()
   {
-    if ( null != _preConvergeAction )
+    final Runnable preConvergeAction = getPreConvergeAction();
+    if ( null != preConvergeAction )
     {
-      _preConvergeAction.run();
+      preConvergeAction.run();
     }
   }
 
@@ -276,9 +276,10 @@ public abstract class ContextConverger
   private void convergeComplete()
   {
     _convergeComplete = true;
-    if ( null != _convergeCompleteAction )
-      _convergeCompleteAction.run();
+    final Runnable convergeCompleteAction = getConvergeCompleteAction();
+    if ( null != convergeCompleteAction )
     {
+      convergeCompleteAction.run();
     }
   }
 
