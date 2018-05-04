@@ -32,8 +32,6 @@ Some actions that should occur at some point in the future.
 
 * Channel should be disposeOnDeactivate?
 
-* `ContextConverger` can have timer removed and instead have an `@Autorun` or `@Track` that schedules updates.
-
 * Figure out a way how to move Linkable, Verifiable and EntityLocator to Arez. Will need to somehow annotate
   inverse relationships and have Arez generate glue-code to link up outside of accessor. Will also need to mark
   some properties as links ... some of which are lazy loaded.
