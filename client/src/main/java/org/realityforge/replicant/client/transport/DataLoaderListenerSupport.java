@@ -7,13 +7,13 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import replicant.ChannelAddress;
 
-public final class DataLoaderListenerSupport
+final class DataLoaderListenerSupport
   implements DataLoaderListener
 {
   private final ArrayList<DataLoaderListener> _listeners = new ArrayList<>();
   private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  public synchronized void addListener( @Nonnull final DataLoaderListener listener )
+  synchronized void addListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
@@ -22,7 +22,7 @@ public final class DataLoaderListenerSupport
     }
   }
 
-  public synchronized void removeListener( @Nonnull final DataLoaderListener listener )
+  synchronized void removeListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     _listeners.remove( listener );
