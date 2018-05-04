@@ -105,7 +105,8 @@ public final class Replicant
   {
     if ( shouldCheckApiInvariants() )
     {
-      apiInvariant( Replicant::areZonesEnabled, () -> "Replicant-0001: Invoked Replicant.createZone() but zones are not enabled." );
+      apiInvariant( Replicant::areZonesEnabled,
+                    () -> "Replicant-0001: Invoked Replicant.createZone() but zones are not enabled." );
     }
     return new Zone();
   }
