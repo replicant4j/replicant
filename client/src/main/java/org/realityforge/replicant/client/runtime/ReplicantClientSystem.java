@@ -103,17 +103,17 @@ public abstract class ReplicantClientSystem
   /**
    * Add a listener. Return true if actually added, false if listener was already present.
    */
-  public boolean addReplicantSystemListener( @Nonnull final ReplicantSystemListener listener )
+  public void addReplicantSystemListener( @Nonnull final ReplicantSystemListener listener )
   {
-    return _listenerSupport.addListener( listener );
+    _listenerSupport.addListener( listener );
   }
 
   /**
    * Remove a listener. Return true if actually removed, false if listener was not present.
    */
-  public boolean removeReplicantSystemListener( @Nonnull final ReplicantSystemListener listener )
+  public void removeReplicantSystemListener( @Nonnull final ReplicantSystemListener listener )
   {
-    return _listenerSupport.removeListener( listener );
+    _listenerSupport.removeListener( listener );
   }
 
   @Nonnull

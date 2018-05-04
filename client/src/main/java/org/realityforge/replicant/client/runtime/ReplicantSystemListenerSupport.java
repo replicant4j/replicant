@@ -12,24 +12,18 @@ final class ReplicantSystemListenerSupport
   private final ArrayList<ReplicantSystemListener> _listeners = new ArrayList<>();
   private final List<ReplicantSystemListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  synchronized boolean addListener( @Nonnull final ReplicantSystemListener listener )
+  synchronized void addListener( @Nonnull final ReplicantSystemListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
     {
       _listeners.add( listener );
-      return true;
-    }
-    else
-    {
-      return false;
     }
   }
 
-  synchronized boolean removeListener( @Nonnull final ReplicantSystemListener listener )
+  synchronized void removeListener( @Nonnull final ReplicantSystemListener listener )
   {
-    Objects.requireNonNull( listener );
-    return _listeners.remove( listener );
+    _listeners.remove( Objects.requireNonNull( listener ) );
   }
 
   List<ReplicantSystemListener> getListeners()
