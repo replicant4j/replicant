@@ -339,15 +339,17 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIUpdateActions()
   {
-    _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
-      if ( null == subscription )
-      {
-        LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
-        a.markAsComplete();
-        return true;
-      }
-      return false;
+    context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
+      _currentAoiActions.removeIf( a -> {
+        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        if ( null == subscription )
+        {
+          LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
+          a.markAsComplete();
+          return true;
+        }
+        return false;
+      } );
     } );
 
     if ( 0 == _currentAoiActions.size() )
@@ -388,21 +390,23 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIRemoveActions()
   {
-    _currentAoiActions.removeIf( a -> {
-      final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
-      if ( null == subscription )
-      {
-        LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
-        a.markAsComplete();
-        return true;
-      }
-      else if ( !subscription.isExplicitSubscription() )
-      {
-        LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not explicitly subscribed." );
-        a.markAsComplete();
-        return true;
-      }
-      return false;
+    context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
+      _currentAoiActions.removeIf( a -> {
+        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        if ( null == subscription )
+        {
+          LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
+          a.markAsComplete();
+          return true;
+        }
+        else if ( !subscription.isExplicitSubscription() )
+        {
+          LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not explicitly subscribed." );
+          a.markAsComplete();
+          return true;
+        }
+        return false;
+      } );
     } );
 
     if ( 0 == _currentAoiActions.size() )
@@ -415,13 +419,13 @@ public abstract class AbstractDataLoaderService
     final Consumer<Runnable> completionAction = postAction ->
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
-      _currentAoiActions.forEach( a -> {
+      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
         final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
         }
-      } );
+      } ) );
       completeAoiAction();
       postAction.run();
     };
@@ -429,13 +433,13 @@ public abstract class AbstractDataLoaderService
     final Consumer<Runnable> failAction = postAction ->
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
-      _currentAoiActions.forEach( a -> {
+      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
         final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
         }
-      } );
+      } ) );
       completeAoiAction();
       postAction.run();
     };
