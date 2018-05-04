@@ -31,7 +31,6 @@ public abstract class ContextConverger
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   @Nonnull
   private final ReplicantClientSystem _replicantClientSystem;
-  private boolean _paused;
   @Nullable
   private Runnable _preConvergeAction;
   @Nullable
@@ -122,7 +121,6 @@ public abstract class ContextConverger
   protected void convergeStep()
   {
     if ( !_convergeComplete &&
-         !isPaused() &&
          _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
     {
       final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
@@ -279,50 +277,9 @@ public abstract class ContextConverger
   {
     _convergeComplete = true;
     if ( null != _convergeCompleteAction )
-    {
       _convergeCompleteAction.run();
-    }
-  }
-
-  /**
-   * Pause the converger for the duration of the action.
-   */
-  public void pauseAndRun( @Nonnull final Runnable action )
-  {
-    pause();
-    try
     {
-      Objects.requireNonNull( action ).run();
     }
-    finally
-    {
-      resume();
-    }
-  }
-
-  public void pause()
-  {
-    _paused = true;
-  }
-
-  public void resume()
-  {
-    unpause();
-    convergeStep();
-  }
-
-  /**
-   * Turn off paused state.
-   * Method does not schedule next converge step.
-   */
-  protected void unpause()
-  {
-    _paused = false;
-  }
-
-  public boolean isPaused()
-  {
-    return _paused;
   }
 
   @Action

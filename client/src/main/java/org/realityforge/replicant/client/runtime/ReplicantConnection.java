@@ -35,14 +35,12 @@ public class ReplicantConnection
 
   public void disconnect()
   {
-    _converger.pause();
     _replicantClientSystem.deactivate();
   }
 
   public void connect()
   {
     _replicantClientSystem.activate();
-    _converger.resume();
   }
 
   /**
@@ -73,20 +71,6 @@ public class ReplicantConnection
                                                     @Nonnull final Enum targetChannelType,
                                                     @Nullable final Object filter,
                                                     @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
-  {
-    _converger.pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( sourceChannelType,
-                                                                          targetChannelType,
-                                                                          filter,
-                                                                          sourceIDToTargetIDs ) );
-  }
-
-  /**
-   * This is worker method for convergeCrossDataSourceSubscriptions. Do not use, do not override.
-   */
-  protected void doConvergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceChannelType,
-                                                         @Nonnull final Enum targetChannelType,
-                                                         @Nullable final Object filter,
-                                                         @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
