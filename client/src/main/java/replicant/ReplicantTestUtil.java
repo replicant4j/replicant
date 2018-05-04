@@ -54,6 +54,7 @@ public final class ReplicantTestUtil
       checkApiInvariants();
     }
     disableZones();
+    ( (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger() ).setLogger( null );
     ReplicantContextHolder.reset();
     ReplicantZoneHolder.reset();
   }

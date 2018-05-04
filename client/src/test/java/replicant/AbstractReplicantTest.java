@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckTestUtil;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import replicant.ReplicantTestUtil;
 import static org.testng.Assert.*;
 
 public abstract class AbstractReplicantTest
@@ -27,6 +26,7 @@ public abstract class AbstractReplicantTest
     BrainCheckTestUtil.resetConfig( false );
     ArezTestUtil.resetConfig( false );
     ReplicantTestUtil.resetConfig( false );
+    getProxyLogger().setLogger( new TestLogger() );
     _ignoreObserverErrors = false;
     _printObserverErrors = true;
     _observerErrors.clear();
@@ -44,6 +44,18 @@ public abstract class AbstractReplicantTest
     {
       fail( "Unexpected Observer Errors: " + _observerErrors.stream().collect( Collectors.joining( "\n" ) ) );
     }
+  }
+
+  @Nonnull
+  final TestLogger getTestLogger()
+  {
+    return (TestLogger) getProxyLogger().getLogger();
+  }
+
+  @Nonnull
+  private ReplicantLogger.ProxyLogger getProxyLogger()
+  {
+    return (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger();
   }
 
   protected final void setIgnoreObserverErrors( final boolean ignoreObserverErrors )

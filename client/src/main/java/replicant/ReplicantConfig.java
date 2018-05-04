@@ -27,6 +27,11 @@ final class ReplicantConfig
                                        PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_SPIES =
     "true".equals( System.getProperty( "replicant.enable_spies", PRODUCTION_MODE ? "false" : "true" ) );
+  /**
+   * Valid values are: "none", "basic", "jul" (java.util.logging) and "proxy" (for testing)
+   */
+  private static final String LOGGER_TYPE =
+    System.getProperty( "arez.logger", PRODUCTION_MODE ? "basic" : "proxy" );
 
   private ReplicantConfig()
   {
@@ -75,5 +80,10 @@ final class ReplicantConfig
   static boolean canSubscriptionsDebugOutputBeEnabled()
   {
     return SUBSCRIPTION_DEBUG_OUTPUT_ENABLED;
+  }
+
+  static String loggerType()
+  {
+    return LOGGER_TYPE;
   }
 }

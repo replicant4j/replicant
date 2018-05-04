@@ -28,4 +28,7 @@
 
   <define-property name='replicant.enable_zones' values='true,false'/>
   <set-property name='replicant.enable_zones' value='false'/>
+
+  <define-property name='replicant.logger' values='console_js,jul,proxy,none'/>
+  <set-property name='replicant.logger' value='console_js'/>
 </module>
