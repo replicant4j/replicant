@@ -9,8 +9,6 @@ import replicant.FilterUtil;
 final class AreaOfInterestEntry
 {
   @Nonnull
-  private final String _systemKey;
-  @Nonnull
   private final ChannelAddress _address;
   @Nonnull
   private final AreaOfInterestAction _action;
@@ -18,21 +16,13 @@ final class AreaOfInterestEntry
   private final Object _filterParameter;
   private boolean _inProgress;
 
-  AreaOfInterestEntry( @Nonnull final String systemKey,
-                       @Nonnull final ChannelAddress address,
+  AreaOfInterestEntry( @Nonnull final ChannelAddress address,
                        @Nonnull final AreaOfInterestAction action,
                        @Nullable final Object filterParameter )
   {
-    _systemKey = Objects.requireNonNull( systemKey );
     _address = Objects.requireNonNull( address );
     _action = Objects.requireNonNull( action );
     _filterParameter = filterParameter;
-  }
-
-  @Nonnull
-  String getSystemKey()
-  {
-    return _systemKey;
   }
 
   @Nonnull
@@ -50,7 +40,7 @@ final class AreaOfInterestEntry
   @Nonnull
   String getCacheKey()
   {
-    return _systemKey + ":" + getAddress().toString();
+    return _address.getSystem().getSimpleName() + ":" + getAddress().toString();
   }
 
   @Nullable
@@ -86,8 +76,10 @@ final class AreaOfInterestEntry
   @Override
   public String toString()
   {
-    final ChannelAddress descriptor = getAddress();
-    return "AOI[SystemKey=" + _systemKey + ",Channel=" + descriptor + ",filter=" + FilterUtil.filterToString( _filterParameter ) + "]" +
-           ( _inProgress ? "(InProgress)" : "" );
+    final ChannelAddress address = getAddress();
+    return "AOI[SystemKey=" + address.getSystem().getSimpleName() +
+           ",Channel=" + address +
+           ",filter=" + FilterUtil.filterToString( _filterParameter ) +
+           "]" + ( _inProgress ? "(InProgress)" : "" );
   }
 }

@@ -593,7 +593,7 @@ public class DataLoaderServiceTest
       final ChannelAddress channel3 = new ChannelAddress( TestSystem.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
-        new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
+        new AreaOfInterestEntry( channel3, AreaOfInterestAction.ADD, null );
       addAoiAction( service, entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );

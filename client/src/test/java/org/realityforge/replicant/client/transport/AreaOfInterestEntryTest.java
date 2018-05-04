@@ -11,15 +11,12 @@ public class AreaOfInterestEntryTest
   @Test
   public void basicOperation()
   {
-    final String systemKey = "Foo";
     final ChannelAddress descriptor = new ChannelAddress( TestSystem.A );
     final Object filterParameter = null;
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 
-    final AreaOfInterestEntry entry =
-      new AreaOfInterestEntry( systemKey, descriptor, action, filterParameter );
+    final AreaOfInterestEntry entry = new AreaOfInterestEntry( address, action, filterParameter );
 
-    assertEquals( entry.getSystemKey(), systemKey );
     assertEquals( entry.getAddress(), descriptor );
     assertEquals( entry.getAction(), action );
     assertEquals( entry.getCacheKey(), "Foo:TestSystem.A" );
