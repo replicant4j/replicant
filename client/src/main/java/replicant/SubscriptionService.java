@@ -127,7 +127,21 @@ public abstract class SubscriptionService
   {
     getInstanceSubscriptionsObservable().reportObserved();
     final Map<Object, Subscription> map = _instanceSubscriptions.get( channelType );
-    return null == map ? Collections.emptySet() : map.keySet();
+    if ( null == map )
+    {
+      return Collections.emptySet();
+    }
+    else
+    {
+      final Set<Object> results =
+        map
+          .entrySet()
+          .stream()
+          .filter( e -> !Disposable.isDisposed( e.getValue() ) )
+          .map( Map.Entry::getKey )
+          .collect( Collectors.toSet() );
+      return Arez.areRepositoryResultsModifiable() ? results : Collections.unmodifiableSet( results );
+    }
   }
 
   /**

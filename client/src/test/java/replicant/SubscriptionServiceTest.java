@@ -277,6 +277,7 @@ public class SubscriptionServiceTest
         // to ensure not possible that disposed is returned
         assertEquals( service.getInstanceSubscriptions().size(), 2 );
         assertNull( service.findSubscription( address3 ) );
+        assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 );
       } );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
@@ -302,6 +303,7 @@ public class SubscriptionServiceTest
         // to ensure not possible that disposed is returned
         assertEquals( service.getInstanceSubscriptions().size(), 1 );
         assertNull( service.findSubscription( address2 ) );
+        assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 );
       } );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
