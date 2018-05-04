@@ -28,7 +28,7 @@ public final class DataLoaderListenerSupport
     _listeners.remove( listener );
   }
 
-  public List<DataLoaderListener> getListeners()
+  List<DataLoaderListener> getListeners()
   {
     return _roListeners;
   }
