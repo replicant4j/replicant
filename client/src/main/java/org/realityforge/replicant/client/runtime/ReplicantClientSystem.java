@@ -30,7 +30,6 @@ public abstract class ReplicantClientSystem
 
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystem.class.getName() );
 
-  private final ReplicantSystemListenerSupport _listenerSupport = new ReplicantSystemListenerSupport();
   private final Listener _dataLoaderListener = new Listener();
   private DataLoaderEntry[] _dataLoaders;
   private List<DataLoaderEntry> _roDataLoaders;
@@ -98,28 +97,6 @@ public abstract class ReplicantClientSystem
   {
     updateStatus();
     reflectActiveState();
-  }
-
-  /**
-   * Add a listener. Return true if actually added, false if listener was already present.
-   */
-  public void addReplicantSystemListener( @Nonnull final ReplicantSystemListener listener )
-  {
-    _listenerSupport.addListener( listener );
-  }
-
-  /**
-   * Remove a listener. Return true if actually removed, false if listener was not present.
-   */
-  public void removeReplicantSystemListener( @Nonnull final ReplicantSystemListener listener )
-  {
-    _listenerSupport.removeListener( listener );
-  }
-
-  @Nonnull
-  protected ReplicantSystemListener getListener()
-  {
-    return _listenerSupport;
   }
 
   @Nonnull
@@ -213,8 +190,6 @@ public abstract class ReplicantClientSystem
 
   void updateStatus()
   {
-    final State originalState = _state;
-
     // Are any required connecting?
     boolean connecting = false;
     // Are any required disconnecting?
@@ -266,10 +241,6 @@ public abstract class ReplicantClientSystem
     else
     {
       _state = State.CONNECTED;
-    }
-    if ( originalState != _state )
-    {
-      getListener().stateChanged( this, _state, originalState );
     }
     reflectActiveState();
   }

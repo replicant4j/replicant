@@ -38,39 +38,6 @@ public class ContextConvergerTest
   }
 
   @Test
-  public void listenerManagement()
-  {
-    final ReplicantClientSystem system = mock( ReplicantClientSystem.class );
-
-    final DataLoaderService dl1 = mock( DataLoaderService.class );
-    final DataLoaderService dl2 = mock( DataLoaderService.class );
-    final DataLoaderService dl3 = mock( DataLoaderService.class );
-
-    final ArrayList<DataLoaderEntry> dataLoaders = new ArrayList<>();
-    dataLoaders.add( new DataLoaderEntry( dl1, true ) );
-    dataLoaders.add( new DataLoaderEntry( dl2, true ) );
-    dataLoaders.add( new DataLoaderEntry( dl3, false ) );
-    when( system.getDataLoaders() ).thenReturn( dataLoaders );
-
-    final ContextConverger c = ContextConverger.create( system );
-
-    verify( dl1 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-    verify( dl2 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-    verify( dl3 ).addDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-
-    verify( system ).addReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
-
-    c.release();
-
-    verify( dl1 ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-    verify( dl2 ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-    verify( dl3 ).removeDataLoaderListener( any( ContextConverger.ConvergerDataLoaderListener.class ) );
-
-    verify( system ).
-      removeReplicantSystemListener( any( ContextConverger.ConvergerReplicantSystemListener.class ) );
-  }
-
-  @Test
   public void preConvergeAction()
   {
     final ContextConverger c = ContextConverger.create( mock( ReplicantClientSystem.class ) );

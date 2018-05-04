@@ -1,9 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
-import org.realityforge.replicant.client.transport.DataLoaderListenerSupport;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.testng.annotations.Test;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantClientSystemTest
@@ -39,108 +37,13 @@ public class ReplicantClientSystemTest
   }
 
   @Test
-  public void listenersSetup()
-  {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-
-    final TestDataLoaderService service1 = newServiceA();
-    service1.setState( DataLoaderService.State.DISCONNECTED );
-    final DataLoaderEntry entry1 = requiredEntry( service1 );
-
-    final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1 } );
-    system.addReplicantSystemListener( listener );
-
-    final DataLoaderListenerSupport l = service1.getListener();
-    assertEquals( l.getListeners().size(), 1 );
-    assertEquals( l.getListeners().contains( system.getDataLoaderListener() ), true );
-
-    service1.setState( DataLoaderService.State.CONNECTED );
-    reset( listener );
-    l.onConnect( service1 );
-    verify( listener, times( 1 ) ).
-      stateChanged( system, ReplicantClientSystem.State.CONNECTED, ReplicantClientSystem.State.DISCONNECTED );
-
-    service1.setState( DataLoaderService.State.ERROR );
-    reset( listener );
-    l.onInvalidConnect( service1, new Throwable() );
-    verify( listener, times( 1 ) ).
-      stateChanged( system, ReplicantClientSystem.State.ERROR, ReplicantClientSystem.State.CONNECTED );
-
-    service1.setState( DataLoaderService.State.DISCONNECTED );
-    reset( listener );
-    l.onDisconnect( service1 );
-    verify( listener, times( 1 ) ).
-      stateChanged( system, ReplicantClientSystem.State.DISCONNECTED, ReplicantClientSystem.State.ERROR );
-
-    service1.setState( DataLoaderService.State.ERROR );
-    reset( listener );
-    l.onInvalidDisconnect( service1, new Throwable() );
-    verify( listener, times( 1 ) ).
-      stateChanged( system, ReplicantClientSystem.State.ERROR, ReplicantClientSystem.State.DISCONNECTED );
-
-    /// This tests that disconnects occurs if not in transition state
-
-    service1.reset();
-    l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
-
-    service1.setState( DataLoaderService.State.ERROR );
-    service1.reset();
-    l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
-
-    service1.setState( DataLoaderService.State.ERROR );
-    service1.reset();
-    l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
-
-    service1.setState( DataLoaderService.State.CONNECTING );
-    service1.reset();
-    l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
-
-    service1.setState( DataLoaderService.State.DISCONNECTING );
-    service1.reset();
-    l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
-
-    service1.setState( DataLoaderService.State.CONNECTED );
-    service1.reset();
-    l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
-
-    service1.setState( DataLoaderService.State.ERROR );
-    service1.reset();
-    l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
-
-    service1.setState( DataLoaderService.State.ERROR );
-    service1.reset();
-    l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
-
-    service1.setState( DataLoaderService.State.CONNECTING );
-    service1.reset();
-    l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
-
-    service1.setState( DataLoaderService.State.DISCONNECTING );
-    service1.reset();
-    l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
-  }
-
-  @Test
   public void activate()
   {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.DISCONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
 
     final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1 } );
-    system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -189,8 +92,6 @@ public class ReplicantClientSystemTest
   @Test
   public void activateMultiple()
   {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.DISCONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
@@ -200,7 +101,6 @@ public class ReplicantClientSystemTest
     final DataLoaderEntry entry3 = requiredEntry( service3 );
 
     final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1, entry3 } );
-    system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -273,14 +173,11 @@ public class ReplicantClientSystemTest
   @Test
   public void deactivate()
   {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.CONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
 
     final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1 } );
-    system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -337,8 +234,6 @@ public class ReplicantClientSystemTest
   @Test
   public void deactivateMultipleDataSources()
   {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.CONNECTED );
     final DataLoaderEntry entry1 = requiredEntry( service1 );
@@ -348,7 +243,6 @@ public class ReplicantClientSystemTest
     final DataLoaderEntry entry3 = optionalEntry( service3 );
 
     final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1, entry3 } );
-    system.addReplicantSystemListener( listener );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -513,42 +407,24 @@ public class ReplicantClientSystemTest
   private void verifyUpdateState( final ReplicantClientSystem.State expectedSystemState,
                                   final DataLoaderEntry[] dataLoaders )
   {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
     final ReplicantClientSystem system = new TestReplicantClientSystem( dataLoaders );
-    system.addReplicantSystemListener( listener );
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    reset( listener );
     system.updateStatus();
     assertEquals( system.getState(), expectedSystemState );
-    if ( expectedSystemState == ReplicantClientSystem.State.DISCONNECTED )
-    {
-      verify( listener, never() ).stateChanged( any(), any(), any() );
-    }
-    else
-    {
-      verify( listener, times( 1 ) ).stateChanged( eq( system ),
-                                                   eq( expectedSystemState ),
-                                                   eq( ReplicantClientSystem.State.DISCONNECTED ) );
-    }
   }
 
   @Test
   public void convergingDisconnectedSystemDoesNothing()
   {
-    final ReplicantSystemListener listener = mock( ReplicantSystemListener.class );
-
     final DataLoaderEntry[] dataLoaders = { requiredEntry( newServiceA() ) };
 
     final ReplicantClientSystem system = new TestReplicantClientSystem( dataLoaders );
-    system.addReplicantSystemListener( listener );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     assertEquals( system.isActive(), false );
     assertEquals( newServiceA().getState(), DataLoaderService.State.DISCONNECTED );
 
     system.converge();
-
-    verify( listener, never() ).stateChanged( any(), any(), any() );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     assertEquals( system.isActive(), false );

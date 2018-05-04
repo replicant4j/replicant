@@ -26,7 +26,7 @@ Some actions that should occur at some point in the future.
     This will ultimately allow the jobs and potentially polling results to move to being
     handled across a WebSocket.
 
-* Remove ReplicantSystemListener, DataLoaderListener - replace with observable Arez state?
+* Remove DataLoaderListener - replace with observable Arez state?
 
 * Merge all interface/impl separations - i.e. ReplicantConnection
 

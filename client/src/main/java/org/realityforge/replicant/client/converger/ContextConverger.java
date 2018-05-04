@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
-import org.realityforge.replicant.client.runtime.ReplicantSystemListener;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -29,12 +28,9 @@ public abstract class ContextConverger
 {
   private static final Logger LOG = Logger.getLogger( ContextConverger.class.getName() );
   @Nonnull
-  private final ConvergerReplicantSystemListener _rsListener = new ConvergerReplicantSystemListener();
-  @Nonnull
   private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   @Nonnull
   private final ReplicantClientSystem _replicantClientSystem;
-  private boolean _convergeComplete;
   private boolean _paused;
   @Nullable
   private Runnable _preConvergeAction;
@@ -79,7 +75,6 @@ public abstract class ContextConverger
 
   private void addListeners()
   {
-    _replicantClientSystem.addReplicantSystemListener( _rsListener );
     for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
     {
       entry.getService().addDataLoaderListener( _dlListener );
@@ -88,7 +83,6 @@ public abstract class ContextConverger
 
   private void removeListeners()
   {
-    _replicantClientSystem.removeReplicantSystemListener( _rsListener );
     for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
     {
       entry.getService().removeDataLoaderListener( _dlListener );
@@ -405,18 +399,6 @@ public abstract class ContextConverger
       areaOfInterest.setError( throwable );
     }
     markConvergeAsIncomplete();
-  }
-
-  final class ConvergerReplicantSystemListener
-    implements ReplicantSystemListener
-  {
-    @Override
-    public void stateChanged( @Nonnull final ReplicantClientSystem system,
-                              @Nonnull final ReplicantClientSystem.State newState,
-                              @Nonnull final ReplicantClientSystem.State oldState )
-    {
-      markConvergeAsIncomplete();
-    }
   }
 
   final class ConvergerDataLoaderListener
