@@ -24,8 +24,7 @@ final class DataLoaderListenerSupport
 
   void removeListener( @Nonnull final DataLoaderListener listener )
   {
-    Objects.requireNonNull( listener );
-    _listeners.remove( listener );
+    _listeners.remove( Objects.requireNonNull( listener ) );
   }
 
   List<DataLoaderListener> getListeners()
