@@ -86,13 +86,13 @@ public final class ClientSession
     _dataLoaderService.scheduleDataLoad();
   }
 
-  final void enqueueDataLoad( @Nonnull final String rawJsonData )
+  void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
     getPendingActions().add( new DataLoadAction( Objects.requireNonNull( rawJsonData ), false ) );
     _dataLoaderService.scheduleDataLoad();
   }
 
-  final void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable )
+  void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable )
   {
     final DataLoadAction action = new DataLoadAction( Objects.requireNonNull( rawJsonData ), true );
     action.setRunnable( runnable );
@@ -100,27 +100,27 @@ public final class ClientSession
     _dataLoaderService.scheduleDataLoad();
   }
 
-  final LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()
+  LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()
   {
     return _pendingAreaOfInterestActions;
   }
 
-  final LinkedList<DataLoadAction> getPendingActions()
+  LinkedList<DataLoadAction> getPendingActions()
   {
     return _pendingActions;
   }
 
-  final LinkedList<DataLoadAction> getParsedActions()
+  LinkedList<DataLoadAction> getParsedActions()
   {
     return _parsedActions;
   }
 
-  final LinkedList<DataLoadAction> getOobActions()
+  LinkedList<DataLoadAction> getOobActions()
   {
     return _oobActions;
   }
 
-  public int getLastRxSequence()
+  int getLastRxSequence()
   {
     return _lastRxSequence;
   }
@@ -187,7 +187,7 @@ public final class ClientSession
   }
 
   @Nullable
-  final RequestEntry getRequest( @Nonnull final String requestID )
+  RequestEntry getRequest( @Nonnull final String requestID )
   {
     return _requests.get( requestID );
   }
@@ -197,7 +197,7 @@ public final class ClientSession
     return _roRequests;
   }
 
-  final boolean removeRequest( @Nonnull final String requestID )
+  boolean removeRequest( @Nonnull final String requestID )
   {
     return null != _requests.remove( requestID );
   }
