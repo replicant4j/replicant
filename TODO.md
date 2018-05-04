@@ -28,8 +28,6 @@ Some actions that should occur at some point in the future.
 
 * Remove DataLoaderListener - replace with observable Arez state?
 
-* Merge all interface/impl separations - i.e. ReplicantConnection
-
 * Handle TODOs in Entity
 
 * Channel should be disposeOnDeactivate?
