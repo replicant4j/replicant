@@ -11,33 +11,32 @@ public class AreaOfInterestEntryTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress descriptor = new ChannelAddress( TestSystem.A );
+    final ChannelAddress address = new ChannelAddress( TestSystem.A );
     final Object filterParameter = null;
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 
     final AreaOfInterestEntry entry = new AreaOfInterestEntry( address, action, filterParameter );
 
-    assertEquals( entry.getAddress(), descriptor );
+    assertEquals( entry.getAddress(), address );
     assertEquals( entry.getAction(), action );
     assertEquals( entry.getCacheKey(), "Foo:TestSystem.A" );
     assertEquals( entry.getFilterParameter(), filterParameter );
-    assertEquals( entry.match( action, descriptor, filterParameter ), true );
-    assertEquals( entry.match( action, descriptor, "OtherFilter" ), false );
-    assertEquals( entry.match( AreaOfInterestAction.REMOVE, descriptor, filterParameter ), false );
+    assertEquals( entry.match( action, address, filterParameter ), true );
+    assertEquals( entry.match( action, address, "OtherFilter" ), false );
+    assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filterParameter ), false );
     assertEquals( entry.match( action, new ChannelAddress( TestSystem.B, "X" ), filterParameter ), false );
   }
 
-   @Test
+  @Test
   public void removeActionIgnoredFilterDuringMatch()
   {
-    final ChannelAddress descriptor = new ChannelAddress( TestSystem.A );
+    final ChannelAddress address = new ChannelAddress( TestSystem.A );
     final AreaOfInterestAction action = AreaOfInterestAction.REMOVE;
 
-    final AreaOfInterestEntry entry =
-      new AreaOfInterestEntry( "Foo", descriptor, action, null );
+    final AreaOfInterestEntry entry = new AreaOfInterestEntry( address, action, null );
 
-    assertEquals( entry.match( action, descriptor, null ), true );
-    assertEquals( entry.match( action, descriptor, "OtherFilter" ), true );
-    assertEquals( entry.match( AreaOfInterestAction.ADD, descriptor, null ), false );
+    assertEquals( entry.match( action, address, null ), true );
+    assertEquals( entry.match( action, address, "OtherFilter" ), true );
+    assertEquals( entry.match( AreaOfInterestAction.ADD, address, null ), false );
   }
 }
