@@ -60,5 +60,3 @@ Some actions that should occur at some point in the future.
   * CBOR could be used as the transport system.
 
 * `Replicant.canRequestDebugOutputBeEnabled()` should move to a spy like system as with Arez.
-
-* Inline `DataLoaderServiceConfig`
