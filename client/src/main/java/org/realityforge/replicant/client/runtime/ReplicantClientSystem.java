@@ -254,7 +254,7 @@ public abstract class ReplicantClientSystem
   }
 
   @Nonnull
-  Listener getDataLoaderListener()
+  private Listener getDataLoaderListener()
   {
     return _dataLoaderListener;
   }
