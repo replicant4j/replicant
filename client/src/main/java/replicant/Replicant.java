@@ -70,7 +70,7 @@ public final class Replicant
    */
   public static boolean canRequestsDebugOutputBeEnabled()
   {
-    return ReplicantConfig.canRequestDebugOutputBeEnabled();
+    return ReplicantConfig.canRequestsDebugOutputBeEnabled();
   }
 
   /**

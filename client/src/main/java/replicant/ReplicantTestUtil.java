@@ -125,7 +125,7 @@ public final class ReplicantTestUtil
   }
 
   /**
-   * Configure the `replicant.requestDebugOutputEnabled` setting.
+   * Configure the `replicant.requestsDebugOutputEnabled` setting.
    *
    * @param value the setting.
    */

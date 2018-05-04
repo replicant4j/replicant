@@ -21,7 +21,7 @@ final class ReplicantConfig
     "true".equals( System.getProperty( "replicant.validateRepositoryOnLoad",
                                        PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean REQUESTS_DEBUG_OUTPUT_ENABLED =
-    "true".equals( System.getProperty( "replicant.requestDebugOutputEnabled", PRODUCTION_MODE ? "false" : "true" ) );
+    "true".equals( System.getProperty( "replicant.requestsDebugOutputEnabled", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean SUBSCRIPTION_DEBUG_OUTPUT_ENABLED =
     "true".equals( System.getProperty( "replicant.subscriptionsDebugOutputEnabled",
                                        PRODUCTION_MODE ? "false" : "true" ) );
@@ -60,7 +60,7 @@ final class ReplicantConfig
     return VALIDATE_REPOSITORY_ON_LOAD;
   }
 
-  static boolean canRequestDebugOutputBeEnabled()
+  static boolean canRequestsDebugOutputBeEnabled()
   {
     return REQUESTS_DEBUG_OUTPUT_ENABLED;
   }
