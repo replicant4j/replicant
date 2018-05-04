@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.converger;
 
-import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
@@ -151,80 +150,77 @@ public abstract class ContextConverger
                                                @Nullable final AreaOfInterestAction groupAction,
                                                final boolean canGroup )
   {
-    if ( !Disposable.isDisposed( areaOfInterest ) )
+    final ChannelAddress address = areaOfInterest.getAddress();
+    final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );
+    // service can be disconnected if it is not a required service and will converge later when it connects
+    if ( DataLoaderService.State.CONNECTED == service.getState() )
     {
-      final ChannelAddress address = areaOfInterest.getAddress();
-      final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );
-      // service can be disconnected if it is not a required service and will converge later when it connects
-      if ( DataLoaderService.State.CONNECTED == service.getState() )
+      final Subscription subscription = Replicant.context().findSubscription( address );
+      final boolean subscribed = null != subscription;
+      final Object filter = areaOfInterest.getChannel().getFilter();
+
+      final int addIndex =
+        service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
+      final int removeIndex =
+        service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null );
+      final int updateIndex =
+        service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, filter );
+
+      if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
       {
-        final Subscription subscription = Replicant.context().findSubscription( address );
-        final boolean subscribed = null != subscription;
-        final Object filter = areaOfInterest.getChannel().getFilter();
+        if ( null != groupTemplate && !canGroup )
+        {
+          return ConvergeAction.TERMINATE;
+        }
+        if ( null == groupTemplate ||
+             canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
+        {
+          LOG.info( "Adding subscription: " + address + ". " +
+                    "Setting filter to: " + FilterUtil.filterToString( filter ) );
+          service.requestSubscribe( address, filter );
+          return ConvergeAction.SUBMITTED_ADD;
+        }
+        else
+        {
+          return ConvergeAction.NO_ACTION;
+        }
+      }
+      else if ( addIndex >= 0 )
+      {
+        //Must have add in pipeline so pause until it completed
+        return ConvergeAction.IN_PROGRESS;
+      }
+      else
+      {
+        // Must be subscribed...
+        if ( updateIndex >= 0 )
+        {
+          //Update in progress so wait till it completes
+          return ConvergeAction.IN_PROGRESS;
+        }
 
-        final int addIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
-        final int removeIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null );
-        final int updateIndex =
-          service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, filter );
-
-        if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
+        final Object existing = subscription.getChannel().getFilter();
+        final String newFilter = FilterUtil.filterToString( filter );
+        final String existingFilter = FilterUtil.filterToString( existing );
+        if ( !Objects.equals( newFilter, existingFilter ) )
         {
           if ( null != groupTemplate && !canGroup )
           {
             return ConvergeAction.TERMINATE;
           }
+
           if ( null == groupTemplate ||
-               canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
+               canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
           {
-            LOG.info( "Adding subscription: " + address + ". " +
-                      "Setting filter to: " + FilterUtil.filterToString( filter ) );
-            service.requestSubscribe( address, filter );
-            return ConvergeAction.SUBMITTED_ADD;
+            final String message =
+              "Updating subscription " + address + ". Changing filter to " + newFilter + " from " + existingFilter;
+            LOG.info( message );
+            service.requestSubscriptionUpdate( address, filter );
+            return ConvergeAction.SUBMITTED_UPDATE;
           }
           else
           {
             return ConvergeAction.NO_ACTION;
-          }
-        }
-        else if ( addIndex >= 0 )
-        {
-          //Must have add in pipeline so pause until it completed
-          return ConvergeAction.IN_PROGRESS;
-        }
-        else
-        {
-          // Must be subscribed...
-          if ( updateIndex >= 0 )
-          {
-            //Update in progress so wait till it completes
-            return ConvergeAction.IN_PROGRESS;
-          }
-
-          final Object existing = subscription.getChannel().getFilter();
-          final String newFilter = FilterUtil.filterToString( filter );
-          final String existingFilter = FilterUtil.filterToString( existing );
-          if ( !Objects.equals( newFilter, existingFilter ) )
-          {
-            if ( null != groupTemplate && !canGroup )
-            {
-              return ConvergeAction.TERMINATE;
-            }
-
-            if ( null == groupTemplate ||
-                 canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
-            {
-              final String message =
-                "Updating subscription " + address + ". Changing filter to " + newFilter + " from " + existingFilter;
-              LOG.info( message );
-              service.requestSubscriptionUpdate( address, filter );
-              return ConvergeAction.SUBMITTED_UPDATE;
-            }
-            else
-            {
-              return ConvergeAction.NO_ACTION;
-            }
           }
         }
       }
