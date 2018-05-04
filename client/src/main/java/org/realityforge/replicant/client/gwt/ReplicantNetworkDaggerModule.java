@@ -8,7 +8,7 @@ import org.realityforge.replicant.client.converger.ContextConvergerDaggerModule;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.AreaOfInterestServiceDaggerModule;
 
-@Module( includes = { ContextConvergerDaggerModule.class, AreaOfInterestServiceDaggerModule.class } )
+@Module( includes = { GwtReplicantClientSystemDaggerModule.class, ContextConvergerDaggerModule.class, AreaOfInterestServiceDaggerModule.class } )
 public interface ReplicantNetworkDaggerModule
 {
   @Nonnull
