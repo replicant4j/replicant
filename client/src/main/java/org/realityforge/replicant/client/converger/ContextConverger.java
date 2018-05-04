@@ -109,12 +109,6 @@ public abstract class ContextConverger
     return _convergeComplete;
   }
 
-  public boolean isIdle()
-  {
-    return isConvergeComplete() &&
-           _replicantClientSystem.getDataLoaders().stream().allMatch( dl -> dl.getService().isIdle() );
-  }
-
   enum ConvergeAction
   {
     SUBMITTED_ADD,    // The submission has been added to the AOI queue

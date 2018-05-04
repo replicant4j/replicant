@@ -2,10 +2,7 @@ package org.realityforge.replicant.client.converger;
 
 import arez.Arez;
 import arez.Disposable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -608,40 +605,5 @@ public class ContextConvergerTest
     verify( service, never() ).requestSubscribe( address3, null );
     verify( service, never() ).requestUnsubscribe( address3 );
     verify( service, never() ).requestSubscriptionUpdate( address3, null );
-  }
-
-  @Test
-  public void isIdle()
-  {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service1 = mock( DataLoaderService.class );
-    final DataLoaderService service2 = mock( DataLoaderService.class );
-
-    when( clientSystem.getState() ).thenReturn( ReplicantClientSystem.State.CONNECTED );
-    when( service1.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
-    when( service2.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
-
-    final List<DataLoaderEntry> dataLoaders = new ArrayList<>( 2 );
-    dataLoaders.add( new DataLoaderEntry( service1, true ) );
-    dataLoaders.add( new DataLoaderEntry( service2, true ) );
-
-    when( clientSystem.getDataLoaders() ).thenReturn( dataLoaders );
-
-    final ContextConverger c = ContextConverger.create( clientSystem );
-
-    when( service1.isIdle() ).thenReturn( true );
-    when( service2.isIdle() ).thenReturn( true );
-
-    // Convergers are not idle until they have attempted to converge at least once
-    assertFalse( c.isIdle() );
-    c.convergeStep();
-    assertTrue( c.isIdle() );
-    when( service1.isIdle() ).thenReturn( false );
-    when( service2.isIdle() ).thenReturn( false );
-    assertFalse( c.isIdle() );
-    when( service2.isIdle() ).thenReturn( true );
-    assertFalse( c.isIdle() );
-    when( service1.isIdle() ).thenReturn( true );
-    assertTrue( c.isIdle() );
   }
 }
