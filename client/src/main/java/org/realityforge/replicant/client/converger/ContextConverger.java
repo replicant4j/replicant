@@ -5,7 +5,6 @@ import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
 import arez.annotations.Observable;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -120,9 +119,7 @@ public abstract class ContextConverger
       final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
       AreaOfInterest groupTemplate = null;
       AreaOfInterestAction groupAction = null;
-      // Need to duplicate the list of AreasOfInterest. If an error occurs while processing AreaOfInterest
-      // and the AreaOfInterest is removed, it will result in concurrent exception
-      for ( final AreaOfInterest areaOfInterest : new ArrayList<>( Replicant.context().getAreasOfInterest() ) )
+      for ( final AreaOfInterest areaOfInterest : Replicant.context().getAreasOfInterest() )
       {
         expectedChannels.add( areaOfInterest.getAddress() );
         final ConvergeAction convergeAction =
