@@ -1,0 +1,7 @@
+<module>
+  <inherits name='replicant.ReplicantDev'/>
+
+  <source path='ignored'/>
+
+  <set-property name='replicant.check_invariants' value='true'/>
+</module>
