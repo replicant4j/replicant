@@ -109,31 +109,31 @@ final class TestDataLoaderService
 
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final ChannelAddress descriptor,
+                                                @Nonnull final ChannelAddress address,
                                                 @Nullable final Object filter )
   {
     return false;
   }
 
   @Override
-  public void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
+  public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
   {
   }
 
   @Override
-  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
+  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
                                          @Nullable final Object filterParameter )
   {
   }
 
   @Override
-  public void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
+  public void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
   }
 
   @Override
   public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelAddress descriptor,
+                                                 @Nonnull final ChannelAddress address,
                                                  @Nullable final Object filter )
   {
     return -1;

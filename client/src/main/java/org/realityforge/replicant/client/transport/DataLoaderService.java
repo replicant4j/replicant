@@ -79,19 +79,19 @@ public interface DataLoaderService
    * When the action parameter is DELETE the filter parameter is ignored.
    */
   boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action,
-                                         @Nonnull ChannelAddress descriptor,
+                                         @Nonnull ChannelAddress address,
                                          @Nullable Object filter );
 
   /**
    * Return the index of last matching AreaOfInterestAction in pending aoi actions list.
    */
   int indexOfPendingAreaOfInterestAction( @Nonnull AreaOfInterestAction action,
-                                          @Nonnull ChannelAddress descriptor,
+                                          @Nonnull ChannelAddress address,
                                           @Nullable Object filter );
 
-  void requestSubscribe( @Nonnull ChannelAddress descriptor, @Nullable Object filterParameter );
+  void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filterParameter );
 
-  void requestSubscriptionUpdate( @Nonnull ChannelAddress descriptor, @Nullable Object filterParameter );
+  void requestSubscriptionUpdate( @Nonnull ChannelAddress address, @Nullable Object filterParameter );
 
-  void requestUnsubscribe( @Nonnull ChannelAddress descriptor );
+  void requestUnsubscribe( @Nonnull ChannelAddress address );
 }

@@ -68,22 +68,22 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  public final void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
+  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
   {
-    ensureSession().requestSubscribe( descriptor, filterParameter );
+    ensureSession().requestSubscribe( address, filterParameter );
   }
 
   @Override
-  public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
+  public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
                                                @Nullable final Object filterParameter )
   {
-    ensureSession().requestSubscriptionUpdate( descriptor, filterParameter );
+    ensureSession().requestSubscriptionUpdate( address, filterParameter );
   }
 
   @Override
-  public final void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
+  public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
-    ensureSession().requestUnsubscribe( descriptor );
+    ensureSession().requestUnsubscribe( address );
   }
 
   @Nonnull
@@ -612,28 +612,28 @@ public abstract class AbstractDataLoaderService
 
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final ChannelAddress descriptor,
+                                                @Nonnull final ChannelAddress address,
                                                 @Nullable final Object filter )
   {
     final ClientSession session = getSession();
     return
       null != _currentAoiActions &&
-      _currentAoiActions.stream().anyMatch( a -> a.match( action, descriptor, filter ) ) ||
+      _currentAoiActions.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
       (
         null != session &&
         session.getPendingAreaOfInterestActions().stream().
-          anyMatch( a -> a.match( action, descriptor, filter ) )
+          anyMatch( a -> a.match( action, address, filter ) )
       );
   }
 
   @Override
   public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelAddress descriptor,
+                                                 @Nonnull final ChannelAddress address,
                                                  @Nullable final Object filter )
   {
     final ClientSession session = getSession();
     if ( null != _currentAoiActions &&
-         _currentAoiActions.stream().anyMatch( a -> a.match( action, descriptor, filter ) ) )
+         _currentAoiActions.stream().anyMatch( a -> a.match( action, address, filter ) ) )
     {
       return 0;
     }
@@ -646,7 +646,7 @@ public abstract class AbstractDataLoaderService
       while ( iterator.hasNext() )
       {
         final AreaOfInterestEntry entry = iterator.next();
-        if ( entry.match( action, descriptor, filter ) )
+        if ( entry.match( action, address, filter ) )
         {
           return index;
         }
