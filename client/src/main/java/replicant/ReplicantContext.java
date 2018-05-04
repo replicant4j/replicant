@@ -1,10 +1,12 @@
 package replicant;
 
+import arez.Arez;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The ReplicantContext defines the top level container of interconnected subscriptions, entities and areas of interest.
@@ -14,6 +16,11 @@ public final class ReplicantContext
   private final AreaOfInterestService _areaOfInterestService = AreaOfInterestService.create();
   private final EntityService _entityService = EntityService.create();
   private final SubscriptionService _subscriptionService = SubscriptionService.create();
+  /**
+   * Support infrastructure for spy events.
+   */
+  @Nullable
+  private final SpyImpl _spy = Arez.areSpiesEnabled() ? new SpyImpl() : null;
 
   /**
    * Return the collection of AreaOfInterest that have been declared.
@@ -161,5 +168,34 @@ public final class ReplicantContext
   public final Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
     return _subscriptionService.findSubscription( address );
+  }
+
+  /**
+   * Return true if spy events will be propagated.
+   * This means spies are enabled and there is at least one spy event handler present.
+   *
+   * @return true if spy events will be propagated, false otherwise.
+   */
+  boolean willPropagateSpyEvents()
+  {
+    return Replicant.areSpiesEnabled() && getSpy().willPropagateSpyEvents();
+  }
+
+  /**
+   * Return the spy associated with context.
+   * This method should not be invoked unless {@link Replicant#areSpiesEnabled()} returns true.
+   *
+   * @return the spy associated with context.
+   */
+  @Nonnull
+  public Spy getSpy()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::areSpiesEnabled,
+                    () -> "Replicant-0021: Attempting to get Spy but spies are not enabled." );
+    }
+    assert null != _spy;
+    return _spy;
   }
 }

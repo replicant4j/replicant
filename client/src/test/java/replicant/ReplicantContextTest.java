@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Arez;
 import arez.Disposable;
+import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -177,6 +178,43 @@ public class ReplicantContextTest
       assertEquals( context.findSubscription( address2 ), null );
       assertEquals( context.findSubscription( address3 ), null );
     } );
+  }
+
+  @Test
+  public void getSpy_whenSpiesDisabled()
+    throws Exception
+  {
+    ReplicantTestUtil.disableSpies();
+
+    final ReplicantContext context = new ReplicantContext();
+
+    assertThrowsWithMessage( context::getSpy, "Replicant-0021: Attempting to get Spy but spies are not enabled." );
+  }
+
+  @Test
+  public void getSpy()
+    throws Exception
+  {
+    final ReplicantContext context = new ReplicantContext();
+
+    assertFalse( context.willPropagateSpyEvents() );
+
+    final Spy spy = context.getSpy();
+
+    spy.addSpyEventHandler( new TestSpyEventHandler() );
+
+    assertTrue( spy.willPropagateSpyEvents() );
+    assertTrue( context.willPropagateSpyEvents() );
+
+    ReplicantTestUtil.disableSpies();
+
+    assertFalse( spy.willPropagateSpyEvents() );
+    assertFalse( context.willPropagateSpyEvents() );
+  }
+
+  private void assertThrowsWithMessage( @Nonnull final ThrowingRunnable runnable, @Nonnull final String message )
+  {
+    assertEquals( expectThrows( IllegalStateException.class, runnable ).getMessage(), message );
   }
 
   enum G
