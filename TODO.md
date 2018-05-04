@@ -49,7 +49,6 @@ Some actions that should occur at some point in the future.
     is invoked (for all non-lazy relationships). `link()` is typically after a message/transaction has updated
     all the required entities within the system.
 
-
 * Consider extracting out transport layer of replicant or maybe making replicant V10
 
   * Rename org.realityforge.replicant.client.subscription.EntitySubscriptionEntry to Entity and it contains an
