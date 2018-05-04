@@ -2,8 +2,8 @@ package org.realityforge.replicant.client.runtime;
 
 import arez.annotations.Action;
 import arez.annotations.Observable;
+import arez.component.RepositoryUtil;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -34,19 +34,15 @@ public abstract class ReplicantClientSystem
 
   private final Listener _dataLoaderListener = new Listener();
   private DataLoaderEntry[] _dataLoaders;
-  private List<DataLoaderEntry> _roDataLoaders;
   private State _state = State.DISCONNECTED;
   /**
    * If true then the desired state is CONNECTED while if false then the desired state is DISCONNECTED.
    */
   private boolean _active;
 
-  protected void setDataLoaders( @Nonnull final DataLoaderEntry[] dataLoaders )
+  public ReplicantClientSystem( final DataLoaderEntry[] dataLoaders )
   {
-    assert Arrays.stream( Objects.requireNonNull( dataLoaders ) ).allMatch( Objects::nonNull );
-    removeListener();
     _dataLoaders = Objects.requireNonNull( dataLoaders );
-    _roDataLoaders = Collections.unmodifiableList( Arrays.asList( _dataLoaders ) );
     addListener();
   }
 
@@ -110,7 +106,7 @@ public abstract class ReplicantClientSystem
   @Nonnull
   public List<DataLoaderEntry> getDataLoaders()
   {
-    return _roDataLoaders;
+    return RepositoryUtil.toResults( Arrays.asList( _dataLoaders ) );
   }
 
   /**
@@ -120,7 +116,7 @@ public abstract class ReplicantClientSystem
   public DataLoaderService getDataLoaderService( @Nonnull final Enum channelType )
     throws IllegalArgumentException
   {
-    for ( final DataLoaderEntry dataLoader : getDataLoaders() )
+    for ( final DataLoaderEntry dataLoader : _dataLoaders )
     {
       if ( dataLoader.getService().getSystemType().equals( channelType.getClass() ) )
       {

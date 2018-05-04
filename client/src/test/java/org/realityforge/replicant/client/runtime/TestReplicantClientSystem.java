@@ -9,6 +9,6 @@ public class TestReplicantClientSystem
   @Inject
   TestReplicantClientSystem( @Nonnull final DataLoaderEntry[] dataLoaderEntries )
   {
-    setDataLoaders( dataLoaderEntries );
+    super( dataLoaderEntries );
   }
 }

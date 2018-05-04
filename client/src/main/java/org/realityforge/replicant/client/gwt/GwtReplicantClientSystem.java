@@ -22,7 +22,7 @@ public abstract class GwtReplicantClientSystem
 
   GwtReplicantClientSystem( @Nonnull final DataLoaderEntry[] dataLoaders )
   {
-    setDataLoaders( dataLoaders );
+    super( dataLoaders );
     _timer = new Timer()
     {
       @Override
