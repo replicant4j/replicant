@@ -80,13 +80,6 @@ final class TestDataLoaderService
 
   @Nonnull
   @Override
-  public String getKey()
-  {
-    return _key;
-  }
-
-  @Nonnull
-  @Override
   public Class<? extends Enum> getSystemType()
   {
     return _systemType;
