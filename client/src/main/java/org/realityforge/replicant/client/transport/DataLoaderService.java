@@ -50,12 +50,12 @@ public interface DataLoaderService
   /**
    * Add a listener. Return true if actually added, false if listener was already present.
    */
-  boolean addDataLoaderListener( @Nonnull DataLoaderListener listener );
+  void addDataLoaderListener( @Nonnull DataLoaderListener listener );
 
   /**
    * Remove a listener. Return true if actually removed, false if listener was not present.
    */
-  boolean removeDataLoaderListener( @Nonnull DataLoaderListener listener );
+  void removeDataLoaderListener( @Nonnull DataLoaderListener listener );
 
   /**
    * A symbolic key for describing system.

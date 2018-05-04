@@ -13,24 +13,19 @@ public final class DataLoaderListenerSupport
   private final ArrayList<DataLoaderListener> _listeners = new ArrayList<>();
   private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  public synchronized boolean addListener( @Nonnull final DataLoaderListener listener )
+  public synchronized void addListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
     {
       _listeners.add( listener );
-      return true;
-    }
-    else
-    {
-      return false;
     }
   }
 
-  public synchronized boolean removeListener( @Nonnull final DataLoaderListener listener )
+  public synchronized void removeListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
-    return _listeners.remove( listener );
+    _listeners.remove( listener );
   }
 
   public List<DataLoaderListener> getListeners()

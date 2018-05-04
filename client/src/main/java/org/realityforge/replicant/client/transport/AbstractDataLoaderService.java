@@ -117,15 +117,15 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  public boolean addDataLoaderListener( @Nonnull final DataLoaderListener listener )
+  public void addDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    return _listenerSupport.addListener( listener );
+    _listenerSupport.addListener( listener );
   }
 
   @Override
-  public boolean removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
+  public void removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
-    return _listenerSupport.removeListener( listener );
+    _listenerSupport.removeListener( listener );
   }
 
   @Nonnull
