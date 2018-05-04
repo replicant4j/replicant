@@ -366,19 +366,6 @@ public abstract class ContextConverger
   }
 
   @Action
-  protected void removeFailedSubscription( @Nonnull final ChannelAddress address,
-                                           @Nonnull final Throwable error )
-  {
-    LOG.info( "Removing failed subscription " + address );
-    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
-    if ( null != areaOfInterest )
-    {
-      Disposable.dispose( areaOfInterest );
-    }
-    convergeStep();
-  }
-
-  @Action
   protected void setAreaOfInterestState( @Nonnull final ChannelAddress address,
                                          @Nonnull final AreaOfInterest.Status status,
                                          final boolean attemptEntryLoad,
@@ -418,7 +405,6 @@ public abstract class ContextConverger
                                    @Nonnull final Throwable throwable )
     {
       setAreaOfInterestState( address, AreaOfInterest.Status.LOAD_FAILED, false, throwable );
-      removeFailedSubscription( address, throwable );
     }
 
     @Override
@@ -440,9 +426,6 @@ public abstract class ContextConverger
                                      @Nonnull final ChannelAddress address,
                                      @Nonnull final Throwable throwable )
     {
-      // Note can not call removeFailedSubscription( address, throwable ) as the unsubscribe failure
-      // may be due to the server going away and thus unsubscribe expected to fail. But we should not
-      // then remove subscription
       setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, throwable );
       convergeStep();
     }
@@ -468,7 +451,6 @@ public abstract class ContextConverger
                                             @Nonnull final Throwable throwable )
     {
       setAreaOfInterestState( address, AreaOfInterest.Status.UPDATE_FAILED, false, throwable );
-      removeFailedSubscription( address, throwable );
     }
   }
 }
