@@ -202,7 +202,7 @@ public final class ClientSession
     return null != _requests.remove( requestID );
   }
 
-  protected String newRequestID()
+  private String newRequestID()
   {
     return String.valueOf( ++_requestID );
   }
