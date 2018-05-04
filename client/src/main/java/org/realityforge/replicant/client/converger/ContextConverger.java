@@ -105,14 +105,13 @@ public abstract class ContextConverger
 
   protected void convergeStep()
   {
+    removeOrphanSubscriptions();
     if ( _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
     {
-      final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
       AreaOfInterest groupTemplate = null;
       AreaOfInterestAction groupAction = null;
       for ( final AreaOfInterest areaOfInterest : Replicant.context().getAreasOfInterest() )
       {
-        expectedChannels.add( areaOfInterest.getAddress() );
         final ConvergeAction convergeAction =
           convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
         switch ( convergeAction )
@@ -143,7 +142,6 @@ public abstract class ContextConverger
         return;
       }
 
-      removeOrphanSubscriptions( expectedChannels );
       convergeComplete();
     }
   }
@@ -264,15 +262,18 @@ public abstract class ContextConverger
     }
   }
 
-  void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
+  void removeOrphanSubscriptions()
   {
+    final HashSet<ChannelAddress> expected = new HashSet<>();
+    Replicant.context().getAreasOfInterest().forEach( aoi -> expected.add( aoi.getAddress() ) );
+
     for ( final Subscription subscription : Replicant.context().getTypeSubscriptions() )
     {
-      removeSubscriptionIfOrphan( expectedChannels, subscription );
+      removeSubscriptionIfOrphan( expected, subscription );
     }
     for ( final Subscription subscription : Replicant.context().getInstanceSubscriptions() )
     {
-      removeSubscriptionIfOrphan( expectedChannels, subscription );
+      removeSubscriptionIfOrphan( expected, subscription );
     }
   }
 

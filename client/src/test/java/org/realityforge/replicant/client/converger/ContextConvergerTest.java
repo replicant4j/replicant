@@ -190,12 +190,11 @@ public class ContextConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    final HashSet<ChannelAddress> expected = new HashSet<>();
-    expected.add( new ChannelAddress( TestSystemA.B, 1 ) );
-    expected.add( new ChannelAddress( TestSystemA.B, 2 ) );
-    expected.add( new ChannelAddress( TestSystemA.B, 3 ) );
-    expected.add( new ChannelAddress( TestSystemA.B, 4 ) );
-    expected.add( new ChannelAddress( TestSystemA.B, 5 ) );
+    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 1 ), null );
+    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 2 ), null );
+    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 3 ), null );
+    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 4 ), null );
+    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 5 ), null );
 
     final ContextConverger c = ContextConverger.create( clientSystem );
 
@@ -209,7 +208,7 @@ public class ContextConvergerTest
 
     Replicant.context().createSubscription( address, null, true );
 
-    c.removeOrphanSubscriptions( expected );
+    c.removeOrphanSubscriptions();
 
     verify( service ).requestUnsubscribe( address );
   }
