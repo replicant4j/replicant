@@ -13,7 +13,7 @@ final class DataLoaderListenerSupport
   private final ArrayList<DataLoaderListener> _listeners = new ArrayList<>();
   private final List<DataLoaderListener> _roListeners = Collections.unmodifiableList( _listeners );
 
-  synchronized void addListener( @Nonnull final DataLoaderListener listener )
+  void addListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     if ( !_listeners.contains( listener ) )
@@ -22,7 +22,7 @@ final class DataLoaderListenerSupport
     }
   }
 
-  synchronized void removeListener( @Nonnull final DataLoaderListener listener )
+  void removeListener( @Nonnull final DataLoaderListener listener )
   {
     Objects.requireNonNull( listener );
     _listeners.remove( listener );
@@ -146,7 +146,7 @@ final class DataLoaderListenerSupport
    * This avoids concurrent operation exceptions.
    */
   @Nonnull
-  private synchronized ArrayList<DataLoaderListener> cloneListeners()
+  private ArrayList<DataLoaderListener> cloneListeners()
   {
     final ArrayList<DataLoaderListener> listeners = new ArrayList<>( _listeners.size() );
     listeners.addAll( _listeners );
