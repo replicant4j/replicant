@@ -604,13 +604,6 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<Runnable> failAction );
 
   @Override
-  public boolean isIdle()
-  {
-    return _currentAoiActions.isEmpty() && _currentAction == null &&
-           _session.getPendingActions().isEmpty() && _session.getPendingAreaOfInterestActions().isEmpty();
-  }
-
-  @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
                                                 @Nonnull final ChannelAddress address,
                                                 @Nullable final Object filter )

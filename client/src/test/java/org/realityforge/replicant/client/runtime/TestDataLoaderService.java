@@ -102,12 +102,6 @@ final class TestDataLoaderService
   }
 
   @Override
-  public boolean isIdle()
-  {
-    return true;
-  }
-
-  @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
                                                 @Nonnull final ChannelAddress address,
                                                 @Nullable final Object filter )
