@@ -41,7 +41,7 @@ public final class EntityMessageSorter
       {
         return -1;
       }
-      final int typeComparison = o2.getTypeID() - o1.getTypeID();
+      final int typeComparison = o2.getTypeId() - o1.getTypeId();
       if ( 0 != typeComparison )
       {
         return typeComparison;
@@ -60,7 +60,7 @@ public final class EntityMessageSorter
     {
       return 1;
     }
-    final int typeComparison = o1.getTypeID() - o2.getTypeID();
+    final int typeComparison = o1.getTypeId() - o2.getTypeId();
     if ( 0 != typeComparison )
     {
       return typeComparison;

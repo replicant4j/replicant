@@ -15,11 +15,6 @@ public interface Change
   int getDesignatorAsInt();
 
   /**
-   * @return the unique discriminator or designator for the entity. Typically this is the primary key of the entity in the database.
-   */
-  String getDesignatorAsString();
-
-  /**
    * @return a code indicating the type of the entity changed.
    */
   int getTypeID();

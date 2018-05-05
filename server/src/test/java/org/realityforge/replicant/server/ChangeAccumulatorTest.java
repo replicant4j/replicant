@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -19,7 +19,7 @@ public class ChangeAccumulatorTest
     final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -34,9 +34,9 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     final Change change = packet.getChangeSet().getChanges().iterator().next();
-    assertEquals( change.getID(), "42#myID" );
-    assertEquals( change.getEntityMessage().getID(), id );
-    assertEquals( change.getEntityMessage().getTypeID(), typeID );
+    assertEquals( change.getKey(), "42#17" );
+    assertEquals( change.getEntityMessage().getId(), id );
+    assertEquals( change.getEntityMessage().getTypeId(), typeID );
     assertEquals( packet.getRequestID(), "j1" );
     final Map<Integer, Serializable> channels = change.getChannels();
     assertEquals( channels.size(), 1 );
@@ -52,12 +52,12 @@ public class ChangeAccumulatorTest
     final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
-    accumulator.addChanges( c, Arrays.asList( new Change( message, 1, 0 ) ) );
+    accumulator.addChanges( c, Collections.singletonList( new Change( message, 1, 0 ) ) );
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 1 );
 
@@ -68,7 +68,7 @@ public class ChangeAccumulatorTest
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
-    assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getID(), id );
+    assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getId(), id );
     assertEquals( packet.getRequestID(), "j1" );
 
     accumulator.complete( null, null );
@@ -83,7 +83,9 @@ public class ChangeAccumulatorTest
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
     accumulator.addActions( c,
-                            Arrays.asList( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) ) );
+                            Collections.singletonList( new ChannelAction( new ChannelDescriptor( 1, 2 ),
+                                                                          Action.ADD,
+                                                                          filter ) ) );
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
 
@@ -111,7 +113,7 @@ public class ChangeAccumulatorTest
     final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    final EntityMessage message = MessageTestUtil.createMessage( "myID", 42, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChange( c, new Change( message, 1, 0 ) );
     final boolean impactsInitiator = accumulator.complete( "s2", "j1" );

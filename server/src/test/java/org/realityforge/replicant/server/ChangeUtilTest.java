@@ -10,7 +10,7 @@ public class ChangeUtilTest
   @Test
   public void basicOperation()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );

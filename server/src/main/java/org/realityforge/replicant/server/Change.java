@@ -9,14 +9,14 @@ import javax.annotation.Nullable;
 public class Change
 {
   @Nonnull
-  private final String _id;
+  private final String _key;
   @Nonnull
   private final EntityMessage _entityMessage;
   private final Map<Integer, Serializable> _channels;
 
   public Change( @Nonnull final EntityMessage entityMessage )
   {
-    _id = entityMessage.getTypeID() + "#" + entityMessage.getID();
+    _key = entityMessage.getTypeId() + "#" + entityMessage.getId();
     _entityMessage = entityMessage;
     _channels = new LinkedHashMap<>();
   }
@@ -30,9 +30,9 @@ public class Change
   }
 
   @Nonnull
-  public String getID()
+  public String getKey()
   {
-    return _id;
+    return _key;
   }
 
   @Nonnull

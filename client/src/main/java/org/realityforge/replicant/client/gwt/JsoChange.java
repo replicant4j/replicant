@@ -19,11 +19,6 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native String getDesignatorAsString() /*-{
-    return this.id;
-  }-*/;
-
-  @Override
   public final native int getTypeID() /*-{
     return this.type;
   }-*/;

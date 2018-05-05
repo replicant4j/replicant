@@ -9,7 +9,7 @@ public class ChannelMetaDataTest
   public void typeGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", null, ChannelMetaData.FilterType.NONE, null, false, false );
+      new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false, false );
     assertEquals( metaData.getChannelID(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), true );
@@ -18,7 +18,6 @@ public class ChannelMetaDataTest
     assertEquals( metaData.isCacheable(), false );
     assertEquals( metaData.isExternal(), false );
 
-    assertThrows( metaData::getSubChannelType );
     assertThrows( metaData::getFilterParameterType );
   }
 
@@ -26,7 +25,7 @@ public class ChannelMetaDataTest
   public void instanceGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", Integer.class, ChannelMetaData.FilterType.NONE, null, false, true );
+      new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.NONE, null, false, true );
     assertEquals( metaData.getChannelID(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), false );
@@ -34,14 +33,13 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
     assertEquals( metaData.isCacheable(), false );
     assertEquals( metaData.isExternal(), true );
-    assertEquals( metaData.getSubChannelType(), Integer.class );
   }
 
   @Test
   public void filteredGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", Integer.class, ChannelMetaData.FilterType.STATIC, String.class, false, true );
+      new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.STATIC, String.class, false, true );
     assertEquals( metaData.getChannelID(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), false );
@@ -50,14 +48,19 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterParameterType(), String.class );
     assertEquals( metaData.isCacheable(), false );
     assertEquals( metaData.isExternal(), true );
-    assertEquals( metaData.getSubChannelType(), Integer.class );
   }
 
   @Test
   public void badFilteredConfig()
   {
-    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.STATIC, null, false, true ) );
-    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.DYNAMIC, null, false, true ) );
-    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.NONE, String.class, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.STATIC, null, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.DYNAMIC, null, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1,
+                                             "X",
+                                             true,
+                                             ChannelMetaData.FilterType.NONE,
+                                             String.class,
+                                             false,
+                                             true ) );
   }
 }

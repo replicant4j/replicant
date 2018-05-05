@@ -68,22 +68,14 @@ public class EntityMessageSorterTest
     }
   }
 
-  private void assertIndex( final List<EntityMessage> l1, final int index, final Integer value )
+  private void assertIndex( final List<EntityMessage> l1, final int index, final int value )
   {
-    assertEquals( l1.get( index ).getID(), value );
+    assertEquals( l1.get( index ).getId(), value );
   }
 
-  private EntityMessage newEntityMessage( final int id,
-                                          final int typeID,
-                                          final long timestamp,
-                                          final boolean isDelete )
+  private EntityMessage newEntityMessage( final int id, final int typeID, final long timestamp, final boolean isDelete )
   {
-    return new EntityMessage( id,
-                              typeID,
-                              timestamp,
-                              new HashMap<String, Serializable>(),
-                              isDelete ? null : new HashMap<String, Serializable>(),
-                              null );
+    return new EntityMessage( id, typeID, timestamp, new HashMap<>(), isDelete ? null : new HashMap<>(), null );
   }
 
   @Test
@@ -111,10 +103,10 @@ public class EntityMessageSorterTest
 
     final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
 
-    assertEquals( sortedMessages.get( 0 ).getTypeID(), 4 );
-    assertEquals( sortedMessages.get( 1 ).getTypeID(), 3 );
-    assertEquals( sortedMessages.get( 2 ).getTypeID(), 2 );
-    assertEquals( sortedMessages.get( 3 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 0 ).getTypeId(), 4 );
+    assertEquals( sortedMessages.get( 1 ).getTypeId(), 3 );
+    assertEquals( sortedMessages.get( 2 ).getTypeId(), 2 );
+    assertEquals( sortedMessages.get( 3 ).getTypeId(), 1 );
     assertUpdate( sortedMessages.get( 4 ) );
   }
 
@@ -130,10 +122,10 @@ public class EntityMessageSorterTest
     final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
 
     assertDeletion( sortedMessages.get( 0 ) );
-    assertEquals( sortedMessages.get( 1 ).getTypeID(), 1 );
-    assertEquals( sortedMessages.get( 2 ).getTypeID(), 2 );
-    assertEquals( sortedMessages.get( 3 ).getTypeID(), 3 );
-    assertEquals( sortedMessages.get( 4 ).getTypeID(), 4 );
+    assertEquals( sortedMessages.get( 1 ).getTypeId(), 1 );
+    assertEquals( sortedMessages.get( 2 ).getTypeId(), 2 );
+    assertEquals( sortedMessages.get( 3 ).getTypeId(), 3 );
+    assertEquals( sortedMessages.get( 4 ).getTypeId(), 4 );
   }
 
   @Test
@@ -149,7 +141,7 @@ public class EntityMessageSorterTest
     assertEquals( sortedMessages.get( 0 ).getTimestamp(), 20 );
     assertEquals( sortedMessages.get( 1 ).getTimestamp(), 15 );
     assertEquals( sortedMessages.get( 2 ).getTimestamp(), 10 );
-    assertEquals( sortedMessages.get( 3 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 3 ).getTypeId(), 1 );
   }
 
   @Test
@@ -162,7 +154,7 @@ public class EntityMessageSorterTest
 
     final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
 
-    assertEquals( sortedMessages.get( 0 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 0 ).getTypeId(), 1 );
     assertEquals( sortedMessages.get( 1 ).getTimestamp(), 10 );
     assertEquals( sortedMessages.get( 2 ).getTimestamp(), 15 );
     assertEquals( sortedMessages.get( 3 ).getTimestamp(), 20 );
@@ -175,12 +167,7 @@ public class EntityMessageSorterTest
 
   private EntityMessage createUpdateMessage( final int typeID, final long time )
   {
-    return new EntityMessage( _nextID++,
-                              typeID,
-                              time,
-                              new HashMap<String, Serializable>(),
-                              new HashMap<String, Serializable>(),
-                              null );
+    return new EntityMessage( _nextID++, typeID, time, new HashMap<>(), new HashMap<>(), null );
   }
 
   private EntityMessage createDeletionMessage( final int typeID )
@@ -190,12 +177,7 @@ public class EntityMessageSorterTest
 
   private EntityMessage createDeletionMessage( final int typeID, final long time )
   {
-    return new EntityMessage( _nextID++,
-                              typeID,
-                              time,
-                              new HashMap<String, Serializable>(),
-                              null,
-                              null );
+    return new EntityMessage( _nextID++, typeID, time, new HashMap<>(), null, null );
   }
 
   private void assertDeletion( final EntityMessage message )

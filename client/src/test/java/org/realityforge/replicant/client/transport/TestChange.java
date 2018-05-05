@@ -21,12 +21,6 @@ final class TestChange
   }
 
   @Override
-  public String getDesignatorAsString()
-  {
-    return null;
-  }
-
-  @Override
   public int getTypeID()
   {
     return 0;

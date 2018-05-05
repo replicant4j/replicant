@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import org.testng.annotations.Test;
@@ -11,7 +10,7 @@ public class EntityMessageSetTest
   @Test
   public void mergeElementsOverrideExisting()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -45,7 +44,7 @@ public class EntityMessageSetTest
   @Test
   public void mergeReplacesIfCopySpecified()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -65,7 +64,7 @@ public class EntityMessageSetTest
   @Test
   public void mergeMultiple()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -88,7 +87,7 @@ public class EntityMessageSetTest
   @Test
   public void mergeMultipleWithCopy()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -113,17 +112,12 @@ public class EntityMessageSetTest
   public void isMessagePresent()
   {
     final EntityMessage message =
-      new EntityMessage( "a",
-                         42,
-                         0,
-                         new HashMap<String, Serializable>(),
-                         new HashMap<String, Serializable>(),
-                         null );
+      new EntityMessage( 17, 42, 0, new HashMap<>(), new HashMap<>(), null );
 
     final EntityMessageSet set = new EntityMessageSet();
 
-    assertFalse( set.containsEntityMessage( message.getTypeID(), message.getID() ) );
+    assertFalse( set.containsEntityMessage( message.getTypeId(), message.getId() ) );
     set.merge( message );
-    assertTrue( set.containsEntityMessage( message.getTypeID(), message.getID() ) );
+    assertTrue( set.containsEntityMessage( message.getTypeId(), message.getId() ) );
   }
 }

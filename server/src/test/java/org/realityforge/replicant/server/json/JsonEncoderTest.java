@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
@@ -29,7 +30,7 @@ public final class JsonEncoderTest
   public void encodeAllData()
     throws Exception
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
     final Calendar calendar = Calendar.getInstance();
     calendar.set( Calendar.YEAR, 2001 );
@@ -77,7 +78,7 @@ public final class JsonEncoderTest
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
+    assertEquals( object.getInt( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
     final JsonObject data = object.getJsonObject( TransportConstants.DATA );
@@ -109,7 +110,7 @@ public final class JsonEncoderTest
   public void encodeChangeSetFromEntityMessages_deleteMessage()
     throws Exception
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
@@ -126,7 +127,7 @@ public final class JsonEncoderTest
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
+    assertEquals( object.getInt( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
     assertFalse( object.containsKey( TransportConstants.DATA ) );
@@ -157,7 +158,7 @@ public final class JsonEncoderTest
   public void encodeLong()
     throws Exception
   {
-    final String id = "myID";
+    final int id = ValueUtil.randomInt();
     final int typeID = 42;
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
     final HashMap<String, Serializable> attributeData = new HashMap<>();

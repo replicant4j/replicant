@@ -465,21 +465,8 @@ public abstract class AbstractSessionRestService
   @Nonnull
   private Serializable toSubChannelID( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final String value )
   {
-    final Class subChannelType = channelMetaData.getSubChannelType();
-    if ( Integer.class == subChannelType )
-    {
-      return Integer.parseInt( value );
-    }
-    else if ( String.class == subChannelType )
-    {
-      return value;
-    }
-    else
-    {
-      final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Channel has invalid subChannel type" );
-      throw new WebApplicationException( response );
-    }
+    assert channelMetaData.isInstanceGraph();
+    return Integer.parseInt( value );
   }
 
   @Nonnull

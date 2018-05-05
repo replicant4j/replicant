@@ -8,13 +8,13 @@ public class ChangeTest
   @Test
   public void basicOperation()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final Change change = new Change( message );
 
-    assertEquals( change.getID(), "42#myID" );
+    assertEquals( change.getKey(), "42#17" );
     assertEquals( change.getEntityMessage(), message );
     assertEquals( change.getChannels().size(), 0 );
   }
@@ -22,7 +22,7 @@ public class ChangeTest
   @Test
   public void duplicate()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -31,8 +31,8 @@ public class ChangeTest
     change.getChannels().put( 2, 3 );
 
     final Change duplicate = change.duplicate();
-    assertEquals( duplicate.getID(), change.getID() );
-    assertEquals( duplicate.getEntityMessage().getID(), change.getEntityMessage().getID() );
+    assertEquals( duplicate.getKey(), change.getKey() );
+    assertEquals( duplicate.getEntityMessage().getId(), change.getEntityMessage().getId() );
     assertNotSame( duplicate.getEntityMessage(), change.getEntityMessage() );
     assertEquals( duplicate.getChannels(), change.getChannels() );
     assertNotSame( duplicate.getChannels(), change.getChannels() );
@@ -42,7 +42,7 @@ public class ChangeTest
   @Test
   public void merge_combinesChannels()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
