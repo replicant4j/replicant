@@ -50,7 +50,6 @@ public class ChannelTest
   @Test
   public void comparable()
   {
-
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A );
     final ChannelAddress address2 = new ChannelAddress( TestSystem.B );
 
