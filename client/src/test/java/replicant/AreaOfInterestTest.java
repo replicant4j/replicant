@@ -123,7 +123,7 @@ public class AreaOfInterestTest
     final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
 
     assertEquals( areaOfInterest.toString(),
-                  "replicant.Arez_AreaOfInterest@" + Integer.toHexString( System.identityHashCode( areaOfInterest ) ) );
+                  "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
   }
 
   enum G
