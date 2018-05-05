@@ -56,4 +56,14 @@ Some actions that should occur at some point in the future.
     and all driven by metadata loaded into system.
   * CBOR could be used as the transport system.
 
-* `Replicant.canRequestDebugOutputBeEnabled()` should move to a spy like system as with Arez.
+* Enhance spy system.
+  - AreaOfInterest create/update/destroy changes should all result in spy events
+  - Subscription create/update/destroy changes should all result in spy events
+  - Entity create/update/destroy changes should all result in spy events
+  - Datasource changes should result in spy events
+  - ReplicantSystem state changes should result in spy events
+  - Requests should result in spy events
+  - Add ability to dump subscriptions as table?
+  - `Replicant.can*DebugOutputBeEnabled()` should be removed.
+  - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
+  - Add a colored spy logger similar to as in Arez
