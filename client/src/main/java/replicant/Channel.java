@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
 import java.util.Objects;
@@ -59,7 +58,7 @@ public abstract class Channel
   @Override
   public String toString()
   {
-    if ( Arez.areNamesEnabled() )
+    if ( Replicant.areNamesEnabled() )
     {
       return "Channel[" + _address + " :: Filter=" + FilterUtil.filterToString( _filter ) + "]";
     }

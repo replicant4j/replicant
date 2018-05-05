@@ -1,7 +1,6 @@
 package replicant;
 
 import arez.Arez;
-import arez.ArezTestUtil;
 import arez.Disposable;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
@@ -71,7 +70,7 @@ public class ChannelTest
 
     assertEquals( channel.toString(), "Channel[" + address + " :: Filter=null]" );
 
-    ArezTestUtil.disableNames();
+    ReplicantTestUtil.disableNames();
 
     assertTrue( channel.toString().startsWith( "replicant.Arez_Channel@" ), channel.toString() );
   }

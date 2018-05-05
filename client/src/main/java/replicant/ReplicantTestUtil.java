@@ -35,6 +35,7 @@ public final class ReplicantTestUtil
 
     if ( productionMode )
     {
+      disableNames();
       noRecordRequestKey();
       noValidateRepositoryOnLoad();
       noRequestsDebugOutputEnabled();
@@ -45,6 +46,7 @@ public final class ReplicantTestUtil
     }
     else
     {
+      enableNames();
       recordRequestKey();
       validateRepositoryOnLoad();
       requestsDebugOutputEnabled();
@@ -57,6 +59,32 @@ public final class ReplicantTestUtil
     ( (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger() ).setLogger( null );
     ReplicantContextHolder.reset();
     ReplicantZoneHolder.reset();
+  }
+
+  /**
+   * Set `replicant.enable_names` setting to true.
+   */
+  public static void enableNames()
+  {
+    setEnableNames( true );
+  }
+
+  /**
+   * Set `replicant.enable_names` setting to false.
+   */
+  public static void disableNames()
+  {
+    setEnableNames( false );
+  }
+
+  /**
+   * Configure the `replicant.enable_names` setting.
+   *
+   * @param value the setting.
+   */
+  private static void setEnableNames( final boolean value )
+  {
+    setConstant( "ENABLE_NAMES", value );
   }
 
   /**

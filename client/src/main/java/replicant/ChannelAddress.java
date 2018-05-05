@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,7 +49,7 @@ public final class ChannelAddress
   @Override
   public String toString()
   {
-    if ( Arez.areNamesEnabled() )
+    if ( Replicant.areNamesEnabled() )
     {
       return getSystem().getSimpleName() + "." + _channelType.toString() + ( null != _id ? ":" + _id : "" );
     }

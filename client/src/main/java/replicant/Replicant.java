@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
@@ -12,6 +11,16 @@ public final class Replicant
 {
   private Replicant()
   {
+  }
+
+  /**
+   * Return true if user should pass names into API methods, false if should pass null.
+   *
+   * @return true if user should pass names into API methods, false if should pass null.
+   */
+  public static boolean areNamesEnabled()
+  {
+    return ReplicantConfig.areNamesEnabled();
   }
 
   /**
@@ -34,7 +43,7 @@ public final class Replicant
     /*
      * Spy's use debug names so we can not enable spies without names.
      */
-    return Arez.areNamesEnabled() && ReplicantConfig.areSpiesEnabled();
+    return areNamesEnabled() && ReplicantConfig.areSpiesEnabled();
   }
 
   /**

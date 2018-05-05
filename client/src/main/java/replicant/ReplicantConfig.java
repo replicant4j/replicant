@@ -14,6 +14,8 @@ final class ReplicantConfig
     "true".equals( System.getProperty( "replicant.check_invariants", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean CHECK_API_INVARIANTS =
     "true".equals( System.getProperty( "replicant.check_api_invariants", PRODUCTION_MODE ? "false" : "true" ) );
+  private static boolean ENABLE_NAMES =
+    "true".equals( System.getProperty( "replicant.enable_names", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_ZONES = "true".equals( System.getProperty( "replicant.enable_zones", "false" ) );
   private static boolean RECORD_REQUEST_KEY =
     "true".equals( System.getProperty( "replicant.recordRequestKey", PRODUCTION_MODE ? "false" : "true" ) );
@@ -40,6 +42,11 @@ final class ReplicantConfig
   static boolean isProductionMode()
   {
     return PRODUCTION_MODE;
+  }
+
+  static boolean areNamesEnabled()
+  {
+    return ENABLE_NAMES;
   }
 
   static boolean checkInvariants()

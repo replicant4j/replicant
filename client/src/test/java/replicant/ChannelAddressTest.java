@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.ArezTestUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -46,7 +45,7 @@ public class ChannelAddressTest
   @Test
   public void toStringTest_NamingDisabled()
   {
-    ArezTestUtil.disableNames();
+    ReplicantTestUtil.disableNames();
     final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
     assertEquals( address.toString(), "replicant.ChannelAddress@" + Integer.toHexString( address.hashCode() ) );
   }

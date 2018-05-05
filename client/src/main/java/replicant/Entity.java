@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
@@ -183,7 +182,7 @@ public abstract class Entity
   @Override
   public final String toString()
   {
-    if ( Arez.areNamesEnabled() )
+    if ( Replicant.areNamesEnabled() )
     {
       return _type.getSimpleName() + "/" + _id;
     }

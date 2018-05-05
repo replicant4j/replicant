@@ -11,6 +11,9 @@
   <define-property name='replicant.check_api_invariants' values='true,false'/>
   <set-property name='replicant.check_api_invariants' value='false'/>
 
+  <define-property name='replicant.enable_names' values='true,false'/>
+  <set-property name='replicant.enable_names' value='false'/>
+
   <define-property name='replicant.recordRequestKey' values='true,false'/>
   <set-property name='replicant.recordRequestKey' value='false'/>
 

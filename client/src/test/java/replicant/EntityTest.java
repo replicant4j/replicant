@@ -1,7 +1,6 @@
 package replicant;
 
 import arez.Arez;
-import arez.ArezTestUtil;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -38,7 +37,7 @@ public class EntityTest
     final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
 
     assertEquals( entity.toString(), "A/123" );
-    ArezTestUtil.disableNames();
+    ReplicantTestUtil.disableNames();
 
     assertEquals( entity.toString(), entity.getClass().getName() + "@" + Integer.toHexString( entity.hashCode() ) );
   }

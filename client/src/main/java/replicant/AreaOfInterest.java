@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentId;
 import arez.annotations.Observable;
@@ -84,7 +83,7 @@ public abstract class AreaOfInterest
   @Override
   public String toString()
   {
-    if ( Arez.areNamesEnabled() )
+    if ( Replicant.areNamesEnabled() )
     {
       return "AreaOfInterest[" + _channel + " Status: " + _status + "]";
     }

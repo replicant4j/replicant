@@ -1,7 +1,6 @@
 package replicant;
 
 import arez.Arez;
-import arez.ArezTestUtil;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
@@ -117,10 +116,7 @@ public class AreaOfInterestTest
   @Test
   public void testToString_namesDisabled()
   {
-    ArezTestUtil.disableNames();
-
-    // TODO: The next line should be removed when Arez is upgraded to a version greater than 0.82
-    ArezTestUtil.disableNativeComponents();
+    ReplicantTestUtil.disableNames();
 
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final Channel channel = Channel.create( address );
