@@ -11,7 +11,7 @@ public final class ChannelMetaData
     NONE, STATIC, DYNAMIC
   }
 
-  private final int _channelID;
+  private final int _channelId;
   @Nonnull
   private final String _name;
   private final boolean _typeGraph;
@@ -25,7 +25,7 @@ public final class ChannelMetaData
    */
   private final boolean _external;
 
-  public ChannelMetaData( final int channelID,
+  public ChannelMetaData( final int channelId,
                           @Nonnull final String name,
                           final boolean isTypeGraph,
                           @Nonnull final FilterType filterType,
@@ -33,7 +33,7 @@ public final class ChannelMetaData
                           final boolean cacheable,
                           final boolean external )
   {
-    _channelID = channelID;
+    _channelId = channelId;
     _name = Objects.requireNonNull( name );
     _typeGraph = isTypeGraph;
     _filterType = Objects.requireNonNull( filterType );
@@ -50,9 +50,9 @@ public final class ChannelMetaData
     _external = external;
   }
 
-  public int getChannelID()
+  public int getChannelId()
   {
-    return _channelID;
+    return _channelId;
   }
 
   @Nonnull

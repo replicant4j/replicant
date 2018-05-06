@@ -10,7 +10,7 @@ public class ChannelMetaDataTest
   {
     final ChannelMetaData metaData =
       new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false, false );
-    assertEquals( metaData.getChannelID(), 1 );
+    assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), true );
     assertEquals( metaData.isInstanceGraph(), false );
@@ -26,7 +26,7 @@ public class ChannelMetaDataTest
   {
     final ChannelMetaData metaData =
       new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.NONE, null, false, true );
-    assertEquals( metaData.getChannelID(), 1 );
+    assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), false );
     assertEquals( metaData.isInstanceGraph(), true );
@@ -40,7 +40,7 @@ public class ChannelMetaDataTest
   {
     final ChannelMetaData metaData =
       new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.STATIC, String.class, false, true );
-    assertEquals( metaData.getChannelID(), 1 );
+    assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertEquals( metaData.isTypeGraph(), false );
     assertEquals( metaData.isInstanceGraph(), true );

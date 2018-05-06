@@ -128,7 +128,7 @@ final class Encoder
   {
     g.write( "url", getInstanceChannelURL( session, channeID, uri ) );
     final Collection<SubscriptionEntry> entries =
-      session.getSubscriptions().values().stream().filter( s -> s.getDescriptor().getChannelID() == channeID ).
+      session.getSubscriptions().values().stream().filter( s -> s.getDescriptor().getChannelId() == channeID ).
         collect( Collectors.toList() );
     emitSubscriptions( systemMetaData, session, g, entries, uri );
   }
@@ -147,10 +147,10 @@ final class Encoder
 
   @Nonnull
   private static String getInstanceChannelURL( @Nonnull final ReplicantSession session,
-                                               final int channelID,
+                                               final int channelId,
                                                @Nonnull final UriInfo uri )
   {
-    return getSubscriptionsURL( session, uri ) + '/' + channelID;
+    return getSubscriptionsURL( session, uri ) + '/' + channelId;
   }
 
   @Nonnull
@@ -158,10 +158,10 @@ final class Encoder
                                        @Nonnull final ChannelDescriptor descriptor,
                                        @Nonnull final UriInfo uri )
   {
-    final String baseURL = getSubscriptionsURL( session, uri ) + '/' + descriptor.getChannelID();
-    if ( null != descriptor.getSubChannelID() )
+    final String baseURL = getSubscriptionsURL( session, uri ) + '/' + descriptor.getChannelId();
+    if ( null != descriptor.getSubChannelId() )
     {
-      return baseURL + '.' + descriptor.getSubChannelID();
+      return baseURL + '.' + descriptor.getSubChannelId();
     }
     else
     {
@@ -195,23 +195,23 @@ final class Encoder
     g.writeEnd();
   }
 
-  private static void emitChannelID( @Nonnull final JsonGenerator g,
-                                     final int channelID )
+  private static void emitChannelId( @Nonnull final JsonGenerator g,
+                                     final int channelId )
   {
-    g.write( "channelID", channelID );
+    g.write( "channelId", channelId );
   }
 
-  private static void emitSubChannelID( @Nonnull final JsonGenerator g, @Nullable final Serializable subChannelID )
+  private static void emitSubChannelId( @Nonnull final JsonGenerator g, @Nullable final Serializable subChannelId )
   {
-    if ( null != subChannelID )
+    if ( null != subChannelId )
     {
-      if ( subChannelID instanceof Integer )
+      if ( subChannelId instanceof Integer )
       {
-        g.write( "instanceID", (Integer) subChannelID );
+        g.write( "instanceID", (Integer) subChannelId );
       }
       else
       {
-        g.write( "instanceID", String.valueOf( subChannelID ) );
+        g.write( "instanceID", String.valueOf( subChannelId ) );
       }
     }
   }
@@ -260,8 +260,8 @@ final class Encoder
   private static void emitChannelDescriptor( @Nonnull final JsonGenerator g,
                                              @Nonnull final ChannelDescriptor descriptor )
   {
-    emitChannelID( g, descriptor.getChannelID() );
-    emitSubChannelID( g, descriptor.getSubChannelID() );
+    emitChannelId( g, descriptor.getChannelId() );
+    emitSubChannelId( g, descriptor.getSubChannelId() );
   }
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,

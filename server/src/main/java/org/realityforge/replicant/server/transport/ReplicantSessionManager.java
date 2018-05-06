@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.transport;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -94,8 +93,8 @@ public interface ReplicantSessionManager
                          @Nonnull ChangeSet changeSet );
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
-                      int channelID,
-                      @Nonnull Collection<Serializable> subChannelIDs,
+                      int channelId,
+                      @Nonnull Collection<Integer> subChannelIds,
                       @Nullable Object filter,
                       boolean explicitSubscribe,
                       @Nonnull ChangeSet changeSet );
@@ -107,8 +106,8 @@ public interface ReplicantSessionManager
 
   void bulkDelinkSubscription( @Nonnull ReplicantSession session,
                                @Nonnull ChannelDescriptor sourceGraph,
-                               int channelID,
-                               @Nonnull Collection<Serializable> subChannelIDs,
+                               int channelId,
+                               @Nonnull Collection<Integer> subChannelIds,
                                @Nonnull ChangeSet changeSet );
 
   void updateSubscription( @Nonnull ReplicantSession session,
@@ -117,8 +116,8 @@ public interface ReplicantSessionManager
                            @Nonnull ChangeSet changeSet );
 
   void bulkUpdateSubscription( @Nonnull ReplicantSession session,
-                               int channelID,
-                               @Nonnull Collection<Serializable> subChannelIDs,
+                               int channelId,
+                               @Nonnull Collection<Integer> subChannelIds,
                                @Nullable Object filter,
                                @Nonnull ChangeSet changeSet );
 
@@ -128,8 +127,8 @@ public interface ReplicantSessionManager
                     @Nonnull ChangeSet changeSet );
 
   void bulkUnsubscribe( @Nonnull ReplicantSession session,
-                        int channelID,
-                        @Nonnull Collection<Serializable> subChannelIDs,
+                        int channelId,
+                        @Nonnull Collection<Integer> subChannelIds,
                         boolean explicitUnsubscribe,
                         @Nonnull ChangeSet changeSet );
 }

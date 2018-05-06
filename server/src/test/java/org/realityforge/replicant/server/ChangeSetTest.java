@@ -68,8 +68,8 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -87,8 +87,8 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
 
     final JsonObject filter =
@@ -146,8 +146,8 @@ public class ChangeSetTest
     assertEquals( actions.size(), 1 );
 
     final ChannelAction action = actions.get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -164,7 +164,7 @@ public class ChangeSetTest
     final EntityMessageSet messageSet = new EntityMessageSet();
     messageSet.merge( message1 );
 
-    changeSet.merge( new ChannelDescriptor( 1, null ), messageSet );
+    changeSet.merge( new ChannelDescriptor( 1 ), messageSet );
 
     final Collection<Change> changes = changeSet.getChanges();
     assertEquals( changes.size(), 1 );

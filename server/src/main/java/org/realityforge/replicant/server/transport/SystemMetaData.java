@@ -20,7 +20,7 @@ public final class SystemMetaData
     for ( int i = 0; i < channels.length; i++ )
     {
       final ChannelMetaData channel = channels[ i ];
-      if ( i != channel.getChannelID() )
+      if ( i != channel.getChannelId() )
       {
         final String message = "Channel at index " + i + " does not have channel id matching index: " + channel;
         throw new IllegalArgumentException( message );
@@ -45,19 +45,19 @@ public final class SystemMetaData
   @Nonnull
   public ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
   {
-    return getChannelMetaData( descriptor.getChannelID() );
+    return getChannelMetaData( descriptor.getChannelId() );
   }
 
   /**
    * @return the channel metadata.
    */
   @Nonnull
-  public ChannelMetaData getChannelMetaData( @Nonnegative final int channelID )
+  public ChannelMetaData getChannelMetaData( @Nonnegative final int channelId )
   {
-    if ( channelID >= _channels.size() || channelID < 0 )
+    if ( channelId >= _channels.size() || channelId < 0 )
     {
-      throw new NoSuchChannelException( channelID );
+      throw new NoSuchChannelException( channelId );
     }
-    return _channels.get( channelID );
+    return _channels.get( channelId );
   }
 }

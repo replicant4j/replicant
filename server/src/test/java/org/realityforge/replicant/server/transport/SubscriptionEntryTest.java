@@ -16,11 +16,11 @@ public class SubscriptionEntryTest
   @Test
   public void basicFlow()
   {
-    final ChannelDescriptor cd1 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelDescriptor cd2 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelDescriptor cd3 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelDescriptor cd4 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelDescriptor cd5 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomString() );
+    final ChannelDescriptor cd1 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelDescriptor cd4 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelDescriptor cd5 = new ChannelDescriptor( ValueUtil.randomInt(), ValueUtil.randomInt() );
 
     final SubscriptionEntry entry = new SubscriptionEntry( cd1 );
 
@@ -44,7 +44,6 @@ public class SubscriptionEntryTest
     assertEquals( entry.getFilter(), filter );
     entry.setFilter( null );
     assertEquals( entry.getFilter(), null );
-
 
     // Deregister when there is none subscribed
     assertEquals( entry.deregisterOutwardSubscriptions( cd2 ), new ChannelDescriptor[ 0 ] );
@@ -104,8 +103,8 @@ public class SubscriptionEntryTest
   @Test
   public void sorting()
   {
-    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, "X" );
-    final ChannelDescriptor cd3 = new ChannelDescriptor( 1, "Y" );
+    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, 42 );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( 1, 43 );
     final ChannelDescriptor cd4 = new ChannelDescriptor( 2, null );
     final ChannelDescriptor cd5 = new ChannelDescriptor( 3, null );
 

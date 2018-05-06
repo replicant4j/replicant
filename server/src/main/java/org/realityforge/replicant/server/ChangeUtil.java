@@ -17,18 +17,18 @@ public final class ChangeUtil
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
                                         @Nonnull final ChannelDescriptor descriptor )
   {
-    return toChanges( messages, descriptor.getChannelID(), descriptor.getSubChannelID() );
+    return toChanges( messages, descriptor.getChannelId(), descriptor.getSubChannelId() );
   }
 
   @Nonnull
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
-                                        final int channelID,
-                                        @Nullable final Serializable subChannelID )
+                                        final int channelId,
+                                        @Nullable final Serializable subChannelId )
   {
     final ArrayList<Change> changes = new ArrayList<>( messages.size() );
     for ( final EntityMessage message : messages )
     {
-      changes.add( new Change( message, channelID, subChannelID ) );
+      changes.add( new Change( message, channelId, subChannelId ) );
     }
     return changes;
   }

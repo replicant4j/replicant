@@ -8,22 +8,22 @@ public class ChannelLinkTest
   @Test
   public void basicOperation()
   {
-    final ChannelLink link = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, "2" ) );
-    assertEquals( link.getSourceChannel().getChannelID(), 22 );
-    assertEquals( link.getSourceChannel().getSubChannelID(), 44 );
-    assertEquals( link.getTargetChannel().getChannelID(), 1 );
-    assertEquals( link.getTargetChannel().getSubChannelID(), "2" );
+    final ChannelLink link = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, 2 ) );
+    assertEquals( link.getSourceChannel().getChannelId(), 22 );
+    assertEquals( link.getSourceChannel().getSubChannelId(), (Integer) 44 );
+    assertEquals( link.getTargetChannel().getChannelId(), 1 );
+    assertEquals( link.getTargetChannel().getSubChannelId(), (Integer) 2 );
     assertEquals( link.toString(), "[#22.44#=>#1.2#]" );
   }
 
   @Test
   public void hashcodeAndEquals()
   {
-    final ChannelLink link1 = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, "2" ) );
-    final ChannelLink link2 = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, "3" ) );
-    final ChannelLink link3 = new ChannelLink( new ChannelDescriptor( 22, 77 ), new ChannelDescriptor( 1, "2" ) );
-    final ChannelLink link4 = new ChannelLink( new ChannelDescriptor( 27, null ), new ChannelDescriptor( 1, "2" ) );
-    final ChannelLink link5 = new ChannelLink( new ChannelDescriptor( 27, null ), new ChannelDescriptor( 1, "3" ) );
+    final ChannelLink link1 = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, 2 ) );
+    final ChannelLink link2 = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, 3 ) );
+    final ChannelLink link3 = new ChannelLink( new ChannelDescriptor( 22, 77 ), new ChannelDescriptor( 1, 2 ) );
+    final ChannelLink link4 = new ChannelLink( new ChannelDescriptor( 27 ), new ChannelDescriptor( 1, 2 ) );
+    final ChannelLink link5 = new ChannelLink( new ChannelDescriptor( 27 ), new ChannelDescriptor( 1, 3 ) );
 
     assertLinkEqual( link1, link1 );
     assertLinkEqual( link2, link2 );

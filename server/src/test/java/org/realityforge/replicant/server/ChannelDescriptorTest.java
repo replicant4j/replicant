@@ -13,23 +13,23 @@ public class ChannelDescriptorTest
   @Test
   public void basicOperation()
   {
-    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, "X" );
-    final ChannelDescriptor cd2 = new ChannelDescriptor( 1, "X" );
-    final ChannelDescriptor cd3 = new ChannelDescriptor( 1, "Y" );
-    final ChannelDescriptor cd4 = new ChannelDescriptor( 2, null );
-    final ChannelDescriptor cd5 = new ChannelDescriptor( 3, null );
-    final ChannelDescriptor cd6 = new ChannelDescriptor( 2, null );
+    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, 22 );
+    final ChannelDescriptor cd2 = new ChannelDescriptor( 1, 22 );
+    final ChannelDescriptor cd3 = new ChannelDescriptor( 1, 23 );
+    final ChannelDescriptor cd4 = new ChannelDescriptor( 2 );
+    final ChannelDescriptor cd5 = new ChannelDescriptor( 3 );
+    final ChannelDescriptor cd6 = new ChannelDescriptor( 2 );
 
-    assertEquals( cd1.getChannelID(), 1 );
-    assertEquals( cd1.getSubChannelID(), "X" );
-    assertEquals( cd1.toString(), "#1.X#" );
+    assertEquals( cd1.getChannelId(), 1 );
+    assertEquals( cd1.getSubChannelId(), (Integer) 22 );
+    assertEquals( cd1.toString(), "#1.22#" );
     assertTrue( cd1.equals( cd1 ) );
     assertTrue( cd1.equals( cd2 ) );
     assertFalse( cd1.equals( cd3 ) );
     assertFalse( cd1.equals( cd4 ) );
 
-    assertEquals( cd4.getChannelID(), 2 );
-    assertEquals( cd4.getSubChannelID(), null );
+    assertEquals( cd4.getChannelId(), 2 );
+    assertEquals( cd4.getSubChannelId(), null );
     assertEquals( cd4.toString(), "#2#" );
     assertTrue( cd4.equals( cd4 ) );
     assertTrue( cd4.equals( cd6 ) );

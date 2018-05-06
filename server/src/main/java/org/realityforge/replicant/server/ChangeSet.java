@@ -89,8 +89,8 @@ public final class ChangeSet
   public void merge( @Nonnull final ChannelDescriptor descriptor, @Nonnull final EntityMessageSet messages )
   {
     mergeAll( ChangeUtil.toChanges( messages.getEntityMessages(),
-                                    descriptor.getChannelID(),
-                                    descriptor.getSubChannelID() ) );
+                                    descriptor.getChannelId(),
+                                    descriptor.getSubChannelId() ) );
   }
 
   @Nonnull
