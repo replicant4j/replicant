@@ -47,14 +47,13 @@ Some actions that should occur at some point in the future.
     is invoked (for all non-lazy relationships). `link()` is typically after a message/transaction has updated
     all the required entities within the system.
 
-* Consider extracting out transport layer of replicant or maybe making replicant V10
+* Move to CBOR for serialization.
 
-  * Rename org.realityforge.replicant.client.subscription.EntitySubscriptionEntry to Entity and it contains an
-    optional Map with current data for entity in map and an optional reference to java object that represents
-    entity. The optional representation could be lazily created on access via `EntityLocator`.
-  * The whole system could be relatively easily tested in isolation with `ChangeMapper` updating this entity
-    and all driven by metadata loaded into system.
-  * CBOR could be used as the transport system.
+* Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
+  could be lazily created on access via `EntityLocator`.
+
+* Consider extracting out transport layer of replicant. The whole system could be relatively easily tested in
+  isolation with `ChangeMapper` updating this entity and all driven by metadata loaded into system.
 
 * Enhance spy system.
   - AreaOfInterest create/update/destroy changes should all result in spy events
