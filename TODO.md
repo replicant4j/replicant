@@ -66,3 +66,5 @@ Some actions that should occur at some point in the future.
   - `Replicant.can*DebugOutputBeEnabled()` should be removed.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
   - Add a colored spy logger similar to as in Arez
+
+* Add Name to Entity that is controlled by `areNamesEnabled()`
