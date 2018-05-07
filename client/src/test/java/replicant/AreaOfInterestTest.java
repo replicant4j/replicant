@@ -266,7 +266,7 @@ public class AreaOfInterestTest
   }
 
   @Test
-  public void updateAreaOfInterest_ubscriptionWhenUnexpected()
+  public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
     Arez.context().pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
