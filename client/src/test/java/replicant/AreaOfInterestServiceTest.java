@@ -75,13 +75,11 @@ public class AreaOfInterestServiceTest
 
       final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest );
-
       assertEquals( areaOfInterest.getAreaOfInterestService(), service );
 
       handler.assertEventCount( 1 );
-
-      final AreaOfInterestCreatedEvent event = handler.assertNextEvent( AreaOfInterestCreatedEvent.class );
-      assertEquals( event.getAreaOfInterest(), areaOfInterest );
+      handler.assertNextEvent( AreaOfInterestCreatedEvent.class,
+                               e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     } );
   }
 
@@ -102,8 +100,8 @@ public class AreaOfInterestServiceTest
 
       handler.assertEventCount( 1 );
 
-      final AreaOfInterestFilterUpdatedEvent event = handler.assertNextEvent( AreaOfInterestFilterUpdatedEvent.class );
-      assertEquals( event.getAreaOfInterest(), areaOfInterest );
+      handler.assertNextEvent( AreaOfInterestFilterUpdatedEvent.class,
+                               e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     } );
   }
 
@@ -123,8 +121,8 @@ public class AreaOfInterestServiceTest
     Arez.context().safeAction( () -> Disposable.dispose( areaOfInterest ) );
     handler.assertEventCount( 1 );
 
-    final AreaOfInterestDisposedEvent event = handler.assertNextEvent( AreaOfInterestDisposedEvent.class );
-    assertEquals( event.getAreaOfInterest(), areaOfInterest );
+    handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
   }
 
   @Test
