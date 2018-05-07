@@ -45,9 +45,8 @@ public class ConsoleSpyEventProcessor
   {
     final Channel channel = e.getAreaOfInterest().getChannel();
     final Object filter = channel.getFilter();
-    final String filterPrefix = null == filter ? "" : " - ";
-    final String filterString = FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Created " + channel.getAddress() + filterPrefix + filterString, AREA_OF_INTEREST_COLOR );
+    final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
+    log( "%cAreaOfInterest Created " + channel.getAddress() + filterString, AREA_OF_INTEREST_COLOR );
   }
 
   /**
