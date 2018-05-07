@@ -29,7 +29,7 @@ public class SubscriptionDisposedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "Subscription.Created" );
+    assertEquals( data.get( "type" ), "Subscription.Disposed" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), null );
     assertEquals( data.get( "channel.filter" ), filter );
