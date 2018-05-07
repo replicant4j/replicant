@@ -5,6 +5,7 @@ import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -66,10 +67,8 @@ public abstract class Converger
   @Nullable
   public abstract Runnable getConvergeCompleteAction();
 
-  /**
-   * Release resources associated with the system.
-   */
-  protected void release()
+  @PreDispose
+  final void preDispose()
   {
     removeListeners();
   }
