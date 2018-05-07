@@ -3,6 +3,7 @@ package replicant;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A channel address is immutable reference that defines the channel address.
@@ -51,12 +52,23 @@ public final class ChannelAddress
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return getSystem().getSimpleName() + "." + _channelType.toString() + ( null != _id ? ":" + _id : "" );
+      return getName();
     }
     else
     {
       return super.toString();
     }
+  }
+
+  @Nonnull
+  public String getName()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::areNamesEnabled,
+                    () -> "Replicant-0054: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
+    }
+    return getSystem().getSimpleName() + "." + _channelType.toString() + ( null != _id ? ":" + _id : "" );
   }
 
   @Override

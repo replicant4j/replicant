@@ -50,6 +50,15 @@ public class ChannelAddressTest
     assertEquals( address.toString(), "replicant.ChannelAddress@" + Integer.toHexString( address.hashCode() ) );
   }
 
+  @Test
+  public void getName_NamingDisabled()
+  {
+    ReplicantTestUtil.disableNames();
+    final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
+    final IllegalStateException exception = expectThrows( IllegalStateException.class, address::getName );
+    assertEquals( exception.getMessage(), "Replicant-0054: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
+  }
+
   @SuppressWarnings( "EqualsWithItself" )
   @Test
   public void compareTo()
