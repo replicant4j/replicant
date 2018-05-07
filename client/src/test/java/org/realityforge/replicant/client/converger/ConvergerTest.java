@@ -475,11 +475,12 @@ public class ConvergerTest
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
 
-    assertEquals( c.convergeAreaOfInterest( areaOfInterest, null, null, true ),
-                  ConvergeAction.NO_ACTION );
-    verify( service, never() ).requestSubscribe( address, null );
-    verify( service, never() ).requestUnsubscribe( address );
-    verify( service, never() ).requestSubscriptionUpdate( address, null );
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> c.convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0021: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
   }
 
   @Test

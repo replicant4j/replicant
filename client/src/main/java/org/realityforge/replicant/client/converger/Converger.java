@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.converger;
 
+import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
@@ -12,6 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.anodoc.VisibleForTesting;
+import org.realityforge.braincheck.Guards;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
@@ -152,6 +154,11 @@ public abstract class Converger
                                                @Nullable final AreaOfInterestAction groupAction,
                                                final boolean canGroup )
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      Guards.invariant( () -> !Disposable.isDisposed( areaOfInterest ),
+                        () -> "Replicant-0021: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
+    }
     final ChannelAddress address = areaOfInterest.getAddress();
     final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );
     // service can be disconnected if it is not a required service and will converge later when it connects
