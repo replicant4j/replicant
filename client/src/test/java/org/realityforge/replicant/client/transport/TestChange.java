@@ -15,13 +15,13 @@ final class TestChange
   }
 
   @Override
-  public int getDesignatorAsInt()
+  public int getId()
   {
     return 0;
   }
 
   @Override
-  public int getTypeID()
+  public int getTypeId()
   {
     return 0;
   }
@@ -77,13 +77,13 @@ final class TestChange
   }
 
   @Override
-  public int getChannelID( final int index )
+  public int getChannelId( final int index )
   {
     return 0;
   }
 
   @Override
-  public Object getSubChannelID( final int index )
+  public Integer getSubChannelId( final int index )
   {
     return null;
   }

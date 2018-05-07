@@ -10,14 +10,14 @@ import javax.annotation.Nullable;
 public interface Change
 {
   /**
-   * @return the unique discriminator or designator for the entity. Typically this is the primary key of the entity in the database.
+   * @return the id of the entity.
    */
-  int getDesignatorAsInt();
+  int getId();
 
   /**
    * @return a code indicating the type of the entity changed.
    */
-  int getTypeID();
+  int getTypeId();
 
   /**
    * @return true if the change is an update, false if it is a remove.
@@ -69,12 +69,12 @@ public interface Change
    * @param index the index of the channel.
    * @return the channel id.
    */
-  int getChannelID( int index );
+  int getChannelId( int index );
 
   /**
    * @param index the index of the channel.
    * @return the sub-channel id.
    */
   @Nullable
-  Object getSubChannelID( int index );
+  Integer getSubChannelId( int index );
 }

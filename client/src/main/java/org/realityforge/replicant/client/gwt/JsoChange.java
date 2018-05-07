@@ -14,12 +14,12 @@ public final class JsoChange
   }
 
   @Override
-  public final native int getDesignatorAsInt() /*-{
+  public final native int getId() /*-{
     return this.id;
   }-*/;
 
   @Override
-  public final native int getTypeID() /*-{
+  public final native int getTypeId() /*-{
     return this.type;
   }-*/;
 
@@ -115,7 +115,7 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native int getChannelID( final int index ) /*-{
+  public final native int getChannelId( final int index ) /*-{
     if ( this.channels && index < this.channels.length )
     {
       return this.channels[index].cid;
@@ -127,16 +127,12 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native Object getSubChannelID( final int index ) /*-{
+  public final native Integer getSubChannelId( final int index ) /*-{
     if ( this.channels && index < this.channels.length )
     {
       if ( typeof(this.channels[index].scid) == 'number' )
       {
         return new @java.lang.Integer::new(I)( this.channels[index].scid );
-      }
-      else if ( typeof(this.channels[index].scid) == 'string' )
-      {
-        return this.channels[index].scid;
       }
     }
     return null;
