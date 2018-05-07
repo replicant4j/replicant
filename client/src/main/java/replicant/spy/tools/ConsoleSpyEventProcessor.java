@@ -3,7 +3,11 @@ package replicant.spy.tools;
 import elemental2.dom.DomGlobal;
 import javax.annotation.Nonnull;
 import org.realityforge.anodoc.Unsupported;
+import replicant.Channel;
+import replicant.FilterUtil;
 import replicant.spy.AreaOfInterestCreatedEvent;
+import replicant.spy.AreaOfInterestDisposedEvent;
+import replicant.spy.AreaOfInterestUpdatedEvent;
 
 /**
  * A SpyEventHandler that prints spy events to the tools console.
@@ -28,6 +32,8 @@ public class ConsoleSpyEventProcessor
   public ConsoleSpyEventProcessor()
   {
     on( AreaOfInterestCreatedEvent.class, this::onAreaOfInterestCreated );
+    on( AreaOfInterestUpdatedEvent.class, this::onAreaOfInterestUpdated );
+    on( AreaOfInterestDisposedEvent.class, this::onAreaOfInterestDisposed );
   }
 
   /**
@@ -37,7 +43,34 @@ public class ConsoleSpyEventProcessor
    */
   protected void onAreaOfInterestCreated( @Nonnull final AreaOfInterestCreatedEvent e )
   {
-    log( "%cAreaOfInterest Created " + e.getAreaOfInterest().getChannel(), AREA_OF_INTEREST_COLOR );
+    final Channel channel = e.getAreaOfInterest().getChannel();
+    final Object filter = channel.getFilter();
+    final String filterPrefix = null == filter ? "" : " - ";
+    final String filterString = FilterUtil.filterToString( filter );
+    log( "%cAreaOfInterest Created " + channel.getAddress() + filterPrefix + filterString, AREA_OF_INTEREST_COLOR );
+  }
+
+  /**
+   * Handle the AreaOfInterestUpdatedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onAreaOfInterestUpdated( @Nonnull final AreaOfInterestUpdatedEvent e )
+  {
+    final Channel channel = e.getAreaOfInterest().getChannel();
+    final Object filter = channel.getFilter();
+    final String filterString = FilterUtil.filterToString( filter );
+    log( "%cAreaOfInterest Updated " + channel.getAddress() + " - " + filterString, AREA_OF_INTEREST_COLOR );
+  }
+
+  /**
+   * Handle the AreaOfInterestDisposedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onAreaOfInterestDisposed( @Nonnull final AreaOfInterestDisposedEvent e )
+  {
+    log( "%cAreaOfInterest Disposed " + e.getAreaOfInterest().getChannel().getAddress(), AREA_OF_INTEREST_COLOR );
   }
 
   /**
