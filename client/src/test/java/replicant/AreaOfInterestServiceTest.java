@@ -61,14 +61,14 @@ public class AreaOfInterestServiceTest
       final TestSpyEventHandler handler = new TestSpyEventHandler();
       Replicant.context().getSpy().addSpyEventHandler( handler );
 
-      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( address1, null );
-      assertNotNull( areaOfInterest1 );
+      final AreaOfInterest areaOfInterest = service.findOrCreateAreaOfInterest( address1, null );
+      assertNotNull( areaOfInterest );
 
       handler.assertEventCount( 1 );
 
       final AreaOfInterestCreatedEvent event = handler.assertNextEvent( AreaOfInterestCreatedEvent.class );
+      assertEquals( event.getAreaOfInterest(), areaOfInterest );
 
-      assertEquals( event.getAreaOfInterest(), areaOfInterest1 );
     } );
   }
 
