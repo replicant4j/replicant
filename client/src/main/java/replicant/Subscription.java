@@ -39,11 +39,6 @@ public abstract class Subscription
   @Nonnull
   private final Channel _channel;
 
-  static Subscription create( @Nonnull final SubscriptionService subscriptionService, @Nonnull final Channel channel )
-  {
-    return create( subscriptionService, channel, true );
-  }
-
   static Subscription create( @Nonnull final SubscriptionService subscriptionService,
                               @Nonnull final Channel channel,
                               final boolean explicitSubscription )
