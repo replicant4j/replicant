@@ -83,7 +83,7 @@ public class EntityServiceTest
 
     // add first entity
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 1 ) );
+      Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 2 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
@@ -100,7 +100,7 @@ public class EntityServiceTest
 
     // Attempt to add same entity
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 1 ) );
+      Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 2 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
@@ -117,7 +117,7 @@ public class EntityServiceTest
 
     // add an entity of the same type
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 2 ) );
+      Arez.context().safeAction( () -> service.findOrCreateEntity( "A/2", A.class, 2 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 3 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 3 );
@@ -134,7 +134,7 @@ public class EntityServiceTest
 
     // Add an entity of a different type
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( B.class, "X" ) );
+      Arez.context().safeAction( () -> service.findOrCreateEntity( "B/X", B.class, "X" ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 4 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 4 );
@@ -197,7 +197,7 @@ public class EntityServiceTest
   {
     final EntityService service = EntityService.create();
 
-    final Entity entity = Entity.create( service, A.class, 1 );
+    final Entity entity = Entity.create( service, "A", A.class, 1 );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -211,8 +211,8 @@ public class EntityServiceTest
   {
     final EntityService service = EntityService.create();
 
-    Arez.context().safeAction( () -> service.findOrCreateEntity( A.class, 1 ) );
-    final Entity entity = Entity.create( service, A.class, 2 );
+    Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
+    final Entity entity = Entity.create( service, "A/2", A.class, 2 );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,

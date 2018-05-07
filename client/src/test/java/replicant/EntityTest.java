@@ -18,8 +18,10 @@ public class EntityTest
 
     final Class<A> type = A.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final String name = "A/" + id;
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
+    assertEquals( entity.getName(), name );
     assertEquals( entity.getType(), type );
     assertEquals( entity.getId(), id );
 
@@ -34,12 +36,45 @@ public class EntityTest
 
     final Class<A> type = A.class;
     final String id = "123";
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final String name = "A/123";
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
-    assertEquals( entity.toString(), "A/123" );
+    assertEquals( entity.toString(), name );
     ReplicantTestUtil.disableNames();
 
     assertEquals( entity.toString(), entity.getClass().getName() + "@" + Integer.toHexString( entity.hashCode() ) );
+  }
+
+  @Test
+  public void namePassedToConstructorWhenNamesDisabled()
+  {
+    final EntityService entityService = EntityService.create();
+
+    ReplicantTestUtil.disableNames();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123",
+                                                                                             A.class,
+                                                                                             "123" ) ) );
+
+    assertEquals( exception.getMessage(), "Replicant-0032: Entity passed a name 'A/123' but Replicant.areNamesEnabled() is false" );
+  }
+
+  @Test
+  public void getNameInvokedWhenNamesDisabled()
+  {
+    final EntityService entityService = EntityService.create();
+
+    ReplicantTestUtil.disableNames();
+
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( null, A.class, "123" ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> Arez.context().safeAction( entity::getName ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0009: Entity.getName() invoked when Replicant.areNamesEnabled() is false" );
   }
 
   @Test
@@ -47,9 +82,10 @@ public class EntityTest
   {
     final EntityService entityService = EntityService.create();
 
-    final Class<A> type = A.class;
-    final String id = ValueUtil.randomString();
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                                         A.class,
+                                                                         ValueUtil.randomString() ) );
 
     Arez.context().safeAction( () -> assertEquals( entity.getUserObject(), null ) );
 
@@ -63,9 +99,10 @@ public class EntityTest
   {
     final EntityService entityService = EntityService.create();
 
-    final Class<String> type = String.class;
-    final String id = ValueUtil.randomString();
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                                         String.class,
+                                                                         ValueUtil.randomString() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
@@ -131,9 +168,10 @@ public class EntityTest
   {
     final EntityService entityService = EntityService.create();
 
-    final Class<String> type = String.class;
-    final String id = ValueUtil.randomString();
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                                         String.class,
+                                                                         ValueUtil.randomString() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
@@ -202,7 +240,8 @@ public class EntityTest
 
     final Class<A> type = A.class;
     final String id = ValueUtil.randomString();
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final String name = "A/" + id;
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
@@ -226,9 +265,10 @@ public class EntityTest
   {
     final EntityService entityService = EntityService.create();
 
-    final Class<A> type = A.class;
-    final String id = ValueUtil.randomString();
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( type, id ) );
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                                         A.class,
+                                                                         ValueUtil.randomString() ) );
     final A userObject = new A();
     Arez.context().safeAction( () -> entity.setUserObject( userObject ) );
 
@@ -247,7 +287,9 @@ public class EntityTest
     final EntityService entityService = EntityService.create();
 
     final Entity entity =
-      Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, ValueUtil.randomString() ) );
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                                         A.class,
+                                                                         ValueUtil.randomString() ) );
 
     final Subscription subscription1 = createSubscription();
 
@@ -260,7 +302,8 @@ public class EntityTest
   {
     final EntityService entityService = EntityService.create();
 
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "123" ) );
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, "123" ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 
@@ -281,7 +324,8 @@ public class EntityTest
   {
     final EntityService entityService = EntityService.create();
 
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( A.class, "123" ) );
+    final Entity entity =
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, "123" ) );
 
     final Subscription subscription = createSubscription( new ChannelAddress( G.G1, 1 ) );
 

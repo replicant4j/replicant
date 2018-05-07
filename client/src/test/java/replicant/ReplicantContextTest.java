@@ -53,6 +53,7 @@ public class ReplicantContextTest
 
       final Entity entity1 = context.findOrCreateEntity( A.class, 1 );
 
+      assertEquals( entity1.getName(), "A/1" );
       assertEquals( context.findAllEntityTypes().size(), 1 );
       assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 );
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
@@ -60,8 +61,9 @@ public class ReplicantContextTest
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
       assertEquals( context.findEntityByTypeAndId( B.class, "A" ), null );
 
-      final Entity entity2 = context.findOrCreateEntity( A.class, 2 );
+      final Entity entity2 = context.findOrCreateEntity( "Super-dee-duper", A.class, 2 );
 
+      assertEquals( entity2 .getName(), "Super-dee-duper" );
       assertEquals( context.findAllEntityTypes().size(), 1 );
       assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 );
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );

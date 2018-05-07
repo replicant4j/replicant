@@ -30,6 +30,12 @@ public abstract class Entity
    */
   @Nonnull
   private final EntityService _entityService;
+  /**
+   * A human consumable name for Entity. It should be non-null if {@link Replicant#areNamesEnabled()} returns
+   * true and <tt>null</tt> otherwise.
+   */
+  @Nullable
+  private final String _name;
   @Nonnull
   private final Class<?> _type;
   @Nonnull
@@ -37,17 +43,47 @@ public abstract class Entity
   private Object _userObject;
 
   static Entity create( @Nonnull final EntityService entityService,
+                        @Nullable final String name,
                         @Nonnull final Class<?> type,
                         @Nonnull final Object id )
   {
-    return new Arez_Entity( entityService, type, id );
+    return new Arez_Entity( entityService, name, type, id );
   }
 
-  Entity( @Nonnull final EntityService entityService, @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity( @Nonnull final EntityService entityService,
+          @Nullable final String name,
+          @Nonnull final Class<?> type,
+          @Nonnull final Object id )
   {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> Replicant.areNamesEnabled() || null == name,
+                    () -> "Replicant-0032: Entity passed a name '" + name +
+                          "' but Replicant.areNamesEnabled() is false" );
+    }
     _entityService = Objects.requireNonNull( entityService );
+    _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _type = Objects.requireNonNull( type );
     _id = Objects.requireNonNull( id );
+  }
+
+  /**
+   * Return the name of the Entity.
+   * This method should NOT be invoked unless {@link Replicant#areNamesEnabled()} returns true and will throw an
+   * exception if invariant checking is enabled.
+   *
+   * @return the name of the Entity.
+   */
+  @Nonnull
+  public final String getName()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::areNamesEnabled,
+                    () -> "Replicant-0009: Entity.getName() invoked when Replicant.areNamesEnabled() is false" );
+    }
+    assert null != _name;
+    return _name;
   }
 
   @Nonnull

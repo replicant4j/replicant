@@ -70,7 +70,25 @@ public final class ReplicantContext
   @Nonnull
   public Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
   {
-    return _entityService.findOrCreateEntity( type, id );
+    return findOrCreateEntity( Replicant.areNamesEnabled() ? type.getSimpleName() + "/" + id : null,
+                               type,
+                               id );
+  }
+
+  /**
+   * Return the entity specified by type and id, creating an Entity if one does not already exist.
+   *
+   * @param name the name of the entity. This value should be null if and only if {@link Replicant#areNamesEnabled()} returns false.
+   * @param type the type of the entity.
+   * @param id   the id of the entity.
+   * @return the existing Entity if it exists, otherwise the newly created entity.
+   */
+  @Nonnull
+  public Entity findOrCreateEntity( @Nullable final String name,
+                                    @Nonnull final Class<?> type,
+                                    @Nonnull final Object id )
+  {
+    return _entityService.findOrCreateEntity( name, type, id );
   }
 
   /**

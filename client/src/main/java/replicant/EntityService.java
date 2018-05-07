@@ -117,8 +117,7 @@ abstract class EntityService
     final Entity removed = typeMap.remove( id );
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> null != removed,
-                 () -> "Entity instance " + entityType.getSimpleName() + "/" + id + " not present in EntityService" );
+      invariant( () -> null != removed, () -> "Entity instance " + entity + " not present in EntityService" );
     }
     Disposable.dispose( removed );
     if ( typeMap.isEmpty() )
@@ -131,26 +130,27 @@ abstract class EntityService
   /**
    * Return the entity specified by type and id, creating an Entity if one does not already exist.
    *
+   * @param name the name of the entity if any. Must be null unless {@link Replicant#areNamesEnabled()} returns true.
    * @param type the type of the entity.
    * @param id   the id of the entity.
    * @return the existing Entity if it exists, otherwise the newly created entity.
    */
   @Nonnull
-  Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity findOrCreateEntity( @Nullable final String name, @Nonnull final Class<?> type, @Nonnull final Object id )
   {
     final Map<Object, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       final HashMap<Object, Entity> newTypeMap = new HashMap<>();
       _entities.put( type, newTypeMap );
-      return createEntity( newTypeMap, type, id );
+      return createEntity( newTypeMap, name, type, id );
     }
     else
     {
       final Entity entity = typeMap.get( id );
       if ( null == entity )
       {
-        return createEntity( typeMap, type, id );
+        return createEntity( typeMap, name, type, id );
       }
       else
       {
@@ -162,11 +162,12 @@ abstract class EntityService
 
   @Nonnull
   private Entity createEntity( @Nonnull final Map<Object, Entity> typeMap,
+                               @Nullable final String name,
                                @Nonnull final Class<?> type,
                                @Nonnull final Object id )
   {
     getEntitiesObservable().preReportChanged();
-    final Entity entity = Entity.create( this, type, id );
+    final Entity entity = Entity.create( this, name, type, id );
     typeMap.put( id, entity );
     getEntitiesObservable().reportChanged();
     return entity;
