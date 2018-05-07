@@ -7,7 +7,7 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
-import replicant.spy.AreaOfInterestUpdatedEvent;
+import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "Duplicates" )
@@ -103,7 +103,7 @@ public class AreaOfInterestServiceTest
 
       handler.assertEventCount( 1 );
 
-      final AreaOfInterestUpdatedEvent event = handler.assertNextEvent( AreaOfInterestUpdatedEvent.class );
+      final AreaOfInterestFilterUpdatedEvent event = handler.assertNextEvent( AreaOfInterestFilterUpdatedEvent.class );
       assertEquals( event.getAreaOfInterest(), areaOfInterest );
     } );
   }

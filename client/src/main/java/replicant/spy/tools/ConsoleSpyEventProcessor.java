@@ -7,8 +7,8 @@ import replicant.Channel;
 import replicant.FilterUtil;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
+import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
-import replicant.spy.AreaOfInterestUpdatedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 
@@ -35,7 +35,7 @@ public class ConsoleSpyEventProcessor
   public ConsoleSpyEventProcessor()
   {
     on( AreaOfInterestCreatedEvent.class, this::onAreaOfInterestCreated );
-    on( AreaOfInterestUpdatedEvent.class, this::onAreaOfInterestUpdated );
+    on( AreaOfInterestFilterUpdatedEvent.class, this::onAreaOfInterestFilterUpdated );
     on( AreaOfInterestStatusUpdatedEvent.class, this::onAreaOfInterestStatusUpdated );
     on( AreaOfInterestDisposedEvent.class, this::onAreaOfInterestDisposed );
 
@@ -57,16 +57,16 @@ public class ConsoleSpyEventProcessor
   }
 
   /**
-   * Handle the AreaOfInterestUpdatedEvent.
+   * Handle the AreaOfInterestFilterUpdatedEvent.
    *
    * @param e the event.
    */
-  protected void onAreaOfInterestUpdated( @Nonnull final AreaOfInterestUpdatedEvent e )
+  protected void onAreaOfInterestFilterUpdated( @Nonnull final AreaOfInterestFilterUpdatedEvent e )
   {
     final Channel channel = e.getAreaOfInterest().getChannel();
     final Object filter = channel.getFilter();
     final String filterString = FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Updated " + channel.getAddress() + " - " + filterString, AREA_OF_INTEREST_COLOR );
+    log( "%cAreaOfInterest Filter Updated " + channel.getAddress() + " - " + filterString, AREA_OF_INTEREST_COLOR );
   }
 
   /**
