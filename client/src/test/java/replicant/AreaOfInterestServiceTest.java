@@ -66,7 +66,7 @@ public class AreaOfInterestServiceTest
 
       handler.assertEventCount( 1 );
 
-      final AreaOfInterestCreatedEvent event = handler.assertEvent( AreaOfInterestCreatedEvent.class, 0 );
+      final AreaOfInterestCreatedEvent event = handler.assertNextEvent( AreaOfInterestCreatedEvent.class );
 
       assertEquals( event.getAreaOfInterest(), areaOfInterest1 );
     } );
