@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.SubscriptionCreatedEvent;
+import replicant.spy.SubscriptionDisposedEvent;
 import static org.testng.Assert.*;
 
 public class SubscriptionServiceTest
@@ -414,6 +415,27 @@ public class SubscriptionServiceTest
     handler.assertEventCount( 1 );
 
     final SubscriptionCreatedEvent event = handler.assertNextEvent( SubscriptionCreatedEvent.class );
+    assertEquals( event.getSubscription(), subscription );
+  }
+
+  @Test
+  public void disposeSubscription_generatesSpyEvent()
+  {
+    final ChannelAddress address = new ChannelAddress( G.G2 );
+
+    final SubscriptionService service = SubscriptionService.create( null );
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
+
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Disposable.dispose( subscription );
+
+    handler.assertEventCount( 1 );
+
+    final SubscriptionDisposedEvent event = handler.assertNextEvent( SubscriptionDisposedEvent.class );
     assertEquals( event.getSubscription(), subscription );
   }
 

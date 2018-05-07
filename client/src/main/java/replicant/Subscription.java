@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import replicant.spy.SubscriptionDisposedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -180,6 +181,10 @@ public abstract class Subscription
   final void preDispose()
   {
     delinkSubscriptionFromAllEntities();
+    if ( Replicant.areSpiesEnabled() && _subscriptionService.getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      _subscriptionService.getReplicantContext().getSpy().reportSpyEvent( new SubscriptionDisposedEvent( this ) );
+    }
   }
 
   private void delinkSubscriptionFromAllEntities()
