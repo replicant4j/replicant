@@ -7,13 +7,14 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import org.realityforge.replicant.client.converger.Converger;
 
 /**
  * The AreaOfInterestService is responsible for managing AreaOfInterest instance.
  * An {@link AreaOfInterest} represents a delcaration of a desire for a
  * {@link Subscription}. The intention
  * is that user code defines the desired state as instances of {@link AreaOfInterest}
- * and the {@link org.realityforge.replicant.client.converger.ContextConverger} converges
+ * and the {@link Converger} converges
  * the actual state towards the desired state.
  */
 @Singleton
