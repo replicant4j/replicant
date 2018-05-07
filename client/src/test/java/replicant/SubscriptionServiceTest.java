@@ -329,7 +329,7 @@ public class SubscriptionServiceTest
   }
 
   @Test
-  public void createSubscription_instanceChannel_NoFIlter_Explicit()
+  public void createSubscription_instanceChannel_NoFilter_Explicit()
   {
     final ChannelAddress address = new ChannelAddress( G.G1, 1 );
 
