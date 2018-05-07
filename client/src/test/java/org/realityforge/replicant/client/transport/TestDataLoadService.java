@@ -222,7 +222,7 @@ final class TestDataLoadService
   @Override
   protected boolean doesEntityMatchFilter( @Nonnull final Channel channel, @Nonnull final Entity entity )
   {
-    return String.valueOf( entity.getId() ).startsWith( "X" );
+    return entity.getId() < 0;
   }
 
   @Nonnull

@@ -38,14 +38,13 @@ public abstract class Entity
   private final String _name;
   @Nonnull
   private final Class<?> _type;
-  @Nonnull
-  private final Object _id;
+  private final int _id;
   private Object _userObject;
 
   static Entity create( @Nonnull final EntityService entityService,
                         @Nullable final String name,
                         @Nonnull final Class<?> type,
-                        @Nonnull final Object id )
+                        final int id )
   {
     return new Arez_Entity( entityService, name, type, id );
   }
@@ -53,7 +52,7 @@ public abstract class Entity
   Entity( @Nonnull final EntityService entityService,
           @Nullable final String name,
           @Nonnull final Class<?> type,
-          @Nonnull final Object id )
+          final int id )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -93,7 +92,7 @@ public abstract class Entity
   }
 
   @Nonnull
-  public final Object getId()
+  public final int getId()
   {
     return _id;
   }

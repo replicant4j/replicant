@@ -134,7 +134,7 @@ public class EntityServiceTest
 
     // Add an entity of a different type
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( "B/X", B.class, "X" ) );
+      Arez.context().safeAction( () -> service.findOrCreateEntity( "B/-53", B.class, -53 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 4 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 4 );
@@ -152,7 +152,7 @@ public class EntityServiceTest
     // Dispose entity of different type
     {
       Arez.context().safeAction( () -> {
-        final Entity entity = service.findEntityByTypeAndId( B.class, "X" );
+        final Entity entity = service.findEntityByTypeAndId( B.class, -53 );
         assertNotNull( entity );
         Disposable.dispose( entity );
       } );

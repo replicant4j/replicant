@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
@@ -24,7 +25,8 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.match( action, address, filterParameter ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), false );
     assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filterParameter ), false );
-    assertEquals( entry.match( action, new ChannelAddress( TestSystem.B, "X" ), filterParameter ), false );
+    assertEquals( entry.match( action, new ChannelAddress( TestSystem.B, ValueUtil.randomInt() ), filterParameter ),
+                  false );
   }
 
   @Test

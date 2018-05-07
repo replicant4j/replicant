@@ -17,7 +17,7 @@ public class EntityTest
     final EntityService entityService = EntityService.create();
 
     final Class<A> type = A.class;
-    final String id = ValueUtil.randomString();
+    final int id = ValueUtil.randomInt();
     final String name = "A/" + id;
     final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
@@ -35,7 +35,7 @@ public class EntityTest
     final EntityService entityService = EntityService.create();
 
     final Class<A> type = A.class;
-    final String id = "123";
+    final int id = 123;
     final String name = "A/123";
     final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
@@ -56,9 +56,10 @@ public class EntityTest
       expectThrows( IllegalStateException.class,
                     () -> Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123",
                                                                                              A.class,
-                                                                                             "123" ) ) );
+                                                                                             123 ) ) );
 
-    assertEquals( exception.getMessage(), "Replicant-0032: Entity passed a name 'A/123' but Replicant.areNamesEnabled() is false" );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0032: Entity passed a name 'A/123' but Replicant.areNamesEnabled() is false" );
   }
 
   @Test
@@ -68,7 +69,7 @@ public class EntityTest
 
     ReplicantTestUtil.disableNames();
 
-    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( null, A.class, "123" ) );
+    final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( null, A.class, 123 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Arez.context().safeAction( entity::getName ) );
@@ -85,7 +86,7 @@ public class EntityTest
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                                          A.class,
-                                                                         ValueUtil.randomString() ) );
+                                                                         ValueUtil.randomInt() ) );
 
     Arez.context().safeAction( () -> assertEquals( entity.getUserObject(), null ) );
 
@@ -102,7 +103,7 @@ public class EntityTest
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                                          String.class,
-                                                                         ValueUtil.randomString() ) );
+                                                                         ValueUtil.randomInt() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
@@ -171,7 +172,7 @@ public class EntityTest
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                                          String.class,
-                                                                         ValueUtil.randomString() ) );
+                                                                         ValueUtil.randomInt() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
@@ -239,7 +240,7 @@ public class EntityTest
     final EntityService entityService = EntityService.create();
 
     final Class<A> type = A.class;
-    final String id = ValueUtil.randomString();
+    final int id = ValueUtil.randomInt();
     final String name = "A/" + id;
     final Entity entity = Arez.context().safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
@@ -268,7 +269,7 @@ public class EntityTest
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                                          A.class,
-                                                                         ValueUtil.randomString() ) );
+                                                                         ValueUtil.randomInt() ) );
     final A userObject = new A();
     Arez.context().safeAction( () -> entity.setUserObject( userObject ) );
 
@@ -289,7 +290,7 @@ public class EntityTest
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                                          A.class,
-                                                                         ValueUtil.randomString() ) );
+                                                                         ValueUtil.randomInt() ) );
 
     final Subscription subscription1 = createSubscription();
 
@@ -303,7 +304,7 @@ public class EntityTest
     final EntityService entityService = EntityService.create();
 
     final Entity entity =
-      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, "123" ) );
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
 
@@ -325,7 +326,7 @@ public class EntityTest
     final EntityService entityService = EntityService.create();
 
     final Entity entity =
-      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, "123" ) );
+      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
 
     final Subscription subscription = createSubscription( new ChannelAddress( G.G1, 1 ) );
 

@@ -474,7 +474,7 @@ public class DataLoaderServiceTest
       new TestChangeSet( 1,
                          mock( Runnable.class ),
                          new Change[ 0 ],
-                         new ChannelAction[]{ new TestChannelAction( TestSystem.B.ordinal(), "S", Action.ADD ) } );
+                         new ChannelAction[]{ new TestChannelAction( TestSystem.B.ordinal(), 72, Action.ADD ) } );
 
     final TestDataLoadService service = newService( changeSet1 );
 
@@ -485,7 +485,7 @@ public class DataLoaderServiceTest
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
-    final ChannelAddress address = new ChannelAddress( TestSystem.B, "S" );
+    final ChannelAddress address = new ChannelAddress( TestSystem.B, 72 );
 
     final Subscription subscription = Replicant.context().findSubscription( address );
     assertNotNull( subscription );
@@ -505,7 +505,7 @@ public class DataLoaderServiceTest
   {
     final TestChannelAction a1 = new TestChannelAction( TestSystem.A.ordinal(), null, Action.ADD );
     final TestChannelAction a2 = new TestChannelAction( TestSystem.A.ordinal(), null, Action.REMOVE );
-    final TestChannelAction a3 = new TestChannelAction( TestSystem.B.ordinal(), "S", Action.ADD );
+    final TestChannelAction a3 = new TestChannelAction( TestSystem.B.ordinal(), 72, Action.ADD );
     final TestChannelAction a4 = new TestChannelAction( TestSystem.B.ordinal(), 33, Action.REMOVE );
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
@@ -532,7 +532,7 @@ public class DataLoaderServiceTest
 
     assertNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.A ) ) );
     assertNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.B, 33 ) ) );
-    assertNotNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.B, "S" ) ) );
+    assertNotNull( Replicant.context().findSubscription( new ChannelAddress( TestSystem.B, 72 ) ) );
   }
 
   @Test

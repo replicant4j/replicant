@@ -15,14 +15,14 @@ public final class ChannelAddress
   @Nonnull
   private final Enum _channelType;
   @Nullable
-  private final Object _id;
+  private final Integer _id;
 
   public ChannelAddress( @Nonnull final Enum channelType )
   {
     this( channelType, null );
   }
 
-  public ChannelAddress( @Nonnull final Enum channelType, @Nullable final Object id )
+  public ChannelAddress( @Nonnull final Enum channelType, @Nullable final Integer id )
   {
     _channelType = Objects.requireNonNull( channelType );
     _id = id;
@@ -41,7 +41,7 @@ public final class ChannelAddress
   }
 
   @Nullable
-  public Object getId()
+  public Integer getId()
   {
     return _id;
   }

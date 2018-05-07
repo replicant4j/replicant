@@ -18,7 +18,7 @@ public class ChannelAddressTest
 
     assertEquals( address.getSystem(), TestSystem.class );
     assertEquals( address.getChannelType(), TestSystem.B );
-    assertEquals( address.getId(), 1 );
+    assertEquals( address.getId(), (Integer) 1 );
   }
 
   @SuppressWarnings( "EqualsWithItself" )

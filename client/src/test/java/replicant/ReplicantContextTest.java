@@ -2,7 +2,6 @@ package replicant;
 
 import arez.Arez;
 import arez.Disposable;
-import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -49,7 +48,7 @@ public class ReplicantContextTest
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), null );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
 
       final Entity entity1 = context.findOrCreateEntity( A.class, 1 );
 
@@ -59,26 +58,26 @@ public class ReplicantContextTest
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), null );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
 
       final Entity entity2 = context.findOrCreateEntity( "Super-dee-duper", A.class, 2 );
 
-      assertEquals( entity2 .getName(), "Super-dee-duper" );
+      assertEquals( entity2.getName(), "Super-dee-duper" );
       assertEquals( context.findAllEntityTypes().size(), 1 );
       assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 );
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), null );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
 
-      final Entity entity3 = context.findOrCreateEntity( B.class, "A" );
+      final Entity entity3 = context.findOrCreateEntity( B.class, 47 );
 
       assertEquals( context.findAllEntityTypes().size(), 2 );
       assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 );
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), entity3 );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 );
 
       Disposable.dispose( entity1 );
 
@@ -87,7 +86,7 @@ public class ReplicantContextTest
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), entity3 );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 );
 
       Disposable.dispose( entity2 );
 
@@ -96,7 +95,7 @@ public class ReplicantContextTest
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), entity3 );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 );
 
       Disposable.dispose( entity3 );
 
@@ -105,7 +104,7 @@ public class ReplicantContextTest
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
       assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
       assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, "A" ), null );
+      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
     } );
   }
 
@@ -190,7 +189,8 @@ public class ReplicantContextTest
 
     final ReplicantContext context = new ReplicantContext();
 
-    assertThrowsWithMessage( context::getSpy, "Replicant-0021: Attempting to get Spy but spies are not enabled." );
+    assertEquals( expectThrows( IllegalStateException.class, context::getSpy ).getMessage(),
+                  "Replicant-0021: Attempting to get Spy but spies are not enabled." );
   }
 
   @Test
@@ -212,11 +212,6 @@ public class ReplicantContextTest
 
     assertFalse( spy.willPropagateSpyEvents() );
     assertFalse( context.willPropagateSpyEvents() );
-  }
-
-  private void assertThrowsWithMessage( @Nonnull final ThrowingRunnable runnable, @Nonnull final String message )
-  {
-    assertEquals( expectThrows( IllegalStateException.class, runnable ).getMessage(), message );
   }
 
   enum G

@@ -1019,7 +1019,7 @@ public abstract class AbstractDataLoaderService
   private ChannelAddress toChannelDescriptor( @Nonnull final ChannelAction action )
   {
     final int channelId = action.getChannelId();
-    final Object subChannelID = action.getSubChannelID();
+    final Integer subChannelID = action.getSubChannelId();
     final Enum channelType = channelIdToType( channelId );
     return new ChannelAddress( channelType, subChannelID );
   }

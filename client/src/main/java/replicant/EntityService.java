@@ -24,7 +24,7 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class EntityService
 {
   // Entity map: Type => ID
-  private final Map<Class<?>, Map<Object, Entity>> _entities = new HashMap<>();
+  private final Map<Class<?>, Map<Integer, Entity>> _entities = new HashMap<>();
 
   @Nonnull
   static EntityService create()
@@ -40,7 +40,7 @@ abstract class EntityService
   protected abstract arez.Observable getEntitiesObservable();
 
   @Observable( expectSetter = false )
-  Map<Class<?>, Map<Object, Entity>> getEntities()
+  Map<Class<?>, Map<Integer, Entity>> getEntities()
   {
     return _entities;
   }
@@ -65,9 +65,9 @@ abstract class EntityService
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Integer id )
   {
-    final Map<Object, Entity> typeMap = _entities.get( type );
+    final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       getEntitiesObservable().reportObserved();
@@ -92,7 +92,7 @@ abstract class EntityService
   @Nonnull
   List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    final Map<Object, Entity> typeMap = getEntities().get( type );
+    final Map<Integer, Entity> typeMap = getEntities().get( type );
     return null == typeMap ? Collections.emptyList() : new ArrayList<>( typeMap.values() );
   }
 
@@ -106,8 +106,8 @@ abstract class EntityService
     getEntitiesObservable().preReportChanged();
 
     final Class<?> entityType = entity.getType();
-    final Object id = entity.getId();
-    final Map<Object, Entity> typeMap = _entities.get( entityType );
+    final int id = entity.getId();
+    final Map<Integer, Entity> typeMap = _entities.get( entityType );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,
@@ -136,12 +136,12 @@ abstract class EntityService
    * @return the existing Entity if it exists, otherwise the newly created entity.
    */
   @Nonnull
-  Entity findOrCreateEntity( @Nullable final String name, @Nonnull final Class<?> type, @Nonnull final Object id )
+  Entity findOrCreateEntity( @Nullable final String name, @Nonnull final Class<?> type, final int id )
   {
-    final Map<Object, Entity> typeMap = _entities.get( type );
+    final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
-      final HashMap<Object, Entity> newTypeMap = new HashMap<>();
+      final HashMap<Integer, Entity> newTypeMap = new HashMap<>();
       _entities.put( type, newTypeMap );
       return createEntity( newTypeMap, name, type, id );
     }
@@ -161,10 +161,10 @@ abstract class EntityService
   }
 
   @Nonnull
-  private Entity createEntity( @Nonnull final Map<Object, Entity> typeMap,
+  private Entity createEntity( @Nonnull final Map<Integer, Entity> typeMap,
                                @Nullable final String name,
                                @Nonnull final Class<?> type,
-                               @Nonnull final Object id )
+                               final int id )
   {
     getEntitiesObservable().preReportChanged();
     final Entity entity = Entity.create( this, name, type, id );

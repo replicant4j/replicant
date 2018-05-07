@@ -167,7 +167,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
     final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G2, "A" );
+    final ChannelAddress address3 = new ChannelAddress( G.G2, ValueUtil.randomInt() );
 
     final SubscriptionService service = SubscriptionService.create();
 

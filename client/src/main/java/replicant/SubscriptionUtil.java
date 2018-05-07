@@ -26,7 +26,7 @@ public class SubscriptionUtil
   @SuppressWarnings( "unchecked" )
   @Nonnull
   public static <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Class<T> type,
-                                                               @Nonnull final Object id,
+                                                               @Nonnull final Integer id,
                                                                @Nonnull final Function<T, Stream<O>> rootToStream )
   {
     final Entity entity = Replicant.context().findEntityByTypeAndId( type, id );
@@ -45,12 +45,12 @@ public class SubscriptionUtil
   public static void convergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceChannelType,
                                                            @Nonnull final Enum targetChannelType,
                                                            @Nullable final Object filter,
-                                                           @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
+                                                           @Nonnull final Function<Object, Stream<Integer>> sourceIDToTargetIDs )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
     final ReplicantContext context = Replicant.context();
-    final Map<Object, Channel> existing =
+    final Map<Integer, Channel> existing =
       context
         .getAreasOfInterest()
         .stream()

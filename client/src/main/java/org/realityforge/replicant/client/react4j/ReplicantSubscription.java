@@ -55,7 +55,7 @@ public abstract class ReplicantSubscription<T>
   protected abstract Enum getChannelType();
 
   @Nullable
-  protected Object getId()
+  protected Integer getId()
   {
     return null;
   }
@@ -263,7 +263,7 @@ public abstract class ReplicantSubscription<T>
     final ChannelAddress address = areaOfInterest.getChannel().getAddress();
     final Subscription subscription = areaOfInterest.getSubscription();
     assert null != subscription;
-    final Object id = address.getId();
+    final Integer id = address.getId();
     final T instanceRoot;
     if ( null != id )
     {

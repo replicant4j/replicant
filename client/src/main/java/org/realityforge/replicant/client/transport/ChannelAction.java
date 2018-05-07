@@ -13,7 +13,7 @@ public interface ChannelAction
   int getChannelId();
 
   @Nullable
-  Object getSubChannelID();
+  Integer getSubChannelId();
 
   @Nonnull
   Action getAction();

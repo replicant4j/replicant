@@ -26,7 +26,7 @@ import static org.realityforge.braincheck.Guards.*;
 public abstract class Subscription
   implements Comparable<Subscription>
 {
-  private final Map<Class<?>, Map<Object, EntityEntry>> _entities = new HashMap<>();
+  private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
   @Nonnull
   private final Channel _channel;
 
@@ -57,7 +57,7 @@ public abstract class Subscription
   public abstract void setExplicitSubscription( boolean explicitSubscription );
 
   @Observable( expectSetter = false )
-  Map<Class<?>, Map<Object, EntityEntry>> getEntities()
+  Map<Class<?>, Map<Integer, EntityEntry>> getEntities()
   {
     return _entities;
   }
@@ -71,16 +71,16 @@ public abstract class Subscription
   @Nonnull
   public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    final Map<Object, EntityEntry> typeMap = getEntities().get( type );
+    final Map<Integer, EntityEntry> typeMap = getEntities().get( type );
     return null == typeMap ?
            Collections.emptyList() :
            typeMap.values().stream().map( EntityEntry::getEntity ).collect( Collectors.toList() );
   }
 
   @Nullable
-  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
   {
-    final Map<Object, EntityEntry> typeMap = _entities.get( type );
+    final Map<Integer, EntityEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       getEntitiesObservable().reportObserved();
@@ -116,8 +116,8 @@ public abstract class Subscription
   {
     getEntitiesObservable().preReportChanged();
     final Class<?> type = entity.getType();
-    final Object id = entity.getId();
-    Map<Object, EntityEntry> typeMap = _entities.get( type );
+    final int id = entity.getId();
+    Map<Integer, EntityEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       typeMap = new HashMap<>();
@@ -146,7 +146,7 @@ public abstract class Subscription
   {
     getEntitiesObservable().preReportChanged();
     final Class<?> entityType = entity.getType();
-    final Map<Object, EntityEntry> typeMap = _entities.get( entityType );
+    final Map<Integer, EntityEntry> typeMap = _entities.get( entityType );
     final ChannelAddress address = getChannel().getAddress();
     if ( Replicant.shouldCheckInvariants() )
     {

@@ -68,7 +68,7 @@ public final class ReplicantContext
    * @return the existing Entity if it exists, otherwise the newly created entity.
    */
   @Nonnull
-  public Entity findOrCreateEntity( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public Entity findOrCreateEntity( @Nonnull final Class<?> type, final int id )
   {
     return findOrCreateEntity( Replicant.areNamesEnabled() ? type.getSimpleName() + "/" + id : null,
                                type,
@@ -86,7 +86,7 @@ public final class ReplicantContext
   @Nonnull
   public Entity findOrCreateEntity( @Nullable final String name,
                                     @Nonnull final Class<?> type,
-                                    @Nonnull final Object id )
+                                    final int id )
   {
     return _entityService.findOrCreateEntity( name, type, id );
   }
@@ -99,7 +99,7 @@ public final class ReplicantContext
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Object id )
+  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Integer id )
   {
     return _entityService.findEntityByTypeAndId( type, id );
   }
