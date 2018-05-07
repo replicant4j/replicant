@@ -157,7 +157,7 @@ public abstract class Converger
     if ( Replicant.shouldCheckInvariants() )
     {
       Guards.invariant( () -> !Disposable.isDisposed( areaOfInterest ),
-                        () -> "Replicant-0021: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
+                        () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
     final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );

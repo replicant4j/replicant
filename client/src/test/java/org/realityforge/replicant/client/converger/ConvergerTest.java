@@ -487,7 +487,7 @@ public class ConvergerTest
                     () -> c.convergeAreaOfInterest( areaOfInterest, null, null, true ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0021: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
+                  "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
   }
 
   @Test
