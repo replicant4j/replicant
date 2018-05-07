@@ -3,9 +3,11 @@ package replicant;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentId;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.spy.AreaOfInterestDisposedEvent;
 
 /**
  * The channel description declares a desired channel subscription and also
@@ -51,6 +53,15 @@ public abstract class AreaOfInterest
   {
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _channel = Objects.requireNonNull( channel );
+  }
+
+  @PreDispose
+  final void preDispose()
+  {
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new AreaOfInterestDisposedEvent( this ) );
+    }
   }
 
   @ComponentId
@@ -101,6 +112,12 @@ public abstract class AreaOfInterest
     {
       return super.toString();
     }
+  }
+
+  @Nonnull
+  private ReplicantContext getReplicantContext()
+  {
+    return getAreaOfInterestService().getReplicantContext();
   }
 
   @Nonnull

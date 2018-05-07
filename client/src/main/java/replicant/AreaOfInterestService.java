@@ -114,7 +114,7 @@ abstract class AreaOfInterestService
   }
 
   @Nonnull
-  private ReplicantContext getReplicantContext()
+  final ReplicantContext getReplicantContext()
   {
     return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
   }
