@@ -306,7 +306,6 @@ public abstract class Converger
   @Action
   protected void setAreaOfInterestState( @Nonnull final ChannelAddress address,
                                          @Nonnull final AreaOfInterest.Status status,
-                                         final boolean attemptEntryLoad,
                                          @Nullable final Throwable throwable )
   {
     LOG.info( "Update AreaOfInterest " + address + " to status " + status );
@@ -314,7 +313,7 @@ public abstract class Converger
     if ( null != areaOfInterest )
     {
       areaOfInterest.setStatus( status );
-      areaOfInterest.setSubscription( attemptEntryLoad ? Replicant.context().findSubscription( address ) : null );
+      areaOfInterest.setSubscription( Replicant.context().findSubscription( address ) );
       areaOfInterest.setError( throwable );
     }
   }
@@ -325,14 +324,14 @@ public abstract class Converger
     @Override
     public void onSubscribeStarted( @Nonnull final DataLoaderService service, @Nonnull final ChannelAddress address )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.LOADING, false, null );
+      setAreaOfInterestState( address, AreaOfInterest.Status.LOADING, null );
     }
 
     @Override
     public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
                                       @Nonnull final ChannelAddress address )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.LOADED, true, null );
+      setAreaOfInterestState( address, AreaOfInterest.Status.LOADED, null );
     }
 
     @Override
@@ -340,20 +339,20 @@ public abstract class Converger
                                    @Nonnull final ChannelAddress address,
                                    @Nonnull final Throwable throwable )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.LOAD_FAILED, false, throwable );
+      setAreaOfInterestState( address, AreaOfInterest.Status.LOAD_FAILED, throwable );
     }
 
     @Override
     public void onUnsubscribeStarted( @Nonnull final DataLoaderService service, @Nonnull final ChannelAddress address )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADING, false, null );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADING, null );
     }
 
     @Override
     public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
                                         @Nonnull final ChannelAddress address )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, null );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, null );
     }
 
     @Override
@@ -361,21 +360,21 @@ public abstract class Converger
                                      @Nonnull final ChannelAddress address,
                                      @Nonnull final Throwable throwable )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, false, throwable );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, throwable );
     }
 
     @Override
     public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
                                              @Nonnull final ChannelAddress address )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATING, true, null );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATING, null );
     }
 
     @Override
     public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
                                                @Nonnull final ChannelAddress address )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATED, true, null );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATED, null );
     }
 
     @Override
@@ -383,7 +382,7 @@ public abstract class Converger
                                             @Nonnull final ChannelAddress address,
                                             @Nonnull final Throwable throwable )
     {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATE_FAILED, false, throwable );
+      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATE_FAILED, throwable );
     }
   }
 }
