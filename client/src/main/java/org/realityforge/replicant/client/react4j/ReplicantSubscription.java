@@ -152,7 +152,7 @@ public abstract class ReplicantSubscription<T>
         final AreaOfInterest areaOfInterest = getAreaOfInterest();
         if ( null != areaOfInterest && expectFilterUpdates() )
         {
-          areaOfInterest.getChannel().setFilter( newFilter );
+          Replicant.context().findOrCreateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
         }
         else
         {
