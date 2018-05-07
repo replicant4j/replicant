@@ -13,7 +13,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.anodoc.VisibleForTesting;
-import org.realityforge.braincheck.Guards;
 import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
@@ -24,6 +23,7 @@ import replicant.ChannelAddress;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
+import static org.realityforge.braincheck.Guards.*;
 
 @Singleton
 @ArezComponent
@@ -156,8 +156,8 @@ public abstract class Converger
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      Guards.invariant( () -> !Disposable.isDisposed( areaOfInterest ),
-                        () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
+      invariant( () -> !Disposable.isDisposed( areaOfInterest ),
+                 () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
     final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getChannelType() );
