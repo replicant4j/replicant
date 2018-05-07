@@ -152,7 +152,7 @@ public abstract class ReplicantSubscription<T>
         final AreaOfInterest areaOfInterest = getAreaOfInterest();
         if ( null != areaOfInterest && expectFilterUpdates() )
         {
-          Replicant.context().findOrCreateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
+          Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
         }
         else
         {
@@ -184,7 +184,7 @@ public abstract class ReplicantSubscription<T>
   private void updateAreaOfInterest()
   {
     final AreaOfInterest newAreaOfInterest =
-      Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( getChannelType(), getId() ), getFilter() );
+      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( getChannelType(), getId() ), getFilter() );
     if ( getAreaOfInterest() != newAreaOfInterest )
     {
       clearAreaOfInterest();

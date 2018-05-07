@@ -21,13 +21,13 @@ public class ReplicantContextTest
       assertEquals( context.getAreasOfInterest().size(), 0 );
       assertEquals( context.findAreaOfInterestByAddress( address ), null );
 
-      final AreaOfInterest areaOfInterest = context.findOrCreateAreaOfInterest( address, filter );
+      final AreaOfInterest areaOfInterest = context.createOrUpdateAreaOfInterest( address, filter );
 
       assertEquals( areaOfInterest.getChannel().getFilter(), filter );
       assertEquals( context.getAreasOfInterest().size(), 1 );
       assertEquals( context.findAreaOfInterestByAddress( address ), areaOfInterest );
 
-      final AreaOfInterest areaOfInterest2 = context.findOrCreateAreaOfInterest( address, filter2 );
+      final AreaOfInterest areaOfInterest2 = context.createOrUpdateAreaOfInterest( address, filter2 );
 
       assertEquals( areaOfInterest2, areaOfInterest );
       assertEquals( areaOfInterest2.getChannel().getFilter(), filter2 );

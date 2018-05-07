@@ -6,10 +6,8 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
-import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Replicant;
-import replicant.spy.tools.SpyEventProcessorTest;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestCreatedEventTest
@@ -20,8 +18,8 @@ public class AreaOfInterestCreatedEventTest
   {
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                                       filter ) );
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
+                                                                                         filter ) );
 
     final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
 

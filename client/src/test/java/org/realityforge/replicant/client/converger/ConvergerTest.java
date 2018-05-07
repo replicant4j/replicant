@@ -14,7 +14,6 @@ import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
-import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.Subscription;
@@ -199,11 +198,11 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
-    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 1 ), null );
-    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 2 ), null );
-    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 3 ), null );
-    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 4 ), null );
-    Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( TestSystemA.B, 5 ), null );
+    Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( TestSystemA.B, 1 ), null );
+    Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( TestSystemA.B, 2 ), null );
+    Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( TestSystemA.B, 3 ), null );
+    Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( TestSystemA.B, 4 ), null );
+    Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( TestSystemA.B, 5 ), null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -600,6 +599,6 @@ public class ConvergerTest
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    return Replicant.context().findOrCreateAreaOfInterest( address, filter );
+    return Replicant.context().createOrUpdateAreaOfInterest( address, filter );
   }
 }

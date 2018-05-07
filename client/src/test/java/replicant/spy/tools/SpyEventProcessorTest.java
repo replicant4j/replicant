@@ -50,8 +50,8 @@ public class SpyEventProcessorTest
     processor.on( AreaOfInterestCreatedEvent.class, e -> callCount.incrementAndGet() );
 
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                                       null ) );
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
+                                                                                         null ) );
 
     final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
 

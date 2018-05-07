@@ -55,10 +55,10 @@ public final class ReplicantContext
    * @return the AreaOfInterest.
    */
   @Nonnull
-  public AreaOfInterest findOrCreateAreaOfInterest( @Nonnull final ChannelAddress address,
-                                                    @Nullable final Object filter )
+  public AreaOfInterest createOrUpdateAreaOfInterest( @Nonnull final ChannelAddress address,
+                                                      @Nullable final Object filter )
   {
-    return _areaOfInterestService.findOrCreateAreaOfInterest( address, filter );
+    return _areaOfInterestService.createOrUpdateAreaOfInterest( address, filter );
   }
 
   /**

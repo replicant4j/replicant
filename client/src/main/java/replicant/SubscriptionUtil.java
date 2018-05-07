@@ -67,13 +67,13 @@ public class SubscriptionUtil
       .flatMap( sourceIDToTargetIDs )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
-      .forEach( id -> context.findOrCreateAreaOfInterest( new ChannelAddress( targetChannelType, id ), filter ) );
+      .forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetChannelType, id ), filter ) );
 
     context.getInstanceSubscriptionIds( sourceChannelType ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> context.findOrCreateAreaOfInterest( new ChannelAddress( targetChannelType, id ), filter ) );
+      forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetChannelType, id ), filter ) );
 
     existing.values().forEach( Disposable::dispose );
   }

@@ -85,7 +85,7 @@ abstract class AreaOfInterestService
    * @return the AreaOfInterest.
    */
   @Nonnull
-  AreaOfInterest findOrCreateAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  AreaOfInterest createOrUpdateAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     final AreaOfInterest areaOfInterest = findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )

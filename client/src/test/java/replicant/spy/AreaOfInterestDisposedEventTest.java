@@ -18,8 +18,8 @@ public class AreaOfInterestDisposedEventTest
   {
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                                       filter ) );
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
+                                                                                         filter ) );
 
     final AreaOfInterestDisposedEvent event = new AreaOfInterestDisposedEvent( areaOfInterest );
 

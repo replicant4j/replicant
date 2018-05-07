@@ -38,7 +38,7 @@ public class AreaOfInterestServiceTest
     final ChannelAddress address3 = new ChannelAddress( TestSystem.B, 2 );
 
     Arez.context().safeAction( () -> {
-      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( address1, null );
+      final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest1 );
 
       assertEquals( areaOfInterest1.getAreaOfInterestService(), service );
@@ -73,7 +73,7 @@ public class AreaOfInterestServiceTest
       final TestSpyEventHandler handler = new TestSpyEventHandler();
       Replicant.context().getSpy().addSpyEventHandler( handler );
 
-      final AreaOfInterest areaOfInterest = service.findOrCreateAreaOfInterest( address1, null );
+      final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest );
 
       assertEquals( areaOfInterest.getAreaOfInterestService(), service );
@@ -94,11 +94,11 @@ public class AreaOfInterestServiceTest
     Arez.context().safeAction( () -> {
       final TestSpyEventHandler handler = new TestSpyEventHandler();
 
-      service.findOrCreateAreaOfInterest( address1, "Filter1" );
+      service.createOrUpdateAreaOfInterest( address1, "Filter1" );
 
       Replicant.context().getSpy().addSpyEventHandler( handler );
 
-      final AreaOfInterest areaOfInterest = service.findOrCreateAreaOfInterest( address1, "Filter2" );
+      final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, "Filter2" );
 
       handler.assertEventCount( 1 );
 
@@ -116,7 +116,7 @@ public class AreaOfInterestServiceTest
     final TestSpyEventHandler handler = new TestSpyEventHandler();
 
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> service.findOrCreateAreaOfInterest( address1, "Filter1" ) );
+      Arez.context().safeAction( () -> service.createOrUpdateAreaOfInterest( address1, "Filter1" ) );
 
     Replicant.context().getSpy().addSpyEventHandler( handler );
 
@@ -139,12 +139,12 @@ public class AreaOfInterestServiceTest
       final String filer1 = "Filer1";
       final String filer2 = null;
 
-      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( address1, filer1 );
+      final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest( address1, filer1 );
 
       assertEquals( areaOfInterest1.getAddress(), address1 );
       assertEquals( areaOfInterest1.getChannel().getFilter(), filer1 );
 
-      final AreaOfInterest areaOfInterest2 = service.findOrCreateAreaOfInterest( address2, filer2 );
+      final AreaOfInterest areaOfInterest2 = service.createOrUpdateAreaOfInterest( address2, filer2 );
 
       assertEquals( areaOfInterest2.getAddress(), address2 );
       assertEquals( areaOfInterest2.getChannel().getFilter(), filer2 );
@@ -152,7 +152,7 @@ public class AreaOfInterestServiceTest
   }
 
   @Test
-  public void findOrCreateSubscription()
+  public void createOrUpdateAreaOfInterest()
   {
     Arez.context().safeAction( () -> {
       final ChannelAddress channel = new ChannelAddress( TestSystem.A );
@@ -162,14 +162,14 @@ public class AreaOfInterestServiceTest
       final AreaOfInterestService service = AreaOfInterestService.create( null );
 
       // No existing subscription
-      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( channel, filter1 );
+      final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest( channel, filter1 );
       assertEquals( areaOfInterest1.getAddress(), channel );
       assertEquals( areaOfInterest1.getChannel().getFilter(), filter1 );
       assertEquals( service.findAreaOfInterestByAddress( channel ), areaOfInterest1 );
       assertEquals( service.getAreasOfInterest().size(), 1 );
 
       //Existing subscription, same filter
-      final AreaOfInterest areaOfInterest2 = service.findOrCreateAreaOfInterest( channel, filter1 );
+      final AreaOfInterest areaOfInterest2 = service.createOrUpdateAreaOfInterest( channel, filter1 );
       assertEquals( areaOfInterest2.getAddress(), channel );
       assertEquals( areaOfInterest2.getChannel().getFilter(), filter1 );
       assertEquals( areaOfInterest1, areaOfInterest2 );
@@ -177,7 +177,7 @@ public class AreaOfInterestServiceTest
       assertEquals( service.getAreasOfInterest().size(), 1 );
 
       //Existing subscription, different filter
-      final AreaOfInterest subscription3 = service.findOrCreateAreaOfInterest( channel, filter2 );
+      final AreaOfInterest subscription3 = service.createOrUpdateAreaOfInterest( channel, filter2 );
       assertEquals( subscription3.getAddress(), channel );
       assertEquals( subscription3.getChannel().getFilter(), filter2 );
       assertEquals( areaOfInterest1, subscription3 );
