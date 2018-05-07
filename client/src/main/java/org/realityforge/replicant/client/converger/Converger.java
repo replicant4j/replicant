@@ -23,6 +23,7 @@ import replicant.ChannelAddress;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
+import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 @Singleton
@@ -293,8 +294,12 @@ public abstract class Converger
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
-      LOG.info( "Removing orphan subscription: " + address );
-      //TODO: Send spy message
+      if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+      {
+        final Subscription subscription = Replicant.context().findSubscription( address );
+        assert null != subscription;
+        Replicant.context().getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
+      }
       service.requestUnsubscribe( address );
     }
   }

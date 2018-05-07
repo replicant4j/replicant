@@ -17,6 +17,8 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.Subscription;
+import replicant.TestSpyEventHandler;
+import replicant.spy.SubscriptionOrphanedEvent;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -69,6 +71,8 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
+    final Subscription subscription = Replicant.context().createSubscription( address, null, true );
+
     final Converger c = Converger.create( clientSystem );
 
     when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
@@ -79,9 +83,16 @@ public class ConvergerTest
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( -1 );
 
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
     c.removeOrphanSubscription( address );
 
     verify( service ).requestUnsubscribe( address );
+
+    handler.assertEventCount( 1 );
+
+    handler.assertNextEvent( SubscriptionOrphanedEvent.class, e -> assertEquals( e.getSubscription(), subscription ) );
   }
 
   @Test
