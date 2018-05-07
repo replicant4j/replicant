@@ -5,6 +5,7 @@ import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
+import replicant.spy.AreaOfInterestDisposedEvent;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestTest
@@ -23,6 +24,23 @@ public class AreaOfInterestTest
       assertEquals( areaOfInterest.getSubscription(), null );
       assertEquals( areaOfInterest.getError(), null );
     } );
+  }
+
+  @Test
+  public void disposeAreaOfInterestGeneratesSpyEvent()
+  {
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final Channel channel = Channel.create( address );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> Disposable.dispose( areaOfInterest ) );
+    handler.assertEventCount( 1 );
+
+    final AreaOfInterestDisposedEvent event = handler.assertNextEvent( AreaOfInterestDisposedEvent.class );
+    assertEquals( event.getAreaOfInterest(), areaOfInterest );
   }
 
   @SuppressWarnings( { "ThrowableNotThrown", "ResultOfMethodCallIgnored" } )
