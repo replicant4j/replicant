@@ -4,10 +4,13 @@ import arez.annotations.ArezComponent;
 import arez.component.AbstractContainer;
 import arez.component.RepositoryUtil;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.converger.Converger;
+import replicant.spy.AreaOfInterestCreatedEvent;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The AreaOfInterestService is responsible for managing AreaOfInterest instance.
@@ -23,14 +26,30 @@ abstract class AreaOfInterestService
   extends AbstractContainer<ChannelAddress, AreaOfInterest>
 {
   /**
+   * Reference to the context to which this service belongs.
+   */
+  @Nullable
+  private final ReplicantContext _context;
+
+  AreaOfInterestService( @Nullable final ReplicantContext context )
+  {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      apiInvariant( () -> Replicant.areZonesEnabled() || null == context,
+                    () -> "Replicant-0180: Node passed a context but Replicant.areZonesEnabled() is false" );
+    }
+    _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
+  }
+
+  /**
    * Create an instance of the AreaOfInterestService.
    *
    * @return an instance of the AreaOfInterestService.
    */
   @Nonnull
-  static AreaOfInterestService create()
+  static AreaOfInterestService create( @Nullable final ReplicantContext context )
   {
-    return new Arez_AreaOfInterestService();
+    return new Arez_AreaOfInterestService( context );
   }
 
   /**
@@ -81,7 +100,17 @@ abstract class AreaOfInterestService
       final Channel channel = Channel.create( address, filter );
       final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( channel );
       registerEntity( newAreaOfInterest );
+      if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+      {
+        getReplicantContext().getSpy().reportSpyEvent( new AreaOfInterestCreatedEvent( newAreaOfInterest ) );
+      }
       return newAreaOfInterest;
     }
+  }
+
+  @Nonnull
+  private ReplicantContext getReplicantContext()
+  {
+    return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
   }
 }

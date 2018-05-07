@@ -5,6 +5,7 @@ import arez.Disposable;
 import java.util.Collection;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.spy.AreaOfInterestCreatedEvent;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "Duplicates" )
@@ -19,7 +20,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void basicSubscriptionManagement()
   {
-    final AreaOfInterestService service = AreaOfInterestService.create();
+    final AreaOfInterestService service = AreaOfInterestService.create( null );
 
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
     final ChannelAddress address2 = new ChannelAddress( TestSystem.B, 1 );
@@ -51,10 +52,31 @@ public class AreaOfInterestServiceTest
   }
 
   @Test
+  public void createAreaOfInterestGeneratesSpyEvent()
+  {
+    final AreaOfInterestService service = AreaOfInterestService.create( null );
+    final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
+
+    Arez.context().safeAction( () -> {
+      final TestSpyEventHandler handler = new TestSpyEventHandler();
+      Replicant.context().getSpy().addSpyEventHandler( handler );
+
+      final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( address1, null );
+      assertNotNull( areaOfInterest1 );
+
+      handler.assertEventCount( 1 );
+
+      final AreaOfInterestCreatedEvent event = handler.assertEvent( AreaOfInterestCreatedEvent.class, 0 );
+
+      assertEquals( event.getAreaOfInterest(), areaOfInterest1 );
+    } );
+  }
+
+  @Test
   public void createSubscription()
   {
     Arez.context().safeAction( () -> {
-      final AreaOfInterestService service = AreaOfInterestService.create();
+      final AreaOfInterestService service = AreaOfInterestService.create( null );
 
       final ChannelAddress address1 = new ChannelAddress( TestSystem.A );
       final ChannelAddress address2 = new ChannelAddress( TestSystem.B );
@@ -82,7 +104,7 @@ public class AreaOfInterestServiceTest
       final String filter1 = ValueUtil.randomString();
       final String filter2 = ValueUtil.randomString();
 
-      final AreaOfInterestService service = AreaOfInterestService.create();
+      final AreaOfInterestService service = AreaOfInterestService.create( null );
 
       // No existing subscription
       final AreaOfInterest areaOfInterest1 = service.findOrCreateAreaOfInterest( channel, filter1 );
