@@ -10,7 +10,6 @@ import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import static org.testng.Assert.*;
 
-@SuppressWarnings( "Duplicates" )
 public class AreaOfInterestServiceTest
   extends AbstractReplicantTest
 {
