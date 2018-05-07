@@ -27,19 +27,29 @@ public abstract class AreaOfInterest
     UNLOADED
   }
 
+  /**
+   * Reference to the container that created AreaOfInterest.
+   * In the future this reference should be eliminated when there is a way to get to the singleton
+   * AreaOfInterestService. (Similar to the way we have Arez.context().X we should have Replicant.context().X)
+   * This will save memory resources on the client.
+   */
+  @Nonnull
+  private final AreaOfInterestService _areaOfInterestService;
   @Nonnull
   private final Channel _channel;
   @Nonnull
   private Status _status = Status.NOT_ASKED;
 
   @Nonnull
-  public static AreaOfInterest create( @Nonnull final Channel channel )
+  static AreaOfInterest create( @Nonnull final AreaOfInterestService areaOfInterestService,
+                                @Nonnull final Channel channel )
   {
-    return new Arez_AreaOfInterest( channel );
+    return new Arez_AreaOfInterest( areaOfInterestService, channel );
   }
 
-  AreaOfInterest( @Nonnull final Channel channel )
+  AreaOfInterest( @Nonnull final AreaOfInterestService areaOfInterestService, @Nonnull final Channel channel )
   {
+    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
     _channel = Objects.requireNonNull( channel );
   }
 
@@ -91,5 +101,11 @@ public abstract class AreaOfInterest
     {
       return super.toString();
     }
+  }
+
+  @Nonnull
+  final AreaOfInterestService getAreaOfInterestService()
+  {
+    return _areaOfInterestService;
   }
 }

@@ -103,7 +103,7 @@ abstract class AreaOfInterestService
     else
     {
       final Channel channel = Channel.create( address, filter );
-      final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( channel );
+      final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( this, channel );
       registerEntity( newAreaOfInterest );
       if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
       {
