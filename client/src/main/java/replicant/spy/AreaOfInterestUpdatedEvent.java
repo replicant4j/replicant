@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import replicant.AreaOfInterest;
 
 /**
- * Notification when an AreaOfInterest has been updated.
+ * Notification when an AreaOfInterest filter has been updated.
  */
 public final class AreaOfInterestUpdatedEvent
   implements SerializableEvent
