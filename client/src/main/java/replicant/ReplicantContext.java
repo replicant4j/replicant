@@ -32,7 +32,7 @@ public final class ReplicantContext
   @Nonnull
   public List<AreaOfInterest> getAreasOfInterest()
   {
-    return _areaOfInterestService.getAreasOfInterest();
+    return getAreaOfInterestService().getAreasOfInterest();
   }
 
   /**
@@ -44,7 +44,7 @@ public final class ReplicantContext
   @Nullable
   public AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
   {
-    return _areaOfInterestService.findAreaOfInterestByAddress( address );
+    return getAreaOfInterestService().findAreaOfInterestByAddress( address );
   }
 
   /**
@@ -59,7 +59,7 @@ public final class ReplicantContext
   public AreaOfInterest createOrUpdateAreaOfInterest( @Nonnull final ChannelAddress address,
                                                       @Nullable final Object filter )
   {
-    return _areaOfInterestService.createOrUpdateAreaOfInterest( address, filter );
+    return getAreaOfInterestService().createOrUpdateAreaOfInterest( address, filter );
   }
 
   /**
@@ -90,7 +90,7 @@ public final class ReplicantContext
                                     @Nonnull final Class<?> type,
                                     final int id )
   {
-    return _entityService.findOrCreateEntity( name, type, id );
+    return getEntityService().findOrCreateEntity( name, type, id );
   }
 
   /**
@@ -103,13 +103,13 @@ public final class ReplicantContext
   @Nullable
   public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Integer id )
   {
-    return _entityService.findEntityByTypeAndId( type, id );
+    return getEntityService().findEntityByTypeAndId( type, id );
   }
 
   @Nonnull
   public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    return _entityService.findAllEntitiesByType( type );
+    return getEntityService().findAllEntitiesByType( type );
   }
 
   /**
@@ -121,7 +121,7 @@ public final class ReplicantContext
   @Nonnull
   public Collection<Class<?>> findAllEntityTypes()
   {
-    return _entityService.findAllEntityTypes();
+    return getEntityService().findAllEntityTypes();
   }
 
   /**
@@ -132,7 +132,7 @@ public final class ReplicantContext
   @Nonnull
   public List<Subscription> getTypeSubscriptions()
   {
-    return _subscriptionService.getTypeSubscriptions();
+    return getSubscriptionService().getTypeSubscriptions();
   }
 
   /**
@@ -143,7 +143,7 @@ public final class ReplicantContext
   @Nonnull
   public Collection<Subscription> getInstanceSubscriptions()
   {
-    return _subscriptionService.getInstanceSubscriptions();
+    return getSubscriptionService().getInstanceSubscriptions();
   }
 
   /**
@@ -155,7 +155,7 @@ public final class ReplicantContext
   @Nonnull
   public Set<Object> getInstanceSubscriptionIds( @Nonnull final Enum channelType )
   {
-    return _subscriptionService.getInstanceSubscriptionIds( channelType );
+    return getSubscriptionService().getInstanceSubscriptionIds( channelType );
   }
 
   /**
@@ -172,7 +172,7 @@ public final class ReplicantContext
                                                 @Nullable final Object filter,
                                                 final boolean explicitSubscription )
   {
-    return _subscriptionService.createSubscription( address, filter, explicitSubscription );
+    return getSubscriptionService().createSubscription( address, filter, explicitSubscription );
   }
 
   /**
@@ -187,7 +187,7 @@ public final class ReplicantContext
   @Nullable
   public final Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
-    return _subscriptionService.findSubscription( address );
+    return getSubscriptionService().findSubscription( address );
   }
 
   /**
@@ -217,5 +217,38 @@ public final class ReplicantContext
     }
     assert null != _spy;
     return _spy;
+  }
+
+  /**
+   * Return the underlying AreaOfInterestService implementation.
+   *
+   * @return the underlying AreaOfInterestService implementation.
+   */
+  @Nonnull
+  final AreaOfInterestService getAreaOfInterestService()
+  {
+    return _areaOfInterestService;
+  }
+
+  /**
+   * Return the underlying EntityService implementation.
+   *
+   * @return the underlying EntityService implementation.
+   */
+  @Nonnull
+  final EntityService getEntityService()
+  {
+    return _entityService;
+  }
+
+  /**
+   * Return the underlying SubscriptionService implementation.
+   *
+   * @return the underlying SubscriptionService implementation.
+   */
+  @Nonnull
+  final SubscriptionService getSubscriptionService()
+  {
+    return _subscriptionService;
   }
 }
