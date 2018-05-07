@@ -63,17 +63,20 @@ public final class ClientSession
 
   void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
   {
+    //TODO: Send spy message ..
     enqueueAoiAction( descriptor, AreaOfInterestAction.ADD, filterParameter );
   }
 
   void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
                                   @Nullable final Object filterParameter )
   {
+    //TODO: Send spy message ..
     enqueueAoiAction( descriptor, AreaOfInterestAction.UPDATE, filterParameter );
   }
 
   void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
   {
+    //TODO: Send spy message ..
     enqueueAoiAction( descriptor, AreaOfInterestAction.REMOVE, null );
   }
 
