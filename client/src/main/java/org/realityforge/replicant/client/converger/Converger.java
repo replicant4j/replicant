@@ -308,9 +308,7 @@ public abstract class Converger
     final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
-      areaOfInterest.setStatus( status );
-      areaOfInterest.setSubscription( Replicant.context().findSubscription( address ) );
-      areaOfInterest.setError( throwable );
+      areaOfInterest.updateAreaOfInterest( status, throwable );
     }
   }
 

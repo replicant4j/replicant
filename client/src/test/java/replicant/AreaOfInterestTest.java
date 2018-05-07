@@ -127,13 +127,129 @@ public class AreaOfInterestTest
                   "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
   }
 
+  @SuppressWarnings( "ThrowableNotThrown" )
+  @Test
+  public void updateAreaOfInterest()
+  {
+    Arez.context().pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, error ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), error ) );
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATE_FAILED, error ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), error ) );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+
+    Disposable.dispose( subscription );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+  }
+
+  @Test
+  public void updateAreaOfInterest_missingErrorWhenExpected()
+  {
+    Arez.context().pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context()
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0016: Invoked updateAreaOfInterest for channel at address G.G1 with status LOAD_FAILED but failed to supply the expected error." );
+  }
+
+  @SuppressWarnings( "ThrowableNotThrown" )
+  @Test
+  public void updateAreaOfInterest_errorWhenUnexpected()
+  {
+    Arez.context().pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final Throwable error = new Throwable();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context()
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0017: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and supplied an unexpected error." );
+  }
+
+  @Test
+  public void updateAreaOfInterest_missingSubscriptionWhenExpected()
+  {
+    Arez.context().pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context()
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0018: Invoked updateAreaOfInterest for channel at address G.G1 with status LOADED and the context is missing expected subscription." );
+  }
+
+  @Test
+  public void updateAreaOfInterest_ubscriptionWhenUnexpected()
+  {
+    Arez.context().pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+
+    Arez.context().safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context()
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0019: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and found unexpected subscription in the context." );
+  }
+
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final Channel channel )
   {
-    return AreaOfInterest.create( AreaOfInterestService.create( Replicant.areZonesEnabled() ?
-                                                                Replicant.context() :
-                                                                null ),
-                                  channel );
+    return AreaOfInterest.create( Replicant.context().getAreaOfInterestService(), channel );
   }
 
   enum G

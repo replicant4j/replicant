@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentId;
 import arez.annotations.Observable;
@@ -8,6 +9,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.AreaOfInterestDisposedEvent;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The channel description declares a desired channel subscription and also
@@ -84,7 +86,7 @@ public abstract class AreaOfInterest
     return _status;
   }
 
-  public void setStatus( @Nonnull final Status status )
+  void setStatus( @Nonnull final Status status )
   {
     _status = Objects.requireNonNull( status );
   }
@@ -93,13 +95,60 @@ public abstract class AreaOfInterest
   @Nullable
   public abstract Throwable getError();
 
-  public abstract void setError( @Nullable Throwable error );
+  abstract void setError( @Nullable Throwable error );
 
   @Observable
   @Nullable
   public abstract Subscription getSubscription();
 
-  public abstract void setSubscription( @Nullable Subscription subscription );
+  abstract void setSubscription( @Nullable Subscription subscription );
+
+  /**
+   * Update the status of the AreaOfInterest.
+   */
+  public void updateAreaOfInterest( @Nonnull final Status status )
+  {
+    updateAreaOfInterest( status, null );
+  }
+
+  /**
+   * Update the status of the AreaOfInterest.
+   */
+  @Action
+  public void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
+  {
+    final boolean expectSubscription =
+      Status.LOADED == status ||
+      Status.UPDATED == status ||
+      Status.UPDATING == status ||
+      Status.UPDATE_FAILED == status ||
+      Status.UNLOADING == status;
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      final boolean expectError = Status.LOAD_FAILED == status || Status.UPDATE_FAILED == status;
+      final Subscription subscription = getReplicantContext().findSubscription( getAddress() );
+
+      final ChannelAddress address = getChannel().getAddress();
+      apiInvariant( () -> !expectError || null != error,
+                    () -> "Replicant-0016: Invoked updateAreaOfInterest for channel at address " +
+                          address + " with status " + status + " but failed to supply " +
+                          "the expected error." );
+      apiInvariant( () -> expectError || null == error,
+                    () -> "Replicant-0017: Invoked updateAreaOfInterest for channel at address " +
+                          address + " with status " + status + " and supplied an unexpected error." );
+
+      apiInvariant( () -> !expectSubscription || null != subscription,
+                    () -> "Replicant-0018: Invoked updateAreaOfInterest for channel at address " +
+                          address + " with status " + status + " and the context is missing expected subscription." );
+      apiInvariant( () -> expectSubscription || null == subscription,
+                    () -> "Replicant-0019: Invoked updateAreaOfInterest for channel at address " +
+                          address + " with status " + status + " and found unexpected subscription in the context." );
+    }
+
+    setStatus( status );
+    setSubscription( expectSubscription ? getReplicantContext().findSubscription( getAddress() ) : null );
+    setError( error );
+  }
 
   @Override
   public String toString()
@@ -115,7 +164,7 @@ public abstract class AreaOfInterest
   }
 
   @Nonnull
-  private ReplicantContext getReplicantContext()
+  final ReplicantContext getReplicantContext()
   {
     return getAreaOfInterestService().getReplicantContext();
   }
