@@ -25,7 +25,8 @@ public class AreaOfInterestServiceTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> AreaOfInterestService.create( Replicant.context() ) );
 
-    assertEquals( exception.getMessage(), "Replicant-0180: AreaOfInterestService passed a context but Replicant.areZonesEnabled() is false" );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0180: AreaOfInterestService passed a context but Replicant.areZonesEnabled() is false" );
   }
 
   @Test
