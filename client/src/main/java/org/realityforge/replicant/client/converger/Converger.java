@@ -184,8 +184,6 @@ public abstract class Converger
         if ( null == groupTemplate ||
              canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
         {
-          LOG.info( "Adding subscription: " + address + ". " +
-                    "Setting filter to: " + FilterUtil.filterToString( filter ) );
           service.requestSubscribe( address, filter );
           return ConvergeAction.SUBMITTED_ADD;
         }
@@ -221,9 +219,6 @@ public abstract class Converger
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
           {
-            final String message =
-              "Updating subscription " + address + ". Changing filter to " + newFilter + " from " + existingFilter;
-            LOG.info( message );
             service.requestSubscriptionUpdate( address, filter );
             return ConvergeAction.SUBMITTED_UPDATE;
           }
