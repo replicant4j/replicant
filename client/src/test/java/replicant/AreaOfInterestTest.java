@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestDisposedEvent;
+import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestTest
@@ -202,6 +203,22 @@ public class AreaOfInterestTest
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+  }
+
+  @Test
+  public void updateAreaOfInterest_generatesSpyEvent()
+  {
+    Arez.context().pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING ) );
+
+    handler.assertEventCount( 1 );
+    final AreaOfInterestStatusUpdatedEvent event = handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class );
+    assertEquals( event.getAreaOfInterest(), aoi );
   }
 
   @Test

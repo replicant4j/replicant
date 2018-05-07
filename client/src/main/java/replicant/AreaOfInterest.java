@@ -9,6 +9,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.AreaOfInterestDisposedEvent;
+import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -149,6 +150,10 @@ public abstract class AreaOfInterest
     setStatus( status );
     setSubscription( expectSubscription ? getReplicantContext().findSubscription( getAddress() ) : null );
     setError( error );
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new AreaOfInterestStatusUpdatedEvent( this ) );
+    }
   }
 
   @Override
