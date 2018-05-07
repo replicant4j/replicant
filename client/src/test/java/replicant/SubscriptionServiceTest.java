@@ -17,7 +17,7 @@ public class SubscriptionServiceTest
     final ChannelAddress address2 = new ChannelAddress( G.G2 );
     final ChannelAddress address3 = new ChannelAddress( G.G3 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -169,7 +169,7 @@ public class SubscriptionServiceTest
     final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
     final ChannelAddress address3 = new ChannelAddress( G.G2, ValueUtil.randomInt() );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -333,7 +333,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1, 1 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // instance channel, no filter, explicit subscription
     Arez.context().safeAction( () -> {
@@ -349,7 +349,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1, 2 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // instance channel, filter, not explicit subscription
     Arez.context().safeAction( () -> {
@@ -367,7 +367,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G2 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // type channel, no filter, no explicit subscription
     Arez.context().safeAction( () -> {
@@ -385,7 +385,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G2 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // type channel, filter, explicit subscription
     Arez.context().safeAction( () -> {
@@ -403,7 +403,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
 
@@ -420,7 +420,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -435,7 +435,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
 
@@ -452,7 +452,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1, 1 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -468,7 +468,7 @@ public class SubscriptionServiceTest
     final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
     final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     Arez.context().safeAction( () -> service.createSubscription( address2, null, true ) );
 
@@ -485,7 +485,7 @@ public class SubscriptionServiceTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1, 2 );
 
-    final SubscriptionService service = SubscriptionService.create();
+    final SubscriptionService service = SubscriptionService.create( null );
 
     Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
 
@@ -495,6 +495,17 @@ public class SubscriptionServiceTest
 
     assertEquals( exception.getMessage(),
                   "unlinkSubscription invoked with address G.G1:2 but subscription has not already been disposed." );
+  }
+
+  @Test
+  public void createSubscriptionServicePassingContextWhenNoZones()
+  {
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> SubscriptionService.create( Replicant.context() ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0184: SubscriptionService passed a context but Replicant.areZonesEnabled() is false" );
   }
 
   enum G

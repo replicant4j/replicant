@@ -15,7 +15,7 @@ public class SubscriptionTest
   public void basicConstruction()
   {
     final Channel channel = Channel.create( new ChannelAddress( G.G1 ) );
-    final Subscription subscription = Subscription.create( SubscriptionService.create(), channel, true );
+    final Subscription subscription = Subscription.create( SubscriptionService.create( null ), channel, true );
 
     assertEquals( subscription.getChannel(), channel );
 
@@ -31,7 +31,7 @@ public class SubscriptionTest
     final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
     final Subscription subscription =
-      Subscription.create( SubscriptionService.create(), Channel.create( new ChannelAddress( G.G1, 1 ) ), true );
+      Subscription.create( SubscriptionService.create( null ), Channel.create( new ChannelAddress( G.G1, 1 ) ), true );
 
     final AtomicInteger callCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -121,7 +121,7 @@ public class SubscriptionTest
     final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
-    final SubscriptionService subscriptionService = SubscriptionService.create();
+    final SubscriptionService subscriptionService = SubscriptionService.create( null );
     final Subscription subscription1 =
       Subscription.create( subscriptionService, Channel.create( new ChannelAddress( G.G1, 1 ) ), true );
     final Subscription subscription2 =
@@ -202,7 +202,7 @@ public class SubscriptionTest
     final ChannelAddress address1 = new ChannelAddress( G.G1 );
     final ChannelAddress address2 = new ChannelAddress( G.G2 );
 
-    final SubscriptionService subscriptionService = SubscriptionService.create();
+    final SubscriptionService subscriptionService = SubscriptionService.create( null );
     final Subscription subscription1 = Subscription.create( subscriptionService, Channel.create( address1 ), true );
     final Subscription subscription2 = Subscription.create( subscriptionService, Channel.create( address2 ), true );
 
@@ -215,7 +215,7 @@ public class SubscriptionTest
   @Nonnull
   private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
-    return Subscription.create( SubscriptionService.create(), Channel.create( address ), true );
+    return Subscription.create( SubscriptionService.create( null ), Channel.create( address ), true );
   }
 
   enum G

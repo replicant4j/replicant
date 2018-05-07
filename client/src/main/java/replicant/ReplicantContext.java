@@ -16,7 +16,8 @@ public final class ReplicantContext
   private final AreaOfInterestService _areaOfInterestService =
     AreaOfInterestService.create( Replicant.areZonesEnabled() ? this : null );
   private final EntityService _entityService = EntityService.create();
-  private final SubscriptionService _subscriptionService = SubscriptionService.create();
+  private final SubscriptionService _subscriptionService =
+    SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
   /**
    * Support infrastructure for spy events.
    */

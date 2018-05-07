@@ -89,7 +89,7 @@ public class AreaOfInterestTest
 
     Arez.context()
       .safeAction( () -> {
-        final SubscriptionService subscriptionService = SubscriptionService.create();
+        final SubscriptionService subscriptionService = SubscriptionService.create( null );
         final Subscription subscription =
           subscriptionService.createSubscription( channel.getAddress(), channel.getFilter(), true );
         areaOfInterest.setSubscription( subscription );

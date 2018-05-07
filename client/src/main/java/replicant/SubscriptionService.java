@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -33,20 +34,31 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent
 public abstract class SubscriptionService
 {
+  /**
+   * Reference to the context to which this service belongs.
+   */
+  @Nullable
+  private final ReplicantContext _context;
+
   //ChannelType => InstanceID
   private final HashMap<Enum, Map<Object, Subscription>> _instanceSubscriptions = new HashMap<>();
 
   //ChannelType => Type
   private final HashMap<Enum, SubscriptionEntry> _typeSubscriptions = new HashMap<>();
 
-  @Nonnull
-  static SubscriptionService create()
+  static SubscriptionService create( @Nullable final ReplicantContext context )
   {
-    return new Arez_SubscriptionService();
+    return new Arez_SubscriptionService( context );
   }
 
-  SubscriptionService()
+  SubscriptionService( @Nullable final ReplicantContext context )
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      apiInvariant( () -> Replicant.areZonesEnabled() || null == context,
+                    () -> "Replicant-0184: SubscriptionService passed a context but Replicant.areZonesEnabled() is false" );
+    }
+    _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
   }
 
   /**
@@ -343,5 +355,11 @@ public abstract class SubscriptionService
   {
     _typeSubscriptions.values().forEach( s -> Disposable.dispose( s ) );
     _instanceSubscriptions.values().stream().flatMap( t -> t.values().stream() ).forEach( Disposable::dispose );
+  }
+
+  @Nonnull
+  final ReplicantContext getReplicantContext()
+  {
+    return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
   }
 }
