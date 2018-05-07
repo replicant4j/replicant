@@ -67,3 +67,5 @@ Some actions that should occur at some point in the future.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
   - Add a colored spy logger similar to as in Arez
 
+* The `Channel` class should be made package access and the `AreaOfInterest` and `Subscription` should expose
+  the publicly accessible details (i.e. Filter read? ChannelAddress).
