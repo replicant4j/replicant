@@ -3,6 +3,7 @@ package replicant;
 import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -14,7 +15,7 @@ public class AreaOfInterestTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
 
     Arez.context().safeAction( () -> {
       assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
@@ -30,7 +31,7 @@ public class AreaOfInterestTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -108,7 +109,7 @@ public class AreaOfInterestTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
 
     assertEquals( areaOfInterest.toString(), "AreaOfInterest[Channel[G.G1 :: Filter=null] Status: NOT_ASKED]" );
   }
@@ -120,10 +121,19 @@ public class AreaOfInterestTest
 
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
 
     assertEquals( areaOfInterest.toString(),
                   "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
+  }
+
+  @Nonnull
+  private AreaOfInterest createAreaOfInterest( @Nonnull final Channel channel )
+  {
+    return AreaOfInterest.create( AreaOfInterestService.create( Replicant.areZonesEnabled() ?
+                                                                Replicant.context() :
+                                                                null ),
+                                  channel );
   }
 
   enum G

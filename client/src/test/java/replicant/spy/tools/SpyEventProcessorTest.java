@@ -1,13 +1,14 @@
 package replicant.spy.tools;
 
+import arez.Arez;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
-import replicant.Channel;
 import replicant.ChannelAddress;
+import replicant.Replicant;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import static org.testng.Assert.*;
 
@@ -48,8 +49,11 @@ public class SpyEventProcessorTest
     final AtomicInteger callCount = new AtomicInteger();
     processor.on( AreaOfInterestCreatedEvent.class, e -> callCount.incrementAndGet() );
 
-    final AreaOfInterestCreatedEvent event =
-      new AreaOfInterestCreatedEvent( AreaOfInterest.create( Channel.create( new ChannelAddress( G.G1 ) ) ) );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( G.G1 ),
+                                                                                       null ) );
+
+    final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
 
     assertEquals( callCount.get(), 0 );
     processor.onSpyEvent( event );

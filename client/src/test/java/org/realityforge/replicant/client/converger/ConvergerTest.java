@@ -3,6 +3,8 @@ package org.realityforge.replicant.client.converger;
 import arez.Arez;
 import arez.Disposable;
 import java.util.HashSet;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.realityforge.replicant.client.transport.DataLoaderService;
@@ -227,8 +229,7 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
-    final Channel channel = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -258,8 +259,7 @@ public class ConvergerTest
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     Replicant.context().createSubscription( address, null, true );
-    final Channel channel = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -289,8 +289,7 @@ public class ConvergerTest
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     Replicant.context().createSubscription( address, null, true );
-    final Channel channel = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -319,8 +318,7 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
-    final Channel channel = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -349,9 +347,7 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
-    final Channel channel = Channel.create( address, null );
-    channel.setFilter( "Filter1" );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, "Filter1" );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -385,9 +381,7 @@ public class ConvergerTest
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     Replicant.context().createSubscription( address, "OldFilter", false );
-    final Channel channel = Channel.create( address, null );
-    channel.setFilter( "Filter1" );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, "Filter1" );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -419,8 +413,7 @@ public class ConvergerTest
     final Converger c = Converger.create( clientSystem );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
-    final Channel channel = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.ADD ) );
     assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.UPDATE ) );
@@ -445,20 +438,17 @@ public class ConvergerTest
                             AreaOfInterestAction.REMOVE ) );
 
     final ChannelAddress channel2 = new ChannelAddress( TestSystemA.A, 2 );
-    final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( Channel.create( channel2, null ) );
+    final AreaOfInterest areaOfInterest2 = createAreaOfInterest( channel2, null );
     assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest2, AreaOfInterestAction.ADD ) );
 
     final ChannelAddress address3 = new ChannelAddress( TestSystemA.B, 1 );
-    final Channel channel3 = Channel.create( address3, null );
-    final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
+    final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
     assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.ADD ) );
     assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.UPDATE ) );
     assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.REMOVE ) );
 
     final ChannelAddress descriptor4 = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel channel4 = Channel.create( descriptor4, null );
-    channel4.setFilter( "Filter" );
-    final AreaOfInterest areaOfInterest4 = AreaOfInterest.create( channel4 );
+    final AreaOfInterest areaOfInterest4 = createAreaOfInterest( descriptor4, "Filter" );
     assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
     areaOfInterest.getChannel().setFilter( "Filter" );
     assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
@@ -471,8 +461,7 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel channel = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
     Disposable.dispose( areaOfInterest );
 
     final Converger c = Converger.create( clientSystem );
@@ -497,16 +486,13 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel channel1 = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest1 = AreaOfInterest.create( channel1 );
+    final AreaOfInterest areaOfInterest1 = createAreaOfInterest( address, null );
 
     final ChannelAddress address2 = new ChannelAddress( TestSystemA.A, 2 );
-    final Channel channel2 = Channel.create( address2, null );
-    final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( channel2 );
+    final AreaOfInterest areaOfInterest2 = createAreaOfInterest( address2, null );
 
     final ChannelAddress address3 = new ChannelAddress( TestSystemA.A, 3 );
-    final Channel channel3 = Channel.create( address3, null );
-    final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
+    final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -555,18 +541,15 @@ public class ConvergerTest
     final DataLoaderService service = mock( DataLoaderService.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
-    final Channel channel1 = Channel.create( address, null );
-    final AreaOfInterest areaOfInterest1 = AreaOfInterest.create( channel1 );
+    final AreaOfInterest areaOfInterest1 = createAreaOfInterest( address, null );
 
     final ChannelAddress address2 = new ChannelAddress( TestSystemA.A, 2 );
     Replicant.context().createSubscription( address2, "OldFilter", true );
-    final Channel channel2 = Channel.create( address2, null );
-    final AreaOfInterest areaOfInterest2 = AreaOfInterest.create( channel2 );
+    final AreaOfInterest areaOfInterest2 = createAreaOfInterest( address2, null );
 
     final ChannelAddress address3 = new ChannelAddress( TestSystemA.A, 3 );
     Replicant.context().createSubscription( address3, "OldFilter", true );
-    final Channel channel3 = Channel.create( address3, null );
-    final AreaOfInterest areaOfInterest3 = AreaOfInterest.create( channel3 );
+    final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -612,5 +595,11 @@ public class ConvergerTest
     verify( service, never() ).requestSubscribe( address3, null );
     verify( service, never() ).requestUnsubscribe( address3 );
     verify( service, never() ).requestSubscriptionUpdate( address3, null );
+  }
+
+  @Nonnull
+  private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  {
+    return Replicant.context().findOrCreateAreaOfInterest( address, filter );
   }
 }

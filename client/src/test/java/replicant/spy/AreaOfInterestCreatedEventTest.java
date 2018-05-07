@@ -8,6 +8,8 @@ import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;
+import replicant.Replicant;
+import replicant.spy.tools.SpyEventProcessorTest;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestCreatedEventTest
@@ -16,10 +18,10 @@ public class AreaOfInterestCreatedEventTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
     final String filter = ValueUtil.randomString();
-    final Channel channel = Channel.create( address, filter );
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( channel );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().findOrCreateAreaOfInterest( new ChannelAddress( G.G1 ),
+                                                                                       filter ) );
 
     final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
 
