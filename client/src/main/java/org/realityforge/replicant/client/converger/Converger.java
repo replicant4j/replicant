@@ -304,7 +304,6 @@ public abstract class Converger
                                          @Nonnull final AreaOfInterest.Status status,
                                          @Nullable final Throwable throwable )
   {
-    LOG.info( "Update AreaOfInterest " + address + " to status " + status );
     final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
