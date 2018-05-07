@@ -173,7 +173,8 @@ public abstract class SubscriptionService
     {
       getInstanceSubscriptionsObservable().preReportChanged();
     }
-    final Subscription subscription = Subscription.create( Channel.create( address, filter ), explicitSubscription );
+    final Subscription subscription =
+      Subscription.create( this, Channel.create( address, filter ), explicitSubscription );
     final SubscriptionEntry entry = createSubscriptionEntry( subscription );
     if ( null == id )
     {

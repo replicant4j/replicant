@@ -15,7 +15,7 @@ public class SubscriptionTest
   public void basicConstruction()
   {
     final Channel channel = Channel.create( new ChannelAddress( G.G1 ) );
-    final Subscription subscription = Subscription.create( channel, true );
+    final Subscription subscription = Subscription.create( SubscriptionService.create(), channel, true );
 
     assertEquals( subscription.getChannel(), channel );
 
@@ -30,7 +30,8 @@ public class SubscriptionTest
     final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
-    final Subscription subscription = Subscription.create( Channel.create( new ChannelAddress( G.G1, 1 ) ) );
+    final Subscription subscription =
+      Subscription.create( SubscriptionService.create(), Channel.create( new ChannelAddress( G.G1, 1 ) ) );
 
     final AtomicInteger callCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -120,8 +121,11 @@ public class SubscriptionTest
     final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
-    final Subscription subscription1 = Subscription.create( Channel.create( new ChannelAddress( G.G1, 1 ) ) );
-    final Subscription subscription2 = Subscription.create( Channel.create( new ChannelAddress( G.G1, 2 ) ) );
+    final SubscriptionService subscriptionService = SubscriptionService.create();
+    final Subscription subscription1 =
+      Subscription.create( subscriptionService, Channel.create( new ChannelAddress( G.G1, 1 ) ) );
+    final Subscription subscription2 =
+      Subscription.create( subscriptionService, Channel.create( new ChannelAddress( G.G1, 2 ) ) );
 
     Arez.context().safeAction( () -> entity1.linkToSubscription( subscription1 ) );
     Arez.context().safeAction( () -> entity2.linkToSubscription( subscription1 ) );
@@ -198,8 +202,9 @@ public class SubscriptionTest
     final ChannelAddress address1 = new ChannelAddress( G.G1 );
     final ChannelAddress address2 = new ChannelAddress( G.G2 );
 
-    final Subscription subscription1 = Subscription.create( Channel.create( address1 ) );
-    final Subscription subscription2 = Subscription.create( Channel.create( address2 ) );
+    final SubscriptionService subscriptionService = SubscriptionService.create();
+    final Subscription subscription1 = Subscription.create( subscriptionService, Channel.create( address1 ) );
+    final Subscription subscription2 = Subscription.create( subscriptionService, Channel.create( address2 ) );
 
     assertEquals( subscription1.compareTo( subscription1 ), 0 );
     assertEquals( subscription1.compareTo( subscription2 ), -1 );
@@ -210,7 +215,7 @@ public class SubscriptionTest
   @Nonnull
   private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
-    return Subscription.create( Channel.create( address ) );
+    return Subscription.create( SubscriptionService.create(), Channel.create( address ) );
   }
 
   enum G

@@ -26,22 +26,34 @@ import static org.realityforge.braincheck.Guards.*;
 public abstract class Subscription
   implements Comparable<Subscription>
 {
+  /**
+   * Reference to the container that created Subscription.
+   * In the future this reference should be eliminated when there is a way to get to the singleton
+   * SubscriptionService. (Similar to the way we have Arez.context().X we should have Replicant.context().X)
+   * This will save memory resources on the client.
+   */
+  @Nonnull
+  private final SubscriptionService _subscriptionService;
+
   private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
   @Nonnull
   private final Channel _channel;
 
-  static Subscription create( @Nonnull final Channel channel )
+  static Subscription create( @Nonnull final SubscriptionService subscriptionService, @Nonnull final Channel channel )
   {
-    return create( channel, true );
+    return create( subscriptionService, channel, true );
   }
 
-  static Subscription create( @Nonnull final Channel channel, final boolean explicitSubscription )
+  static Subscription create( @Nonnull final SubscriptionService subscriptionService,
+                              @Nonnull final Channel channel,
+                              final boolean explicitSubscription )
   {
-    return new Arez_Subscription( channel, explicitSubscription );
+    return new Arez_Subscription( subscriptionService, channel, explicitSubscription );
   }
 
-  Subscription( @Nonnull final Channel channel )
+  Subscription( @Nonnull final SubscriptionService subscriptionService, @Nonnull final Channel channel )
   {
+    _subscriptionService = Objects.requireNonNull( subscriptionService );
     _channel = Objects.requireNonNull( channel );
   }
 
