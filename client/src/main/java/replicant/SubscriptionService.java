@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import replicant.spy.SubscriptionCreatedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -199,6 +200,10 @@ public abstract class SubscriptionService
         .computeIfAbsent( address.getChannelType(), k -> new HashMap<>() )
         .put( id, subscription );
       getInstanceSubscriptionsObservable().reportChanged();
+    }
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionCreatedEvent( subscription ) );
     }
     return subscription;
   }
