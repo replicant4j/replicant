@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.converger.Converger;
 import replicant.spy.AreaOfInterestCreatedEvent;
+import replicant.spy.AreaOfInterestUpdatedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -92,6 +93,10 @@ abstract class AreaOfInterestService
       if ( !FilterUtil.filtersEqual( areaOfInterest.getChannel().getFilter(), filter ) )
       {
         areaOfInterest.getChannel().setFilter( filter );
+        if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+        {
+          getReplicantContext().getSpy().reportSpyEvent( new AreaOfInterestUpdatedEvent( areaOfInterest ) );
+        }
       }
       return areaOfInterest;
     }

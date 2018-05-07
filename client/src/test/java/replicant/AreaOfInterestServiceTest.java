@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestCreatedEvent;
+import replicant.spy.AreaOfInterestUpdatedEvent;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "Duplicates" )
@@ -68,7 +69,28 @@ public class AreaOfInterestServiceTest
 
       final AreaOfInterestCreatedEvent event = handler.assertNextEvent( AreaOfInterestCreatedEvent.class );
       assertEquals( event.getAreaOfInterest(), areaOfInterest );
+    } );
+  }
 
+  @Test
+  public void updateAreaOfInterestGeneratesSpyEvent()
+  {
+    final AreaOfInterestService service = AreaOfInterestService.create( null );
+    final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
+
+    Arez.context().safeAction( () -> {
+      final TestSpyEventHandler handler = new TestSpyEventHandler();
+
+      service.findOrCreateAreaOfInterest( address1, "Filter1" );
+
+      Replicant.context().getSpy().addSpyEventHandler( handler );
+
+      final AreaOfInterest areaOfInterest = service.findOrCreateAreaOfInterest( address1, "Filter2" );
+
+      handler.assertEventCount( 1 );
+
+      final AreaOfInterestUpdatedEvent event = handler.assertNextEvent( AreaOfInterestUpdatedEvent.class );
+      assertEquals( event.getAreaOfInterest(), areaOfInterest );
     } );
   }
 
