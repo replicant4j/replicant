@@ -154,11 +154,18 @@ public class ConvergerTest
   public void removeSubscriptionIfOrphan_expected()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final DataLoaderService service = mock( DataLoaderService.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final HashSet<ChannelAddress> expected = new HashSet<>();
     expected.add( address );
 
     final Converger c = Converger.create( clientSystem );
+
+    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+      thenReturn( service );
+
+    when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
+      thenReturn( -1 );
 
     final Subscription subscription = Replicant.context().createSubscription( address, null, true );
     c.removeSubscriptionIfOrphan( expected, subscription );
