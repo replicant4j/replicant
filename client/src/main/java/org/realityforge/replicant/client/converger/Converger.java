@@ -294,6 +294,7 @@ public abstract class Converger
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
       LOG.info( "Removing orphan subscription: " + address );
+      //TODO: Send spy message
       service.requestUnsubscribe( address );
     }
   }
