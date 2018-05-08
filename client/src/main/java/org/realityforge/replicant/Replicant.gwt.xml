@@ -8,4 +8,5 @@
 
   <source path='client/gwt'/>
   <source path='client/react4j'/>
+  <source path='client/transport'/>
 </module>
