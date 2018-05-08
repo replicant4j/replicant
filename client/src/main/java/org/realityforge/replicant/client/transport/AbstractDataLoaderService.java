@@ -150,17 +150,6 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   protected abstract ClientSession ensureSession();
 
-  /**
-   * Return the id of the session associated with the service.
-   *
-   * @return the id of the session associated with the service.
-   * @throws RuntimeException if the service is not currently associated with the session.
-   */
-  protected String getSessionID()
-  {
-    return ensureSession().getSessionID();
-  }
-
   protected void purgeSubscriptions()
   {
     Stream.concat( Replicant.context().getTypeSubscriptions().stream(),

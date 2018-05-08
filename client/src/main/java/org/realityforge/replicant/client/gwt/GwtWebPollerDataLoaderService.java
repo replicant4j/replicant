@@ -177,7 +177,7 @@ public abstract class GwtWebPollerDataLoaderService
                                                            @Nonnull final String url )
   {
     final RequestBuilder rb = newRequestBuilder( method, url );
-    rb.setHeader( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+    rb.setHeader( ReplicantContext.SESSION_ID_HEADER, ensureSession().getSessionID() );
     return rb;
   }
 
