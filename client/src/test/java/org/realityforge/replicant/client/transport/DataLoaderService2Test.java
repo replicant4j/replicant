@@ -75,12 +75,14 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.CONNECTING ) );
 
     Arez.context().safeAction( service::onDisconnected );
 
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.DISCONNECTED ) );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.DISCONNECTED );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.DISCONNECTED ) );
   }
 
   @Test
@@ -110,14 +112,16 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.CONNECTING ) );
 
     final Throwable error = new Throwable();
 
     Arez.context().safeAction( () -> service.onDisconnectFailure( error ) );
 
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.ERROR ) );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.ERROR );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.ERROR ) );
   }
 
   @Test
@@ -151,12 +155,14 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.CONNECTING ) );
 
     Arez.context().safeAction( service::onConnected );
 
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.CONNECTED ) );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTED );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.CONNECTED ) );
   }
 
   @Test
@@ -186,14 +192,16 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.CONNECTING ) );
 
     final Throwable error = new Throwable();
 
     Arez.context().safeAction( () -> service.onConnectFailure( error ) );
 
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.ERROR ) );
-    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.ERROR );
+    Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
+                                                   ReplicantClientSystem.State.ERROR ) );
   }
 
   @Test
