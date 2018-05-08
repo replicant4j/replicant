@@ -152,15 +152,9 @@ public abstract class ReplicantClientSystem
       final DataLoaderService.State state = service.getState();
       if ( !isTransitionState( state ) && DataLoaderService.State.CONNECTED != state )
       {
-        dataLoader.attemptAction( this::doConnectDataLoaderService );
+        dataLoader.attemptAction( DataLoaderService::connect );
       }
     }
-  }
-
-  private void doConnectDataLoaderService( @Nonnull final DataLoaderService service )
-  {
-    LOG.info( "Connecting " + service + ". Initial state: " + service.getState() );
-    service.connect();
   }
 
   private boolean isTransitionState( @Nonnull final DataLoaderService.State state )
