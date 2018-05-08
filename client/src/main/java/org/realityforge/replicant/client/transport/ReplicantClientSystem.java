@@ -38,8 +38,7 @@ public class ReplicantClientSystem
    */
   private boolean _active;
 
-  //TODO: This should be package access
-  public void registerDataSource( @Nonnull final DataLoaderService service )
+  final void registerDataSource( @Nonnull final DataLoaderService service )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -51,8 +50,7 @@ public class ReplicantClientSystem
     _dataLoaders.add( new DataLoaderEntry( service, true ) );
   }
 
-  //TODO: This should be package access
-  public void deregisterDataSource( @Nonnull final DataLoaderService service )
+  final void deregisterDataSource( @Nonnull final DataLoaderService service )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
