@@ -19,6 +19,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.SubscribeStartedEvent;
 
 /**
  * Base class responsible for managing data loading from a particular source.
@@ -154,7 +155,10 @@ public abstract class AbstractDataLoaderService2
   protected final void onSubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
-    //TODO: Add spy event
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new SubscribeStartedEvent( getSystemType(), address ) );
+    }
   }
 
   protected final void onSubscribeCompleted( @Nonnull final ChannelAddress address )

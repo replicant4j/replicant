@@ -5,16 +5,20 @@ import arez.Disposable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.AreaOfInterest;
+import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.TestSpyEventHandler;
-import replicant.spy.DataLoadStatus;
+import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
+import replicant.spy.DataLoadStatus;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.SubscribeStartedEvent;
 import static org.testng.Assert.*;
 
 public class DataLoaderService2Test
@@ -315,5 +319,42 @@ public class DataLoaderService2Test
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
     } );
+  }
+
+  @Test
+  public void onSubscribeStarted()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> service.onSubscribeStarted( address ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getAddress(), address );
+    } );
+  }
+
+  enum G
+  {
+    G1
   }
 }
