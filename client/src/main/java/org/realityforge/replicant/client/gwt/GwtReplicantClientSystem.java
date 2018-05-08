@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.gwt;
 
 import arez.annotations.ArezComponent;
+import arez.annotations.PreDispose;
 import com.google.gwt.user.client.Timer;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
@@ -34,11 +35,10 @@ public abstract class GwtReplicantClientSystem
     _timer.scheduleRepeating( CONVERGE_DELAY_IN_MS );
   }
 
-  @Override
-  protected void release()
+  @PreDispose
+  final void preDispose()
   {
     cancelTimer();
-    super.release();
   }
 
   private void cancelTimer()
