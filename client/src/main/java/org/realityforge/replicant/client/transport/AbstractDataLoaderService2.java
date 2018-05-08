@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.spy.DataLoaderConnectEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
 import replicant.spy.DataLoaderInvalidDisconnectEvent;
 
@@ -89,7 +90,10 @@ public abstract class AbstractDataLoaderService2
   {
     setState( State.CONNECTED );
     _replicantClientSystem.updateStatus();
-    //TODO: Add spy event
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectEvent( getSystemType() ) );
+    }
   }
 
   /**
