@@ -1,11 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import arez.Arez;
-import arez.ArezContext;
 import arez.Disposable;
-import arez.annotations.Action;
-import arez.annotations.Observable;
-import arez.annotations.PreDispose;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +20,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
-import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
@@ -32,8 +27,6 @@ import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.Subscription;
-import replicant.spy.DataLoaderDisconnectEvent;
-import replicant.spy.DataLoaderInvalidDisconnectEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -43,6 +36,7 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class AbstractDataLoaderService
+  extends AbstractDataLoaderService2
   implements DataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
@@ -51,7 +45,6 @@ public abstract class AbstractDataLoaderService
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private final CacheService _cacheService;
-  private final ReplicantClientSystem _replicantClientSystem;
 
   private DataLoadAction _currentAction;
   private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
@@ -62,8 +55,6 @@ public abstract class AbstractDataLoaderService
    * Action invoked after current action completes to reset session state.
    */
   private Runnable _resetAction;
-  @Nonnull
-  private State _state = State.DISCONNECTED;
 
   private ClientSession _session;
   private Disposable _schedulerLock;
@@ -71,15 +62,8 @@ public abstract class AbstractDataLoaderService
   protected AbstractDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
                                        @Nonnull final CacheService cacheService )
   {
-    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
+    super( replicantClientSystem );
     _cacheService = Objects.requireNonNull( cacheService );
-    _replicantClientSystem.registerDataSource( this );
-  }
-
-  @PreDispose
-  void preDispose()
-  {
-    _replicantClientSystem.deregisterDataSource( this );
   }
 
   @Override
@@ -108,24 +92,6 @@ public abstract class AbstractDataLoaderService
   protected String getKey()
   {
     return getSessionContext().getKey();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  @Override
-  @Observable
-  public State getState()
-  {
-    return _state;
-  }
-
-  @SuppressWarnings( "ConstantConditions" )
-  protected void setState( @Nonnull final State state )
-  {
-    assert null != state;
-    _state = state;
   }
 
   @Nonnull
@@ -1198,158 +1164,5 @@ public abstract class AbstractDataLoaderService
   public String toString()
   {
     return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]" : super.toString();
-  }
-
-  /**
-   * Invoked to fire an event when disconnect has completed.
-   */
-  protected final void onDisconnect()
-  {
-    setState( State.DISCONNECTED );
-    _replicantClientSystem.updateStatus();
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
-    {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectEvent( getSystemType() ) );
-    }
-  }
-
-  /**
-   * Invoked to fire an event when failed to connect.
-   */
-  protected final void onInvalidDisconnect( @Nonnull final Throwable error )
-  {
-    setState( State.ERROR );
-    _replicantClientSystem.updateStatus();
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
-    {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderInvalidDisconnectEvent( getSystemType(), error ) );
-    }
-  }
-
-  /**
-   * Invoked to fire an event when disconnect has completed.
-   */
-  protected final void onConnect()
-  {
-    setState( State.CONNECTED );
-    _replicantClientSystem.updateStatus();
-    //TODO: Add spy event
-  }
-
-  /**
-   * Invoked to fire an event when failed to connect.
-   */
-  protected final void onInvalidConnect( @Nonnull final Throwable error )
-  {
-    setState( State.ERROR );
-    _replicantClientSystem.updateStatus();
-    //TODO: Add spy event
-  }
-
-  /**
-   * Invoked when a change set has been completely processed.
-   *
-   * @param status the status describing the results of data load.
-   */
-  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
-  {
-    //TODO: Add spy event
-  }
-
-  /**
-   * Called when a data load has resulted in a failure.
-   */
-  protected final void onDataLoadFailure( @Nonnull final Throwable error )
-  {
-    _replicantClientSystem.disconnectIfPossible( this, error );
-    //TODO: Add spy event
-  }
-
-  /**
-   * Attempted to retrieve data from backend and failed.
-   */
-  protected final void onPollFailure( @Nonnull final Throwable error )
-  {
-    _replicantClientSystem.disconnectIfPossible( this, error );
-    //TODO: Add spy event
-  }
-
-  protected final void onSubscribeStarted( @Nonnull final ChannelAddress address )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
-    //TODO: Add spy event
-  }
-
-  protected final void onSubscribeCompleted( @Nonnull final ChannelAddress address )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
-    //TODO: Add spy event
-  }
-
-  protected final void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
-    //TODO: Add spy event
-  }
-
-  protected final void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
-    //TODO: Add spy event
-  }
-
-  protected final void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
-    //TODO: Add spy event
-  }
-
-  protected final void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, error );
-    //TODO: Add spy event
-  }
-
-  protected final void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
-    //TODO: Add spy event
-  }
-
-  protected final void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
-    //TODO: Add spy event
-  }
-
-  protected final void onSubscriptionUpdateFailed( @Nonnull final ChannelAddress address,
-                                                   @Nonnull final Throwable error )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATE_FAILED, error );
-    //TODO: Add spy event
-  }
-
-  @Action
-  protected void updateAreaOfInterest( @Nonnull final ChannelAddress address,
-                                       @Nonnull final AreaOfInterest.Status status,
-                                       @Nullable final Throwable error )
-  {
-    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
-    if ( null != areaOfInterest )
-    {
-      areaOfInterest.updateAreaOfInterest( status, error );
-    }
-  }
-
-  @Nonnull
-  protected final ReplicantClientSystem getReplicantClientSystem()
-  {
-    return _replicantClientSystem;
-  }
-
-  @Nonnull
-  protected ArezContext context()
-  {
-    return Arez.context();
   }
 }
