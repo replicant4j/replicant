@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
 import arez.Arez;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -18,13 +17,13 @@ public final class DataLoadStatus
   private final int _sequence;
   @Nullable
   private final String _requestID;
-  @Nonnull
-  private final List<ChannelChangeStatus> _channelAdds;
-  @Nonnull
-  private final List<ChannelChangeStatus> _channelUpdates;
-  @Nonnull
-  private final List<ChannelChangeStatus> _channelRemoves;
 
+  /// The number of channels added as a result of the Message
+  private final int _channelAddCount;
+  /// The number of channels updated as a result of the Message
+  private final int _channelUpdateCount;
+  /// The number of channels removed as a result of the Message
+  private final int _channelRemoveCount;
   // The number of entities created or updated as part of change message
   private final int _entityUpdateCount;
   // The number of entities removed as part of change message
@@ -35,9 +34,9 @@ public final class DataLoadStatus
   public DataLoadStatus( @Nonnull final String systemKey,
                          final int sequence,
                          @Nullable final String requestID,
-                         @Nonnull final List<ChannelChangeStatus> channelAdds,
-                         @Nonnull final List<ChannelChangeStatus> channelUpdates,
-                         @Nonnull final List<ChannelChangeStatus> channelRemoves,
+                         final int channelAddCount,
+                         final int channelUpdateCount,
+                         final int channelRemoveCount,
                          final int entityUpdateCount,
                          final int entityRemoveCount,
                          final int entityLinkCount )
@@ -45,9 +44,9 @@ public final class DataLoadStatus
     _systemKey = systemKey;
     _sequence = sequence;
     _requestID = requestID;
-    _channelAdds = channelAdds;
-    _channelUpdates = channelUpdates;
-    _channelRemoves = channelRemoves;
+    _channelAddCount = channelAddCount;
+    _channelUpdateCount = channelUpdateCount;
+    _channelRemoveCount = channelRemoveCount;
     _entityUpdateCount = entityUpdateCount;
     _entityRemoveCount = entityRemoveCount;
     _entityLinkCount = entityLinkCount;
@@ -70,22 +69,19 @@ public final class DataLoadStatus
     return _requestID;
   }
 
-  @Nonnull
-  public List<ChannelChangeStatus> getChannelAdds()
+  public int getChannelAddCount()
   {
-    return _channelAdds;
+    return _channelAddCount;
   }
 
-  @Nonnull
-  public List<ChannelChangeStatus> getChannelUpdates()
+  public int getChannelUpdateCount()
   {
-    return _channelUpdates;
+    return _channelUpdateCount;
   }
 
-  @Nonnull
-  public List<ChannelChangeStatus> getChannelRemoves()
+  public int getChannelRemoveCount()
   {
-    return _channelRemoves;
+    return _channelRemoveCount;
   }
 
   public int getEntityUpdateCount()
@@ -110,9 +106,9 @@ public final class DataLoadStatus
     {
       return "[" +
              getSystemKey() + ": ChangeSet " + getSequence() + " involved " +
-             getChannelAdds().size() + " subscribes, " +
-             getChannelUpdates().size() + " subscription updates, " +
-             getChannelRemoves().size() + " un-subscribes, " +
+             getChannelAddCount() + " subscribes, " +
+             getChannelUpdateCount() + " subscription updates, " +
+             getChannelRemoveCount() + " un-subscribes, " +
              getEntityUpdateCount() + " updates, " +
              getEntityRemoveCount() + " removes and " +
              getEntityLinkCount() + " links" +

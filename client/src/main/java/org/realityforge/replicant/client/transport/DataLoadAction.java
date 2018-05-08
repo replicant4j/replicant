@@ -40,9 +40,6 @@ final class DataLoadAction
    */
   private int _changeIndex;
 
-  private LinkedList<ChannelChangeStatus> _channelAdds = new LinkedList<>();
-  private LinkedList<ChannelChangeStatus> _channelUpdates = new LinkedList<>();
-  private LinkedList<ChannelChangeStatus> _channelRemoves = new LinkedList<>();
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
   private HashSet<Linkable> _removedEntities = new HashSet<>();
   private LinkedList<Linkable> _entitiesToLink;
@@ -51,9 +48,12 @@ final class DataLoadAction
   private boolean _channelActionsProcessed;
   private RequestEntry _request;
 
-  private int _updateCount;
-  private int _removeCount;
-  private int _linkCount;
+  private int _channelAddCount;
+  private int _channelUpdateCount;
+  private int _channelRemoveCount;
+  private int _entityUpdateCount;
+  private int _entityRemoveCount;
+  private int _entityLinkCount;
 
   DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
   {
@@ -63,42 +63,42 @@ final class DataLoadAction
 
   int getChannelAddCount()
   {
-    return _channelAdds.size();
+    return _channelAddCount;
   }
 
   int getChannelRemoveCount()
   {
-    return _channelRemoves.size();
+    return _channelRemoveCount;
   }
 
-  void recordChannelSubscribe( final ChannelChangeStatus descriptor )
+  void incChannelAddCount()
   {
-    _channelAdds.add( descriptor );
+    _channelAddCount++;
   }
 
-  void recordChannelUnsubscribe( final ChannelChangeStatus descriptor )
+  void incChannelUpdateCount()
   {
-    _channelRemoves.add( descriptor );
+    _channelUpdateCount++;
   }
 
-  void recordChannelSubscriptionUpdate( final ChannelChangeStatus descriptor )
+  void incChannelRemoveCount()
   {
-    _channelUpdates.add( descriptor );
+    _channelRemoveCount++;
   }
 
   void incUpdateCount()
   {
-    _updateCount++;
+    _entityUpdateCount++;
   }
 
   void incRemoveCount()
   {
-    _removeCount++;
+    _entityRemoveCount++;
   }
 
   void incLinkCount()
   {
-    _linkCount++;
+    _entityLinkCount++;
   }
 
   boolean isOob()
@@ -258,12 +258,12 @@ final class DataLoadAction
     return new DataLoadStatus( systemKey,
                                changeSet.getSequence(),
                                changeSet.getRequestID(),
-                               _channelAdds,
-                               _channelUpdates,
-                               _channelRemoves,
-                               _updateCount,
-                               _removeCount,
-                               _linkCount );
+                               _channelAddCount,
+                               _channelUpdateCount,
+                               _channelRemoveCount,
+                               _entityUpdateCount,
+                               _entityRemoveCount,
+                               _entityLinkCount );
   }
 
   @Override

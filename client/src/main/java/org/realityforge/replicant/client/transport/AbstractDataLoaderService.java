@@ -861,22 +861,12 @@ public abstract class AbstractDataLoaderService
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " involved " +
-                status.getChannelAdds().size() + " subscribes, " +
-                status.getChannelUpdates().size() + " subscription updates, " +
-                status.getChannelRemoves().size() + " un-subscribes, " +
+                status.getChannelAddCount() + " subscribes, " +
+                status.getChannelUpdateCount() + " subscription updates, " +
+                status.getChannelRemoveCount() + " un-subscribes, " +
                 status.getEntityUpdateCount() + " updates, " +
                 status.getEntityRemoveCount() + " removes and " +
                 status.getEntityLinkCount() + " links." );
-      for ( final ChannelChangeStatus changeStatus : status.getChannelUpdates() )
-      {
-        LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " subscription update " +
-                  changeStatus.getDescriptor() + "." );
-      }
-      for ( final ChannelChangeStatus changeStatus : status.getChannelRemoves() )
-      {
-        LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " un-subscribe " +
-                  changeStatus.getDescriptor() + "." );
-      }
     }
 
     //Step: Run the post actions
@@ -942,7 +932,7 @@ public abstract class AbstractDataLoaderService
 
       if ( ChannelAction.Action.ADD == actionType )
       {
-        _currentAction.recordChannelSubscribe( new ChannelChangeStatus( address, filter ) );
+        _currentAction.incChannelAddCount();
         boolean explicitSubscribe = false;
         if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
         {
@@ -959,7 +949,7 @@ public abstract class AbstractDataLoaderService
         final Subscription subscription = Replicant.context().findSubscription( address );
         assert null != subscription;
         Disposable.dispose( subscription );
-        _currentAction.recordChannelUnsubscribe( new ChannelChangeStatus( address, filter ) );
+        _currentAction.incChannelRemoveCount();
       }
       else if ( ChannelAction.Action.UPDATE == actionType )
       {
@@ -967,8 +957,7 @@ public abstract class AbstractDataLoaderService
         assert null != subscription;
         subscription.getChannel().setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription, filter );
-        final ChannelChangeStatus status = new ChannelChangeStatus( address, filter );
-        _currentAction.recordChannelSubscriptionUpdate( status );
+        _currentAction.incChannelUpdateCount();
       }
       else
       {
