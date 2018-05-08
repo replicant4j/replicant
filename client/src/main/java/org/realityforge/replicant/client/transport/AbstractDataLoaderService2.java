@@ -14,7 +14,7 @@ import replicant.Replicant;
 import replicant.spy.DataLoadStatus;
 import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
-import replicant.spy.DataLoaderInvalidConnectEvent;
+import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderInvalidDisconnectEvent;
 
 /**
@@ -101,13 +101,13 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when failed to connect.
    */
-  protected final void onInvalidConnect( @Nonnull final Throwable error )
+  protected final void onConnectFailure( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderInvalidConnectEvent( getSystemType(), error ) );
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectFailureEvent( getSystemType(), error ) );
     }
   }
 

@@ -62,7 +62,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final Consumer<Response> onResponse =
       r -> onConnectResponse( r.getStatusCode(), r.getStatusText(), r::getText, runnable );
-    sendRequest( RequestBuilder.POST, getBaseSessionURL(), onResponse, this::onInvalidConnect );
+    sendRequest( RequestBuilder.POST, getBaseSessionURL(), onResponse, this::onConnectFailure );
   }
 
   @Override

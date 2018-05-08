@@ -191,7 +191,7 @@ public abstract class WebPollerDataLoaderService
     }
     else
     {
-      onInvalidConnect( new InvalidHttpResponseException( statusCode, statusText ) );
+      onConnectFailure( new InvalidHttpResponseException( statusCode, statusText ) );
     }
   }
 
