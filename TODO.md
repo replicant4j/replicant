@@ -65,5 +65,5 @@ Some actions that should occur at some point in the future.
 * The `Channel` class should be made package access and the `AreaOfInterest` and `Subscription` should expose
   the publicly accessible details (i.e. Filter read? ChannelAddress).
 
-* Remove `GetReplicantClientSystem` and replace capabilities with `@Autorun` or `@Computed` on base class.
+* Remove `GwtReplicantClientSystem` and replace capabilities with `@Autorun` or `@Computed` on base class.
 
