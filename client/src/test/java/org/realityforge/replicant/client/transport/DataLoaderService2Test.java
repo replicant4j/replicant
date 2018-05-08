@@ -22,6 +22,7 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
+import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
@@ -531,6 +532,40 @@ public class DataLoaderService2Test
     } );
   }
 
+  @Test
+  public void onSubscriptionUpdateStarted()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> service.onSubscriptionUpdateStarted( address ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
+    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getAddress(), address );
+    } );
+  }
   enum G
   {
     G1
