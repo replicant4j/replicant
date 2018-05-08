@@ -8,13 +8,13 @@ import replicant.AbstractReplicantTest;
 import replicant.Replicant;
 import replicant.TestSpyEventHandler;
 import replicant.spy.DataLoadStatus;
-import replicant.spy.DataLoaderConnectFailureEvent;
-import replicant.spy.DataLoaderConnectedEvent;
-import replicant.spy.DataLoaderDisconnectFailureEvent;
-import replicant.spy.DataLoaderDisconnectedEvent;
-import replicant.spy.DataLoaderMessageProcessFailureEvent;
-import replicant.spy.DataLoaderMessageProcessedEvent;
-import replicant.spy.DataLoaderMessageReadFailureEvent;
+import replicant.spy.ConnectFailureEvent;
+import replicant.spy.ConnectedEvent;
+import replicant.spy.DisconnectFailureEvent;
+import replicant.spy.DisconnectedEvent;
+import replicant.spy.MessageProcessFailureEvent;
+import replicant.spy.MessageProcessedEvent;
+import replicant.spy.MessageReadFailureEvent;
 import static org.testng.Assert.*;
 
 public class DataLoaderService2Test
@@ -84,7 +84,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( service::onDisconnected );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderDisconnectedEvent.class,
+    handler.assertNextEvent( DisconnectedEvent.class,
                              e -> assertEquals( e.getSystemType(), service.getSystemType() ) );
   }
 
@@ -123,7 +123,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.onDisconnectFailure( error ) );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderDisconnectFailureEvent.class, e -> {
+    handler.assertNextEvent( DisconnectFailureEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
     } );
@@ -160,7 +160,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( service::onConnected );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderConnectedEvent.class,
+    handler.assertNextEvent( ConnectedEvent.class,
                              e -> assertEquals( e.getSystemType(), service.getSystemType() ) );
   }
 
@@ -199,7 +199,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.onConnectFailure( error ) );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderConnectFailureEvent.class, e -> {
+    handler.assertNextEvent( ConnectFailureEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
     } );
@@ -231,7 +231,7 @@ public class DataLoaderService2Test
 
     handler.assertEventCount( 1 );
 
-    handler.assertNextEvent( DataLoaderMessageProcessedEvent.class, e -> {
+    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getDataLoadStatus(), status );
     } );
@@ -271,7 +271,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.onMessageProcessFailure( error ) );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderMessageProcessFailureEvent.class, e -> {
+    handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
     } );
@@ -311,7 +311,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.onMessageReadFailure( error ) );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderMessageReadFailureEvent.class, e -> {
+    handler.assertNextEvent( MessageReadFailureEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
     } );

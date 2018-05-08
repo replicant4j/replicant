@@ -12,13 +12,13 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.spy.DataLoadStatus;
-import replicant.spy.DataLoaderConnectFailureEvent;
-import replicant.spy.DataLoaderConnectedEvent;
-import replicant.spy.DataLoaderDisconnectFailureEvent;
-import replicant.spy.DataLoaderDisconnectedEvent;
-import replicant.spy.DataLoaderMessageProcessFailureEvent;
-import replicant.spy.DataLoaderMessageProcessedEvent;
-import replicant.spy.DataLoaderMessageReadFailureEvent;
+import replicant.spy.ConnectFailureEvent;
+import replicant.spy.ConnectedEvent;
+import replicant.spy.DisconnectFailureEvent;
+import replicant.spy.DisconnectedEvent;
+import replicant.spy.MessageProcessFailureEvent;
+import replicant.spy.MessageProcessedEvent;
+import replicant.spy.MessageReadFailureEvent;
 
 /**
  * Base class responsible for managing data loading from a particular source.
@@ -71,7 +71,7 @@ public abstract class AbstractDataLoaderService2
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectedEvent( getSystemType() ) );
+      Replicant.context().getSpy().reportSpyEvent( new ConnectedEvent( getSystemType() ) );
     }
   }
 
@@ -84,7 +84,7 @@ public abstract class AbstractDataLoaderService2
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectFailureEvent( getSystemType(), error ) );
+      Replicant.context().getSpy().reportSpyEvent( new ConnectFailureEvent( getSystemType(), error ) );
     }
   }
 
@@ -97,7 +97,7 @@ public abstract class AbstractDataLoaderService2
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectedEvent( getSystemType() ) );
+      Replicant.context().getSpy().reportSpyEvent( new DisconnectedEvent( getSystemType() ) );
     }
   }
 
@@ -110,7 +110,7 @@ public abstract class AbstractDataLoaderService2
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectFailureEvent( getSystemType(), error ) );
+      Replicant.context().getSpy().reportSpyEvent( new DisconnectFailureEvent( getSystemType(), error ) );
     }
   }
 
@@ -123,7 +123,7 @@ public abstract class AbstractDataLoaderService2
   {
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderMessageProcessedEvent( getSystemType(), status ) );
+      Replicant.context().getSpy().reportSpyEvent( new MessageProcessedEvent( getSystemType(), status ) );
     }
   }
 
@@ -135,7 +135,7 @@ public abstract class AbstractDataLoaderService2
     _replicantClientSystem.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderMessageProcessFailureEvent( getSystemType(), error ) );
+      Replicant.context().getSpy().reportSpyEvent( new MessageProcessFailureEvent( getSystemType(), error ) );
     }
   }
 
@@ -147,7 +147,7 @@ public abstract class AbstractDataLoaderService2
     _replicantClientSystem.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderMessageReadFailureEvent( getSystemType(), error ) );
+      Replicant.context().getSpy().reportSpyEvent( new MessageReadFailureEvent( getSystemType(), error ) );
     }
   }
 
