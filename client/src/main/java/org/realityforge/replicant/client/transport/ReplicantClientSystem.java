@@ -261,8 +261,7 @@ public class ReplicantClientSystem
     reflectActiveState();
   }
 
-  // TODO: Make this package access when the services are consolidated.
-  public void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
+  final void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
   {
     // TODO: Add spy event for this scenario
     LOG.log( Level.INFO, "Attempting to disconnect " + service + " and restart.", cause );
