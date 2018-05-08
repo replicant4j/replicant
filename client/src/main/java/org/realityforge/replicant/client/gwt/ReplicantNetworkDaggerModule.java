@@ -8,7 +8,9 @@ import org.realityforge.replicant.client.transport.ConvergerDaggerModule;
 import org.realityforge.replicant.client.transport.ReplicantClientSystem;
 import replicant.AreaOfInterestServiceDaggerModule;
 
-@Module( includes = { GwtReplicantClientSystemDaggerModule.class, ConvergerDaggerModule.class, AreaOfInterestServiceDaggerModule.class } )
+@Module( includes = { GwtReplicantClientSystemDaggerModule.class,
+                      ConvergerDaggerModule.class,
+                      AreaOfInterestServiceDaggerModule.class } )
 public interface ReplicantNetworkDaggerModule
 {
   @Nonnull
