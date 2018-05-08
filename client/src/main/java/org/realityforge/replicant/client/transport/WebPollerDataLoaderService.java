@@ -154,7 +154,7 @@ public abstract class WebPollerDataLoaderService
   protected void onDisconnectError( @Nonnull final Throwable t, @Nullable final Runnable runnable )
   {
     setSession( null, runnable );
-    onInvalidDisconnect( t );
+    onDisconnectFailure( t );
   }
 
   protected void onDisconnectResponse( final int statusCode,
@@ -171,7 +171,7 @@ public abstract class WebPollerDataLoaderService
       else
       {
         setSession( null, action );
-        onInvalidDisconnect( new InvalidHttpResponseException( statusCode, statusText ) );
+        onDisconnectFailure( new InvalidHttpResponseException( statusCode, statusText ) );
       }
     }
     finally

@@ -12,10 +12,10 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.spy.DataLoadStatus;
+import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
-import replicant.spy.DataLoaderConnectFailureEvent;
-import replicant.spy.DataLoaderInvalidDisconnectEvent;
+import replicant.spy.DataLoaderDisconnectFailureEvent;
 
 /**
  * Base class responsible for managing data loading from a particular source.
@@ -75,13 +75,13 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when failed to connect.
    */
-  protected final void onInvalidDisconnect( @Nonnull final Throwable error )
+  protected final void onDisconnectFailure( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderInvalidDisconnectEvent( getSystemType(), error ) );
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectFailureEvent( getSystemType(), error ) );
     }
   }
 

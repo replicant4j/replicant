@@ -9,7 +9,7 @@ import replicant.TestSpyEventHandler;
 import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
 import replicant.spy.DataLoaderConnectFailureEvent;
-import replicant.spy.DataLoaderInvalidDisconnectEvent;
+import replicant.spy.DataLoaderDisconnectFailureEvent;
 import static org.testng.Assert.*;
 
 public class DataLoaderService2Test
@@ -96,7 +96,7 @@ public class DataLoaderService2Test
 
     final Throwable error = new Throwable();
 
-    Arez.context().safeAction( () -> service.onInvalidDisconnect( error ) );
+    Arez.context().safeAction( () -> service.onDisconnectFailure( error ) );
 
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.ERROR ) );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.ERROR );
@@ -115,10 +115,10 @@ public class DataLoaderService2Test
 
     final Throwable error = new Throwable();
 
-    Arez.context().safeAction( () -> service.onInvalidDisconnect( error ) );
+    Arez.context().safeAction( () -> service.onDisconnectFailure( error ) );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderInvalidDisconnectEvent.class, e -> {
+    handler.assertNextEvent( DataLoaderDisconnectFailureEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
     } );
