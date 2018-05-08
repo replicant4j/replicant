@@ -442,7 +442,7 @@ public class ReplicantClientSystemTest
     assertEquals( system.isActive(), false );
     assertEquals( service1.getState(), DataLoaderService.State.DISCONNECTED );
 
-    system.converge();
+    system.updateStatus();
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     assertEquals( system.isActive(), false );

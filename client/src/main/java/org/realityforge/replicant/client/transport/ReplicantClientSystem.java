@@ -110,16 +110,6 @@ public abstract class ReplicantClientSystem
   }
 
   /**
-   * Attempt to converge the state of the system towards the desired state.
-   * This should be invoked periodically.
-   */
-  public void converge()
-  {
-    updateStatus();
-    reflectActiveState();
-  }
-
-  /**
    * Retrieve the dataloader service associated with the systemType.
    */
   @Nonnull
