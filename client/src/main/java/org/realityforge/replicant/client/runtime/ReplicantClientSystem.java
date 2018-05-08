@@ -249,8 +249,9 @@ public abstract class ReplicantClientSystem
     reflectActiveState();
   }
 
-  private void disconnectIfPossible( @Nonnull final DataLoaderService service )
+  private void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
   {
+    LOG.log( Level.INFO, "Attempting to disconnect " + service + " and restart.", cause );
     if ( !isTransitionState( service.getState() ) )
     {
       service.disconnect();
@@ -315,19 +316,13 @@ public abstract class ReplicantClientSystem
     @Override
     public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
-      LOG.log( Level.INFO,
-               "DataLoadFailure: Attempting to disconnect " + service + " and restart.",
-               throwable );
-      disconnectIfPossible( service );
+      disconnectIfPossible( service, throwable );
     }
 
     @Override
     public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
-      LOG.log( Level.INFO,
-               "PollFailure: Attempting to disconnect " + service + " and restart.",
-               throwable );
-      disconnectIfPossible( service );
+      disconnectIfPossible( service, throwable );
     }
   }
 }
