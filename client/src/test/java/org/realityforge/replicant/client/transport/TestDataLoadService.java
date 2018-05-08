@@ -2,10 +2,8 @@ package org.realityforge.replicant.client.transport;
 
 import arez.annotations.ArezComponent;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,13 +51,6 @@ abstract class TestDataLoadService
   CacheService getCacheService()
   {
     return _cacheService;
-  }
-
-  @Nonnull
-  @Override
-  public Set<Class<?>> getEntityTypes()
-  {
-    return Collections.emptySet();
   }
 
   @Nonnull
