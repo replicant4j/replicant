@@ -3,9 +3,9 @@ package org.realityforge.replicant.client.transport;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
+import arez.annotations.Computed;
 import arez.annotations.Observable;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -36,7 +36,6 @@ public abstract class ReplicantClientSystem
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystem.class.getName() );
 
   private final ArrayList<DataLoaderEntry> _dataLoaders = new ArrayList<>();
-  private State _state = State.DISCONNECTED;
 
   static ReplicantClientSystem create()
   {
@@ -84,15 +83,61 @@ public abstract class ReplicantClientSystem
   /**
    * Return the actual state of the system.
    */
-  @Observable
+  @Computed
   public State getState()
   {
-    return _state;
-  }
+    // Are any required connecting?
+    boolean connecting = false;
+    // Are any required disconnecting?
+    boolean disconnecting = false;
+    // Are any required disconnecting?
+    boolean disconnected = false;
+    // Are any required in error?
+    boolean error = false;
 
-  protected void setState( @Nonnull final State state )
-  {
-    _state = Objects.requireNonNull( state );
+    for ( final DataLoaderEntry entry : _dataLoaders )
+    {
+      if ( entry.isRequired() )
+      {
+        final DataLoaderService.State state = entry.getService().getState();
+        if ( DataLoaderService.State.DISCONNECTED == state )
+        {
+          disconnected = true;
+        }
+        else if ( DataLoaderService.State.DISCONNECTING == state )
+        {
+          disconnecting = true;
+        }
+        else if ( DataLoaderService.State.CONNECTING == state )
+        {
+          connecting = true;
+        }
+        else if ( DataLoaderService.State.ERROR == state )
+        {
+          error = true;
+        }
+      }
+    }
+    if ( error )
+    {
+      return State.ERROR;
+    }
+    else if ( disconnected )
+    {
+      return State.DISCONNECTED;
+    }
+    else if ( disconnecting )
+    {
+      return State.DISCONNECTING;
+    }
+    else if ( connecting )
+    {
+      return State.CONNECTING;
+    }
+    else
+    {
+      return State.CONNECTED;
+    }
   }
 
   /**
@@ -182,63 +227,6 @@ public abstract class ReplicantClientSystem
            DataLoaderService.State.CONNECTING == state;
   }
 
-  @Action
-  void updateStatus()
-  {
-    // Are any required connecting?
-    boolean connecting = false;
-    // Are any required disconnecting?
-    boolean disconnecting = false;
-    // Are any required disconnecting?
-    boolean disconnected = false;
-    // Are any required in error?
-    boolean error = false;
-
-    for ( final DataLoaderEntry entry : _dataLoaders )
-    {
-      if ( entry.isRequired() )
-      {
-        final DataLoaderService.State state = entry.getService().getState();
-        if ( DataLoaderService.State.DISCONNECTED == state )
-        {
-          disconnected = true;
-        }
-        else if ( DataLoaderService.State.DISCONNECTING == state )
-        {
-          disconnecting = true;
-        }
-        else if ( DataLoaderService.State.CONNECTING == state )
-        {
-          connecting = true;
-        }
-        else if ( DataLoaderService.State.ERROR == state )
-        {
-          error = true;
-        }
-      }
-    }
-    if ( error )
-    {
-      setState( State.ERROR );
-    }
-    else if ( disconnected )
-    {
-      setState( State.DISCONNECTED );
-    }
-    else if ( disconnecting )
-    {
-      setState( State.DISCONNECTING );
-    }
-    else if ( connecting )
-    {
-      setState( State.CONNECTING );
-    }
-    else
-    {
-      setState( State.CONNECTED );
-    }
-  }
-
   final void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
   {
     // TODO: Add spy event for this scenario
@@ -247,7 +235,6 @@ public abstract class ReplicantClientSystem
     {
       service.disconnect();
     }
-    updateStatus();
   }
 
   @TestOnly

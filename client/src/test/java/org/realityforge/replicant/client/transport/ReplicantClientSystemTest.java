@@ -382,8 +382,6 @@ public class ReplicantClientSystemTest
     final ReplicantClientSystem system = ReplicantClientSystem.create();
     system.registerDataSource( service1 );
 
-    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    system.updateStatus();
     assertEquals( system.getState(), expectedSystemState );
   }
 
@@ -401,8 +399,6 @@ public class ReplicantClientSystemTest
     system.registerDataSource( service1 );
     system.registerDataSource( service2 );
 
-    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    system.updateStatus();
     assertEquals( system.getState(), expectedSystemState );
   }
 
@@ -426,8 +422,6 @@ public class ReplicantClientSystemTest
     system.registerDataSource( service3 );
     system.getDataLoaderEntryBySystemType( service3.getSystemType() ).setRequired( false );
 
-    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    system.updateStatus();
     assertEquals( system.getState(), expectedSystemState );
   }
 
@@ -437,12 +431,6 @@ public class ReplicantClientSystemTest
     final ReplicantClientSystem system = ReplicantClientSystem.create();
     final TestDataLoaderService service1 = newServiceA();
     system.registerDataSource( service1 );
-
-    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    assertEquals( system.isActive(), false );
-    assertEquals( service1.getState(), DataLoaderService.State.DISCONNECTED );
-
-    system.updateStatus();
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     assertEquals( system.isActive(), false );

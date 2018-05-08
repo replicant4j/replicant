@@ -74,7 +74,6 @@ public class DataLoaderService2Test
 
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
                                                    ReplicantClientSystem.State.CONNECTING ) );
 
@@ -111,7 +110,6 @@ public class DataLoaderService2Test
 
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
                                                    ReplicantClientSystem.State.CONNECTING ) );
 
@@ -154,7 +152,6 @@ public class DataLoaderService2Test
 
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
                                                    ReplicantClientSystem.State.CONNECTING ) );
 
@@ -191,7 +188,6 @@ public class DataLoaderService2Test
 
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     Arez.context().safeAction( () -> assertEquals( service.getReplicantClientSystem().getState(),
                                                    ReplicantClientSystem.State.CONNECTING ) );
 

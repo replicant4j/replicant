@@ -78,7 +78,6 @@ public abstract class AbstractDataLoaderService2
   protected void onConnected()
   {
     setState( State.CONNECTED );
-    _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new ConnectedEvent( getSystemType() ) );
@@ -92,7 +91,6 @@ public abstract class AbstractDataLoaderService2
   protected void onConnectFailure( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
-    _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new ConnectFailureEvent( getSystemType(), error ) );
@@ -106,7 +104,6 @@ public abstract class AbstractDataLoaderService2
   protected void onDisconnected()
   {
     setState( State.DISCONNECTED );
-    _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new DisconnectedEvent( getSystemType() ) );
@@ -120,7 +117,6 @@ public abstract class AbstractDataLoaderService2
   protected void onDisconnectFailure( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
-    _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new DisconnectFailureEvent( getSystemType(), error ) );
