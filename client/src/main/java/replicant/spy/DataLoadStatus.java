@@ -105,7 +105,7 @@ public final class DataLoadStatus
     if ( Arez.areNamesEnabled() )
     {
       return "[" +
-             getSystemKey() + ": ChangeSet " + getSequence() + " involved " +
+             getSystemKey() + ": Message " + getSequence() + " involved " +
              getChannelAddCount() + " subscribes, " +
              getChannelUpdateCount() + " subscription updates, " +
              getChannelRemoveCount() + " un-subscribes, " +
