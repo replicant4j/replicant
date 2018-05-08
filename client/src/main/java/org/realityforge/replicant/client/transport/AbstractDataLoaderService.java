@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -957,12 +956,6 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   public abstract Class<? extends Enum> getSystemType();
 
-  /**
-   * Return the entity types processed by this loader.
-   */
-  @Nonnull
-  public abstract Set<Class<?>> getEntityTypes();
-
   protected abstract void updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
                                                                  @Nullable Object filter );
 
@@ -1081,7 +1074,7 @@ public abstract class AbstractDataLoaderService
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      for ( final Class<?> entityType : getEntityTypes() )
+      for ( final Class<?> entityType : Replicant.context().findAllEntityTypes() )
       {
         for ( final Object entity : Replicant.context().findAllEntitiesByType( entityType ) )
         {
