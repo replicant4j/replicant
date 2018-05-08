@@ -6,6 +6,7 @@ import replicant.AbstractReplicantTest;
 import replicant.Replicant;
 import replicant.TestSpyEventHandler;
 import replicant.spy.DataLoaderDisconnectEvent;
+import replicant.spy.DataLoaderInvalidDisconnectEvent;
 import static org.testng.Assert.*;
 
 public class DataLoaderService2Test
@@ -44,5 +45,46 @@ public class DataLoaderService2Test
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DataLoaderDisconnectEvent.class,
                              e -> assertEquals( e.getSystemType(), service.getSystemType() ) );
+  }
+
+  @Test
+  public void onInvalidDisconnect()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
+
+    service.getReplicantClientSystem().updateStatus();
+    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
+
+    final Throwable error = new Throwable();
+
+    service.onInvalidDisconnect( error );
+
+    assertEquals( service.getState(), DataLoaderService.State.ERROR );
+    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.ERROR );
+  }
+
+  @Test
+  public void onInvalidDisconnect_generatesSpyMessage()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    final Throwable error = new Throwable();
+
+    service.onInvalidDisconnect( error );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( DataLoaderInvalidDisconnectEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getError(), error );
+    } );
   }
 }
