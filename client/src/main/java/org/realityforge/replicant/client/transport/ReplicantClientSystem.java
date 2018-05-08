@@ -62,8 +62,7 @@ public abstract class ReplicantClientSystem
     _dataLoaders.removeIf( e -> e.getService().getSystemType() == service.getSystemType() );
   }
 
-  //TODO: This should be package access
-  public void setDataSourceRequired( @Nonnull final Class<?> systemType, final boolean required )
+  void setDataSourceRequired( @Nonnull final Class<?> systemType, final boolean required )
   {
     getDataLoaderEntryBySystemType( systemType ).setRequired( required );
   }
@@ -75,8 +74,7 @@ public abstract class ReplicantClientSystem
   @Observable
   public abstract boolean isActive();
 
-  //TODO: This should be package access
-  protected abstract void setActive( boolean active );
+  abstract void setActive( boolean active );
 
   /**
    * Return the actual state of the system.
@@ -114,7 +112,7 @@ public abstract class ReplicantClientSystem
    * Retrieve the dataloader service associated with the systemType.
    */
   @Nonnull
-  public DataLoaderService getDataLoaderService( @Nonnull final Class<?> systemType )
+  DataLoaderService getDataLoaderService( @Nonnull final Class<?> systemType )
   {
     return getDataLoaderEntryBySystemType( systemType ).getService();
   }
@@ -145,9 +143,8 @@ public abstract class ReplicantClientSystem
     return null;
   }
 
-  // TODO: This should be package access once the services are consolidated
   @Autorun( mutation = true )
-  protected void reflectActiveState()
+  void reflectActiveState()
   {
     final boolean active = isActive();
     for ( final DataLoaderEntry dataLoader : _dataLoaders )
@@ -180,9 +177,8 @@ public abstract class ReplicantClientSystem
            DataLoaderService.State.CONNECTING == state;
   }
 
-  // TODO: This should be package access once the services are consolidated
   @Action
-  public void updateStatus()
+  void updateStatus()
   {
     // Are any required connecting?
     boolean connecting = false;
