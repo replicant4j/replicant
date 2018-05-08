@@ -56,8 +56,6 @@ Some actions that should occur at some point in the future.
   isolation with `ChangeMapper` updating this entity and all driven by metadata loaded into system.
 
 * Enhance spy system.
-  - AreaOfInterest create/update/destroy changes should all result in spy events
-  - Subscription create/update/destroy changes should all result in spy events
   - Entity create/update/destroy changes should all result in spy events
   - Datasource changes should result in spy events
   - ReplicantSystem state changes should result in spy events
