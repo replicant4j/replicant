@@ -258,11 +258,13 @@ public abstract class AbstractDataLoaderService
    */
   protected abstract void doScheduleDataLoad();
 
+  @SuppressWarnings( "SameParameterValue" )
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {
     _changesToProcessPerTick = changesToProcessPerTick;
   }
 
+  @SuppressWarnings( "SameParameterValue" )
   protected void setLinksToProcessPerTick( final int linksToProcessPerTick )
   {
     _linksToProcessPerTick = linksToProcessPerTick;
