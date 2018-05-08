@@ -12,6 +12,7 @@ import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectFailureEvent;
 import replicant.spy.DataLoaderDisconnectedEvent;
+import replicant.spy.DataLoaderMessageProcessFailureEvent;
 import replicant.spy.DataLoaderMessageProcessedEvent;
 import static org.testng.Assert.*;
 
@@ -232,6 +233,46 @@ public class DataLoaderService2Test
     handler.assertNextEvent( DataLoaderMessageProcessedEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getDataLoadStatus(), status );
+    } );
+  }
+
+  @Test
+  public void onMessageProcessFailure()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+    service.setSession( new ClientSession( service, ValueUtil.randomString() ), null );
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTED ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> service.onMessageProcessFailure( error ) );
+
+    Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.DISCONNECTING ) );
+  }
+
+  @Test
+  public void onMessageProcessFailure_generatesSpyMessage()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> service.onMessageProcessFailure( error ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( DataLoaderMessageProcessFailureEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getError(), error );
     } );
   }
 }

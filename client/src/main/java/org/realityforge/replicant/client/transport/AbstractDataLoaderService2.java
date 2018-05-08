@@ -16,6 +16,7 @@ import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectFailureEvent;
 import replicant.spy.DataLoaderDisconnectedEvent;
+import replicant.spy.DataLoaderMessageProcessFailureEvent;
 import replicant.spy.DataLoaderMessageProcessedEvent;
 
 /**
@@ -131,7 +132,10 @@ public abstract class AbstractDataLoaderService2
   protected final void onMessageProcessFailure( @Nonnull final Throwable error )
   {
     _replicantClientSystem.disconnectIfPossible( this, error );
-    //TODO: Add spy event
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderMessageProcessFailureEvent( getSystemType(), error ) );
+    }
   }
 
   /**
