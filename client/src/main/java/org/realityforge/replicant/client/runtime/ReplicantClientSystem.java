@@ -308,8 +308,6 @@ public abstract class ReplicantClientSystem
     @Override
     public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
     {
-      LOG.log( Level.INFO,
-               "InvalidConnect: Error connecting " + service + ": " + throwable.toString() );
       updateStatus();
     }
 
