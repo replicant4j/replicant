@@ -28,7 +28,7 @@ final class TestDataLoadService
 
   static TestDataLoadService create()
   {
-    return new TestDataLoadService( mock( ReplicantClientSystem.class ), mock( CacheService.class ) );
+    return new TestDataLoadService( new ReplicantClientSystem(), mock( CacheService.class ) );
   }
 
   private TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,
