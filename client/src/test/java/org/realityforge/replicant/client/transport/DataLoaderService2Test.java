@@ -7,11 +7,11 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
 import replicant.TestSpyEventHandler;
-import replicant.spy.DataLoaderConnectedEvent;
-import replicant.spy.DataLoaderDisconnectedEvent;
 import replicant.spy.DataLoadStatus;
 import replicant.spy.DataLoaderConnectFailureEvent;
+import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectFailureEvent;
+import replicant.spy.DataLoaderDisconnectedEvent;
 import replicant.spy.DataLoaderMessageProcessedEvent;
 import static org.testng.Assert.*;
 
