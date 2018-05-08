@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
@@ -28,12 +29,13 @@ final class TestDataLoadService
 
   static TestDataLoadService create()
   {
-    return new TestDataLoadService( mock( CacheService.class ) );
+    return new TestDataLoadService( mock( ReplicantClientSystem.class ), mock( CacheService.class ) );
   }
 
-  private TestDataLoadService( @Nonnull final CacheService cacheService )
+  private TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+                               @Nonnull final CacheService cacheService )
   {
-    super( cacheService );
+    super( replicantClientSystem, cacheService );
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
     _cacheService = cacheService;

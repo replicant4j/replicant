@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 
 public abstract class ReplicantClientSystem
@@ -32,7 +31,6 @@ public abstract class ReplicantClientSystem
 
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystem.class.getName() );
 
-  private final Listener _dataLoaderListener = new Listener();
   private DataLoaderEntry[] _dataLoaders;
   private State _state = State.DISCONNECTED;
   /**
@@ -43,15 +41,6 @@ public abstract class ReplicantClientSystem
   public ReplicantClientSystem( final DataLoaderEntry[] dataLoaders )
   {
     _dataLoaders = Objects.requireNonNull( dataLoaders );
-    addListener();
-  }
-
-  /**
-   * Release resources associated with the system.
-   */
-  protected void release()
-  {
-    removeListener();
   }
 
   /**
@@ -148,8 +137,7 @@ public abstract class ReplicantClientSystem
   {
     for ( final DataLoaderEntry dataLoader : _dataLoaders )
     {
-      final DataLoaderService service = dataLoader.getService();
-      final DataLoaderService.State state = service.getState();
+      final DataLoaderService.State state = dataLoader.getService().getState();
       if ( !isTransitionState( state ) && DataLoaderService.State.CONNECTED != state )
       {
         dataLoader.attemptAction( DataLoaderService::connect );
@@ -167,8 +155,7 @@ public abstract class ReplicantClientSystem
   {
     for ( final DataLoaderEntry dataLoader : _dataLoaders )
     {
-      final DataLoaderService service = dataLoader.getService();
-      final DataLoaderService.State state = service.getState();
+      final DataLoaderService.State state = dataLoader.getService().getState();
       if ( !isTransitionState( state ) &&
            DataLoaderService.State.DISCONNECTED != state &&
            DataLoaderService.State.ERROR != state )
@@ -178,8 +165,9 @@ public abstract class ReplicantClientSystem
     }
   }
 
+  // TODO: This should be package access once the services are consolidated
   @Action
-  protected void updateStatus()
+  public void updateStatus()
   {
     // Are any required connecting?
     boolean connecting = false;
@@ -236,7 +224,8 @@ public abstract class ReplicantClientSystem
     reflectActiveState();
   }
 
-  private void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
+  // TODO: Make this package access when the services are consolidated.
+  public void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
   {
     // TODO: Add spy event for this scenario
     LOG.log( Level.INFO, "Attempting to disconnect " + service + " and restart.", cause );
@@ -245,70 +234,5 @@ public abstract class ReplicantClientSystem
       service.disconnect();
     }
     updateStatus();
-  }
-
-  @Nonnull
-  private Listener getDataLoaderListener()
-  {
-    return _dataLoaderListener;
-  }
-
-  private void addListener()
-  {
-    for ( final DataLoaderEntry dataLoader : _dataLoaders )
-    {
-      dataLoader.getService().addDataLoaderListener( getDataLoaderListener() );
-    }
-  }
-
-  private void removeListener()
-  {
-    if ( null != _dataLoaders )
-    {
-      for ( final DataLoaderEntry dataLoader : _dataLoaders )
-      {
-        dataLoader.getService().removeDataLoaderListener( getDataLoaderListener() );
-      }
-    }
-  }
-
-  final class Listener
-    extends DataLoaderListenerAdapter
-  {
-    @Override
-    public void onDisconnect( @Nonnull final DataLoaderService service )
-    {
-      updateStatus();
-    }
-
-    @Override
-    public void onInvalidDisconnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
-    {
-      updateStatus();
-    }
-
-    @Override
-    public void onConnect( @Nonnull final DataLoaderService service )
-    {
-      updateStatus();
-    }
-
-    @Override
-    public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
-    {
-      updateStatus();
-    }
-
-    @Override
-    public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
-    {
-      disconnectIfPossible( service, throwable );
-    }
-
-    @Override
-    public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
-    {
-      disconnectIfPossible( service, throwable );
-    }
   }
 }

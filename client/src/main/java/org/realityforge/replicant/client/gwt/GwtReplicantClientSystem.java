@@ -5,7 +5,6 @@ import arez.annotations.PreDispose;
 import com.google.gwt.user.client.Timer;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 
 @Singleton
@@ -16,14 +15,13 @@ public abstract class GwtReplicantClientSystem
   private final Timer _timer;
 
   @Nonnull
-  public static GwtReplicantClientSystem create( @Nonnull final DataLoaderEntry[] dataLoaders )
+  public static GwtReplicantClientSystem create()
   {
-    return new Arez_GwtReplicantClientSystem( dataLoaders );
+    return new Arez_GwtReplicantClientSystem();
   }
 
-  GwtReplicantClientSystem( @Nonnull final DataLoaderEntry[] dataLoaders )
+  GwtReplicantClientSystem()
   {
-    super( dataLoaders );
     _timer = new Timer()
     {
       @Override

@@ -15,6 +15,7 @@ import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
+import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
@@ -34,10 +35,11 @@ public abstract class GwtWebPollerDataLoaderService
     }
   }
 
-  public GwtWebPollerDataLoaderService( @Nonnull final CacheService cacheService,
+  public GwtWebPollerDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+                                        @Nonnull final CacheService cacheService,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( cacheService, sessionContext );
+    super( replicantClientSystem, cacheService, sessionContext );
     createWebPoller();
     setupCloseHandler();
   }

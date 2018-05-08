@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
+import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;
@@ -47,13 +48,13 @@ public abstract class AbstractDataLoaderService
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private final CacheService _cacheService;
+  private final ReplicantClientSystem _replicantClientSystem;
 
   private DataLoadAction _currentAction;
   private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
-  private final DataLoaderListenerSupport _listenerSupport = new DataLoaderListenerSupport();
   /**
    * Action invoked after current action completes to reset session state.
    */
@@ -64,8 +65,10 @@ public abstract class AbstractDataLoaderService
   private ClientSession _session;
   private Disposable _schedulerLock;
 
-  protected AbstractDataLoaderService( @Nonnull final CacheService cacheService )
+  protected AbstractDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+                                       @Nonnull final CacheService cacheService )
   {
+    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     _cacheService = Objects.requireNonNull( cacheService );
   }
 
@@ -112,18 +115,6 @@ public abstract class AbstractDataLoaderService
   {
     assert null != state;
     _state = state;
-  }
-
-  @Override
-  public void addDataLoaderListener( @Nonnull final DataLoaderListener listener )
-  {
-    _listenerSupport.addListener( listener );
-  }
-
-  @Override
-  public void removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
-  {
-    _listenerSupport.removeListener( listener );
   }
 
   @Nonnull
@@ -1204,7 +1195,8 @@ public abstract class AbstractDataLoaderService
   protected final void onDisconnect()
   {
     setState( State.DISCONNECTED );
-    _listenerSupport.onDisconnect( this );
+    _replicantClientSystem.updateStatus();
+    //TODO: Add spy event
   }
 
   /**
@@ -1213,7 +1205,8 @@ public abstract class AbstractDataLoaderService
   protected final void onInvalidDisconnect( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
-    _listenerSupport.onInvalidDisconnect( this, error );
+    _replicantClientSystem.updateStatus();
+    //TODO: Add spy event
   }
 
   /**
@@ -1222,8 +1215,8 @@ public abstract class AbstractDataLoaderService
   protected final void onConnect()
   {
     setState( State.CONNECTED );
-
-    _listenerSupport.onConnect( this );
+    _replicantClientSystem.updateStatus();
+    //TODO: Add spy event
   }
 
   /**
@@ -1232,7 +1225,8 @@ public abstract class AbstractDataLoaderService
   protected final void onInvalidConnect( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
-    _listenerSupport.onInvalidConnect( this, error );
+    _replicantClientSystem.updateStatus();
+    //TODO: Add spy event
   }
 
   /**
@@ -1242,7 +1236,7 @@ public abstract class AbstractDataLoaderService
    */
   protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
   {
-    _listenerSupport.onDataLoadComplete( this, status );
+    //TODO: Add spy event
   }
 
   /**
@@ -1250,7 +1244,8 @@ public abstract class AbstractDataLoaderService
    */
   protected final void onDataLoadFailure( @Nonnull final Throwable error )
   {
-    _listenerSupport.onDataLoadFailure( this, error );
+    _replicantClientSystem.disconnectIfPossible( this, error );
+    //TODO: Add spy event
   }
 
   /**
@@ -1258,62 +1253,63 @@ public abstract class AbstractDataLoaderService
    */
   protected final void onPollFailure( @Nonnull final Throwable error )
   {
-    _listenerSupport.onPollFailure( this, error );
+    _replicantClientSystem.disconnectIfPossible( this, error );
+    //TODO: Add spy event
   }
 
   protected final void onSubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
-    _listenerSupport.onSubscribeStarted( this, address );
+    //TODO: Add spy event
   }
 
   protected final void onSubscribeCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
-    _listenerSupport.onSubscribeCompleted( this, address );
+    //TODO: Add spy event
   }
 
   protected final void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
-    _listenerSupport.onSubscribeFailed( this, address, error );
+    //TODO: Add spy event
   }
 
   protected final void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
-    _listenerSupport.onUnsubscribeStarted( this, address );
+    //TODO: Add spy event
   }
 
   protected final void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
-    _listenerSupport.onUnsubscribeCompleted( this, address );
+    //TODO: Add spy event
   }
 
   protected final void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, error );
-    _listenerSupport.onUnsubscribeFailed( this, address, error );
+    //TODO: Add spy event
   }
 
   protected final void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
-    _listenerSupport.onSubscriptionUpdateStarted( this, address );
+    //TODO: Add spy event
   }
 
   protected final void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
-    _listenerSupport.onSubscriptionUpdateCompleted( this, address );
+    //TODO: Add spy event
   }
 
   protected final void onSubscriptionUpdateFailed( @Nonnull final ChannelAddress address,
                                                    @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATE_FAILED, error );
-    _listenerSupport.onSubscriptionUpdateFailed( this, address, error );
+    //TODO: Add spy event
   }
 
   @Action

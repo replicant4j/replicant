@@ -13,6 +13,7 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
+import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import replicant.ChannelAddress;
 import replicant.Replicant;
@@ -23,9 +24,10 @@ public abstract class WebPollerDataLoaderService
   protected static final int HTTP_STATUS_CODE_OK = 200;
   private WebPoller _webPoller;
 
-  protected WebPollerDataLoaderService( @Nonnull final CacheService cacheService )
+  protected WebPollerDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+                                        @Nonnull final CacheService cacheService )
   {
-    super( cacheService );
+    super( replicantClientSystem, cacheService );
   }
 
   @Nonnull

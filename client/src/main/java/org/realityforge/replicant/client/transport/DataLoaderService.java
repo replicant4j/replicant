@@ -48,16 +48,6 @@ public interface DataLoaderService
   void scheduleDataLoad();
 
   /**
-   * Add a listener. Return true if actually added, false if listener was already present.
-   */
-  void addDataLoaderListener( @Nonnull DataLoaderListener listener );
-
-  /**
-   * Remove a listener. Return true if actually removed, false if listener was not present.
-   */
-  void removeDataLoaderListener( @Nonnull DataLoaderListener listener );
-
-  /**
    * Return the class of channels that this loader processes.
    */
   @Nonnull

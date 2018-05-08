@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.runtime;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
-import org.realityforge.replicant.client.transport.DataLoaderListener;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import replicant.ChannelAddress;
 
@@ -63,16 +62,6 @@ final class TestDataLoaderService
 
   @Override
   public void scheduleDataLoad()
-  {
-  }
-
-  @Override
-  public void addDataLoaderListener( @Nonnull final DataLoaderListener listener )
-  {
-  }
-
-  @Override
-  public void removeDataLoaderListener( @Nonnull final DataLoaderListener listener )
   {
   }
 

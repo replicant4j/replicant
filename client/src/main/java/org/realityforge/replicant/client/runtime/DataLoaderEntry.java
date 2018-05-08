@@ -8,7 +8,7 @@ import org.realityforge.replicant.client.transport.DataLoaderService;
 /**
  * Container describing the DataLoaderService and state in client.
  */
-public final class DataLoaderEntry
+final class DataLoaderEntry
 {
   /**
    * The cost to attempt to modify action on DataLoader.
@@ -22,10 +22,10 @@ public final class DataLoaderEntry
   /**
    * Does the system require this DataLoader to be present to be operational.
    */
-  private final boolean _required;
+  private boolean _required;
   private final RateLimitedValue _rateLimiter;
 
-  public DataLoaderEntry( @Nonnull final DataLoaderService service, final boolean required )
+  DataLoaderEntry( @Nonnull final DataLoaderService service, final boolean required )
   {
     _service = Objects.requireNonNull( service );
     _required = required;
@@ -34,7 +34,7 @@ public final class DataLoaderEntry
     _rateLimiter = new RateLimitedValue( regenRate, ACTION_COST * 2 );
   }
 
-  public boolean attemptAction( @Nonnull final Consumer<DataLoaderService> action )
+  boolean attemptAction( @Nonnull final Consumer<DataLoaderService> action )
   {
     return getRateLimiter().attempt( ACTION_COST, () -> action.accept( getService() ) );
   }
@@ -46,13 +46,18 @@ public final class DataLoaderEntry
   }
 
   @Nonnull
-  public DataLoaderService getService()
+  DataLoaderService getService()
   {
     return _service;
   }
 
-  public boolean isRequired()
+  boolean isRequired()
   {
     return _required;
+  }
+
+  void setRequired( final boolean required )
+  {
+    _required = required;
   }
 }

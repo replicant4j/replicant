@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
+import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;
@@ -16,10 +17,11 @@ public abstract class GwtDataLoaderService
 
   private final SessionContext _sessionContext;
 
-  protected GwtDataLoaderService( @Nonnull final CacheService cacheService,
+  protected GwtDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+                                  @Nonnull final CacheService cacheService,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( cacheService );
+    super( replicantClientSystem, cacheService );
     _sessionContext = sessionContext;
     if ( Replicant.canSubscriptionsDebugOutputBeEnabled() )
     {
