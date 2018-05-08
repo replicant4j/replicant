@@ -23,6 +23,7 @@ import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
+import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
@@ -600,6 +601,44 @@ public class DataLoaderService2Test
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getAddress(), address );
+    } );
+  }
+
+  @Test
+  public void onSubscriptionUpdateFailed()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    final Throwable error = new Throwable();
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> service.onSubscriptionUpdateFailed( address, error ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), error ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
+    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getAddress(), address );
+      assertEquals( e.getError(), error );
     } );
   }
 
