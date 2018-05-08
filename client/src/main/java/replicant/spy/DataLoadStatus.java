@@ -1,8 +1,8 @@
 package replicant.spy;
 
-import arez.Arez;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.Replicant;
 
 /**
  * Summary describing the result of a data load action.
