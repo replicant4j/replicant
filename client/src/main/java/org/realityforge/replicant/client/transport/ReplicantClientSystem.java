@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.anodoc.TestOnly;
 import replicant.Replicant;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -270,5 +271,11 @@ public class ReplicantClientSystem
       service.disconnect();
     }
     updateStatus();
+  }
+
+  @TestOnly
+  final ArrayList<DataLoaderEntry> getDataLoaders()
+  {
+    return _dataLoaders;
   }
 }
