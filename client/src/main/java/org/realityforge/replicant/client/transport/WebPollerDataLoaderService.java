@@ -229,10 +229,10 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  protected void onMessageProcessed( @Nonnull final DataLoadStatus status )
   {
     resumeWebPoller();
-    super.onDataLoadComplete( status );
+    super.onMessageProcessed( status );
   }
 
   protected void startPolling()

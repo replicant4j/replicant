@@ -116,7 +116,7 @@ public abstract class AbstractDataLoaderService2
    *
    * @param status the status describing the results of data load.
    */
-  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  protected void onMessageProcessed( @Nonnull final DataLoadStatus status )
   {
     //TODO: Add spy event
   }

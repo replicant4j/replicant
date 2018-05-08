@@ -141,7 +141,7 @@ abstract class TestDataLoadService
   }
 
   @Override
-  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  protected void onMessageProcessed( @Nonnull final DataLoadStatus status )
   {
     _status = status;
   }
