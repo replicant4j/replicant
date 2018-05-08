@@ -18,7 +18,7 @@ public abstract class DataLoaderListenerAdapter
    * {@inheritDoc}
    */
   @Override
-  public void onInvalidDisconnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
+  public void onInvalidDisconnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable error )
   {
   }
 
@@ -34,7 +34,7 @@ public abstract class DataLoaderListenerAdapter
    * {@inheritDoc}
    */
   @Override
-  public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
+  public void onInvalidConnect( @Nonnull final DataLoaderService service, @Nonnull final Throwable error )
   {
   }
 
@@ -50,7 +50,7 @@ public abstract class DataLoaderListenerAdapter
    * {@inheritDoc}
    */
   @Override
-  public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
+  public void onDataLoadFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable error )
   {
   }
 
@@ -58,7 +58,7 @@ public abstract class DataLoaderListenerAdapter
    * {@inheritDoc}
    */
   @Override
-  public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable throwable )
+  public void onPollFailure( @Nonnull final DataLoaderService service, @Nonnull final Throwable error )
   {
   }
 
@@ -86,7 +86,7 @@ public abstract class DataLoaderListenerAdapter
   @Override
   public void onSubscribeFailed( @Nonnull final DataLoaderService service,
                                  @Nonnull final ChannelAddress address,
-                                 @Nonnull final Throwable throwable )
+                                 @Nonnull final Throwable error )
   {
   }
 
@@ -114,7 +114,7 @@ public abstract class DataLoaderListenerAdapter
   @Override
   public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
                                    @Nonnull final ChannelAddress address,
-                                   @Nonnull final Throwable throwable )
+                                   @Nonnull final Throwable error )
   {
   }
 
@@ -142,7 +142,7 @@ public abstract class DataLoaderListenerAdapter
   @Override
   public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
                                           @Nonnull final ChannelAddress address,
-                                          @Nonnull final Throwable throwable )
+                                          @Nonnull final Throwable error )
   {
   }
 }
