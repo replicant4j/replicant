@@ -4,6 +4,7 @@ import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
+import arez.annotations.Observable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -110,6 +111,7 @@ public abstract class AbstractDataLoaderService
    */
   @Nonnull
   @Override
+  @Observable
   public State getState()
   {
     return _state;
