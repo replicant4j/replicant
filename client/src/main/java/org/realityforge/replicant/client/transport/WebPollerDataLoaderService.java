@@ -152,7 +152,7 @@ public abstract class WebPollerDataLoaderService
   protected void onDisconnectError( @Nonnull final Throwable t, @Nullable final Runnable runnable )
   {
     setSession( null, runnable );
-    handleInvalidDisconnect( t );
+    onInvalidDisconnect( t );
   }
 
   protected void onDisconnectResponse( final int statusCode,
@@ -169,7 +169,7 @@ public abstract class WebPollerDataLoaderService
       else
       {
         setSession( null, action );
-        handleInvalidDisconnect( new InvalidHttpResponseException( statusCode, statusText ) );
+        onInvalidDisconnect( new InvalidHttpResponseException( statusCode, statusText ) );
       }
     }
     finally
@@ -189,7 +189,7 @@ public abstract class WebPollerDataLoaderService
     }
     else
     {
-      handleInvalidConnect( new InvalidHttpResponseException( statusCode, statusText ) );
+      onInvalidConnect( new InvalidHttpResponseException( statusCode, statusText ) );
     }
   }
 
@@ -294,17 +294,13 @@ public abstract class WebPollerDataLoaderService
     assert null == eTag || null != cacheAction;
     if ( isChannelTypeValid( address ) )
     {
-      getListener().onSubscribeStarted( this, address );
-      final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onSubscribeCompleted( this, address ) );
+      onSubscribeStarted( address );
+      final Runnable onSuccess = () -> completionAction.accept( () -> onSubscribeCompleted( address ) );
       final Runnable onCacheValid =
-        null != cacheAction ?
-        () -> cacheAction.accept( () -> getListener().onSubscribeCompleted( this, address ) ) :
-        null;
-      final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, address, throwable ) );
+        null != cacheAction ? () -> cacheAction.accept( () -> onSubscribeCompleted( address ) ) : null;
+      final Consumer<Throwable> onError = error -> failAction.accept( () -> onSubscribeFailed( address, error ) );
       performSubscribe( address.getChannelType().ordinal(),
-                        (Serializable) address.getId(),
+                        address.getId(),
                         filterParameter,
                         cacheKey,
                         eTag,
@@ -349,18 +345,16 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull final Consumer<Runnable> completionAction,
                                                 @Nonnull final Consumer<Runnable> failAction )
   {
-    final ChannelAddress descriptor = addresses.get( 0 );
-    if ( isChannelTypeValid( descriptor ) )
+    final ChannelAddress address = addresses.get( 0 );
+    if ( isChannelTypeValid( address ) )
     {
-      addresses.forEach( x -> getListener().onSubscribeStarted( this, x ) );
+      addresses.forEach( this::onSubscribeStarted );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> addresses.forEach( x -> getListener().onSubscribeCompleted( this, x ) ) );
+        () -> completionAction.accept( () -> addresses.forEach( this::onSubscribeCompleted ) );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> addresses.forEach( x -> getListener().onSubscribeFailed( this,
-                                                                                                       descriptor,
-                                                                                                       throwable ) ) );
-      performBulkSubscribe( descriptor.getChannelType().ordinal(),
-                            addresses.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
+        error -> failAction.accept( () -> addresses.forEach( x -> onSubscribeFailed( address, error ) ) );
+      performBulkSubscribe( address.getChannelType().ordinal(),
+                            addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
                             filterParameter,
                             onSuccess,
                             onError );
@@ -396,13 +390,13 @@ public abstract class WebPollerDataLoaderService
   {
     if ( isChannelTypeValid( descriptor ) )
     {
-      getListener().onSubscriptionUpdateStarted( this, descriptor );
+      onSubscriptionUpdateStarted( descriptor );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) );
+        () -> completionAction.accept( () -> onSubscriptionUpdateCompleted( descriptor ) );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
+        error -> failAction.accept( () -> onSubscriptionUpdateFailed( descriptor, error ) );
       performUpdateSubscription( descriptor.getChannelType().ordinal(),
-                                 (Serializable) descriptor.getId(),
+                                 descriptor.getId(),
                                  filterParameter,
                                  onSuccess,
                                  onError );
@@ -435,17 +429,16 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull Consumer<Runnable> completionAction,
                                                 @Nonnull Consumer<Runnable> failAction )
   {
-    final ChannelAddress descriptor = descriptors.get( 0 );
-    if ( isChannelTypeValid( descriptor ) )
+    final ChannelAddress address = descriptors.get( 0 );
+    if ( isChannelTypeValid( address ) )
     {
-      descriptors.forEach( x -> getListener().onSubscriptionUpdateStarted( this, x ) );
-      final Runnable onSuccess = () -> completionAction.accept( () -> descriptors.forEach(
-        x -> getListener().onSubscriptionUpdateCompleted( this, descriptor ) ) );
-      final Consumer<Throwable> onError = throwable -> failAction.accept( () -> descriptors.forEach(
-        x -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) ) );
-      performBulkUpdateSubscription( descriptor.getChannelType().ordinal(),
-                                     descriptors.stream().map(
-                                       x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
+      descriptors.forEach( this::onSubscriptionUpdateStarted );
+      final Runnable onSuccess =
+        () -> completionAction.accept( () -> descriptors.forEach( x -> onSubscriptionUpdateCompleted( address ) ) );
+      final Consumer<Throwable> onError =
+        error -> failAction.accept( () -> descriptors.forEach( x -> onSubscriptionUpdateFailed( address, error ) ) );
+      performBulkUpdateSubscription( address.getChannelType().ordinal(),
+                                     descriptors.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
                                      filterParameter,
                                      onSuccess,
                                      onError );
@@ -506,19 +499,16 @@ public abstract class WebPollerDataLoaderService
                                                     @Nonnull final Consumer<Runnable> completionAction,
                                                     @Nonnull final Consumer<Runnable> failAction )
   {
-    final ChannelAddress descriptor = addresses.get( 0 );
-    if ( isChannelTypeValid( descriptor ) )
+    final ChannelAddress address = addresses.get( 0 );
+    if ( isChannelTypeValid( address ) )
     {
-      addresses.forEach( x -> getListener().onUnsubscribeStarted( this, x ) );
+      addresses.forEach( this::onUnsubscribeStarted );
       final Runnable onSuccess =
-        () -> completionAction.accept( () -> addresses.forEach( x -> getListener().onUnsubscribeCompleted( this,
-                                                                                                           x ) ) );
+        () -> completionAction.accept( () -> addresses.forEach( this::onUnsubscribeCompleted ) );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> addresses.forEach( x -> getListener().onUnsubscribeFailed( this,
-                                                                                                         descriptor,
-                                                                                                         throwable ) ) );
-      performBulkUnsubscribe( descriptor.getChannelType().ordinal(),
-                              addresses.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
+        error -> failAction.accept( () -> addresses.forEach( x -> onUnsubscribeFailed( address, error ) ) );
+      performBulkUnsubscribe( address.getChannelType().ordinal(),
+                              addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
                               onSuccess,
                               onError );
     }
@@ -576,9 +566,9 @@ public abstract class WebPollerDataLoaderService
     }
 
     @Override
-    public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable exception )
+    public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable error )
     {
-      getListener().onPollFailure( WebPollerDataLoaderService.this, exception );
+      onPollFailure( error );
     }
 
     @Override

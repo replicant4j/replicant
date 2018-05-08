@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
+import arez.annotations.Action;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
+import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
@@ -110,12 +112,6 @@ public abstract class AbstractDataLoaderService
   {
     assert null != state;
     _state = state;
-  }
-
-  @Nonnull
-  protected DataLoaderListener getListener()
-  {
-    return _listenerSupport;
   }
 
   @Override
@@ -240,7 +236,7 @@ public abstract class AbstractDataLoaderService
     }
     catch ( final Exception e )
     {
-      getListener().onDataLoadFailure( this, e );
+      onDataLoadFailure( e );
       _incrementalDataLoadInProgress = false;
       return false;
     }
@@ -1070,7 +1066,7 @@ public abstract class AbstractDataLoaderService
     State state = State.ERROR;
     try
     {
-      doConnect( this::completeConnect );
+      doConnect( this::onConnect );
       state = State.CONNECTING;
     }
     finally
@@ -1079,25 +1075,7 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  private void completeConnect()
-  {
-    setState( State.CONNECTED );
-    getListener().onConnect( this );
-  }
-
   protected abstract void doConnect( @Nullable Runnable runnable );
-
-  protected void handleInvalidConnect( @Nonnull final Throwable exception )
-  {
-    setState( State.ERROR );
-    getListener().onInvalidConnect( this, exception );
-  }
-
-  protected void handleInvalidDisconnect( @Nonnull final Throwable exception )
-  {
-    setState( State.ERROR );
-    getListener().onInvalidDisconnect( this, exception );
-  }
 
   @Override
   public void disconnect()
@@ -1109,12 +1087,6 @@ public abstract class AbstractDataLoaderService
       setState( State.DISCONNECTING );
       doDisconnect( this::onDisconnect );
     }
-  }
-
-  private void onDisconnect()
-  {
-    setState( State.DISCONNECTED );
-    getListener().onDisconnect( this );
   }
 
   protected abstract void doDisconnect( @Nullable Runnable runnable );
@@ -1139,16 +1111,6 @@ public abstract class AbstractDataLoaderService
    */
   protected void onTerminatingIncrementalDataLoadProcess()
   {
-  }
-
-  /**
-   * Invoked when a change set has been completely processed.
-   *
-   * @param status the status describing the results of data load.
-   */
-  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
-  {
-    getListener().onDataLoadComplete( this, status );
   }
 
   @Nonnull
@@ -1234,6 +1196,136 @@ public abstract class AbstractDataLoaderService
   public String toString()
   {
     return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]" : super.toString();
+  }
+
+  /**
+   * Invoked to fire an event when disconnect has completed.
+   */
+  protected final void onDisconnect()
+  {
+    setState( State.DISCONNECTED );
+    _listenerSupport.onDisconnect( this );
+  }
+
+  /**
+   * Invoked to fire an event when failed to connect.
+   */
+  protected final void onInvalidDisconnect( @Nonnull final Throwable error )
+  {
+    setState( State.ERROR );
+    _listenerSupport.onInvalidDisconnect( this, error );
+  }
+
+  /**
+   * Invoked to fire an event when disconnect has completed.
+   */
+  protected final void onConnect()
+  {
+    setState( State.CONNECTED );
+
+    _listenerSupport.onConnect( this );
+  }
+
+  /**
+   * Invoked to fire an event when failed to connect.
+   */
+  protected final void onInvalidConnect( @Nonnull final Throwable error )
+  {
+    setState( State.ERROR );
+    _listenerSupport.onInvalidConnect( this, error );
+  }
+
+  /**
+   * Invoked when a change set has been completely processed.
+   *
+   * @param status the status describing the results of data load.
+   */
+  protected void onDataLoadComplete( @Nonnull final DataLoadStatus status )
+  {
+    _listenerSupport.onDataLoadComplete( this, status );
+  }
+
+  /**
+   * Called when a data load has resulted in a failure.
+   */
+  protected final void onDataLoadFailure( @Nonnull final Throwable error )
+  {
+    _listenerSupport.onDataLoadFailure( this, error );
+  }
+
+  /**
+   * Attempted to retrieve data from backend and failed.
+   */
+  protected final void onPollFailure( @Nonnull final Throwable error )
+  {
+    _listenerSupport.onPollFailure( this, error );
+  }
+
+  protected final void onSubscribeStarted( @Nonnull final ChannelAddress address )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
+    _listenerSupport.onSubscribeStarted( this, address );
+  }
+
+  protected final void onSubscribeCompleted( @Nonnull final ChannelAddress address )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
+    _listenerSupport.onSubscribeCompleted( this, address );
+  }
+
+  protected final void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
+    _listenerSupport.onSubscribeFailed( this, address, error );
+  }
+
+  protected final void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
+    _listenerSupport.onUnsubscribeStarted( this, address );
+  }
+
+  protected final void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
+    _listenerSupport.onUnsubscribeCompleted( this, address );
+  }
+
+  protected final void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, error );
+    _listenerSupport.onUnsubscribeFailed( this, address, error );
+  }
+
+  protected final void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
+    _listenerSupport.onSubscriptionUpdateStarted( this, address );
+  }
+
+  protected final void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
+    _listenerSupport.onSubscriptionUpdateCompleted( this, address );
+  }
+
+  protected final void onSubscriptionUpdateFailed( @Nonnull final ChannelAddress address,
+                                                   @Nonnull final Throwable error )
+  {
+    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATE_FAILED, error );
+    _listenerSupport.onSubscriptionUpdateFailed( this, address, error );
+  }
+
+  @Action
+  protected void updateAreaOfInterest( @Nonnull final ChannelAddress address,
+                                       @Nonnull final AreaOfInterest.Status status,
+                                       @Nullable final Throwable error )
+  {
+    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
+    if ( null != areaOfInterest )
+    {
+      areaOfInterest.updateAreaOfInterest( status, error );
+    }
   }
 
   @Nonnull

@@ -5,19 +5,15 @@ import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
 import arez.annotations.Observable;
-import arez.annotations.PreDispose;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.anodoc.VisibleForTesting;
-import org.realityforge.replicant.client.runtime.DataLoaderEntry;
 import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
-import org.realityforge.replicant.client.transport.DataLoaderListenerAdapter;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
@@ -31,9 +27,6 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent
 public abstract class Converger
 {
-  private static final Logger LOG = Logger.getLogger( Converger.class.getName() );
-  @Nonnull
-  private final ConvergerDataLoaderListener _dlListener = new ConvergerDataLoaderListener();
   @Nonnull
   private final ReplicantClientSystem _replicantClientSystem;
 
@@ -45,7 +38,6 @@ public abstract class Converger
   Converger( @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
-    addListeners();
   }
 
   /**
@@ -66,28 +58,6 @@ public abstract class Converger
 
   @Nullable
   public abstract Runnable getConvergeCompleteAction();
-
-  @PreDispose
-  final void preDispose()
-  {
-    removeListeners();
-  }
-
-  private void addListeners()
-  {
-    for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
-    {
-      entry.getService().addDataLoaderListener( _dlListener );
-    }
-  }
-
-  private void removeListeners()
-  {
-    for ( final DataLoaderEntry entry : _replicantClientSystem.getDataLoaders() )
-    {
-      entry.getService().removeDataLoaderListener( _dlListener );
-    }
-  }
 
   @Autorun
   void converge()
@@ -312,74 +282,6 @@ public abstract class Converger
     if ( null != areaOfInterest )
     {
       areaOfInterest.updateAreaOfInterest( status, throwable );
-    }
-  }
-
-  final class ConvergerDataLoaderListener
-    extends DataLoaderListenerAdapter
-  {
-    @Override
-    public void onSubscribeStarted( @Nonnull final DataLoaderService service, @Nonnull final ChannelAddress address )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.LOADING, null );
-    }
-
-    @Override
-    public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelAddress address )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.LOADED, null );
-    }
-
-    @Override
-    public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelAddress address,
-                                   @Nonnull final Throwable throwable )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.LOAD_FAILED, throwable );
-    }
-
-    @Override
-    public void onUnsubscribeStarted( @Nonnull final DataLoaderService service, @Nonnull final ChannelAddress address )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADING, null );
-    }
-
-    @Override
-    public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                        @Nonnull final ChannelAddress address )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, null );
-    }
-
-    @Override
-    public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                     @Nonnull final ChannelAddress address,
-                                     @Nonnull final Throwable throwable )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UNLOADED, throwable );
-    }
-
-    @Override
-    public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
-                                             @Nonnull final ChannelAddress address )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATING, null );
-    }
-
-    @Override
-    public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                               @Nonnull final ChannelAddress address )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATED, null );
-    }
-
-    @Override
-    public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                            @Nonnull final ChannelAddress address,
-                                            @Nonnull final Throwable throwable )
-    {
-      setAreaOfInterestState( address, AreaOfInterest.Status.UPDATE_FAILED, throwable );
     }
   }
 }
