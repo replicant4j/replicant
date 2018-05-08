@@ -67,3 +67,4 @@ Some actions that should occur at some point in the future.
 
 * Remove `GwtReplicantClientSystem` and replace capabilities with `@Autorun` or `@Computed` on base class.
 
+* Remove dagger support for `AreaOfInterestService`, `EntityService`, `SubscriptionService` as they are baked into context.
