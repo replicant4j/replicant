@@ -23,6 +23,7 @@ import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
+import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 
 /**
@@ -203,8 +204,11 @@ public abstract class AbstractDataLoaderService2
 
   protected final void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, error );
-    //TODO: Add spy event
+    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new UnsubscribeFailedEvent( getSystemType(), address, error ) );
+    }
   }
 
   protected final void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )

@@ -23,6 +23,7 @@ import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
+import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 import static org.testng.Assert.*;
 
@@ -494,6 +495,42 @@ public class DataLoaderService2Test
       assertEquals( e.getAddress(), address );
     } );
   }
+
+  @Test
+  public void onUnsubscribeFailed()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    final Throwable error = new Throwable();
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> service.onUnsubscribeFailed( address, error ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
+    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getAddress(), address );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
   enum G
   {
     G1
