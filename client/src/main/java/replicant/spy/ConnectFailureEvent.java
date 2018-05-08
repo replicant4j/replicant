@@ -44,6 +44,5 @@ public final class ConnectFailureEvent
     map.put( "systemType", getSystemType().getSimpleName() );
     final Throwable throwable = getError();
     map.put( "message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage() );
-
   }
 }
