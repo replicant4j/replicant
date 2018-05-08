@@ -66,3 +66,5 @@ Some actions that should occur at some point in the future.
   the publicly accessible details (i.e. Filter read? ChannelAddress).
 
 * Remove `GetReplicantClientSystem` and replace capabilities with `@Autorun` or `@Computed` on base class.
+
+* `DataLoadStatus` should move to spy as should `ChannelChangeStatus`
