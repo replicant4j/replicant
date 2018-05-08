@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import arez.Arez;
+import arez.Disposable;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
@@ -26,6 +27,23 @@ public class DataLoaderService2Test
 
     assertEquals( service.getReplicantClientSystem(), replicantClientSystem );
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.DISCONNECTED ) );
+  }
+
+  @Test
+  public void dispose()
+    throws Exception
+  {
+    final ReplicantClientSystem replicantClientSystem = new ReplicantClientSystem();
+
+    assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
+
+    final TestDataLoadService service = TestDataLoadService.create( replicantClientSystem );
+
+    assertEquals( replicantClientSystem.getDataLoaders().size(), 1 );
+
+    Disposable.dispose( service );
+
+    assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
   }
 
   @Test
