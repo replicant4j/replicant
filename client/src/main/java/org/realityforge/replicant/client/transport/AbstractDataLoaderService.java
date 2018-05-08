@@ -1116,7 +1116,7 @@ public abstract class AbstractDataLoaderService
   @Nullable
   protected String generateName( @Nonnull final String name )
   {
-    return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]." + name : null;
+    return Arez.areNamesEnabled() ? toString() + "." + name : null;
   }
 
   @Override
