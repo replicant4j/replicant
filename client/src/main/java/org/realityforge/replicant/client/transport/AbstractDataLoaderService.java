@@ -861,13 +861,7 @@ public abstract class AbstractDataLoaderService
     final DataLoadStatus status = _currentAction.toStatus( getKey() );
     if ( LOG.isLoggable( Level.INFO ) )
     {
-      LOG.info( status.getSystemKey() + ": ChangeSet " + set.getSequence() + " involved " +
-                status.getChannelAddCount() + " subscribes, " +
-                status.getChannelUpdateCount() + " subscription updates, " +
-                status.getChannelRemoveCount() + " un-subscribes, " +
-                status.getEntityUpdateCount() + " updates, " +
-                status.getEntityRemoveCount() + " removes and " +
-                status.getEntityLinkCount() + " links." );
+      LOG.info( status.toString() );
     }
 
     //Step: Run the post actions
