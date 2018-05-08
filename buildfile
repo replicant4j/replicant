@@ -103,23 +103,6 @@ define 'replicant' do
     test.compile.with TEST_DEPS
   end
 
-  define 'client-qa-support' do
-    compile.with GUICE_DEPS,
-                 TEST_INFRA_DEPS,
-                 project('client').package(:jar),
-                 project('client').compile.dependencies
-
-    package(:jar)
-    package(:sources)
-    package(:javadoc)
-
-    test.options[:properties] = TEST_OPTIONS
-    test.options[:java_args] = ['-ea']
-
-    test.using :testng
-    test.compile.with TEST_DEPS
-  end
-
   ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development')
   ipr.add_component_from_artifact(:idea_codestyle)
 
