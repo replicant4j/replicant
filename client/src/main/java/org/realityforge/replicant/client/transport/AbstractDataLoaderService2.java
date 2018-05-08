@@ -50,7 +50,7 @@ public abstract class AbstractDataLoaderService2
   }
 
   @PreDispose
-  void preDispose()
+  protected void preDispose()
   {
     _replicantClientSystem.deregisterDataSource( this );
   }
