@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.client.transport.ReplicantClientSystem;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;

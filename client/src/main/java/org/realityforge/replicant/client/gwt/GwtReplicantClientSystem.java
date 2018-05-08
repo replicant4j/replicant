@@ -5,7 +5,7 @@ import arez.annotations.PreDispose;
 import com.google.gwt.user.client.Timer;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.client.transport.ReplicantClientSystem;
 
 @Singleton
 @ArezComponent

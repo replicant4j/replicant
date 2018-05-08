@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;

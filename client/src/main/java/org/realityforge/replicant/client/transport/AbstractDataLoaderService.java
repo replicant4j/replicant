@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
-import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
 import replicant.AreaOfInterest;
 import replicant.Channel;
 import replicant.ChannelAddress;

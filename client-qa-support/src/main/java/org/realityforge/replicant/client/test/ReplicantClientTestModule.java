@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.test;
 
 import org.realityforge.guiceyloops.shared.AbstractModule;
-import org.realityforge.replicant.client.runtime.ReplicantClientSystem;
+import org.realityforge.replicant.client.transport.ReplicantClientSystem;
 
 /**
  * Module containing all the common client services.

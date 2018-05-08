@@ -5,8 +5,6 @@
 
   <source path='client'>
     <include name='*.java'/>
-    <include name='converger/**/*'/>
-    <include name='runtime/**/*'/>
     <include name='transport/**/*'/>
   </source>
 </module>
