@@ -255,6 +255,7 @@ public abstract class ReplicantClientSystem
     {
       service.disconnect();
     }
+    updateStatus();
   }
 
   @Nonnull
@@ -318,7 +319,6 @@ public abstract class ReplicantClientSystem
                "DataLoadFailure: Attempting to disconnect " + service + " and restart.",
                throwable );
       disconnectIfPossible( service );
-      updateStatus();
     }
 
     @Override
@@ -328,7 +328,6 @@ public abstract class ReplicantClientSystem
                "PollFailure: Attempting to disconnect " + service + " and restart.",
                throwable );
       disconnectIfPossible( service );
-      updateStatus();
     }
   }
 }
