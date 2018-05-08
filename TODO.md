@@ -67,4 +67,4 @@ Some actions that should occur at some point in the future.
 
 * Remove `GetReplicantClientSystem` and replace capabilities with `@Autorun` or `@Computed` on base class.
 
-* `DataLoadStatus` should move to spy as should `ChannelChangeStatus`
+* `DataLoadStatus` should move to spy
