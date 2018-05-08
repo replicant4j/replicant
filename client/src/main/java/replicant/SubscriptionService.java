@@ -24,14 +24,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import replicant.spy.SubscriptionCreatedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A class that records the subscriptions within the system.
  */
-@Singleton
 @ArezComponent
 public abstract class SubscriptionService
 {

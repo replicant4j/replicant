@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import org.realityforge.replicant.client.transport.Converger;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestFilterUpdatedEvent;
@@ -21,7 +20,6 @@ import static org.realityforge.braincheck.Guards.*;
  * and the {@link Converger} converges
  * the actual state towards the desired state.
  */
-@Singleton
 @ArezComponent
 abstract class AreaOfInterestService
   extends AbstractContainer<ChannelAddress, AreaOfInterest>

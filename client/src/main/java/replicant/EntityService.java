@@ -13,13 +13,11 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The container of Entity instances within replicant system.
  */
-@Singleton
 @ArezComponent
 abstract class EntityService
 {
