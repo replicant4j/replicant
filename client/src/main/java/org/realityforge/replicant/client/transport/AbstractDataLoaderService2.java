@@ -1,8 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.Arez;
 import arez.ArezContext;
 import arez.annotations.Action;
+import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import java.util.Objects;
@@ -224,9 +224,7 @@ public abstract class AbstractDataLoaderService2
     return _replicantClientSystem;
   }
 
+  @ContextRef
   @Nonnull
-  protected final ArezContext context()
-  {
-    return Arez.context();
-  }
+  protected abstract ArezContext context();
 }
