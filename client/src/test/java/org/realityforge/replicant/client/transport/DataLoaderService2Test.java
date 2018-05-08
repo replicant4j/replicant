@@ -49,7 +49,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onDisconnect()
+  public void onDisconnected()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -66,7 +66,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onDisconnect_generatesSpyMessage()
+  public void onDisconnected_generatesSpyMessage()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -84,7 +84,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onInvalidDisconnect()
+  public void onDisconnectFailure()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -103,7 +103,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onInvalidDisconnect_generatesSpyMessage()
+  public void onDisconnectFailure_generatesSpyMessage()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -125,7 +125,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onConnect()
+  public void onConnected()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -142,7 +142,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onConnect_generatesSpyMessage()
+  public void onConnected_generatesSpyMessage()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -160,7 +160,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onInvalidConnect()
+  public void onConnectFailure()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
@@ -179,7 +179,7 @@ public class DataLoaderService2Test
   }
 
   @Test
-  public void onInvalidConnect_generatesSpyMessage()
+  public void onConnectFailure_generatesSpyMessage()
     throws Exception
   {
     final TestDataLoadService service = TestDataLoadService.create();
