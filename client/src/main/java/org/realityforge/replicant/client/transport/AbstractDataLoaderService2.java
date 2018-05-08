@@ -259,10 +259,9 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  @Action
-  protected void updateAreaOfInterest( @Nonnull final ChannelAddress address,
-                                       @Nonnull final AreaOfInterest.Status status,
-                                       @Nullable final Throwable error )
+  private void updateAreaOfInterest( @Nonnull final ChannelAddress address,
+                                     @Nonnull final AreaOfInterest.Status status,
+                                     @Nullable final Throwable error )
   {
     final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
