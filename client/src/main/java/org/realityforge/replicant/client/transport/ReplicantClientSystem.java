@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
+import arez.annotations.Autorun;
 import arez.annotations.Observable;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -144,32 +145,31 @@ public abstract class ReplicantClientSystem
     return null;
   }
 
-  private void setActive( final boolean active )
+  // TODO: This should be package access once the services are consolidated
+  @Autorun( mutation = true )
+  protected void reflectActiveState()
   {
-    _active = active;
-    reflectActiveState();
-  }
-
-  private void reflectActiveState()
-  {
-    if ( isActive() )
-    {
-      doActivate();
-    }
-    else if ( !isActive() )
-    {
-      doDeactivate();
-    }
-  }
-
-  private void doActivate()
-  {
+    final boolean active = isActive();
     for ( final DataLoaderEntry dataLoader : _dataLoaders )
     {
       final DataLoaderService.State state = dataLoader.getService().getState();
-      if ( !isTransitionState( state ) && DataLoaderService.State.CONNECTED != state )
+      if ( !isTransitionState( state ) )
       {
-        dataLoader.attemptAction( DataLoaderService::connect );
+        if ( active )
+        {
+          if ( DataLoaderService.State.CONNECTED != state )
+          {
+            dataLoader.attemptAction( DataLoaderService::connect );
+          }
+        }
+        else
+        {
+          if ( DataLoaderService.State.DISCONNECTED != state &&
+               DataLoaderService.State.ERROR != state )
+          {
+            dataLoader.attemptAction( DataLoaderService::disconnect );
+          }
+        }
       }
     }
   }
@@ -178,20 +178,6 @@ public abstract class ReplicantClientSystem
   {
     return DataLoaderService.State.DISCONNECTING == state ||
            DataLoaderService.State.CONNECTING == state;
-  }
-
-  private void doDeactivate()
-  {
-    for ( final DataLoaderEntry dataLoader : _dataLoaders )
-    {
-      final DataLoaderService.State state = dataLoader.getService().getState();
-      if ( !isTransitionState( state ) &&
-           DataLoaderService.State.DISCONNECTED != state &&
-           DataLoaderService.State.ERROR != state )
-      {
-        dataLoader.attemptAction( DataLoaderService::disconnect );
-      }
-    }
   }
 
   // TODO: This should be package access once the services are consolidated
@@ -250,7 +236,6 @@ public abstract class ReplicantClientSystem
     {
       setState( State.CONNECTED );
     }
-    reflectActiveState();
   }
 
   final void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
