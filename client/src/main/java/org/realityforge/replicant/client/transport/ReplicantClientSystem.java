@@ -76,7 +76,7 @@ public abstract class ReplicantClientSystem
    * This is a desired state rather than an actual state that is represented by {@link #getState()}
    */
   @Observable
-  public abstract boolean isActive();
+  abstract boolean isActive();
 
   abstract void setActive( boolean active );
 
