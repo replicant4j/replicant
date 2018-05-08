@@ -1,10 +1,12 @@
 <module>
-  <inherits name='org.realityforge.replicant.ReplicantClientCommon'/>
+  <inherits name='org.realityforge.replicant.ReplicantShared'/>
+  <inherits name='org.realityforge.gwt.webpoller.WebPoller'/>
   <inherits name='react4j.arez.ReactArez'/>
   <inherits name='com.google.gwt.storage.Storage'/>
   <inherits name='com.google.gwt.user.Window'/>
   <inherits name='com.google.gwt.json.JSON'/>
 
+  <source path='client' includes='*.java'/>
   <source path='client/gwt'/>
   <source path='client/react4j'/>
   <source path='client/transport'/>
