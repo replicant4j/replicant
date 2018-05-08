@@ -179,14 +179,9 @@ public abstract class ReplicantClientSystem
            DataLoaderService.State.DISCONNECTED != state &&
            DataLoaderService.State.ERROR != state )
       {
-        dataLoader.attemptAction( this::doDisconnectDataLoaderService );
+        dataLoader.attemptAction( DataLoaderService::disconnect );
       }
     }
-  }
-
-  private void doDisconnectDataLoaderService( final DataLoaderService service )
-  {
-    service.disconnect();
   }
 
   @Action
