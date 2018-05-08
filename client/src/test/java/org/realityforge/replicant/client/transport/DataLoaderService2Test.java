@@ -8,6 +8,7 @@ import replicant.Replicant;
 import replicant.TestSpyEventHandler;
 import replicant.spy.DataLoaderConnectEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
+import replicant.spy.DataLoaderInvalidConnectEvent;
 import replicant.spy.DataLoaderInvalidDisconnectEvent;
 import static org.testng.Assert.*;
 
@@ -156,5 +157,46 @@ public class DataLoaderService2Test
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DataLoaderConnectEvent.class,
                              e -> assertEquals( e.getSystemType(), service.getSystemType() ) );
+  }
+
+  @Test
+  public void onInvalidConnect()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
+
+    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
+    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
+
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> service.onInvalidConnect( error ) );
+
+    Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.ERROR ) );
+    assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.ERROR );
+  }
+
+  @Test
+  public void onInvalidConnect_generatesSpyMessage()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> service.onInvalidConnect( error ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( DataLoaderInvalidConnectEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getError(), error );
+    } );
   }
 }

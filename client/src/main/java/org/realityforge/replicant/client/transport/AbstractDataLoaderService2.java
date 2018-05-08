@@ -13,6 +13,7 @@ import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.spy.DataLoaderConnectEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
+import replicant.spy.DataLoaderInvalidConnectEvent;
 import replicant.spy.DataLoaderInvalidDisconnectEvent;
 
 /**
@@ -103,7 +104,10 @@ public abstract class AbstractDataLoaderService2
   {
     setState( State.ERROR );
     _replicantClientSystem.updateStatus();
-    //TODO: Add spy event
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderInvalidConnectEvent( getSystemType(), error ) );
+    }
   }
 
   /**
