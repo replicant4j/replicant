@@ -74,7 +74,8 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  protected final void onConnected()
+  @Action
+  protected void onConnected()
   {
     setState( State.CONNECTED );
     _replicantClientSystem.updateStatus();
@@ -87,7 +88,8 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when failed to connect.
    */
-  protected final void onConnectFailure( @Nonnull final Throwable error )
+  @Action
+  protected void onConnectFailure( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
     _replicantClientSystem.updateStatus();
@@ -100,7 +102,8 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  protected final void onDisconnected()
+  @Action
+  protected void onDisconnected()
   {
     setState( State.DISCONNECTED );
     _replicantClientSystem.updateStatus();
@@ -113,7 +116,8 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when failed to connect.
    */
-  protected final void onDisconnectFailure( @Nonnull final Throwable error )
+  @Action
+  protected void onDisconnectFailure( @Nonnull final Throwable error )
   {
     setState( State.ERROR );
     _replicantClientSystem.updateStatus();
@@ -139,7 +143,8 @@ public abstract class AbstractDataLoaderService2
   /**
    * Called when a data load has resulted in a failure.
    */
-  protected final void onMessageProcessFailure( @Nonnull final Throwable error )
+  @Action
+  protected void onMessageProcessFailure( @Nonnull final Throwable error )
   {
     _replicantClientSystem.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -151,7 +156,8 @@ public abstract class AbstractDataLoaderService2
   /**
    * Attempted to retrieve data from backend and failed.
    */
-  protected final void onMessageReadFailure( @Nonnull final Throwable error )
+  @Action
+  protected void onMessageReadFailure( @Nonnull final Throwable error )
   {
     _replicantClientSystem.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -160,7 +166,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onSubscribeStarted( @Nonnull final ChannelAddress address )
+  @Action
+  protected void onSubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -169,7 +176,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onSubscribeCompleted( @Nonnull final ChannelAddress address )
+  @Action
+  protected void onSubscribeCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -178,7 +186,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
+  @Action
+  protected void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -187,7 +196,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
+  @Action
+  protected void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -196,7 +206,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
+  @Action
+  protected void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -205,7 +216,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
+  @Action
+  protected void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -214,7 +226,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
+  @Action
+  protected void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -223,7 +236,8 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
+  @Action
+  protected void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
@@ -232,8 +246,9 @@ public abstract class AbstractDataLoaderService2
     }
   }
 
-  protected final void onSubscriptionUpdateFailed( @Nonnull final ChannelAddress address,
-                                                   @Nonnull final Throwable error )
+  @Action
+  protected void onSubscriptionUpdateFailed( @Nonnull final ChannelAddress address,
+                                             @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATE_FAILED, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
