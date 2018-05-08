@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 /**
  * Summary describing the result of a data load action.
  */
-final class DataLoadStatus
+public final class DataLoadStatus
 {
   /**
    * A key that uniquely identifies the data source that initiated the data load.
@@ -32,15 +32,15 @@ final class DataLoadStatus
   // The number of entities where link() was invoked
   private final int _entityLinkCount;
 
-  DataLoadStatus( @Nonnull final String systemKey,
-                  final int sequence,
-                  @Nullable final String requestID,
-                  @Nonnull final List<ChannelChangeStatus> channelAdds,
-                  @Nonnull final List<ChannelChangeStatus> channelUpdates,
-                  @Nonnull final List<ChannelChangeStatus> channelRemoves,
-                  final int entityUpdateCount,
-                  final int entityRemoveCount,
-                  final int entityLinkCount )
+  public DataLoadStatus( @Nonnull final String systemKey,
+                         final int sequence,
+                         @Nullable final String requestID,
+                         @Nonnull final List<ChannelChangeStatus> channelAdds,
+                         @Nonnull final List<ChannelChangeStatus> channelUpdates,
+                         @Nonnull final List<ChannelChangeStatus> channelRemoves,
+                         final int entityUpdateCount,
+                         final int entityRemoveCount,
+                         final int entityLinkCount )
   {
     _systemKey = systemKey;
     _sequence = sequence;
@@ -54,51 +54,51 @@ final class DataLoadStatus
   }
 
   @Nonnull
-  String getSystemKey()
+  public String getSystemKey()
   {
     return _systemKey;
   }
 
-  private int getSequence()
+  public int getSequence()
   {
     return _sequence;
   }
 
   @Nullable
-  String getRequestID()
+  public String getRequestID()
   {
     return _requestID;
   }
 
   @Nonnull
-  List<ChannelChangeStatus> getChannelAdds()
+  public List<ChannelChangeStatus> getChannelAdds()
   {
     return _channelAdds;
   }
 
   @Nonnull
-  List<ChannelChangeStatus> getChannelUpdates()
+  public List<ChannelChangeStatus> getChannelUpdates()
   {
     return _channelUpdates;
   }
 
   @Nonnull
-  List<ChannelChangeStatus> getChannelRemoves()
+  public List<ChannelChangeStatus> getChannelRemoves()
   {
     return _channelRemoves;
   }
 
-  int getEntityUpdateCount()
+  public int getEntityUpdateCount()
   {
     return _entityUpdateCount;
   }
 
-  int getEntityRemoveCount()
+  public int getEntityRemoveCount()
   {
     return _entityRemoveCount;
   }
 
-  int getEntityLinkCount()
+  public int getEntityLinkCount()
   {
     return _entityLinkCount;
   }
