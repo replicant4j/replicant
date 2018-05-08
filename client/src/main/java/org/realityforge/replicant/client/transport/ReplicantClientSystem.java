@@ -28,8 +28,6 @@ public class ReplicantClientSystem
     ERROR
   }
 
-  protected static final int CONVERGE_DELAY_IN_MS = 2000;
-
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystem.class.getName() );
 
   private final ArrayList<DataLoaderEntry> _dataLoaders = new ArrayList<>();
