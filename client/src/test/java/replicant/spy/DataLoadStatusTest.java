@@ -32,7 +32,7 @@ public class DataLoadStatusTest
 
     assertEquals( status.getSystemKey(), "G" );
     assertEquals( status.getSequence(), sequence );
-    assertEquals( status.getRequestID(), requestId );
+    assertEquals( status.getRequestId(), requestId );
     assertEquals( status.getChannelAddCount(), channelAddCount );
     assertEquals( status.getChannelUpdateCount(), channelUpdateCount );
     assertEquals( status.getChannelRemoveCount(), channelRemoveCount );

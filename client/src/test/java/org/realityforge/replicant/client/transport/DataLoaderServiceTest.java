@@ -260,7 +260,7 @@ public class DataLoaderServiceTest
     assertTrue( request.haveResultsArrived() );
     assertNotInRequestManager( service, request );
     assertTrue( service.isDataLoadComplete() );
-    assertNotNull( service.getStatus().getRequestID() );
+    assertNotNull( service.getStatus().getRequestId() );
 
     verifyPostActionRun( request.getCompletionAction() );
   }
@@ -293,7 +293,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
     assertTrue( service.isDataLoadComplete() );
-    assertNull( service.getStatus().getRequestID() );
+    assertNull( service.getStatus().getRequestId() );
 
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
@@ -345,7 +345,7 @@ public class DataLoaderServiceTest
     final String requestID = changeSet.getRequestID();
     assertNotNull( requestID );
     assertInRequestManager( service, request );
-    assertNotNull( service.getStatus().getRequestID() );
+    assertNotNull( service.getStatus().getRequestId() );
 
     verifyPostActionNotRun( changeSet.getRunnable() );
   }
@@ -369,7 +369,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
     assertTrue( service.isDataLoadComplete() );
-    assertNotNull( service.getStatus().getRequestID() );
+    assertNotNull( service.getStatus().getRequestId() );
 
     verifyPostActionRun( changeSet.getRunnable() );
   }

@@ -45,7 +45,7 @@ public final class DataLoaderMessageProcessEvent
     map.put( "systemType", getSystemType().getSimpleName() );
     final DataLoadStatus status = getDataLoadStatus();
     map.put( "sequence", status.getSequence() );
-    map.put( "requestId", status.getRequestID() );
+    map.put( "requestId", status.getRequestId() );
     map.put( "channelAddCount", status.getChannelAddCount() );
     map.put( "channelRemoveCount", status.getChannelRemoveCount() );
     map.put( "channelUpdateCount", status.getChannelUpdateCount() );

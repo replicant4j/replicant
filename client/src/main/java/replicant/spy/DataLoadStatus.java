@@ -16,7 +16,7 @@ public final class DataLoadStatus
   private final String _systemKey;
   private final int _sequence;
   @Nullable
-  private final String _requestID;
+  private final String _requestId;
 
   /// The number of channels added as a result of the Message
   private final int _channelAddCount;
@@ -33,7 +33,7 @@ public final class DataLoadStatus
 
   public DataLoadStatus( @Nonnull final String systemKey,
                          final int sequence,
-                         @Nullable final String requestID,
+                         @Nullable final String requestId,
                          final int channelAddCount,
                          final int channelUpdateCount,
                          final int channelRemoveCount,
@@ -43,7 +43,7 @@ public final class DataLoadStatus
   {
     _systemKey = systemKey;
     _sequence = sequence;
-    _requestID = requestID;
+    _requestId = requestId;
     _channelAddCount = channelAddCount;
     _channelUpdateCount = channelUpdateCount;
     _channelRemoveCount = channelRemoveCount;
@@ -64,9 +64,9 @@ public final class DataLoadStatus
   }
 
   @Nullable
-  public String getRequestID()
+  public String getRequestId()
   {
-    return _requestID;
+    return _requestId;
   }
 
   public int getChannelAddCount()
