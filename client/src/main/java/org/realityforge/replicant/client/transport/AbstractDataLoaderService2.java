@@ -14,8 +14,8 @@ import replicant.Replicant;
 import replicant.spy.DataLoadStatus;
 import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderConnectedEvent;
-import replicant.spy.DataLoaderDisconnectedEvent;
 import replicant.spy.DataLoaderDisconnectFailureEvent;
+import replicant.spy.DataLoaderDisconnectedEvent;
 
 /**
  * Base class responsible for managing data loading from a particular source.
@@ -62,32 +62,6 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  protected final void onDisconnected()
-  {
-    setState( State.DISCONNECTED );
-    _replicantClientSystem.updateStatus();
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
-    {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectedEvent( getSystemType() ) );
-    }
-  }
-
-  /**
-   * Invoked to fire an event when failed to connect.
-   */
-  protected final void onDisconnectFailure( @Nonnull final Throwable error )
-  {
-    setState( State.ERROR );
-    _replicantClientSystem.updateStatus();
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
-    {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectFailureEvent( getSystemType(), error ) );
-    }
-  }
-
-  /**
-   * Invoked to fire an event when disconnect has completed.
-   */
   protected final void onConnected()
   {
     setState( State.CONNECTED );
@@ -108,6 +82,32 @@ public abstract class AbstractDataLoaderService2
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectFailureEvent( getSystemType(), error ) );
+    }
+  }
+
+  /**
+   * Invoked to fire an event when disconnect has completed.
+   */
+  protected final void onDisconnected()
+  {
+    setState( State.DISCONNECTED );
+    _replicantClientSystem.updateStatus();
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectedEvent( getSystemType() ) );
+    }
+  }
+
+  /**
+   * Invoked to fire an event when failed to connect.
+   */
+  protected final void onDisconnectFailure( @Nonnull final Throwable error )
+  {
+    setState( State.ERROR );
+    _replicantClientSystem.updateStatus();
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectFailureEvent( getSystemType(), error ) );
     }
   }
 
