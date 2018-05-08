@@ -44,5 +44,14 @@ public final class DataLoaderMessageProcessEvent
   {
     map.put( "type", "DataLoader.MessageProcess" );
     map.put( "systemType", getSystemType().getSimpleName() );
+    final DataLoadStatus status = getDataLoadStatus();
+    map.put( "sequence", status.getSequence() );
+    map.put( "requestId", status.getRequestID() );
+    map.put( "channelAddCount", status.getChannelAddCount() );
+    map.put( "channelRemoveCount", status.getChannelRemoveCount() );
+    map.put( "channelUpdateCount", status.getChannelUpdateCount() );
+    map.put( "entityUpdateCount", status.getEntityUpdateCount() );
+    map.put( "entityRemoveCount", status.getEntityRemoveCount() );
+    map.put( "entityLinkCount", status.getEntityLinkCount() );
   }
 }
