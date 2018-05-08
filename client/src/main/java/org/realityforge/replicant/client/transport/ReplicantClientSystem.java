@@ -38,6 +38,11 @@ public abstract class ReplicantClientSystem
   private final ArrayList<DataLoaderEntry> _dataLoaders = new ArrayList<>();
   private State _state = State.DISCONNECTED;
 
+  static ReplicantClientSystem create()
+  {
+    return new Arez_ReplicantClientSystem();
+  }
+
   final void registerDataSource( @Nonnull final DataLoaderService service )
   {
     if ( Replicant.shouldCheckInvariants() )
