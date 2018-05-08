@@ -251,6 +251,7 @@ public abstract class ReplicantClientSystem
 
   private void disconnectIfPossible( @Nonnull final DataLoaderService service, @Nonnull final Throwable cause )
   {
+    // TODO: Add spy event for this scenario
     LOG.log( Level.INFO, "Attempting to disconnect " + service + " and restart.", cause );
     if ( !isTransitionState( service.getState() ) )
     {
