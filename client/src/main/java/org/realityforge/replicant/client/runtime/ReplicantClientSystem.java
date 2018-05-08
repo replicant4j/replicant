@@ -186,8 +186,6 @@ public abstract class ReplicantClientSystem
 
   private void doDisconnectDataLoaderService( final DataLoaderService service )
   {
-    final String message = "Disconnecting " + service + ". Initial state: " + service.getState();
-    LOG.info( message );
     service.disconnect();
   }
 
