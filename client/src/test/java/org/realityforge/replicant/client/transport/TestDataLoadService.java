@@ -13,6 +13,7 @@ import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.Subscription;
+import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 
 @ArezComponent

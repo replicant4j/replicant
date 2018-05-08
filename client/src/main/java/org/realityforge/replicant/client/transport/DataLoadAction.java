@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
+import replicant.spy.DataLoadStatus;
 
 /**
  * A simple class encapsulating the process of loading data from a json change set.

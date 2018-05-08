@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.spy.DataLoadStatus;
 import replicant.spy.DataLoaderConnectEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
 import replicant.spy.DataLoaderInvalidConnectEvent;

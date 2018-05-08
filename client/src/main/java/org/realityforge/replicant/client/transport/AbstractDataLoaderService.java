@@ -27,6 +27,7 @@ import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.Subscription;
+import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 
 /**

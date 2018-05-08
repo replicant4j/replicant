@@ -4,7 +4,6 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.DataLoadStatus;
 
 /**
  * Notification when an DataLoader generated an error processing a message from the datasource.

@@ -3,7 +3,6 @@ package replicant.spy;
 import arez.Arez;
 import java.util.HashMap;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.transport.DataLoadStatus;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import static org.testng.Assert.*;
