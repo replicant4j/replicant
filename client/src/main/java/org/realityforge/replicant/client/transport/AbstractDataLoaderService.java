@@ -1043,7 +1043,7 @@ public abstract class AbstractDataLoaderService
     if ( null != session && State.DISCONNECTING != getState() )
     {
       setState( State.DISCONNECTING );
-      doDisconnect( this::onDisconnect );
+      doDisconnect( this::onDisconnected );
     }
   }
 

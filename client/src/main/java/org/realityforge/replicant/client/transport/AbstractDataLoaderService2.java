@@ -14,7 +14,7 @@ import replicant.Replicant;
 import replicant.spy.DataLoadStatus;
 import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderConnectedEvent;
-import replicant.spy.DataLoaderDisconnectEvent;
+import replicant.spy.DataLoaderDisconnectedEvent;
 import replicant.spy.DataLoaderDisconnectFailureEvent;
 
 /**
@@ -62,13 +62,13 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  protected final void onDisconnect()
+  protected final void onDisconnected()
   {
     setState( State.DISCONNECTED );
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectEvent( getSystemType() ) );
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectedEvent( getSystemType() ) );
     }
   }
 
