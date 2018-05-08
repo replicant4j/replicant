@@ -30,7 +30,7 @@ abstract class TestDataLoadService
   @Nonnull
   static TestDataLoadService create()
   {
-    return create( new ReplicantClientSystem() );
+    return create( new Arez_ReplicantClientSystem() );
   }
 
   @Nonnull

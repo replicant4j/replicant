@@ -30,7 +30,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service1 = newServiceA();
     final TestDataLoaderService service2 = newServiceB();
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     system.registerDataSource( service2 );
 
@@ -46,7 +46,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.DISCONNECTED );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
 
@@ -103,7 +103,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service3 = newServiceC();
     service3.setState( DataLoaderService.State.DISCONNECTED );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
     system.registerDataSource( service3 );
@@ -183,7 +183,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.CONNECTED );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
 
@@ -248,7 +248,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service3 = newServiceC();
     service3.setState( DataLoaderService.State.CONNECTED );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
     system.registerDataSource( service3 );
@@ -379,7 +379,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( service1State );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
@@ -397,7 +397,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service2 = newServiceB();
     service2.setState( service2State );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     system.registerDataSource( service2 );
 
@@ -420,7 +420,7 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service3 = newServiceC();
     service3.setState( service3State );
 
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     system.registerDataSource( service1 );
     system.registerDataSource( service2 );
     system.registerDataSource( service3 );
@@ -434,7 +434,7 @@ public class ReplicantClientSystemTest
   @Test
   public void convergingDisconnectedSystemDoesNothing()
   {
-    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final ReplicantClientSystem system = new Arez_ReplicantClientSystem();
     final TestDataLoaderService service1 = newServiceA();
     system.registerDataSource( service1 );
 

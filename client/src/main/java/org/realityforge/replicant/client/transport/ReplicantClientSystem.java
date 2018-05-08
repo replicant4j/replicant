@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import arez.annotations.Action;
+import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -8,11 +9,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 import org.realityforge.anodoc.TestOnly;
 import replicant.Replicant;
 import static org.realityforge.braincheck.Guards.*;
 
-public class ReplicantClientSystem
+@Singleton
+@ArezComponent
+public abstract class ReplicantClientSystem
 {
   public enum State
   {

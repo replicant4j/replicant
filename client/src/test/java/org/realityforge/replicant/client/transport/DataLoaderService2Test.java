@@ -37,7 +37,7 @@ public class DataLoaderService2Test
   public void construct()
     throws Exception
   {
-    final ReplicantClientSystem replicantClientSystem = new ReplicantClientSystem();
+    final ReplicantClientSystem replicantClientSystem = new Arez_ReplicantClientSystem();
 
     assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
 
@@ -53,7 +53,7 @@ public class DataLoaderService2Test
   public void dispose()
     throws Exception
   {
-    final ReplicantClientSystem replicantClientSystem = new ReplicantClientSystem();
+    final ReplicantClientSystem replicantClientSystem = new Arez_ReplicantClientSystem();
 
     assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
 
