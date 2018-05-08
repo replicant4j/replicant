@@ -32,6 +32,7 @@ import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.Subscription;
+import replicant.spy.DataLoaderDisconnectEvent;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -1203,7 +1204,10 @@ public abstract class AbstractDataLoaderService
   {
     setState( State.DISCONNECTED );
     _replicantClientSystem.updateStatus();
-    //TODO: Add spy event
+    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    {
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderDisconnectEvent( getSystemType() ) );
+    }
   }
 
   /**
