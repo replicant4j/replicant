@@ -2,14 +2,17 @@ package org.realityforge.replicant.client.transport;
 
 import arez.Arez;
 import arez.Disposable;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
 import replicant.TestSpyEventHandler;
 import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectedEvent;
+import replicant.spy.DataLoadStatus;
 import replicant.spy.DataLoaderConnectFailureEvent;
 import replicant.spy.DataLoaderDisconnectFailureEvent;
+import replicant.spy.DataLoaderMessageProcessedEvent;
 import static org.testng.Assert.*;
 
 public class DataLoaderService2Test
@@ -197,6 +200,38 @@ public class DataLoaderService2Test
     handler.assertNextEvent( DataLoaderConnectFailureEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getError(), error );
+    } );
+  }
+
+  @Test
+  public void onMessageProcessed_generatesSpyMessage()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    final DataLoadStatus status =
+      new DataLoadStatus( ValueUtil.randomString(),
+                          ValueUtil.randomInt(),
+                          ValueUtil.randomString(),
+                          ValueUtil.getRandom().nextInt( 10 ),
+                          ValueUtil.getRandom().nextInt( 10 ),
+                          ValueUtil.getRandom().nextInt( 10 ),
+                          ValueUtil.getRandom().nextInt( 100 ),
+                          ValueUtil.getRandom().nextInt( 100 ),
+                          ValueUtil.getRandom().nextInt( 10 ) );
+
+    Arez.context().safeAction( () -> service.onMessageProcessed( status ) );
+
+    handler.assertEventCount( 1 );
+
+    handler.assertNextEvent( DataLoaderMessageProcessedEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getDataLoadStatus(), status );
     } );
   }
 }
