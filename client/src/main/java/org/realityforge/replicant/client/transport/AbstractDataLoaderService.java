@@ -1328,6 +1328,12 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
+  protected final ReplicantClientSystem getReplicantClientSystem()
+  {
+    return _replicantClientSystem;
+  }
+
+  @Nonnull
   protected ArezContext context()
   {
     return Arez.context();
