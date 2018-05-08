@@ -1,4 +1,5 @@
 <module>
+  <inherits name='replicant.Replicant'/>
   <inherits name='org.realityforge.replicant.ReplicantShared'/>
   <inherits name='org.realityforge.gwt.webpoller.WebPoller'/>
   <inherits name='react4j.arez.ReactArez'/>
