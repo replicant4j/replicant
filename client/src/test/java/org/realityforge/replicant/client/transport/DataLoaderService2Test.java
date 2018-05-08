@@ -8,6 +8,7 @@ import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.Subscription;
 import replicant.TestSpyEventHandler;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
@@ -18,6 +19,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import static org.testng.Assert.*;
 
@@ -348,6 +350,41 @@ public class DataLoaderService2Test
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSystemType(), service.getSystemType() );
+      assertEquals( e.getAddress(), address );
+    } );
+  }
+
+  @Test
+  public void onSubscribeCompleted()
+    throws Exception
+  {
+    final TestDataLoadService service = TestDataLoadService.create();
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> service.onSubscribeCompleted( address ) );
+
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
+    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
       assertEquals( e.getSystemType(), service.getSystemType() );
       assertEquals( e.getAddress(), address );
     } );
