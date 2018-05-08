@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
 import arez.Disposable;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -119,21 +118,21 @@ public abstract class WebPollerDataLoaderService
    */
   @Nonnull
   protected String getChannelURL( final int channel,
-                                  @Nullable Serializable subChannelID )
+                                  @Nullable Integer subChannelId )
   {
     return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT +
-           "/" + channel + ( null == subChannelID ? "" : "." + subChannelID );
+           "/" + channel + ( null == subChannelId ? "" : "." + subChannelId );
   }
 
   /**
-   * Return URL to the specified channel, for the set of subChannelIDs for this session.
+   * Return URL to the specified channel, for the set of subChannelIds for this session.
    */
   @Nonnull
   protected String getChannelURL( final int channel,
-                                  @Nonnull List<Serializable> subChannelIDs )
+                                  @Nonnull List<Integer> subChannelIds )
   {
     final String queryParam = ReplicantContext.SUB_CHANNEL_ID_PARAM + "=" +
-                              subChannelIDs.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
+                              subChannelIds.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
     return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
   }
 
@@ -325,7 +324,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performSubscribe( final int channel,
-                                   @Nullable Serializable subChannelID,
+                                   @Nullable Integer subChannelId,
                                    @Nullable final Object filterParameter,
                                    @Nullable String cacheKey,
                                    @Nullable String eTag,
@@ -337,7 +336,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelID ),
+                   getChannelURL( channel, subChannelId ),
                    eTag,
                    onSuccess,
                    onCacheValid,
@@ -373,7 +372,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performBulkSubscribe( final int channel,
-                                       @Nonnull List<Serializable> subChannelIDs,
+                                       @Nonnull List<Integer> subChannelIds,
                                        @Nullable final Object filterParameter,
                                        @Nonnull final Runnable onSuccess,
                                        @Nonnull final Consumer<Throwable> onError )
@@ -382,7 +381,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelIDs ),
+                   getChannelURL( channel, subChannelIds ),
                    null,
                    onSuccess,
                    null,
@@ -415,7 +414,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performUpdateSubscription( final int channel,
-                                            @Nullable Serializable subChannelID,
+                                            @Nullable Integer subChannelId,
                                             @Nullable final Object filterParameter,
                                             @Nonnull final Runnable onSuccess,
                                             @Nonnull final Consumer<Throwable> onError )
@@ -424,7 +423,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelID ),
+                   getChannelURL( channel, subChannelId ),
                    null,
                    onSuccess,
                    null,
@@ -458,7 +457,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performBulkUpdateSubscription( final int channel,
-                                                @Nonnull List<Serializable> subChannelIDs,
+                                                @Nonnull List<Integer> subChannelIds,
                                                 @Nullable final Object filterParameter,
                                                 @Nonnull final Runnable onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
@@ -467,7 +466,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelIDs ),
+                   getChannelURL( channel, subChannelIds ),
                    null,
                    onSuccess,
                    null,
@@ -481,14 +480,11 @@ public abstract class WebPollerDataLoaderService
   {
     if ( isChannelTypeValid( address ) )
     {
-      getListener().onUnsubscribeStarted( this, address );
+      onUnsubscribeStarted( address );
       final Consumer<Throwable> onError =
-        throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, address, throwable ) );
-      final Runnable onSuccess =
-        () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, address ) );
-      final int channelId = address.getChannelType().ordinal();
-      final Serializable subChannelId = (Serializable) address.getId();
-      performUnsubscribe( channelId, subChannelId, onSuccess, onError );
+        error -> failAction.accept( () -> onUnsubscribeFailed( address, error ) );
+      final Runnable onSuccess = () -> completionAction.accept( () -> onUnsubscribeCompleted( address ) );
+      performUnsubscribe( address.getChannelType().ordinal(), address.getId(), onSuccess, onError );
     }
     else
     {
@@ -497,7 +493,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performUnsubscribe( final int channel,
-                                     @Nullable Serializable subChannelId,
+                                     @Nullable Integer subChannelId,
                                      @Nonnull final Runnable onSuccess,
                                      @Nonnull final Consumer<Throwable> onError )
   {
@@ -533,14 +529,14 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performBulkUnsubscribe( final int channel,
-                                         @Nonnull List<Serializable> subChannelIDs,
+                                         @Nonnull List<Integer> subChannelIds,
                                          @Nonnull final Runnable onSuccess,
                                          @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( session, request ) ->
       doUnsubscribe( session,
                      request,
-                     getChannelURL( channel, subChannelIDs ),
+                     getChannelURL( channel, subChannelIds ),
                      onSuccess,
                      onError ) );
   }
