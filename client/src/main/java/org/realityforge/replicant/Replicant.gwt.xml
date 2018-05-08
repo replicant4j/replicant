@@ -7,6 +7,5 @@
   <inherits name='com.google.gwt.json.JSON'/>
 
   <source path='client/gwt'/>
-  <source path='client/runtime/gwt'/>
   <source path='client/react4j'/>
 </module>
