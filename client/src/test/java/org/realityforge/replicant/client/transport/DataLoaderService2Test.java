@@ -20,12 +20,12 @@ public class DataLoaderService2Test
 
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
-    service.getReplicantClientSystem().updateStatus();
+    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
 
-    service.onDisconnect();
+    Arez.context().safeAction( service::onDisconnect );
 
-    assertEquals( service.getState(), DataLoaderService.State.DISCONNECTED );
+    Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.DISCONNECTED ) );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.DISCONNECTED );
   }
 
@@ -40,7 +40,7 @@ public class DataLoaderService2Test
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
 
-    service.onDisconnect();
+    Arez.context().safeAction( service::onDisconnect );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DataLoaderDisconnectEvent.class,
@@ -55,14 +55,14 @@ public class DataLoaderService2Test
 
     Arez.context().safeAction( () -> service.setState( DataLoaderService.State.CONNECTING ) );
 
-    service.getReplicantClientSystem().updateStatus();
+    Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
 
     final Throwable error = new Throwable();
 
-    service.onInvalidDisconnect( error );
+    Arez.context().safeAction( () -> service.onInvalidDisconnect( error ) );
 
-    assertEquals( service.getState(), DataLoaderService.State.ERROR );
+    Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.ERROR ) );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.ERROR );
   }
 
@@ -79,7 +79,7 @@ public class DataLoaderService2Test
 
     final Throwable error = new Throwable();
 
-    service.onInvalidDisconnect( error );
+    Arez.context().safeAction( () -> service.onInvalidDisconnect( error ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DataLoaderInvalidDisconnectEvent.class, e -> {

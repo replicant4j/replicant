@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.annotations.ArezComponent;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -14,7 +15,8 @@ import replicant.Entity;
 import replicant.Subscription;
 import static org.mockito.Mockito.*;
 
-final class TestDataLoadService
+@ArezComponent
+abstract class TestDataLoadService
   extends AbstractDataLoaderService
 {
   private final CacheService _cacheService;
@@ -26,13 +28,20 @@ final class TestDataLoadService
   private final ChangeMapper _changeMapper;
   private int _validateRepositoryCallCount;
 
+  @Nonnull
   static TestDataLoadService create()
   {
-    return new TestDataLoadService( new ReplicantClientSystem(), mock( CacheService.class ) );
+    return create( new ReplicantClientSystem() );
   }
 
-  private TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,
-                               @Nonnull final CacheService cacheService )
+  @Nonnull
+  static TestDataLoadService create( @Nonnull final ReplicantClientSystem replicantClientSystem )
+  {
+    return new Arez_TestDataLoadService( replicantClientSystem, mock( CacheService.class ) );
+  }
+
+  TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+                       @Nonnull final CacheService cacheService )
   {
     super( replicantClientSystem, cacheService );
     _sessionContext = new SessionContext( "X" );
