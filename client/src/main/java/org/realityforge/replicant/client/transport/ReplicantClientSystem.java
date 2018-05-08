@@ -32,10 +32,6 @@ public class ReplicantClientSystem
 
   private final ArrayList<DataLoaderEntry> _dataLoaders = new ArrayList<>();
   private State _state = State.DISCONNECTED;
-  /**
-   * If true then the desired state is CONNECTED while if false then the desired state is DISCONNECTED.
-   */
-  private boolean _active;
 
   final void registerDataSource( @Nonnull final DataLoaderService service )
   {
@@ -71,10 +67,11 @@ public class ReplicantClientSystem
    * Returns true if the system is expected to be active and connected to all data sources.
    * This is a desired state rather than an actual state that is represented by {@link #getState()}
    */
-  public boolean isActive()
-  {
-    return _active;
-  }
+  @Observable
+  public abstract boolean isActive();
+
+  //TODO: This should be package access
+  protected abstract void setActive( boolean active );
 
   /**
    * Return the actual state of the system.
@@ -93,6 +90,7 @@ public class ReplicantClientSystem
   /**
    * Mark the client system as active and start to converge to being CONNECTED.
    */
+  @Action
   public void activate()
   {
     setActive( true );
@@ -101,6 +99,7 @@ public class ReplicantClientSystem
   /**
    * Mark the client system as inactive and start to converge to being DISCONNECTED.
    */
+  @Action
   public void deactivate()
   {
     setActive( false );
