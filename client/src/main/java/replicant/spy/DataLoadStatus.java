@@ -102,7 +102,7 @@ public final class DataLoadStatus
   @Override
   public String toString()
   {
-    if ( Arez.areNamesEnabled() )
+    if ( Replicant.areNamesEnabled() )
     {
       return "[" +
              getSystemKey() + ": Message " + getSequence() + " involved " +
