@@ -1050,7 +1050,6 @@ public abstract class AbstractDataLoaderService
   @Override
   public void connect()
   {
-    //TODO: Add spy event here
     if ( null == getSession() && State.CONNECTING != getState() )
     {
       performConnect();
@@ -1076,7 +1075,6 @@ public abstract class AbstractDataLoaderService
   @Override
   public void disconnect()
   {
-    //TODO: Add Spy Event here
     final ClientSession session = getSession();
     if ( null != session && State.DISCONNECTING != getState() )
     {
