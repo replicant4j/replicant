@@ -124,7 +124,7 @@ public abstract class AbstractDataLoaderService2
   /**
    * Called when a data load has resulted in a failure.
    */
-  protected final void onDataLoadFailure( @Nonnull final Throwable error )
+  protected final void onMessageProcessFailure( @Nonnull final Throwable error )
   {
     _replicantClientSystem.disconnectIfPossible( this, error );
     //TODO: Add spy event

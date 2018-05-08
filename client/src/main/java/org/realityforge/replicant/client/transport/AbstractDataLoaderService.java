@@ -205,7 +205,7 @@ public abstract class AbstractDataLoaderService
     }
     catch ( final Exception e )
     {
-      onDataLoadFailure( e );
+      onMessageProcessFailure( e );
       _incrementalDataLoadInProgress = false;
       return false;
     }
