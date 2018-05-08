@@ -45,7 +45,7 @@ public class ReplicantClientSystem
     {
       invariant( () -> _dataLoaders.stream()
                    .noneMatch( e -> e.getService().getSystemType() == service.getSystemType() ),
-                 () -> "Replicant-0005: Invoked registerDataSource for system type " + service.getSystemType() +
+                 () -> "Replicant-0015: Invoked registerDataSource for system type " + service.getSystemType() +
                        " but a DataLoaderService for specified system type exists." );
     }
     _dataLoaders.add( new DataLoaderEntry( service, true ) );
