@@ -2,16 +2,17 @@ package org.realityforge.replicant.client.runtime;
 
 import arez.annotations.Action;
 import arez.annotations.Observable;
-import arez.component.RepositoryUtil;
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.DataLoaderService;
+import replicant.Replicant;
+import static org.realityforge.braincheck.Guards.*;
 
-public abstract class ReplicantClientSystem
+public class ReplicantClientSystem
 {
   public enum State
   {
@@ -31,16 +32,43 @@ public abstract class ReplicantClientSystem
 
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystem.class.getName() );
 
-  private DataLoaderEntry[] _dataLoaders;
+  private final ArrayList<DataLoaderEntry> _dataLoaders = new ArrayList<>();
   private State _state = State.DISCONNECTED;
   /**
    * If true then the desired state is CONNECTED while if false then the desired state is DISCONNECTED.
    */
   private boolean _active;
 
-  public ReplicantClientSystem( final DataLoaderEntry[] dataLoaders )
+  //TODO: This should be package access
+  public void registerDataSource( @Nonnull final DataLoaderService service )
   {
-    _dataLoaders = Objects.requireNonNull( dataLoaders );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> _dataLoaders.stream()
+                   .noneMatch( e -> e.getService().getSystemType() == service.getSystemType() ),
+                 () -> "Replicant-0005: Invoked registerDataSource for system type " + service.getSystemType() +
+                       " but a DataLoaderService for specified system type exists." );
+    }
+    _dataLoaders.add( new DataLoaderEntry( service, true ) );
+  }
+
+  //TODO: This should be package access
+  public void deregisterDataSource( @Nonnull final DataLoaderService service )
+  {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> _dataLoaders.stream()
+                   .anyMatch( e -> e.getService().getSystemType() == service.getSystemType() ),
+                 () -> "Replicant-0006: Invoked deregisterDataSource for system type " + service.getSystemType() +
+                       " but no DataLoaderService for specified system type exists." );
+    }
+    _dataLoaders.removeIf( e -> e.getService().getSystemType() == service.getSystemType() );
+  }
+
+  //TODO: This should be package access
+  public void setDataSourceRequired( @Nonnull final Class<?> systemType, final boolean required )
+  {
+    getDataLoaderEntryBySystemType( systemType ).setRequired( required );
   }
 
   /**
@@ -92,27 +120,39 @@ public abstract class ReplicantClientSystem
     reflectActiveState();
   }
 
-  @Nonnull
-  public List<DataLoaderEntry> getDataLoaders()
-  {
-    return RepositoryUtil.toResults( Arrays.asList( _dataLoaders ) );
-  }
-
   /**
-   * Retrieve the dataloader service associated with the channelType.
+   * Retrieve the dataloader service associated with the systemType.
    */
   @Nonnull
-  public DataLoaderService getDataLoaderService( @Nonnull final Enum channelType )
-    throws IllegalArgumentException
+  public DataLoaderService getDataLoaderService( @Nonnull final Class<?> systemType )
+  {
+    return getDataLoaderEntryBySystemType( systemType ).getService();
+  }
+
+  @Nonnull
+  DataLoaderEntry getDataLoaderEntryBySystemType( @Nonnull final Class<?> systemType )
+  {
+    final DataLoaderEntry entry = findDataLoaderEntryBySystemType( systemType );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> null != entry,
+                 () -> "Replicant-0007: Unable to locate DataLoaderService by systemType " + systemType );
+    }
+    assert null != entry;
+    return entry;
+  }
+
+  @Nullable
+  private DataLoaderEntry findDataLoaderEntryBySystemType( @Nonnull final Class<?> systemType )
   {
     for ( final DataLoaderEntry dataLoader : _dataLoaders )
     {
-      if ( dataLoader.getService().getSystemType().equals( channelType.getClass() ) )
+      if ( dataLoader.getService().getSystemType().equals( systemType ) )
       {
-        return dataLoader.getService();
+        return dataLoader;
       }
     }
-    throw new IllegalArgumentException();
+    return null;
   }
 
   private void setActive( final boolean active )

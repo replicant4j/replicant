@@ -75,7 +75,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -104,7 +104,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.DISCONNECTED );
@@ -123,7 +123,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -145,7 +145,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -173,7 +173,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
@@ -182,7 +182,7 @@ public class ConvergerTest
     final Subscription subscription = Replicant.context().createSubscription( address, null, true );
     c.removeSubscriptionIfOrphan( expected, subscription );
 
-    verify( clientSystem, never() ).getDataLoaderService( TestSystemA.A );
+    verify( clientSystem, never() ).getDataLoaderService( TestSystemA.class );
   }
 
   @Test
@@ -199,7 +199,7 @@ public class ConvergerTest
 
     c.removeSubscriptionIfOrphan( expected, subscription );
 
-    verify( clientSystem, never() ).getDataLoaderService( TestSystemA.A );
+    verify( clientSystem, never() ).getDataLoaderService( TestSystemA.class );
   }
 
   @Test
@@ -217,7 +217,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.A ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -243,7 +243,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -273,7 +273,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -303,7 +303,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -332,7 +332,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -361,7 +361,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -395,7 +395,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -476,7 +476,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -506,7 +506,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -563,7 +563,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getChannelType() ) ).
+    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );

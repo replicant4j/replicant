@@ -70,6 +70,12 @@ public abstract class AbstractDataLoaderService
   {
     _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
     _cacheService = Objects.requireNonNull( cacheService );
+    _replicantClientSystem.registerDataSource( this );
+  }
+
+  void preDispose()
+  {
+    _replicantClientSystem.deregisterDataSource( this );
   }
 
   @Override

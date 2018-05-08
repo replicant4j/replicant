@@ -1,10 +1,13 @@
 package org.realityforge.replicant.client.runtime;
 
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import static org.testng.Assert.*;
 
 public class ReplicantClientSystemTest
+  extends AbstractReplicantTest
 {
   private enum TestSystemA
   {
@@ -18,7 +21,6 @@ public class ReplicantClientSystemTest
 
   private enum TestSystemC
   {
-    C
   }
 
   @Test
@@ -27,13 +29,14 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service1 = newServiceA();
     final TestDataLoaderService service2 = newServiceB();
 
-    final ReplicantClientSystem system =
-      new TestReplicantClientSystem( new DataLoaderEntry[]{ requiredEntry( service1 ), requiredEntry( service2 ) } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    system.registerDataSource( service2 );
 
-    assertEquals( system.getDataLoaderService( TestSystemA.A ), service1 );
-    assertEquals( system.getDataLoaderService( TestSystemB.B ), service2 );
+    assertEquals( system.getDataLoaderService( service1.getSystemType() ), service1 );
+    assertEquals( system.getDataLoaderService( service2.getSystemType() ), service2 );
 
-    assertThrows( IllegalArgumentException.class, () -> system.getDataLoaderService( TestSystemC.C ) );
+    assertThrows( IllegalStateException.class, () -> system.getDataLoaderService( TestSystemC.class ) );
   }
 
   @Test
@@ -41,9 +44,10 @@ public class ReplicantClientSystemTest
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.DISCONNECTED );
-    final DataLoaderEntry entry1 = requiredEntry( service1 );
 
-    final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1 } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -94,13 +98,15 @@ public class ReplicantClientSystemTest
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.DISCONNECTED );
-    final DataLoaderEntry entry1 = requiredEntry( service1 );
 
     final TestDataLoaderService service3 = newServiceC();
     service3.setState( DataLoaderService.State.DISCONNECTED );
-    final DataLoaderEntry entry3 = requiredEntry( service3 );
 
-    final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1, entry3 } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
+    system.registerDataSource( service3 );
+    final DataLoaderEntry entry3 = system.getDataLoaderEntryBySystemType( service3.getSystemType() );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -175,9 +181,10 @@ public class ReplicantClientSystemTest
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.CONNECTED );
-    final DataLoaderEntry entry1 = requiredEntry( service1 );
 
-    final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1 } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -236,13 +243,16 @@ public class ReplicantClientSystemTest
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( DataLoaderService.State.CONNECTED );
-    final DataLoaderEntry entry1 = requiredEntry( service1 );
 
     final TestDataLoaderService service3 = newServiceC();
     service3.setState( DataLoaderService.State.CONNECTED );
-    final DataLoaderEntry entry3 = optionalEntry( service3 );
 
-    final ReplicantClientSystem system = new TestReplicantClientSystem( new DataLoaderEntry[]{ entry1, entry3 } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
+    system.registerDataSource( service3 );
+    final DataLoaderEntry entry3 = system.getDataLoaderEntryBySystemType( service3.getSystemType() );
+    entry3.setRequired( false );
 
     entry1.getRateLimiter().fillBucket();
     service1.reset();
@@ -362,18 +372,23 @@ public class ReplicantClientSystemTest
                        DataLoaderService.State.DISCONNECTING );
   }
 
-  private void assertUpdateState( final ReplicantClientSystem.State systemState,
-                                  final DataLoaderService.State service1State )
+  private void assertUpdateState( @Nonnull final ReplicantClientSystem.State expectedSystemState,
+                                  @Nonnull final DataLoaderService.State service1State )
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( service1State );
 
-    verifyUpdateState( systemState, new DataLoaderEntry[]{ requiredEntry( service1 ) } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+
+    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
+    system.updateStatus();
+    assertEquals( system.getState(), expectedSystemState );
   }
 
-  private void assertUpdateState( final ReplicantClientSystem.State systemState,
-                                  final DataLoaderService.State service1State,
-                                  final DataLoaderService.State service2State )
+  private void assertUpdateState( @Nonnull final ReplicantClientSystem.State expectedSystemState,
+                                  @Nonnull final DataLoaderService.State service1State,
+                                  @Nonnull final DataLoaderService.State service2State )
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( service1State );
@@ -381,13 +396,19 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service2 = newServiceB();
     service2.setState( service2State );
 
-    verifyUpdateState( systemState, new DataLoaderEntry[]{ requiredEntry( service1 ), requiredEntry( service2 ) } );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    system.registerDataSource( service2 );
+
+    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
+    system.updateStatus();
+    assertEquals( system.getState(), expectedSystemState );
   }
 
-  private void assertUpdateState( final ReplicantClientSystem.State systemState,
-                                  final DataLoaderService.State service1State,
-                                  final DataLoaderService.State service2State,
-                                  final DataLoaderService.State service3State )
+  private void assertUpdateState( @Nonnull final ReplicantClientSystem.State expectedSystemState,
+                                  @Nonnull final DataLoaderService.State service1State,
+                                  @Nonnull final DataLoaderService.State service2State,
+                                  @Nonnull final DataLoaderService.State service3State )
   {
     final TestDataLoaderService service1 = newServiceA();
     service1.setState( service1State );
@@ -398,16 +419,12 @@ public class ReplicantClientSystemTest
     final TestDataLoaderService service3 = newServiceC();
     service3.setState( service3State );
 
-    verifyUpdateState( systemState,
-                       new DataLoaderEntry[]{ requiredEntry( service1 ),
-                                              requiredEntry( service2 ),
-                                              optionalEntry( service3 ) } );
-  }
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    system.registerDataSource( service1 );
+    system.registerDataSource( service2 );
+    system.registerDataSource( service3 );
+    system.getDataLoaderEntryBySystemType( service3.getSystemType() ).setRequired( false );
 
-  private void verifyUpdateState( final ReplicantClientSystem.State expectedSystemState,
-                                  final DataLoaderEntry[] dataLoaders )
-  {
-    final ReplicantClientSystem system = new TestReplicantClientSystem( dataLoaders );
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     system.updateStatus();
     assertEquals( system.getState(), expectedSystemState );
@@ -416,29 +433,19 @@ public class ReplicantClientSystemTest
   @Test
   public void convergingDisconnectedSystemDoesNothing()
   {
-    final DataLoaderEntry[] dataLoaders = { requiredEntry( newServiceA() ) };
-
-    final ReplicantClientSystem system = new TestReplicantClientSystem( dataLoaders );
+    final ReplicantClientSystem system = new ReplicantClientSystem();
+    final TestDataLoaderService service1 = newServiceA();
+    system.registerDataSource( service1 );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     assertEquals( system.isActive(), false );
-    assertEquals( newServiceA().getState(), DataLoaderService.State.DISCONNECTED );
+    assertEquals( service1.getState(), DataLoaderService.State.DISCONNECTED );
 
     system.converge();
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
     assertEquals( system.isActive(), false );
-    assertEquals( newServiceA().getState(), DataLoaderService.State.DISCONNECTED );
-  }
-
-  private DataLoaderEntry requiredEntry( final TestDataLoaderService service )
-  {
-    return new DataLoaderEntry( service, true );
-  }
-
-  private DataLoaderEntry optionalEntry( final TestDataLoaderService service )
-  {
-    return new DataLoaderEntry( service, false );
+    assertEquals( service1.getState(), DataLoaderService.State.DISCONNECTED );
   }
 
   private TestDataLoaderService newServiceA()
