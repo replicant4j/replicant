@@ -5,6 +5,7 @@ import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,6 +74,7 @@ public abstract class AbstractDataLoaderService
     _replicantClientSystem.registerDataSource( this );
   }
 
+  @PreDispose
   void preDispose()
   {
     _replicantClientSystem.deregisterDataSource( this );
