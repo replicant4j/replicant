@@ -24,9 +24,6 @@
   <define-property name='replicant.validateRepositoryOnLoad' values='true,false'/>
   <set-property name='replicant.validateRepositoryOnLoad' value='false'/>
 
-  <define-property name='replicant.subscriptionsDebugOutputEnabled' values='true,false'/>
-  <set-property name='replicant.subscriptionsDebugOutputEnabled' value='false'/>
-
   <define-property name='replicant.requestsDebugOutputEnabled' values='true,false'/>
   <set-property name='replicant.requestsDebugOutputEnabled' value='false'/>
 

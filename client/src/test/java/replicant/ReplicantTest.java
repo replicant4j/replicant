@@ -63,14 +63,6 @@ public class ReplicantTest
   }
 
   @Test
-  public void setting_canSubscriptionsDebugOutputBeEnabled()
-  {
-    assertTrue( Replicant.canSubscriptionsDebugOutputBeEnabled() );
-    ReplicantTestUtil.noSubscriptionsDebugOutputEnabled();
-    assertFalse( Replicant.canSubscriptionsDebugOutputBeEnabled() );
-  }
-
-  @Test
   public void context_when_zones_disabled()
   {
     ReplicantTestUtil.disableZones();

@@ -25,7 +25,6 @@ import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.FilterUtil;
 import replicant.Replicant;
-import replicant.ReplicantContext;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
@@ -833,12 +832,6 @@ public abstract class AbstractDataLoaderService
       {
         session.setLastRxSequence( set.getSequence() );
       }
-      if ( subscriptionsDebugOutputEnabled() )
-      {
-        final ReplicantContext context = Replicant.context();
-        context.getTypeSubscriptions().forEach( this::outputSubscription );
-        context.getInstanceSubscriptions().forEach( this::outputSubscription );
-      }
       if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
         // This should never need a transaction ... unless the repository is invalid and there is unlinked data.
@@ -951,8 +944,6 @@ public abstract class AbstractDataLoaderService
   }
 
   protected abstract boolean requestDebugOutputEnabled();
-
-  protected abstract boolean subscriptionsDebugOutputEnabled();
 
   @Nonnull
   private ChannelAddress toChannelDescriptor( @Nonnull final ChannelAction action )
@@ -1109,11 +1100,6 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-  }
-
-  private void outputSubscription( @Nonnull final Subscription subscription )
-  {
-    LOG.info( subscription.getChannel().toString() );
   }
 
   protected void outputRequestDebug()

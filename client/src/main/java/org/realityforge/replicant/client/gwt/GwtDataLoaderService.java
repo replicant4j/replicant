@@ -13,7 +13,6 @@ public abstract class GwtDataLoaderService
   extends WebPollerDataLoaderService
 {
   private static final String REQUEST_DEBUG = "imitRequestDebug";
-  private static final String SUBSCRIPTION_DEBUG = "imitSubscriptionDebug";
 
   private final SessionContext _sessionContext;
 
@@ -23,15 +22,6 @@ public abstract class GwtDataLoaderService
   {
     super( replicantClientSystem, cacheService );
     _sessionContext = sessionContext;
-    if ( Replicant.canSubscriptionsDebugOutputBeEnabled() )
-    {
-      final String message =
-        getKey() + ".SubscriptionDebugOutput module is enabled. Run the javascript " +
-        "'window." + SUBSCRIPTION_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
-        "the debug output to just this data loader run the javascript '" +
-        toSessionSpecificJavascript( SUBSCRIPTION_DEBUG ) + "'";
-      LOG.info( message );
-    }
 
     if ( Replicant.canRequestsDebugOutputBeEnabled() )
     {
@@ -67,12 +57,6 @@ public abstract class GwtDataLoaderService
   protected final boolean requestDebugOutputEnabled()
   {
     return Replicant.canRequestsDebugOutputBeEnabled() && isEnabled( getKey(), REQUEST_DEBUG );
-  }
-
-  @Override
-  protected final boolean subscriptionsDebugOutputEnabled()
-  {
-    return Replicant.canSubscriptionsDebugOutputBeEnabled() && isEnabled( getKey(), SUBSCRIPTION_DEBUG );
   }
 
   @Nonnull

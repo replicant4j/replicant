@@ -39,7 +39,6 @@ public final class ReplicantTestUtil
       noRecordRequestKey();
       noValidateRepositoryOnLoad();
       noRequestsDebugOutputEnabled();
-      noSubscriptionsDebugOutputEnabled();
       disableSpies();
       noCheckInvariants();
       noCheckApiInvariants();
@@ -50,7 +49,6 @@ public final class ReplicantTestUtil
       recordRequestKey();
       validateRepositoryOnLoad();
       requestsDebugOutputEnabled();
-      subscriptionsDebugOutputEnabled();
       enableSpies();
       checkInvariants();
       checkApiInvariants();
@@ -163,32 +161,6 @@ public final class ReplicantTestUtil
   private static void setRequestsDebugOutputEnabled( final boolean value )
   {
     setConstant( "REQUESTS_DEBUG_OUTPUT_ENABLED", value );
-  }
-
-  /**
-   * Set `replicant.subscriptionsDebugOutputEnabled` setting to true.
-   */
-  public static void subscriptionsDebugOutputEnabled()
-  {
-    setSubscriptionsDebugOutputEnabled( true );
-  }
-
-  /**
-   * Set `replicant.subscriptionsDebugOutputEnabled` setting to false.
-   */
-  public static void noSubscriptionsDebugOutputEnabled()
-  {
-    setSubscriptionsDebugOutputEnabled( false );
-  }
-
-  /**
-   * Configure the `replicant.subscriptionsDebugOutputEnabled` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setSubscriptionsDebugOutputEnabled( final boolean value )
-  {
-    setConstant( "SUBSCRIPTION_DEBUG_OUTPUT_ENABLED", value );
   }
 
   /**

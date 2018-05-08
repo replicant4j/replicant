@@ -164,12 +164,6 @@ abstract class TestDataLoadService
   }
 
   @Override
-  protected boolean subscriptionsDebugOutputEnabled()
-  {
-    return false;
-  }
-
-  @Override
   protected boolean requestDebugOutputEnabled()
   {
     return false;

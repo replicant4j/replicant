@@ -24,9 +24,6 @@ final class ReplicantConfig
                                        PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean REQUESTS_DEBUG_OUTPUT_ENABLED =
     "true".equals( System.getProperty( "replicant.requestsDebugOutputEnabled", PRODUCTION_MODE ? "false" : "true" ) );
-  private static boolean SUBSCRIPTION_DEBUG_OUTPUT_ENABLED =
-    "true".equals( System.getProperty( "replicant.subscriptionsDebugOutputEnabled",
-                                       PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_SPIES =
     "true".equals( System.getProperty( "replicant.enable_spies", PRODUCTION_MODE ? "false" : "true" ) );
   /**
@@ -82,11 +79,6 @@ final class ReplicantConfig
   static boolean canRequestsDebugOutputBeEnabled()
   {
     return REQUESTS_DEBUG_OUTPUT_ENABLED;
-  }
-
-  static boolean canSubscriptionsDebugOutputBeEnabled()
-  {
-    return SUBSCRIPTION_DEBUG_OUTPUT_ENABLED;
   }
 
   static String loggerType()

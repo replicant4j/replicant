@@ -97,16 +97,6 @@ public final class Replicant
   }
 
   /**
-   * Return true if subscription debugging can be enabled at runtime, false otherwise.
-   *
-   * @return true if subscription debugging can be enabled at runtime, false otherwise.
-   */
-  public static boolean canSubscriptionsDebugOutputBeEnabled()
-  {
-    return ReplicantConfig.canSubscriptionsDebugOutputBeEnabled();
-  }
-
-  /**
    * Return the ReplicantContext from the provider.
    *
    * @return the ReplicantContext.
