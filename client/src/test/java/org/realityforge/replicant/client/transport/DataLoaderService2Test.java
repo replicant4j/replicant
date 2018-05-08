@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
 import replicant.TestSpyEventHandler;
-import replicant.spy.DataLoaderConnectEvent;
+import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
 import replicant.spy.DataLoaderInvalidConnectEvent;
 import replicant.spy.DataLoaderInvalidDisconnectEvent;
@@ -135,7 +135,7 @@ public class DataLoaderService2Test
     Arez.context().safeAction( () -> service.getReplicantClientSystem().updateStatus() );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTING );
 
-    Arez.context().safeAction( service::onConnect );
+    Arez.context().safeAction( service::onConnected );
 
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.CONNECTED ) );
     assertEquals( service.getReplicantClientSystem().getState(), ReplicantClientSystem.State.CONNECTED );
@@ -152,10 +152,10 @@ public class DataLoaderService2Test
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
 
-    Arez.context().safeAction( service::onConnect );
+    Arez.context().safeAction( service::onConnected );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DataLoaderConnectEvent.class,
+    handler.assertNextEvent( DataLoaderConnectedEvent.class,
                              e -> assertEquals( e.getSystemType(), service.getSystemType() ) );
   }
 

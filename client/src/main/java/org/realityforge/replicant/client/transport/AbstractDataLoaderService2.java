@@ -12,7 +12,7 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.spy.DataLoadStatus;
-import replicant.spy.DataLoaderConnectEvent;
+import replicant.spy.DataLoaderConnectedEvent;
 import replicant.spy.DataLoaderDisconnectEvent;
 import replicant.spy.DataLoaderInvalidConnectEvent;
 import replicant.spy.DataLoaderInvalidDisconnectEvent;
@@ -88,13 +88,13 @@ public abstract class AbstractDataLoaderService2
   /**
    * Invoked to fire an event when disconnect has completed.
    */
-  protected final void onConnect()
+  protected final void onConnected()
   {
     setState( State.CONNECTED );
     _replicantClientSystem.updateStatus();
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectEvent( getSystemType() ) );
+      Replicant.context().getSpy().reportSpyEvent( new DataLoaderConnectedEvent( getSystemType() ) );
     }
   }
 

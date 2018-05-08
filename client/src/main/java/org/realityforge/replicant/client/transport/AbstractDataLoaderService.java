@@ -1025,7 +1025,7 @@ public abstract class AbstractDataLoaderService
     State state = State.ERROR;
     try
     {
-      doConnect( this::onConnect );
+      doConnect( this::onConnected );
       state = State.CONNECTING;
     }
     finally
