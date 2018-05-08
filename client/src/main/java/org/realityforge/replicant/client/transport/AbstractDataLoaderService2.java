@@ -133,7 +133,7 @@ public abstract class AbstractDataLoaderService2
   /**
    * Attempted to retrieve data from backend and failed.
    */
-  protected final void onPollFailure( @Nonnull final Throwable error )
+  protected final void onMessageReadFailure( @Nonnull final Throwable error )
   {
     _replicantClientSystem.disconnectIfPossible( this, error );
     //TODO: Add spy event

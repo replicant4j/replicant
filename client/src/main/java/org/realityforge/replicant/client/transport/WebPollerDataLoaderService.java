@@ -570,7 +570,7 @@ public abstract class WebPollerDataLoaderService
     @Override
     public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable error )
     {
-      onPollFailure( error );
+      onMessageReadFailure( error );
     }
 
     @Override
