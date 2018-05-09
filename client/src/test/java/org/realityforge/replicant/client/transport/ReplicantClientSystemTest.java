@@ -1,5 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.Arez;
+import arez.annotations.ArezComponent;
+import arez.annotations.Observable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.testng.annotations.Test;
@@ -27,12 +30,12 @@ public class ReplicantClientSystemTest
   @Test
   public void getDataLoaderService()
   {
-    final TestDataLoaderService service1 = newServiceA();
-    final TestDataLoaderService service2 = newServiceB();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
-    system.registerDataSource( service2 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
+    Arez.context().safeAction( () -> system.registerDataSource( service2 ) );
 
     assertEquals( system.getDataLoaderService( service1.getSystemType() ), service1 );
     assertEquals( system.getDataLoaderService( service2.getSystemType() ), service2 );
@@ -43,13 +46,14 @@ public class ReplicantClientSystemTest
   @Test
   public void activate()
   {
-    final TestDataLoaderService service1 = newServiceA();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     service1.setState( DataLoaderService.State.DISCONNECTED );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
 
+    system.deactivate();
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
@@ -57,13 +61,15 @@ public class ReplicantClientSystemTest
 
     // set service state to in transition so connect is not called
 
-    service1.setState( DataLoaderService.State.CONNECTING );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
     assertEquals( service1.isConnectCalled(), false );
 
-    service1.setState( DataLoaderService.State.DISCONNECTING );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
@@ -71,7 +77,8 @@ public class ReplicantClientSystemTest
 
     // set service state to connected so no action required
 
-    service1.setState( DataLoaderService.State.CONNECTED );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
@@ -79,7 +86,8 @@ public class ReplicantClientSystemTest
 
     // set service state to disconnected but rate limit it
 
-    service1.setState( DataLoaderService.State.DISCONNECTED );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
     system.activate();
@@ -87,7 +95,8 @@ public class ReplicantClientSystemTest
 
     // set service state to disconnected but rate limit it
 
-    service1.setState( DataLoaderService.State.DISCONNECTED );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
@@ -97,16 +106,16 @@ public class ReplicantClientSystemTest
   @Test
   public void activateMultiple()
   {
-    final TestDataLoaderService service1 = newServiceA();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     service1.setState( DataLoaderService.State.DISCONNECTED );
 
-    final TestDataLoaderService service3 = newServiceC();
+    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
     service3.setState( DataLoaderService.State.DISCONNECTED );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
-    system.registerDataSource( service3 );
+    Arez.context().safeAction( () -> system.registerDataSource( service3 ) );
     final DataLoaderEntry entry3 = system.getDataLoaderEntryBySystemType( service3.getSystemType() );
 
     entry1.getRateLimiter().fillBucket();
@@ -120,20 +129,22 @@ public class ReplicantClientSystemTest
 
     // set service state to in transition so connect is not called
 
-    service1.setState( DataLoaderService.State.CONNECTING );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    service3.setState( DataLoaderService.State.CONNECTING );
+    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.CONNECTING ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
     assertEquals( service1.isConnectCalled(), false );
     assertEquals( service3.isConnectCalled(), false );
 
-    service1.setState( DataLoaderService.State.DISCONNECTING );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    service3.setState( DataLoaderService.State.DISCONNECTING );
+    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTING ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
@@ -142,10 +153,11 @@ public class ReplicantClientSystemTest
 
     // set service state to connected so no action required
 
-    service1.setState( DataLoaderService.State.CONNECTED );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    service3.setState( DataLoaderService.State.CONNECTED );
+    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.CONNECTED ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
@@ -154,10 +166,11 @@ public class ReplicantClientSystemTest
 
     // set service state to disconnected but rate limit it
 
-    service1.setState( DataLoaderService.State.DISCONNECTED );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
-    service3.setState( DataLoaderService.State.DISCONNECTED );
+    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTED ) );
     entry3.getRateLimiter().setTokenCount( 0 );
     service3.reset();
     system.activate();
@@ -166,10 +179,11 @@ public class ReplicantClientSystemTest
 
     // set service state to disconnected but rate limit it
 
-    service1.setState( DataLoaderService.State.DISCONNECTED );
+    system.deactivate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    service3.setState( DataLoaderService.State.DISCONNECTED );
+    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTED ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
@@ -180,13 +194,14 @@ public class ReplicantClientSystemTest
   @Test
   public void deactivate()
   {
-    final TestDataLoaderService service1 = newServiceA();
-    service1.setState( DataLoaderService.State.CONNECTED );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
 
+    system.activate();
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
@@ -194,13 +209,15 @@ public class ReplicantClientSystemTest
 
     // set service state to in transition so connect is not called
 
-    service1.setState( DataLoaderService.State.CONNECTING );
+    system.activate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
     assertEquals( service1.isDisconnectCalled(), false );
 
-    service1.setState( DataLoaderService.State.DISCONNECTING );
+    system.activate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
@@ -208,7 +225,8 @@ public class ReplicantClientSystemTest
 
     // set service state to DISCONNECTED so no action required
 
-    service1.setState( DataLoaderService.State.DISCONNECTED );
+    system.activate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
@@ -216,7 +234,8 @@ public class ReplicantClientSystemTest
 
     // set service state to ERROR so no action required
 
-    service1.setState( DataLoaderService.State.ERROR );
+    system.activate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.ERROR ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
@@ -224,7 +243,8 @@ public class ReplicantClientSystemTest
 
     // set service state to connected but rate limit it
 
-    service1.setState( DataLoaderService.State.CONNECTED );
+    system.activate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
     system.deactivate();
@@ -232,7 +252,8 @@ public class ReplicantClientSystemTest
 
     // set service state to connected
 
-    service1.setState( DataLoaderService.State.CONNECTED );
+    system.activate();
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
@@ -242,19 +263,20 @@ public class ReplicantClientSystemTest
   @Test
   public void deactivateMultipleDataSources()
   {
-    final TestDataLoaderService service1 = newServiceA();
-    service1.setState( DataLoaderService.State.CONNECTED );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
 
-    final TestDataLoaderService service3 = newServiceC();
-    service3.setState( DataLoaderService.State.CONNECTED );
+    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
+    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.CONNECTED ) );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
     final DataLoaderEntry entry1 = system.getDataLoaderEntryBySystemType( service1.getSystemType() );
-    system.registerDataSource( service3 );
+    Arez.context().safeAction( () -> system.registerDataSource( service3 ) );
     final DataLoaderEntry entry3 = system.getDataLoaderEntryBySystemType( service3.getSystemType() );
     entry3.setRequired( false );
 
+    system.activate();
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     entry3.getRateLimiter().fillBucket();
@@ -262,7 +284,6 @@ public class ReplicantClientSystemTest
     system.deactivate();
     assertEquals( service1.isDisconnectCalled(), true );
     assertEquals( service3.isDisconnectCalled(), true );
-
   }
 
   @Test
@@ -376,30 +397,30 @@ public class ReplicantClientSystemTest
   private void assertUpdateState( @Nonnull final ReplicantClientSystem.State expectedSystemState,
                                   @Nonnull final DataLoaderService.State service1State )
   {
-    final TestDataLoaderService service1 = newServiceA();
-    service1.setState( service1State );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    Arez.context().safeAction( () -> service1.setState( service1State ) );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
 
-    assertEquals( system.getState(), expectedSystemState );
+    Arez.context().safeAction( () -> assertEquals( system.getState(), expectedSystemState ) );
   }
 
   private void assertUpdateState( @Nonnull final ReplicantClientSystem.State expectedSystemState,
                                   @Nonnull final DataLoaderService.State service1State,
                                   @Nonnull final DataLoaderService.State service2State )
   {
-    final TestDataLoaderService service1 = newServiceA();
-    service1.setState( service1State );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    Arez.context().safeAction( () -> service1.setState( service1State ) );
 
-    final TestDataLoaderService service2 = newServiceB();
-    service2.setState( service2State );
+    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
+    Arez.context().safeAction( () -> service2.setState( service2State ) );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
-    system.registerDataSource( service2 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
+    Arez.context().safeAction( () -> system.registerDataSource( service2 ) );
 
-    assertEquals( system.getState(), expectedSystemState );
+    Arez.context().safeAction( () -> assertEquals( system.getState(), expectedSystemState ) );
   }
 
   private void assertUpdateState( @Nonnull final ReplicantClientSystem.State expectedSystemState,
@@ -407,58 +428,49 @@ public class ReplicantClientSystemTest
                                   @Nonnull final DataLoaderService.State service2State,
                                   @Nonnull final DataLoaderService.State service3State )
   {
-    final TestDataLoaderService service1 = newServiceA();
-    service1.setState( service1State );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    Arez.context().safeAction( () -> service1.setState( service1State ) );
 
-    final TestDataLoaderService service2 = newServiceB();
-    service2.setState( service2State );
+    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
+    Arez.context().safeAction( () -> service2.setState( service2State ) );
 
-    final TestDataLoaderService service3 = newServiceC();
-    service3.setState( service3State );
+    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
+    Arez.context().safeAction( () -> service3.setState( service3State ) );
 
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    system.registerDataSource( service1 );
-    system.registerDataSource( service2 );
-    system.registerDataSource( service3 );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
+    Arez.context().safeAction( () -> system.registerDataSource( service2 ) );
+    Arez.context().safeAction( () -> system.registerDataSource( service3 ) );
     system.getDataLoaderEntryBySystemType( service3.getSystemType() ).setRequired( false );
 
-    assertEquals( system.getState(), expectedSystemState );
+    Arez.context().safeAction( () -> assertEquals( system.getState(), expectedSystemState ) );
   }
 
   @Test
   public void convergingDisconnectedSystemDoesNothing()
   {
     final ReplicantClientSystem system = ReplicantClientSystem.create();
-    final TestDataLoaderService service1 = newServiceA();
-    system.registerDataSource( service1 );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    Arez.context().safeAction( () -> system.registerDataSource( service1 ) );
 
-    assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    assertEquals( system.isActive(), false );
-    assertEquals( service1.getState(), DataLoaderService.State.DISCONNECTED );
+    Arez.context().safeAction( () -> assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> assertEquals( system.isActive(), false ) );
+    Arez.context().safeAction( () -> assertEquals( service1.getState(), DataLoaderService.State.DISCONNECTED ) );
   }
 
-  private TestDataLoaderService newServiceA()
-  {
-    return new TestDataLoaderService( TestSystemA.class );
-  }
-
-  private TestDataLoaderService newServiceB()
-  {
-    return new TestDataLoaderService( TestSystemB.class );
-  }
-
-  private TestDataLoaderService newServiceC()
-  {
-    return new TestDataLoaderService( TestSystemC.class );
-  }
-
-  static final class TestDataLoaderService
+  @ArezComponent
+  static abstract class TestDataLoaderService
     implements DataLoaderService
   {
     private final Class<? extends Enum> _systemType;
     private State _state;
     private boolean _connectCalled;
     private boolean _disconnectCalled;
+
+    static TestDataLoaderService create( @Nonnull final Class<? extends Enum> systemType )
+    {
+      return new ReplicantClientSystemTest_Arez_TestDataLoaderService( systemType );
+    }
 
     TestDataLoaderService( @Nonnull final Class<? extends Enum> systemType )
     {
@@ -473,6 +485,7 @@ public class ReplicantClientSystemTest
 
     @Nonnull
     @Override
+    @Observable
     public State getState()
     {
       return _state;
