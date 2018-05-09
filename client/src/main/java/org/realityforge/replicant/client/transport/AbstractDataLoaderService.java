@@ -565,6 +565,9 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<Runnable> completionAction,
                                                          @Nonnull Consumer<Runnable> failAction );
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
                                                 @Nonnull final ChannelAddress address,
@@ -581,6 +584,9 @@ public abstract class AbstractDataLoaderService
       );
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
                                                  @Nonnull final ChannelAddress address,
