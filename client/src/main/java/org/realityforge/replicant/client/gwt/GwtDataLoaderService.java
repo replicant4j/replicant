@@ -2,12 +2,12 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
-import replicant.ReplicantRuntime;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 import replicant.Replicant;
+import replicant.ReplicantRuntime;
 
 public abstract class GwtDataLoaderService
   extends WebPollerDataLoaderService
