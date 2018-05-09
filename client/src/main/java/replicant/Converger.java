@@ -64,7 +64,7 @@ public abstract class Converger
   {
     preConverge();
     removeOrphanSubscriptions();
-    if ( _replicantRuntime.getState() == RuntimeState.CONNECTED )
+    if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() )
     {
       convergeStep();
     }
