@@ -20,7 +20,17 @@ public interface DataLoaderService
     /// The service has started disconnecting but disconnection has not completed.
     DISCONNECTING,
     /// The service is in error state. This error may occur during connection, disconnection or in normal operation.
-    ERROR
+    ERROR;
+
+    /**
+     * Return true if state is one of <code>DISCONNECTING</code> or <code>CONNECTING</code>.
+     *
+     * @return true if state is one of <code>DISCONNECTING</code> or <code>CONNECTING</code>.
+     */
+    public static boolean isTransitionState( @Nonnull final State state )
+    {
+      return DISCONNECTING == state || CONNECTING == state;
+    }
   }
 
   /**
