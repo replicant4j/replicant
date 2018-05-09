@@ -79,7 +79,7 @@ public abstract class Converger
     }
   }
 
-  private void convergeComplete()
+  void convergeComplete()
   {
     final Runnable convergeCompleteAction = getConvergeCompleteAction();
     if ( null != convergeCompleteAction )

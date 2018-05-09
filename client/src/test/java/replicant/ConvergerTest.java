@@ -68,4 +68,34 @@ public class ConvergerTest
 
     assertEquals( callCount.get(), 2 );
   }
+
+  @Test
+  public void convergeCompleteAction()
+  {
+    final Converger c = Replicant.context().getConverger();
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    // should do nothing ...
+    Arez.context().safeAction( c::convergeComplete );
+
+    final AtomicInteger callCount = new AtomicInteger();
+
+    Arez.context().safeAction( () -> c.setConvergeCompleteAction( callCount::incrementAndGet ) );
+
+    Arez.context().safeAction( c::convergeComplete );
+
+    assertEquals( callCount.get(), 1 );
+
+    Arez.context().safeAction( c::convergeComplete );
+
+    assertEquals( callCount.get(), 2 );
+
+    Arez.context().safeAction( () -> c.setConvergeCompleteAction( null ) );
+
+    Arez.context().safeAction( c::convergeComplete );
+
+    assertEquals( callCount.get(), 2 );
+  }
 }
