@@ -1,8 +1,6 @@
 package replicant;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
-import javax.annotation.Nonnull;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockObjectFactory;
@@ -119,35 +117,6 @@ public class RateLimitedValueTest
   private Object getLastRegenTime( final RateLimitedValue value )
     throws Exception
   {
-    return getField( value, "_lastRegenTime" );
-  }
-
-  @Nonnull
-  private Field toField( final Class<?> type, final String fieldName )
-    throws NoSuchFieldException
-  {
-    Class<?> clazz = type;
-    while ( null != clazz && Object.class != clazz )
-    {
-      try
-      {
-        final Field field = clazz.getDeclaredField( fieldName );
-        field.setAccessible( true );
-        return field;
-      }
-      catch ( final Throwable t )
-      {
-        clazz = clazz.getSuperclass();
-      }
-    }
-    fail();
-    return null;
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private Object getField( @Nonnull final Object object, @Nonnull final String fieldName )
-    throws Exception
-  {
-    return toField( object.getClass(), fieldName ).get( object );
+    return getFieldValue( value, "_lastRegenTime" );
   }
 }

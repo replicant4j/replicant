@@ -4,6 +4,7 @@ import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Observer;
 import arez.ObserverError;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -84,5 +85,39 @@ public abstract class AbstractReplicantTest
   final ArrayList<String> getObserverErrors()
   {
     return _observerErrors;
+  }
+
+  @Nonnull
+  protected final Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
+  {
+    Class<?> clazz = type;
+    while ( null != clazz && Object.class != clazz )
+    {
+      try
+      {
+        final Field field = clazz.getDeclaredField( fieldName );
+        field.setAccessible( true );
+        return field;
+      }
+      catch ( final Throwable t )
+      {
+        clazz = clazz.getSuperclass();
+      }
+    }
+    fail();
+    return null;
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  protected final Object getFieldValue( @Nonnull final Object object, @Nonnull final String fieldName )
+  {
+    try
+    {
+      return toField( object.getClass(), fieldName ).get( object );
+    }
+    catch ( final Throwable t )
+    {
+      throw new AssertionError( t );
+    }
   }
 }
