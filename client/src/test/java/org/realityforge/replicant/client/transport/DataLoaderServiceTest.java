@@ -276,7 +276,6 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable() );
     }
-    assertTrue( service.isScheduleDataLoadCalled() );
 
     progressWorkTillDone( service, 9, 1 );
 

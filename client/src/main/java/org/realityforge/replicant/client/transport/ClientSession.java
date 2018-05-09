@@ -78,7 +78,6 @@ public final class ClientSession
     final DataLoadAction action = new DataLoadAction( Objects.requireNonNull( rawJsonData ), true );
     action.setRunnable( runnable );
     getOobActions().add( action );
-    _dataLoaderService.scheduleDataLoad();
   }
 
   LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()

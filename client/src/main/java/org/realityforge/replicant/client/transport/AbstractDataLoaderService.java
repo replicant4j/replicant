@@ -489,6 +489,7 @@ public abstract class AbstractDataLoaderService
             a.run();
           };
           ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
+          scheduleDataLoad();
         };
       }
       else
