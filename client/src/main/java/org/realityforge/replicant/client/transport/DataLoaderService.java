@@ -30,12 +30,6 @@ public interface DataLoaderService
   void disconnect();
 
   /**
-   * Return the class of channels that this loader processes.
-   */
-  @Nonnull
-  Class<?> getSystemType();
-
-  /**
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */

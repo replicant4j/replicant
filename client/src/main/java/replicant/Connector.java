@@ -118,7 +118,6 @@ public abstract class Connector
    * Return the class of channels that this loader processes.
    */
   @Nonnull
-  @Override
   public final Class<?> getSystemType()
   {
     return _systemType;
