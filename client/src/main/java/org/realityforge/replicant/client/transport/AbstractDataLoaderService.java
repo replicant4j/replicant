@@ -69,6 +69,7 @@ public abstract class AbstractDataLoaderService
   public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
   {
     ensureSession().requestSubscribe( address, filterParameter );
+    scheduleDataLoad();
   }
 
   @Override
@@ -76,12 +77,14 @@ public abstract class AbstractDataLoaderService
                                                @Nullable final Object filterParameter )
   {
     ensureSession().requestSubscriptionUpdate( address, filterParameter );
+    scheduleDataLoad();
   }
 
   @Override
   public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     ensureSession().requestUnsubscribe( address );
+    scheduleDataLoad();
   }
 
   /**

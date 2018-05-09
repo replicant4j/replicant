@@ -85,7 +85,6 @@ public final class ClientSession
                                  @Nullable final Object filterParameter )
   {
     _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( descriptor, action, filterParameter ) );
-    _dataLoaderService.scheduleDataLoad();
   }
 
   void enqueueDataLoad( @Nonnull final String rawJsonData )
