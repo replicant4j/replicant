@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import arez.Arez;
 import arez.annotations.ArezComponent;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -36,7 +37,8 @@ abstract class TestDataLoadService
   @Nonnull
   static TestDataLoadService create( @Nonnull final ReplicantClientSystem replicantClientSystem )
   {
-    return new Arez_TestDataLoadService( replicantClientSystem, mock( CacheService.class ) );
+    return Arez.context()
+      .safeAction( () -> new Arez_TestDataLoadService( replicantClientSystem, mock( CacheService.class ) ) );
   }
 
   TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,

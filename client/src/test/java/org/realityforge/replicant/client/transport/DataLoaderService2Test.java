@@ -39,11 +39,11 @@ public class DataLoaderService2Test
   {
     final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
 
-    assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
+    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getDataLoaders().size(), 0 ) );
 
     final TestDataLoadService service = TestDataLoadService.create( replicantClientSystem );
 
-    assertEquals( replicantClientSystem.getDataLoaders().size(), 1 );
+    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getDataLoaders().size(), 1 ) );
 
     assertEquals( service.getReplicantClientSystem(), replicantClientSystem );
     Arez.context().safeAction( () -> assertEquals( service.getState(), DataLoaderService.State.DISCONNECTED ) );
@@ -55,15 +55,15 @@ public class DataLoaderService2Test
   {
     final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
 
-    assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
+    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getDataLoaders().size(), 0 ) );
 
     final TestDataLoadService service = TestDataLoadService.create( replicantClientSystem );
 
-    assertEquals( replicantClientSystem.getDataLoaders().size(), 1 );
+    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getDataLoaders().size(), 1 ) );
 
     Disposable.dispose( service );
 
-    assertEquals( replicantClientSystem.getDataLoaders().size(), 0 );
+    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getDataLoaders().size(), 0 ) );
   }
 
   @Test

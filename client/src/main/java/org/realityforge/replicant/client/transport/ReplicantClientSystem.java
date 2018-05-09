@@ -5,13 +5,15 @@ import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
 import arez.annotations.Computed;
 import arez.annotations.Observable;
+import arez.annotations.ObservableRef;
+import arez.component.RepositoryUtil;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import org.realityforge.anodoc.TestOnly;
 import replicant.Replicant;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -51,7 +53,9 @@ public abstract class ReplicantClientSystem
                  () -> "Replicant-0015: Invoked registerDataSource for system type " + service.getSystemType() +
                        " but a DataLoaderService for specified system type exists." );
     }
+    getDataLoadersObservable().preReportChanged();
     _dataLoaders.add( new DataLoaderEntry( service, true ) );
+    getDataLoadersObservable().reportChanged();
   }
 
   final void deregisterDataSource( @Nonnull final DataLoaderService service )
@@ -63,8 +67,19 @@ public abstract class ReplicantClientSystem
                  () -> "Replicant-0006: Invoked deregisterDataSource for system type " + service.getSystemType() +
                        " but no DataLoaderService for specified system type exists." );
     }
+    getDataLoadersObservable().preReportChanged();
     _dataLoaders.removeIf( e -> e.getService().getSystemType() == service.getSystemType() );
+    getDataLoadersObservable().reportChanged();
   }
+
+  @Observable( expectSetter = false )
+  List<DataLoaderEntry> getDataLoaders()
+  {
+    return RepositoryUtil.toResults( _dataLoaders );
+  }
+
+  @ObservableRef
+  protected abstract arez.Observable getDataLoadersObservable();
 
   void setDataSourceRequired( @Nonnull final Class<?> systemType, final boolean required )
   {
@@ -197,7 +212,7 @@ public abstract class ReplicantClientSystem
   void reflectActiveState()
   {
     final boolean active = isActive();
-    for ( final DataLoaderEntry dataLoader : _dataLoaders )
+    for ( final DataLoaderEntry dataLoader : getDataLoaders() )
     {
       final DataLoaderService.State state = dataLoader.getService().getState();
       if ( !isTransitionState( state ) )
@@ -235,11 +250,5 @@ public abstract class ReplicantClientSystem
     {
       service.disconnect();
     }
-  }
-
-  @TestOnly
-  final ArrayList<DataLoaderEntry> getDataLoaders()
-  {
-    return _dataLoaders;
   }
 }
