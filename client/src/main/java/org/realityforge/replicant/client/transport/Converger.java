@@ -17,6 +17,7 @@ import replicant.ChannelAddress;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.ReplicantClientSystem;
+import replicant.RuntimeState;
 import replicant.Subscription;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -62,7 +63,7 @@ public abstract class Converger
   {
     preConverge();
     removeOrphanSubscriptions();
-    if ( _replicantClientSystem.getState() == ReplicantClientSystem.State.CONNECTED )
+    if ( _replicantClientSystem.getState() == RuntimeState.CONNECTED )
     {
       convergeStep();
     }

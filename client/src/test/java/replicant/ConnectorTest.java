@@ -134,7 +134,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.CONNECTING ) );
+                                                   RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
     Arez.context().pauseScheduler();
@@ -143,7 +143,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTED ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.DISCONNECTED ) );
+                                                   RuntimeState.DISCONNECTED ) );
   }
 
   @Test
@@ -176,7 +176,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.CONNECTING ) );
+                                                   RuntimeState.CONNECTING ) );
 
     final Throwable error = new Throwable();
 
@@ -187,7 +187,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.ERROR ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.ERROR ) );
+                                                   RuntimeState.ERROR ) );
   }
 
   @Test
@@ -224,7 +224,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.CONNECTING ) );
+                                                   RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
     Arez.context().pauseScheduler();
@@ -233,7 +233,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.CONNECTED ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.CONNECTED ) );
+                                                   RuntimeState.CONNECTED ) );
   }
 
   @Test
@@ -263,7 +263,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.CONNECTING ) );
+                                                   RuntimeState.CONNECTING ) );
 
     final Throwable error = new Throwable();
 
@@ -274,7 +274,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.ERROR ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
-                                                   ReplicantClientSystem.State.ERROR ) );
+                                                   RuntimeState.ERROR ) );
   }
 
   @Test
