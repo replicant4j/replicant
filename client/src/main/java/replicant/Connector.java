@@ -18,6 +18,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
@@ -231,11 +232,11 @@ public abstract class Connector
   @Action
   protected void onMessageProcessFailure( @Nonnull final Throwable error )
   {
-    _replicantRuntime.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new MessageProcessFailureEvent( getSystemType(), error ) );
     }
+    disconnectIfPossible( error );
   }
 
   /**
@@ -244,10 +245,22 @@ public abstract class Connector
   @Action
   protected void onMessageReadFailure( @Nonnull final Throwable error )
   {
-    _replicantRuntime.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new MessageReadFailureEvent( getSystemType(), error ) );
+    }
+    disconnectIfPossible( error );
+  }
+
+  final void disconnectIfPossible( @Nonnull final Throwable cause )
+  {
+    if ( !DataLoaderService.State.isTransitionState( getState() ) )
+    {
+      if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+      {
+        Replicant.context().getSpy().reportSpyEvent( new RestartEvent( getSystemType(), cause ) );
+      }
+      disconnect();
     }
   }
 

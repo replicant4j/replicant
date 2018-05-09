@@ -15,6 +15,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
@@ -371,6 +372,63 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
+      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
+  @Test
+  public void disconnectIfPossible()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTED ) );
+
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> connector.disconnectIfPossible( error ) );
+
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTING ) );
+  }
+
+  @Test
+  public void disconnectIfPossible_noActionAsConnecting()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+
+    final Throwable error = new Throwable();
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    Arez.context().safeAction( () -> connector.disconnectIfPossible( error ) );
+
+    handler.assertEventCount( 0 );
+
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.CONNECTING ) );
+  }
+
+  @Test
+  public void disconnectIfPossible_generatesSpyEvent()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTED ) );
+
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+
+    final Throwable error = new Throwable();
+
+    Arez.context().safeAction( () -> connector.disconnectIfPossible( error ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( RestartEvent.class, e -> {
       assertEquals( e.getSystemType(), connector.getSystemType() );
       assertEquals( e.getError(), error );
     } );
