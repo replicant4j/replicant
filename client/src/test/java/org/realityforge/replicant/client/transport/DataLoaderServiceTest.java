@@ -21,6 +21,7 @@ import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.ReplicantTestUtil;
+import replicant.SafeProcedure;
 import replicant.Subscription;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -153,7 +154,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet =
       new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
     final TestDataLoadService service = newService( changeSet );
-    final Runnable runnable1 = mock( Runnable.class );
+    final SafeProcedure runnable1 = mock( SafeProcedure.class );
     final String sessionID = ValueUtil.randomString();
     final ClientSession session1 = new ClientSession( service, ValueUtil.randomString() );
 
@@ -165,13 +166,13 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getSessionContext().getSession(), session1 );
     assertEquals( service.getSession(), session1 );
-    verify( runnable1, times( 1 ) ).run();
+    verify( runnable1, times( 1 ) ).call();
 
     // Should be no oob actions left
     progressWorkTillDone( service, 7, 1 );
 
     service.setSession( session1, runnable1 );
-    verify( runnable1, times( 2 ) ).run();
+    verify( runnable1, times( 2 ) ).call();
   }
 
   @Test

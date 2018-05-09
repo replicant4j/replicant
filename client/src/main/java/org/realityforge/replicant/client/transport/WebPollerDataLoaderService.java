@@ -16,6 +16,7 @@ import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.SafeProcedure;
 import replicant.spy.DataLoadStatus;
 
 public abstract class WebPollerDataLoaderService
@@ -60,9 +61,9 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected abstract String getEndpointOffset();
 
-  protected void onSessionCreated( @Nonnull final String sessionID, @Nullable final Runnable runnable )
+  protected void onSessionCreated( @Nonnull final String sessionID, @Nonnull final SafeProcedure action )
   {
-    setSession( new ClientSession( this, sessionID ), runnable );
+    setSession( new ClientSession( this, sessionID ), action );
     scheduleDataLoad();
     startPolling();
   }
@@ -152,15 +153,15 @@ public abstract class WebPollerDataLoaderService
     return _webPoller;
   }
 
-  protected void onDisconnectError( @Nonnull final Throwable t, @Nullable final Runnable runnable )
+  protected void onDisconnectError( @Nonnull final Throwable t, @Nonnull final SafeProcedure action )
   {
-    setSession( null, runnable );
+    setSession( null, action );
     onDisconnectFailure( t );
   }
 
   protected void onDisconnectResponse( final int statusCode,
                                        @Nonnull final String statusText,
-                                       @Nullable final Runnable action )
+                                       @Nonnull final SafeProcedure action )
   {
     final Disposable lock = context().pauseScheduler();
     try
@@ -184,11 +185,11 @@ public abstract class WebPollerDataLoaderService
   protected void onConnectResponse( final int statusCode,
                                     @Nonnull final String statusText,
                                     @Nonnull final Supplier<String> content,
-                                    @Nullable final Runnable runnable )
+                                    @Nonnull final SafeProcedure action )
   {
     if ( HTTP_STATUS_CODE_OK == statusCode )
     {
-      onSessionCreated( content.get(), runnable );
+      onSessionCreated( content.get(), action );
     }
     else
     {
@@ -248,13 +249,13 @@ public abstract class WebPollerDataLoaderService
   protected abstract RequestFactory newRequestFactory();
 
   @Override
-  protected void doSetSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
+  protected void doSetSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
   {
     if ( null == session )
     {
       stopPolling();
     }
-    super.doSetSession( session, postAction );
+    super.doSetSession( session, action );
   }
 
   protected void stopPolling()

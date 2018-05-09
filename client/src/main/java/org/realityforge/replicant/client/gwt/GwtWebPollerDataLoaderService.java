@@ -21,6 +21,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
+import replicant.SafeProcedure;
 
 public abstract class GwtWebPollerDataLoaderService
   extends GwtDataLoaderService
@@ -59,18 +60,18 @@ public abstract class GwtWebPollerDataLoaderService
   }
 
   @Override
-  protected void doConnect( @Nullable final Runnable runnable )
+  protected void doConnect( @Nonnull final SafeProcedure action )
   {
     final Consumer<Response> onResponse =
-      r -> onConnectResponse( r.getStatusCode(), r.getStatusText(), r::getText, runnable );
+      r -> onConnectResponse( r.getStatusCode(), r.getStatusText(), r::getText, action );
     sendRequest( RequestBuilder.POST, getBaseSessionURL(), onResponse, this::onConnectFailure );
   }
 
   @Override
-  protected void doDisconnect( @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nonnull final SafeProcedure action )
   {
-    final Consumer<Response> onResponse = r -> onDisconnectResponse( r.getStatusCode(), r.getStatusText(), runnable );
-    final Consumer<Throwable> onError = t -> onDisconnectError( t, runnable );
+    final Consumer<Response> onResponse = r -> onDisconnectResponse( r.getStatusCode(), r.getStatusText(), action );
+    final Consumer<Throwable> onError = t -> onDisconnectError( t, action );
     sendRequest( RequestBuilder.DELETE, getSessionURL(), onResponse, onError );
   }
 

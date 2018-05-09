@@ -12,6 +12,7 @@ import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.ReplicantClientSystem;
+import replicant.SafeProcedure;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
@@ -80,12 +81,12 @@ abstract class TestDataLoadService
   }
 
   @Override
-  protected void doConnect( @Nullable final Runnable runnable )
+  protected void doConnect( @Nullable final SafeProcedure runnable )
   {
   }
 
   @Override
-  protected void doDisconnect( @Nullable final Runnable runnable )
+  protected void doDisconnect( @Nullable final SafeProcedure runnable )
   {
   }
 

@@ -21,9 +21,11 @@ import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.Channel;
 import replicant.ChannelAddress;
+import replicant.Connector;
 import replicant.Entity;
 import replicant.FilterUtil;
 import replicant.Replicant;
+import replicant.SafeProcedure;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
@@ -111,9 +113,9 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  protected void setSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
+  protected void setSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
   {
-    final Runnable runnable = () -> doSetSession( session, postAction );
+    final Runnable runnable = () -> doSetSession( session, action );
     if ( null == _currentAction )
     {
       runnable.run();
@@ -124,7 +126,7 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  protected void doSetSession( @Nullable final ClientSession session, @Nullable final Runnable postAction )
+  protected void doSetSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
   {
     if ( session != _session )
     {
@@ -981,44 +983,6 @@ public abstract class AbstractDataLoaderService
   }
 
   protected abstract boolean doesEntityMatchFilter( @Nonnull Channel channel, @Nonnull Entity entity );
-
-  @Override
-  public void connect()
-  {
-    if ( null == getSession() && State.CONNECTING != getState() )
-    {
-      performConnect();
-    }
-  }
-
-  private void performConnect()
-  {
-    State state = State.ERROR;
-    try
-    {
-      doConnect( this::onConnected );
-      state = State.CONNECTING;
-    }
-    finally
-    {
-      setState( state );
-    }
-  }
-
-  protected abstract void doConnect( @Nullable Runnable runnable );
-
-  @Override
-  public void disconnect()
-  {
-    final ClientSession session = getSession();
-    if ( null != session && State.DISCONNECTING != getState() )
-    {
-      setState( State.DISCONNECTING );
-      doDisconnect( this::onDisconnected );
-    }
-  }
-
-  protected abstract void doDisconnect( @Nullable Runnable runnable );
 
   /**
    * Return the type for specified channel.
