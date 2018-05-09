@@ -15,7 +15,7 @@ public abstract class TestConnector
 
   public static TestConnector create( @Nonnull final Class<?> systemType )
   {
-    return create( systemType, ReplicantRuntime.create() );
+    return create( systemType, Replicant.context().getRuntime() );
   }
 
   static TestConnector create( @Nonnull final Class<?> systemType,

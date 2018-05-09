@@ -17,11 +17,17 @@ public final class ReplicantContext
   private final EntityService _entityService = EntityService.create();
   private final SubscriptionService _subscriptionService =
     SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
+  private final ReplicantRuntime _runtime = ReplicantRuntime.create();
+  private final Converger _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
   /**
    * Support infrastructure for spy events.
    */
   @Nullable
   private final SpyImpl _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
+
+  public ReplicantContext()
+  {
+  }
 
   /**
    * Return the collection of AreaOfInterest that have been declared.
@@ -249,5 +255,27 @@ public final class ReplicantContext
   final SubscriptionService getSubscriptionService()
   {
     return _subscriptionService;
+  }
+
+  /**
+   * Return the underlying ReplicantRuntime implementation.
+   *
+   * @return the underlying ReplicantRuntime implementation.
+   */
+  @Nonnull
+  final ReplicantRuntime getRuntime()
+  {
+    return _runtime;
+  }
+
+  /**
+   * Return the underlying Converger implementation.
+   *
+   * @return the underlying Converger implementation.
+   */
+  @Nonnull
+  final Converger getConverger()
+  {
+    return _converger;
   }
 }
