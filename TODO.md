@@ -65,7 +65,5 @@ Some actions that should occur at some point in the future.
   the publicly accessible details (i.e. Filter read? ChannelAddress).
 
 * Add `ReplicantRuntime` into context and hide most functionality.
-* Pass context into `Connector` subclasses so can hide `ReplicantRuntime` completely by looking up value
-  locally.
 
 * Move `Converger` into replicant package
