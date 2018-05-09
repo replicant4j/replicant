@@ -899,7 +899,6 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
     }
-    assertTrue( service.isScheduleDataLoadCalled() );
   }
 
   private void configureRequests( final TestDataLoadService service, final LinkedList<TestChangeSet> changeSets )
