@@ -7,13 +7,13 @@ import javax.annotation.Nullable;
 
 @SuppressWarnings( "SameParameterValue" )
 @ArezComponent
-abstract class TestConnector
+public abstract class TestConnector
   extends Connector
 {
   private boolean _errorOnConnect;
   private boolean _errorOnDisconnect;
 
-  static TestConnector create( @Nonnull final Class<?> systemType )
+  public static TestConnector create( @Nonnull final Class<?> systemType )
   {
     return create( systemType, ReplicantRuntime.create() );
   }
