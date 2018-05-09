@@ -90,7 +90,6 @@ public final class ClientSession
   void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
     getPendingActions().add( new DataLoadAction( Objects.requireNonNull( rawJsonData ), false ) );
-    _dataLoaderService.scheduleDataLoad();
   }
 
   void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable )

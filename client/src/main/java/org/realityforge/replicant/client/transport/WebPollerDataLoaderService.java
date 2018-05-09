@@ -206,6 +206,7 @@ public abstract class WebPollerDataLoaderService
     {
       logResponse( rawJsonData );
       ensureSession().enqueueDataLoad( rawJsonData );
+      scheduleDataLoad();
       pauseWebPoller();
     }
   }
