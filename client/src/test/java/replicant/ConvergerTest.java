@@ -1,5 +1,7 @@
 package replicant;
 
+import arez.Arez;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -35,5 +37,35 @@ public class ConvergerTest
     final Converger converger = context.getConverger();
     assertEquals( converger.getReplicantContext(), context );
     assertEquals( getFieldValue( converger, "_context" ), context );
+  }
+
+  @Test
+  public void preConvergeAction()
+  {
+    final Converger c = Replicant.context().getConverger();
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    // should do nothing ...
+    Arez.context().safeAction( c::preConverge );
+
+    final AtomicInteger callCount = new AtomicInteger();
+
+    Arez.context().safeAction( () -> c.setPreConvergeAction( callCount::incrementAndGet ) );
+
+    Arez.context().safeAction( c::preConverge );
+
+    assertEquals( callCount.get(), 1 );
+
+    Arez.context().safeAction( c::preConverge );
+
+    assertEquals( callCount.get(), 2 );
+
+    Arez.context().safeAction( () -> c.setPreConvergeAction( null ) );
+
+    Arez.context().safeAction( c::preConverge );
+
+    assertEquals( callCount.get(), 2 );
   }
 }
