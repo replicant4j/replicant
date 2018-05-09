@@ -170,9 +170,8 @@ public abstract class ReplicantRuntime
    * Retrieve the Connector service associated with the systemType.
    */
   @Nonnull
-  public Connector getConnector( @Nonnull final Class<?> systemType )
+  Connector getConnector( @Nonnull final Class<?> systemType )
   {
-    //TODO: Make this method package access
     return getConnectorEntryBySystemType( systemType ).getConnector();
   }
 

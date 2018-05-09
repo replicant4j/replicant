@@ -116,8 +116,7 @@ public abstract class AreaOfInterest
    * Update the status of the AreaOfInterest.
    */
   @Action
-  // TODO: This method should be package access after Converger moves to this package.
-  public void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
+  void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
   {
     final boolean expectSubscription =
       Status.LOADED == status ||
