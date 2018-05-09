@@ -18,6 +18,7 @@ import org.testng.IHookable;
 import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.AreaOfInterestAction;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.ReplicantTestUtil;

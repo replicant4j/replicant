@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.AreaOfInterestAction;
 import replicant.ChannelAddress;
 import replicant.FilterUtil;
 

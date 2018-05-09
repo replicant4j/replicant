@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.realityforge.anodoc.VisibleForTesting;
 import replicant.AreaOfInterest;
+import replicant.AreaOfInterestAction;
 import replicant.ChannelAddress;
 import replicant.Connector;
 import replicant.ConnectorState;

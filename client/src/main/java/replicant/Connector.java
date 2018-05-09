@@ -8,7 +8,6 @@ import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;

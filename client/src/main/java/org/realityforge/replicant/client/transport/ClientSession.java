@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.AreaOfInterestAction;
 import replicant.ChannelAddress;
 
 /**

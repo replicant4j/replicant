@@ -6,7 +6,6 @@ import arez.annotations.ArezComponent;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.transport.AreaOfInterestAction;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

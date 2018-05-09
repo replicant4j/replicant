@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.AreaOfInterestAction;
 import replicant.ChannelAddress;
 import static org.testng.Assert.*;
 

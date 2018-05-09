@@ -11,6 +11,7 @@ import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
+import replicant.AreaOfInterestAction;
 import replicant.ChannelAddress;
 import replicant.Connector;
 import replicant.ConnectorState;
