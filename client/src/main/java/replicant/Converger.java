@@ -79,6 +79,15 @@ public abstract class Converger
     }
   }
 
+  private void convergeComplete()
+  {
+    final Runnable convergeCompleteAction = getConvergeCompleteAction();
+    if ( null != convergeCompleteAction )
+    {
+      convergeCompleteAction.run();
+    }
+  }
+
   private void convergeStep()
   {
     AreaOfInterest groupTemplate = null;
@@ -220,15 +229,6 @@ public abstract class Converger
              ( AreaOfInterestAction.REMOVE == action ||
                FilterUtil.filtersEqual( groupTemplate.getChannel().getFilter(),
                                         areaOfInterest.getChannel().getFilter() ) );
-    }
-  }
-
-  private void convergeComplete()
-  {
-    final Runnable convergeCompleteAction = getConvergeCompleteAction();
-    if ( null != convergeCompleteAction )
-    {
-      convergeCompleteAction.run();
     }
   }
 
