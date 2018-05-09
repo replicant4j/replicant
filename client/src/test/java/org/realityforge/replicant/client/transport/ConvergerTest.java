@@ -12,7 +12,9 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
+import replicant.Connector;
 import replicant.Replicant;
+import replicant.ReplicantClientSystem;
 import replicant.Subscription;
 import replicant.TestSpyEventHandler;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -65,14 +67,14 @@ public class ConvergerTest
   public void removeOrphanSubscription()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
     final Subscription subscription = Replicant.context().createSubscription( address, null, true );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
+    when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -96,12 +98,12 @@ public class ConvergerTest
   public void removeOrphanSubscription_DISCONNECTED()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
+    when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.DISCONNECTED );
@@ -115,12 +117,12 @@ public class ConvergerTest
   public void removeOrphanSubscription_AOI_Pending()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
+    when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -137,12 +139,12 @@ public class ConvergerTest
   public void removeSubscriptionIfOrphan()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( TestSystemA.class ) ).
+    when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -163,14 +165,14 @@ public class ConvergerTest
   public void removeSubscriptionIfOrphan_expected()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final HashSet<ChannelAddress> expected = new HashSet<>();
     expected.add( address );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
@@ -179,7 +181,7 @@ public class ConvergerTest
     final Subscription subscription = Replicant.context().createSubscription( address, null, true );
     c.removeSubscriptionIfOrphan( expected, subscription );
 
-    verify( clientSystem, never() ).getDataLoaderService( TestSystemA.class );
+    verify( clientSystem, never() ).getConnector( TestSystemA.class );
   }
 
   @Test
@@ -196,14 +198,14 @@ public class ConvergerTest
 
     c.removeSubscriptionIfOrphan( expected, subscription );
 
-    verify( clientSystem, never() ).getDataLoaderService( TestSystemA.class );
+    verify( clientSystem, never() ).getConnector( TestSystemA.class );
   }
 
   @Test
   public void removeOrphanSubscriptions()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
     Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( TestSystemA.B, 1 ), null );
@@ -214,7 +216,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -233,14 +235,14 @@ public class ConvergerTest
   public void convergeSubscription()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -262,7 +264,7 @@ public class ConvergerTest
   public void convergeSubscription_subscribedButRemovePending()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     Replicant.context().createSubscription( address, null, true );
@@ -270,7 +272,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -292,7 +294,7 @@ public class ConvergerTest
   public void convergeSubscription_subscribed()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     Replicant.context().createSubscription( address, null, true );
@@ -300,7 +302,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -322,14 +324,14 @@ public class ConvergerTest
   public void convergeSubscription_addPending()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -351,14 +353,14 @@ public class ConvergerTest
   public void convergeSubscription_updatePending()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final AreaOfInterest areaOfInterest = createAreaOfInterest( address, "Filter1" );
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -384,7 +386,7 @@ public class ConvergerTest
   public void convergeSubscription_requestSubscriptionUpdate()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     Replicant.context().createSubscription( address, "OldFilter", false );
@@ -392,7 +394,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -465,7 +467,7 @@ public class ConvergerTest
   public void convergeSubscription_inactiveSubscription()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
     final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
@@ -473,7 +475,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -490,7 +492,7 @@ public class ConvergerTest
   public void convergeSubscription_groupWithAdd()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
     final AreaOfInterest areaOfInterest1 = createAreaOfInterest( address, null );
@@ -503,7 +505,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
@@ -545,7 +547,7 @@ public class ConvergerTest
   public void convergeSubscription_groupWithUpdate()
   {
     final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
-    final DataLoaderService service = mock( DataLoaderService.class );
+    final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
     final AreaOfInterest areaOfInterest1 = createAreaOfInterest( address, null );
@@ -560,7 +562,7 @@ public class ConvergerTest
 
     final Converger c = Converger.create( clientSystem );
 
-    when( clientSystem.getDataLoaderService( address.getSystem() ) ).
+    when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
     when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );

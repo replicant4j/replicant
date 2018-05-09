@@ -35,7 +35,7 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class AbstractDataLoaderService
-  extends AbstractDataLoaderService2
+  extends Connector
   implements DataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
