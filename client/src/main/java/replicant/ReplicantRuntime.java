@@ -12,7 +12,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import org.realityforge.replicant.client.transport.DataLoaderService;
 import static org.realityforge.braincheck.Guards.*;
 
 @Singleton
@@ -213,11 +212,11 @@ public abstract class ReplicantRuntime
       {
         if ( active && ConnectorState.CONNECTED != state )
         {
-          entry.attemptAction( DataLoaderService::connect );
+          entry.attemptAction( Connector::connect );
         }
         else if ( !active && ConnectorState.DISCONNECTED != state && ConnectorState.ERROR != state )
         {
-          entry.attemptAction( DataLoaderService::disconnect );
+          entry.attemptAction( Connector::disconnect );
         }
       }
     }

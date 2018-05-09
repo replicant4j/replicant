@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
-import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -558,7 +557,6 @@ public class ReplicantRuntimeTest
   @ArezComponent
   static abstract class TestDataLoaderService
     extends Connector
-    implements DataLoaderService
   {
     private boolean _connectCalled;
     private boolean _disconnectCalled;

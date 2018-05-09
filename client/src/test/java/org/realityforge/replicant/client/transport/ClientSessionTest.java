@@ -12,7 +12,7 @@ public class ClientSessionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     assertEquals( e.getRequestKey(), "Y" );
     assertEquals( e.getCacheKey(), "X" );
@@ -30,7 +30,7 @@ public class ClientSessionTest
   @Test
   public void completeNormalRequest()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     final Runnable action = mock( Runnable.class );
 
@@ -44,7 +44,7 @@ public class ClientSessionTest
   @Test
   public void completeNormalRequest_expectingResults()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     final Runnable action = mock( Runnable.class );
 
@@ -62,7 +62,7 @@ public class ClientSessionTest
   @Test
   public void completeNormalRequest_resultsArrived()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     final Runnable action = mock( Runnable.class );
 
@@ -79,7 +79,7 @@ public class ClientSessionTest
   @Test
   public void completeNonNormalRequest()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     final Runnable action = mock( Runnable.class );
 
@@ -93,7 +93,7 @@ public class ClientSessionTest
   @Test
   public void completeNonNormalRequest_expectingResults()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     final Runnable action = mock( Runnable.class );
 
@@ -111,7 +111,7 @@ public class ClientSessionTest
   @Test
   public void completeNonNormalRequest_resultsArrived()
   {
-    final ClientSession rm = new ClientSession( TestDataLoadService.create(), ValueUtil.randomString() );
+    final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
     final Runnable action = mock( Runnable.class );
 

@@ -64,7 +64,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void onSessionCreated( @Nonnull final String sessionID, @Nonnull final SafeProcedure action )
   {
-    setSession( new ClientSession( this, sessionID ), action );
+    setSession( new ClientSession( sessionID ), action );
     scheduleDataLoad();
     startPolling();
   }

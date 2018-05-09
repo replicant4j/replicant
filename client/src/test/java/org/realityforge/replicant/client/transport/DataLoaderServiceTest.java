@@ -156,7 +156,7 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet );
     final SafeProcedure runnable1 = mock( SafeProcedure.class );
     final String sessionID = ValueUtil.randomString();
-    final ClientSession session1 = new ClientSession( service, ValueUtil.randomString() );
+    final ClientSession session1 = new ClientSession( ValueUtil.randomString() );
 
     session1.enqueueOOB( sessionID, null );
 
@@ -963,7 +963,7 @@ public class DataLoaderServiceTest
   private void configureService( final TestDataLoadService service )
     throws Exception
   {
-    set( service, AbstractDataLoaderService.class, "_session", new ClientSession( service, ValueUtil.randomString() ) );
+    set( service, AbstractDataLoaderService.class, "_session", new ClientSession( ValueUtil.randomString() ) );
 
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );

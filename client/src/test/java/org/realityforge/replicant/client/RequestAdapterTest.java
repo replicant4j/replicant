@@ -5,11 +5,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class RequestAdapterTest
@@ -52,7 +50,7 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onSuccess()
   {
     final Object[] results = new Object[ 1 ];
-    final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
+    final ClientSession session = new ClientSession( ValueUtil.randomString() );
     final RequestEntry request = session.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 
@@ -73,7 +71,7 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onFailure()
   {
     final Object[] results = new Object[ 1 ];
-    final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
+    final ClientSession session = new ClientSession( ValueUtil.randomString() );
     final RequestEntry request = session.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 

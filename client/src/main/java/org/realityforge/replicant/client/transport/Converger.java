@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import org.realityforge.anodoc.VisibleForTesting;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
+import replicant.Connector;
 import replicant.ConnectorState;
 import replicant.FilterUtil;
 import replicant.Replicant;
@@ -130,20 +131,20 @@ public abstract class Converger
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
-    final DataLoaderService service = _replicantRuntime.getConnector( address.getSystem() );
+    final Connector connector = _replicantRuntime.getConnector( address.getSystem() );
     // service can be disconnected if it is not a required service and will converge later when it connects
-    if ( ConnectorState.CONNECTED == service.getState() )
+    if ( ConnectorState.CONNECTED == connector.getState() )
     {
       final Subscription subscription = Replicant.context().findSubscription( address );
       final boolean subscribed = null != subscription;
       final Object filter = areaOfInterest.getChannel().getFilter();
 
       final int addIndex =
-        service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
+        connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
       final int removeIndex =
-        service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null );
+        connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null );
       final int updateIndex =
-        service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, filter );
+        connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, filter );
 
       if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
       {
@@ -154,7 +155,7 @@ public abstract class Converger
         if ( null == groupTemplate ||
              canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
         {
-          service.requestSubscribe( address, filter );
+          connector.requestSubscribe( address, filter );
           return ConvergeAction.SUBMITTED_ADD;
         }
         else
@@ -189,7 +190,7 @@ public abstract class Converger
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
           {
-            service.requestSubscriptionUpdate( address, filter );
+            connector.requestSubscriptionUpdate( address, filter );
             return ConvergeAction.SUBMITTED_UPDATE;
           }
           else
@@ -259,7 +260,7 @@ public abstract class Converger
 
   void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
-    final DataLoaderService service = _replicantRuntime.getConnector( address.getSystem() );
+    final Connector service = _replicantRuntime.getConnector( address.getSystem() );
     if ( ConnectorState.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {

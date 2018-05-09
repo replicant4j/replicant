@@ -21,8 +21,6 @@ public final class ClientSession
   private static final Logger LOG = Logger.getLogger( ClientSession.class.getName() );
   private static final Level LOG_LEVEL = Level.INFO;
 
-  @Nonnull
-  private final DataLoaderService _dataLoaderService;
   private final String _sessionID;
   private final Map<String, RequestEntry> _requests = new HashMap<>();
   private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
@@ -49,9 +47,8 @@ public final class ClientSession
 
   private int _lastRxSequence;
 
-  public ClientSession( @Nonnull final DataLoaderService dataLoaderService, @Nonnull final String sessionID )
+  public ClientSession( @Nonnull final String sessionID )
   {
-    _dataLoaderService = Objects.requireNonNull( dataLoaderService );
     _sessionID = Objects.requireNonNull( sessionID );
   }
 

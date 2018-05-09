@@ -19,7 +19,7 @@ public class SessionContextTest
 
     //session
     {
-      final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
+      final ClientSession session = new ClientSession( ValueUtil.randomString() );
       assertEquals( sessionContext.getSession(), null );
       sessionContext.setSession( session );
       assertEquals( sessionContext.getSession(), session );
@@ -60,7 +60,7 @@ public class SessionContextTest
     final String requestKey = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
-    final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
+    final ClientSession session = new ClientSession( ValueUtil.randomString() );
 
     final SessionContext sessionContext = new SessionContext( key );
     sessionContext.setSession( session );

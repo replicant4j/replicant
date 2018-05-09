@@ -9,7 +9,6 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
-import org.realityforge.replicant.client.transport.DataLoaderService;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;
@@ -36,7 +35,6 @@ import replicant.spy.UnsubscribeStartedEvent;
  * eventually be migrated into AbstractDataLoaderService.
  */
 public abstract class Connector
-  implements DataLoaderService
 {
   @Nonnull
   private final Class<?> _systemType;
@@ -148,7 +146,6 @@ public abstract class Connector
    * {@inheritDoc}
    */
   @Nonnull
-  @Override
   @Observable
   public ConnectorState getState()
   {
