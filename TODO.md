@@ -63,3 +63,7 @@ Some actions that should occur at some point in the future.
 
 * The `Channel` class should be made package access and the `AreaOfInterest` and `Subscription` should expose
   the publicly accessible details (i.e. Filter read? ChannelAddress).
+
+* Add `ReplicantRuntime` into context and hide most functionality.
+* Pass context into `Connector` subclasses so can hide `ReplicantRuntime` completely by looking up value
+  locally.
