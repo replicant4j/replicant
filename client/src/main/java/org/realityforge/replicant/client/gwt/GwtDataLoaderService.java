@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
-import replicant.ReplicantClientSystem;
+import replicant.ReplicantRuntime;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;
@@ -17,11 +17,11 @@ public abstract class GwtDataLoaderService
   private final SessionContext _sessionContext;
 
   protected GwtDataLoaderService( @Nonnull final Class<?> systemType,
-                                  @Nonnull final ReplicantClientSystem replicantClientSystem,
+                                  @Nonnull final ReplicantRuntime replicantRuntime,
                                   @Nonnull final CacheService cacheService,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( systemType, replicantClientSystem, cacheService );
+    super( systemType, replicantRuntime, cacheService );
     _sessionContext = sessionContext;
 
     if ( Replicant.canRequestsDebugOutputBeEnabled() )

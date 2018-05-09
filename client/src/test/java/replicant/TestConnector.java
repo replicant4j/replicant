@@ -16,18 +16,18 @@ abstract class TestConnector
 
   static TestConnector create( @Nonnull final Class<?> systemType )
   {
-    return create( systemType, ReplicantClientSystem.create() );
+    return create( systemType, ReplicantRuntime.create() );
   }
 
   static TestConnector create( @Nonnull final Class<?> systemType,
-                               @Nonnull final ReplicantClientSystem replicantClientSystem )
+                               @Nonnull final ReplicantRuntime replicantRuntime )
   {
-    return Arez.context().safeAction( () -> new Arez_TestConnector( systemType, replicantClientSystem ) );
+    return Arez.context().safeAction( () -> new Arez_TestConnector( systemType, replicantRuntime ) );
   }
 
-  TestConnector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantClientSystem replicantClientSystem )
+  TestConnector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantRuntime replicantRuntime )
   {
-    super( systemType, replicantClientSystem );
+    super( systemType, replicantRuntime );
   }
 
   void setErrorOnConnect( final boolean errorOnConnect )

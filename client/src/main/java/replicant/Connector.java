@@ -40,21 +40,21 @@ public abstract class Connector
   @Nonnull
   private final Class<?> _systemType;
   @Nonnull
-  private final ReplicantClientSystem _replicantClientSystem;
+  private final ReplicantRuntime _replicantRuntime;
   @Nonnull
   private State _state = State.DISCONNECTED;
 
-  protected Connector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantClientSystem replicantClientSystem )
+  protected Connector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantRuntime replicantRuntime )
   {
     _systemType = Objects.requireNonNull( systemType );
-    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
-    _replicantClientSystem.registerConnector( this );
+    _replicantRuntime = Objects.requireNonNull( replicantRuntime );
+    _replicantRuntime.registerConnector( this );
   }
 
   @PreDispose
   protected void preDispose()
   {
-    _replicantClientSystem.deregisterConnector( this );
+    _replicantRuntime.deregisterConnector( this );
   }
 
   /**
@@ -231,7 +231,7 @@ public abstract class Connector
   @Action
   protected void onMessageProcessFailure( @Nonnull final Throwable error )
   {
-    _replicantClientSystem.disconnectIfPossible( this, error );
+    _replicantRuntime.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new MessageProcessFailureEvent( getSystemType(), error ) );
@@ -244,7 +244,7 @@ public abstract class Connector
   @Action
   protected void onMessageReadFailure( @Nonnull final Throwable error )
   {
-    _replicantClientSystem.disconnectIfPossible( this, error );
+    _replicantRuntime.disconnectIfPossible( this, error );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new MessageReadFailureEvent( getSystemType(), error ) );
@@ -356,9 +356,9 @@ public abstract class Connector
   }
 
   @Nonnull
-  protected final ReplicantClientSystem getReplicantClientSystem()
+  protected final ReplicantRuntime getReplicantRuntime()
   {
-    return _replicantClientSystem;
+    return _replicantRuntime;
   }
 
   @ContextRef

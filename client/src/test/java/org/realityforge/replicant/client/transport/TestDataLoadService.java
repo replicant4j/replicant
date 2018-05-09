@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
-import replicant.ReplicantClientSystem;
+import replicant.ReplicantRuntime;
 import replicant.SafeProcedure;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
@@ -33,20 +33,20 @@ abstract class TestDataLoadService
   @Nonnull
   static TestDataLoadService create()
   {
-    return create( ReplicantClientSystem.create() );
+    return create( ReplicantRuntime.create() );
   }
 
   @Nonnull
-  static TestDataLoadService create( @Nonnull final ReplicantClientSystem replicantClientSystem )
+  static TestDataLoadService create( @Nonnull final ReplicantRuntime replicantRuntime )
   {
     return Arez.context()
-      .safeAction( () -> new Arez_TestDataLoadService( replicantClientSystem, mock( CacheService.class ) ) );
+      .safeAction( () -> new Arez_TestDataLoadService( replicantRuntime, mock( CacheService.class ) ) );
   }
 
-  TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+  TestDataLoadService( @Nonnull final ReplicantRuntime replicantRuntime,
                        @Nonnull final CacheService cacheService )
   {
-    super( TestSystem.class, replicantClientSystem, cacheService );
+    super( TestSystem.class, replicantRuntime, cacheService );
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
     _cacheService = cacheService;

@@ -14,7 +14,7 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Connector;
 import replicant.Replicant;
-import replicant.ReplicantClientSystem;
+import replicant.ReplicantRuntime;
 import replicant.Subscription;
 import replicant.TestSpyEventHandler;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -39,7 +39,7 @@ public class ConvergerTest
   @Test
   public void preConvergeAction()
   {
-    final Converger c = Converger.create( mock( ReplicantClientSystem.class ) );
+    final Converger c = Converger.create( mock( ReplicantRuntime.class ) );
 
     // should do nothing ... particularly not crash
     c.preConverge();
@@ -66,7 +66,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
@@ -97,7 +97,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription_DISCONNECTED()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
@@ -116,7 +116,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription_AOI_Pending()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
@@ -138,7 +138,7 @@ public class ConvergerTest
   @Test
   public void removeSubscriptionIfOrphan()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
@@ -164,7 +164,7 @@ public class ConvergerTest
   @Test
   public void removeSubscriptionIfOrphan_expected()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
     final HashSet<ChannelAddress> expected = new HashSet<>();
@@ -187,7 +187,7 @@ public class ConvergerTest
   @Test
   public void removeSubscriptionIfOrphan_notExplicit()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
     final Converger c = Converger.create( clientSystem );
@@ -204,7 +204,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
 
@@ -234,7 +234,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
@@ -263,7 +263,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_subscribedButRemovePending()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
@@ -293,7 +293,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_subscribed()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
@@ -323,7 +323,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_addPending()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
@@ -352,7 +352,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_updatePending()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
@@ -385,7 +385,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_requestSubscriptionUpdate()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A );
@@ -417,7 +417,7 @@ public class ConvergerTest
   @Test
   public void canGroup()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
 
     final Converger c = Converger.create( clientSystem );
 
@@ -466,7 +466,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_inactiveSubscription()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
@@ -491,7 +491,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_groupWithAdd()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );
@@ -546,7 +546,7 @@ public class ConvergerTest
   @Test
   public void convergeSubscription_groupWithUpdate()
   {
-    final ReplicantClientSystem clientSystem = mock( ReplicantClientSystem.class );
+    final ReplicantRuntime clientSystem = mock( ReplicantRuntime.class );
     final Connector service = mock( Connector.class );
 
     final ChannelAddress address = new ChannelAddress( TestSystemA.A, 1 );

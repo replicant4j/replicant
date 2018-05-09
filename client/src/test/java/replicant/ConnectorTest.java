@@ -34,15 +34,15 @@ public class ConnectorTest
     throws Exception
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
-    final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
+    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
 
-    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getConnectors().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create( G.class, replicantClientSystem );
+    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
 
-    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getConnectors().size(), 1 ) );
+    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 1 ) );
 
-    assertEquals( connector.getReplicantClientSystem(), replicantClientSystem );
+    assertEquals( connector.getReplicantRuntime(), replicantRuntime );
 
     Arez.context()
       .safeAction( () -> Assert.assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTED ) );
@@ -55,26 +55,26 @@ public class ConnectorTest
   @Test
   public void dispose()
   {
-    final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
+    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
 
-    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getConnectors().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create( G.class, replicantClientSystem );
+    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
 
-    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getConnectors().size(), 1 ) );
+    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 1 ) );
 
     Disposable.dispose( connector );
 
-    Arez.context().safeAction( () -> assertEquals( replicantClientSystem.getConnectors().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 0 ) );
   }
 
   @Test
   public void connect()
   {
-    final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
+    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantClientSystem );
+    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
     Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.DISCONNECTED ) );
 
     Arez.context().safeAction( connector::connect );
@@ -85,10 +85,10 @@ public class ConnectorTest
   @Test
   public void connect_causesError()
   {
-    final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
+    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantClientSystem );
+    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
     Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.DISCONNECTED ) );
 
     connector.setErrorOnConnect( true );
@@ -100,10 +100,10 @@ public class ConnectorTest
   @Test
   public void disconnect()
   {
-    final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
+    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantClientSystem );
+    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
     Arez.context().safeAction( () -> connector.setState( Connector.State.CONNECTED ) );
 
     Arez.context().safeAction( connector::disconnect );
@@ -114,10 +114,10 @@ public class ConnectorTest
   @Test
   public void disconnect_causesError()
   {
-    final ReplicantClientSystem replicantClientSystem = ReplicantClientSystem.create();
+    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantClientSystem );
+    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
     Arez.context().safeAction( () -> connector.setState( Connector.State.CONNECTED ) );
 
     connector.setErrorOnDisconnect( true );
@@ -133,7 +133,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
@@ -142,7 +142,7 @@ public class ConnectorTest
     Arez.context().safeAction( connector::onDisconnected );
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTED ) );
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.DISCONNECTED ) );
   }
 
@@ -175,7 +175,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
 
     final Throwable error = new Throwable();
@@ -186,7 +186,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> connector.onDisconnectFailure( error ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.ERROR ) );
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.ERROR ) );
   }
 
@@ -223,7 +223,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
@@ -232,7 +232,7 @@ public class ConnectorTest
     Arez.context().safeAction( connector::onConnected );
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.CONNECTED ) );
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTED ) );
   }
 
@@ -262,7 +262,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
 
     final Throwable error = new Throwable();
@@ -273,7 +273,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> connector.onConnectFailure( error ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.ERROR ) );
-    Arez.context().safeAction( () -> assertEquals( connector.getReplicantClientSystem().getState(),
+    Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.ERROR ) );
   }
 

@@ -16,7 +16,7 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.FilterUtil;
 import replicant.Replicant;
-import replicant.ReplicantClientSystem;
+import replicant.ReplicantRuntime;
 import replicant.RuntimeState;
 import replicant.Subscription;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -27,16 +27,16 @@ import static org.realityforge.braincheck.Guards.*;
 public abstract class Converger
 {
   @Nonnull
-  private final ReplicantClientSystem _replicantClientSystem;
+  private final ReplicantRuntime _replicantRuntime;
 
-  public static Converger create( @Nonnull final ReplicantClientSystem replicantClientSystem )
+  public static Converger create( @Nonnull final ReplicantRuntime replicantRuntime )
   {
-    return new Arez_Converger( replicantClientSystem );
+    return new Arez_Converger( replicantRuntime );
   }
 
-  Converger( @Nonnull final ReplicantClientSystem replicantClientSystem )
+  Converger( @Nonnull final ReplicantRuntime replicantRuntime )
   {
-    _replicantClientSystem = Objects.requireNonNull( replicantClientSystem );
+    _replicantRuntime = Objects.requireNonNull( replicantRuntime );
   }
 
   /**
@@ -63,7 +63,7 @@ public abstract class Converger
   {
     preConverge();
     removeOrphanSubscriptions();
-    if ( _replicantClientSystem.getState() == RuntimeState.CONNECTED )
+    if ( _replicantRuntime.getState() == RuntimeState.CONNECTED )
     {
       convergeStep();
     }
@@ -129,7 +129,7 @@ public abstract class Converger
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
-    final DataLoaderService service = _replicantClientSystem.getConnector( address.getSystem() );
+    final DataLoaderService service = _replicantRuntime.getConnector( address.getSystem() );
     // service can be disconnected if it is not a required service and will converge later when it connects
     if ( DataLoaderService.State.CONNECTED == service.getState() )
     {
@@ -258,7 +258,7 @@ public abstract class Converger
 
   void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
-    final DataLoaderService service = _replicantClientSystem.getConnector( address.getSystem() );
+    final DataLoaderService service = _replicantRuntime.getConnector( address.getSystem() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
