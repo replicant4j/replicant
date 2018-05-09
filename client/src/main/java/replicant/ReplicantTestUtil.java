@@ -55,6 +55,15 @@ public final class ReplicantTestUtil
     }
     disableZones();
     ( (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger() ).setLogger( null );
+    resetState();
+  }
+
+  /**
+   * Reset the state of Replicant context and zone information to align with the current configuration settings.
+   * This will clear all existing state and should be used with caution.
+   */
+  public static void resetState()
+  {
     ReplicantContextHolder.reset();
     ReplicantZoneHolder.reset();
   }
