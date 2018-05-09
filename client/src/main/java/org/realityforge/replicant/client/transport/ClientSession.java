@@ -61,28 +61,9 @@ public final class ClientSession
     return _sessionID;
   }
 
-  void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
-  {
-    //TODO: Send spy message ..
-    enqueueAoiAction( descriptor, AreaOfInterestAction.ADD, filterParameter );
-  }
-
-  void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
-                                  @Nullable final Object filterParameter )
-  {
-    //TODO: Send spy message ..
-    enqueueAoiAction( descriptor, AreaOfInterestAction.UPDATE, filterParameter );
-  }
-
-  void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
-  {
-    //TODO: Send spy message ..
-    enqueueAoiAction( descriptor, AreaOfInterestAction.REMOVE, null );
-  }
-
-  private void enqueueAoiAction( @Nonnull final ChannelAddress descriptor,
-                                 @Nonnull final AreaOfInterestAction action,
-                                 @Nullable final Object filterParameter )
+  void enqueueAoiAction( @Nonnull final ChannelAddress descriptor,
+                         @Nonnull final AreaOfInterestAction action,
+                         @Nullable final Object filterParameter )
   {
     _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( descriptor, action, filterParameter ) );
   }
