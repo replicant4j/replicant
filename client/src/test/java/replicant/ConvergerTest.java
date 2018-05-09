@@ -15,4 +15,13 @@ public class ConvergerTest
     assertEquals( exception.getMessage(),
                   "Replicant-0124: SubscriptioConvergernService passed a context but Replicant.areZonesEnabled() is false" );
   }
+
+  @Test
+  public void getReplicantContext()
+  {
+    final ReplicantContext context = Replicant.context();
+    final Converger converger = context.getConverger();
+    assertEquals( converger.getReplicantContext(), context );
+    assertEquals( getFieldValue( converger, "_context" ), null );
+  }
 }
