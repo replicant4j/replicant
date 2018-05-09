@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.transport.Converger;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import static org.realityforge.braincheck.Guards.*;

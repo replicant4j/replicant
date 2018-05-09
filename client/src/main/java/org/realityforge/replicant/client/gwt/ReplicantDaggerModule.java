@@ -5,7 +5,7 @@ import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.transport.CacheService;
-import org.realityforge.replicant.client.transport.ConvergerDaggerModule;
+import replicant.ConvergerDaggerModule;
 
 @Module( includes = { ConvergerDaggerModule.class } )
 public class ReplicantDaggerModule
