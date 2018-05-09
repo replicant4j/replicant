@@ -1,9 +1,11 @@
 package org.realityforge.replicant.client.transport;
 
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import static org.testng.Assert.*;
 
 public class RequestEntryTest
+  extends AbstractReplicantTest
 {
   @Test
   public void basicWorkflow()

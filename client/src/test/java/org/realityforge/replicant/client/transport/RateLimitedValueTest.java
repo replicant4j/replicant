@@ -9,10 +9,12 @@ import org.powermock.modules.testng.PowerMockObjectFactory;
 import org.testng.IObjectFactory;
 import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import static org.testng.Assert.*;
 
 @PrepareForTest( { System.class, RateLimitedValue.class } )
 public class RateLimitedValueTest
+  extends AbstractReplicantTest
 {
   @ObjectFactory
   public IObjectFactory getObjectFactory()

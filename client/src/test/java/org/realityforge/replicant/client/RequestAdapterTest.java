@@ -8,10 +8,12 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class RequestAdapterTest
+  extends AbstractReplicantTest
 {
   static class TestRequestAdapter
     extends AbstractRequestAdapter

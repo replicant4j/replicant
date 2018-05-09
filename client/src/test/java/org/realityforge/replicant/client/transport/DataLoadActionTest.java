@@ -6,9 +6,11 @@ import java.util.List;
 import org.realityforge.replicant.client.Linkable;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import static org.testng.Assert.*;
 
 public class DataLoadActionTest
+  extends AbstractReplicantTest
 {
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()

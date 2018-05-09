@@ -2,10 +2,12 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.function.Consumer;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class DataLoaderEntryTest
+  extends AbstractReplicantTest
 {
   static class TestConsumer
     implements Consumer<DataLoaderService>

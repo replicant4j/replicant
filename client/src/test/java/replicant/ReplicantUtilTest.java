@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ReplicantUtilTest
+  extends AbstractReplicantTest
 {
   @Test
   public void safeGetString()
