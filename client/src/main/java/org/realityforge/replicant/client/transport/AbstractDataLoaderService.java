@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1081,12 +1080,12 @@ public abstract class AbstractDataLoaderService
   @Nullable
   protected String generateName( @Nonnull final String name )
   {
-    return Arez.areNamesEnabled() ? toString() + "." + name : null;
+    return Replicant.areNamesEnabled() ? toString() + "." + name : null;
   }
 
   @Override
   public String toString()
   {
-    return Arez.areNamesEnabled() ? "DataLoader[" + getKey() + "]" : super.toString();
+    return Replicant.areNamesEnabled() ? "DataLoader[" + getKey() + "]" : super.toString();
   }
 }
