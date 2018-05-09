@@ -19,17 +19,25 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent
 public abstract class Converger
 {
-  @Nonnull
-  private final ReplicantRuntime _replicantRuntime;
+  /**
+   * Reference to the context to which this service belongs.
+   */
+  @Nullable
+  private final ReplicantContext _context;
 
-  public static Converger create( @Nonnull final ReplicantRuntime replicantRuntime )
+  static Converger create( @Nullable final ReplicantContext context )
   {
-    return new Arez_Converger( replicantRuntime );
+    return new Arez_Converger( context );
   }
 
-  Converger( @Nonnull final ReplicantRuntime replicantRuntime )
+  Converger( @Nullable final ReplicantContext context )
   {
-    _replicantRuntime = Objects.requireNonNull( replicantRuntime );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      apiInvariant( () -> Replicant.areZonesEnabled() || null == context,
+                    () -> "Replicant-0124: SubscriptioConvergernService passed a context but Replicant.areZonesEnabled() is false" );
+    }
+    _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
   }
 
   /**
@@ -75,7 +83,7 @@ public abstract class Converger
   {
     AreaOfInterest groupTemplate = null;
     AreaOfInterestAction groupAction = null;
-    for ( final AreaOfInterest areaOfInterest : Replicant.context().getAreasOfInterest() )
+    for ( final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest() )
     {
       final ConvergeAction convergeAction =
         convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
@@ -122,11 +130,11 @@ public abstract class Converger
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
-    final Connector connector = _replicantRuntime.getConnector( address.getSystem() );
+    final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
     // service can be disconnected if it is not a required service and will converge later when it connects
     if ( ConnectorState.CONNECTED == connector.getState() )
     {
-      final Subscription subscription = Replicant.context().findSubscription( address );
+      final Subscription subscription = getReplicantContext().findSubscription( address );
       final boolean subscribed = null != subscription;
       final Object filter = areaOfInterest.getChannel().getFilter();
 
@@ -227,13 +235,13 @@ public abstract class Converger
   void removeOrphanSubscriptions()
   {
     final HashSet<ChannelAddress> expected = new HashSet<>();
-    Replicant.context().getAreasOfInterest().forEach( aoi -> expected.add( aoi.getAddress() ) );
+    getReplicantContext().getAreasOfInterest().forEach( aoi -> expected.add( aoi.getAddress() ) );
 
-    for ( final Subscription subscription : Replicant.context().getTypeSubscriptions() )
+    for ( final Subscription subscription : getReplicantContext().getTypeSubscriptions() )
     {
       removeSubscriptionIfOrphan( expected, subscription );
     }
-    for ( final Subscription subscription : Replicant.context().getInstanceSubscriptions() )
+    for ( final Subscription subscription : getReplicantContext().getInstanceSubscriptions() )
     {
       removeSubscriptionIfOrphan( expected, subscription );
     }
@@ -251,15 +259,16 @@ public abstract class Converger
 
   void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
-    final Connector service = _replicantRuntime.getConnector( address.getSystem() );
+    final ReplicantContext replicantContext = getReplicantContext();
+    final Connector service = getReplicantRuntime().getConnector( address.getSystem() );
     if ( ConnectorState.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
-      if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+      if ( Replicant.areSpiesEnabled() && replicantContext.getSpy().willPropagateSpyEvents() )
       {
-        final Subscription subscription = Replicant.context().findSubscription( address );
+        final Subscription subscription = replicantContext.findSubscription( address );
         assert null != subscription;
-        Replicant.context().getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
+        replicantContext.getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
       }
       service.requestUnsubscribe( address );
     }
@@ -270,10 +279,22 @@ public abstract class Converger
                                          @Nonnull final AreaOfInterest.Status status,
                                          @Nullable final Throwable throwable )
   {
-    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
+    final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
       areaOfInterest.updateAreaOfInterest( status, throwable );
     }
+  }
+
+  @Nonnull
+  private ReplicantRuntime getReplicantRuntime()
+  {
+    return getReplicantContext().getRuntime();
+  }
+
+  @Nonnull
+  final ReplicantContext getReplicantContext()
+  {
+    return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
   }
 }
