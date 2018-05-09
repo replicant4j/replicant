@@ -1,6 +1,6 @@
 package replicant;
 
-import arez.Arez;
+import arez.Disposable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +22,7 @@ public final class ReplicantContext
    * Support infrastructure for spy events.
    */
   @Nullable
-  private final SpyImpl _spy = Arez.areSpiesEnabled() ? new SpyImpl() : null;
+  private final SpyImpl _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
 
   /**
    * Return the collection of AreaOfInterest that have been declared.
