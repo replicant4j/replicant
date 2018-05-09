@@ -10,7 +10,7 @@ public class ConnectorStateTest
   public void isTransitionState()
     throws Exception
   {
-    assertEquals( ConnectorState.isTransitionState( ConnectorState.CONNECTING ), false );
+    assertEquals( ConnectorState.isTransitionState( ConnectorState.CONNECTING ), true );
     assertEquals( ConnectorState.isTransitionState( ConnectorState.CONNECTED ),false );
     assertEquals( ConnectorState.isTransitionState( ConnectorState.DISCONNECTING ),true );
     assertEquals( ConnectorState.isTransitionState( ConnectorState.DISCONNECTED ),false );
