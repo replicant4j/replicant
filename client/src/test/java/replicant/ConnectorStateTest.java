@@ -11,9 +11,9 @@ public class ConnectorStateTest
     throws Exception
   {
     assertEquals( ConnectorState.isTransitionState( ConnectorState.CONNECTING ), true );
-    assertEquals( ConnectorState.isTransitionState( ConnectorState.CONNECTED ),false );
-    assertEquals( ConnectorState.isTransitionState( ConnectorState.DISCONNECTING ),true );
-    assertEquals( ConnectorState.isTransitionState( ConnectorState.DISCONNECTED ),false );
-    assertEquals( ConnectorState.isTransitionState( ConnectorState.ERROR ),false );
+    assertEquals( ConnectorState.isTransitionState( ConnectorState.CONNECTED ), false );
+    assertEquals( ConnectorState.isTransitionState( ConnectorState.DISCONNECTING ), true );
+    assertEquals( ConnectorState.isTransitionState( ConnectorState.DISCONNECTED ), false );
+    assertEquals( ConnectorState.isTransitionState( ConnectorState.ERROR ), false );
   }
 }
