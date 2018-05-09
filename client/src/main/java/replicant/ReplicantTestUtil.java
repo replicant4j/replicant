@@ -17,7 +17,7 @@ public final class ReplicantTestUtil
   }
 
   /**
-   * Reset the state of Arez config to either production or development state.
+   * Reset the state of Replicant config to either production or development state.
    *
    * @param productionMode true to set it to production mode configuration, false to set it to development mode config.
    */
