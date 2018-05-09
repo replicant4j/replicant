@@ -43,11 +43,6 @@ public interface DataLoaderService
   void disconnect();
 
   /**
-   * Schedule a data load.
-   */
-  void scheduleDataLoad();
-
-  /**
    * Return the class of channels that this loader processes.
    */
   @Nonnull

@@ -519,11 +519,6 @@ public class ReplicantClientSystemTest
       return _disconnectCalled;
     }
 
-    @Override
-    public void scheduleDataLoad()
-    {
-    }
-
     @Nonnull
     @Override
     public Class<? extends Enum> getSystemType()

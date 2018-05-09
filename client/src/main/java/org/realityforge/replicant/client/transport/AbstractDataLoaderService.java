@@ -168,8 +168,7 @@ public abstract class AbstractDataLoaderService
   /**
    * Schedule data loads using incremental scheduler.
    */
-  @Override
-  public void scheduleDataLoad()
+  final void scheduleDataLoad()
   {
     if ( !_incrementalDataLoadInProgress )
     {
