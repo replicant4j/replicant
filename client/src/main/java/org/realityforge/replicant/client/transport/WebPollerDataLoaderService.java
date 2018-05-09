@@ -16,6 +16,7 @@ import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.ReplicantClientSystem;
 import replicant.SafeProcedure;
 import replicant.spy.DataLoadStatus;
 

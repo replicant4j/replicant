@@ -25,6 +25,7 @@ import replicant.Connector;
 import replicant.Entity;
 import replicant.FilterUtil;
 import replicant.Replicant;
+import replicant.ReplicantClientSystem;
 import replicant.SafeProcedure;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
