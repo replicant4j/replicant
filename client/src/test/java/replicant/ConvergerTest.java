@@ -24,4 +24,16 @@ public class ConvergerTest
     assertEquals( converger.getReplicantContext(), context );
     assertEquals( getFieldValue( converger, "_context" ), null );
   }
+
+  @Test
+  public void getReplicantContext_zonesEnabled()
+  {
+    ReplicantTestUtil.enableZones();
+    ReplicantTestUtil.resetState();
+
+    final ReplicantContext context = Replicant.context();
+    final Converger converger = context.getConverger();
+    assertEquals( converger.getReplicantContext(), context );
+    assertEquals( getFieldValue( converger, "_context" ), context );
+  }
 }
