@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
+import replicant.ReplicantClientSystem;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
@@ -44,7 +45,7 @@ abstract class TestDataLoadService
   TestDataLoadService( @Nonnull final ReplicantClientSystem replicantClientSystem,
                        @Nonnull final CacheService cacheService )
   {
-    super( replicantClientSystem, cacheService );
+    super( TestSystem.class, replicantClientSystem, cacheService );
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
     _cacheService = cacheService;
@@ -86,13 +87,6 @@ abstract class TestDataLoadService
   @Override
   protected void doDisconnect( @Nullable final Runnable runnable )
   {
-  }
-
-  @Nonnull
-  @Override
-  public Class<? extends Enum> getSystemType()
-  {
-    return TestSystem.class;
   }
 
   @Override

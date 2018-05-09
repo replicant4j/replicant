@@ -58,10 +58,11 @@ public abstract class AbstractDataLoaderService
   private ClientSession _session;
   private Disposable _schedulerLock;
 
-  protected AbstractDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+  protected AbstractDataLoaderService( @Nonnull final Class<?> systemType,
+                                       @Nonnull final ReplicantClientSystem replicantClientSystem,
                                        @Nonnull final CacheService cacheService )
   {
-    super( replicantClientSystem );
+    super( systemType, replicantClientSystem );
     _cacheService = Objects.requireNonNull( cacheService );
   }
 
@@ -959,9 +960,6 @@ public abstract class AbstractDataLoaderService
     return new ChannelAddress( channelType, subChannelId );
   }
 
-  @Nonnull
-  public abstract Class<? extends Enum> getSystemType();
-
   protected abstract void updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
                                                                  @Nullable Object filter );
 
@@ -1034,7 +1032,7 @@ public abstract class AbstractDataLoaderService
     throws IllegalArgumentException
   {
     assert getSystemType().isEnum();
-    return getSystemType().getEnumConstants()[ channel ];
+    return (Enum) getSystemType().getEnumConstants()[ channel ];
   }
 
   /**

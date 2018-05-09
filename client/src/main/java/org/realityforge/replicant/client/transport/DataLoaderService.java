@@ -46,7 +46,7 @@ public interface DataLoaderService
    * Return the class of channels that this loader processes.
    */
   @Nonnull
-  Class<? extends Enum> getSystemType();
+  Class<?> getSystemType();
 
   /**
    * Return true if an area of interest action with specified parameters is pending or being processed.

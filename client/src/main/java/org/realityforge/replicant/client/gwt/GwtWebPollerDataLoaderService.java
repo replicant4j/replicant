@@ -35,11 +35,12 @@ public abstract class GwtWebPollerDataLoaderService
     }
   }
 
-  public GwtWebPollerDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+  public GwtWebPollerDataLoaderService( @Nonnull final Class<?> systemType,
+                                        @Nonnull final ReplicantClientSystem replicantClientSystem,
                                         @Nonnull final CacheService cacheService,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( replicantClientSystem, cacheService, sessionContext );
+    super( systemType, replicantClientSystem, cacheService, sessionContext );
     createWebPoller();
     setupCloseHandler();
   }

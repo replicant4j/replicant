@@ -24,10 +24,11 @@ public abstract class WebPollerDataLoaderService
   protected static final int HTTP_STATUS_CODE_OK = 200;
   private WebPoller _webPoller;
 
-  protected WebPollerDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+  protected WebPollerDataLoaderService( @Nonnull final Class<?> systemType,
+                                        @Nonnull final ReplicantClientSystem replicantClientSystem,
                                         @Nonnull final CacheService cacheService )
   {
-    super( replicantClientSystem, cacheService );
+    super( systemType, replicantClientSystem, cacheService );
   }
 
   @Nonnull

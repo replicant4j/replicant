@@ -16,11 +16,12 @@ public abstract class GwtDataLoaderService
 
   private final SessionContext _sessionContext;
 
-  protected GwtDataLoaderService( @Nonnull final ReplicantClientSystem replicantClientSystem,
+  protected GwtDataLoaderService( @Nonnull final Class<?> systemType,
+                                  @Nonnull final ReplicantClientSystem replicantClientSystem,
                                   @Nonnull final CacheService cacheService,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( replicantClientSystem, cacheService );
+    super( systemType, replicantClientSystem, cacheService );
     _sessionContext = sessionContext;
 
     if ( Replicant.canRequestsDebugOutputBeEnabled() )
