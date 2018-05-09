@@ -67,6 +67,3 @@ Some actions that should occur at some point in the future.
 * Add `ReplicantRuntime` into context and make package access.
 
 * Move `Converger` into replicant package and make package access.
-
-* Extract `AbstractReplicantService` that has `ReplicantContext` field and refactor `SubscriptionService`,
-  `Converger`, `AreaOfInterestService`, `EntityService` to all extend it.
