@@ -128,7 +128,7 @@ public abstract class Converger
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
-    final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getSystem() );
+    final DataLoaderService service = _replicantClientSystem.getConnector( address.getSystem() );
     // service can be disconnected if it is not a required service and will converge later when it connects
     if ( DataLoaderService.State.CONNECTED == service.getState() )
     {
@@ -257,7 +257,7 @@ public abstract class Converger
 
   void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
-    final DataLoaderService service = _replicantClientSystem.getDataLoaderService( address.getSystem() );
+    final DataLoaderService service = _replicantClientSystem.getConnector( address.getSystem() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
