@@ -143,10 +143,7 @@ public abstract class AbstractDataLoaderService
         context().safeAction( generateName( "purgeSubscriptions" ), this::purgeSubscriptions );
       }
     }
-    if ( null != postAction )
-    {
-      postAction.run();
-    }
+    action.call();
   }
 
   @Nullable
