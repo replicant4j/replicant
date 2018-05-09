@@ -16,10 +16,10 @@ public class AreaOfInterestCreatedEventTest
   @Test
   public void basicOperation()
   {
+    final ChannelAddress address = new ChannelAddress( G.G1 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                                         filter ) );
+      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
 
     final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
 
