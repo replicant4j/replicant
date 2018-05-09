@@ -54,7 +54,8 @@ final class ReplicantZoneHolder
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( Replicant::areZonesEnabled, () -> "Replicant-0002: Invoked Replicant.activateZone() but zones are not enabled." );
+      invariant( Replicant::areZonesEnabled,
+                 () -> "Replicant-0002: Invoked Replicant.activateZone() but zones are not enabled." );
     }
     assert null != c_zoneStack;
     assert null != zone;
@@ -72,7 +73,8 @@ final class ReplicantZoneHolder
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( Replicant::areZonesEnabled, () -> "Replicant-0003: Invoked Replicant.deactivateZone() but zones are not enabled." );
+      invariant( Replicant::areZonesEnabled,
+                 () -> "Replicant-0003: Invoked Replicant.deactivateZone() but zones are not enabled." );
     }
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -92,7 +94,8 @@ final class ReplicantZoneHolder
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( Replicant::areZonesEnabled, () -> "Replicant-0005: Invoked Replicant.currentZone() but zones are not enabled." );
+      invariant( Replicant::areZonesEnabled,
+                 () -> "Replicant-0005: Invoked Replicant.currentZone() but zones are not enabled." );
     }
     assert null != c_zone;
     return c_zone;
