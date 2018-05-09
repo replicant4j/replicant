@@ -108,20 +108,20 @@ public abstract class ReplicantRuntime
     {
       if ( entry.isRequired() )
       {
-        final Connector.State state = entry.getConnector().getState();
-        if ( Connector.State.DISCONNECTED == state )
+        final ConnectorState state = entry.getConnector().getState();
+        if ( ConnectorState.DISCONNECTED == state )
         {
           disconnected = true;
         }
-        else if ( Connector.State.DISCONNECTING == state )
+        else if ( ConnectorState.DISCONNECTING == state )
         {
           disconnecting = true;
         }
-        else if ( Connector.State.CONNECTING == state )
+        else if ( ConnectorState.CONNECTING == state )
         {
           connecting = true;
         }
-        else if ( Connector.State.ERROR == state )
+        else if ( ConnectorState.ERROR == state )
         {
           error = true;
         }
@@ -208,14 +208,14 @@ public abstract class ReplicantRuntime
     final boolean active = isActive();
     for ( final ConnectorEntry entry : getConnectors() )
     {
-      final Connector.State state = entry.getConnector().getState();
-      if ( !DataLoaderService.State.isTransitionState( state ) )
+      final ConnectorState state = entry.getConnector().getState();
+      if ( !ConnectorState.isTransitionState( state ) )
       {
-        if ( active && Connector.State.CONNECTED != state )
+        if ( active && ConnectorState.CONNECTED != state )
         {
           entry.attemptAction( DataLoaderService::connect );
         }
-        else if ( !active && Connector.State.DISCONNECTED != state && Connector.State.ERROR != state )
+        else if ( !active && ConnectorState.DISCONNECTED != state && ConnectorState.ERROR != state )
         {
           entry.attemptAction( DataLoaderService::disconnect );
         }

@@ -43,7 +43,7 @@ public abstract class Connector
   @Nonnull
   private final ReplicantRuntime _replicantRuntime;
   @Nonnull
-  private State _state = State.DISCONNECTED;
+  private ConnectorState _state = ConnectorState.DISCONNECTED;
 
   protected Connector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantRuntime replicantRuntime )
   {
@@ -63,14 +63,14 @@ public abstract class Connector
    */
   public void connect()
   {
-    final State state = getState();
-    if ( State.CONNECTING != state && State.CONNECTED != state )
+    final ConnectorState state = getState();
+    if ( ConnectorState.CONNECTING != state && ConnectorState.CONNECTED != state )
     {
-      State newState = State.ERROR;
+      ConnectorState newState = ConnectorState.ERROR;
       try
       {
         doConnect( this::onConnected );
-        newState = State.CONNECTING;
+        newState = ConnectorState.CONNECTING;
       }
       finally
       {
@@ -91,14 +91,14 @@ public abstract class Connector
    */
   public void disconnect()
   {
-    final State state = getState();
-    if ( State.DISCONNECTING != state && State.DISCONNECTED != state )
+    final ConnectorState state = getState();
+    if ( ConnectorState.DISCONNECTING != state && ConnectorState.DISCONNECTED != state )
     {
-      State newState = State.ERROR;
+      ConnectorState newState = ConnectorState.ERROR;
       try
       {
         doDisconnect( this::onDisconnected );
-        newState = State.DISCONNECTING;
+        newState = ConnectorState.DISCONNECTING;
       }
       finally
       {
@@ -151,12 +151,12 @@ public abstract class Connector
   @Nonnull
   @Override
   @Observable
-  public State getState()
+  public ConnectorState getState()
   {
     return _state;
   }
 
-  protected void setState( @Nonnull final State state )
+  protected void setState( @Nonnull final ConnectorState state )
   {
     _state = Objects.requireNonNull( state );
   }
@@ -167,7 +167,7 @@ public abstract class Connector
   @Action
   protected void onConnected()
   {
-    setState( State.CONNECTED );
+    setState( ConnectorState.CONNECTED );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new ConnectedEvent( getSystemType() ) );
@@ -180,7 +180,7 @@ public abstract class Connector
   @Action
   protected void onConnectFailure( @Nonnull final Throwable error )
   {
-    setState( State.ERROR );
+    setState( ConnectorState.ERROR );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new ConnectFailureEvent( getSystemType(), error ) );
@@ -193,7 +193,7 @@ public abstract class Connector
   @Action
   protected void onDisconnected()
   {
-    setState( State.DISCONNECTED );
+    setState( ConnectorState.DISCONNECTED );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new DisconnectedEvent( getSystemType() ) );
@@ -206,7 +206,7 @@ public abstract class Connector
   @Action
   protected void onDisconnectFailure( @Nonnull final Throwable error )
   {
-    setState( State.ERROR );
+    setState( ConnectorState.ERROR );
     if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
     {
       Replicant.context().getSpy().reportSpyEvent( new DisconnectFailureEvent( getSystemType(), error ) );
@@ -254,7 +254,7 @@ public abstract class Connector
 
   final void disconnectIfPossible( @Nonnull final Throwable cause )
   {
-    if ( !DataLoaderService.State.isTransitionState( getState() ) )
+    if ( !ConnectorState.isTransitionState( getState() ) )
     {
       if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
       {

@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import org.realityforge.anodoc.VisibleForTesting;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
+import replicant.ConnectorState;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.ReplicantRuntime;
@@ -131,7 +132,7 @@ public abstract class Converger
     final ChannelAddress address = areaOfInterest.getAddress();
     final DataLoaderService service = _replicantRuntime.getConnector( address.getSystem() );
     // service can be disconnected if it is not a required service and will converge later when it connects
-    if ( DataLoaderService.State.CONNECTED == service.getState() )
+    if ( ConnectorState.CONNECTED == service.getState() )
     {
       final Subscription subscription = Replicant.context().findSubscription( address );
       final boolean subscribed = null != subscription;
@@ -259,7 +260,7 @@ public abstract class Converger
   void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
     final DataLoaderService service = _replicantRuntime.getConnector( address.getSystem() );
-    if ( DataLoaderService.State.CONNECTED == service.getState() &&
+    if ( ConnectorState.CONNECTED == service.getState() &&
          !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
       if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )

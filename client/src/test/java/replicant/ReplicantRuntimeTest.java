@@ -145,7 +145,7 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock1 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.activate();
@@ -156,7 +156,7 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock2 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.activate();
@@ -164,7 +164,7 @@ public class ReplicantRuntimeTest
     assertEquals( service1.isConnectCalled(), false );
 
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.activate();
@@ -174,7 +174,7 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock3 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.activate();
@@ -185,7 +185,7 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock4 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
     runtime.activate();
@@ -196,7 +196,7 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock5 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.activate();
@@ -216,8 +216,8 @@ public class ReplicantRuntimeTest
     final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemType( service3.getSystemType() );
 
     final Disposable schedulerLock1 = Arez.context().pauseScheduler();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     runtime.deactivate();
     entry1.getRateLimiter().fillBucket();
     entry3.getRateLimiter().fillBucket();
@@ -232,10 +232,10 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock2 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.CONNECTING ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     runtime.activate();
@@ -245,10 +245,10 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock3 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.DISCONNECTING ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     runtime.activate();
@@ -260,10 +260,10 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock4 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     runtime.activate();
@@ -275,10 +275,10 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock5 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     entry3.getRateLimiter().setTokenCount( 0 );
     service3.reset();
     runtime.activate();
@@ -290,10 +290,10 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock6 = Arez.context().pauseScheduler();
     runtime.deactivate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     runtime.activate();
@@ -307,7 +307,7 @@ public class ReplicantRuntimeTest
   {
     final ReplicantRuntime runtime = ReplicantRuntime.create();
     final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
@@ -320,14 +320,14 @@ public class ReplicantRuntimeTest
     // set service state to in transition so connect is not called
 
     runtime.activate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.deactivate();
     assertEquals( service1.isDisconnectCalled(), false );
 
     runtime.activate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.deactivate();
@@ -336,7 +336,7 @@ public class ReplicantRuntimeTest
     // set service state to DISCONNECTED so no action required
 
     runtime.activate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.deactivate();
@@ -345,7 +345,7 @@ public class ReplicantRuntimeTest
     // set service state to ERROR so no action required
 
     runtime.activate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.ERROR ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.ERROR ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.deactivate();
@@ -354,7 +354,7 @@ public class ReplicantRuntimeTest
     // set service state to connected but rate limit it
 
     runtime.activate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
     runtime.deactivate();
@@ -363,7 +363,7 @@ public class ReplicantRuntimeTest
     // set service state to connected
 
     runtime.activate();
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     runtime.deactivate();
@@ -375,10 +375,10 @@ public class ReplicantRuntimeTest
   {
     final ReplicantRuntime runtime = ReplicantRuntime.create();
     final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
-    Arez.context().safeAction( () -> service1.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
     final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class, runtime );
-    Arez.context().safeAction( () -> service3.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
     final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemType( service3.getSystemType() );
@@ -399,111 +399,111 @@ public class ReplicantRuntimeTest
   {
     // Single data source, required
 
-    assertUpdateState( RuntimeState.DISCONNECTED, DataLoaderService.State.DISCONNECTED );
-    assertUpdateState( RuntimeState.CONNECTED, DataLoaderService.State.CONNECTED );
-    assertUpdateState( RuntimeState.CONNECTING, DataLoaderService.State.CONNECTING );
-    assertUpdateState( RuntimeState.DISCONNECTING, DataLoaderService.State.DISCONNECTING );
-    assertUpdateState( RuntimeState.ERROR, DataLoaderService.State.ERROR );
+    assertUpdateState( RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED );
+    assertUpdateState( RuntimeState.CONNECTED, ConnectorState.CONNECTED );
+    assertUpdateState( RuntimeState.CONNECTING, ConnectorState.CONNECTING );
+    assertUpdateState( RuntimeState.DISCONNECTING, ConnectorState.DISCONNECTING );
+    assertUpdateState( RuntimeState.ERROR, ConnectorState.ERROR );
 
     // 2 Data sources, both required
 
     assertUpdateState( RuntimeState.ERROR,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.ERROR );
     assertUpdateState( RuntimeState.ERROR,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.ERROR );
     assertUpdateState( RuntimeState.ERROR,
-                       DataLoaderService.State.DISCONNECTED,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.DISCONNECTED,
+                       ConnectorState.ERROR );
     assertUpdateState( RuntimeState.ERROR,
-                       DataLoaderService.State.DISCONNECTING,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.DISCONNECTING,
+                       ConnectorState.ERROR );
     assertUpdateState( RuntimeState.ERROR,
-                       DataLoaderService.State.ERROR,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.ERROR,
+                       ConnectorState.ERROR );
 
     assertUpdateState( RuntimeState.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED );
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTED );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTED );
     assertUpdateState( RuntimeState.DISCONNECTED,
-                       DataLoaderService.State.DISCONNECTED,
-                       DataLoaderService.State.CONNECTED );
+                       ConnectorState.DISCONNECTED,
+                       ConnectorState.CONNECTED );
     assertUpdateState( RuntimeState.DISCONNECTING,
-                       DataLoaderService.State.DISCONNECTING,
-                       DataLoaderService.State.CONNECTED );
+                       ConnectorState.DISCONNECTING,
+                       ConnectorState.CONNECTED );
 
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTING );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTING );
     assertUpdateState( RuntimeState.DISCONNECTED,
-                       DataLoaderService.State.DISCONNECTED,
-                       DataLoaderService.State.CONNECTING );
+                       ConnectorState.DISCONNECTED,
+                       ConnectorState.CONNECTING );
     assertUpdateState( RuntimeState.DISCONNECTING,
-                       DataLoaderService.State.DISCONNECTING,
-                       DataLoaderService.State.CONNECTING );
+                       ConnectorState.DISCONNECTING,
+                       ConnectorState.CONNECTING );
 
     assertUpdateState( RuntimeState.DISCONNECTED,
-                       DataLoaderService.State.DISCONNECTED,
-                       DataLoaderService.State.DISCONNECTING );
+                       ConnectorState.DISCONNECTED,
+                       ConnectorState.DISCONNECTING );
     assertUpdateState( RuntimeState.DISCONNECTING,
-                       DataLoaderService.State.DISCONNECTING,
-                       DataLoaderService.State.DISCONNECTING );
+                       ConnectorState.DISCONNECTING,
+                       ConnectorState.DISCONNECTING );
 
     assertUpdateState( RuntimeState.DISCONNECTED,
-                       DataLoaderService.State.DISCONNECTED,
-                       DataLoaderService.State.DISCONNECTED );
+                       ConnectorState.DISCONNECTED,
+                       ConnectorState.DISCONNECTED );
 
     // 3 Data sources, first two required, third optional
 
     assertUpdateState( RuntimeState.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED );
     assertUpdateState( RuntimeState.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.ERROR );
     assertUpdateState( RuntimeState.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTING );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTING );
     assertUpdateState( RuntimeState.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.DISCONNECTING );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.DISCONNECTING );
     assertUpdateState( RuntimeState.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.DISCONNECTED );
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.DISCONNECTED );
 
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.ERROR );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.ERROR );
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTED );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTED );
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.CONNECTING );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.CONNECTING );
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.DISCONNECTED );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.DISCONNECTED );
     assertUpdateState( RuntimeState.CONNECTING,
-                       DataLoaderService.State.CONNECTING,
-                       DataLoaderService.State.CONNECTED,
-                       DataLoaderService.State.DISCONNECTING );
+                       ConnectorState.CONNECTING,
+                       ConnectorState.CONNECTED,
+                       ConnectorState.DISCONNECTING );
   }
 
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final DataLoaderService.State service1State )
+                                  @Nonnull final ConnectorState service1State )
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
     final ReplicantRuntime runtime = ReplicantRuntime.create();
@@ -516,8 +516,8 @@ public class ReplicantRuntimeTest
   }
 
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final DataLoaderService.State service1State,
-                                  @Nonnull final DataLoaderService.State service2State )
+                                  @Nonnull final ConnectorState service1State,
+                                  @Nonnull final ConnectorState service2State )
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
     final ReplicantRuntime runtime = ReplicantRuntime.create();
@@ -532,9 +532,9 @@ public class ReplicantRuntimeTest
   }
 
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final DataLoaderService.State service1State,
-                                  @Nonnull final DataLoaderService.State service2State,
-                                  @Nonnull final DataLoaderService.State service3State )
+                                  @Nonnull final ConnectorState service1State,
+                                  @Nonnull final ConnectorState service2State,
+                                  @Nonnull final ConnectorState service3State )
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
 

@@ -13,6 +13,7 @@ import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Connector;
+import replicant.ConnectorState;
 import replicant.Replicant;
 import replicant.ReplicantRuntime;
 import replicant.Subscription;
@@ -77,7 +78,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( -1 );
@@ -106,7 +107,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.DISCONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.DISCONNECTED );
 
     c.removeOrphanSubscription( address );
 
@@ -125,7 +126,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( Boolean.TRUE );
@@ -147,7 +148,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( TestSystemA.class ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( -1 );
@@ -219,7 +220,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null ) ).
       thenReturn( -1 );
@@ -245,7 +246,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, null ) ).
       thenReturn( -1 );
@@ -275,7 +276,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, null ) ).
       thenReturn( -1 );
@@ -305,7 +306,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, null ) ).
       thenReturn( -1 );
@@ -334,7 +335,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, null ) ).
       thenReturn( 1 );
@@ -363,7 +364,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     Replicant.context().createSubscription( address, "Filter1", true );
 
@@ -397,7 +398,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, "Filter1" ) ).
       thenReturn( -1 );
@@ -478,7 +479,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -508,7 +509,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address2, null ) ).
       thenReturn( -1 );
@@ -565,7 +566,7 @@ public class ConvergerTest
     when( clientSystem.getConnector( address.getSystem() ) ).
       thenReturn( service );
 
-    when( service.getState() ).thenReturn( DataLoaderService.State.CONNECTED );
+    when( service.getState() ).thenReturn( ConnectorState.CONNECTED );
 
     when( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address2, null ) ).
       thenReturn( -1 );

@@ -3,7 +3,6 @@ package replicant;
 import arez.Arez;
 import arez.Disposable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.transport.DataLoaderService;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
@@ -46,11 +45,11 @@ public class ConnectorTest
     assertEquals( connector.getReplicantRuntime(), replicantRuntime );
 
     Arez.context()
-      .safeAction( () -> Assert.assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTED ) );
+      .safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     schedulerLock.dispose();
 
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
   }
 
   @Test
@@ -76,11 +75,11 @@ public class ConnectorTest
     Arez.context().pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     Arez.context().safeAction( connector::connect );
 
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.CONNECTING ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
   }
 
   @Test
@@ -90,12 +89,12 @@ public class ConnectorTest
     Arez.context().pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     connector.setErrorOnConnect( true );
     assertThrows( () -> Arez.context().safeAction( connector::connect ) );
 
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.ERROR ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.ERROR ) );
   }
 
   @Test
@@ -105,11 +104,11 @@ public class ConnectorTest
     Arez.context().pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
-    Arez.context().safeAction( () -> connector.setState( Connector.State.CONNECTED ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     Arez.context().safeAction( connector::disconnect );
 
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
 
   @Test
@@ -119,12 +118,12 @@ public class ConnectorTest
     Arez.context().pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
-    Arez.context().safeAction( () -> connector.setState( Connector.State.CONNECTED ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     connector.setErrorOnDisconnect( true );
     assertThrows( () -> Arez.context().safeAction( connector::disconnect ) );
 
-    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), Connector.State.ERROR ) );
+    Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.ERROR ) );
   }
 
   @Test
@@ -132,7 +131,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
@@ -142,7 +141,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( connector::onDisconnected );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTED ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.DISCONNECTED ) );
   }
@@ -153,7 +152,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -174,7 +173,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
@@ -186,7 +185,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.onDisconnectFailure( error ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.ERROR ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.ERROR ) );
   }
@@ -197,7 +196,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -222,7 +221,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
@@ -232,7 +231,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( connector::onConnected );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTED ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTED ) );
   }
@@ -243,7 +242,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -261,7 +260,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.CONNECTING ) );
@@ -273,7 +272,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.onConnectFailure( error ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.ERROR ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
     Arez.context().safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                                    RuntimeState.ERROR ) );
   }
@@ -284,7 +283,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -309,7 +308,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -340,7 +339,7 @@ public class ConnectorTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create( G.class );
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -352,7 +351,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.onMessageProcessFailure( error ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
 
   @Test
@@ -361,7 +360,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -383,13 +382,13 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
 
     Arez.context().safeAction( () -> connector.disconnectIfPossible( error ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
 
   @Test
@@ -398,7 +397,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final Throwable error = new Throwable();
 
@@ -409,7 +408,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 0 );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
   }
 
   @Test
@@ -418,7 +417,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -439,7 +438,7 @@ public class ConnectorTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create( G.class );
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTED ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -451,7 +450,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.onMessageReadFailure( error ) );
 
-    Arez.context().safeAction( () -> assertEquals( connector.getState(), DataLoaderService.State.DISCONNECTING ) );
+    Arez.context().safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
 
   @Test
@@ -460,7 +459,7 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> connector.setState( DataLoaderService.State.CONNECTING ) );
+    Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
