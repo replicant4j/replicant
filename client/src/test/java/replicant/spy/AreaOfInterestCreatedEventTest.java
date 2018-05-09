@@ -8,6 +8,7 @@ import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.TestConnector;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestCreatedEventTest
@@ -16,6 +17,7 @@ public class AreaOfInterestCreatedEventTest
   @Test
   public void basicOperation()
   {
+    TestConnector.create( G.class );
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
