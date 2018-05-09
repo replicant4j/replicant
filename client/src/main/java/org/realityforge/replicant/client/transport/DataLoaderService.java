@@ -10,7 +10,6 @@ import replicant.ConnectorState;
  */
 public interface DataLoaderService
 {
-
   /**
    * Return the state of the service.
    */
