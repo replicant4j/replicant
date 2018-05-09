@@ -16,6 +16,7 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.FilterUtil;
 import replicant.Replicant;
+import replicant.ReplicantClientSystem;
 import replicant.Subscription;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
