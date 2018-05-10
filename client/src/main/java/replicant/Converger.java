@@ -271,6 +271,18 @@ public abstract class Converger
     }
   }
 
+  /**
+   * Return true if connector for address has a remove pending for address or the connector is not connected.
+   *
+   * @return true if connector for address has a remove pending for address or the connector is not connected.
+   */
+  private boolean isRemovePending( @Nonnull final ChannelAddress address )
+  {
+    final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
+    return ConnectorState.CONNECTED != connector.getState() ||
+           connector.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null );
+  }
+
   @Nonnull
   private ReplicantRuntime getReplicantRuntime()
   {
