@@ -231,6 +231,34 @@ public class ConvergerTest
     } );
   }
 
+  @Test
+  public void removeOrphanSubscriptions_whenSubscriptionImplicit()
+  {
+    final ReplicantContext context = Replicant.context();
+
+    final TestConnector connector = TestConnector.create( G.class );
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    Arez.context().safeAction( () -> {
+
+      context.createSubscription( address, null, false );
+
+      connector.setState( ConnectorState.CONNECTED );
+
+      final TestSpyEventHandler handler = new TestSpyEventHandler();
+      context.getSpy().addSpyEventHandler( handler );
+
+      context.getConverger().removeOrphanSubscriptions();
+
+      handler.assertEventCount( 0 );
+
+      //TODO: Verify requestUnsubscribe( address ) NOT invoked
+    } );
+  }
+
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
