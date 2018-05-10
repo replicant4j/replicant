@@ -255,12 +255,11 @@ public abstract class Converger
 
   private void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
-    final ReplicantContext replicantContext = getReplicantContext();
-    if ( Replicant.areSpiesEnabled() && replicantContext.getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      final Subscription subscription = replicantContext.findSubscription( address );
+      final Subscription subscription = getReplicantContext().findSubscription( address );
       assert null != subscription;
-      replicantContext.getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
     }
     getReplicantRuntime().getConnector( address.getSystem() ).requestUnsubscribe( address );
   }
