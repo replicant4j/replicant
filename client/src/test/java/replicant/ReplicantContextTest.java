@@ -12,6 +12,9 @@ public class ReplicantContextTest
   @Test
   public void areasOfInterest()
   {
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
     final ReplicantContext context = Replicant.context();
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final String filter = ValueUtil.randomString();
@@ -111,6 +114,9 @@ public class ReplicantContextTest
   @Test
   public void subscriptions()
   {
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
     final ReplicantContext context = Replicant.context();
     final ChannelAddress address1 = new ChannelAddress( G.G1 );
     final ChannelAddress address2 = new ChannelAddress( G.G2, 1 );
