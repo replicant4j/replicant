@@ -122,7 +122,8 @@ public class ConsoleSpyEventProcessor
    */
   private void onMessageProcessFailure( @Nonnull final MessageProcessFailureEvent e )
   {
-    log( "%cConnector Error Processing Message " + e.getError(), ERROR_COLOR );
+    log( "%cConnector Error Processing Message. System: " +
+         e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
@@ -132,7 +133,8 @@ public class ConsoleSpyEventProcessor
    */
   private void onMessageReadFailure( @Nonnull final MessageReadFailureEvent e )
   {
-    log( "%cConnector Error Reading Message " + e.getError(), ERROR_COLOR );
+    log( "%cConnector Error Reading Message. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+         ERROR_COLOR );
   }
 
   /**
