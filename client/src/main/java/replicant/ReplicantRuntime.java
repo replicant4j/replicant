@@ -106,26 +106,43 @@ abstract class ReplicantRuntime
     // Are any required in error?
     boolean error = false;
 
-    for ( final ConnectorEntry entry : getConnectors() )
+    final List<ConnectorEntry> connectors = getConnectors();
+    if ( connectors.isEmpty() )
     {
-      if ( entry.isRequired() )
+      // If there are no connectors then we just mirror the desired state (i.e. isActive flag)
+      // to the actual state
+      if ( isActive() )
       {
-        final ConnectorState state = entry.getConnector().getState();
-        if ( ConnectorState.DISCONNECTED == state )
+        return RuntimeState.CONNECTED;
+      }
+      else
+      {
+        return RuntimeState.DISCONNECTED;
+      }
+    }
+    else
+    {
+      for ( final ConnectorEntry entry : connectors )
+      {
+        if ( entry.isRequired() )
         {
-          disconnected = true;
-        }
-        else if ( ConnectorState.DISCONNECTING == state )
-        {
-          disconnecting = true;
-        }
-        else if ( ConnectorState.CONNECTING == state )
-        {
-          connecting = true;
-        }
-        else if ( ConnectorState.ERROR == state )
-        {
-          error = true;
+          final ConnectorState state = entry.getConnector().getState();
+          if ( ConnectorState.DISCONNECTED == state )
+          {
+            disconnected = true;
+          }
+          else if ( ConnectorState.DISCONNECTING == state )
+          {
+            disconnecting = true;
+          }
+          else if ( ConnectorState.CONNECTING == state )
+          {
+            connecting = true;
+          }
+          else if ( ConnectorState.ERROR == state )
+          {
+            error = true;
+          }
         }
       }
     }

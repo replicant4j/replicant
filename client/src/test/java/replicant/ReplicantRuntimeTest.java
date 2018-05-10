@@ -394,6 +394,11 @@ public class ReplicantRuntimeTest
   @Test
   public void updateStatus()
   {
+    // No connectors just active/inactive state
+
+    assertUpdateState( RuntimeState.CONNECTED, true );
+    assertUpdateState( RuntimeState.DISCONNECTED, false );
+
     // Single data source, required
 
     assertUpdateState( RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED );
@@ -497,6 +502,25 @@ public class ReplicantRuntimeTest
                        ConnectorState.CONNECTING,
                        ConnectorState.CONNECTED,
                        ConnectorState.DISCONNECTING );
+  }
+
+  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
+                                  final boolean isActive )
+  {
+    ReplicantTestUtil.resetState();
+    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    if ( isActive )
+    {
+      runtime.activate();
+    }
+    else
+    {
+      runtime.deactivate();
+    }
+    Arez.context().safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
+
+    schedulerLock.dispose();
   }
 
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
