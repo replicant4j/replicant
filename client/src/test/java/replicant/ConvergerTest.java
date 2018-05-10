@@ -327,6 +327,35 @@ public class ConvergerTest
     } );
   }
 
+  @Test( enabled = false )
+  public void removeOrphanSubscriptions_whenRemoveIsPending()
+  {
+    //TODO: This test should be re-enabled once figure out how can manipulate AOI action queue
+    final ReplicantContext context = Replicant.context();
+
+    final TestConnector connector = TestConnector.create( G.class );
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    Arez.context().safeAction( () -> {
+
+      context.createSubscription( address, null, true );
+
+      connector.setState( ConnectorState.CONNECTED );
+
+      final TestSpyEventHandler handler = new TestSpyEventHandler();
+      context.getSpy().addSpyEventHandler( handler );
+
+      context.getConverger().removeOrphanSubscriptions();
+
+      handler.assertEventCount( 0 );
+
+      //TODO: Verify requestUnsubscribe( address ) NOT invoked
+    } );
+  }
+
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
