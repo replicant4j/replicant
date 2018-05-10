@@ -259,9 +259,9 @@ public abstract class Converger
   void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
     final ReplicantContext replicantContext = getReplicantContext();
-    final Connector service = getReplicantRuntime().getConnector( address.getSystem() );
-    if ( ConnectorState.CONNECTED == service.getState() &&
-         !service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
+    final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
+    if ( ConnectorState.CONNECTED == connector.getState() &&
+         !connector.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
     {
       if ( Replicant.areSpiesEnabled() && replicantContext.getSpy().willPropagateSpyEvents() )
       {
@@ -269,7 +269,7 @@ public abstract class Converger
         assert null != subscription;
         replicantContext.getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
       }
-      service.requestUnsubscribe( address );
+      connector.requestUnsubscribe( address );
     }
   }
 
