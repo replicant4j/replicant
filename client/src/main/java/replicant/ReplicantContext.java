@@ -272,6 +272,47 @@ public final class ReplicantContext
   }
 
   /**
+   * Set the desired state of the context as "active" and start to converge Connectors to being CONNECTED.
+   * The desired state of the context is accessible via {@link #isActive()} while the actual state of the
+   * context is accessible via {@link #getState()}.
+   */
+  public void activate()
+  {
+    getRuntime().activate();
+  }
+
+  /**
+   * Set the desired state of the context as "inactive" and start to converge Connectors to being DISCONNECTED.
+   * The desired state of the context is accessible via {@link #isActive()} while the actual state of the
+   * context is accessible via {@link #getState()}.
+   */
+  public void deactivate()
+  {
+    getRuntime().deactivate();
+  }
+
+  /**
+   * Return true if the desired state of the system is "active", false otherwise.
+   * This property is Arez observable.
+   *
+   * @return true if the desired state of the system is "active", false otherwise.
+   */
+  public boolean isActive()
+  {
+    return getRuntime().isActive();
+  }
+
+  /**
+   * Return the actual state of the context.
+   *
+   * @return the actual state of the context.
+   */
+  public RuntimeState getState()
+  {
+    return getRuntime().getState();
+  }
+
+  /**
    * Return the underlying AreaOfInterestService implementation.
    *
    * @return the underlying AreaOfInterestService implementation.

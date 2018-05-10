@@ -246,6 +246,22 @@ public class ReplicantContextTest
     } );
   }
 
+  @Test
+  public void active()
+    throws Exception
+  {
+
+    final ReplicantContext context = Replicant.context();
+    Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
+    Arez.context().safeAction( () -> assertEquals( context.isActive(), true ) );
+    context.deactivate();
+    Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.DISCONNECTED ) );
+    Arez.context().safeAction( () -> assertEquals( context.isActive(), false ) );
+    context.activate();
+    Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
+    Arez.context().safeAction( () -> assertEquals( context.isActive(), true ) );
+  }
+
   enum G
   {
     G1, G2
