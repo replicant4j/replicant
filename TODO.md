@@ -63,3 +63,5 @@ Some actions that should occur at some point in the future.
 
 * The `Channel` class should be made package access and the `AreaOfInterest` and `Subscription` should expose
   the publicly accessible details (i.e. Filter read? ChannelAddress).
+
+* Make sure ConsoleLogger logs all spy events
