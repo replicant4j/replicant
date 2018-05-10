@@ -33,19 +33,19 @@ public abstract class Converger
    * This is typically used to ensure the subscriptions are uptodate prior to attempting to convergeStep.
    */
   @Observable
-  public abstract void setPreConvergeAction( @Nullable Runnable preConvergeAction );
+  public abstract void setPreConvergeAction( @Nullable SafeProcedure preConvergeAction );
 
   @Nullable
-  public abstract Runnable getPreConvergeAction();
+  public abstract SafeProcedure getPreConvergeAction();
 
   /**
    * Set action that is runs after all the subscriptions have converged.
    */
   @Observable
-  public abstract void setConvergeCompleteAction( @Nullable Runnable convergeCompleteAction );
+  public abstract void setConvergeCompleteAction( @Nullable SafeProcedure convergeCompleteAction );
 
   @Nullable
-  public abstract Runnable getConvergeCompleteAction();
+  public abstract SafeProcedure getConvergeCompleteAction();
 
   @Autorun
   void converge()
@@ -60,19 +60,19 @@ public abstract class Converger
 
   void preConverge()
   {
-    final Runnable preConvergeAction = getPreConvergeAction();
+    final SafeProcedure preConvergeAction = getPreConvergeAction();
     if ( null != preConvergeAction )
     {
-      preConvergeAction.run();
+      preConvergeAction.call();
     }
   }
 
   void convergeComplete()
   {
-    final Runnable convergeCompleteAction = getConvergeCompleteAction();
+    final SafeProcedure convergeCompleteAction = getConvergeCompleteAction();
     if ( null != convergeCompleteAction )
     {
-      convergeCompleteAction.run();
+      convergeCompleteAction.call();
     }
   }
 
