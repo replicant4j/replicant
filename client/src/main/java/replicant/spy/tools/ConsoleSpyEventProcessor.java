@@ -12,6 +12,7 @@ import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
+import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
@@ -53,6 +54,7 @@ public class ConsoleSpyEventProcessor
     on( ConnectedEvent.class, this::onConnected );
     on( ConnectFailureEvent.class, this::onConnectFailure );
     on( DisconnectedEvent.class, this::onDisconnected );
+    on( DisconnectFailureEvent.class, this::onDisconnectFailure );
   }
 
   /**
@@ -83,6 +85,17 @@ public class ConsoleSpyEventProcessor
   private void onDisconnected( @Nonnull final DisconnectedEvent e )
   {
     log( "%cConnector Disconnected " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the DisconnectFailureEvent.
+   *
+   * @param e the event.
+   */
+  private void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
+  {
+    log( "%cConnector Disconnect Failed " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+         ERROR_COLOR );
   }
 
   /**
