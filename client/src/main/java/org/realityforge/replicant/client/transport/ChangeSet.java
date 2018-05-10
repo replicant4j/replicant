@@ -48,7 +48,7 @@ public interface ChangeSet
   int getChannelActionCount();
 
   /**
-   * Return the changaction with specific index.
+   * Return the change action at a specific index.
    *
    * @param index the index of the action.
    * @return the action.
