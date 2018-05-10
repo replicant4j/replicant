@@ -250,7 +250,6 @@ public class ReplicantContextTest
   public void active()
     throws Exception
   {
-
     final ReplicantContext context = Replicant.context();
     Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
     Arez.context().safeAction( () -> assertEquals( context.isActive(), true ) );
