@@ -16,13 +16,8 @@ import static org.realityforge.braincheck.Guards.*;
 @Singleton
 @ArezComponent
 public abstract class Converger
+  extends ReplicantService
 {
-  /**
-   * Reference to the context to which this service belongs.
-   */
-  @Nullable
-  private final ReplicantContext _context;
-
   static Converger create( @Nullable final ReplicantContext context )
   {
     return new Arez_Converger( context );
@@ -30,12 +25,7 @@ public abstract class Converger
 
   Converger( @Nullable final ReplicantContext context )
   {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      apiInvariant( () -> Replicant.areZonesEnabled() || null == context,
-                    () -> "Replicant-0124: Converger passed a context but Replicant.areZonesEnabled() is false" );
-    }
-    _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
+    super( context );
   }
 
   /**
@@ -280,11 +270,5 @@ public abstract class Converger
   private ReplicantRuntime getReplicantRuntime()
   {
     return getReplicantContext().getRuntime();
-  }
-
-  @Nonnull
-  final ReplicantContext getReplicantContext()
-  {
-    return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
   }
 }
