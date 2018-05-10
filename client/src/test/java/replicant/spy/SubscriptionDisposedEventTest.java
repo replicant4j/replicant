@@ -16,6 +16,9 @@ public class SubscriptionDisposedEventTest
   @Test
   public void basicOperation()
   {
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
     final String filter = ValueUtil.randomString();
     final Subscription subscription =
       Arez.context().safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ),

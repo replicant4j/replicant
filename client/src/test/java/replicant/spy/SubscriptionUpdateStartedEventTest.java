@@ -13,6 +13,9 @@ public class SubscriptionUpdateStartedEventTest
   @Test
   public void basicOperation()
   {
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final SubscriptionUpdateStartedEvent event = new SubscriptionUpdateStartedEvent( G.class, address );
 

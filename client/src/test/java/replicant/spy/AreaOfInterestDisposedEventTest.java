@@ -16,6 +16,9 @@ public class AreaOfInterestDisposedEventTest
   @Test
   public void basicOperation()
   {
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
       Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),

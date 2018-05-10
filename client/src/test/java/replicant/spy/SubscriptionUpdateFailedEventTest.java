@@ -13,6 +13,9 @@ public class SubscriptionUpdateFailedEventTest
   @Test
   public void basicOperation()
   {
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final SubscriptionUpdateFailedEvent event =
       new SubscriptionUpdateFailedEvent( G.class, address, new Error( "Something Bad Happened" ) );
