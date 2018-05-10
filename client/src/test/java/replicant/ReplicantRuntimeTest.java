@@ -29,7 +29,7 @@ public class ReplicantRuntimeTest
   @Test
   public void registerAndDeregisterLifecycle()
   {
-    final ReplicantRuntime runtime1 = ReplicantRuntime.create();
+    final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
     final ReplicantRuntime runtime2 = ReplicantRuntime.create();
 
     final AtomicInteger callCount1 = new AtomicInteger();
@@ -56,7 +56,7 @@ public class ReplicantRuntimeTest
     assertEquals( callCount2.get(), 1 );
 
     // This connector will self-register to runtime1
-    final Connector connector1 = TestConnector.create( TestSystemA.class, runtime1 );
+    final Connector connector1 = TestConnector.create( TestSystemA.class );
 
     Arez.context().safeAction( () -> assertEquals( runtime1.getConnectors().size(), 1 ) );
     Arez.context().safeAction( () -> assertEquals( runtime2.getConnectors().size(), 0 ) );
@@ -90,10 +90,10 @@ public class ReplicantRuntimeTest
   @Test
   public void duplicateRegister()
   {
-    final ReplicantRuntime runtime1 = ReplicantRuntime.create();
+    final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
 
     // This connector will self-register to runtime1
-    final Connector connector1 = TestConnector.create( TestSystemA.class, runtime1 );
+    final Connector connector1 = TestConnector.create( TestSystemA.class );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -106,11 +106,10 @@ public class ReplicantRuntimeTest
   @Test
   public void deregisterWhenNoRegistered()
   {
-    final ReplicantRuntime runtime1 = ReplicantRuntime.create();
     final ReplicantRuntime runtime2 = ReplicantRuntime.create();
 
     // This connector will self-register to runtime1
-    final Connector connector1 = TestConnector.create( TestSystemA.class, runtime1 );
+    final Connector connector1 = TestConnector.create( TestSystemA.class );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -123,9 +122,9 @@ public class ReplicantRuntimeTest
   @Test
   public void getConnector()
   {
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
-    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
 
     assertEquals( runtime.getConnector( service1.getSystemType() ), service1 );
     assertEquals( runtime.getConnector( service2.getSystemType() ), service2 );
@@ -136,8 +135,8 @@ public class ReplicantRuntimeTest
   @Test
   public void activate()
   {
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
@@ -205,12 +204,12 @@ public class ReplicantRuntimeTest
   @Test
   public void activateMultiple()
   {
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
-    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class, runtime );
+    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
     final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemType( service3.getSystemType() );
 
     final Disposable schedulerLock1 = Arez.context().pauseScheduler();
@@ -303,8 +302,8 @@ public class ReplicantRuntimeTest
   @Test
   public void deactivate()
   {
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
@@ -371,11 +370,11 @@ public class ReplicantRuntimeTest
   @Test
   public void deactivateMultipleDataSources()
   {
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     Arez.context().safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
-    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class, runtime );
+    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
     Arez.context().safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
@@ -503,9 +502,10 @@ public class ReplicantRuntimeTest
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
                                   @Nonnull final ConnectorState service1State )
   {
+    ReplicantTestUtil.resetState();
     final Disposable schedulerLock = Arez.context().pauseScheduler();
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     Arez.context().safeAction( () -> service1.setState( service1State ) );
 
     Arez.context().safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
@@ -517,11 +517,12 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service1State,
                                   @Nonnull final ConnectorState service2State )
   {
+    ReplicantTestUtil.resetState();
     final Disposable schedulerLock = Arez.context().pauseScheduler();
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     Arez.context().safeAction( () -> service1.setState( service1State ) );
-    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class, runtime );
+    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
     Arez.context().safeAction( () -> service2.setState( service2State ) );
 
     Arez.context().safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
@@ -534,16 +535,17 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service2State,
                                   @Nonnull final ConnectorState service3State )
   {
+    ReplicantTestUtil.resetState();
     final Disposable schedulerLock = Arez.context().pauseScheduler();
 
-    final ReplicantRuntime runtime = ReplicantRuntime.create();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class, runtime );
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     Arez.context().safeAction( () -> service1.setState( service1State ) );
 
-    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class, runtime );
+    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
     Arez.context().safeAction( () -> service2.setState( service2State ) );
 
-    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class, runtime );
+    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
     Arez.context().safeAction( () -> service3.setState( service3State ) );
 
     runtime.setDataSourceRequired( service3.getSystemType(), false );
@@ -562,19 +564,18 @@ public class ReplicantRuntimeTest
 
     static TestDataLoaderService create( @Nonnull final Class<?> systemType )
     {
-      return create( systemType, ReplicantRuntime.create() );
+      return create( Replicant.areZonesEnabled() ? Replicant.context() : null, systemType );
     }
 
-    static TestDataLoaderService create( @Nonnull final Class<?> systemType,
-                                         @Nonnull final ReplicantRuntime runtime )
+    static TestDataLoaderService create( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
     {
       return Arez.context()
-        .safeAction( () -> new ReplicantRuntimeTest_Arez_TestDataLoaderService( systemType, runtime ) );
+        .safeAction( () -> new ReplicantRuntimeTest_Arez_TestDataLoaderService( context, systemType ) );
     }
 
-    TestDataLoaderService( @Nonnull final Class<?> systemType, @Nonnull final ReplicantRuntime runtime )
+    TestDataLoaderService( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
     {
-      super( systemType, runtime );
+      super( context, systemType );
     }
 
     @Override

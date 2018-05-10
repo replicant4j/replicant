@@ -25,6 +25,7 @@ import replicant.Connector;
 import replicant.Entity;
 import replicant.FilterUtil;
 import replicant.Replicant;
+import replicant.ReplicantContext;
 import replicant.ReplicantRuntime;
 import replicant.SafeProcedure;
 import replicant.Subscription;
@@ -60,11 +61,11 @@ public abstract class AbstractDataLoaderService
   private ClientSession _session;
   private Disposable _schedulerLock;
 
-  protected AbstractDataLoaderService( @Nonnull final Class<?> systemType,
-                                       @Nonnull final ReplicantRuntime replicantRuntime,
+  protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
+                                       @Nonnull final Class<?> systemType,
                                        @Nonnull final CacheService cacheService )
   {
-    super( systemType, replicantRuntime );
+    super( context, systemType );
     _cacheService = Objects.requireNonNull( cacheService );
   }
 

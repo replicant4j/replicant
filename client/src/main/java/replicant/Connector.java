@@ -34,25 +34,24 @@ import replicant.spy.UnsubscribeStartedEvent;
  * eventually be migrated into AbstractDataLoaderService.
  */
 public abstract class Connector
+  extends ReplicantService
 {
   @Nonnull
   private final Class<?> _systemType;
   @Nonnull
-  private final ReplicantRuntime _replicantRuntime;
-  @Nonnull
   private ConnectorState _state = ConnectorState.DISCONNECTED;
 
-  protected Connector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantRuntime replicantRuntime )
+  protected Connector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
+    super( context );
     _systemType = Objects.requireNonNull( systemType );
-    _replicantRuntime = Objects.requireNonNull( replicantRuntime );
-    _replicantRuntime.registerConnector( this );
+    getReplicantRuntime().registerConnector( this );
   }
 
   @PreDispose
   protected void preDispose()
   {
-    _replicantRuntime.deregisterConnector( this );
+    getReplicantRuntime().deregisterConnector( this );
   }
 
   /**
@@ -366,7 +365,7 @@ public abstract class Connector
   @Nonnull
   protected final ReplicantRuntime getReplicantRuntime()
   {
-    return _replicantRuntime;
+    return getReplicantContext().getRuntime();
   }
 
   @ContextRef

@@ -15,18 +15,17 @@ public abstract class TestConnector
 
   public static TestConnector create( @Nonnull final Class<?> systemType )
   {
-    return create( systemType, Replicant.context().getRuntime() );
+    return create( Replicant.areZonesEnabled() ? Replicant.context() : null, systemType );
   }
 
-  static TestConnector create( @Nonnull final Class<?> systemType,
-                               @Nonnull final ReplicantRuntime replicantRuntime )
+  static TestConnector create( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
-    return Arez.context().safeAction( () -> new Arez_TestConnector( systemType, replicantRuntime ) );
+    return Arez.context().safeAction( () -> new Arez_TestConnector( context, systemType ) );
   }
 
-  TestConnector( @Nonnull final Class<?> systemType, @Nonnull final ReplicantRuntime replicantRuntime )
+  TestConnector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
-    super( systemType, replicantRuntime );
+    super( context, systemType );
   }
 
   void setErrorOnConnect( final boolean errorOnConnect )

@@ -2,12 +2,13 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.Scheduler;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 import replicant.Replicant;
-import replicant.ReplicantRuntime;
+import replicant.ReplicantContext;
 
 public abstract class GwtDataLoaderService
   extends WebPollerDataLoaderService
@@ -16,12 +17,12 @@ public abstract class GwtDataLoaderService
 
   private final SessionContext _sessionContext;
 
-  protected GwtDataLoaderService( @Nonnull final Class<?> systemType,
-                                  @Nonnull final ReplicantRuntime replicantRuntime,
+  protected GwtDataLoaderService( @Nullable final ReplicantContext context,
+                                  @Nonnull final Class<?> systemType,
                                   @Nonnull final CacheService cacheService,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( systemType, replicantRuntime, cacheService );
+    super( context, systemType, cacheService );
     _sessionContext = sessionContext;
 
     if ( Replicant.canRequestsDebugOutputBeEnabled() )

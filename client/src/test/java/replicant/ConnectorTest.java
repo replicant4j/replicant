@@ -34,15 +34,15 @@ public class ConnectorTest
     throws Exception
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
-    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
-    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
+    final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 1 ) );
+    Arez.context().safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
-    assertEquals( connector.getReplicantRuntime(), replicantRuntime );
+    assertEquals( connector.getReplicantRuntime(), runtime );
 
     Arez.context()
       .safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
@@ -55,26 +55,25 @@ public class ConnectorTest
   @Test
   public void dispose()
   {
-    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
+    final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
-    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
+    final TestConnector connector = TestConnector.create( G.class );
 
-    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 1 ) );
+    Arez.context().safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
     Disposable.dispose( connector );
 
-    Arez.context().safeAction( () -> assertEquals( replicantRuntime.getConnectors().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
   }
 
   @Test
   public void connect()
   {
-    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
+    final TestConnector connector = TestConnector.create( G.class );
     Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     Arez.context().safeAction( connector::connect );
@@ -85,10 +84,9 @@ public class ConnectorTest
   @Test
   public void connect_causesError()
   {
-    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
+    final TestConnector connector = TestConnector.create( G.class );
     Arez.context().safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     connector.setErrorOnConnect( true );
@@ -100,10 +98,9 @@ public class ConnectorTest
   @Test
   public void disconnect()
   {
-    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
+    final TestConnector connector = TestConnector.create( G.class );
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     Arez.context().safeAction( connector::disconnect );
@@ -114,10 +111,9 @@ public class ConnectorTest
   @Test
   public void disconnect_causesError()
   {
-    final ReplicantRuntime replicantRuntime = ReplicantRuntime.create();
     Arez.context().pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class, replicantRuntime );
+    final TestConnector connector = TestConnector.create( G.class );
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     connector.setErrorOnDisconnect( true );

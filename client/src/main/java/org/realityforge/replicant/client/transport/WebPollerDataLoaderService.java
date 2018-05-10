@@ -16,7 +16,6 @@ import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 import replicant.ChannelAddress;
 import replicant.Replicant;
-import replicant.ReplicantRuntime;
 import replicant.SafeProcedure;
 import replicant.spy.DataLoadStatus;
 
@@ -26,11 +25,11 @@ public abstract class WebPollerDataLoaderService
   protected static final int HTTP_STATUS_CODE_OK = 200;
   private WebPoller _webPoller;
 
-  protected WebPollerDataLoaderService( @Nonnull final Class<?> systemType,
-                                        @Nonnull final ReplicantRuntime replicantRuntime,
+  protected WebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
+                                        @Nonnull final Class<?> systemType,
                                         @Nonnull final CacheService cacheService )
   {
-    super( systemType, replicantRuntime, cacheService );
+    super( context, systemType, cacheService );
   }
 
   @Nonnull
