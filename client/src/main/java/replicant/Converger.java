@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import org.realityforge.anodoc.VisibleForTesting;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -126,7 +125,6 @@ public abstract class Converger
     convergeComplete();
   }
 
-  @VisibleForTesting
   final ConvergeAction convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
                                                @Nullable final AreaOfInterest groupTemplate,
                                                @Nullable final AreaOfInterestAction groupAction,
