@@ -34,7 +34,7 @@ public abstract class Converger
     if ( Replicant.shouldCheckInvariants() )
     {
       apiInvariant( () -> Replicant.areZonesEnabled() || null == context,
-                    () -> "Replicant-0124: SubscriptioConvergernService passed a context but Replicant.areZonesEnabled() is false" );
+                    () -> "Replicant-0124: Converger passed a context but Replicant.areZonesEnabled() is false" );
     }
     _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
   }
