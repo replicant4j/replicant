@@ -66,6 +66,7 @@ public class ConsoleSpyEventProcessor
     on( MessageReadFailureEvent.class, this::onMessageReadFailure );
     on( RestartEvent.class, this::onRestart );
     on( SubscribeCompletedEvent.class, this::onSubscribeCompleted );
+
   }
 
   /**
@@ -200,9 +201,8 @@ public class ConsoleSpyEventProcessor
   {
     final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
     final Object filter = areaOfInterest.getFilter();
-    final String filterString = FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Status Updated " + areaOfInterest.getAddress() + " - " + filterString,
-         AREA_OF_INTEREST_COLOR );
+    final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
+    log( "%cAreaOfInterest Status Updated " + areaOfInterest.getAddress() + filterString, AREA_OF_INTEREST_COLOR );
   }
 
   /**
