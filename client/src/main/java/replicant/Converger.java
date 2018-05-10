@@ -9,11 +9,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
-@Singleton
 @ArezComponent
 abstract class Converger
   extends ReplicantService

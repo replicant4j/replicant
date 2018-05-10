@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import static org.realityforge.braincheck.Guards.*;
 
-@Singleton
 @ArezComponent
 public abstract class ReplicantRuntime
 {

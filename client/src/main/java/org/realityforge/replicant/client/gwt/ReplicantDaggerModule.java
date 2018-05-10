@@ -5,9 +5,8 @@ import dagger.Provides;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import org.realityforge.replicant.client.transport.CacheService;
-import replicant.ConvergerDaggerModule;
 
-@Module( includes = { ConvergerDaggerModule.class } )
+@Module
 public class ReplicantDaggerModule
 {
   @Nonnull
