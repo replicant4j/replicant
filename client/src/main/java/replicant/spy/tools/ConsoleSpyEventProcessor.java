@@ -27,6 +27,7 @@ import replicant.spy.SubscriptionOrphanedEvent;
  * A SpyEventHandler that prints spy events to the tools console.
  * The events are colored to make them easy to digest. This class is designed to be easy to sub-class.
  */
+@SuppressWarnings( "WeakerAccess" )
 @Unsupported( "This class relies on unstable spy API and will likely evolve as the api evolves" )
 public class ConsoleSpyEventProcessor
   extends AbstractSpyEventProcessor
@@ -72,7 +73,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onConnected( @Nonnull final ConnectedEvent e )
+  protected void onConnected( @Nonnull final ConnectedEvent e )
   {
     log( "%cConnector Connected. System: " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
   }
@@ -82,7 +83,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onConnectFailure( @Nonnull final ConnectFailureEvent e )
+  protected void onConnectFailure( @Nonnull final ConnectFailureEvent e )
   {
     log( "%cConnector Connect Failed. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
          ERROR_COLOR );
@@ -93,7 +94,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onDisconnected( @Nonnull final DisconnectedEvent e )
+  protected void onDisconnected( @Nonnull final DisconnectedEvent e )
   {
     log( "%cConnector Disconnected. System: " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
   }
@@ -103,7 +104,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
+  protected void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
   {
     log( "%cConnector Disconnect Failed. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
          ERROR_COLOR );
@@ -114,7 +115,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onMessageProcessed( @Nonnull final MessageProcessedEvent e )
+  protected void onMessageProcessed( @Nonnull final MessageProcessedEvent e )
   {
     log( "%cConnector Processed Message " + e.getDataLoadStatus(), CONNECTOR_COLOR );
   }
@@ -124,7 +125,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onMessageProcessFailure( @Nonnull final MessageProcessFailureEvent e )
+  protected void onMessageProcessFailure( @Nonnull final MessageProcessFailureEvent e )
   {
     log( "%cConnector Error Processing Message. System: " +
          e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
@@ -135,7 +136,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onMessageReadFailure( @Nonnull final MessageReadFailureEvent e )
+  protected void onMessageReadFailure( @Nonnull final MessageReadFailureEvent e )
   {
     log( "%cConnector Error Reading Message. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
          ERROR_COLOR );
@@ -146,7 +147,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onRestart( @Nonnull final RestartEvent e )
+  protected void onRestart( @Nonnull final RestartEvent e )
   {
     log( "%cConnector attempting to disconnect and restart due to error. System: " +
          e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
@@ -157,7 +158,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  private void onSubscribeCompleted( @Nonnull final SubscribeCompletedEvent e )
+  protected void onSubscribeCompleted( @Nonnull final SubscribeCompletedEvent e )
   {
     log( "%cConnector completed subscribe. System: " + e.getSystemType().getSimpleName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
