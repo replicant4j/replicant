@@ -10,6 +10,7 @@ import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
+import replicant.spy.ConnectedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -24,6 +25,8 @@ public class ConsoleSpyEventProcessor
 {
   @CssRules
   private static final String ENTITY_COLOR = "color: #CF8A3B; font-weight: normal;";
+  @CssRules
+  private static final String CONNECTOR_COLOR = "color: #F5A402; font-weight: normal;";
   @CssRules
   private static final String SUBSCRIPTION_COLOR = "color: #0FA13B; font-weight: normal;";
   @CssRules
@@ -44,6 +47,18 @@ public class ConsoleSpyEventProcessor
     on( SubscriptionCreatedEvent.class, this::onSubscriptionCreated );
     on( SubscriptionDisposedEvent.class, this::onSubscriptionDisposed );
     on( SubscriptionOrphanedEvent.class, this::onSubscriptionOrphaned );
+
+    on( ConnectedEvent.class, this::onConnected );
+  }
+
+  /**
+   * Handle the ConnectedEvent.
+   *
+   * @param e the event.
+   */
+  private void onConnected( @Nonnull final ConnectedEvent e )
+  {
+    log( "%cConnector Connected " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
   }
 
   /**
