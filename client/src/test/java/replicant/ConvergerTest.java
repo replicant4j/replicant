@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.testng.annotations.Test;
+import replicant.spy.SubscriptionOrphanedEvent;
 import static org.testng.Assert.*;
 
 public class ConvergerTest
@@ -168,6 +169,37 @@ public class ConvergerTest
       assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
       areaOfInterest.getChannel().setFilter( "Filter" );
       assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
+    } );
+  }
+
+  @Test
+  public void removeOrphanSubscription()
+  {
+    final ReplicantContext context = Replicant.context();
+
+    final TestConnector connector = TestConnector.create( G.class );
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    Arez.context().safeAction( () -> {
+
+      final Subscription subscription = context.createSubscription( address, null, true );
+
+      connector.setState( ConnectorState.CONNECTED );
+
+      final TestSpyEventHandler handler = new TestSpyEventHandler();
+      context.getSpy().addSpyEventHandler( handler );
+
+      context.getConverger().removeOrphanSubscription( address );
+
+      //TODO: Verify requestUnsubscribe( address ) invoked
+
+      handler.assertEventCount( 1 );
+
+      handler.assertNextEvent( SubscriptionOrphanedEvent.class,
+                               e -> assertEquals( e.getSubscription(), subscription ) );
     } );
   }
 
