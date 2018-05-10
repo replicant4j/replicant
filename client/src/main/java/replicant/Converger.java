@@ -15,7 +15,7 @@ import static org.realityforge.braincheck.Guards.*;
 
 @Singleton
 @ArezComponent
-public abstract class Converger
+abstract class Converger
   extends ReplicantService
 {
   static Converger create( @Nullable final ReplicantContext context )
@@ -29,23 +29,41 @@ public abstract class Converger
   }
 
   /**
-   * Set action that is run prior to converging.
-   * This is typically used to ensure the subscriptions are uptodate prior to attempting to convergeStep.
+   * Specify the action that invoked prior to converging the desired AreaOfInterest to actual Subscriptions.
+   * This action is often used when subscriptions in one system trigger subscriptions in another system.
+   * This property is an Arez observable.
+   *
+   * @param preConvergeAction the action.
    */
   @Observable
-  public abstract void setPreConvergeAction( @Nullable SafeProcedure preConvergeAction );
-
-  @Nullable
-  public abstract SafeProcedure getPreConvergeAction();
+  abstract void setPreConvergeAction( @Nullable SafeProcedure preConvergeAction );
 
   /**
-   * Set action that is runs after all the subscriptions have converged.
+   * Return the pre-converge action. See {@link #setPreConvergeAction(SafeProcedure)} for further details.
+   * This property is an Arez observable.
+   *
+   * @return the action.
+   */
+  @Nullable
+  abstract SafeProcedure getPreConvergeAction();
+
+  /**
+   * Specify the action that is invoked after all the subscriptions converge.
+   * This property is an Arez observable.
+   *
+   * @param convergeCompleteAction the action.
    */
   @Observable
-  public abstract void setConvergeCompleteAction( @Nullable SafeProcedure convergeCompleteAction );
+  abstract void setConvergeCompleteAction( @Nullable SafeProcedure convergeCompleteAction );
 
+  /**
+   * Return the converge complete action. See {@link #setConvergeCompleteAction(SafeProcedure)} for further details.
+   * This property is an Arez observable.
+   *
+   * @return the action.
+   */
   @Nullable
-  public abstract SafeProcedure getConvergeCompleteAction();
+  abstract SafeProcedure getConvergeCompleteAction();
 
   @Autorun
   void converge()

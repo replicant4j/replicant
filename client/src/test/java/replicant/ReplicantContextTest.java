@@ -220,6 +220,32 @@ public class ReplicantContextTest
     assertFalse( context.willPropagateSpyEvents() );
   }
 
+  @Test
+  public void preConvergeAction()
+    throws Exception
+  {
+    Arez.context().safeAction( () -> {
+      final SafeProcedure action = () -> {
+      };
+      assertEquals( Replicant.context().getPreConvergeAction(), null );
+      Replicant.context().setPreConvergeAction( action );
+      assertEquals( Replicant.context().getPreConvergeAction(), action );
+    } );
+  }
+
+  @Test
+  public void convergeCompleteAction()
+    throws Exception
+  {
+    Arez.context().safeAction( () -> {
+      final SafeProcedure action = () -> {
+      };
+      assertEquals( Replicant.context().getConvergeCompleteAction(), null );
+      Replicant.context().setConvergeCompleteAction( action );
+      assertEquals( Replicant.context().getConvergeCompleteAction(), action );
+    } );
+  }
+
   enum G
   {
     G1, G2

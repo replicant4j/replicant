@@ -65,5 +65,3 @@ Some actions that should occur at some point in the future.
   the publicly accessible details (i.e. Filter read? ChannelAddress).
 
 * Add `ReplicantRuntime` into context and make package access.
-
-* Move `Converger` into replicant package and make package access.

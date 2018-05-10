@@ -225,6 +225,53 @@ public final class ReplicantContext
   }
 
   /**
+   * Specify the action that invoked prior to converging the desired AreaOfInterest to actual Subscriptions.
+   * This action is often used when subscriptions in one system trigger subscriptions in another system.
+   * This property is an Arez observable.
+   *
+   * @param preConvergeAction the action.
+   */
+  public void setPreConvergeAction( @Nullable final SafeProcedure preConvergeAction )
+  {
+    getConverger().setPreConvergeAction( preConvergeAction );
+  }
+
+  /**
+   * Return the pre-converge action. See {@link #setPreConvergeAction(SafeProcedure)} for further details.
+   * This property is an Arez observable.
+   *
+   * @return the action.
+   */
+  @Nullable
+  public SafeProcedure getPreConvergeAction()
+  {
+    return getConverger().getPreConvergeAction();
+  }
+
+  /**
+   * Specify the action that is invoked after all the subscriptions converge.
+   * This property is an Arez observable.
+   *
+   * @param convergeCompleteAction the action.
+   */
+  public void setConvergeCompleteAction( @Nullable final SafeProcedure convergeCompleteAction )
+  {
+    getConverger().setConvergeCompleteAction( convergeCompleteAction );
+  }
+
+  /**
+   * Return the converge complete action. See {@link #setConvergeCompleteAction(SafeProcedure)} for further details.
+   * This property is an Arez observable.
+   *
+   * @return the action.
+   */
+  @Nullable
+  public SafeProcedure getConvergeCompleteAction()
+  {
+    return getConverger().getConvergeCompleteAction();
+  }
+
+  /**
    * Return the underlying AreaOfInterestService implementation.
    *
    * @return the underlying AreaOfInterestService implementation.
