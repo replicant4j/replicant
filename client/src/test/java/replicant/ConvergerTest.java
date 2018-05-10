@@ -204,6 +204,43 @@ public class ConvergerTest
   }
 
   @Test
+  public void removeOrphanSubscription_whenManyPresent()
+  {
+    final ReplicantContext context = Replicant.context();
+
+    final TestConnector connector = TestConnector.create( G.class );
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    Arez.context().safeAction( () -> {
+
+      context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 1 ), null );
+      context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 2 ), null );
+      context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 3 ), null );
+      context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 4 ), null );
+      context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 5 ), null );
+
+      final Subscription subscription = context.createSubscription( address, null, true );
+
+      connector.setState( ConnectorState.CONNECTED );
+
+      final TestSpyEventHandler handler = new TestSpyEventHandler();
+      context.getSpy().addSpyEventHandler( handler );
+
+      context.getConverger().removeOrphanSubscriptions();
+
+      //TODO: Verify requestUnsubscribe( address ) invoked
+
+      handler.assertEventCount( 1 );
+
+      handler.assertNextEvent( SubscriptionOrphanedEvent.class,
+                               e -> assertEquals( e.getSubscription(), subscription ) );
+    } );
+  }
+
+  @Test
   public void removeOrphanSubscriptions_whenConnectorDisconnected()
   {
     final ReplicantContext context = Replicant.context();
