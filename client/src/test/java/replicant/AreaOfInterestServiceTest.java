@@ -41,7 +41,6 @@ public class AreaOfInterestServiceTest
       final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest1 );
 
-      assertEquals( areaOfInterest1.getAreaOfInterestService(), service );
       assertEquals( areaOfInterest1.getAddress(), address1 );
       assertEquals( !Disposable.isDisposed( areaOfInterest1 ), true );
 
@@ -75,7 +74,6 @@ public class AreaOfInterestServiceTest
 
       final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest );
-      assertEquals( areaOfInterest.getAreaOfInterestService(), service );
 
       handler.assertEventCount( 1 );
       handler.assertNextEvent( AreaOfInterestCreatedEvent.class,

@@ -99,7 +99,10 @@ abstract class AreaOfInterestService
     }
     else
     {
-      final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( this, address, filter );
+      final AreaOfInterest newAreaOfInterest =
+        AreaOfInterest.create( Replicant.areZonesEnabled() ? getReplicantContext() : null,
+                               address,
+                               filter );
       registerEntity( newAreaOfInterest );
       if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
       {

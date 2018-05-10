@@ -18,6 +18,7 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @ArezComponent
 public abstract class AreaOfInterest
+  extends ReplicantService
 {
   public enum Status
   {
@@ -32,14 +33,6 @@ public abstract class AreaOfInterest
     UNLOADED
   }
 
-  /**
-   * Reference to the container that created AreaOfInterest.
-   * In the future this reference should be eliminated when there is a way to get to the singleton
-   * AreaOfInterestService. (Similar to the way we have Arez.context().X we should have Replicant.context().X)
-   * This will save memory resources on the client.
-   */
-  @Nonnull
-  private final AreaOfInterestService _areaOfInterestService;
   @Nonnull
   private final ChannelAddress _address;
   @Nullable
@@ -48,18 +41,18 @@ public abstract class AreaOfInterest
   private Status _status = Status.NOT_ASKED;
 
   @Nonnull
-  static AreaOfInterest create( @Nonnull final AreaOfInterestService areaOfInterestService,
+  static AreaOfInterest create( @Nullable final ReplicantContext context,
                                 @Nonnull final ChannelAddress address,
                                 @Nullable final Object filter )
   {
-    return new Arez_AreaOfInterest( areaOfInterestService, address, filter );
+    return new Arez_AreaOfInterest( context, address, filter );
   }
 
-  AreaOfInterest( @Nonnull final AreaOfInterestService areaOfInterestService,
+  AreaOfInterest( @Nullable final ReplicantContext context,
                   @Nonnull final ChannelAddress address,
                   @Nullable final Object filter )
   {
-    _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
+    super( context );
     _address = Objects.requireNonNull( address );
     _filter = filter;
   }
@@ -172,17 +165,5 @@ public abstract class AreaOfInterest
     {
       return super.toString();
     }
-  }
-
-  @Nonnull
-  final ReplicantContext getReplicantContext()
-  {
-    return getAreaOfInterestService().getReplicantContext();
-  }
-
-  @Nonnull
-  final AreaOfInterestService getAreaOfInterestService()
-  {
-    return _areaOfInterestService;
   }
 }

@@ -274,7 +274,7 @@ public class AreaOfInterestTest
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address )
   {
-    return AreaOfInterest.create( Replicant.context().getAreaOfInterestService(), address, null );
+    return AreaOfInterest.create( Replicant.areZonesEnabled() ? Replicant.context() : null, address, null );
   }
 
   enum G
