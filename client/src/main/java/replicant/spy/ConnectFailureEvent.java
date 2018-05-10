@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Notification when an DataLoader received an error when connecting to DataSource.
+ * Notification when a Connector received an error connecting to a DataSource.
  */
 public final class ConnectFailureEvent
   implements SerializableEvent

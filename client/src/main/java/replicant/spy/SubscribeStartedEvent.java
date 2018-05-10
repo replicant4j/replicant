@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import replicant.ChannelAddress;
 
 /**
- * Notification when an DataLoader starts to subscribe to a channel.
+ * Notification when a Connector starts to subscribe to a channel.
  */
 public final class SubscribeStartedEvent
   implements SerializableEvent

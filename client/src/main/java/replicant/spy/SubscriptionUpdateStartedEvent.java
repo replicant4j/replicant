@@ -6,6 +6,9 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import replicant.ChannelAddress;
 
+/**
+ * Notification when a Connector starts to update the filter of a subscription.
+ */
 public final class SubscriptionUpdateStartedEvent
   implements SerializableEvent
 {

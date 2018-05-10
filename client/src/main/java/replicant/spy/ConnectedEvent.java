@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Notification when an DataLoader has connected from datasource.
+ * Notification when a Connector has connected to the DataSource.
  */
 public final class ConnectedEvent
   implements SerializableEvent

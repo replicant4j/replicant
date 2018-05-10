@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Notification when an DataLoader generated an error processing a message from the datasource.
+ * Notification when a Connector generated an error processing a message from a DataSource.
  */
 public final class MessageProcessFailureEvent
   implements SerializableEvent

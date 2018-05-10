@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Notification when an DataLoader has disconnected from datasource.
+ * Notification when a Connector has disconnected from a DataSource.
  */
 public final class DisconnectedEvent
   implements SerializableEvent

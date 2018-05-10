@@ -6,6 +6,9 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import replicant.ChannelAddress;
 
+/**
+ * Notification when a Connector completes an unsubscribe from a channel.
+ */
 public final class UnsubscribeCompletedEvent
   implements SerializableEvent
 {
