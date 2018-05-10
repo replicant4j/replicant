@@ -6,13 +6,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
+@SuppressWarnings( "Duplicates" )
 public class EntityServiceTest
   extends AbstractReplicantTest
 {
   @Test
   public void basicEntityLifecycle()
   {
-    final EntityService service = EntityService.create();
+    final EntityService service = Replicant.context().getEntityService();
 
     final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -195,9 +196,9 @@ public class EntityServiceTest
   @Test
   public void unlinkEntity_missingType()
   {
-    final EntityService service = EntityService.create();
+    final EntityService service = Replicant.context().getEntityService();
 
-    final Entity entity = Entity.create( service, "A", A.class, 1 );
+    final Entity entity = Entity.create( null, "A", A.class, 1 );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -209,10 +210,10 @@ public class EntityServiceTest
   @Test
   public void unlinkEntity_missingInstance()
   {
-    final EntityService service = EntityService.create();
+    final EntityService service = Replicant.context().getEntityService();
 
     Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
-    final Entity entity = Entity.create( service, "A/2", A.class, 2 );
+    final Entity entity = Entity.create( null, "A/2", A.class, 2 );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -221,11 +222,11 @@ public class EntityServiceTest
     assertEquals( exception.getMessage(), "Entity instance A/2 not present in EntityService" );
   }
 
-  static class A
+  private static class A
   {
   }
 
-  static class B
+  private static class B
   {
   }
 }

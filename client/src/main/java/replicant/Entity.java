@@ -20,16 +20,9 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @ArezComponent
 public abstract class Entity
+  extends ReplicantService
 {
   private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
-  /**
-   * Reference to the container that created entity.
-   * In the future this reference should be eliminated when there is a way to get to the singleton
-   * EntityService. (Similar to the way we have Arez.context().X we should have Replicant.context().X)
-   * This will save memory resources on the client.
-   */
-  @Nonnull
-  private final EntityService _entityService;
   /**
    * A human consumable name for Entity. It should be non-null if {@link Replicant#areNamesEnabled()} returns
    * true and <tt>null</tt> otherwise.
@@ -41,26 +34,26 @@ public abstract class Entity
   private final int _id;
   private Object _userObject;
 
-  static Entity create( @Nonnull final EntityService entityService,
+  static Entity create( @Nullable final ReplicantContext context,
                         @Nullable final String name,
                         @Nonnull final Class<?> type,
                         final int id )
   {
-    return new Arez_Entity( entityService, name, type, id );
+    return new Arez_Entity( context, name, type, id );
   }
 
-  Entity( @Nonnull final EntityService entityService,
+  Entity( @Nullable final ReplicantContext context,
           @Nullable final String name,
           @Nonnull final Class<?> type,
           final int id )
   {
+    super( context );
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> Replicant.areNamesEnabled() || null == name,
                     () -> "Replicant-0032: Entity passed a name '" + name +
                           "' but Replicant.areNamesEnabled() is false" );
     }
-    _entityService = Objects.requireNonNull( entityService );
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _type = Objects.requireNonNull( type );
     _id = Objects.requireNonNull( id );
@@ -188,7 +181,7 @@ public abstract class Entity
   {
     //TODO: FIgure out how this next line works - it is READ-WRITE transaction inside DISPOSE????
     delinkEntityFromAllSubscriptions();
-    _entityService.unlinkEntity( this );
+    getReplicantContext().getEntityService().unlinkEntity( this );
 
     if ( null != _userObject )
     {

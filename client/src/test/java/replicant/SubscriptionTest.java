@@ -26,7 +26,7 @@ public class SubscriptionTest
   @Test
   public void entities()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
@@ -118,7 +118,7 @@ public class SubscriptionTest
   @Test
   public void dispose_delinksFromEntity()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
@@ -153,7 +153,7 @@ public class SubscriptionTest
   @Test
   public void delinkEntityFromChannel_noSuchType()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity =
       Arez.context()
         .safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
@@ -174,7 +174,7 @@ public class SubscriptionTest
   @Test
   public void delinkEntityFromChannel_noSuchInstance()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
     final Entity entity2 =

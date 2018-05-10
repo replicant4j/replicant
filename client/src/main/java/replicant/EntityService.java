@@ -20,18 +20,20 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @ArezComponent
 abstract class EntityService
+  extends ReplicantService
 {
   // Entity map: Type => ID
   private final Map<Class<?>, Map<Integer, Entity>> _entities = new HashMap<>();
 
   @Nonnull
-  static EntityService create()
+  static EntityService create( @Nullable final ReplicantContext context )
   {
-    return new Arez_EntityService();
+    return new Arez_EntityService( context );
   }
 
-  EntityService()
+  EntityService( @Nullable final ReplicantContext context )
   {
+    super( context );
   }
 
   @ObservableRef
@@ -165,7 +167,7 @@ abstract class EntityService
                                final int id )
   {
     getEntitiesObservable().preReportChanged();
-    final Entity entity = Entity.create( this, name, type, id );
+    final Entity entity = Entity.create( Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id );
     typeMap.put( id, entity );
     getEntitiesObservable().reportChanged();
     return entity;

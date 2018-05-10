@@ -14,7 +14,7 @@ public class EntityTest
   @Test
   public void basicConstruction()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Class<A> type = A.class;
     final int id = ValueUtil.randomInt();
@@ -32,7 +32,7 @@ public class EntityTest
   @Test
   public void toStringTest()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Class<A> type = A.class;
     final int id = 123;
@@ -48,7 +48,7 @@ public class EntityTest
   @Test
   public void namePassedToConstructorWhenNamesDisabled()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     ReplicantTestUtil.disableNames();
 
@@ -65,7 +65,7 @@ public class EntityTest
   @Test
   public void getNameInvokedWhenNamesDisabled()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     ReplicantTestUtil.disableNames();
 
@@ -81,7 +81,7 @@ public class EntityTest
   @Test
   public void userObject()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
@@ -98,7 +98,7 @@ public class EntityTest
   @Test
   public void typeSubscriptions()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
@@ -167,7 +167,7 @@ public class EntityTest
   @Test
   public void instanceSubscriptions()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
@@ -237,7 +237,7 @@ public class EntityTest
   @Test
   public void disposeRemovesEntityFromSubscriptions()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Class<A> type = A.class;
     final int id = ValueUtil.randomInt();
@@ -264,7 +264,7 @@ public class EntityTest
   @Test
   public void disposeWillDisposeUserObject()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
@@ -285,7 +285,7 @@ public class EntityTest
   @Test
   public void getSubscriptions_mutability()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
@@ -301,7 +301,7 @@ public class EntityTest
   @Test
   public void delinkSubscriptionFromEntity_whenSubscriptionMissing()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
@@ -323,7 +323,7 @@ public class EntityTest
   @Test
   public void postDispose_whenSubscriptionsExist()
   {
-    final EntityService entityService = EntityService.create();
+    final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
       Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
