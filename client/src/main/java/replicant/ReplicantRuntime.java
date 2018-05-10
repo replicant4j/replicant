@@ -14,13 +14,12 @@ import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 @ArezComponent
-public abstract class ReplicantRuntime
+abstract class ReplicantRuntime
 {
   private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();
   private boolean _active = true;
 
-  //TODO: Make this method package access
-  public static ReplicantRuntime create()
+  static ReplicantRuntime create()
   {
     return new Arez_ReplicantRuntime();
   }
@@ -90,7 +89,7 @@ public abstract class ReplicantRuntime
    * @return the state of the runtime.
    */
   @Computed
-  public RuntimeState getState()
+  RuntimeState getState()
   {
     // Are any required connecting?
     boolean connecting = false;
@@ -150,7 +149,7 @@ public abstract class ReplicantRuntime
    * Mark the client system as active and start to converge to being CONNECTED.
    */
   @Action
-  public void activate()
+  void activate()
   {
     setActive( true );
   }
@@ -159,7 +158,7 @@ public abstract class ReplicantRuntime
    * Mark the client system as inactive and start to converge to being DISCONNECTED.
    */
   @Action
-  public void deactivate()
+  void deactivate()
   {
     setActive( false );
   }
