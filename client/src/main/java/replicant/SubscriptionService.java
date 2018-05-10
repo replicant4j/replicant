@@ -174,7 +174,10 @@ abstract class SubscriptionService
       getInstanceSubscriptionsObservable().preReportChanged();
     }
     final Subscription subscription =
-      Subscription.create( this, address, filter, explicitSubscription );
+      Subscription.create( Replicant.areZonesEnabled() ? getReplicantContext() : null,
+                           address,
+                           filter,
+                           explicitSubscription );
     final SubscriptionEntry entry = createSubscriptionEntry( subscription );
     if ( null == id )
     {

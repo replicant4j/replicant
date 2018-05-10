@@ -350,7 +350,7 @@ public class EntityTest
   @Nonnull
   private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
-    return Subscription.create( SubscriptionService.create( null ), address, null, true );
+    return Subscription.create( null, address, null, true );
   }
 
   enum G

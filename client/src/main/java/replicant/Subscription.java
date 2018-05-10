@@ -25,36 +25,28 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @ArezComponent
 public abstract class Subscription
+  extends ReplicantService
   implements Comparable<Subscription>
 {
-  /**
-   * Reference to the container that created Subscription.
-   * In the future this reference should be eliminated when there is a way to get to the singleton
-   * SubscriptionService. (Similar to the way we have Arez.context().X we should have Replicant.context().X)
-   * This will save memory resources on the client.
-   */
-  @Nonnull
-  private final SubscriptionService _subscriptionService;
-
   private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
   @Nonnull
   private final ChannelAddress _address;
   @Nullable
   private Object _filter;
 
-  static Subscription create( @Nonnull final SubscriptionService subscriptionService,
+  static Subscription create( @Nullable final ReplicantContext context,
                               @Nonnull final ChannelAddress address,
                               @Nullable final Object filter,
                               final boolean explicitSubscription )
   {
-    return new Arez_Subscription( subscriptionService, address, filter, explicitSubscription );
+    return new Arez_Subscription( context, address, filter, explicitSubscription );
   }
 
-  Subscription( @Nonnull final SubscriptionService subscriptionService,
+  Subscription( @Nullable final ReplicantContext context,
                 @Nonnull final ChannelAddress address,
                 @Nullable final Object filter )
   {
-    _subscriptionService = Objects.requireNonNull( subscriptionService );
+    super( context );
     _address = Objects.requireNonNull( address );
     _filter = filter;
   }
@@ -200,9 +192,9 @@ public abstract class Subscription
   final void preDispose()
   {
     delinkSubscriptionFromAllEntities();
-    if ( Replicant.areSpiesEnabled() && _subscriptionService.getReplicantContext().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      _subscriptionService.getReplicantContext().getSpy().reportSpyEvent( new SubscriptionDisposedEvent( this ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionDisposedEvent( this ) );
     }
   }
 
