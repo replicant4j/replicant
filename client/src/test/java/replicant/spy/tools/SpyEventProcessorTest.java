@@ -1,15 +1,10 @@
 package replicant.spy.tools;
 
-import arez.Arez;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
-import replicant.AreaOfInterest;
-import replicant.ChannelAddress;
-import replicant.Replicant;
-import replicant.spy.AreaOfInterestCreatedEvent;
 import static org.testng.Assert.*;
 
 public class SpyEventProcessorTest
@@ -26,6 +21,10 @@ public class SpyEventProcessorTest
       super.handleUnhandledEvent( event );
       _handleUnhandledEventCallCount += 1;
     }
+  }
+
+  private static class FakeEvent
+  {
   }
 
   @Test
@@ -47,13 +46,9 @@ public class SpyEventProcessorTest
     final TestSpyEventProcessor processor = new TestSpyEventProcessor();
 
     final AtomicInteger callCount = new AtomicInteger();
-    processor.on( AreaOfInterestCreatedEvent.class, e -> callCount.incrementAndGet() );
+    processor.on( FakeEvent.class, e -> callCount.incrementAndGet() );
 
-    final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                                         null ) );
-
-    final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
+    final FakeEvent event = new FakeEvent();
 
     assertEquals( callCount.get(), 0 );
     processor.onSpyEvent( event );
@@ -66,13 +61,13 @@ public class SpyEventProcessorTest
   {
     final TestSpyEventProcessor processor = new TestSpyEventProcessor();
 
-    final Consumer<AreaOfInterestCreatedEvent> handler = e -> {
+    final Consumer<FakeEvent> handler = e -> {
     };
-    processor.on( AreaOfInterestCreatedEvent.class, handler );
+    processor.on( FakeEvent.class, handler );
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> processor.on( AreaOfInterestCreatedEvent.class, handler ) );
+      expectThrows( IllegalStateException.class, () -> processor.on( FakeEvent.class, handler ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0157: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class replicant.spy.AreaOfInterestCreatedEvent but an existing processor already exists for type" );
+                  "Replicant-0157: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class replicant.spy.tools.SpyEventProcessorTest$FakeEvent but an existing processor already exists for type" );
   }
 
   enum G
