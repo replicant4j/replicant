@@ -1,7 +1,6 @@
 package replicant;
 
 import arez.Disposable;
-import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
 import arez.annotations.Observable;
@@ -271,18 +270,6 @@ public abstract class Converger
         replicantContext.getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
       }
       service.requestUnsubscribe( address );
-    }
-  }
-
-  @Action
-  protected void setAreaOfInterestState( @Nonnull final ChannelAddress address,
-                                         @Nonnull final AreaOfInterest.Status status,
-                                         @Nullable final Throwable throwable )
-  {
-    final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
-    if ( null != areaOfInterest )
-    {
-      areaOfInterest.updateAreaOfInterest( status, throwable );
     }
   }
 
