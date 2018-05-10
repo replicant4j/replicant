@@ -30,7 +30,7 @@ import static org.realityforge.braincheck.Guards.*;
  * A class that records the subscriptions within the system.
  */
 @ArezComponent
-public abstract class SubscriptionService
+abstract class SubscriptionService
   extends ReplicantService
 {
   //ChannelType => InstanceID
