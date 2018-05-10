@@ -140,7 +140,7 @@ public abstract class Entity
   private void linkEntityToSubscription( @Nonnull final Subscription subscription )
   {
     getSubscriptionsObservable().preReportChanged();
-    final ChannelAddress address = subscription.getChannel().getAddress();
+    final ChannelAddress address = subscription.getAddress();
     if ( !_subscriptions.containsKey( address ) )
     {
       _subscriptions.put( address, subscription );
@@ -170,7 +170,7 @@ public abstract class Entity
   final void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription )
   {
     getSubscriptionsObservable().preReportChanged();
-    final ChannelAddress address = subscription.getChannel().getAddress();
+    final ChannelAddress address = subscription.getAddress();
     final Subscription candidate = _subscriptions.remove( address );
     getSubscriptionsObservable().reportChanged();
     if ( Replicant.shouldCheckApiInvariants() )

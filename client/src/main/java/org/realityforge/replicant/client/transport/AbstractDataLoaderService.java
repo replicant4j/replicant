@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestAction;
-import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Connector;
 import replicant.Entity;
@@ -159,7 +158,7 @@ public abstract class AbstractDataLoaderService
     Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
                    getReplicantContext().getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
-      .filter( s -> s.getChannel().getAddress().getSystem().equals( getSystemType() ) )
+      .filter( s -> s.getAddress().getSystem().equals( getSystemType() ) )
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );
@@ -943,7 +942,7 @@ public abstract class AbstractDataLoaderService
       {
         final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
-        subscription.getChannel().setFilter( filter );
+        subscription.setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription, filter );
         _currentAction.incChannelUpdateCount();
       }
@@ -974,10 +973,10 @@ public abstract class AbstractDataLoaderService
   {
     if ( !entities.isEmpty() )
     {
-      final Channel channel = subscription.getChannel();
+      final ChannelAddress address = subscription.getAddress();
       for ( final Entity entity : new ArrayList<>( entities ) )
       {
-        if ( !doesEntityMatchFilter( channel, entity ) )
+        if ( !doesEntityMatchFilter( address, filter, entity ) )
         {
           entity.delinkFromSubscription( subscription );
         }
@@ -985,7 +984,9 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  protected abstract boolean doesEntityMatchFilter( @Nonnull Channel channel, @Nonnull Entity entity );
+  protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelAddress address,
+                                                    @Nullable Object filter,
+                                                    @Nonnull Entity entity );
 
   /**
    * Return the type for specified channel.

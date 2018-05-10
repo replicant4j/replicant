@@ -15,13 +15,12 @@ public class AreaOfInterestTest
   @Test
   public void onConstruct()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     Arez.context().safeAction( () -> {
       assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-      assertEquals( areaOfInterest.getChannel(), channel );
+      assertEquals( areaOfInterest.getAddress(), new ChannelAddress( G.G1 ) );
+      assertEquals( areaOfInterest.getFilter(), null );
       assertEquals( areaOfInterest.getSubscription(), null );
       assertEquals( areaOfInterest.getError(), null );
     } );
@@ -30,9 +29,7 @@ public class AreaOfInterestTest
   @Test
   public void disposeAreaOfInterestGeneratesSpyEvent()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -48,9 +45,7 @@ public class AreaOfInterestTest
   @Test
   public void notifications()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
     Arez.context().autorun( () -> {
@@ -110,7 +105,7 @@ public class AreaOfInterestTest
       .safeAction( () -> {
         final SubscriptionService subscriptionService = SubscriptionService.create( null );
         final Subscription subscription =
-          subscriptionService.createSubscription( channel.getAddress(), channel.getFilter(), true );
+          subscriptionService.createSubscription( areaOfInterest.getAddress(), areaOfInterest.getFilter(), true );
         areaOfInterest.setSubscription( subscription );
       } );
 
@@ -126,11 +121,8 @@ public class AreaOfInterestTest
   @Test
   public void testToString()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
-
-    assertEquals( areaOfInterest.toString(), "AreaOfInterest[Channel[G.G1 :: Filter=null] Status: NOT_ASKED]" );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    assertEquals( areaOfInterest.toString(), "AreaOfInterest[G.G1 Status: NOT_ASKED]" );
   }
 
   @Test
@@ -138,9 +130,7 @@ public class AreaOfInterestTest
   {
     ReplicantTestUtil.disableNames();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Channel channel = Channel.create( address );
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( channel );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     assertEquals( areaOfInterest.toString(),
                   "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
@@ -151,15 +141,15 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest()
   {
     Arez.context().pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
     final Throwable error = new Throwable();
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
@@ -172,17 +162,17 @@ public class AreaOfInterestTest
     final Subscription subscription =
       Arez.context().safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
@@ -192,14 +182,14 @@ public class AreaOfInterestTest
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), error ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     Disposable.dispose( subscription );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
@@ -209,12 +199,12 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_generatesSpyEvent()
   {
     Arez.context().pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING ) );
+    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
 
     handler.assertEventCount( 1 );
     final AreaOfInterestStatusUpdatedEvent event = handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class );
@@ -225,12 +215,12 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_missingErrorWhenExpected()
   {
     Arez.context().pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED ) ) );
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0016: Invoked updateAreaOfInterest for channel at address G.G1 with status LOAD_FAILED but failed to supply the expected error." );
   }
@@ -240,7 +230,7 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_errorWhenUnexpected()
   {
     Arez.context().pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
     final Throwable error = new Throwable();
 
     final IllegalStateException exception =
@@ -255,12 +245,12 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_missingSubscriptionWhenExpected()
   {
     Arez.context().pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED ) ) );
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0018: Invoked updateAreaOfInterest for channel at address G.G1 with status LOADED and the context is missing expected subscription." );
   }
@@ -269,22 +259,22 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
     Arez.context().pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( Channel.create( new ChannelAddress( G.G1 ) ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     Arez.context().safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED ) ) );
+                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0019: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and found unexpected subscription in the context." );
   }
 
   @Nonnull
-  private AreaOfInterest createAreaOfInterest( @Nonnull final Channel channel )
+  private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address )
   {
-    return AreaOfInterest.create( Replicant.context().getAreaOfInterestService(), channel );
+    return AreaOfInterest.create( Replicant.context().getAreaOfInterestService(), address, null );
   }
 
   enum G

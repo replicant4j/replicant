@@ -61,7 +61,4 @@ Some actions that should occur at some point in the future.
   - `Replicant.can*DebugOutputBeEnabled()` should be removed.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
 
-* The `Channel` class should be made package access and the `AreaOfInterest` and `Subscription` should expose
-  the publicly accessible details (i.e. Filter read? ChannelAddress).
-
 * Make sure ConsoleLogger logs all spy events

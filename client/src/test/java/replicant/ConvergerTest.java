@@ -167,7 +167,7 @@ public class ConvergerTest
       final ChannelAddress address4 = new ChannelAddress( G.G1, 1 );
       final AreaOfInterest areaOfInterest4 = createAreaOfInterest( address4, "Filter" );
       assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
-      areaOfInterest.getChannel().setFilter( "Filter" );
+      areaOfInterest.setFilter( "Filter" );
       assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
     } );
   }

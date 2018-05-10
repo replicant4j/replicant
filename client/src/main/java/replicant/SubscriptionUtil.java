@@ -50,13 +50,12 @@ public class SubscriptionUtil
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
     final ReplicantContext context = Replicant.context();
-    final Map<Integer, Channel> existing =
+    final Map<Integer, AreaOfInterest> existing =
       context
         .getAreasOfInterest()
         .stream()
         .filter( s -> s.getAddress().getChannelType().equals( targetChannelType ) )
-        .filter( subscription -> FilterUtil.filtersEqual( subscription.getChannel().getFilter(), filter ) )
-        .map( AreaOfInterest::getChannel )
+        .filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
         .collect( Collectors.toMap( s -> s.getAddress().getId(), Function.identity() ) );
 
     context

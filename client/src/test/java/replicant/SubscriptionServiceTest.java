@@ -340,8 +340,8 @@ public class SubscriptionServiceTest
     // instance channel, no filter, explicit subscription
     Arez.context().safeAction( () -> {
       final Subscription subscription = service.createSubscription( address, null, true );
-      assertEquals( subscription.getChannel().getAddress(), address );
-      assertEquals( subscription.getChannel().getFilter(), null );
+      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.getFilter(), null );
       assertEquals( subscription.isExplicitSubscription(), true );
     } );
   }
@@ -358,8 +358,8 @@ public class SubscriptionServiceTest
       final String filter = ValueUtil.randomString();
       final boolean explicitSubscription = false;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
-      assertEquals( subscription.getChannel().getAddress(), address );
-      assertEquals( subscription.getChannel().getFilter(), filter );
+      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
     } );
   }
@@ -376,8 +376,8 @@ public class SubscriptionServiceTest
       final String filter = null;
       final boolean explicitSubscription = false;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
-      assertEquals( subscription.getChannel().getAddress(), address );
-      assertEquals( subscription.getChannel().getFilter(), filter );
+      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
     } );
   }
@@ -394,8 +394,8 @@ public class SubscriptionServiceTest
       final String filter = ValueUtil.randomString();
       final boolean explicitSubscription = true;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
-      assertEquals( subscription.getChannel().getAddress(), address );
-      assertEquals( subscription.getChannel().getFilter(), filter );
+      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
     } );
   }

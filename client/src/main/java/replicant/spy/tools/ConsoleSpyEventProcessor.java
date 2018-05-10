@@ -3,8 +3,9 @@ package replicant.spy.tools;
 import elemental2.dom.DomGlobal;
 import javax.annotation.Nonnull;
 import org.realityforge.anodoc.Unsupported;
-import replicant.Channel;
+import replicant.AreaOfInterest;
 import replicant.FilterUtil;
+import replicant.Subscription;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestFilterUpdatedEvent;
@@ -50,10 +51,10 @@ public class ConsoleSpyEventProcessor
    */
   protected void onAreaOfInterestCreated( @Nonnull final AreaOfInterestCreatedEvent e )
   {
-    final Channel channel = e.getAreaOfInterest().getChannel();
-    final Object filter = channel.getFilter();
+    final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
+    final Object filter = areaOfInterest.getFilter();
     final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Created " + channel.getAddress() + filterString, AREA_OF_INTEREST_COLOR );
+    log( "%cAreaOfInterest Created " + areaOfInterest.getAddress() + filterString, AREA_OF_INTEREST_COLOR );
   }
 
   /**
@@ -63,10 +64,11 @@ public class ConsoleSpyEventProcessor
    */
   protected void onAreaOfInterestFilterUpdated( @Nonnull final AreaOfInterestFilterUpdatedEvent e )
   {
-    final Channel channel = e.getAreaOfInterest().getChannel();
-    final Object filter = channel.getFilter();
+    final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
+    final Object filter = areaOfInterest.getFilter();
     final String filterString = FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Filter Updated " + channel.getAddress() + " - " + filterString, AREA_OF_INTEREST_COLOR );
+    log( "%cAreaOfInterest Filter Updated " + areaOfInterest.getAddress() + " - " + filterString,
+         AREA_OF_INTEREST_COLOR );
   }
 
   /**
@@ -76,10 +78,11 @@ public class ConsoleSpyEventProcessor
    */
   protected void onAreaOfInterestStatusUpdated( @Nonnull final AreaOfInterestStatusUpdatedEvent e )
   {
-    final Channel channel = e.getAreaOfInterest().getChannel();
-    final Object filter = channel.getFilter();
+    final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
+    final Object filter = areaOfInterest.getFilter();
     final String filterString = FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Status Updated " + channel.getAddress() + " - " + filterString, AREA_OF_INTEREST_COLOR );
+    log( "%cAreaOfInterest Status Updated " + areaOfInterest.getAddress() + " - " + filterString,
+         AREA_OF_INTEREST_COLOR );
   }
 
   /**
@@ -89,7 +92,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onAreaOfInterestDisposed( @Nonnull final AreaOfInterestDisposedEvent e )
   {
-    log( "%cAreaOfInterest Disposed " + e.getAreaOfInterest().getChannel().getAddress(), AREA_OF_INTEREST_COLOR );
+    log( "%cAreaOfInterest Disposed " + e.getAreaOfInterest().getAddress(), AREA_OF_INTEREST_COLOR );
   }
 
   /**
@@ -99,10 +102,10 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionCreated( @Nonnull final SubscriptionCreatedEvent e )
   {
-    final Channel channel = e.getSubscription().getChannel();
-    final Object filter = channel.getFilter();
+    final Subscription subscription = e.getSubscription();
+    final Object filter = subscription.getFilter();
     final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
-    log( "%cSubscription Created " + channel.getAddress() + filterString, SUBSCRIPTION_COLOR );
+    log( "%cSubscription Created " + subscription.getAddress() + filterString, SUBSCRIPTION_COLOR );
   }
 
   /**
@@ -112,7 +115,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionDisposed( @Nonnull final SubscriptionDisposedEvent e )
   {
-    log( "%cSubscription Disposed " + e.getSubscription().getChannel().getAddress(), SUBSCRIPTION_COLOR );
+    log( "%cSubscription Disposed " + e.getSubscription().getAddress(), SUBSCRIPTION_COLOR );
   }
 
   /**

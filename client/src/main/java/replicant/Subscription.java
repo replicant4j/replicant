@@ -38,25 +38,44 @@ public abstract class Subscription
 
   private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
   @Nonnull
-  private final Channel _channel;
+  private final ChannelAddress _address;
+  @Nullable
+  private Object _filter;
 
   static Subscription create( @Nonnull final SubscriptionService subscriptionService,
-                              @Nonnull final Channel channel,
+                              @Nonnull final ChannelAddress address,
+                              @Nullable final Object filter,
                               final boolean explicitSubscription )
   {
-    return new Arez_Subscription( subscriptionService, channel, explicitSubscription );
+    return new Arez_Subscription( subscriptionService, address, filter, explicitSubscription );
   }
 
-  Subscription( @Nonnull final SubscriptionService subscriptionService, @Nonnull final Channel channel )
+  Subscription( @Nonnull final SubscriptionService subscriptionService,
+                @Nonnull final ChannelAddress address,
+                @Nullable final Object filter )
   {
     _subscriptionService = Objects.requireNonNull( subscriptionService );
-    _channel = Objects.requireNonNull( channel );
+    _address = Objects.requireNonNull( address );
+    _filter = filter;
   }
 
   @Nonnull
-  public Channel getChannel()
+  public ChannelAddress getAddress()
   {
-    return _channel;
+    return _address;
+  }
+
+  @Observable
+  @Nullable
+  public Object getFilter()
+  {
+    return _filter;
+  }
+
+  //TODO: Make this package access and put method on SubscriptionService to call this
+  public void setFilter( @Nullable final Object filter )
+  {
+    _filter = filter;
   }
 
   @Observable( initializer = Feature.ENABLE )
@@ -117,7 +136,7 @@ public abstract class Subscription
   @Override
   public int compareTo( @NotNull final Subscription o )
   {
-    return getChannel().getAddress().getChannelType().compareTo( o.getChannel().getAddress().getChannelType() );
+    return getAddress().getChannelType().compareTo( o.getAddress().getChannelType() );
   }
 
   final void linkSubscriptionToEntity( @Nonnull final Entity entity )
@@ -155,7 +174,7 @@ public abstract class Subscription
     getEntitiesObservable().preReportChanged();
     final Class<?> entityType = entity.getType();
     final Map<Integer, EntityEntry> typeMap = _entities.get( entityType );
-    final ChannelAddress address = getChannel().getAddress();
+    final ChannelAddress address = getAddress();
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,

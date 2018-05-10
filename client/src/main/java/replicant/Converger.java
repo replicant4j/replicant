@@ -148,7 +148,7 @@ abstract class Converger
     {
       final Subscription subscription = getReplicantContext().findSubscription( address );
       final boolean subscribed = null != subscription;
-      final Object filter = areaOfInterest.getChannel().getFilter();
+      final Object filter = areaOfInterest.getFilter();
 
       final int addIndex =
         connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
@@ -188,7 +188,7 @@ abstract class Converger
           return ConvergeAction.IN_PROGRESS;
         }
 
-        final Object existing = subscription.getChannel().getFilter();
+        final Object existing = subscription.getFilter();
         final String newFilter = FilterUtil.filterToString( filter );
         final String existingFilter = FilterUtil.filterToString( existing );
         if ( !Objects.equals( newFilter, existingFilter ) )
@@ -230,8 +230,7 @@ abstract class Converger
 
       return sameChannel &&
              ( AreaOfInterestAction.REMOVE == action ||
-               FilterUtil.filtersEqual( groupTemplate.getChannel().getFilter(),
-                                        areaOfInterest.getChannel().getFilter() ) );
+               FilterUtil.filtersEqual( groupTemplate.getFilter(), areaOfInterest.getFilter() ) );
     }
   }
 
@@ -252,7 +251,7 @@ abstract class Converger
       // Subscription must be explicit
       .filter( Subscription::isExplicitSubscription )
       // Subscription should not be one of expected
-      .map( s -> s.getChannel().getAddress() )
+      .map( Subscription::getAddress )
       .filter( address -> !expected.contains( address ) )
       // Subscription should not already have a remove pending
       .filter( address -> !isRemovePending( address ) )

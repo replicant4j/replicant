@@ -482,8 +482,8 @@ public class DataLoaderServiceTest
 
     final Subscription subscription = Replicant.context().findSubscription( address );
     assertNotNull( subscription );
-    assertEquals( subscription.getChannel().getAddress(), address );
-    assertEquals( subscription.getChannel().getFilter(), null );
+    assertEquals( subscription.getAddress(), address );
+    assertEquals( subscription.getFilter(), null );
     assertEquals( subscription.isExplicitSubscription(), false );
 
     final DataLoadAction action = actions.getLast();

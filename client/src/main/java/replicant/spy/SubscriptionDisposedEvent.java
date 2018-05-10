@@ -4,7 +4,6 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Subscription;
 
@@ -35,11 +34,10 @@ public final class SubscriptionDisposedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Subscription.Disposed" );
-    final Channel channel = getSubscription().getChannel();
-    final ChannelAddress address = channel.getAddress();
+    final ChannelAddress address = getSubscription().getAddress();
     map.put( "channel.type", address.getChannelType().name() );
     map.put( "channel.id", address.getId() );
-    map.put( "channel.filter", channel.getFilter() );
+    map.put( "channel.filter", getSubscription().getFilter() );
     map.put( "explicitSubscription", getSubscription().isExplicitSubscription() );
   }
 }

@@ -33,8 +33,8 @@ public final class AreaOfInterestFilterUpdatedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "AreaOfInterest.Updated" );
-    map.put( "channel.type", getAreaOfInterest().getChannel().getAddress().getChannelType().name() );
-    map.put( "channel.id", getAreaOfInterest().getChannel().getAddress().getId() );
-    map.put( "channel.filter", getAreaOfInterest().getChannel().getFilter() );
+    map.put( "channel.type", getAreaOfInterest().getAddress().getChannelType().name() );
+    map.put( "channel.id", getAreaOfInterest().getAddress().getId() );
+    map.put( "channel.filter", getAreaOfInterest().getFilter() );
   }
 }

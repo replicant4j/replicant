@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.Channel;
 import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.Replicant;
@@ -215,7 +214,9 @@ abstract class TestDataLoadService
   }
 
   @Override
-  protected boolean doesEntityMatchFilter( @Nonnull final Channel channel, @Nonnull final Entity entity )
+  protected boolean doesEntityMatchFilter( @Nonnull final ChannelAddress address,
+                                           @Nullable final Object filter,
+                                           @Nonnull final Entity entity )
   {
     return entity.getId() < 0;
   }

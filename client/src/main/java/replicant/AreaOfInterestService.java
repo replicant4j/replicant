@@ -87,9 +87,9 @@ abstract class AreaOfInterestService
     final AreaOfInterest areaOfInterest = findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
-      if ( !FilterUtil.filtersEqual( areaOfInterest.getChannel().getFilter(), filter ) )
+      if ( !FilterUtil.filtersEqual( areaOfInterest.getFilter(), filter ) )
       {
-        areaOfInterest.getChannel().setFilter( filter );
+        areaOfInterest.setFilter( filter );
         if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
         {
           getReplicantContext().getSpy().reportSpyEvent( new AreaOfInterestFilterUpdatedEvent( areaOfInterest ) );
@@ -99,8 +99,7 @@ abstract class AreaOfInterestService
     }
     else
     {
-      final Channel channel = Channel.create( address, filter );
-      final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( this, channel );
+      final AreaOfInterest newAreaOfInterest = AreaOfInterest.create( this, address, filter );
       registerEntity( newAreaOfInterest );
       if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
       {

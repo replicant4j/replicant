@@ -312,7 +312,7 @@ public class EntityTest
     Arez.context().safeAction( () -> entity.linkToSubscription( subscription1 ) );
     Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
-    entity.subscriptions().remove( subscription1.getChannel().getAddress() );
+    entity.subscriptions().remove( subscription1.getAddress() );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -350,7 +350,7 @@ public class EntityTest
   @Nonnull
   private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
-    return Subscription.create( SubscriptionService.create( null ), Channel.create( address ), true );
+    return Subscription.create( SubscriptionService.create( null ), address, null, true );
   }
 
   enum G

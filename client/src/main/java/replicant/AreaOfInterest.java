@@ -41,21 +41,27 @@ public abstract class AreaOfInterest
   @Nonnull
   private final AreaOfInterestService _areaOfInterestService;
   @Nonnull
-  private final Channel _channel;
+  private final ChannelAddress _address;
+  @Nullable
+  private Object _filter;
   @Nonnull
   private Status _status = Status.NOT_ASKED;
 
   @Nonnull
   static AreaOfInterest create( @Nonnull final AreaOfInterestService areaOfInterestService,
-                                @Nonnull final Channel channel )
+                                @Nonnull final ChannelAddress address,
+                                @Nullable final Object filter )
   {
-    return new Arez_AreaOfInterest( areaOfInterestService, channel );
+    return new Arez_AreaOfInterest( areaOfInterestService, address, filter );
   }
 
-  AreaOfInterest( @Nonnull final AreaOfInterestService areaOfInterestService, @Nonnull final Channel channel )
+  AreaOfInterest( @Nonnull final AreaOfInterestService areaOfInterestService,
+                  @Nonnull final ChannelAddress address,
+                  @Nullable final Object filter )
   {
     _areaOfInterestService = Objects.requireNonNull( areaOfInterestService );
-    _channel = Objects.requireNonNull( channel );
+    _address = Objects.requireNonNull( address );
+    _filter = filter;
   }
 
   @PreDispose
@@ -71,13 +77,19 @@ public abstract class AreaOfInterest
   @Nonnull
   public final ChannelAddress getAddress()
   {
-    return getChannel().getAddress();
+    return _address;
   }
 
-  @Nonnull
-  public final Channel getChannel()
+  @Observable
+  @Nullable
+  public Object getFilter()
   {
-    return _channel;
+    return _filter;
+  }
+
+  void setFilter( @Nullable final Object filter )
+  {
+    _filter = filter;
   }
 
   @Observable
@@ -107,14 +119,6 @@ public abstract class AreaOfInterest
   /**
    * Update the status of the AreaOfInterest.
    */
-  public void updateAreaOfInterest( @Nonnull final Status status )
-  {
-    updateAreaOfInterest( status, null );
-  }
-
-  /**
-   * Update the status of the AreaOfInterest.
-   */
   @Action
   void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
   {
@@ -129,7 +133,7 @@ public abstract class AreaOfInterest
       final boolean expectError = Status.LOAD_FAILED == status || Status.UPDATE_FAILED == status;
       final Subscription subscription = getReplicantContext().findSubscription( getAddress() );
 
-      final ChannelAddress address = getChannel().getAddress();
+      final ChannelAddress address = getAddress();
       apiInvariant( () -> !expectError || null != error,
                     () -> "Replicant-0016: Invoked updateAreaOfInterest for channel at address " +
                           address + " with status " + status + " but failed to supply " +
@@ -160,7 +164,9 @@ public abstract class AreaOfInterest
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return "AreaOfInterest[" + _channel + " Status: " + _status + "]";
+      return "AreaOfInterest[" + _address +
+             ( null == _filter ? "" : " Filter: " + FilterUtil.filterToString( _filter ) ) +
+             " Status: " + _status + "]";
     }
     else
     {

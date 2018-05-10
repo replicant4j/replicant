@@ -174,7 +174,7 @@ abstract class SubscriptionService
       getInstanceSubscriptionsObservable().preReportChanged();
     }
     final Subscription subscription =
-      Subscription.create( this, Channel.create( address, filter ), explicitSubscription );
+      Subscription.create( this, address, filter, explicitSubscription );
     final SubscriptionEntry entry = createSubscriptionEntry( subscription );
     if ( null == id )
     {
@@ -205,7 +205,7 @@ abstract class SubscriptionService
                          Arez.areNamesEnabled() ? getComponentName() + ".SubscriptionWatcher." + arezId : null,
                          true,
                          () -> !ComponentObservable.observe( subscription ),
-                         () -> unlinkSubscription( subscription.getChannel().getAddress() ),
+                         () -> unlinkSubscription( subscription.getAddress() ),
                          true,
                          true );
     entry.setMonitor( monitor );

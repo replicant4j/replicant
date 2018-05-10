@@ -260,7 +260,7 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   private SubscriptionResult<T> asResult( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    final ChannelAddress address = areaOfInterest.getChannel().getAddress();
+    final ChannelAddress address = areaOfInterest.getAddress();
     final Subscription subscription = areaOfInterest.getSubscription();
     assert null != subscription;
     final Integer id = address.getId();
