@@ -156,8 +156,8 @@ public abstract class AbstractDataLoaderService
 
   protected void purgeSubscriptions()
   {
-    Stream.concat( Replicant.context().getTypeSubscriptions().stream(),
-                   Replicant.context().getInstanceSubscriptions().stream() )
+    Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
+                   getReplicantContext().getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
       .filter( s -> s.getChannel().getAddress().getSystem().equals( getSystemType() ) )
       // Purge in reverse order. First instance subscriptions then type subscriptions
@@ -302,7 +302,7 @@ public abstract class AbstractDataLoaderService
   {
     context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
       _currentAoiActions.removeIf( a -> {
-        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
           LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
@@ -353,7 +353,7 @@ public abstract class AbstractDataLoaderService
   {
     context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
       _currentAoiActions.removeIf( a -> {
-        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
           LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
@@ -381,7 +381,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
-        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -395,7 +395,7 @@ public abstract class AbstractDataLoaderService
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
-        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
@@ -425,7 +425,7 @@ public abstract class AbstractDataLoaderService
     // Remove all Add Aoi actions that need no action as they are already present locally
     context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
       _currentAoiActions.removeIf( a -> {
-        final Subscription subscription = Replicant.context().findSubscription( a.getAddress() );
+        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           if ( subscription.isExplicitSubscription() )
@@ -930,18 +930,18 @@ public abstract class AbstractDataLoaderService
           }
           explicitSubscribe = true;
         }
-        Replicant.context().createSubscription( address, filter, explicitSubscribe );
+        getReplicantContext().createSubscription( address, filter, explicitSubscribe );
       }
       else if ( ChannelAction.Action.REMOVE == actionType )
       {
-        final Subscription subscription = Replicant.context().findSubscription( address );
+        final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
         Disposable.dispose( subscription );
         _currentAction.incChannelRemoveCount();
       }
       else if ( ChannelAction.Action.UPDATE == actionType )
       {
-        final Subscription subscription = Replicant.context().findSubscription( address );
+        final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
         subscription.getChannel().setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription, filter );
@@ -1045,9 +1045,9 @@ public abstract class AbstractDataLoaderService
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      for ( final Class<?> entityType : Replicant.context().findAllEntityTypes() )
+      for ( final Class<?> entityType : getReplicantContext().findAllEntityTypes() )
       {
-        for ( final Object entity : Replicant.context().findAllEntitiesByType( entityType ) )
+        for ( final Object entity : getReplicantContext().findAllEntitiesByType( entityType ) )
         {
           invariant( () -> !Disposable.isDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );

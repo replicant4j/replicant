@@ -27,7 +27,7 @@ abstract class ReplicantService
   }
 
   @Nonnull
-  final ReplicantContext getReplicantContext()
+  protected final ReplicantContext getReplicantContext()
   {
     return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
   }
