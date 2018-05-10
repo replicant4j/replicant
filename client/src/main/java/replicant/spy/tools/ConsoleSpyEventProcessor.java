@@ -12,6 +12,7 @@ import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
+import replicant.spy.SubscriptionOrphanedEvent;
 
 /**
  * A SpyEventHandler that prints spy events to the tools console.
@@ -42,6 +43,7 @@ public class ConsoleSpyEventProcessor
 
     on( SubscriptionCreatedEvent.class, this::onSubscriptionCreated );
     on( SubscriptionDisposedEvent.class, this::onSubscriptionDisposed );
+    on( SubscriptionOrphanedEvent.class, this::onSubscriptionOrphaned );
   }
 
   /**
@@ -116,6 +118,16 @@ public class ConsoleSpyEventProcessor
   protected void onSubscriptionDisposed( @Nonnull final SubscriptionDisposedEvent e )
   {
     log( "%cSubscription Disposed " + e.getSubscription().getAddress(), SUBSCRIPTION_COLOR );
+  }
+
+  /**
+   * Handle the SubscriptionOrphanedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onSubscriptionOrphaned( @Nonnull final SubscriptionOrphanedEvent e )
+  {
+    log( "%cSubscription Orphaned " + e.getSubscription().getAddress(), SUBSCRIPTION_COLOR );
   }
 
   /**
