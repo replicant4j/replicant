@@ -34,7 +34,7 @@ public interface Spy
   boolean willPropagateSpyEvents();
 
   /**
-   * Report an event in the Arez system.
+   * Report an event in the Replicant system.
    *
    * @param event the event that occurred.
    */
