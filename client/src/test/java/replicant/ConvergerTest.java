@@ -192,7 +192,7 @@ public class ConvergerTest
       final TestSpyEventHandler handler = new TestSpyEventHandler();
       context.getSpy().addSpyEventHandler( handler );
 
-      context.getConverger().removeOrphanSubscription( address );
+      context.getConverger().removeOrphanSubscriptions();
 
       //TODO: Verify requestUnsubscribe( address ) invoked
 

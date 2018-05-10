@@ -4,9 +4,9 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
 import arez.annotations.Observable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -234,41 +234,35 @@ public abstract class Converger
     final HashSet<ChannelAddress> expected = new HashSet<>();
     getReplicantContext().getAreasOfInterest().forEach( aoi -> expected.add( aoi.getAddress() ) );
 
-    for ( final Subscription subscription : getReplicantContext().getTypeSubscriptions() )
-    {
-      removeSubscriptionIfOrphan( expected, subscription );
-    }
-    for ( final Subscription subscription : getReplicantContext().getInstanceSubscriptions() )
-    {
-      removeSubscriptionIfOrphan( expected, subscription );
-    }
+    removeOrphanSubscriptions( expected, getReplicantContext().getTypeSubscriptions() );
+    removeOrphanSubscriptions( expected, getReplicantContext().getInstanceSubscriptions() );
   }
 
-  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
-                                   @Nonnull final Subscription subscription )
+  private void removeOrphanSubscriptions( @Nonnull final HashSet<ChannelAddress> expected,
+                                          @Nonnull final Collection<Subscription> subscriptions )
   {
-    final ChannelAddress address = subscription.getChannel().getAddress();
-    if ( !expected.contains( address ) && subscription.isExplicitSubscription() )
-    {
-      removeOrphanSubscription( address );
-    }
+    subscriptions
+      .stream()
+      // Subscription must be explicit
+      .filter( Subscription::isExplicitSubscription )
+      // Subscription should not be one of expected
+      .map( s -> s.getChannel().getAddress() )
+      .filter( address -> !expected.contains( address ) )
+      // Subscription should not already have a remove pending
+      .filter( address -> !isRemovePending( address ) )
+      .forEachOrdered( this::removeOrphanSubscription );
   }
 
-  void removeOrphanSubscription( @Nonnull final ChannelAddress address )
+  private void removeOrphanSubscription( @Nonnull final ChannelAddress address )
   {
     final ReplicantContext replicantContext = getReplicantContext();
-    final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
-    if ( ConnectorState.CONNECTED == connector.getState() &&
-         !connector.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null ) )
+    if ( Replicant.areSpiesEnabled() && replicantContext.getSpy().willPropagateSpyEvents() )
     {
-      if ( Replicant.areSpiesEnabled() && replicantContext.getSpy().willPropagateSpyEvents() )
-      {
-        final Subscription subscription = replicantContext.findSubscription( address );
-        assert null != subscription;
-        replicantContext.getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
-      }
-      connector.requestUnsubscribe( address );
+      final Subscription subscription = replicantContext.findSubscription( address );
+      assert null != subscription;
+      replicantContext.getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
     }
+    getReplicantRuntime().getConnector( address.getSystem() ).requestUnsubscribe( address );
   }
 
   /**
