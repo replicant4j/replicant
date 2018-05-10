@@ -13,7 +13,6 @@ import replicant.ChannelAddress;
 import replicant.Entity;
 import replicant.Replicant;
 import replicant.ReplicantContext;
-import replicant.ReplicantRuntime;
 import replicant.SafeProcedure;
 import replicant.Subscription;
 import replicant.spy.DataLoadStatus;
@@ -35,7 +34,7 @@ abstract class TestDataLoadService
   @Nonnull
   static TestDataLoadService create()
   {
-    return create( Replicant.context() );
+    return create( Replicant.areZonesEnabled() ? Replicant.context() : null );
   }
 
   @Nonnull
