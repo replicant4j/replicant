@@ -41,7 +41,7 @@ public final class MessageProcessedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.MessageProcess" );
+    map.put( "type", "Connector.MessageProcess" );
     map.put( "systemType", getSystemType().getSimpleName() );
     final DataLoadStatus status = getDataLoadStatus();
     map.put( "sequence", status.getSequence() );

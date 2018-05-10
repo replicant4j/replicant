@@ -49,7 +49,7 @@ public final class SubscriptionUpdateFailedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.SubscriptionUpdateFailed" );
+    map.put( "type", "Connector.SubscriptionUpdateFailed" );
     map.put( "systemType", getSystemType().getSimpleName() );
     final ChannelAddress address = getAddress();
     map.put( "channel.type", address.getChannelType().name() );

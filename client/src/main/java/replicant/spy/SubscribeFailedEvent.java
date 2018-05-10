@@ -52,7 +52,7 @@ public final class SubscribeFailedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.SubscribeFailed" );
+    map.put( "type", "Connector.SubscribeFailed" );
     map.put( "systemType", getSystemType().getSimpleName() );
     final ChannelAddress address = getAddress();
     map.put( "channel.type", address.getChannelType().name() );

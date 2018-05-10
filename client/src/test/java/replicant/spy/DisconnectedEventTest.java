@@ -19,7 +19,7 @@ public class DisconnectedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.Disconnect" );
+    assertEquals( data.get( "type" ), "Connector.Disconnect" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.size(), 2 );
   }

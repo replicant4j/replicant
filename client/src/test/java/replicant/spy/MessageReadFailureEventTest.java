@@ -20,7 +20,7 @@ public class MessageReadFailureEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.MessageReadFailure" );
+    assertEquals( data.get( "type" ), "Connector.MessageReadFailure" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.get( "message" ), "Some ERROR" );
     assertEquals( data.size(), 3 );
@@ -37,7 +37,7 @@ public class MessageReadFailureEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.MessageReadFailure" );
+    assertEquals( data.get( "type" ), "Connector.MessageReadFailure" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.get( "message" ), "java.lang.NullPointerException" );
     assertEquals( data.size(), 3 );

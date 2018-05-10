@@ -40,7 +40,7 @@ public final class MessageProcessFailureEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.MessageProcessFailure" );
+    map.put( "type", "Connector.MessageProcessFailure" );
     map.put( "systemType", getSystemType().getSimpleName() );
     final Throwable throwable = getError();
     map.put( "message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage() );

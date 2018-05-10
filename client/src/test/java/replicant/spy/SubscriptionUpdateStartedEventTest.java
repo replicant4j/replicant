@@ -25,7 +25,7 @@ public class SubscriptionUpdateStartedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.SubscriptionUpdateStarted" );
+    assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateStarted" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), address.getId() );

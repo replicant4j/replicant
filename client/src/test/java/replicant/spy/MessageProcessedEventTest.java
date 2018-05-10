@@ -40,7 +40,7 @@ public class MessageProcessedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.MessageProcess" );
+    assertEquals( data.get( "type" ), "Connector.MessageProcess" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.get( "sequence" ), sequence );
     assertEquals( data.get( "requestId" ), requestId );

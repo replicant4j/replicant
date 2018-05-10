@@ -31,7 +31,7 @@ public final class ConnectedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.Connect" );
+    map.put( "type", "Connector.Connect" );
     map.put( "systemType", getSystemType().getSimpleName() );
   }
 }

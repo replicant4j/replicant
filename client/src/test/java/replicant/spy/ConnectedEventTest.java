@@ -19,7 +19,7 @@ public class ConnectedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.Connect" );
+    assertEquals( data.get( "type" ), "Connector.Connect" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.size(), 2 );
   }

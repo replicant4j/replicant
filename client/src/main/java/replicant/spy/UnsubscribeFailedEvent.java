@@ -52,7 +52,7 @@ public final class UnsubscribeFailedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.UnsubscribeFailed" );
+    map.put( "type", "Connector.UnsubscribeFailed" );
     map.put( "systemType", getSystemType().getSimpleName() );
     final ChannelAddress address = getAddress();
     map.put( "channel.type", address.getChannelType().name() );

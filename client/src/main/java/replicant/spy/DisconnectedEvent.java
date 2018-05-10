@@ -31,7 +31,7 @@ public final class DisconnectedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.Disconnect" );
+    map.put( "type", "Connector.Disconnect" );
     map.put( "systemType", getSystemType().getSimpleName() );
   }
 }

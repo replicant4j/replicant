@@ -23,7 +23,7 @@ public class UnsubscribeFailedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "DataLoader.UnsubscribeFailed" );
+    assertEquals( data.get( "type" ), "Connector.UnsubscribeFailed" );
     assertEquals( data.get( "systemType" ), "G" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), address.getId() );

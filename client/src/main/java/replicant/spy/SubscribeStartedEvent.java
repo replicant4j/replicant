@@ -41,7 +41,7 @@ public final class SubscribeStartedEvent
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
-    map.put( "type", "DataLoader.SubscribeStarted" );
+    map.put( "type", "Connector.SubscribeStarted" );
     map.put( "systemType", getSystemType().getSimpleName() );
     final ChannelAddress address = getAddress();
     map.put( "channel.type", address.getChannelType().name() );
