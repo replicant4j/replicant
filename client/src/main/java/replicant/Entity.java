@@ -91,7 +91,6 @@ public abstract class Entity
     return _type;
   }
 
-  @Nonnull
   public final int getId()
   {
     return _id;
