@@ -103,7 +103,7 @@ public abstract class ReplicantRuntime
     // Are any required in error?
     boolean error = false;
 
-    for ( final ConnectorEntry entry : _connectors )
+    for ( final ConnectorEntry entry : getConnectors() )
     {
       if ( entry.isRequired() )
       {
