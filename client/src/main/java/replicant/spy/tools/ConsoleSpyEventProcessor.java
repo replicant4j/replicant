@@ -66,7 +66,7 @@ public class ConsoleSpyEventProcessor
    */
   private void onConnected( @Nonnull final ConnectedEvent e )
   {
-    log( "%cConnector Connected " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
+    log( "%cConnector Connected. System: " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
   }
 
   /**
@@ -76,7 +76,8 @@ public class ConsoleSpyEventProcessor
    */
   private void onConnectFailure( @Nonnull final ConnectFailureEvent e )
   {
-    log( "%cConnector Connect Failed " + e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
+    log( "%cConnector Connect Failed. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+         ERROR_COLOR );
   }
 
   /**
@@ -86,7 +87,7 @@ public class ConsoleSpyEventProcessor
    */
   private void onDisconnected( @Nonnull final DisconnectedEvent e )
   {
-    log( "%cConnector Disconnected " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
+    log( "%cConnector Disconnected. System: " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
   }
 
   /**
@@ -96,7 +97,7 @@ public class ConsoleSpyEventProcessor
    */
   private void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
   {
-    log( "%cConnector Disconnect Failed " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+    log( "%cConnector Disconnect Failed. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
          ERROR_COLOR );
   }
 
