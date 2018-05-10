@@ -70,7 +70,7 @@ public abstract class TestConnector
                                                  @Nonnull final ChannelAddress address,
                                                  @Nullable final Object filter )
   {
-    return 0;
+    return -1;
   }
 
   @Override
