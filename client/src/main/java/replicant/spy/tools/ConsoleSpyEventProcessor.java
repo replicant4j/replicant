@@ -160,7 +160,7 @@ public class ConsoleSpyEventProcessor
   private void onSubscribeCompleted( @Nonnull final SubscribeCompletedEvent e )
   {
     log( "%cConnector completed subscribe. System: " + e.getSystemType().getSimpleName() +
-         " Address: " + e.getAddress(), ERROR_COLOR );
+         " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
   /**
