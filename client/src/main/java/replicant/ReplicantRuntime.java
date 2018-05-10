@@ -62,7 +62,7 @@ public abstract class ReplicantRuntime
   @ObservableRef
   protected abstract arez.Observable getConnectorsObservable();
 
-  void setDataSourceRequired( @Nonnull final Class<?> systemType, final boolean required )
+  void setConnectorRequired( @Nonnull final Class<?> systemType, final boolean required )
   {
     getConnectorEntryBySystemType( systemType ).setRequired( required );
   }

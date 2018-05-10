@@ -548,7 +548,7 @@ public class ReplicantRuntimeTest
     final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
     Arez.context().safeAction( () -> service3.setState( service3State ) );
 
-    runtime.setDataSourceRequired( service3.getSystemType(), false );
+    runtime.setConnectorRequired( service3.getSystemType(), false );
 
     Arez.context().safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
 
