@@ -17,6 +17,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.RestartEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -61,6 +62,7 @@ public class ConsoleSpyEventProcessor
     on( MessageProcessedEvent.class, this::onMessageProcessed );
     on( MessageProcessFailureEvent.class, this::onMessageProcessFailure );
     on( MessageReadFailureEvent.class, this::onMessageReadFailure );
+    on( RestartEvent.class, this::onRestart );
   }
 
   /**
@@ -135,6 +137,17 @@ public class ConsoleSpyEventProcessor
   {
     log( "%cConnector Error Reading Message. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
          ERROR_COLOR );
+  }
+
+  /**
+   * Handle the RestartEvent.
+   *
+   * @param e the event.
+   */
+  private void onRestart( @Nonnull final RestartEvent e )
+  {
+    log( "%cConnector attempting to disconnect and restart due to error. System: " +
+         e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
