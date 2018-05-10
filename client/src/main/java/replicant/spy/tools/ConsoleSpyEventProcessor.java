@@ -14,6 +14,7 @@ import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.SubscriptionCreatedEvent;
@@ -58,6 +59,7 @@ public class ConsoleSpyEventProcessor
     on( DisconnectedEvent.class, this::onDisconnected );
     on( DisconnectFailureEvent.class, this::onDisconnectFailure );
     on( MessageProcessedEvent.class, this::onMessageProcessed );
+    on( MessageProcessFailureEvent.class, this::onMessageProcessFailure );
     on( MessageReadFailureEvent.class, this::onMessageReadFailure );
   }
 
@@ -111,6 +113,16 @@ public class ConsoleSpyEventProcessor
   private void onMessageProcessed( @Nonnull final MessageProcessedEvent e )
   {
     log( "%cConnector Processed Message " + e.getDataLoadStatus(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the MessageProcessFailureEvent.
+   *
+   * @param e the event.
+   */
+  private void onMessageProcessFailure( @Nonnull final MessageProcessFailureEvent e )
+  {
+    log( "%cConnector Error Processing Message " + e.getError(), ERROR_COLOR );
   }
 
   /**
