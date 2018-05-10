@@ -262,6 +262,19 @@ public class ReplicantContextTest
     Arez.context().safeAction( () -> assertEquals( context.isActive(), true ) );
   }
 
+  @Test
+  public void setConnectorRequired()
+    throws Exception
+  {
+    TestConnector.create( G.class );
+
+    final ReplicantContext context = Replicant.context();
+
+    assertTrue( context.getRuntime().getConnectorEntryBySystemType( G.class ).isRequired() );
+    context.setConnectorRequired( G.class, false );
+    assertFalse( context.getRuntime().getConnectorEntryBySystemType( G.class ).isRequired() );
+  }
+
   enum G
   {
     G1, G2

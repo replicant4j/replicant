@@ -61,6 +61,12 @@ abstract class ReplicantRuntime
   @ObservableRef
   protected abstract arez.Observable getConnectorsObservable();
 
+  /**
+   * Set the "required" flag for connector for specified type.
+   *
+   * @param systemType the type handled by connector.
+   * @param required   true if connector is required for the context to be active, false otherwise.
+   */
   void setConnectorRequired( @Nonnull final Class<?> systemType, final boolean required )
   {
     getConnectorEntryBySystemType( systemType ).setRequired( required );
