@@ -101,6 +101,76 @@ public class ConvergerTest
     assertEquals( callCount.get(), 2 );
   }
 
+  @Test
+  public void canGroup()
+  {
+    final Converger c = Replicant.context().getConverger();
+
+    // Pause scheduler so Autoruns don't auto-converge
+    Arez.context().pauseScheduler();
+
+    Arez.context().safeAction( () -> {
+      final ChannelAddress address = new ChannelAddress( G.G1 );
+      final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
+
+      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.ADD,
+                               areaOfInterest,
+                               AreaOfInterestAction.UPDATE ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.ADD,
+                               areaOfInterest,
+                               AreaOfInterestAction.REMOVE ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.UPDATE,
+                               areaOfInterest,
+                               AreaOfInterestAction.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest,
+                              AreaOfInterestAction.UPDATE,
+                              areaOfInterest,
+                              AreaOfInterestAction.UPDATE ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.UPDATE,
+                               areaOfInterest,
+                               AreaOfInterestAction.REMOVE ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.REMOVE,
+                               areaOfInterest,
+                               AreaOfInterestAction.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.REMOVE,
+                               areaOfInterest,
+                               AreaOfInterestAction.UPDATE ) );
+      assertTrue( c.canGroup( areaOfInterest,
+                              AreaOfInterestAction.REMOVE,
+                              areaOfInterest,
+                              AreaOfInterestAction.REMOVE ) );
+
+      final ChannelAddress channel2 = new ChannelAddress( G.G1, 2 );
+      final AreaOfInterest areaOfInterest2 = createAreaOfInterest( channel2, null );
+      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest2, AreaOfInterestAction.ADD ) );
+
+      final ChannelAddress address3 = new ChannelAddress( G.G2, 1 );
+      final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
+      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.ADD,
+                               areaOfInterest3,
+                               AreaOfInterestAction.UPDATE ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestAction.ADD,
+                               areaOfInterest3,
+                               AreaOfInterestAction.REMOVE ) );
+
+      final ChannelAddress address4 = new ChannelAddress( G.G1, 1 );
+      final AreaOfInterest areaOfInterest4 = createAreaOfInterest( address4, "Filter" );
+      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
+      areaOfInterest.getChannel().setFilter( "Filter" );
+      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
+    } );
+  }
+
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
