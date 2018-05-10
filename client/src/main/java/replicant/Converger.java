@@ -234,12 +234,12 @@ public abstract class Converger
     final HashSet<ChannelAddress> expected = new HashSet<>();
     getReplicantContext().getAreasOfInterest().forEach( aoi -> expected.add( aoi.getAddress() ) );
 
-    removeOrphanSubscriptions( expected, getReplicantContext().getTypeSubscriptions() );
-    removeOrphanSubscriptions( expected, getReplicantContext().getInstanceSubscriptions() );
+    removeOrphanSubscriptions( getReplicantContext().getTypeSubscriptions(), expected );
+    removeOrphanSubscriptions( getReplicantContext().getInstanceSubscriptions(), expected );
   }
 
-  private void removeOrphanSubscriptions( @Nonnull final HashSet<ChannelAddress> expected,
-                                          @Nonnull final Collection<Subscription> subscriptions )
+  private void removeOrphanSubscriptions( @Nonnull final Collection<Subscription> subscriptions,
+                                          @Nonnull final HashSet<ChannelAddress> expected )
   {
     subscriptions
       .stream()
