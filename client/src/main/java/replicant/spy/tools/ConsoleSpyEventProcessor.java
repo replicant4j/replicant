@@ -82,7 +82,7 @@ public class ConsoleSpyEventProcessor
    */
   private void onDisconnected( @Nonnull final DisconnectedEvent e )
   {
-    log( "%cConnector Discnnected " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
+    log( "%cConnector Disconnected " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
   }
 
   /**
