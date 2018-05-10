@@ -15,7 +15,7 @@ import static org.testng.Assert.*;
 public class SpyEventProcessorTest
   extends AbstractReplicantTest
 {
-  private class TestSpyEventProcessor
+  private static class TestSpyEventProcessor
     extends AbstractSpyEventProcessor
   {
     int _handleUnhandledEventCallCount;
