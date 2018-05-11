@@ -19,6 +19,7 @@ import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
+import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
@@ -67,6 +68,7 @@ public class ConsoleSpyEventProcessor
     on( MessageReadFailureEvent.class, this::onMessageReadFailure );
     on( RestartEvent.class, this::onRestart );
     on( SubscribeCompletedEvent.class, this::onSubscribeCompleted );
+    on( SubscribeFailedEvent.class, this::onSubscribeFailed );
     on( SubscribeStartedEvent.class, this::onSubscribeStarted );
 
   }
@@ -165,6 +167,17 @@ public class ConsoleSpyEventProcessor
   {
     log( "%cConnector completed subscribe. System: " + e.getSystemType().getSimpleName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the SubscribeStartedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onSubscribeFailed( @Nonnull final SubscribeFailedEvent e )
+  {
+    log( "%cConnector subscribe failed. System: " + e.getSystemType().getSimpleName() +
+         " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
