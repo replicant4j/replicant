@@ -54,7 +54,7 @@ public final class JsonEncoderTest
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
 
     final Change change = new Change( message );
-    change.getChannels().put( 1, 0 );
+    change.getChannels().put( 1, null );
     change.getChannels().put( 2, 42 );
     change.getChannels().put( 3, 73 );
     final ChangeSet cs = new ChangeSet();

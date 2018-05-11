@@ -25,7 +25,7 @@ public class Change
                  @Nullable final Integer subChannelId )
   {
     this( entityMessage );
-    _channels.put( channelId, null == subChannelId ? 0 : subChannelId );
+    _channels.put( channelId, subChannelId );
   }
 
   @Nonnull
