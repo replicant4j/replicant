@@ -10,11 +10,11 @@ import javax.annotation.Nullable;
  */
 public final class FilterUtil
 {
-  public static boolean filtersEqual( @Nullable final Object fitler1, @Nullable final Object fitler2 )
+  public static boolean filtersEqual( @Nullable final Object filter1, @Nullable final Object filter2 )
   {
-    final String fitler1String = filterToString( fitler1 );
-    final String fitler2String = filterToString( fitler2 );
-    return Objects.equals( fitler1String, fitler2String );
+    final String filter1String = null == fitler1 ? null : filterToString( filter1 );
+    final String filter2String = null == fitler2 ? null : filterToString( filter2 );
+    return Objects.equals( filter1String, filter2String );
   }
 
   @Nonnull
