@@ -4,5 +4,5 @@ import javax.annotation.Nullable;
 
 public interface RequestAction
 {
-  void invokeReqest( @Nullable ClientSession session, @Nullable RequestEntry request );
+  void invokeRequest( @Nullable ClientSession session, @Nullable RequestEntry request );
 }

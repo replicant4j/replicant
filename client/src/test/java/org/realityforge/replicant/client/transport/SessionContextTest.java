@@ -50,7 +50,7 @@ public class SessionContextTest
 
     sessionContext.request( requestKey, cacheKey, action );
 
-    verify( action ).invokeReqest( null, null );
+    verify( action ).invokeRequest( null, null );
   }
 
   @Test
@@ -80,7 +80,7 @@ public class SessionContextTest
     private RequestEntry _request;
 
     @Override
-    public void invokeReqest( @Nullable final ClientSession session, @Nullable final RequestEntry request )
+    public void invokeRequest( @Nullable final ClientSession session, @Nullable final RequestEntry request )
     {
       _session = session;
       _request = request;

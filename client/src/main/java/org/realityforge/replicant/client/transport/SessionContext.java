@@ -82,7 +82,7 @@ public final class SessionContext
     {
       _request = _session.newRequest( key, cacheKey );
     }
-    action.invokeReqest( _session, _request );
+    action.invokeRequest( _session, _request );
     _request = null;
   }
 }
