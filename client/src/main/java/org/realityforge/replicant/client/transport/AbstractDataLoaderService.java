@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestAction;
+import replicant.EntityChange;
 import replicant.ChannelAddress;
 import replicant.ChannelChange;
 import replicant.Connector;
@@ -704,7 +705,7 @@ public abstract class AbstractDataLoaderService
                  " seq=" + sequence +
                  " requestID=" + requestID +
                  " eTag=" + eTag +
-                 " changeCount=" + changeSet.getChangeCount()
+                 " changeCount=" + changeSet.getEntityChanges().length
         );
       }
       final RequestEntry request;
@@ -771,7 +772,7 @@ public abstract class AbstractDataLoaderService
       final ChangeSet changeSet = _currentAction.getChangeSet();
       assert null != changeSet;
       context().safeAction( generateName( "applyChange" ), () -> {
-        Change change;
+        EntityChange change;
         for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
         {
           final Object entity = getChangeMapper().applyChange( change );

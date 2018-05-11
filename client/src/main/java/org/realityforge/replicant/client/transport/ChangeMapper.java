@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
+import replicant.EntityChange;
 
 /**
  * The ChangeMapper is responsible for applying changes to the world.
@@ -19,11 +20,11 @@ import javax.annotation.Nonnull;
 public interface ChangeMapper
 {
   /**
-   * Apply a single change to the world.
+   * Apply a single entityChange to the world.
    *
-   * @param change the Change.
+   * @param entityChange the EntityChange.
    * @return the entity that was created, updated or removed.
    */
   @Nonnull
-  Object applyChange( @Nonnull Change change );
+  Object applyChange( @Nonnull EntityChange entityChange );
 }

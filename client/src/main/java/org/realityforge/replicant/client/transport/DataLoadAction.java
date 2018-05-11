@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
+import replicant.EntityChange;
 import replicant.spy.DataLoadStatus;
 
 /**
@@ -129,7 +130,7 @@ final class DataLoadAction
 
   boolean areChangesPending()
   {
-    return null != _changeSet && _changeIndex < _changeSet.getChangeCount();
+    return null != _changeSet && _changeIndex < _changeSet.getEntityChanges().length;
   }
 
   boolean needsChannelActionsProcessed()
@@ -142,12 +143,12 @@ final class DataLoadAction
     _channelActionsProcessed = true;
   }
 
-  Change nextChange()
+  EntityChange nextChange()
   {
     if ( areChangesPending() )
     {
       assert null != _changeSet;
-      final Change change = _changeSet.getChange( _changeIndex );
+      final EntityChange change = _changeSet.getEntityChanges()[ _changeIndex ];
       _changeIndex++;
       return change;
     }

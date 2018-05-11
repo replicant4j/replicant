@@ -6,6 +6,7 @@ import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import replicant.ChannelChange;
+import replicant.EntityChange;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
@@ -19,21 +20,21 @@ public class ChangeSet
   @Nullable
   private String etag;
   private ChannelChange[] channel_actions;
-  private Change[] changes;
+  private EntityChange[] changes;
 
   @JsOverlay
   public static ChangeSet create( final int sequence,
                                   @Nullable final String requestId,
                                   @Nullable final String eTag,
                                   @Nonnull final ChannelChange[] channelChanges,
-                                  @Nonnull final Change[] changes )
+                                  @Nonnull final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
     changeSet.last_id = sequence;
     changeSet.request_id = requestId;
     changeSet.etag = eTag;
     changeSet.channel_actions = channelChanges;
-    changeSet.changes = changes;
+    changeSet.changes = entityChanges;
     return changeSet;
   }
 
@@ -67,28 +68,6 @@ public class ChangeSet
   }
 
   /**
-   * @return the number of changes in the set.
-   */
-  @JsOverlay
-  public final int getChangeCount()
-  {
-    return changes.length;
-  }
-
-  /**
-   * Return the change with specific index.
-   *
-   * @param index the index of the change.
-   * @return the change.
-   */
-  @Nonnull
-  @JsOverlay
-  public final Change getChange( final int index )
-  {
-    return changes[ index ];
-  }
-
-  /**
    * Return the channel changes that are part of the message.
    *
    * @return the channel changes.
@@ -98,5 +77,17 @@ public class ChangeSet
   public final ChannelChange[] getChannelChanges()
   {
     return channel_actions;
+  }
+
+  /**
+   * Return the entity changes that are part of the message.
+   *
+   * @return the entity changes.
+   */
+  @Nonnull
+  @JsOverlay
+  public final EntityChange[] getEntityChanges()
+  {
+    return changes;
   }
 }

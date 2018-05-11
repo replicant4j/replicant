@@ -23,8 +23,8 @@ public class DataLoadActionTest
             for ( final boolean update : flags )
             {
               final boolean expectLink = isLinkableEntity && update;
-              final Change changeUpdate =
-                Change.create( ValueUtil.randomInt(),
+              final EntityChange changeUpdate =
+                EntityChange.create( ValueUtil.randomInt(),
                                ValueUtil.randomInt(),
                                new EntityChannel[ 0 ],
                                update ? JsPropertyMap.of() : null );
@@ -33,22 +33,22 @@ public class DataLoadActionTest
                                                      null,
                                                      null,
                                                      new ChannelChange[ 0 ],
-                                                     new Change[]{ changeUpdate } ),
+                                                     new EntityChange[]{ changeUpdate } ),
                                    useRunnable ? new MockRunner() : null );
               final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
               objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
             }
             final boolean expectLink = false;
-            final Change changeUpdate =
-              Change.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], JsPropertyMap.of() );
-            final Change changeRemove =
-              Change.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], null );
+            final EntityChange changeUpdate =
+              EntityChange.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], JsPropertyMap.of() );
+            final EntityChange changeRemove =
+              EntityChange.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], null );
             final ChangeSet cs =
               ChangeSet.create( ValueUtil.randomInt(),
                                 ValueUtil.randomString(),
                                 null,
                                 new ChannelChange[ 0 ],
-                                new Change[]{ changeUpdate, changeRemove } );
+                                new EntityChange[]{ changeUpdate, changeRemove } );
             final TestChangeSet changeSet =
               new TestChangeSet( cs,
                                  useRunnable ? new MockRunner() : null );
@@ -111,7 +111,7 @@ public class DataLoadActionTest
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.areChangesPending(), true );
-    final Change change = action.nextChange();
+    final EntityChange change = action.nextChange();
     assertNotNull( change );
     assertEquals( change, changeSet.getChangeSet().getChange( 0 ) );
 
@@ -125,7 +125,7 @@ public class DataLoadActionTest
     {
       while ( action.areChangesPending() )
       {
-        final Change nextChange = action.nextChange();
+        final EntityChange nextChange = action.nextChange();
         assertNotNull( nextChange );
         action.changeProcessed( nextChange.isUpdate(), entity );
       }

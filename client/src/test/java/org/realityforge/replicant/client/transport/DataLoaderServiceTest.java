@@ -133,7 +133,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new Change[ 0 ] ),
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] ),
                          mock( Runnable.class ) );
     final TestDataLoadService service = newService( changeSet );
     final SafeProcedure runnable1 = mock( SafeProcedure.class );
@@ -162,7 +162,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                                                         new Change[ 0 ] ), mock( Runnable.class ) );
+                                                                         new EntityChange[ 0 ] ), mock( Runnable.class ) );
     final TestDataLoadService service = newService( changeSet );
     ensureEnqueueDataLoads( service );
 
@@ -183,7 +183,7 @@ public class DataLoaderServiceTest
     final String cacheKey = ValueUtil.randomString();
     final String etag = ValueUtil.randomString();
     final TestChangeSet changeSet =
-      new TestChangeSet( ChangeSet.create( 1, null, etag, new ChannelChange[ 0 ], new Change[ 0 ] ),
+      new TestChangeSet( ChangeSet.create( 1, null, etag, new ChannelChange[ 0 ], new EntityChange[ 0 ] ),
                          mock( Runnable.class ) );
 
     changeSet.setCacheKey( cacheKey );
@@ -213,7 +213,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new Change[ 0 ] ),
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] ),
                          mock( Runnable.class ) );
     changeSet.setCacheKey( ValueUtil.randomString() );
     changeSet.setEtag( ValueUtil.randomString() );
@@ -250,7 +250,7 @@ public class DataLoaderServiceTest
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet =
       new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                           new Change[]{ new TestChange( true ) } ), mock( Runnable.class ) );
+                                           new EntityChange[]{ new TestChange( true ) } ), mock( Runnable.class ) );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -284,11 +284,11 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet cs1 = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                                                   new Change[ 0 ] ), null );
+                                                                   new EntityChange[ 0 ] ), null );
     final TestChangeSet cs2 = new TestChangeSet( ChangeSet.create( 2, null, null, new ChannelChange[ 0 ],
-                                                                   new Change[ 0 ] ), null );
+                                                                   new EntityChange[ 0 ] ), null );
     final TestChangeSet cs3 = new TestChangeSet( ChangeSet.create( 3, null, null, new ChannelChange[ 0 ],
-                                                                   new Change[ 0 ] ), null );
+                                                                   new EntityChange[ 0 ] ), null );
 
     final DataLoadAction oob1 = new DataLoadAction( "oob1", true );
     final DataLoadAction oob2 = new DataLoadAction( "oob2", true );
@@ -311,7 +311,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new Change[ 0 ] ),
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] ),
                          mock( Runnable.class ) );
 
     final TestDataLoadService service = newService( changeSet );
@@ -335,7 +335,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                                                         new Change[ 0 ] ), mock( Runnable.class ) );
+                                                                         new EntityChange[ 0 ] ), mock( Runnable.class ) );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -361,7 +361,7 @@ public class DataLoaderServiceTest
   {
     final Linkable entity = mock( Linkable.class );
     final ChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                                                     new Change[]{ new TestChange( false ) } ), null );
+                                                                     new EntityChange[]{ new TestChange( false ) } ), null );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -381,7 +381,7 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                                                         new Change[]{ new TestChange( true ) } ), null );
+                                                                         new EntityChange[]{ new TestChange( true ) } ), null );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -402,7 +402,7 @@ public class DataLoaderServiceTest
   {
     ReplicantTestUtil.noValidateRepositoryOnLoad();
     final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                                                         new Change[]{ new TestChange( true ) } ), null );
+                                                                         new EntityChange[]{ new TestChange( true ) } ), null );
 
     final TestDataLoadService service = newService( changeSet, changeSet );
 
@@ -420,10 +420,10 @@ public class DataLoaderServiceTest
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet1 =
       new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
-                                           new Change[]{ new TestChange( true ) } ), null );
+                                           new EntityChange[]{ new TestChange( true ) } ), null );
     final TestChangeSet changeSet2 =
       new TestChangeSet( ChangeSet.create( 2, null, null, new ChannelChange[ 0 ],
-                                           new Change[]{ new TestChange( true ) } ), null );
+                                           new EntityChange[]{ new TestChange( true ) } ), null );
 
     final TestDataLoadService service = newService( changeSet2, changeSet1 );
     final ChangeMapper changeMapper = service.getChangeMapper();
@@ -457,7 +457,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
                          mock( Runnable.class ),
-                         new Change[ 0 ],
+                         new EntityChange[ 0 ],
                          new ChannelChange[]{ new TestChannelAction( TestSystem.B.ordinal(), 72, Action.ADD ) } );
 
     final TestDataLoadService service = newService( changeSet1 );
@@ -494,7 +494,7 @@ public class DataLoaderServiceTest
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
                          mock( Runnable.class ),
-                         new Change[ 0 ],
+                         new EntityChange[ 0 ],
                          new ChannelChange[]{ a1, a2, a3, a4 } );
 
     final TestDataLoadService service = newService( changeSet1 );
