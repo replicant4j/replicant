@@ -76,10 +76,17 @@ public final class AreaOfInterestEntry
   @Override
   public String toString()
   {
-    final ChannelAddress address = getAddress();
-    return "AOI[SystemKey=" + address.getSystem().getSimpleName() +
-           ",Channel=" + address +
-           ",filter=" + FilterUtil.filterToString( _filter ) +
-           "]" + ( _inProgress ? "(InProgress)" : "" );
+    if ( Replicant.areNamesEnabled() )
+    {
+      final ChannelAddress address = getAddress();
+      return "AOI[" +
+             "Channel=" + address +
+             ( null == _filter ? "" : ",filter=" + FilterUtil.filterToString( _filter ) ) + "]" +
+             ( _inProgress ? "(InProgress)" : "" );
+    }
+    else
+    {
+      return super.toString();
+    }
   }
 }
