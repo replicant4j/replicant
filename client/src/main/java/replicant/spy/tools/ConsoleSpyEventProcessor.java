@@ -24,6 +24,9 @@ import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
+import replicant.spy.UnsubscribeCompletedEvent;
+import replicant.spy.UnsubscribeFailedEvent;
+import replicant.spy.UnsubscribeStartedEvent;
 
 /**
  * A SpyEventHandler that prints spy events to the tools console.
@@ -70,6 +73,10 @@ public class ConsoleSpyEventProcessor
     on( SubscribeCompletedEvent.class, this::onSubscribeCompleted );
     on( SubscribeFailedEvent.class, this::onSubscribeFailed );
     on( SubscribeStartedEvent.class, this::onSubscribeStarted );
+
+    on( UnsubscribeCompletedEvent.class, this::onUnsubscribeCompleted );
+    on( UnsubscribeFailedEvent.class, this::onUnsubscribeFailed );
+    on( UnsubscribeStartedEvent.class, this::onUnsubscribeStarted );
   }
 
   /**
@@ -187,6 +194,39 @@ public class ConsoleSpyEventProcessor
   protected void onSubscribeStarted( @Nonnull final SubscribeStartedEvent e )
   {
     log( "%cConnector started subscribe. System: " + e.getSystemType().getSimpleName() +
+         " Address: " + e.getAddress(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the UnsubscribeCompletedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onUnsubscribeCompleted( @Nonnull final UnsubscribeCompletedEvent e )
+  {
+    log( "%cConnector completed unsubscribe. System: " + e.getSystemType().getSimpleName() +
+         " Address: " + e.getAddress(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the UnsubscribeStartedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onUnsubscribeFailed( @Nonnull final UnsubscribeFailedEvent e )
+  {
+    log( "%cConnector unsubscribe failed. System: " + e.getSystemType().getSimpleName() +
+         " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
+  }
+
+  /**
+   * Handle the UnsubscribeStartedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onUnsubscribeStarted( @Nonnull final UnsubscribeStartedEvent e )
+  {
+    log( "%cConnector started unsubscribe. System: " + e.getSystemType().getSimpleName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
