@@ -1,7 +1,6 @@
 package replicant;
 
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsonUtils;
+import elemental2.core.Global;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,7 +20,7 @@ public final class FilterUtil
   @Nonnull
   public static String filterToString( @Nullable final Object filter )
   {
-    return JsonUtils.stringify( (JavaScriptObject) filter );
+    return null == filter ? "" : Global.JSON.stringify( filter );
   }
 
   private FilterUtil()
