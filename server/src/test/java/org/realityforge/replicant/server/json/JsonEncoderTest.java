@@ -57,7 +57,7 @@ public final class JsonEncoderTest
     final Change change = new Change( message );
     change.getChannels().put( 1, 0 );
     change.getChannels().put( 2, 42 );
-    change.getChannels().put( 3, "Blah" );
+    change.getChannels().put( 3, 73 );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
     cs.addAction( new ChannelAction( new ChannelDescriptor( 45, 77 ), Action.UPDATE, filter ) );
@@ -103,7 +103,7 @@ public final class JsonEncoderTest
 
     assertFalse( channel1.containsKey( TransportConstants.SUBCHANNEL_ID ) );
     assertEquals( channel2.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
-    assertEquals( channel3.getString( TransportConstants.SUBCHANNEL_ID ), "Blah" );
+    assertEquals( channel3.getString( TransportConstants.SUBCHANNEL_ID ), 73 );
   }
 
   @Test

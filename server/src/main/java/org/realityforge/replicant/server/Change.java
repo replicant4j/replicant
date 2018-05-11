@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -12,7 +11,7 @@ public class Change
   private final String _key;
   @Nonnull
   private final EntityMessage _entityMessage;
-  private final Map<Integer, Serializable> _channels;
+  private final Map<Integer, Integer> _channels;
 
   public Change( @Nonnull final EntityMessage entityMessage )
   {
@@ -23,7 +22,7 @@ public class Change
 
   public Change( @Nonnull final EntityMessage entityMessage,
                  final int channelId,
-                 @Nullable final Serializable subChannelId )
+                 @Nullable final Integer subChannelId )
   {
     this( entityMessage );
     _channels.put( channelId, null == subChannelId ? 0 : subChannelId );
@@ -42,7 +41,7 @@ public class Change
   }
 
   @Nonnull
-  public Map<Integer, Serializable> getChannels()
+  public Map<Integer, Integer> getChannels()
   {
     return _channels;
   }

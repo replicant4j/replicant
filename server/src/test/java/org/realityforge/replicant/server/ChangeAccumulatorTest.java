@@ -25,7 +25,7 @@ public class ChangeAccumulatorTest
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     final int channelId = 1;
-    final String subChannelId = "2";
+    final Integer subChannelId = 2;
 
     accumulator.addChange( c, new Change( message, channelId, subChannelId ) );
     final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
@@ -38,7 +38,7 @@ public class ChangeAccumulatorTest
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getEntityMessage().getTypeId(), typeID );
     assertEquals( packet.getRequestID(), "j1" );
-    final Map<Integer, Serializable> channels = change.getChannels();
+    final Map<Integer, Integer> channels = change.getChannels();
     assertEquals( channels.size(), 1 );
     assertEquals( channels.get( channelId ), subChannelId );
 

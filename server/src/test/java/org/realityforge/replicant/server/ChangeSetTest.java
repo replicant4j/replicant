@@ -28,7 +28,7 @@ public class ChangeSetTest
 
     change1.getChannels().put( 1, 1 );
     change2.getChannels().put( 2, 3 );
-    change3.getChannels().put( 3, "S" );
+    change3.getChannels().put( 3, 42 );
 
     final ChangeSet changeSet = new ChangeSet();
 

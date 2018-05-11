@@ -110,11 +110,11 @@ public final class JsonEncoder
         writeField( generator, TransportConstants.ENTITY_ID, entityMessage.getId(), dateFormat );
         generator.write( TransportConstants.TYPE_ID, entityMessage.getTypeId() );
 
-        final Map<Integer, Serializable> channels = change.getChannels();
+        final Map<Integer, Integer> channels = change.getChannels();
         if ( channels.size() > 0 )
         {
           generator.writeStartArray( TransportConstants.CHANNELS );
-          for ( final Entry<Integer, Serializable> entry : channels.entrySet() )
+          for ( final Entry<Integer, Integer> entry : channels.entrySet() )
           {
             generator.writeStartObject();
             generator.write( TransportConstants.CHANNEL_ID, entry.getKey() );
@@ -183,25 +183,12 @@ public final class JsonEncoder
     }
   }
 
-  private static void writeSubChannel( final JsonGenerator generator,
-                                       final Serializable serializable )
+  private static void writeSubChannel( @Nonnull final JsonGenerator generator,
+                                       @Nullable final Integer value )
   {
-    if ( serializable instanceof String )
+    if ( null != value )
     {
-      generator.write( TransportConstants.SUBCHANNEL_ID, (String) serializable );
-    }
-    else if ( serializable instanceof Integer )
-    {
-
-      final Integer value = (Integer) serializable;
-      if ( 0 != value )
-      {
-        generator.write( TransportConstants.SUBCHANNEL_ID, value );
-      }
-    }
-    else if ( null != serializable )
-    {
-      throw new IllegalStateException( "Unable to encode: " + serializable );
+      generator.write( TransportConstants.SUBCHANNEL_ID, value );
     }
   }
 }
