@@ -6,9 +6,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.base.Js;
 import org.realityforge.replicant.client.transport.CacheService;
-import replicant.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
+import replicant.ChangeSet;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 
