@@ -17,7 +17,6 @@ import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
-import org.realityforge.replicant.shared.json.TransportConstants;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
