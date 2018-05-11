@@ -959,7 +959,7 @@ public abstract class AbstractDataLoaderService
   private ChannelAddress toAddress( @Nonnull final ChannelAction action )
   {
     final int channelId = action.getChannelId();
-    final Integer subChannelId = action.getSubChannelId();
+    final Integer subChannelId = action.hasSubChannelId() ? action.getSubChannelId() : null;
     final Enum channelType = channelIdToType( channelId );
     return new ChannelAddress( channelType, subChannelId );
   }

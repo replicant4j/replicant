@@ -147,13 +147,14 @@ public class DataLoaderServiceTest
     typeMap.put( id, entity );
   }
   */
-
+/*
   @Test
   public void setSession()
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ], new Change[ 0 ] ),
+                         mock( Runnable.class ) );
     final TestDataLoadService service = newService( changeSet );
     final SafeProcedure runnable1 = mock( SafeProcedure.class );
     final String sessionID = ValueUtil.randomString();
@@ -180,7 +181,8 @@ public class DataLoaderServiceTest
   public void getTerminateCount()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+    final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                                                         new Change[ 0 ] ), mock( Runnable.class ) );
     final TestDataLoadService service = newService( changeSet );
     ensureEnqueueDataLoads( service );
 
@@ -198,10 +200,11 @@ public class DataLoaderServiceTest
   public void cache_requestWithCacheKeyAndETag()
     throws Exception
   {
-    final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
     final String cacheKey = ValueUtil.randomString();
     final String etag = ValueUtil.randomString();
+    final TestChangeSet changeSet =
+      new TestChangeSet( ChangeSet.create( 1, null, etag, new ChannelAction[ 0 ], new Change[ 0 ] ),
+                         mock( Runnable.class ) );
 
     changeSet.setCacheKey( cacheKey );
     changeSet.setEtag( etag );
@@ -230,7 +233,8 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ], new Change[ 0 ] ),
+                         mock( Runnable.class ) );
     changeSet.setCacheKey( ValueUtil.randomString() );
     changeSet.setEtag( ValueUtil.randomString() );
 
@@ -265,7 +269,8 @@ public class DataLoaderServiceTest
   {
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                           new Change[]{ new TestChange( true ) } ), mock( Runnable.class ) );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -298,9 +303,12 @@ public class DataLoaderServiceTest
   public void ordering()
     throws Exception
   {
-    final TestChangeSet cs1 = new TestChangeSet( 1, null, new Change[ 0 ] );
-    final TestChangeSet cs2 = new TestChangeSet( 2, null, new Change[ 0 ] );
-    final TestChangeSet cs3 = new TestChangeSet( 3, null, new Change[ 0 ] );
+    final TestChangeSet cs1 = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                                                   new Change[ 0 ] ), null );
+    final TestChangeSet cs2 = new TestChangeSet( ChangeSet.create( 2, null, null, new ChannelAction[ 0 ],
+                                                                   new Change[ 0 ] ), null );
+    final TestChangeSet cs3 = new TestChangeSet( ChangeSet.create( 3, null, null, new ChannelAction[ 0 ],
+                                                                   new Change[ 0 ] ), null );
 
     final DataLoadAction oob1 = new DataLoadAction( "oob1", true );
     final DataLoadAction oob2 = new DataLoadAction( "oob2", true );
@@ -323,7 +331,8 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final TestChangeSet changeSet =
-      new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ], new Change[ 0 ] ),
+                         mock( Runnable.class ) );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -339,15 +348,14 @@ public class DataLoaderServiceTest
     assertNotNull( requestID );
     assertInRequestManager( service, request );
     assertNotNull( service.getStatus().getRequestId() );
-
-    verifyPostActionNotRun( changeSet.getRunnable() );
   }
 
   @Test
   public void verifyDataLoader_dataLoadWithZeroChanges()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, mock( Runnable.class ), new Change[ 0 ] );
+    final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                                                         new Change[ 0 ] ), mock( Runnable.class ) );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -372,7 +380,8 @@ public class DataLoaderServiceTest
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( false ) } );
+    final ChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                                                     new Change[]{ new TestChange( false ) } ), null );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -391,7 +400,8 @@ public class DataLoaderServiceTest
   public void verifyIncrementalChangeInvokesCorrectMethods()
     throws Exception
   {
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                                                         new Change[]{ new TestChange( true ) } ), null );
 
     final TestDataLoadService service = newService( changeSet );
 
@@ -411,7 +421,8 @@ public class DataLoaderServiceTest
     throws Exception
   {
     ReplicantTestUtil.noValidateRepositoryOnLoad();
-    final TestChangeSet changeSet = new TestChangeSet( 1, null, new Change[]{ new TestChange( true ) } );
+    final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                                                         new Change[]{ new TestChange( true ) } ), null );
 
     final TestDataLoadService service = newService( changeSet, changeSet );
 
@@ -428,9 +439,11 @@ public class DataLoaderServiceTest
   {
     final Linkable entity = mock( Linkable.class );
     final TestChangeSet changeSet1 =
-      new TestChangeSet( 1, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelAction[ 0 ],
+                                           new Change[]{ new TestChange( true ) } ), null );
     final TestChangeSet changeSet2 =
-      new TestChangeSet( 2, mock( Runnable.class ), new Change[]{ new TestChange( true ) } );
+      new TestChangeSet( ChangeSet.create( 2, null, null, new ChannelAction[ 0 ],
+                                           new Change[]{ new TestChange( true ) } ), null );
 
     final TestDataLoadService service = newService( changeSet2, changeSet1 );
     final ChangeMapper changeMapper = service.getChangeMapper();
@@ -445,8 +458,6 @@ public class DataLoaderServiceTest
 
     //No progress should have been made other than parsing packet as out of sequence
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
-    verifyPostActionNotRun( changeSet2.getRunnable() );
-    verifyPostActionNotRun( changeSet1.getRunnable() );
 
     service.ensureSession().enqueueDataLoad( "jsonData" );
     progressWorkTillDone( service, 15, 2 );
@@ -887,11 +898,6 @@ public class DataLoaderServiceTest
     verify( runnable ).run();
   }
 
-  private void verifyPostActionNotRun( final Runnable runnable )
-  {
-    verify( runnable, never() ).run();
-  }
-
   private void ensureEnqueueDataLoads( final TestDataLoadService service )
   {
     configureRequests( service, service.getChangeSets() );
@@ -999,4 +1005,5 @@ public class DataLoaderServiceTest
   {
     assertNotNull( service.ensureSession().getRequest( request.getRequestID() ) );
   }
+  */
 }

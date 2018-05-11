@@ -1,8 +1,10 @@
 package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.core.client.Scheduler;
+import elemental2.core.Global;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ChangeSet;
 import org.realityforge.replicant.client.transport.SessionContext;
@@ -47,7 +49,7 @@ public abstract class GwtDataLoaderService
   @Override
   protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
   {
-    return JsoChangeSet.asChangeSet( rawJsonData );
+    return Js.cast( Global.JSON.parse( rawJsonData ));
   }
 
   protected void doScheduleDataLoad()

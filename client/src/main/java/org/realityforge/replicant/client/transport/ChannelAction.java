@@ -2,28 +2,99 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.annotations.JsOverlay;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsType;
 
-public interface ChannelAction
+/**
+ * An action on a channel.
+ */
+@JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
+public class ChannelAction
 {
-  enum Action
+  public enum Action
   {
     ADD, REMOVE, UPDATE
   }
 
-  int getChannelId();
-
+  private int cid;
   @Nullable
-  Integer getSubChannelId();
-
-  @Nonnull
-  Action getAction();
+  private Double scid;
+  private String action;
+  @Nullable
+  private Object filter;
 
   /**
-   * Get the "raw" filter object.
-   * In GWT-land this may need to be cast to a jso before usage.
+   * Create an EntityChannel with no sub-channel.
    *
-   * @return the filter object for channel if any.
+   * @return the new EntityChannel.
    */
+  @JsOverlay
+  public static ChannelAction create( final int cid )
+  {
+    final ChannelAction channel = new ChannelAction();
+    channel.cid = cid;
+    return channel;
+  }
+
+  /**
+   * Create a ChannelAction.
+   *
+   * @return the new ChannelAction.
+   */
+  @JsOverlay
+  public static ChannelAction create( final int cid,
+                                      final int scid,
+                                      @Nonnull final Action action,
+                                      @Nullable final Object filter )
+  {
+    final ChannelAction channel = new ChannelAction();
+    channel.cid = cid;
+    channel.scid = (double) scid;
+    channel.action = action.name().toLowerCase();
+    channel.filter = filter;
+    return channel;
+  }
+
+  /**
+   * @return the id of the Channel.
+   */
+  @JsOverlay
+  public final int getChannelId()
+  {
+    return cid;
+  }
+
+  /**
+   * @return true if the reference has a SubChannel id present.
+   */
+  @JsOverlay
+  public final boolean hasSubChannelId()
+  {
+    return null != scid;
+  }
+
+  /**
+   * @return the sub-channel id.
+   */
+  @JsOverlay
+  public final int getSubChannelId()
+  {
+    assert null != scid;
+    return scid.intValue();
+  }
+
+  @JsOverlay
+  @Nonnull
+  public final Action getAction()
+  {
+    return Action.valueOf( action.toUpperCase() );
+  }
+
   @Nullable
-  Object getChannelFilter();
+  @JsOverlay
+  public final Object getChannelFilter()
+  {
+    return filter;
+  }
 }

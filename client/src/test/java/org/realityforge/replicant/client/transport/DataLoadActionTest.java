@@ -1,17 +1,11 @@
 package org.realityforge.replicant.client.transport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.realityforge.replicant.client.Linkable;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
-import static org.testng.Assert.*;
 
 public class DataLoadActionTest
   extends AbstractReplicantTest
 {
+  /*
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
   {
@@ -29,18 +23,35 @@ public class DataLoadActionTest
             for ( final boolean update : flags )
             {
               final boolean expectLink = isLinkableEntity && update;
+              final Change changeUpdate =
+                Change.create( ValueUtil.randomInt(),
+                               ValueUtil.randomInt(),
+                               new EntityChannel[ 0 ],
+                               update ? JsPropertyMap.of() : null );
               final TestChangeSet changeSet =
-                new TestChangeSet( 42,
-                                   useRunnable ? new MockRunner() : null,
-                                   new Change[]{ new TestChange( update ) } );
+                new TestChangeSet( ChangeSet.create( ValueUtil.randomInt(),
+                                                     null,
+                                                     null,
+                                                     new ChannelAction[ 0 ],
+                                                     new Change[]{ changeUpdate } ),
+                                   useRunnable ? new MockRunner() : null );
               final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
               objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
             }
             final boolean expectLink = false;
+            final Change changeUpdate =
+              Change.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], JsPropertyMap.of() );
+            final Change changeRemove =
+              Change.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], null );
+            final ChangeSet cs =
+              ChangeSet.create( ValueUtil.randomInt(),
+                                ValueUtil.randomString(),
+                                null,
+                                new ChannelAction[ 0 ],
+                                new Change[]{ changeUpdate, changeRemove } );
             final TestChangeSet changeSet =
-              new TestChangeSet( 42,
-                                 useRunnable ? new MockRunner() : null,
-                                 new Change[]{ new TestChange( true ), new TestChange( false ) } );
+              new TestChangeSet( cs,
+                                 useRunnable ? new MockRunner() : null );
             final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
             objects.add( new Object[]{ normalCompletion, oob, changeSet, entity, expectLink } );
           }
@@ -77,12 +88,11 @@ public class DataLoadActionTest
     if ( oob )
     {
       action.setRunnable( changeSet.getRunnable() );
-      action.setChangeSet( changeSet, null );
+      action.setChangeSet( changeSet.getChangeSet(), null );
     }
     else
     {
-      changeSet.setRequestID( "X" );
-      final String requestID = changeSet.getRequestID();
+      final String requestID = changeSet.getChangeSet().getRequestID();
       assertNotNull( requestID );
       final RequestEntry request = new RequestEntry( requestID, "MyOperation", null );
       if ( normalCompletion )
@@ -93,21 +103,21 @@ public class DataLoadActionTest
       {
         request.setNonNormalCompletionAction( runnable );
       }
-      action.setChangeSet( changeSet, request );
+      action.setChangeSet( changeSet.getChangeSet(), request );
     }
     assertEquals( action.getRunnable(), runnable );
 
-    assertEquals( action.getChangeSet(), changeSet );
+    assertEquals( action.getChangeSet(), changeSet.getChangeSet() );
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.areChangesPending(), true );
     final Change change = action.nextChange();
     assertNotNull( change );
-    assertEquals( change, changeSet.getChange( 0 ) );
+    assertEquals( change, changeSet.getChangeSet().getChange( 0 ) );
 
     action.changeProcessed( change.isUpdate(), entity );
 
-    if ( 1 == changeSet.getChangeCount() )
+    if ( 1 == changeSet.getChangeSet().getChangeCount() )
     {
       assertEquals( action.areChangesPending(), false );
     }
@@ -182,4 +192,5 @@ public class DataLoadActionTest
       return "Entity:" + System.identityHashCode( this );
     }
   }
+  */
 }

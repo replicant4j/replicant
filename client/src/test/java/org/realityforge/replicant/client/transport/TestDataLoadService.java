@@ -23,7 +23,7 @@ abstract class TestDataLoadService
 {
   private final CacheService _cacheService;
   private boolean _scheduleDataLoadCalled;
-  private LinkedList<TestChangeSet> _changeSets = new LinkedList<>();
+  private LinkedList<ChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
   private DataLoadStatus _status;
   private final SessionContext _sessionContext;
@@ -102,12 +102,12 @@ abstract class TestDataLoadService
     return _validateRepositoryCallCount;
   }
 
-  void setChangeSets( final TestChangeSet... changeSets )
+  void setChangeSets( final ChangeSet... changeSets )
   {
     _changeSets.addAll( Arrays.asList( changeSets ) );
   }
 
-  LinkedList<TestChangeSet> getChangeSets()
+  LinkedList<ChangeSet> getChangeSets()
   {
     return _changeSets;
   }
