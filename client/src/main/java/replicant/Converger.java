@@ -6,7 +6,6 @@ import arez.annotations.Autorun;
 import arez.annotations.Observable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -188,10 +187,7 @@ abstract class Converger
           return ConvergeAction.IN_PROGRESS;
         }
 
-        final Object existing = subscription.getFilter();
-        final String newFilter = FilterUtil.filterToString( filter );
-        final String existingFilter = FilterUtil.filterToString( existing );
-        if ( !Objects.equals( newFilter, existingFilter ) )
+        if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
           if ( null != groupTemplate && !canGroup )
           {
