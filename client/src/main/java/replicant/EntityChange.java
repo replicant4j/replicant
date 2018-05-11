@@ -97,7 +97,7 @@ public class EntityChange
    * @return true if the data is present.
    */
   @JsOverlay
-  public final boolean containsKey( @Nonnull String key )
+  public final boolean containsKey( @Nonnull final String key )
   {
     assert null != data;
     return data.has( key );
