@@ -58,7 +58,7 @@ public final class ReplicantContextHolder
   {
     if ( null == c_context.get() )
     {
-      c_context.set( new HashMap<String, Serializable>() );
+      c_context.set( new HashMap<>() );
     }
 
     return c_context.get();
