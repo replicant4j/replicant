@@ -19,12 +19,33 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getAction(), action );
     assertEquals( entry.getCacheKey(), "G:G1" );
+    assertEquals( entry.toString(), "AOI[Channel=G.G1]" );
     assertEquals( entry.getFilter(), filterParameter );
     assertEquals( entry.match( action, address, filterParameter ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), false );
     assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filterParameter ), false );
     assertEquals( entry.match( action, new ChannelAddress( G.G2, ValueUtil.randomInt() ), filterParameter ),
                   false );
+  }
+
+  @Test
+  public void toString_WithFilter()
+  {
+    final AreaOfInterestEntry entry =
+      new AreaOfInterestEntry( new ChannelAddress( G.G1 ), AreaOfInterestAction.UPDATE, "XXX" );
+
+    assertEquals( entry.toString(), "AOI[Channel=G.G1,filter=XXX]" );
+  }
+
+  @Test
+  public void toString_NamingDisabled()
+  {
+    ReplicantTestUtil.disableNames();
+    final AreaOfInterestEntry entry =
+      new AreaOfInterestEntry( new ChannelAddress( G.G1 ), AreaOfInterestAction.UPDATE, "XXX" );
+
+    assertEquals( entry.toString(),
+                  "replicant.AreaOfInterestEntry@" + Integer.toHexString( System.identityHashCode( entry ) ) );
   }
 
   @Test
