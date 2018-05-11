@@ -1,13 +1,10 @@
 package replicant;
 
-import elemental2.core.JsDate;
-import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
-import jsinterop.base.JsPropertyMap;
 
 /**
  * A change to an entity.
@@ -18,7 +15,7 @@ public class EntityChange
   private int id;
   private int type;
   private EntityChannel[] channels;
-  private JsPropertyMap<Object> data;
+  private EntityChangeData data;
 
   /**
    * Create a "remove" EntityChange message.
@@ -44,7 +41,7 @@ public class EntityChange
   public static EntityChange create( final int id,
                                      final int type,
                                      @Nonnull final EntityChannel[] channels,
-                                     @Nullable final JsPropertyMap<Object> data )
+                                     @Nullable final EntityChangeData data )
   {
     final EntityChange change = new EntityChange();
     change.id = id;
@@ -102,65 +99,15 @@ public class EntityChange
   }
 
   /**
-   * Return true if data for the attribute identified by the key is present in the change.
+   * Return data to update.
    *
-   * @param key the attribute key.
    * @return true if the data is present.
    */
-  @JsOverlay
-  public final boolean containsKey( @Nonnull final String key )
-  {
-    assert null != data;
-    return data.has( key );
-  }
-
-  /**
-   * Return true if data for the attribute identified by the key is null.
-   *
-   * @param key the attribute key.
-   * @return true if the data is null.
-   */
-  @JsOverlay
-  public final boolean isNull( @Nonnull final String key )
-  {
-    assert null != data;
-    return null == data.get( key );
-  }
-
-  @JsOverlay
-  public final int getIntegerValue( @Nonnull final String key )
-  {
-    assert null != data;
-    return data.getAny( key ).asInt();
-  }
-
   @Nonnull
   @JsOverlay
-  @SuppressWarnings( "deprecation" )
-  public final Date getDateValue( @Nonnull String key )
-  {
-    // This will have to be extracted out and replaced at compile time
-    final JsDate d = new JsDate( getStringValue( key ) );
-    return new Date( d.getFullYear(),
-                     d.getMonth(),
-                     d.getDate(),
-                     d.getHours(),
-                     d.getMinutes(),
-                     d.getSeconds() );
-  }
-
-  @Nonnull
-  @JsOverlay
-  public final String getStringValue( @Nonnull final String key )
+  public final EntityChangeData getData()
   {
     assert null != data;
-    return data.getAny( key ).asString();
-  }
-
-  @JsOverlay
-  public final boolean getBooleanValue( @Nonnull final String key )
-  {
-    assert null != data;
-    return data.getAny( key ).asBoolean();
+    return data;
   }
 }
