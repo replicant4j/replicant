@@ -908,7 +908,7 @@ public abstract class AbstractDataLoaderService
     for ( int i = 0; i < channelActionCount; i++ )
     {
       final ChannelAction action = changeSet.getChannelAction( i );
-      final ChannelAddress address = toChannelDescriptor( action );
+      final ChannelAddress address = toAddress( action );
       final Object filter = action.getChannelFilter();
       final ChannelAction.Action actionType = action.getAction();
       if ( LOG.isLoggable( getLogLevel() ) )
@@ -956,7 +956,7 @@ public abstract class AbstractDataLoaderService
   protected abstract boolean requestDebugOutputEnabled();
 
   @Nonnull
-  private ChannelAddress toChannelDescriptor( @Nonnull final ChannelAction action )
+  private ChannelAddress toAddress( @Nonnull final ChannelAction action )
   {
     final int channelId = action.getChannelId();
     final Integer subChannelId = action.getSubChannelId();
