@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
-import replicant.ChannelAction;
+import replicant.ChannelChange;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
@@ -18,21 +18,21 @@ public class ChangeSet
   private String request_id;
   @Nullable
   private String etag;
-  private ChannelAction[] channel_actions;
+  private ChannelChange[] channel_actions;
   private Change[] changes;
 
   @JsOverlay
   public static ChangeSet create( final int sequence,
                                   @Nullable final String requestId,
                                   @Nullable final String eTag,
-                                  @Nonnull final ChannelAction[] channelActions,
+                                  @Nonnull final ChannelChange[] channelChanges,
                                   @Nonnull final Change[] changes )
   {
     final ChangeSet changeSet = new ChangeSet();
     changeSet.last_id = sequence;
     changeSet.request_id = requestId;
     changeSet.etag = eTag;
-    changeSet.channel_actions = channelActions;
+    changeSet.channel_actions = channelChanges;
     changeSet.changes = changes;
     return changeSet;
   }
@@ -89,24 +89,14 @@ public class ChangeSet
   }
 
   /**
-   * @return the number of channel actions in the set.
-   */
-  @JsOverlay
-  public final int getChannelActionCount()
-  {
-    return channel_actions.length;
-  }
-
-  /**
-   * Return the change action at a specific index.
+   * Return the channel changes that are part of the message.
    *
-   * @param index the index of the action.
-   * @return the action.
+   * @return the channel changes.
    */
   @Nonnull
   @JsOverlay
-  public final ChannelAction getChannelAction( final int index )
+  public final ChannelChange[] getChannelChanges()
   {
-    return channel_actions[ index ];
+    return channel_actions;
   }
 }

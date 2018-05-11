@@ -32,7 +32,7 @@ public class DataLoadActionTest
                 new TestChangeSet( ChangeSet.create( ValueUtil.randomInt(),
                                                      null,
                                                      null,
-                                                     new ChannelAction[ 0 ],
+                                                     new ChannelChange[ 0 ],
                                                      new Change[]{ changeUpdate } ),
                                    useRunnable ? new MockRunner() : null );
               final Object entity = isLinkableEntity ? new MockLinkable() : new Object();
@@ -47,7 +47,7 @@ public class DataLoadActionTest
               ChangeSet.create( ValueUtil.randomInt(),
                                 ValueUtil.randomString(),
                                 null,
-                                new ChannelAction[ 0 ],
+                                new ChannelChange[ 0 ],
                                 new Change[]{ changeUpdate, changeRemove } );
             final TestChangeSet changeSet =
               new TestChangeSet( cs,

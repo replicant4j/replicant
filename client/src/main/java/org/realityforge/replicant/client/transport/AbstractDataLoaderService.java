@@ -19,8 +19,8 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestAction;
-import replicant.ChannelAction;
 import replicant.ChannelAddress;
+import replicant.ChannelChange;
 import replicant.Connector;
 import replicant.Entity;
 import replicant.FilterUtil;
@@ -905,20 +905,19 @@ public abstract class AbstractDataLoaderService
     _currentAction.markChannelActionsProcessed();
     final ChangeSet changeSet = _currentAction.getChangeSet();
     assert null != changeSet;
-    final int channelActionCount = changeSet.getChannelActionCount();
-    for ( int i = 0; i < channelActionCount; i++ )
+    final ChannelChange[] channelChanges = changeSet.getChannelChanges();
+    for ( final ChannelChange channelChange : channelChanges )
     {
-      final ChannelAction action = changeSet.getChannelAction( i );
-      final ChannelAddress address = toAddress( action );
-      final Object filter = action.getChannelFilter();
-      final ChannelAction.Action actionType = action.getAction();
+      final ChannelAddress address = toAddress( channelChange );
+      final Object filter = channelChange.getChannelFilter();
+      final ChannelChange.Action actionType = channelChange.getAction();
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        final String message = "ChannelAction:: " + actionType.name() + " " + address + " filter=" + filter;
+        final String message = "ChannelChange:: " + actionType.name() + " " + address + " filter=" + filter;
         LOG.log( getLogLevel(), message );
       }
 
-      if ( ChannelAction.Action.ADD == actionType )
+      if ( ChannelChange.Action.ADD == actionType )
       {
         _currentAction.incChannelAddCount();
         boolean explicitSubscribe = false;
@@ -932,14 +931,14 @@ public abstract class AbstractDataLoaderService
         }
         getReplicantContext().createSubscription( address, filter, explicitSubscribe );
       }
-      else if ( ChannelAction.Action.REMOVE == actionType )
+      else if ( ChannelChange.Action.REMOVE == actionType )
       {
         final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
         Disposable.dispose( subscription );
         _currentAction.incChannelRemoveCount();
       }
-      else if ( ChannelAction.Action.UPDATE == actionType )
+      else if ( ChannelChange.Action.UPDATE == actionType )
       {
         final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
@@ -957,7 +956,7 @@ public abstract class AbstractDataLoaderService
   protected abstract boolean requestDebugOutputEnabled();
 
   @Nonnull
-  private ChannelAddress toAddress( @Nonnull final ChannelAction action )
+  private ChannelAddress toAddress( @Nonnull final ChannelChange action )
   {
     final int channelId = action.getChannelId();
     final Integer subChannelId = action.hasSubChannelId() ? action.getSubChannelId() : null;

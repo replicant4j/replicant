@@ -134,7 +134,7 @@ final class DataLoadAction
 
   boolean needsChannelActionsProcessed()
   {
-    return null != _changeSet && 0 != _changeSet.getChannelActionCount() && !_channelActionsProcessed;
+    return null != _changeSet && 0 != _changeSet.getChannelChanges().length && !_channelActionsProcessed;
   }
 
   void markChannelActionsProcessed()
