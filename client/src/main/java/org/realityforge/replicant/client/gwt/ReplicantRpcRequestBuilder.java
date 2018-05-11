@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.SharedConstants;
 
 public class ReplicantRpcRequestBuilder
   extends RpcRequestBuilder
@@ -28,7 +28,7 @@ public class ReplicantRpcRequestBuilder
     final ClientSession session = _sessionContext.getSession();
     if ( null != session )
     {
-      rb.setHeader( ReplicantContext.SESSION_ID_HEADER, session.getSessionID() );
+      rb.setHeader( SharedConstants.SESSION_ID_HEADER, session.getSessionID() );
     }
     final RequestEntry entry = _sessionContext.getRequest();
     if ( null == entry )
@@ -37,13 +37,13 @@ public class ReplicantRpcRequestBuilder
     }
     else
     {
-      rb.setHeader( ReplicantContext.REQUEST_ID_HEADER, entry.getRequestID() );
+      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, entry.getRequestID() );
       rb.setCallback( new RequestCallback()
       {
         @Override
         public void onResponseReceived( final Request request, final Response response )
         {
-          final boolean messageComplete = "1".equals( response.getHeader( ReplicantContext.REQUEST_COMPLETE_HEADER ) );
+          final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
           entry.setExpectingResults( !messageComplete );
           if ( null != callback )
           {

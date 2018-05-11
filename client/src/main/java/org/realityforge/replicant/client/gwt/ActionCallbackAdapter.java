@@ -10,7 +10,7 @@ import org.realityforge.replicant.client.AbstractRequestAdapter;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.RequestEntry;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.SharedConstants;
 
 final class ActionCallbackAdapter
   extends AbstractRequestAdapter
@@ -57,7 +57,7 @@ final class ActionCallbackAdapter
   {
     if ( null != getRequest() )
     {
-      final boolean messageComplete = "1".equals( response.getHeader( ReplicantContext.REQUEST_COMPLETE_HEADER ) );
+      final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
       getRequest().setExpectingResults( !messageComplete );
     }
   }

@@ -13,7 +13,7 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.SharedConstants;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.SafeProcedure;
@@ -93,8 +93,8 @@ public abstract class WebPollerDataLoaderService
   protected String getPollURL()
   {
     return getBaseURL() +
-           ReplicantContext.REPLICANT_URL_FRAGMENT + "?" +
-           ReplicantContext.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence();
+           SharedConstants.REPLICANT_URL_FRAGMENT + "?" +
+           SharedConstants.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence();
   }
 
   /**
@@ -105,7 +105,7 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected String getBaseSessionURL()
   {
-    return getBaseURL() + ReplicantContext.SESSION_URL_FRAGMENT;
+    return getBaseURL() + SharedConstants.SESSION_URL_FRAGMENT;
   }
 
   /**
@@ -124,7 +124,7 @@ public abstract class WebPollerDataLoaderService
   protected String getChannelURL( final int channel,
                                   @Nullable Integer subChannelId )
   {
-    return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT +
+    return getSessionURL() + SharedConstants.CHANNEL_URL_FRAGMENT +
            "/" + channel + ( null == subChannelId ? "" : "." + subChannelId );
   }
 
@@ -135,9 +135,9 @@ public abstract class WebPollerDataLoaderService
   protected String getChannelURL( final int channel,
                                   @Nonnull List<Integer> subChannelIds )
   {
-    final String queryParam = ReplicantContext.SUB_CHANNEL_ID_PARAM + "=" +
+    final String queryParam = SharedConstants.SUB_CHANNEL_ID_PARAM + "=" +
                               subChannelIds.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
-    return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
+    return getSessionURL() + SharedConstants.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
   }
 
   /**

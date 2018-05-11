@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
+import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.server.ee.ReplicationRequestUtil;
@@ -38,7 +39,7 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.SharedConstants;
 
 /**
  * The session management rest resource.
@@ -118,7 +119,7 @@ public abstract class AbstractSessionRestService
     return doGetSession( sessionId, uri );
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT )
   @GET
   public Response getChannels( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                @Context @Nonnull final UriInfo uri )
@@ -126,7 +127,7 @@ public abstract class AbstractSessionRestService
     return doGetChannels( sessionId, uri );
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
@@ -143,7 +144,7 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
@@ -160,12 +161,12 @@ public abstract class AbstractSessionRestService
     return doGetChannel( sessionId, new ChannelDescriptor( channelId, subChannelId ), uri );
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
   @DELETE
   public Response unsubscribeFromChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                           @PathParam( "channelId" ) final int channelId,
-                                          @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
-                                          @QueryParam( "scid" ) @Nullable final String subChannelIds )
+                                          @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID,
+                                          @QueryParam( SharedConstants.SUB_CHANNEL_ID_PARAM ) @Nullable final String subChannelIds )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     if ( !channelMetaData.isExternal() )
@@ -196,12 +197,12 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
   @DELETE
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                                   @PathParam( "channelId" ) final int channelId,
                                                   @PathParam( "subChannelId" ) @NotNull final int subChannelId,
-                                                  @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID )
+                                                  @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     if ( !channelMetaData.isExternal() )
@@ -218,13 +219,13 @@ public abstract class AbstractSessionRestService
     return doUnsubscribeChannel( sessionId, requestID, new ChannelDescriptor( channelId, subChannelId ) );
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                       @PathParam( "channelId" ) @NotNull final int channelId,
-                                      @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestID,
-                                      @HeaderParam( ReplicantContext.ETAG_HEADER ) @Nullable final String eTag,
-                                      @QueryParam( "scid" ) @Nullable final String subChannelIds,
+                                      @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID,
+                                      @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
+                                      @QueryParam( SharedConstants.SUB_CHANNEL_ID_PARAM ) @Nullable final String subChannelIds,
                                       @Nonnull final String filterContent )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
@@ -256,13 +257,13 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}" + ReplicantContext.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
+  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
   @PUT
   public Response subscribeToInstanceChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                               @PathParam( "channelId" ) @NotNull final int channelId,
                                               @PathParam( "subChannelId" ) @NotNull final int subChannelId,
-                                              @HeaderParam( ReplicantContext.REQUEST_ID_HEADER ) @Nullable final String requestId,
-                                              @HeaderParam( ReplicantContext.ETAG_HEADER ) @Nullable final String eTag,
+                                              @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestId,
+                                              @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
                                               @Nonnull final String filterContent )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
@@ -506,8 +507,8 @@ public abstract class AbstractSessionRestService
     {
       throw new WebApplicationException( standardResponse( Response.Status.NOT_FOUND, "No such session." ) );
     }
-    getRegistry().putResource( ReplicantContext.SESSION_ID_KEY, sessionId );
-    getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, requestID );
+    getRegistry().putResource( ServerConstants.SESSION_ID_KEY, sessionId );
+    getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, requestID );
     return session;
   }
 
@@ -531,10 +532,10 @@ public abstract class AbstractSessionRestService
 
   private void configureCompletionHeader( @Nonnull final Response.ResponseBuilder builder )
   {
-    final String complete = (String) ReplicantContextHolder.remove( ReplicantContext.REQUEST_COMPLETE_KEY );
+    final String complete = (String) ReplicantContextHolder.remove( ServerConstants.REQUEST_COMPLETE_KEY );
     if ( null != complete )
     {
-      builder.header( ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
+      builder.header( SharedConstants.REQUEST_COMPLETE_HEADER, complete );
     }
   }
 

@@ -24,8 +24,8 @@ import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelDescriptor;
 import org.realityforge.replicant.server.ChannelLink;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.RegistryUtil;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -853,7 +853,7 @@ public class ReplicantSessionManagerImplTest
     assertChannelActionCount( 0 );
 
     sm.unsubscribe( session.getSessionID(), cd1, getChangeSet() );
-    assertEquals( registry.getResource( ReplicantContext.SESSION_ID_KEY ), session.getSessionID() );
+    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getSessionID() );
 
     assertChannelActionCount( 1 );
     assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -1063,7 +1063,7 @@ public class ReplicantSessionManagerImplTest
 
     sm.updateSubscription( session.getSessionID(), cd, filter, getChangeSet() );
 
-    assertEquals( registry.getResource( ReplicantContext.SESSION_ID_KEY ), session.getSessionID() );
+    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getSessionID() );
 
     assertEntry( e1, false, 0, 0, filter );
 
@@ -1361,13 +1361,13 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.createSession();
 
-    sm.getRegistry().putResource( ReplicantContext.REQUEST_ID_KEY, "r1" );
+    sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, "r1" );
 
     final Packet packet = sm.sendPacket( session, "X", new ChangeSet() );
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestID(), "r1" );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
-    assertEquals( sm.getRegistry().getResource( ReplicantContext.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
+    assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }
 
   @Test
