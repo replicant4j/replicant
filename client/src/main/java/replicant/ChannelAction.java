@@ -62,6 +62,9 @@ public class ChannelAction
   }
 
   /**
+   * Return the sub-channel id.
+   * This method should not be invoked unless {@link #hasSubChannelId()} returns true.
+   *
    * @return the sub-channel id.
    */
   @JsOverlay
