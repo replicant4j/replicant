@@ -171,6 +171,6 @@ public class ChangeSetTest
     final Change change = changes.iterator().next();
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
-    assertEquals( change.getChannels().get( 1 ), 0 );
+    assertEquals( change.getChannels().get( 1 ), (Integer) 0 );
   }
 }
