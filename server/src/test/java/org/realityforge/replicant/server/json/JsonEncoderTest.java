@@ -102,7 +102,7 @@ public final class JsonEncoderTest
 
     assertFalse( channel1.containsKey( TransportConstants.SUBCHANNEL_ID ) );
     assertEquals( channel2.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
-    assertEquals( channel3.getString( TransportConstants.SUBCHANNEL_ID ), 73 );
+    assertEquals( channel3.getInt( TransportConstants.SUBCHANNEL_ID ), 73 );
   }
 
   @Test
