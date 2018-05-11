@@ -19,7 +19,6 @@ final class TestChangeSet
     this( sequence, runnable, changes, new ChannelAction[ 0 ] );
   }
 
-
   TestChangeSet( final int sequence,
                  @Nullable final Runnable runnable,
                  final Change[] changes,
