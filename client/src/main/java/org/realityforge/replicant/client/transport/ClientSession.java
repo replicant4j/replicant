@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.AreaOfInterestAction;
+import replicant.AreaOfInterestEntry;
 import replicant.ChannelAddress;
 
 /**

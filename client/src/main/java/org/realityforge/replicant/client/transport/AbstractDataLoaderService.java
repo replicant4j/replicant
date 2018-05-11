@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestAction;
+import replicant.AreaOfInterestEntry;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
 import replicant.ChannelChange;
@@ -282,7 +283,7 @@ public abstract class AbstractDataLoaderService
   private String label( AreaOfInterestEntry entry )
   {
     final ChannelAddress descriptor = entry.getAddress();
-    final Object filterParameter = entry.getFilterParameter();
+    final Object filterParameter = entry.getFilter();
     return getKey() + ":" + descriptor +
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
@@ -293,7 +294,7 @@ public abstract class AbstractDataLoaderService
     {
       return "";
     }
-    final Object filterParameter = entries.get( 0 ).getFilterParameter();
+    final Object filterParameter = entries.get( 0 ).getFilter();
     return getKey() +
            ":" +
            entries.stream().map( e -> e.getAddress().toString() ).collect( Collectors.joining( "/" ) ) +
@@ -336,17 +337,17 @@ public abstract class AbstractDataLoaderService
     LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " requested." );
 
     final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
-    assert null != aoiEntry.getFilterParameter();
+    assert null != aoiEntry.getFilter();
     if ( _currentAoiActions.size() > 1 )
     {
       final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
-      requestBulkUpdateSubscription( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
+      requestBulkUpdateSubscription( ids, aoiEntry.getFilter(), completionAction, failAction );
     }
     else
     {
       final ChannelAddress descriptor = aoiEntry.getAddress();
-      requestUpdateSubscription( descriptor, aoiEntry.getFilterParameter(), completionAction, failAction );
+      requestUpdateSubscription( descriptor, aoiEntry.getFilter(), completionAction, failAction );
     }
     return true;
   }
@@ -500,7 +501,7 @@ public abstract class AbstractDataLoaderService
       }
       LOG.info( () -> "Subscription to " + label( aoiEntry ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
       requestSubscribeToChannel( aoiEntry.getAddress(),
-                                 aoiEntry.getFilterParameter(),
+                                 aoiEntry.getFilter(),
                                  cacheKey,
                                  eTag,
                                  cacheAction,
@@ -512,7 +513,7 @@ public abstract class AbstractDataLoaderService
       // don't support bulk loading of anything that is already cached
       final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
-      requestBulkSubscribeToChannel( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
+      requestBulkSubscribeToChannel( ids, aoiEntry.getFilter(), completionAction, failAction );
     }
     return true;
   }
@@ -526,7 +527,7 @@ public abstract class AbstractDataLoaderService
            template.getAction().equals( action ) &&
            template.getAddress().getChannelType().equals( match.getAddress().getChannelType() ) &&
            ( AreaOfInterestAction.REMOVE == action ||
-             FilterUtil.filtersEqual( match.getFilterParameter(), template.getFilterParameter() ) );
+             FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
   }
 
   private void completeAoiAction()
