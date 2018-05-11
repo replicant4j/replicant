@@ -70,7 +70,6 @@ public class ConsoleSpyEventProcessor
     on( SubscribeCompletedEvent.class, this::onSubscribeCompleted );
     on( SubscribeFailedEvent.class, this::onSubscribeFailed );
     on( SubscribeStartedEvent.class, this::onSubscribeStarted );
-
   }
 
   /**
