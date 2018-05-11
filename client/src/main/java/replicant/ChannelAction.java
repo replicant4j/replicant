@@ -31,15 +31,29 @@ public class ChannelAction
    */
   @JsOverlay
   public static ChannelAction create( final int cid,
-                                      final int scid,
                                       @Nonnull final Action action,
                                       @Nullable final Object filter )
   {
     final ChannelAction channel = new ChannelAction();
     channel.cid = cid;
-    channel.scid = (double) scid;
     channel.action = action.name().toLowerCase();
     channel.filter = filter;
+    return channel;
+  }
+
+  /**
+   * Create a ChannelAction.
+   *
+   * @return the new ChannelAction.
+   */
+  @JsOverlay
+  public static ChannelAction create( final int cid,
+                                      final int scid,
+                                      @Nonnull final Action action,
+                                      @Nullable final Object filter )
+  {
+    final ChannelAction channel = create( cid, action, filter );
+    channel.scid = (double) scid;
     return channel;
   }
 
