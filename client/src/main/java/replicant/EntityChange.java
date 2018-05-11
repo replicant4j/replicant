@@ -73,6 +73,17 @@ public class EntityChange
   }
 
   /**
+   * Return the channels that the entity is associated with.
+   *
+   * @return the channels that the entity is associated with.
+   */
+  @JsOverlay
+  public final EntityChannel[] getChannels()
+  {
+    return channels;
+  }
+
+  /**
    * @return true if the change is an update, false if it is a remove.
    */
   @JsOverlay
@@ -151,38 +162,5 @@ public class EntityChange
   {
     assert null != data;
     return data.getAny( key ).asBoolean();
-  }
-
-  /**
-   * @return the number of channels on which the change is sent. Must be &gt; 1.
-   */
-  @JsOverlay
-  public final int getChannelCount()
-  {
-    return channels.length;
-  }
-
-  /**
-   * Return the channel id at specific index.
-   *
-   * @param index the index of the channel.
-   * @return the channel id.
-   */
-  @JsOverlay
-  public final int getChannelId( final int index )
-  {
-    return channels[ index ].getId();
-  }
-
-  /**
-   * @param index the index of the channel.
-   * @return the sub-channel id.
-   */
-  @Nullable
-  @JsOverlay
-  public final Integer getSubChannelId( final int index )
-  {
-    final EntityChannel channel = channels[ index ];
-    return channel.hasSubChannelId() ? channel.getSubChannelId() : null;
   }
 }
