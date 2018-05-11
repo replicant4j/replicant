@@ -7,7 +7,7 @@ import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
 /**
- * An action on a channel.
+ * A message fragment defining an action on a channel.
  */
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class ChannelAction
