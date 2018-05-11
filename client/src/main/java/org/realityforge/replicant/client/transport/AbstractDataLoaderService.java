@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestAction;
+import replicant.ChangeSet;
 import replicant.EntityChange;
 import replicant.ChannelAddress;
 import replicant.ChannelChange;
