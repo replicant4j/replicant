@@ -59,5 +59,3 @@ Some actions that should occur at some point in the future.
   - Add ability to dump subscriptions as table?
   - `Replicant.can*DebugOutputBeEnabled()` should be removed.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
-
-* Make sure ConsoleLogger logs all spy events
