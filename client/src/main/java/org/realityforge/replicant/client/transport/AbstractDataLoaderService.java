@@ -652,7 +652,6 @@ public abstract class AbstractDataLoaderService
     {
       final DataLoadAction action = parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
-      assert null != changeSet;
       if ( action.isOob() || session.getLastRxSequence() + 1 == changeSet.getSequence() )
       {
         _currentAction = parsedActions.remove();
@@ -774,7 +773,6 @@ public abstract class AbstractDataLoaderService
       }
 
       final ChangeSet changeSet = _currentAction.getChangeSet();
-      assert null != changeSet;
       context().safeAction( generateName( "applyChange" ), () -> {
         EntityChange change;
         for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
@@ -816,7 +814,6 @@ public abstract class AbstractDataLoaderService
         LOG.log( getLogLevel(), "Linking Entities: " + _currentAction );
       }
       final ChangeSet changeSet = _currentAction.getChangeSet();
-      assert null != changeSet;
 
       context().safeAction( generateName( "link" ), () -> {
         Linkable linkable;
@@ -833,7 +830,6 @@ public abstract class AbstractDataLoaderService
     }
 
     final ChangeSet set = _currentAction.getChangeSet();
-    assert null != set;
 
     //Step: Finalize the change set
     if ( !_currentAction.hasWorldBeenNotified() )
@@ -909,7 +905,6 @@ public abstract class AbstractDataLoaderService
   {
     _currentAction.markChannelActionsProcessed();
     final ChangeSet changeSet = _currentAction.getChangeSet();
-    assert null != changeSet;
     final ChannelChange[] channelChanges = changeSet.getChannelChanges();
     for ( final ChannelChange channelChange : channelChanges )
     {

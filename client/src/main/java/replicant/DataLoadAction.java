@@ -212,9 +212,10 @@ public final class DataLoadAction
     }
   }
 
-  @Nullable
+  @Nonnull
   public ChangeSet getChangeSet()
   {
+    assert null != _changeSet;
     return _changeSet;
   }
 
@@ -255,7 +256,6 @@ public final class DataLoadAction
   public DataLoadStatus toStatus()
   {
     final ChangeSet changeSet = getChangeSet();
-    assert null != changeSet;
     return new DataLoadStatus( changeSet.getSequence(),
                                changeSet.getRequestID(),
                                _channelAddCount,
@@ -299,9 +299,7 @@ public final class DataLoadAction
     else
     {
       final ChangeSet changeSet1 = getChangeSet();
-      assert null != changeSet1;
       final ChangeSet changeSet2 = other.getChangeSet();
-      assert null != changeSet2;
       return changeSet1.getSequence() - changeSet2.getSequence();
     }
   }
