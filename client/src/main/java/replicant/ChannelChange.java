@@ -41,6 +41,10 @@ public class ChannelChange
     return channel;
   }
 
+  private ChannelChange()
+  {
+  }
+
   /**
    * Create a ChannelChange.
    *

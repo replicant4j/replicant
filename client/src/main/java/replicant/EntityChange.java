@@ -51,6 +51,10 @@ public class EntityChange
     return change;
   }
 
+  private EntityChange()
+  {
+  }
+
   /**
    * @return the id of the entity.
    */

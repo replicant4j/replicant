@@ -36,6 +36,10 @@ public class ChangeSet
     return changeSet;
   }
 
+  private ChangeSet()
+  {
+  }
+
   /**
    * @return the sequence representing the last transaction in the change set.
    */

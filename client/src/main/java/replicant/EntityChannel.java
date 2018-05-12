@@ -42,6 +42,10 @@ public class EntityChannel
     return channel;
   }
 
+  private EntityChannel()
+  {
+  }
+
   /**
    * @return the id of the Channel.
    */
