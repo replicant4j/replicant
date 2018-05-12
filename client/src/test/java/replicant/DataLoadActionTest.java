@@ -28,6 +28,43 @@ public class DataLoadActionTest
     assertEquals( action.getEntityLinkCount(), 0 );
   }
 
+  @SuppressWarnings( "EqualsWithItself" )
+  @Test
+  public void compareTo()
+  {
+    final DataLoadAction action1 = new DataLoadAction( "", false );
+    final DataLoadAction action2 = new DataLoadAction( "", false );
+    final DataLoadAction action3 = new DataLoadAction( "", true );
+    final DataLoadAction action4 = new DataLoadAction( "", true );
+
+    final ChangeSet changeSet1 = ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet2 = ChangeSet.create( 2, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet3 = ChangeSet.create( 3, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet4 = ChangeSet.create( 4, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+
+    action1.setChangeSet( changeSet1, null );
+    action2.setChangeSet( changeSet2, null );
+    action3.setChangeSet( changeSet3, null );
+    action4.setChangeSet( changeSet4, null );
+
+    assertEquals( action1.compareTo( action1 ), 0 );
+    assertEquals( action1.compareTo( action2 ), -1 );
+    assertEquals( action1.compareTo( action3 ), 1 );
+    assertEquals( action1.compareTo( action4 ), 1 );
+    assertEquals( action2.compareTo( action1 ), 1 );
+    assertEquals( action2.compareTo( action2 ), 0 );
+    assertEquals( action2.compareTo( action3 ), 1 );
+    assertEquals( action2.compareTo( action4 ), 1 );
+    assertEquals( action3.compareTo( action1 ), -1 );
+    assertEquals( action3.compareTo( action2 ), -1 );
+    assertEquals( action3.compareTo( action3 ), 0 );
+    assertEquals( action3.compareTo( action4 ), 0 );
+    assertEquals( action4.compareTo( action1 ), -1 );
+    assertEquals( action4.compareTo( action2 ), -1 );
+    assertEquals( action4.compareTo( action3 ), 0 );
+    assertEquals( action4.compareTo( action4 ), 0 );
+  }
+
   /*
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
