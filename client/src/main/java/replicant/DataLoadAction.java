@@ -107,17 +107,17 @@ public final class DataLoadAction
     _channelRemoveCount++;
   }
 
-  public void incUpdateCount()
+  public void incEntityUpdateCount()
   {
     _entityUpdateCount++;
   }
 
-  public void incRemoveCount()
+  public void incEntityRemoveCount()
   {
     _entityRemoveCount++;
   }
 
-  public void incLinkCount()
+  public void incEntityLinkCount()
   {
     _entityLinkCount++;
   }

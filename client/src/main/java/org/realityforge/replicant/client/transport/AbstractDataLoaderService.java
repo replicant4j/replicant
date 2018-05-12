@@ -782,11 +782,11 @@ public abstract class AbstractDataLoaderService
           {
             if ( change.isUpdate() )
             {
-              _currentAction.incUpdateCount();
+              _currentAction.incEntityUpdateCount();
             }
             else
             {
-              _currentAction.incRemoveCount();
+              _currentAction.incEntityRemoveCount();
             }
           }
           _currentAction.changeProcessed( change.isUpdate(), entity );
@@ -822,7 +822,7 @@ public abstract class AbstractDataLoaderService
           linkable.link();
           if ( LOG.isLoggable( Level.INFO ) )
           {
-            _currentAction.incLinkCount();
+            _currentAction.incEntityLinkCount();
           }
         }
       }, changeSet.getSequence(), changeSet.getRequestID() );
