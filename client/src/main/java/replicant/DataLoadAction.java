@@ -308,16 +308,23 @@ public final class DataLoadAction
   @Override
   public String toString()
   {
-    return "DataLoad[" +
-           ",RawJson.null?=" + ( null == _rawJsonData ) +
-           ",ChangeSet.null?=" + ( null == _changeSet ) +
-           ",ChangeIndex=" + _changeIndex +
-           ",Runnable.null?=" + ( null == getRunnable() ) +
-           ",UpdatedEntities.size=" + ( null == _updatedEntities ? null : _updatedEntities.size() ) +
-           ",RemovedEntities.size=" + ( null == _removedEntities ? null : _removedEntities.size() ) +
-           ",EntitiesToLink.size=" + ( null == _entitiesToLink ? null : _entitiesToLink.size() ) +
-           ",EntityLinksCalculated=" + _entityLinksCalculated +
-           "]";
+    if ( Replicant.areNamesEnabled() )
+    {
+      return "DataLoad[" +
+             ",RawJson.null?=" + ( null == _rawJsonData ) +
+             ",ChangeSet.null?=" + ( null == _changeSet ) +
+             ",ChangeIndex=" + _changeIndex +
+             ",Runnable.null?=" + ( null == getRunnable() ) +
+             ",UpdatedEntities.size=" + ( null == _updatedEntities ? null : _updatedEntities.size() ) +
+             ",RemovedEntities.size=" + ( null == _removedEntities ? null : _removedEntities.size() ) +
+             ",EntitiesToLink.size=" + ( null == _entitiesToLink ? null : _entitiesToLink.size() ) +
+             ",EntityLinksCalculated=" + _entityLinksCalculated +
+             "]";
+    }
+    else
+    {
+      return super.toString();
+    }
   }
 
   @Override

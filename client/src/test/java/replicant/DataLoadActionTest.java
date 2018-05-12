@@ -131,6 +131,33 @@ public class DataLoadActionTest
     assertEquals( action.getEntityLinkCount(), 0 );
   }
 
+  @Test
+  public void testToString()
+  {
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), ValueUtil.randomBoolean() );
+    assertEquals( action.toString(),
+                  "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=0,RemovedEntities.size=0,EntitiesToLink.size=null,EntityLinksCalculated=false]" );
+
+    final int sequence = 33;
+    final String requestId = "XXX";
+    final ChangeSet changeSet =
+      ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    action.setChangeSet( changeSet, null );
+
+    assertEquals( action.toString(),
+                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=0,RemovedEntities.size=0,EntitiesToLink.size=null,EntityLinksCalculated=false]" );
+
+    action.calculateEntitiesToLink();
+
+    assertEquals( action.toString(),
+                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=null,RemovedEntities.size=null,EntitiesToLink.size=0,EntityLinksCalculated=true]" );
+
+    ReplicantTestUtil.disableNames();
+
+    assertEquals( action.toString(),
+                  "replicant.DataLoadAction@" + Integer.toHexString( System.identityHashCode( action ) ) );
+  }
+
   /*
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
