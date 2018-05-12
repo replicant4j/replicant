@@ -95,32 +95,50 @@ public final class DataLoadAction
 
   public void incChannelAddCount()
   {
-    _channelAddCount++;
+    if ( Replicant.areSpiesEnabled() )
+    {
+      _channelAddCount++;
+    }
   }
 
   public void incChannelUpdateCount()
   {
-    _channelUpdateCount++;
+    if ( Replicant.areSpiesEnabled() )
+    {
+      _channelUpdateCount++;
+    }
   }
 
   public void incChannelRemoveCount()
   {
-    _channelRemoveCount++;
+    if ( Replicant.areSpiesEnabled() )
+    {
+      _channelRemoveCount++;
+    }
   }
 
   public void incEntityUpdateCount()
   {
-    _entityUpdateCount++;
+    if ( Replicant.areSpiesEnabled() )
+    {
+      _entityUpdateCount++;
+    }
   }
 
   public void incEntityRemoveCount()
   {
-    _entityRemoveCount++;
+    if ( Replicant.areSpiesEnabled() )
+    {
+      _entityRemoveCount++;
+    }
   }
 
   public void incEntityLinkCount()
   {
-    _entityLinkCount++;
+    if ( Replicant.areSpiesEnabled() )
+    {
+      _entityLinkCount++;
+    }
   }
 
   public boolean isOob()

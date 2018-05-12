@@ -101,6 +101,36 @@ public class DataLoadActionTest
     assertEquals( status.getEntityLinkCount(), 1 );
   }
 
+  @Test
+  public void incIgnoredUnlessSpyEnabled()
+  {
+    ReplicantTestUtil.disableSpies();
+
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), ValueUtil.randomBoolean() );
+
+    assertEquals( action.getChannelAddCount(), 0 );
+    assertEquals( action.getChannelUpdateCount(), 0 );
+    assertEquals( action.getChannelRemoveCount(), 0 );
+    assertEquals( action.getEntityUpdateCount(), 0 );
+    assertEquals( action.getEntityRemoveCount(), 0 );
+    assertEquals( action.getEntityLinkCount(), 0 );
+
+    // We enforce this to make it easier for DCE
+    action.incChannelAddCount();
+    action.incChannelRemoveCount();
+    action.incChannelUpdateCount();
+    action.incEntityUpdateCount();
+    action.incEntityRemoveCount();
+    action.incEntityLinkCount();
+
+    assertEquals( action.getChannelAddCount(), 0 );
+    assertEquals( action.getChannelUpdateCount(), 0 );
+    assertEquals( action.getChannelRemoveCount(), 0 );
+    assertEquals( action.getEntityUpdateCount(), 0 );
+    assertEquals( action.getEntityRemoveCount(), 0 );
+    assertEquals( action.getEntityLinkCount(), 0 );
+  }
+
   /*
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
