@@ -17,9 +17,9 @@ import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
-import replicant.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
+import replicant.RequestEntry;
 import replicant.SafeProcedure;
 
 public abstract class GwtWebPollerDataLoaderService

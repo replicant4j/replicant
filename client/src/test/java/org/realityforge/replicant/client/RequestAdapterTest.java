@@ -5,9 +5,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.ClientSession;
-import replicant.RequestEntry;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.RequestEntry;
 import static org.testng.Assert.*;
 
 public class RequestAdapterTest

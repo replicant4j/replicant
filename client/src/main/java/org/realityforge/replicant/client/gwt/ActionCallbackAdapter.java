@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.AbstractRequestAdapter;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
-import replicant.RequestEntry;
 import org.realityforge.replicant.shared.SharedConstants;
+import replicant.RequestEntry;
 
 final class ActionCallbackAdapter
   extends AbstractRequestAdapter

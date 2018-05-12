@@ -7,10 +7,10 @@ import com.google.gwt.http.client.Response;
 import java.lang.reflect.Field;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.ClientSession;
-import replicant.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
+import replicant.RequestEntry;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
