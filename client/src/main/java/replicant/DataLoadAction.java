@@ -252,12 +252,11 @@ public final class DataLoadAction
   }
 
   @Nonnull
-  public DataLoadStatus toStatus( @Nonnull final String systemKey )
+  public DataLoadStatus toStatus()
   {
     final ChangeSet changeSet = getChangeSet();
     assert null != changeSet;
-    return new DataLoadStatus( systemKey,
-                               changeSet.getSequence(),
+    return new DataLoadStatus( changeSet.getSequence(),
                                changeSet.getRequestID(),
                                _channelAddCount,
                                _channelUpdateCount,

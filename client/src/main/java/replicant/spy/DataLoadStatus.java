@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.Replicant;
 
@@ -9,11 +8,6 @@ import replicant.Replicant;
  */
 public final class DataLoadStatus
 {
-  /**
-   * A key that uniquely identifies the data source that initiated the data load.
-   */
-  @Nonnull
-  private final String _systemKey;
   private final int _sequence;
   @Nullable
   private final String _requestId;
@@ -31,8 +25,7 @@ public final class DataLoadStatus
   // The number of entities where link() was invoked
   private final int _entityLinkCount;
 
-  public DataLoadStatus( @Nonnull final String systemKey,
-                         final int sequence,
+  public DataLoadStatus( final int sequence,
                          @Nullable final String requestId,
                          final int channelAddCount,
                          final int channelUpdateCount,
@@ -41,7 +34,6 @@ public final class DataLoadStatus
                          final int entityRemoveCount,
                          final int entityLinkCount )
   {
-    _systemKey = systemKey;
     _sequence = sequence;
     _requestId = requestId;
     _channelAddCount = channelAddCount;
@@ -50,12 +42,6 @@ public final class DataLoadStatus
     _entityUpdateCount = entityUpdateCount;
     _entityRemoveCount = entityRemoveCount;
     _entityLinkCount = entityLinkCount;
-  }
-
-  @Nonnull
-  public String getSystemKey()
-  {
-    return _systemKey;
   }
 
   public int getSequence()
@@ -104,8 +90,7 @@ public final class DataLoadStatus
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return "[" +
-             getSystemKey() + ": Message " + getSequence() + " involved " +
+      return "[Message " + getSequence() + " involved " +
              getChannelAddCount() + " subscribes, " +
              getChannelUpdateCount() + " subscription updates, " +
              getChannelRemoveCount() + " un-subscribes, " +

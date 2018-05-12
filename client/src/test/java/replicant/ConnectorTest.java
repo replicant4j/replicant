@@ -310,8 +310,7 @@ public class ConnectorTest
     Replicant.context().getSpy().addSpyEventHandler( handler );
 
     final DataLoadStatus status =
-      new DataLoadStatus( ValueUtil.randomString(),
-                          ValueUtil.randomInt(),
+      new DataLoadStatus( ValueUtil.randomInt(),
                           ValueUtil.randomString(),
                           ValueUtil.getRandom().nextInt( 10 ),
                           ValueUtil.getRandom().nextInt( 10 ),

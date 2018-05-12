@@ -22,8 +22,7 @@ public class MessageProcessedEventTest
     final int entityRemoveCount = ValueUtil.getRandom().nextInt( 100 );
     final int entityLinkCount = ValueUtil.getRandom().nextInt( 10 );
     final DataLoadStatus dataLoadStatus =
-      new DataLoadStatus( "G",
-                          sequence,
+      new DataLoadStatus( sequence,
                           requestId,
                           channelAddCount,
                           channelUpdateCount,

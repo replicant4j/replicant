@@ -856,7 +856,7 @@ public abstract class AbstractDataLoaderService
 
       return true;
     }
-    final DataLoadStatus status = _currentAction.toStatus( getKey() );
+    final DataLoadStatus status = _currentAction.toStatus();
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( status.toString() );

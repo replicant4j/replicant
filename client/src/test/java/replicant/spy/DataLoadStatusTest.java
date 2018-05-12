@@ -20,8 +20,7 @@ public class DataLoadStatusTest
     final int entityRemoveCount = 3;
     final int entityLinkCount = 126;
     final DataLoadStatus status =
-      new DataLoadStatus( "G",
-                          sequence,
+      new DataLoadStatus( sequence,
                           requestId,
                           channelAddCount,
                           channelUpdateCount,
@@ -30,7 +29,6 @@ public class DataLoadStatusTest
                           entityRemoveCount,
                           entityLinkCount );
 
-    assertEquals( status.getSystemKey(), "G" );
     assertEquals( status.getSequence(), sequence );
     assertEquals( status.getRequestId(), requestId );
     assertEquals( status.getChannelAddCount(), channelAddCount );
@@ -41,7 +39,7 @@ public class DataLoadStatusTest
     assertEquals( status.getEntityLinkCount(), entityLinkCount );
 
     assertEquals( status.toString(),
-                  "[G: Message 13 involved 4 subscribes, 2 subscription updates, 1 un-subscribes, 123 updates, 3 removes and 126 links]" );
+                  "[Message 13 involved 4 subscribes, 2 subscription updates, 1 un-subscribes, 123 updates, 3 removes and 126 links]" );
 
     ReplicantTestUtil.disableNames();
 
