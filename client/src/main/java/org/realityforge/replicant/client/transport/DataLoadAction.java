@@ -13,9 +13,10 @@ import replicant.spy.DataLoadStatus;
 /**
  * A simple class encapsulating the process of loading data from a json change set.
  */
-final class DataLoadAction
+public final class DataLoadAction
   implements Comparable<DataLoadAction>
 {
+  //TODO: Make this package access after all classes migrated to replicant package
   /**
    * The raw data string data prior to parsing. Null-ed after parsing.
    */
@@ -59,64 +60,64 @@ final class DataLoadAction
   private int _entityRemoveCount;
   private int _entityLinkCount;
 
-  DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
+  public DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
   {
     _rawJsonData = rawJsonData;
     _oob = oob;
   }
 
-  int getChannelAddCount()
+  public int getChannelAddCount()
   {
     return _channelAddCount;
   }
 
-  int getChannelRemoveCount()
+  public int getChannelRemoveCount()
   {
     return _channelRemoveCount;
   }
 
-  void incChannelAddCount()
+  public void incChannelAddCount()
   {
     _channelAddCount++;
   }
 
-  void incChannelUpdateCount()
+  public void incChannelUpdateCount()
   {
     _channelUpdateCount++;
   }
 
-  void incChannelRemoveCount()
+  public void incChannelRemoveCount()
   {
     _channelRemoveCount++;
   }
 
-  void incUpdateCount()
+  public void incUpdateCount()
   {
     _entityUpdateCount++;
   }
 
-  void incRemoveCount()
+  public void incRemoveCount()
   {
     _entityRemoveCount++;
   }
 
-  void incLinkCount()
+  public void incLinkCount()
   {
     _entityLinkCount++;
   }
 
-  boolean isOob()
+  public boolean isOob()
   {
     return _oob;
   }
 
   @Nullable
-  String getRawJsonData()
+  public String getRawJsonData()
   {
     return _rawJsonData;
   }
 
-  void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
+  public void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
     assert !isOob() || null == request;
     _request = request;
@@ -130,22 +131,22 @@ final class DataLoadAction
     return _request;
   }
 
-  boolean areChangesPending()
+  public boolean areChangesPending()
   {
     return null != _changeSet && _changeIndex < _changeSet.getEntityChanges().length;
   }
 
-  boolean needsChannelActionsProcessed()
+  public boolean needsChannelActionsProcessed()
   {
     return null != _changeSet && 0 != _changeSet.getChannelChanges().length && !_channelActionsProcessed;
   }
 
-  void markChannelActionsProcessed()
+  public void markChannelActionsProcessed()
   {
     _channelActionsProcessed = true;
   }
 
-  EntityChange nextChange()
+  public EntityChange nextChange()
   {
     if ( areChangesPending() )
     {
@@ -160,7 +161,7 @@ final class DataLoadAction
     }
   }
 
-  void changeProcessed( final boolean isUpdate, final Object entity )
+  public void changeProcessed( final boolean isUpdate, final Object entity )
   {
     if ( entity instanceof Linkable )
     {
@@ -175,12 +176,12 @@ final class DataLoadAction
     }
   }
 
-  boolean areEntityLinksCalculated()
+  public boolean areEntityLinksCalculated()
   {
     return _entityLinksCalculated;
   }
 
-  void calculateEntitiesToLink()
+  public void calculateEntitiesToLink()
   {
     _entityLinksCalculated = true;
     _entitiesToLink = new LinkedList<>();
@@ -196,12 +197,12 @@ final class DataLoadAction
     _removedEntities = null;
   }
 
-  boolean areEntityLinksPending()
+  public boolean areEntityLinksPending()
   {
     return null != _entitiesToLink && !_entitiesToLink.isEmpty();
   }
 
-  Linkable nextEntityToLink()
+  public Linkable nextEntityToLink()
   {
     if ( areEntityLinksPending() )
     {
@@ -216,19 +217,19 @@ final class DataLoadAction
   }
 
   @Nullable
-  ChangeSet getChangeSet()
+  public ChangeSet getChangeSet()
   {
     return _changeSet;
   }
 
-  void setRunnable( @Nullable final Runnable runnable )
+  public void setRunnable( @Nullable final Runnable runnable )
   {
     assert isOob();
     _runnable = runnable;
   }
 
   @Nullable
-  Runnable getRunnable()
+  public Runnable getRunnable()
   {
     if ( null != _runnable )
     {
@@ -244,18 +245,18 @@ final class DataLoadAction
     }
   }
 
-  void markWorldAsNotified()
+  public void markWorldAsNotified()
   {
     _worldNotified = true;
   }
 
-  boolean hasWorldBeenNotified()
+  public boolean hasWorldBeenNotified()
   {
     return _worldNotified;
   }
 
   @Nonnull
-  DataLoadStatus toStatus( @Nonnull final String systemKey )
+  public DataLoadStatus toStatus( @Nonnull final String systemKey )
   {
     final ChangeSet changeSet = getChangeSet();
     assert null != changeSet;
