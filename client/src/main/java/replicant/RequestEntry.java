@@ -76,7 +76,7 @@ public class RequestEntry
     if ( Replicant.shouldCheckInvariants() )
     {
       Guards.invariant( this::isCompletionDataPresent,
-                        () -> "Replicant-0032: isNormalCompletion invoked before completion data specified." );
+                        () -> "Replicant-0008: isNormalCompletion invoked before completion data specified." );
     }
     return _normalCompletion;
   }

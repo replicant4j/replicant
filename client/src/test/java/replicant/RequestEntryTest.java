@@ -99,6 +99,6 @@ public class RequestEntryTest
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, e::isNormalCompletion );
     assertEquals( exception.getMessage(),
-                  "Replicant-0032: isNormalCompletion invoked before completion data specified." );
+                  "Replicant-0008: isNormalCompletion invoked before completion data specified." );
   }
 }
