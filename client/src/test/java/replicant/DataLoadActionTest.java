@@ -1,8 +1,33 @@
 package replicant;
 
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
+
 public class DataLoadActionTest
   extends AbstractReplicantTest
 {
+  @Test
+  public void construct()
+  {
+    final String rawJsonData = "";
+    final boolean oob = false;
+    final DataLoadAction action = new DataLoadAction( rawJsonData, oob );
+    assertEquals( action.getRawJsonData(), rawJsonData );
+    assertEquals( action.isOob(), oob );
+
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    assertEquals( action.getChannelAddCount(), 0 );
+    assertEquals( action.getChannelUpdateCount(), 0 );
+    assertEquals( action.getChannelRemoveCount(), 0 );
+    assertEquals( action.getEntityUpdateCount(), 0 );
+    assertEquals( action.getEntityRemoveCount(), 0 );
+    assertEquals( action.getEntityLinkCount(), 0 );
+  }
+
   /*
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
