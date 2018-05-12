@@ -2,6 +2,7 @@ package replicant;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.DataLoadStatus;
@@ -58,7 +59,7 @@ public final class DataLoadAction
 
   public DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
   {
-    _rawJsonData = rawJsonData;
+    _rawJsonData = Objects.requireNonNull( rawJsonData );
     _oob = oob;
   }
 
