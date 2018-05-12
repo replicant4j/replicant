@@ -10,12 +10,6 @@ DAGGER_COMPILER_DEPS = [:javax_inject, :dagger_core, :dagger_producers, :dagger_
 
 REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
 
-POWERMOCK = [
-  :objenesis, :powermock_core, :powermock_reflect, :powermock_testng_common, :powermock_testng,
-  :powermock_testng_agent, :powermock_api_mockito, :powermock_api_mockito_common, :powermock_api_support, :javassist,
-  :powermock_module_javaagent
-]
-
 AREZ_DEPS = [
   :arez_annotations, :arez_core, :arez_processor, :arez_component, :braincheck, :anodoc, :jetbrains_annotations
 ]
@@ -26,7 +20,7 @@ KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_ada
 COMPILE_DEPS = KEYCLOAK_DEPS
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
-TEST_DEPS = TEST_INFRA_DEPS + [:jndikit] + POWERMOCK
+TEST_DEPS = TEST_INFRA_DEPS + [:jndikit]
 
 # JDK options passed to test environment. Essentially turns assertions on.
 TEST_OPTIONS =

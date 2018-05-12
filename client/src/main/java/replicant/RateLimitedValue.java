@@ -3,7 +3,7 @@ package replicant;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class RateLimitedValue
+class RateLimitedValue
 {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final double MAX_POSSIBLE_TOKENS = Double.MAX_VALUE / 4;
@@ -27,7 +27,7 @@ final class RateLimitedValue
     setTokensPerSecond( tokensPerSecond );
     setMaxTokenCount( maxTokenAmount );
     setTokenCount( maxTokenAmount );
-    _lastRegenTime = System.currentTimeMillis();
+    _lastRegenTime = currentTimeMillis();
   }
 
   synchronized void setTokensPerSecond( @Nonnegative final double tokensPerSecond )
@@ -107,7 +107,7 @@ final class RateLimitedValue
    */
   final void regenerateTokens()
   {
-    final long now = System.currentTimeMillis();
+    final long now = currentTimeMillis();
     final long duration = now - _lastRegenTime;
     if ( duration > 0 )
     {
@@ -115,5 +115,10 @@ final class RateLimitedValue
       _tokenCount = Math.min( _maxTokenCount, newTokenCount );
       _lastRegenTime = now;
     }
+  }
+
+  long currentTimeMillis()
+  {
+    return System.currentTimeMillis();
   }
 }

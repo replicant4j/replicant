@@ -1,32 +1,45 @@
 package replicant;
 
 import java.util.concurrent.CountDownLatch;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.testng.PowerMockObjectFactory;
-import org.testng.IObjectFactory;
-import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
-@PrepareForTest( { System.class, RateLimitedValue.class } )
 public class RateLimitedValueTest
   extends AbstractReplicantTest
 {
-  @ObjectFactory
-  public IObjectFactory getObjectFactory()
+  static class TestRateLimitedValue
+    extends RateLimitedValue
   {
-    return new PowerMockObjectFactory();
+    static long _currentTimeMillis;
+
+    TestRateLimitedValue( final double tokensPerSecond )
+    {
+      super( tokensPerSecond );
+    }
+
+    TestRateLimitedValue( final double tokensPerSecond, final double maxTokenAmount )
+    {
+      super( tokensPerSecond, maxTokenAmount );
+    }
+
+    static void setCurrentTimeMillis( final long currentTimeMillis )
+    {
+      _currentTimeMillis = currentTimeMillis;
+    }
+
+    @Override
+    long currentTimeMillis()
+    {
+      return _currentTimeMillis;
+    }
   }
 
   @Test
   public void basicOperation()
     throws Exception
   {
-    PowerMockito.mockStatic( System.class );
-    PowerMockito.when( System.currentTimeMillis() ).thenReturn( 100L );
-
-    final RateLimitedValue value = new RateLimitedValue( 10D, 30D );
+    TestRateLimitedValue.setCurrentTimeMillis( 100L );
+    final TestRateLimitedValue value = new TestRateLimitedValue( 10D, 30D );
 
     assertEquals( getLastRegenTime( value ), 100L );
 
@@ -92,10 +105,8 @@ public class RateLimitedValueTest
   public void regenerateTokens()
     throws Exception
   {
-    PowerMockito.mockStatic( System.class );
-    PowerMockito.when( System.currentTimeMillis() ).thenReturn( 0L );
-
-    final RateLimitedValue value = new RateLimitedValue( 2000D );
+    TestRateLimitedValue.setCurrentTimeMillis( 0L );
+    final TestRateLimitedValue value = new TestRateLimitedValue( 2000D );
     value.setTokenCount( 0D );
 
     assertEquals( value.getTokenCount(), 0D );
@@ -106,7 +117,7 @@ public class RateLimitedValueTest
     assertEquals( value.getTokenCount(), 0D );
     assertEquals( getLastRegenTime( value ), 0L );
 
-    PowerMockito.when( System.currentTimeMillis() ).thenReturn( 50L );
+    TestRateLimitedValue.setCurrentTimeMillis( 50L );
 
     value.regenerateTokens();
 
