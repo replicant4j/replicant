@@ -309,13 +309,13 @@ public final class DataLoadAction
   public String toString()
   {
     return "DataLoad[" +
-           ",RawJson.null?=" + ( _rawJsonData == null ) +
-           ",ChangeSet.null?=" + ( _changeSet == null ) +
+           ",RawJson.null?=" + ( null == _rawJsonData ) +
+           ",ChangeSet.null?=" + ( null == _changeSet ) +
            ",ChangeIndex=" + _changeIndex +
-           ",Runnable.null?=" + ( getRunnable() == null ) +
-           ",UpdatedEntities.size=" + ( _updatedEntities != null ? _updatedEntities.size() : null ) +
-           ",RemovedEntities.size=" + ( _removedEntities != null ? _removedEntities.size() : null ) +
-           ",EntitiesToLink.size=" + ( _entitiesToLink != null ? _entitiesToLink.size() : null ) +
+           ",Runnable.null?=" + ( null == getRunnable() ) +
+           ",UpdatedEntities.size=" + ( null == _updatedEntities ? null : _updatedEntities.size() ) +
+           ",RemovedEntities.size=" + ( null == _removedEntities ? null : _removedEntities.size() ) +
+           ",EntitiesToLink.size=" + ( null == _entitiesToLink ? null : _entitiesToLink.size() ) +
            ",EntityLinksCalculated=" + _entityLinksCalculated +
            "]";
   }
