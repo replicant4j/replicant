@@ -1,6 +1,8 @@
 package replicant;
 
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.spy.DataLoadStatus;
 import static org.testng.Assert.*;
 
 public class DataLoadActionTest
@@ -63,6 +65,40 @@ public class DataLoadActionTest
     assertEquals( action4.compareTo( action2 ), -1 );
     assertEquals( action4.compareTo( action3 ), 0 );
     assertEquals( action4.compareTo( action4 ), 0 );
+  }
+
+  @Test
+  public void toStatus()
+  {
+    final int sequence = ValueUtil.randomInt();
+    final String requestId = ValueUtil.randomString();
+    final ChangeSet changeSet =
+      ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), ValueUtil.randomBoolean() );
+    action.setChangeSet( changeSet, null );
+
+    action.incChannelAddCount();
+    action.incChannelAddCount();
+    action.incChannelRemoveCount();
+    action.incChannelRemoveCount();
+    action.incChannelRemoveCount();
+    action.incChannelUpdateCount();
+    action.incEntityUpdateCount();
+    action.incEntityRemoveCount();
+    action.incEntityRemoveCount();
+    action.incEntityLinkCount();
+
+    final DataLoadStatus status = action.toStatus();
+
+    assertEquals( status.getSequence(), sequence );
+    assertEquals( status.getRequestId(), requestId );
+    assertEquals( status.getChannelAddCount(), 2 );
+    assertEquals( status.getChannelUpdateCount(), 1 );
+    assertEquals( status.getChannelRemoveCount(), 3 );
+    assertEquals( status.getEntityUpdateCount(), 1 );
+    assertEquals( status.getEntityRemoveCount(), 2 );
+    assertEquals( status.getEntityLinkCount(), 1 );
   }
 
   /*
