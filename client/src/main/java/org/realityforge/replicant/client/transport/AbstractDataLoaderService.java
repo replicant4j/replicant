@@ -829,7 +829,7 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    final ChangeSet set = _currentAction.getChangeSet();
+    final ChangeSet changeSet = _currentAction.getChangeSet();
 
     //Step: Finalize the change set
     if ( !_currentAction.hasWorldBeenNotified() )
@@ -842,7 +842,7 @@ public abstract class AbstractDataLoaderService
       // OOB messages are not sequenced
       if ( !_currentAction.isOob() )
       {
-        session.setLastRxSequence( set.getSequence() );
+        session.setLastRxSequence( changeSet.getSequence() );
       }
       if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
@@ -882,7 +882,7 @@ public abstract class AbstractDataLoaderService
         final boolean removed = session.removeRequest( requestID );
         if ( !removed )
         {
-          LOG.severe( "ChangeSet " + set.getSequence() + " expected to complete request '" +
+          LOG.severe( "ChangeSet " + changeSet.getSequence() + " expected to complete request '" +
                       requestID + "' but no request was registered with session." );
         }
         if ( requestDebugOutputEnabled() )
