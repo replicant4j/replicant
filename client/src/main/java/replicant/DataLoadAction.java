@@ -67,9 +67,29 @@ public final class DataLoadAction
     return _channelAddCount;
   }
 
+  public int getChannelUpdateCount()
+  {
+    return _channelUpdateCount;
+  }
+
   public int getChannelRemoveCount()
   {
     return _channelRemoveCount;
+  }
+
+  public int getEntityUpdateCount()
+  {
+    return _entityUpdateCount;
+  }
+
+  public int getEntityRemoveCount()
+  {
+    return _entityRemoveCount;
+  }
+
+  public int getEntityLinkCount()
+  {
+    return _entityLinkCount;
   }
 
   public void incChannelAddCount()
@@ -258,12 +278,12 @@ public final class DataLoadAction
     final ChangeSet changeSet = getChangeSet();
     return new DataLoadStatus( changeSet.getSequence(),
                                changeSet.getRequestID(),
-                               _channelAddCount,
-                               _channelUpdateCount,
-                               _channelRemoveCount,
-                               _entityUpdateCount,
-                               _entityRemoveCount,
-                               _entityLinkCount );
+                               getChannelAddCount(),
+                               getChannelUpdateCount(),
+                               getChannelRemoveCount(),
+                               getEntityUpdateCount(),
+                               getEntityRemoveCount(),
+                               getEntityLinkCount() );
   }
 
   @Override
