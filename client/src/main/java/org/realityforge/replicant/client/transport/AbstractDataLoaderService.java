@@ -23,6 +23,7 @@ import replicant.ChangeSet;
 import replicant.ChannelAddress;
 import replicant.ChannelChange;
 import replicant.Connector;
+import replicant.DataLoadAction;
 import replicant.Entity;
 import replicant.EntityChange;
 import replicant.FilterUtil;

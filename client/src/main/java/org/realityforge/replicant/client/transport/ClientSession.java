@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import replicant.AreaOfInterestAction;
 import replicant.AreaOfInterestEntry;
 import replicant.ChannelAddress;
+import replicant.DataLoadAction;
 import replicant.RequestEntry;
 
 /**
