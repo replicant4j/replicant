@@ -7,7 +7,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.RequestEntry;
+import replicant.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 
@@ -37,7 +37,7 @@ public class ReplicantRpcRequestBuilder
     }
     else
     {
-      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, entry.getRequestID() );
+      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, entry.getRequestId() );
       rb.setCallback( new RequestCallback()
       {
         @Override

@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.RequestEntry;
+import replicant.RequestEntry;
 
 public abstract class AbstractRequestAdapter
 {

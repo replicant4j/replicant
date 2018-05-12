@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import replicant.AreaOfInterestAction;
 import replicant.AreaOfInterestEntry;
 import replicant.ChannelAddress;
+import replicant.RequestEntry;
 
 /**
  * Client-side representation of session.
@@ -113,7 +114,7 @@ public final class ClientSession
   public final RequestEntry newRequest( @Nullable final String requestKey, @Nullable final String cacheKey )
   {
     final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey );
-    _requests.put( entry.getRequestID(), entry );
+    _requests.put( entry.getRequestId(), entry );
     if ( LOG.isLoggable( LOG_LEVEL ) )
     {
       LOG.log( LOG_LEVEL, "Created request " + entry );
@@ -135,7 +136,7 @@ public final class ClientSession
     else
     {
       runnable.run();
-      removeRequest( request.getRequestID() );
+      removeRequest( request.getRequestId() );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, "Request " + request + " completed normally. No change set or already arrived." );
@@ -157,7 +158,7 @@ public final class ClientSession
     else
     {
       runnable.run();
-      removeRequest( request.getRequestID() );
+      removeRequest( request.getRequestId() );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. No change set or already arrived." );

@@ -7,7 +7,7 @@ import com.google.gwt.http.client.Response;
 import java.lang.reflect.Field;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.RequestEntry;
+import replicant.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
@@ -64,7 +64,7 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
     verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
-    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
   }
@@ -92,7 +92,7 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
     verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
-    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
 
     assertEquals( requestEntry.isCompletionDataPresent(), false );
     assertEquals( requestEntry.isExpectingResults(), true );
@@ -120,7 +120,7 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onError( request, exception );
     verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
-    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
   }

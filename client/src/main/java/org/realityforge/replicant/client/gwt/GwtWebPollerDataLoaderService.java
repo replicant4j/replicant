@@ -17,7 +17,7 @@ import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
-import org.realityforge.replicant.client.transport.RequestEntry;
+import replicant.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.SafeProcedure;
@@ -117,7 +117,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final ActionCallbackAdapter adapter =
       new ActionCallbackAdapter( onSuccess, onCacheValid, onError, request, session );
-    final String requestID = null != request ? request.getRequestID() : null;
+    final String requestID = null != request ? request.getRequestId() : null;
     final RequestBuilder rb = newRequestBuilder( method, url );
     if ( null != requestID )
     {

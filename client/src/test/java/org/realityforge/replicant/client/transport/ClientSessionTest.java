@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.RequestEntry;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -17,14 +18,14 @@ public class ClientSessionTest
     assertEquals( e.getRequestKey(), "Y" );
     assertEquals( e.getCacheKey(), "X" );
 
-    assertEquals( rm.getRequest( e.getRequestID() ), e );
-    assertEquals( rm.getRequests().get( e.getRequestID() ), e );
-    assertEquals( rm.getRequest( "NotHere" + e.getRequestID() ), null );
+    assertEquals( rm.getRequest( e.getRequestId() ), e );
+    assertEquals( rm.getRequests().get( e.getRequestId() ), e );
+    assertEquals( rm.getRequest( "NotHere" + e.getRequestId() ), null );
 
-    assertTrue( rm.removeRequest( e.getRequestID() ) );
-    assertFalse( rm.removeRequest( e.getRequestID() ) );
+    assertTrue( rm.removeRequest( e.getRequestId() ) );
+    assertFalse( rm.removeRequest( e.getRequestId() ) );
 
-    assertEquals( rm.getRequest( e.getRequestID() ), null );
+    assertEquals( rm.getRequest( e.getRequestId() ), null );
   }
 
   @Test
@@ -38,7 +39,7 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -56,7 +57,7 @@ public class ClientSessionTest
     assertTrue( e.isCompletionDataPresent() );
     assertTrue( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
-    assertNotNull( rm.getRequest( e.getRequestID() ) );
+    assertNotNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -73,7 +74,7 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -87,7 +88,7 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -105,7 +106,7 @@ public class ClientSessionTest
     assertTrue( e.isCompletionDataPresent() );
     assertFalse( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
-    assertNotNull( rm.getRequest( e.getRequestID() ) );
+    assertNotNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -122,6 +123,6 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 }

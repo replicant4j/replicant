@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Linkable;
 import replicant.ChangeSet;
 import replicant.EntityChange;
+import replicant.RequestEntry;
 import replicant.spy.DataLoadStatus;
 
 /**
