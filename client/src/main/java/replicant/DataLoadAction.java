@@ -6,6 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.DataLoadStatus;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A simple class encapsulating the process of loading data from a json change set.
@@ -157,7 +158,12 @@ public final class DataLoadAction
 
   public void setChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
-    assert !isOob() || null == request;
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> !isOob() || null == request,
+                 () -> "Replicant-0010: Incorrectly associating a request with requestId '" +
+                       Objects.requireNonNull( request ).getRequestKey() + "' with an out-of-band message." );
+    }
     _changeSet = Objects.requireNonNull( changeSet );
     _request = request;
     _rawJsonData = null;

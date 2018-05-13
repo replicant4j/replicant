@@ -425,4 +425,24 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), true );
   }
+
+  @Test
+  public void setChangeSet_includingRequestWithOOBMessage()
+  {
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), mock( SafeProcedure.class ) );
+
+    final ChangeSet changeSet =
+      ChangeSet.create( ValueUtil.randomInt(),
+                        "X1234",
+                        null,
+                        new ChannelChange[ 0 ],
+                        new EntityChange[ 0 ] );
+
+    final RequestEntry request = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> action.setChangeSet( changeSet, request ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0010: Incorrectly associating a request with requestId 'e3935172-7bd5-405c-854f-68db8d0aef89' with an out-of-band message." );
+  }
 }
