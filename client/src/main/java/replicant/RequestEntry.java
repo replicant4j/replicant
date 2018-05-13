@@ -118,8 +118,7 @@ public class RequestEntry
   {
     if ( Replicant.areNamesEnabled() )
     {
-      final String name = null == _name ? "?" : _name;
-      return "Request(" + name + ")[ID=" + _requestId +
+      return "Request(" + getName() + ")[ID=" + _requestId +
              ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) ) + "]";
     }
     else
