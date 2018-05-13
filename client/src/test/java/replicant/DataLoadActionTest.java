@@ -179,9 +179,9 @@ public class DataLoadActionTest
               final boolean expectLink = isLinkableEntity && update;
               final EntityChange changeUpdate =
                 EntityChange.create( ValueUtil.randomInt(),
-                               ValueUtil.randomInt(),
-                               new EntityChannel[ 0 ],
-                               update ? JsPropertyMap.of() : null );
+                                     ValueUtil.randomInt(),
+                                     new EntityChannel[ 0 ],
+                                     update ? JsPropertyMap.of() : null );
               final TestChangeSet changeSet =
                 new TestChangeSet( ChangeSet.create( ValueUtil.randomInt(),
                                                      null,
@@ -194,7 +194,10 @@ public class DataLoadActionTest
             }
             final boolean expectLink = false;
             final EntityChange changeUpdate =
-              EntityChange.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], JsPropertyMap.of() );
+              EntityChange.create( ValueUtil.randomInt(),
+                                   ValueUtil.randomInt(),
+                                   new EntityChannel[ 0 ],
+                                   JsPropertyMap.of() );
             final EntityChange changeRemove =
               EntityChange.create( ValueUtil.randomInt(), ValueUtil.randomInt(), new EntityChannel[ 0 ], null );
             final ChangeSet cs =
