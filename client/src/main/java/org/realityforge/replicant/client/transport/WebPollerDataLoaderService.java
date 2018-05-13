@@ -555,7 +555,7 @@ public abstract class WebPollerDataLoaderService
   @Nullable
   private String toRequestKey( @Nonnull final String requestType, final int channel )
   {
-    return Replicant.shouldRecordRequestKey() ?
+    return Replicant.areNamesEnabled() ?
            requestType + ":" + getSystemType().getEnumConstants()[ channel ] :
            null;
   }

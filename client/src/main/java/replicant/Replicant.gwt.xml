@@ -18,9 +18,6 @@
   <define-property name='replicant.enable_names' values='true,false'/>
   <set-property name='replicant.enable_names' value='false'/>
 
-  <define-property name='replicant.recordRequestKey' values='true,false'/>
-  <set-property name='replicant.recordRequestKey' value='false'/>
-
   <define-property name='replicant.validateRepositoryOnLoad' values='true,false'/>
   <set-property name='replicant.validateRepositoryOnLoad' value='false'/>
 

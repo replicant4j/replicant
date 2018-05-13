@@ -31,14 +31,6 @@ public class ReplicantTest
   }
 
   @Test
-  public void setting_shouldRecordRequestKey()
-  {
-    assertTrue( Replicant.shouldRecordRequestKey() );
-    ReplicantTestUtil.noRecordRequestKey();
-    assertFalse( Replicant.shouldRecordRequestKey() );
-  }
-
-  @Test
   public void setting_shouldCheckInvariants()
   {
     assertTrue( Replicant.shouldCheckInvariants() );

@@ -17,8 +17,6 @@ final class ReplicantConfig
   private static boolean ENABLE_NAMES =
     "true".equals( System.getProperty( "replicant.enable_names", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_ZONES = "true".equals( System.getProperty( "replicant.enable_zones", "false" ) );
-  private static boolean RECORD_REQUEST_KEY =
-    "true".equals( System.getProperty( "replicant.recordRequestKey", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean VALIDATE_REPOSITORY_ON_LOAD =
     "true".equals( System.getProperty( "replicant.validateRepositoryOnLoad",
                                        PRODUCTION_MODE ? "false" : "true" ) );
@@ -64,11 +62,6 @@ final class ReplicantConfig
   static boolean areZonesEnabled()
   {
     return ENABLE_ZONES;
-  }
-
-  static boolean shouldRecordRequestKey()
-  {
-    return RECORD_REQUEST_KEY;
   }
 
   static boolean shouldValidateRepositoryOnLoad()

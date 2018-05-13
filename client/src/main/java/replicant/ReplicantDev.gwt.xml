@@ -5,7 +5,6 @@
 
   <set-property name='replicant.check_api_invariants' value='true'/>
   <set-property name='replicant.enable_names' value='true'/>
-  <set-property name='replicant.recordRequestKey' value='true'/>
   <set-property name='replicant.validateRepositoryOnLoad' value='true'/>
   <set-property name='replicant.requestsDebugOutputEnabled' value='true'/>
 </module>

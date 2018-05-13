@@ -67,16 +67,6 @@ public final class Replicant
   }
 
   /**
-   * Return true if should record key when tracking requests through the system, false otherwise.
-   *
-   * @return true if should record key when tracking requests through the system, false otherwise.
-   */
-  public static boolean shouldRecordRequestKey()
-  {
-    return ReplicantConfig.shouldRecordRequestKey();
-  }
-
-  /**
    * Return true if a data load action should result in the local entity state being validated, false otherwise.
    *
    * @return true if a data load action should result in the local entity state being validated, false otherwise.

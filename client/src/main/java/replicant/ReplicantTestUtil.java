@@ -36,7 +36,6 @@ public final class ReplicantTestUtil
     if ( productionMode )
     {
       disableNames();
-      noRecordRequestKey();
       noValidateRepositoryOnLoad();
       noRequestsDebugOutputEnabled();
       disableSpies();
@@ -46,7 +45,6 @@ public final class ReplicantTestUtil
     else
     {
       enableNames();
-      recordRequestKey();
       validateRepositoryOnLoad();
       requestsDebugOutputEnabled();
       enableSpies();
@@ -92,32 +90,6 @@ public final class ReplicantTestUtil
   private static void setEnableNames( final boolean value )
   {
     setConstant( "ENABLE_NAMES", value );
-  }
-
-  /**
-   * Set `replicant.recordRequestKey` setting to true.
-   */
-  public static void recordRequestKey()
-  {
-    setShouldRecordRequestKey( true );
-  }
-
-  /**
-   * Set `replicant.recordRequestKey` setting to false.
-   */
-  public static void noRecordRequestKey()
-  {
-    setShouldRecordRequestKey( false );
-  }
-
-  /**
-   * Configure the `replicant.enable_names` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setShouldRecordRequestKey( final boolean value )
-  {
-    setConstant( "RECORD_REQUEST_KEY", value );
   }
 
   /**
