@@ -387,6 +387,7 @@ public class DataLoadActionTest
     final DataLoadAction action = new DataLoadAction( rawJsonData, oobCompletionAction );
 
     //Ensure the initial state is as expected
+    assertEquals( action.getCompletionAction(), oobCompletionAction );
     assertEquals( action.getRawJsonData(), rawJsonData );
     assertThrows( action::getChangeSet );
 
@@ -396,11 +397,8 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    assertNull( action.getCompletionAction() );
-
     action.setChangeSet( changeSet, null );
 
-    assertEquals( action.getCompletionAction(), oobCompletionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), null );
     assertEquals( action.getRawJsonData(), null );
