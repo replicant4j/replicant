@@ -26,6 +26,12 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filterParameter ), false );
     assertEquals( entry.match( action, new ChannelAddress( G.G2, ValueUtil.randomInt() ), filterParameter ),
                   false );
+
+    assertEquals( entry.isInProgress(), false );
+    entry.markAsInProgress();
+    assertEquals( entry.isInProgress(), true );
+    entry.markAsComplete();
+    assertEquals( entry.isInProgress(), false );
   }
 
   @Test
