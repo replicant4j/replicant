@@ -438,12 +438,12 @@ public class DataLoadActionTest
                         new ChannelChange[ 0 ],
                         new EntityChange[ 0 ] );
 
-    final RequestEntry request = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
+    final RequestEntry request = new RequestEntry( "X1234", "DoMagic", null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0010: Incorrectly associating a request with requestId 'e3935172-7bd5-405c-854f-68db8d0aef89' with an out-of-band message." );
+                  "Replicant-0010: Incorrectly associating a request named 'DoMagic' with requestId 'X1234' with an out-of-band message." );
   }
 
   @Test
