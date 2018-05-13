@@ -20,8 +20,8 @@ abstract class ReplicantService
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      apiInvariant( () -> Replicant.areZonesEnabled() || null == context,
-                    () -> "Replicant-0134: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
+      invariant( () -> Replicant.areZonesEnabled() || null == context,
+                 () -> "Replicant-0134: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
     }
     _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
   }
