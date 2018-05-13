@@ -522,4 +522,65 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), true );
   }
+
+  @Test
+  public void lifeCycleWithOOBMessage()
+  {
+    // ChangeSet details
+    final int sequence = 1;
+    final String requestId = ValueUtil.randomString();
+
+    // Channel updates
+    final ChannelChange[] channelChanges = new ChannelChange[ 0 ];
+
+    final EntityChange[] entityChanges = new EntityChange[ 0 ];
+
+    final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
+
+    final Runnable runnable = mock( Runnable.class );
+    final String rawJsonData = ValueUtil.randomString();
+    final DataLoadAction action = new DataLoadAction( rawJsonData, true );
+
+    //Ensure the initial state is as expected
+    assertEquals( action.getRawJsonData(), rawJsonData );
+    assertThrows( action::getChangeSet );
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    assertNull( action.getRunnable() );
+
+    action.setRunnable( runnable );
+    action.setChangeSet( changeSet, null );
+
+    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getChangeSet(), changeSet );
+    assertEquals( action.getRequest(), null );
+    assertEquals( action.getRawJsonData(), null );
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    action.calculateEntitiesToLink();
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), true );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    action.markWorldAsNotified();
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), true );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), true );
+  }
 }
