@@ -155,11 +155,11 @@ public final class DataLoadAction
     return _rawJsonData;
   }
 
-  public void setChangeSet( @Nullable final ChangeSet changeSet, @Nullable final RequestEntry request )
+  public void setChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
     assert !isOob() || null == request;
+    _changeSet = Objects.requireNonNull( changeSet );
     _request = request;
-    _changeSet = changeSet;
     _rawJsonData = null;
     _changeIndex = 0;
   }
