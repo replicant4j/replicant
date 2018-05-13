@@ -294,6 +294,7 @@ public final class DataLoadAction
   @Nonnull
   public DataLoadStatus toStatus()
   {
+    assert Replicant.areSpiesEnabled();
     final ChangeSet changeSet = getChangeSet();
     return new DataLoadStatus( changeSet.getSequence(),
                                changeSet.getRequestID(),
