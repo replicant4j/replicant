@@ -3,7 +3,7 @@ package replicant;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.braincheck.Guards;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A record of a request sent to the server that we need to keep track of.
@@ -76,8 +76,8 @@ public class RequestEntry
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      Guards.invariant( this::isCompletionDataPresent,
-                        () -> "Replicant-0008: isNormalCompletion invoked before completion data specified." );
+      invariant( this::isCompletionDataPresent,
+                 () -> "Replicant-0008: isNormalCompletion invoked before completion data specified." );
     }
     return _normalCompletion;
   }
