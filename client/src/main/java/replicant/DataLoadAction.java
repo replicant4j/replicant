@@ -206,6 +206,7 @@ public final class DataLoadAction
       }
       else
       {
+        // TODO: This should not be needed, seems like a bug in server code if it occurs
         _removedEntities.add( (Linkable) entity );
       }
     }
@@ -222,6 +223,7 @@ public final class DataLoadAction
     _entitiesToLink = new LinkedList<>();
     for ( final Linkable entity : _updatedEntities )
     {
+      // TODO: This should not be needed, seems like a bug in server code if it occurs
       // In some circumstances a create and remove can appear in same change set so guard against this
       if ( !_removedEntities.contains( entity ) )
       {
@@ -260,6 +262,7 @@ public final class DataLoadAction
 
   public void setRunnable( @Nullable final Runnable runnable )
   {
+    // TODO: Replace all asserts with Braincheck guards????
     assert isOob();
     _runnable = runnable;
   }
