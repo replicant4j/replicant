@@ -61,32 +61,32 @@ public final class DataLoadAction
     _oobCompletionAction = oobCompletionAction;
   }
 
-  public int getChannelAddCount()
+  int getChannelAddCount()
   {
     return _channelAddCount;
   }
 
-  public int getChannelUpdateCount()
+  int getChannelUpdateCount()
   {
     return _channelUpdateCount;
   }
 
-  public int getChannelRemoveCount()
+  int getChannelRemoveCount()
   {
     return _channelRemoveCount;
   }
 
-  public int getEntityUpdateCount()
+  int getEntityUpdateCount()
   {
     return _entityUpdateCount;
   }
 
-  public int getEntityRemoveCount()
+  int getEntityRemoveCount()
   {
     return _entityRemoveCount;
   }
 
-  public int getEntityLinkCount()
+  int getEntityLinkCount()
   {
     return _entityLinkCount;
   }
