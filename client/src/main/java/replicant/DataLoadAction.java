@@ -162,7 +162,7 @@ public final class DataLoadAction
     {
       invariant( () -> !isOob() || null == request,
                  () -> "Replicant-0010: Incorrectly associating a request named '" +
-                       Objects.requireNonNull( request ).getRequestKey() + "' with requestId '" +
+                       Objects.requireNonNull( request ).getName() + "' with requestId '" +
                        Objects.requireNonNull( request ).getRequestId() + "' with an out-of-band message." );
       invariant( () -> null == request || request.getRequestId().equals( changeSet.getRequestId() ),
                  () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestId() +

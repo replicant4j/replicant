@@ -58,7 +58,7 @@ public class SessionContextTest
   public void request_sessionPresent()
   {
     final String key = ValueUtil.randomString();
-    final String requestKey = ValueUtil.randomString();
+    final String name = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
     final ClientSession session = new ClientSession( ValueUtil.randomString() );
@@ -66,11 +66,11 @@ public class SessionContextTest
     final SessionContext sessionContext = new SessionContext( key );
     sessionContext.setSession( session );
 
-    sessionContext.request( requestKey, cacheKey, action );
+    sessionContext.request( name, cacheKey, action );
 
     assertEquals( action._session, session );
     assertNotNull( action._request );
-    assertEquals( action._request.getRequestKey(), requestKey );
+    assertEquals( action._request.getName(), name );
     assertEquals( action._request.getCacheKey(), cacheKey );
   }
 

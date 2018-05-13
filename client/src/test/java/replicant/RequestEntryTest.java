@@ -17,7 +17,7 @@ public class RequestEntryTest
     final RequestEntry e = new RequestEntry( requestId, requestKey, cacheKey );
 
     assertEquals( e.getRequestId(), requestId );
-    assertEquals( e.getRequestKey(), requestKey );
+    assertEquals( e.getName(), requestKey );
     assertEquals( e.getCacheKey(), cacheKey );
     assertEquals( e.isExpectingResults(), false );
     assertEquals( e.toString(), "Request(ABC.go)[ID=321,Cache=G:G2]" );

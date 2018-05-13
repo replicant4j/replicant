@@ -16,7 +16,7 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    assertEquals( e.getRequestKey(), "Y" );
+    assertEquals( e.getName(), "Y" );
     assertEquals( e.getCacheKey(), "X" );
 
     assertEquals( rm.getRequest( e.getRequestId() ), e );

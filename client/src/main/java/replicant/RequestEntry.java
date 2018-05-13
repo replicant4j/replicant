@@ -13,7 +13,7 @@ public class RequestEntry
   //TODO: Make this package access after all classes migrated to replicant package
   private final String _requestId;
   @Nullable
-  private final String _requestKey;
+  private final String _name;
   @Nullable
   private final String _cacheKey;
   private Boolean _normalCompletion;
@@ -22,11 +22,11 @@ public class RequestEntry
   private SafeProcedure _completionAction;
 
   public RequestEntry( @Nonnull final String requestId,
-                       @Nullable final String requestKey,
+                       @Nullable final String name,
                        @Nullable final String cacheKey )
   {
     _requestId = Objects.requireNonNull( requestId );
-    _requestKey = requestKey;
+    _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _cacheKey = cacheKey;
   }
 
@@ -36,10 +36,11 @@ public class RequestEntry
     return _requestId;
   }
 
-  @Nullable
-  public String getRequestKey()
+  @Nonnull
+  public String getName()
   {
-    return _requestKey;
+    assert null != _name;
+    return _name;
   }
 
   @Nullable
@@ -106,8 +107,8 @@ public class RequestEntry
   {
     if ( Replicant.areNamesEnabled() )
     {
-      final String requestKey = null == _requestKey ? "?" : _requestKey;
-      return "Request(" + requestKey + ")[ID=" + _requestId +
+      final String name = null == _name ? "?" : _name;
+      return "Request(" + name + ")[ID=" + _requestId +
              ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) ) + "]";
     }
     else
