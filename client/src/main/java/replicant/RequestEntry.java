@@ -25,6 +25,12 @@ public class RequestEntry
                        @Nullable final String name,
                        @Nullable final String cacheKey )
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> Replicant.areNamesEnabled() || null == name,
+                 () -> "Replicant-0064: RequestEntry passed a name '" + name +
+                       "' but Replicant.areNamesEnabled() is false" );
+    }
     _requestId = Objects.requireNonNull( requestId );
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _cacheKey = cacheKey;
@@ -39,6 +45,11 @@ public class RequestEntry
   @Nonnull
   public String getName()
   {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::areNamesEnabled,
+                    () -> "Replicant-0043: RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false" );
+    }
     assert null != _name;
     return _name;
   }

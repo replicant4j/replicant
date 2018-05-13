@@ -24,12 +24,29 @@ public class RequestEntryTest
   }
 
   @Test
+  public void construct_MissingName()
+  {
+    assertThrows( NullPointerException.class, () -> new RequestEntry( "123", null, null ) );
+  }
+
+  @Test
+  public void construct_NameWhenNamesDisabled()
+  {
+    ReplicantTestUtil.disableNames();
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> new RequestEntry( "123", "ABC", null ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0064: RequestEntry passed a name 'ABC' but Replicant.areNamesEnabled() is false" );
+  }
+
+  @Test
   public void minimalToString()
   {
     final String requestId = "123";
-    final RequestEntry e = new RequestEntry( requestId, null, null );
+    final String name = "MyMagicMethod";
+    final RequestEntry e = new RequestEntry( requestId, name, null );
 
-    assertEquals( e.toString(), "Request(?)[ID=123]" );
+    assertEquals( e.toString(), "Request(MyMagicMethod)[ID=123]" );
   }
 
   @Test
@@ -42,9 +59,20 @@ public class RequestEntryTest
   }
 
   @Test
+  public void getName_WhenNameDisabled()
+  {
+    ReplicantTestUtil.disableNames();
+    final RequestEntry e = new RequestEntry( "123", null, null );
+    final IllegalStateException exception = expectThrows( IllegalStateException.class, e::getName );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0043: RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false" );
+  }
+
+  @Test
   public void isExpectingResults()
   {
-    final RequestEntry e = new RequestEntry( ValueUtil.randomString(), null, null );
+    final RequestEntry e = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
     assertEquals( e.isExpectingResults(), false );
     e.setExpectingResults( true );
     assertEquals( e.isExpectingResults(), true );
@@ -85,7 +113,7 @@ public class RequestEntryTest
   @Test
   public void markResultsAsArrived()
   {
-    final RequestEntry e = new RequestEntry( ValueUtil.randomString(), null, null );
+    final RequestEntry e = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
 
     assertEquals( e.haveResultsArrived(), false );
     e.markResultsAsArrived();
@@ -95,7 +123,7 @@ public class RequestEntryTest
   @Test
   public void isNormalCompletion_beforeCompletionDataSpecified()
   {
-    final RequestEntry e = new RequestEntry( ValueUtil.randomString(), null, null );
+    final RequestEntry e = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, e::isNormalCompletion );
     assertEquals( exception.getMessage(),
