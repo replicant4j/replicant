@@ -3,6 +3,7 @@ package replicant;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.DataLoadStatus;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( "ResultOfMethodCallIgnored" )
@@ -160,6 +161,7 @@ public class DataLoadActionTest
   }
 
   /*
+
   @DataProvider( name = "actionDescriptions" )
   public Object[][] actionDescriptions()
   {
@@ -219,23 +221,20 @@ public class DataLoadActionTest
     return objects.toArray( new Object[ objects.size() ][] );
   }
 
-  @Test( dataProvider = "actionDescriptions" )
+  // @Test( dataProvider = "actionDescriptions" )
   public void verifyActionLifecycle( final boolean normalCompletion,
                                      final boolean oob,
-                                     final TestChangeSet changeSet,
+                                     final ChangeSet changeSet,
                                      final Object entity,
                                      final boolean expectedLink )
   {
-    final MockRunner runnable = (MockRunner) changeSet.getRunnable();
-    final DataLoadAction action = new DataLoadAction( "BLAH", oob );
+    final Runnable runnable = mock( Runnable.class );
+    final String rawJsonData = ValueUtil.randomString();
+    final DataLoadAction action = new DataLoadAction( rawJsonData, oob );
 
     //Ensure the initial state is as expected
-    assertEquals( action.getRawJsonData(), "BLAH" );
+    assertEquals( action.getRawJsonData(), rawJsonData );
     assertEquals( action.getChangeSet(), null );
-    if ( null != runnable )
-    {
-      assertEquals( runnable.getRunCount(), 0 );
-    }
 
     assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
@@ -244,14 +243,15 @@ public class DataLoadActionTest
 
     if ( oob )
     {
-      action.setRunnable( changeSet.getRunnable() );
-      action.setChangeSet( changeSet.getChangeSet(), null );
+      action.setRunnable( runnable );
+      action.setChangeSet( changeSet, null );
     }
     else
     {
-      final String requestID = changeSet.getChangeSet().getRequestID();
+      final String requestID = changeSet.getRequestID();
       assertNotNull( requestID );
-      final RequestEntry request = new RequestEntry( requestID, "MyOperation", null );
+      final String requestKey = ValueUtil.randomString();
+      final RequestEntry request = new RequestEntry( requestID, requestKey, null );
       if ( normalCompletion )
       {
         request.setNormalCompletionAction( runnable );
@@ -260,21 +260,21 @@ public class DataLoadActionTest
       {
         request.setNonNormalCompletionAction( runnable );
       }
-      action.setChangeSet( changeSet.getChangeSet(), request );
+      action.setChangeSet( changeSet, request );
     }
     assertEquals( action.getRunnable(), runnable );
 
-    assertEquals( action.getChangeSet(), changeSet.getChangeSet() );
+    assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.areChangesPending(), true );
     final EntityChange change = action.nextChange();
     assertNotNull( change );
-    assertEquals( change, changeSet.getChangeSet().getChange( 0 ) );
+    assertEquals( change, changeSet.getEntityChanges()[ 0 ] );
 
     action.changeProcessed( change.isUpdate(), entity );
 
-    if ( 1 == changeSet.getChangeSet().getChangeCount() )
+    if ( 1 == changeSet.getEntityChanges().length )
     {
       assertEquals( action.areChangesPending(), false );
     }
@@ -311,43 +311,215 @@ public class DataLoadActionTest
 
     assertEquals( action.hasWorldBeenNotified(), true );
   }
+*/
 
-  static final class MockRunner
-    implements Runnable
+  @Test
+  public void lifeCycleWithNormallyCompletedRequest()
   {
-    private int _runCount;
+    // ChangeSet details
+    final int sequence = 1;
+    final String requestId = ValueUtil.randomString();
 
-    int getRunCount()
+    // Channel updates
+    final ChannelChange[] channelChanges = new ChannelChange[ 0 ];
+
+    // Entity Updates
+    final int channelId = 22;
+
+    // Entity update
+    final EntityChange change1 =
+      EntityChange.create( 50,
+                           100,
+                           new EntityChannel[]{ EntityChannel.create( channelId ) },
+                           new TestEntityChangeData() );
+    // Entity Remove
+    final EntityChange change2 =
+      EntityChange.create( 51,
+                           100,
+                           new EntityChannel[]{ EntityChannel.create( channelId ) } );
+    // Entity update - non linkable
+    final EntityChange change3 =
+      EntityChange.create( 52,
+                           100,
+                           new EntityChannel[]{ EntityChannel.create( channelId ) },
+                           new TestEntityChangeData() );
+    final EntityChange[] entityChanges = new EntityChange[]{ change1, change2, change3 };
+
+    final Object[] entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
+
+    final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
+
+    final Runnable runnable = mock( Runnable.class );
+    final String rawJsonData = ValueUtil.randomString();
+    final DataLoadAction action = new DataLoadAction( rawJsonData, false );
+
+    final String requestKey = ValueUtil.randomString();
+    final RequestEntry request = new RequestEntry( requestId, requestKey, null );
+
+    //Ensure the initial state is as expected
+    assertEquals( action.getRawJsonData(), rawJsonData );
+    assertThrows( action::getChangeSet );
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    assertNull( action.getRunnable() );
+
+    request.setNormalCompletionAction( runnable );
+
+    action.setChangeSet( changeSet, request );
+
+    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getChangeSet(), changeSet );
+    assertEquals( action.getRequest(), request );
+    assertEquals( action.getRawJsonData(), null );
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), true );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    // Process entity changes
     {
-      return _runCount;
+      assertEquals( action.nextChange(), entityChanges[ 0 ] );
+      action.changeProcessed( entityChanges[ 0 ].isUpdate(), entities[ 0 ] );
+      action.incEntityUpdateCount();
+
+      assertEquals( action.areChangesPending(), true );
+
+      assertEquals( action.nextChange(), entityChanges[ 1 ] );
+      action.incEntityRemoveCount();
+
+      assertEquals( action.areChangesPending(), true );
+
+      assertEquals( action.nextChange(), entityChanges[ 2 ] );
+      action.incEntityUpdateCount();
+      action.changeProcessed( entityChanges[ 0 ].isUpdate(), entities[ 2 ] );
+
+      assertEquals( action.areChangesPending(), false );
+
+      assertEquals( action.nextChange(), null );
+
+      assertEquals( action.areChangesPending(), false );
+
+      assertEquals( action.getEntityUpdateCount(), 2 );
+      assertEquals( action.getEntityRemoveCount(), 1 );
     }
 
-    @Override
-    public void run()
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    action.calculateEntitiesToLink();
+
+    assertEquals( action.areEntityLinksCalculated(), true );
+
+    // process links
     {
-      _runCount++;
+      assertEquals( action.nextEntityToLink(), entities[ 0 ] );
+      action.incEntityLinkCount();
+      assertEquals( action.nextEntityToLink(), null );
+      assertEquals( action.getEntityLinkCount(), 1 );
     }
 
-    @Override
-    public String toString()
-    {
-      return "Listener:" + System.identityHashCode( this );
-    }
+    assertEquals( action.areEntityLinksPending(), false );
+
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), true );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    action.markWorldAsNotified();
+
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), true );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), true );
   }
 
-  static final class MockLinkable
-    implements Linkable
+  @Test
+  public void lifeCycleWithChannelUpdates()
   {
-    @Override
-    public void link()
-    {
-    }
+    // ChangeSet details
+    final int sequence = 1;
+    final String requestId = ValueUtil.randomString();
 
-    @Override
-    public String toString()
-    {
-      return "Entity:" + System.identityHashCode( this );
-    }
+    // Channel updates
+    final String filter1 = ValueUtil.randomString();
+    final String filter2 = ValueUtil.randomString();
+    final ChannelChange channelChange1 = ChannelChange.create( 42, ChannelChange.Action.ADD, filter1 );
+    final ChannelChange channelChange2 = ChannelChange.create( 43, 1, ChannelChange.Action.UPDATE, filter2 );
+    final ChannelChange channelChange3 = ChannelChange.create( 43, 2, ChannelChange.Action.REMOVE, null );
+    final ChannelChange[] channelChanges = new ChannelChange[]{ channelChange1, channelChange2, channelChange3 };
+
+    final EntityChange[] entityChanges = new EntityChange[ 0 ];
+
+    final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
+
+    final Runnable runnable = mock( Runnable.class );
+    final String rawJsonData = ValueUtil.randomString();
+    final DataLoadAction action = new DataLoadAction( rawJsonData, false );
+
+    final String requestKey = ValueUtil.randomString();
+    final RequestEntry request = new RequestEntry( requestId, requestKey, null );
+
+    //Ensure the initial state is as expected
+    assertEquals( action.getRawJsonData(), rawJsonData );
+    assertThrows( action::getChangeSet );
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    assertNull( action.getRunnable() );
+
+    request.setNormalCompletionAction( runnable );
+
+    action.setChangeSet( changeSet, request );
+
+    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getChangeSet(), changeSet );
+    assertEquals( action.getRequest(), request );
+    assertEquals( action.getRawJsonData(), null );
+
+    assertEquals( action.needsChannelActionsProcessed(), true );
+    assertEquals( action.needsChannelActionsProcessed(), true );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    // processed as sinlge block in caller
+    action.markChannelActionsProcessed();
+    assertEquals( action.needsChannelActionsProcessed(), false );
+
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), false );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    action.calculateEntitiesToLink();
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), true );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), false );
+
+    action.markWorldAsNotified();
+
+    assertEquals( action.needsChannelActionsProcessed(), false );
+    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityLinksCalculated(), true );
+    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.hasWorldBeenNotified(), true );
   }
-  */
 }
