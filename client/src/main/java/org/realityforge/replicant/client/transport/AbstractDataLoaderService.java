@@ -693,7 +693,7 @@ public abstract class AbstractDataLoaderService
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       // OOB messages are not in response to requests as such
-      final String requestID = _currentAction.isOob() ? null : changeSet.getRequestID();
+      final String requestID = _currentAction.isOob() ? null : changeSet.getRequestId();
       // OOB messages have no etags as from local cache or generated locally
       final String eTag = _currentAction.isOob() ? null : changeSet.getETag();
       final int sequence = _currentAction.isOob() ? 0 : changeSet.getSequence();
@@ -788,7 +788,7 @@ public abstract class AbstractDataLoaderService
           }
           _currentAction.changeProcessed( change.isUpdate(), entity );
         }
-      }, changeSet.getSequence(), changeSet.getRequestID() );
+      }, changeSet.getSequence(), changeSet.getRequestId() );
       return true;
     }
 
@@ -822,7 +822,7 @@ public abstract class AbstractDataLoaderService
             _currentAction.incEntityLinkCount();
           }
         }
-      }, changeSet.getSequence(), changeSet.getRequestID() );
+      }, changeSet.getSequence(), changeSet.getRequestId() );
       return true;
     }
 
@@ -870,17 +870,17 @@ public abstract class AbstractDataLoaderService
     {
       runnable.call();
       // OOB messages are not in response to requests as such
-      final String requestID = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestID();
-      if ( null != requestID )
+      final String requestId = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestId();
+      if ( null != requestId )
       {
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
 
-        final boolean removed = session.removeRequest( requestID );
+        final boolean removed = session.removeRequest( requestId );
         if ( !removed )
         {
           LOG.severe( "ChangeSet " + changeSet.getSequence() + " expected to complete request '" +
-                      requestID + "' but no request was registered with session." );
+                      requestId + "' but no request was registered with session." );
         }
         if ( requestDebugOutputEnabled() )
         {

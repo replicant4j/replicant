@@ -21,7 +21,7 @@ public class ChangeSetTest
       ChangeSet.create( sequence, requestId, eTag, channelChanges, entityChanges );
 
     assertEquals( changeSet.getSequence(), sequence );
-    assertEquals( changeSet.getRequestID(), requestId );
+    assertEquals( changeSet.getRequestId(), requestId );
     assertEquals( changeSet.getETag(), eTag );
     assertEquals( changeSet.getEntityChanges(), entityChanges );
     assertEquals( changeSet.getChannelChanges(), channelChanges );

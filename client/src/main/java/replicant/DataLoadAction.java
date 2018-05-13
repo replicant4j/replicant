@@ -164,8 +164,8 @@ public final class DataLoadAction
                  () -> "Replicant-0010: Incorrectly associating a request named '" +
                        Objects.requireNonNull( request ).getRequestKey() + "' with requestId '" +
                        Objects.requireNonNull( request ).getRequestId() + "' with an out-of-band message." );
-      invariant( () -> null == request || request.getRequestId().equals( changeSet.getRequestID() ),
-                 () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestID() +
+      invariant( () -> null == request || request.getRequestId().equals( changeSet.getRequestId() ),
+                 () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestId() +
                        "' but request with requestId '" + Objects.requireNonNull( request ).getRequestId() +
                        "' has been passed to recordChangeSet." );
     }
@@ -307,7 +307,7 @@ public final class DataLoadAction
     assert Replicant.areSpiesEnabled();
     final ChangeSet changeSet = getChangeSet();
     return new DataLoadStatus( changeSet.getSequence(),
-                               changeSet.getRequestID(),
+                               changeSet.getRequestId(),
                                getChannelAddCount(),
                                getChannelUpdateCount(),
                                getChannelRemoveCount(),
