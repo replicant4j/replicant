@@ -324,17 +324,17 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    final Consumer<Runnable> completionAction = a ->
+    final Consumer<SafeProcedure> completionAction = a ->
     {
       LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " completed." );
       completeAoiAction();
-      a.run();
+      a.call();
     };
-    final Consumer<Runnable> failAction = a ->
+    final Consumer<SafeProcedure> failAction = a ->
     {
       LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " failed." );
       completeAoiAction();
-      a.run();
+      a.call();
     };
     LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " requested." );
 
@@ -382,7 +382,7 @@ public abstract class AbstractDataLoaderService
     }
 
     LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " requested." );
-    final Consumer<Runnable> completionAction = postAction ->
+    final Consumer<SafeProcedure> completionAction = postAction ->
     {
       LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
       context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
@@ -393,10 +393,10 @@ public abstract class AbstractDataLoaderService
         }
       } ) );
       completeAoiAction();
-      postAction.run();
+      postAction.call();
     };
 
-    final Consumer<Runnable> failAction = postAction ->
+    final Consumer<SafeProcedure> failAction = postAction ->
     {
       LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
       context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
@@ -407,7 +407,7 @@ public abstract class AbstractDataLoaderService
         }
       } ) );
       completeAoiAction();
-      postAction.run();
+      postAction.call();
     };
 
     final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
@@ -455,17 +455,17 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    final Consumer<Runnable> completionAction = a ->
+    final Consumer<SafeProcedure> completionAction = a ->
     {
       LOG.info( () -> "Subscription to " + label( _currentAoiActions ) + " completed." );
       completeAoiAction();
-      a.run();
+      a.call();
     };
-    final Consumer<Runnable> failAction = a ->
+    final Consumer<SafeProcedure> failAction = a ->
     {
       LOG.info( () -> "Subscription to " + label( _currentAoiActions ) + " failed." );
       completeAoiAction();
-      a.run();
+      a.call();
     };
 
     final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
@@ -474,7 +474,7 @@ public abstract class AbstractDataLoaderService
       final String cacheKey = aoiEntry.getCacheKey();
       final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
       final String eTag;
-      final Consumer<Runnable> cacheAction;
+      final Consumer<SafeProcedure> cacheAction;
       if ( null != cacheEntry )
       {
         eTag = cacheEntry.getETag();
@@ -482,12 +482,12 @@ public abstract class AbstractDataLoaderService
         cacheAction = a ->
         {
           LOG.info( () -> "Loading cached data for channel " + label( aoiEntry ) + " with etag " + eTag );
-          final Runnable completeAoiAction = () ->
+          final SafeProcedure completeAoiAction = () ->
           {
             LOG.info( () -> "Completed load of cached data for channel " + label( aoiEntry ) +
                             " with etag " + eTag + "." );
             completeAoiAction();
-            a.run();
+            a.call();
           };
           ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
           scheduleDataLoad();
@@ -540,32 +540,32 @@ public abstract class AbstractDataLoaderService
                                                      @Nullable Object filterParameter,
                                                      @Nullable String cacheKey,
                                                      @Nullable String eTag,
-                                                     @Nullable Consumer<Runnable> cacheAction,
-                                                     @Nonnull Consumer<Runnable> completionAction,
-                                                     @Nonnull Consumer<Runnable> failAction );
+                                                     @Nullable Consumer<SafeProcedure> cacheAction,
+                                                     @Nonnull Consumer<SafeProcedure> completionAction,
+                                                     @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress descriptor,
-                                                         @Nonnull Consumer<Runnable> completionAction,
-                                                         @Nonnull Consumer<Runnable> failAction );
+                                                         @Nonnull Consumer<SafeProcedure> completionAction,
+                                                         @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress descriptor,
                                                      @Nonnull Object filterParameter,
-                                                     @Nonnull Consumer<Runnable> completionAction,
-                                                     @Nonnull Consumer<Runnable> failAction );
+                                                     @Nonnull Consumer<SafeProcedure> completionAction,
+                                                     @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> descriptor,
                                                          @Nullable Object filterParameter,
-                                                         @Nonnull Consumer<Runnable> completionAction,
-                                                         @Nonnull Consumer<Runnable> failAction );
+                                                         @Nonnull Consumer<SafeProcedure> completionAction,
+                                                         @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> descriptors,
-                                                             @Nonnull Consumer<Runnable> completionAction,
-                                                             @Nonnull Consumer<Runnable> failAction );
+                                                             @Nonnull Consumer<SafeProcedure> completionAction,
+                                                             @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
                                                          @Nonnull Object filterParameter,
-                                                         @Nonnull Consumer<Runnable> completionAction,
-                                                         @Nonnull Consumer<Runnable> failAction );
+                                                         @Nonnull Consumer<SafeProcedure> completionAction,
+                                                         @Nonnull Consumer<SafeProcedure> failAction );
 
   /**
    * {@inheritDoc}
@@ -865,10 +865,10 @@ public abstract class AbstractDataLoaderService
     {
       request.markResultsAsArrived();
     }
-    final Runnable runnable = _currentAction.getRunnable();
+    final SafeProcedure runnable = _currentAction.getCompletionAction();
     if ( null != runnable )
     {
-      runnable.run();
+      runnable.call();
       // OOB messages are not in response to requests as such
       final String requestID = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestID();
       if ( null != requestID )

@@ -8,6 +8,7 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.RequestEntry;
+import replicant.SafeProcedure;
 import static org.testng.Assert.*;
 
 public class RequestAdapterTest
@@ -16,7 +17,7 @@ public class RequestAdapterTest
   static class TestRequestAdapter
     extends AbstractRequestAdapter
   {
-    TestRequestAdapter( @Nonnull final Runnable onSuccess,
+    TestRequestAdapter( @Nonnull final SafeProcedure onSuccess,
                         @Nonnull final Consumer<Throwable> onError,
                         @Nullable final RequestEntry request,
                         @Nullable final ClientSession session )

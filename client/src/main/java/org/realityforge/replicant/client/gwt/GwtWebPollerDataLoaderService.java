@@ -80,8 +80,8 @@ public abstract class GwtWebPollerDataLoaderService
                               @Nullable final Object filterParameter,
                               @Nonnull final String channelURL,
                               @Nullable final String eTag,
-                              @Nonnull final Runnable onSuccess,
-                              @Nullable final Runnable onCacheValid,
+                              @Nonnull final SafeProcedure onSuccess,
+                              @Nullable final SafeProcedure onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
   {
     httpRequest( session,
@@ -99,7 +99,7 @@ public abstract class GwtWebPollerDataLoaderService
   protected void doUnsubscribe( @Nullable final ClientSession session,
                                 @Nullable final RequestEntry request,
                                 @Nonnull final String channelURL,
-                                @Nonnull final Runnable onSuccess,
+                                @Nonnull final SafeProcedure onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
     httpRequest( session, request, RequestBuilder.DELETE, channelURL, null, null, onSuccess, null, onError );
@@ -111,8 +111,8 @@ public abstract class GwtWebPollerDataLoaderService
                             @Nonnull final String url,
                             @Nullable final String eTag,
                             @Nullable final String requestData,
-                            @Nonnull final Runnable onSuccess,
-                            @Nullable final Runnable onCacheValid,
+                            @Nonnull final SafeProcedure onSuccess,
+                            @Nullable final SafeProcedure onCacheValid,
                             @Nonnull final Consumer<Throwable> onError )
   {
     final ActionCallbackAdapter adapter =

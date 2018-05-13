@@ -55,7 +55,7 @@ public class RequestEntryTest
   {
     final RequestEntry e = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
 
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
     assertEquals( e.isCompletionDataPresent(), false );
     assertEquals( e.getCompletionAction(), null );
 
@@ -71,7 +71,7 @@ public class RequestEntryTest
   {
     final RequestEntry e = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
 
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
     assertEquals( e.isCompletionDataPresent(), false );
     assertEquals( e.getCompletionAction(), null );
 

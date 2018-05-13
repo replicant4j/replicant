@@ -11,13 +11,14 @@ import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.RequestEntry;
+import replicant.SafeProcedure;
 
 final class ActionCallbackAdapter
   extends AbstractRequestAdapter
   implements RequestCallback
 {
-  ActionCallbackAdapter( @Nonnull final Runnable onSuccess,
-                         @Nullable final Runnable onCacheValid,
+  ActionCallbackAdapter( @Nonnull final SafeProcedure onSuccess,
+                         @Nullable final SafeProcedure onCacheValid,
                          @Nonnull final Consumer<Throwable> onError,
                          @Nullable final RequestEntry request,
                          @Nullable final ClientSession session )
@@ -31,13 +32,13 @@ final class ActionCallbackAdapter
     final int statusCode = response.getStatusCode();
     if ( Response.SC_OK == statusCode )
     {
-      final Runnable onSuccess = getOnSuccess();
+      final SafeProcedure onSuccess = getOnSuccess();
       calculateExpectingResults( response );
       completeNormalRequest( onSuccess );
     }
     else if ( Response.SC_NO_CONTENT == statusCode )
     {
-      final Runnable onCacheValid = getOnCacheValid();
+      final SafeProcedure onCacheValid = getOnCacheValid();
       calculateExpectingResults( response );
       completeNormalRequest( null != onCacheValid ? onCacheValid : NOOP );
     }

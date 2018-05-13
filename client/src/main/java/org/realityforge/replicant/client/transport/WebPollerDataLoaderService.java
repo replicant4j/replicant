@@ -292,17 +292,17 @@ public abstract class WebPollerDataLoaderService
                                             @Nullable final Object filterParameter,
                                             @Nullable final String cacheKey,
                                             @Nullable final String eTag,
-                                            @Nullable final Consumer<Runnable> cacheAction,
-                                            @Nonnull final Consumer<Runnable> completionAction,
-                                            @Nonnull final Consumer<Runnable> failAction )
+                                            @Nullable final Consumer<SafeProcedure> cacheAction,
+                                            @Nonnull final Consumer<SafeProcedure> completionAction,
+                                            @Nonnull final Consumer<SafeProcedure> failAction )
   {
     //If eTag passed then cache action is expected.
     assert null == eTag || null != cacheAction;
     if ( isChannelTypeValid( address ) )
     {
       onSubscribeStarted( address );
-      final Runnable onSuccess = () -> completionAction.accept( () -> onSubscribeCompleted( address ) );
-      final Runnable onCacheValid =
+      final SafeProcedure onSuccess = () -> completionAction.accept( () -> onSubscribeCompleted( address ) );
+      final SafeProcedure onCacheValid =
         null != cacheAction ? () -> cacheAction.accept( () -> onSubscribeCompleted( address ) ) : null;
       final Consumer<Throwable> onError = error -> failAction.accept( () -> onSubscribeFailed( address, error ) );
       performSubscribe( address.getChannelType().ordinal(),
@@ -330,8 +330,8 @@ public abstract class WebPollerDataLoaderService
                                    @Nullable final Object filterParameter,
                                    @Nullable String cacheKey,
                                    @Nullable String eTag,
-                                   @Nonnull final Runnable onSuccess,
-                                   @Nullable final Runnable onCacheValid,
+                                   @Nonnull final SafeProcedure onSuccess,
+                                   @Nullable final SafeProcedure onCacheValid,
                                    @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( session, request ) ->
@@ -348,14 +348,14 @@ public abstract class WebPollerDataLoaderService
   @Override
   protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> addresses,
                                                 @Nullable final Object filterParameter,
-                                                @Nonnull final Consumer<Runnable> completionAction,
-                                                @Nonnull final Consumer<Runnable> failAction )
+                                                @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                @Nonnull final Consumer<SafeProcedure> failAction )
   {
     final ChannelAddress address = addresses.get( 0 );
     if ( isChannelTypeValid( address ) )
     {
       addresses.forEach( this::onSubscribeStarted );
-      final Runnable onSuccess =
+      final SafeProcedure onSuccess =
         () -> completionAction.accept( () -> addresses.forEach( this::onSubscribeCompleted ) );
       final Consumer<Throwable> onError =
         error -> failAction.accept( () -> addresses.forEach( x -> onSubscribeFailed( address, error ) ) );
@@ -374,7 +374,7 @@ public abstract class WebPollerDataLoaderService
   protected void performBulkSubscribe( final int channel,
                                        @Nonnull List<Integer> subChannelIds,
                                        @Nullable final Object filterParameter,
-                                       @Nonnull final Runnable onSuccess,
+                                       @Nonnull final SafeProcedure onSuccess,
                                        @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkSubscribe", channel ), null, ( session, request ) ->
@@ -391,13 +391,13 @@ public abstract class WebPollerDataLoaderService
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelAddress descriptor,
                                             @Nonnull final Object filterParameter,
-                                            @Nonnull final Consumer<Runnable> completionAction,
-                                            @Nonnull final Consumer<Runnable> failAction )
+                                            @Nonnull final Consumer<SafeProcedure> completionAction,
+                                            @Nonnull final Consumer<SafeProcedure> failAction )
   {
     if ( isChannelTypeValid( descriptor ) )
     {
       onSubscriptionUpdateStarted( descriptor );
-      final Runnable onSuccess =
+      final SafeProcedure onSuccess =
         () -> completionAction.accept( () -> onSubscriptionUpdateCompleted( descriptor ) );
       final Consumer<Throwable> onError =
         error -> failAction.accept( () -> onSubscriptionUpdateFailed( descriptor, error ) );
@@ -416,7 +416,7 @@ public abstract class WebPollerDataLoaderService
   protected void performUpdateSubscription( final int channel,
                                             @Nullable Integer subChannelId,
                                             @Nullable final Object filterParameter,
-                                            @Nonnull final Runnable onSuccess,
+                                            @Nonnull final SafeProcedure onSuccess,
                                             @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "SubscriptionUpdate", channel ), null, ( session, request ) ->
@@ -432,14 +432,14 @@ public abstract class WebPollerDataLoaderService
 
   protected void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
                                                 @Nonnull Object filterParameter,
-                                                @Nonnull Consumer<Runnable> completionAction,
-                                                @Nonnull Consumer<Runnable> failAction )
+                                                @Nonnull Consumer<SafeProcedure> completionAction,
+                                                @Nonnull Consumer<SafeProcedure> failAction )
   {
     final ChannelAddress address = descriptors.get( 0 );
     if ( isChannelTypeValid( address ) )
     {
       descriptors.forEach( this::onSubscriptionUpdateStarted );
-      final Runnable onSuccess =
+      final SafeProcedure onSuccess =
         () -> completionAction.accept( () -> descriptors.forEach( x -> onSubscriptionUpdateCompleted( address ) ) );
       final Consumer<Throwable> onError =
         error -> failAction.accept( () -> descriptors.forEach( x -> onSubscriptionUpdateFailed( address, error ) ) );
@@ -458,7 +458,7 @@ public abstract class WebPollerDataLoaderService
   protected void performBulkUpdateSubscription( final int channel,
                                                 @Nonnull List<Integer> subChannelIds,
                                                 @Nullable final Object filterParameter,
-                                                @Nonnull final Runnable onSuccess,
+                                                @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channel ), null, ( session, request ) ->
@@ -474,15 +474,15 @@ public abstract class WebPollerDataLoaderService
 
   @Override
   protected void requestUnsubscribeFromChannel( @Nonnull final ChannelAddress address,
-                                                @Nonnull final Consumer<Runnable> completionAction,
-                                                @Nonnull final Consumer<Runnable> failAction )
+                                                @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                @Nonnull final Consumer<SafeProcedure> failAction )
   {
     if ( isChannelTypeValid( address ) )
     {
       onUnsubscribeStarted( address );
       final Consumer<Throwable> onError =
         error -> failAction.accept( () -> onUnsubscribeFailed( address, error ) );
-      final Runnable onSuccess = () -> completionAction.accept( () -> onUnsubscribeCompleted( address ) );
+      final SafeProcedure onSuccess = () -> completionAction.accept( () -> onUnsubscribeCompleted( address ) );
       performUnsubscribe( address.getChannelType().ordinal(), address.getId(), onSuccess, onError );
     }
     else
@@ -493,7 +493,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void performUnsubscribe( final int channel,
                                      @Nullable Integer subChannelId,
-                                     @Nonnull final Runnable onSuccess,
+                                     @Nonnull final SafeProcedure onSuccess,
                                      @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
@@ -502,14 +502,14 @@ public abstract class WebPollerDataLoaderService
 
   @Override
   protected void requestBulkUnsubscribeFromChannel( @Nonnull final List<ChannelAddress> addresses,
-                                                    @Nonnull final Consumer<Runnable> completionAction,
-                                                    @Nonnull final Consumer<Runnable> failAction )
+                                                    @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                    @Nonnull final Consumer<SafeProcedure> failAction )
   {
     final ChannelAddress address = addresses.get( 0 );
     if ( isChannelTypeValid( address ) )
     {
       addresses.forEach( this::onUnsubscribeStarted );
-      final Runnable onSuccess =
+      final SafeProcedure onSuccess =
         () -> completionAction.accept( () -> addresses.forEach( this::onUnsubscribeCompleted ) );
       final Consumer<Throwable> onError =
         error -> failAction.accept( () -> addresses.forEach( x -> onUnsubscribeFailed( address, error ) ) );
@@ -526,7 +526,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void performBulkUnsubscribe( final int channel,
                                          @Nonnull List<Integer> subChannelIds,
-                                         @Nonnull final Runnable onSuccess,
+                                         @Nonnull final SafeProcedure onSuccess,
                                          @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( session, request ) ->
@@ -542,14 +542,14 @@ public abstract class WebPollerDataLoaderService
                                        @Nullable Object filterParameter,
                                        @Nonnull String channelURL,
                                        @Nullable String eTag,
-                                       @Nonnull Runnable onSuccess,
-                                       @Nullable Runnable onCacheValid,
+                                       @Nonnull SafeProcedure onSuccess,
+                                       @Nullable SafeProcedure onCacheValid,
                                        @Nonnull Consumer<Throwable> onError );
 
   protected abstract void doUnsubscribe( @Nullable ClientSession session,
                                          @Nullable RequestEntry request,
                                          @Nonnull String channelURL,
-                                         @Nonnull Runnable onSuccess,
+                                         @Nonnull SafeProcedure onSuccess,
                                          @Nonnull Consumer<Throwable> onError );
 
   @Nullable

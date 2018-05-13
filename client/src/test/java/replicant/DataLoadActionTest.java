@@ -14,10 +14,9 @@ public class DataLoadActionTest
   public void construct()
   {
     final String rawJsonData = "";
-    final boolean oob = false;
-    final DataLoadAction action = new DataLoadAction( rawJsonData, oob );
+    final DataLoadAction action = new DataLoadAction( rawJsonData );
     assertEquals( action.getRawJsonData(), rawJsonData );
-    assertEquals( action.isOob(), oob );
+    assertEquals( action.isOob(), false );
 
     assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
@@ -36,10 +35,10 @@ public class DataLoadActionTest
   @Test
   public void compareTo()
   {
-    final DataLoadAction action1 = new DataLoadAction( "", false );
-    final DataLoadAction action2 = new DataLoadAction( "", false );
-    final DataLoadAction action3 = new DataLoadAction( "", true );
-    final DataLoadAction action4 = new DataLoadAction( "", true );
+    final DataLoadAction action1 = new DataLoadAction( "" );
+    final DataLoadAction action2 = new DataLoadAction( "" );
+    final DataLoadAction action3 = new DataLoadAction( "", mock( SafeProcedure.class ) );
+    final DataLoadAction action4 = new DataLoadAction( "", mock( SafeProcedure.class ) );
 
     final ChangeSet changeSet1 = ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
     final ChangeSet changeSet2 = ChangeSet.create( 2, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
@@ -77,7 +76,7 @@ public class DataLoadActionTest
     final ChangeSet changeSet =
       ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
-    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), ValueUtil.randomBoolean() );
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString() );
     action.setChangeSet( changeSet, null );
 
     action.incChannelAddCount();
@@ -108,7 +107,7 @@ public class DataLoadActionTest
   {
     ReplicantTestUtil.disableSpies();
 
-    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), ValueUtil.randomBoolean() );
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString() );
 
     assertEquals( action.getChannelAddCount(), 0 );
     assertEquals( action.getChannelUpdateCount(), 0 );
@@ -136,7 +135,7 @@ public class DataLoadActionTest
   @Test
   public void testToString()
   {
-    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString(), ValueUtil.randomBoolean() );
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString() );
     assertEquals( action.toString(),
                   "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=0,RemovedEntities.size=0,EntitiesToLink.size=null,EntityLinksCalculated=false]" );
 
@@ -196,9 +195,9 @@ public class DataLoadActionTest
 
     final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
 
-    final Runnable runnable = mock( Runnable.class );
+    final SafeProcedure completionAction = mock( SafeProcedure.class );
     final String rawJsonData = ValueUtil.randomString();
-    final DataLoadAction action = new DataLoadAction( rawJsonData, false );
+    final DataLoadAction action = new DataLoadAction( rawJsonData );
 
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, null );
@@ -213,13 +212,13 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    assertNull( action.getRunnable() );
+    assertNull( action.getCompletionAction() );
 
-    request.setNormalCompletionAction( runnable );
+    request.setNormalCompletionAction( completionAction );
 
     action.setChangeSet( changeSet, request );
 
-    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
     assertEquals( action.getRawJsonData(), null );
@@ -309,9 +308,9 @@ public class DataLoadActionTest
 
     final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
 
-    final Runnable runnable = mock( Runnable.class );
+    final SafeProcedure completionAction = mock( SafeProcedure.class );
     final String rawJsonData = ValueUtil.randomString();
-    final DataLoadAction action = new DataLoadAction( rawJsonData, false );
+    final DataLoadAction action = new DataLoadAction( rawJsonData );
 
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, null );
@@ -326,13 +325,13 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    assertNull( action.getRunnable() );
+    assertNull( action.getCompletionAction() );
 
-    request.setNormalCompletionAction( runnable );
+    request.setNormalCompletionAction( completionAction );
 
     action.setChangeSet( changeSet, request );
 
-    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
     assertEquals( action.getRawJsonData(), null );
@@ -383,9 +382,9 @@ public class DataLoadActionTest
 
     final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
 
-    final Runnable runnable = mock( Runnable.class );
+    final SafeProcedure oobCompletionAction = mock( SafeProcedure.class );
     final String rawJsonData = ValueUtil.randomString();
-    final DataLoadAction action = new DataLoadAction( rawJsonData, true );
+    final DataLoadAction action = new DataLoadAction( rawJsonData, oobCompletionAction );
 
     //Ensure the initial state is as expected
     assertEquals( action.getRawJsonData(), rawJsonData );
@@ -397,12 +396,11 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    assertNull( action.getRunnable() );
+    assertNull( action.getCompletionAction() );
 
-    action.setRunnable( runnable );
     action.setChangeSet( changeSet, null );
 
-    assertEquals( action.getRunnable(), runnable );
+    assertEquals( action.getCompletionAction(), oobCompletionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), null );
     assertEquals( action.getRawJsonData(), null );

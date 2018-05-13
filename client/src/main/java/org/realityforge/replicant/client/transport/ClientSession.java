@@ -14,6 +14,7 @@ import replicant.AreaOfInterestEntry;
 import replicant.ChannelAddress;
 import replicant.DataLoadAction;
 import replicant.RequestEntry;
+import replicant.SafeProcedure;
 
 /**
  * Client-side representation of session.
@@ -71,14 +72,12 @@ public final class ClientSession
 
   void enqueueDataLoad( @Nonnull final String rawJsonData )
   {
-    getPendingActions().add( new DataLoadAction( Objects.requireNonNull( rawJsonData ), false ) );
+    getPendingActions().add( new DataLoadAction( rawJsonData ) );
   }
 
-  void enqueueOOB( @Nonnull final String rawJsonData, @Nullable final Runnable runnable )
+  void enqueueOOB( @Nonnull final String rawJsonData, @Nonnull final SafeProcedure oobCompletionAction )
   {
-    final DataLoadAction action = new DataLoadAction( Objects.requireNonNull( rawJsonData ), true );
-    action.setRunnable( runnable );
-    getOobActions().add( action );
+    getOobActions().add( new DataLoadAction( rawJsonData, oobCompletionAction ) );
   }
 
   LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()
@@ -124,11 +123,11 @@ public final class ClientSession
   }
 
   public final void completeNormalRequest( @Nonnull final RequestEntry request,
-                                           @Nonnull final Runnable runnable )
+                                           @Nonnull final SafeProcedure completionAction )
   {
     if ( request.isExpectingResults() && !request.haveResultsArrived() )
     {
-      request.setNormalCompletionAction( runnable );
+      request.setNormalCompletionAction( completionAction );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, "Request " + request + " completed normally. Change set has not arrived." );
@@ -136,7 +135,7 @@ public final class ClientSession
     }
     else
     {
-      runnable.run();
+      completionAction.call();
       removeRequest( request.getRequestId() );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
@@ -146,11 +145,11 @@ public final class ClientSession
   }
 
   public final void completeNonNormalRequest( @Nonnull final RequestEntry request,
-                                              @Nonnull final Runnable runnable )
+                                              @Nonnull final SafeProcedure completionAction )
   {
     if ( request.isExpectingResults() && !request.haveResultsArrived() )
     {
-      request.setNonNormalCompletionAction( runnable );
+      request.setNonNormalCompletionAction( completionAction );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. Change set has not arrived." );
@@ -158,7 +157,7 @@ public final class ClientSession
     }
     else
     {
-      runnable.run();
+      completionAction.call();
       removeRequest( request.getRequestId() );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {

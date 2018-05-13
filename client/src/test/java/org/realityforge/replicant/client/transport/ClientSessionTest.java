@@ -4,6 +4,7 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.RequestEntry;
+import replicant.SafeProcedure;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -33,11 +34,11 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
 
     rm.completeNormalRequest( e, action );
 
-    verify( action ).run();
+    verify( action ).call();
     assertFalse( e.isCompletionDataPresent() );
     assertNull( rm.getRequest( e.getRequestId() ) );
   }
@@ -47,13 +48,13 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
 
     rm.completeNormalRequest( e, action );
 
-    verify( action, never() ).run();
+    verify( action, never() ).call();
     assertTrue( e.isCompletionDataPresent() );
     assertTrue( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
@@ -65,14 +66,14 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
     e.markResultsAsArrived();
 
     rm.completeNormalRequest( e, action );
 
-    verify( action ).run();
+    verify( action ).call();
     assertFalse( e.isCompletionDataPresent() );
     assertNull( rm.getRequest( e.getRequestId() ) );
   }
@@ -82,11 +83,11 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
 
     rm.completeNonNormalRequest( e, action );
 
-    verify( action ).run();
+    verify( action ).call();
     assertFalse( e.isCompletionDataPresent() );
     assertNull( rm.getRequest( e.getRequestId() ) );
   }
@@ -96,13 +97,13 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
 
     rm.completeNonNormalRequest( e, action );
 
-    verify( action, never() ).run();
+    verify( action, never() ).call();
     assertTrue( e.isCompletionDataPresent() );
     assertFalse( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
@@ -114,14 +115,14 @@ public class ClientSessionTest
   {
     final ClientSession rm = new ClientSession( ValueUtil.randomString() );
     final RequestEntry e = rm.newRequest( "Y", "X" );
-    final Runnable action = mock( Runnable.class );
+    final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
     e.markResultsAsArrived();
 
     rm.completeNonNormalRequest( e, action );
 
-    verify( action ).run();
+    verify( action ).call();
     assertFalse( e.isCompletionDataPresent() );
     assertNull( rm.getRequest( e.getRequestId() ) );
   }

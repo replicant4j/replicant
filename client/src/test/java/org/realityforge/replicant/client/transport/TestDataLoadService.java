@@ -170,47 +170,47 @@ abstract class TestDataLoadService
                                             @Nullable final Object filterParameter,
                                             @Nullable final String cacheKey,
                                             @Nullable final String eTag,
-                                            @Nullable final Consumer<Runnable> cacheAction,
-                                            @Nonnull final Consumer<Runnable> completionAction,
-                                            @Nonnull final Consumer<Runnable> failAction )
+                                            @Nullable final Consumer<SafeProcedure> cacheAction,
+                                            @Nonnull final Consumer<SafeProcedure> completionAction,
+                                            @Nonnull final Consumer<SafeProcedure> failAction )
   {
   }
 
   @Override
   protected void requestUnsubscribeFromChannel( @Nonnull final ChannelAddress descriptor,
-                                                @Nonnull final Consumer<Runnable> completionAction,
-                                                @Nonnull final Consumer<Runnable> failAction )
+                                                @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                @Nonnull final Consumer<SafeProcedure> failAction )
   {
   }
 
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelAddress descriptor,
                                             @Nonnull final Object filterParameter,
-                                            @Nonnull final Consumer<Runnable> completionAction,
-                                            @Nonnull final Consumer<Runnable> failAction )
+                                            @Nonnull final Consumer<SafeProcedure> completionAction,
+                                            @Nonnull final Consumer<SafeProcedure> failAction )
   {
   }
 
   @Override
   protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> descriptor,
                                                 @Nullable final Object filterParameter,
-                                                @Nonnull final Consumer<Runnable> completionAction,
-                                                @Nonnull final Consumer<Runnable> failAction )
+                                                @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                @Nonnull final Consumer<SafeProcedure> failAction )
   {
   }
 
   @Override
   protected void requestBulkUnsubscribeFromChannel( @Nonnull final List<ChannelAddress> descriptors,
-                                                    @Nonnull final Consumer<Runnable> completionAction,
-                                                    @Nonnull final Consumer<Runnable> failAction )
+                                                    @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                    @Nonnull final Consumer<SafeProcedure> failAction )
   {
   }
 
   @Override
   protected void requestBulkUpdateSubscription( @Nonnull final List<ChannelAddress> descriptors,
                                                 @Nonnull final Object filterParameter,
-                                                @Nonnull final Consumer<Runnable> completionAction,
-                                                @Nonnull final Consumer<Runnable> failAction )
+                                                @Nonnull final Consumer<SafeProcedure> completionAction,
+                                                @Nonnull final Consumer<SafeProcedure> failAction )
   {
   }
 

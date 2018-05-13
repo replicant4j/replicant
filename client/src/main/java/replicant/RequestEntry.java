@@ -19,7 +19,7 @@ public class RequestEntry
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
-  private Runnable _completionAction;
+  private SafeProcedure _completionAction;
 
   public RequestEntry( @Nonnull final String requestId,
                        @Nullable final String requestKey,
@@ -49,18 +49,18 @@ public class RequestEntry
   }
 
   @Nullable
-  public Runnable getCompletionAction()
+  public SafeProcedure getCompletionAction()
   {
     return _completionAction;
   }
 
-  public void setNormalCompletionAction( @Nullable final Runnable completionAction )
+  public void setNormalCompletionAction( @Nullable final SafeProcedure completionAction )
   {
     _normalCompletion = true;
     _completionAction = completionAction;
   }
 
-  public void setNonNormalCompletionAction( @Nullable final Runnable completionAction )
+  public void setNonNormalCompletionAction( @Nullable final SafeProcedure completionAction )
   {
     _normalCompletion = false;
     _completionAction = completionAction;

@@ -19,23 +19,16 @@ public final class DataLoadAction
    */
   @Nullable
   private String _rawJsonData;
-
-  /**
-   * Is the message out-of-band ?
-   */
-  private final boolean _oob;
-
   /**
    * The array of changes after parsing. Null prior to parsing.
    */
   @Nullable
   private ChangeSet _changeSet;
-
   /**
-   * The runnable action that may have been explicitly set for oob message.
+   * The action executed at completion of out-of-band message.
    */
   @Nullable
-  private Runnable _runnable;
+  private final SafeProcedure _oobCompletionAction;
 
   /**
    * The current index into changes.
@@ -57,10 +50,15 @@ public final class DataLoadAction
   private int _entityRemoveCount;
   private int _entityLinkCount;
 
-  public DataLoadAction( @Nonnull final String rawJsonData, final boolean oob )
+  public DataLoadAction( @Nonnull final String rawJsonData )
+  {
+    this( rawJsonData, null );
+  }
+
+  public DataLoadAction( @Nonnull final String rawJsonData, @Nullable final SafeProcedure oobCompletionAction )
   {
     _rawJsonData = Objects.requireNonNull( rawJsonData );
-    _oob = oob;
+    _oobCompletionAction = oobCompletionAction;
   }
 
   public int getChannelAddCount()
@@ -141,9 +139,14 @@ public final class DataLoadAction
     }
   }
 
+  /**
+   * Return true if the message is an out-of-band message, false otherwise.
+   *
+   * @return true if the message is an out-of-band message, false otherwise.
+   */
   public boolean isOob()
   {
-    return _oob;
+    return null != _oobCompletionAction;
   }
 
   @Nullable
@@ -260,19 +263,12 @@ public final class DataLoadAction
     return _changeSet;
   }
 
-  public void setRunnable( @Nullable final Runnable runnable )
-  {
-    // TODO: Replace all asserts with Braincheck guards????
-    assert isOob();
-    _runnable = runnable;
-  }
-
   @Nullable
-  public Runnable getRunnable()
+  public SafeProcedure getCompletionAction()
   {
-    if ( null != _runnable )
+    if ( null != _oobCompletionAction )
     {
-      return _runnable;
+      return _oobCompletionAction;
     }
     else if ( null == _request || !_request.isCompletionDataPresent() )
     {
@@ -318,7 +314,7 @@ public final class DataLoadAction
              ",RawJson.null?=" + ( null == _rawJsonData ) +
              ",ChangeSet.null?=" + ( null == _changeSet ) +
              ",ChangeIndex=" + _changeIndex +
-             ",Runnable.null?=" + ( null == getRunnable() ) +
+             ",Runnable.null?=" + ( null == getCompletionAction() ) +
              ",UpdatedEntities.size=" + ( null == _updatedEntities ? null : _updatedEntities.size() ) +
              ",RemovedEntities.size=" + ( null == _removedEntities ? null : _removedEntities.size() ) +
              ",EntitiesToLink.size=" + ( null == _entitiesToLink ? null : _entitiesToLink.size() ) +
