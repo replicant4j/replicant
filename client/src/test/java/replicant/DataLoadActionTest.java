@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import replicant.spy.DataLoadStatus;
 import static org.testng.Assert.*;
 
+@SuppressWarnings( "ResultOfMethodCallIgnored" )
 public class DataLoadActionTest
   extends AbstractReplicantTest
 {
