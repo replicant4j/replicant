@@ -484,11 +484,8 @@ public abstract class AbstractDataLoaderService
           LOG.info( () -> "Loading cached data for channel " + label( aoiEntry ) + " with etag " + eTag );
           final Runnable completeAoiAction = () ->
           {
-            LOG.info( () -> "Completed load of cached data for channel " +
-                            label( aoiEntry ) +
-                            " with etag " +
-                            eTag +
-                            "." );
+            LOG.info( () -> "Completed load of cached data for channel " + label( aoiEntry ) +
+                            " with etag " + eTag + "." );
             completeAoiAction();
             a.run();
           };
