@@ -496,7 +496,7 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    // processed as sinlge block in caller
+    // processed as single block in caller
     action.markChannelActionsProcessed();
     assertEquals( action.needsChannelActionsProcessed(), false );
 
