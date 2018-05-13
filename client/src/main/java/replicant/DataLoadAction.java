@@ -156,7 +156,7 @@ public final class DataLoadAction
     return _rawJsonData;
   }
 
-  public void setChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
+  public void recordChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -166,7 +166,7 @@ public final class DataLoadAction
       invariant( () -> null == request || request.getRequestId().equals( changeSet.getRequestID() ),
                  () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestID() +
                        "' but request with requestId '" + Objects.requireNonNull( request ).getRequestId() +
-                       "' has been passed to setChangeSet." );
+                       "' has been passed to recordChangeSet." );
     }
     _changeSet = Objects.requireNonNull( changeSet );
     _request = request;

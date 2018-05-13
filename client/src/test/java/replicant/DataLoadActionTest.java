@@ -45,10 +45,10 @@ public class DataLoadActionTest
     final ChangeSet changeSet3 = ChangeSet.create( 3, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
     final ChangeSet changeSet4 = ChangeSet.create( 4, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
-    action1.setChangeSet( changeSet1, null );
-    action2.setChangeSet( changeSet2, null );
-    action3.setChangeSet( changeSet3, null );
-    action4.setChangeSet( changeSet4, null );
+    action1.recordChangeSet( changeSet1, null );
+    action2.recordChangeSet( changeSet2, null );
+    action3.recordChangeSet( changeSet3, null );
+    action4.recordChangeSet( changeSet4, null );
 
     assertEquals( action1.compareTo( action1 ), 0 );
     assertEquals( action1.compareTo( action2 ), -1 );
@@ -77,7 +77,7 @@ public class DataLoadActionTest
       ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
     final DataLoadAction action = new DataLoadAction( ValueUtil.randomString() );
-    action.setChangeSet( changeSet, null );
+    action.recordChangeSet( changeSet, null );
 
     action.incChannelAddCount();
     action.incChannelAddCount();
@@ -143,7 +143,7 @@ public class DataLoadActionTest
     final String requestId = "XXX";
     final ChangeSet changeSet =
       ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    action.setChangeSet( changeSet, null );
+    action.recordChangeSet( changeSet, null );
 
     assertEquals( action.toString(),
                   "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=0,RemovedEntities.size=0,EntitiesToLink.size=null,EntityLinksCalculated=false]" );
@@ -216,7 +216,7 @@ public class DataLoadActionTest
 
     request.setNormalCompletionAction( completionAction );
 
-    action.setChangeSet( changeSet, request );
+    action.recordChangeSet( changeSet, request );
 
     assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
@@ -329,7 +329,7 @@ public class DataLoadActionTest
 
     request.setNormalCompletionAction( completionAction );
 
-    action.setChangeSet( changeSet, request );
+    action.recordChangeSet( changeSet, request );
 
     assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
@@ -397,7 +397,7 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
-    action.setChangeSet( changeSet, null );
+    action.recordChangeSet( changeSet, null );
 
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), null );
@@ -441,7 +441,7 @@ public class DataLoadActionTest
     final RequestEntry request = new RequestEntry( ValueUtil.randomString(), ValueUtil.randomString(), null );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> action.setChangeSet( changeSet, request ) );
+      expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0010: Incorrectly associating a request with requestId 'e3935172-7bd5-405c-854f-68db8d0aef89' with an out-of-band message." );
   }
@@ -461,8 +461,8 @@ public class DataLoadActionTest
     final RequestEntry request = new RequestEntry( "Y5678", ValueUtil.randomString(), null );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> action.setChangeSet( changeSet, request ) );
+      expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0011: ChangeSet specified requestId 'X1234' but request with requestId 'Y5678' has been passed to setChangeSet." );
+                  "Replicant-0011: ChangeSet specified requestId 'X1234' but request with requestId 'Y5678' has been passed to recordChangeSet." );
   }
 }

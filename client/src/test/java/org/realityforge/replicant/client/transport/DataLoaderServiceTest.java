@@ -295,11 +295,11 @@ public class DataLoaderServiceTest
     final DataLoadAction oob3 = new DataLoadAction( "oob3", true );
 
     final DataLoadAction s1 = new DataLoadAction( "s1", false );
-    s1.setChangeSet( cs1, null );
+    s1.recordChangeSet( cs1, null );
     final DataLoadAction s2 = new DataLoadAction( "s2", false );
-    s2.setChangeSet( cs2, null );
+    s2.recordChangeSet( cs2, null );
     final DataLoadAction s3 = new DataLoadAction( "s3", false );
-    s3.setChangeSet( cs3, null );
+    s3.recordChangeSet( cs3, null );
 
     final List<DataLoadAction> l1 = Arrays.asList( s2, s3, s1, oob1, oob2, oob3 );
     Collections.sort( l1 );

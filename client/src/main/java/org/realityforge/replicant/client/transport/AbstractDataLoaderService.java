@@ -748,7 +748,7 @@ public abstract class AbstractDataLoaderService
         }
       }
 
-      _currentAction.setChangeSet( changeSet, request );
+      _currentAction.recordChangeSet( changeSet, request );
       parsedActions.add( _currentAction );
       Collections.sort( parsedActions );
       _currentAction = null;
