@@ -163,6 +163,10 @@ public final class DataLoadAction
       invariant( () -> !isOob() || null == request,
                  () -> "Replicant-0010: Incorrectly associating a request with requestId '" +
                        Objects.requireNonNull( request ).getRequestKey() + "' with an out-of-band message." );
+      invariant( () -> null == request || request.getRequestId().equals( changeSet.getRequestID() ),
+                 () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestID() +
+                       "' but request with requestId '" + Objects.requireNonNull( request ).getRequestId() +
+                       "' has been passed to setChangeSet." );
     }
     _changeSet = Objects.requireNonNull( changeSet );
     _request = request;

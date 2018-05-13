@@ -445,4 +445,24 @@ public class DataLoadActionTest
     assertEquals( exception.getMessage(),
                   "Replicant-0010: Incorrectly associating a request with requestId 'e3935172-7bd5-405c-854f-68db8d0aef89' with an out-of-band message." );
   }
+
+  @Test
+  public void setChangeSet_mismatchedRequestId()
+  {
+    final DataLoadAction action = new DataLoadAction( ValueUtil.randomString() );
+
+    final ChangeSet changeSet =
+      ChangeSet.create( ValueUtil.randomInt(),
+                        "X1234",
+                        null,
+                        new ChannelChange[ 0 ],
+                        new EntityChange[ 0 ] );
+
+    final RequestEntry request = new RequestEntry( "Y5678", ValueUtil.randomString(), null );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> action.setChangeSet( changeSet, request ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0011: ChangeSet specified requestId 'X1234' but request with requestId 'Y5678' has been passed to setChangeSet." );
+  }
 }
