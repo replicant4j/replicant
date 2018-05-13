@@ -126,6 +126,13 @@ public class AreaOfInterestTest
   }
 
   @Test
+  public void testToStringWithFilter()
+  {
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( null, new ChannelAddress( G.G1 ), "MyFilter" );
+    assertEquals( areaOfInterest.toString(), "AreaOfInterest[G.G1 Filter: MyFilter Status: NOT_ASKED]" );
+  }
+
+  @Test
   public void testToString_namesDisabled()
   {
     ReplicantTestUtil.disableNames();
