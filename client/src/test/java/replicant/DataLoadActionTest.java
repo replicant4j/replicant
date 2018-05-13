@@ -491,7 +491,6 @@ public class DataLoadActionTest
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.needsChannelActionsProcessed(), true );
-    assertEquals( action.needsChannelActionsProcessed(), true );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
