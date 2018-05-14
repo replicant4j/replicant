@@ -21,7 +21,7 @@ public class SessionContextTest
 
     //connection
     {
-      final Connection connection = new Connection( ValueUtil.randomString() );
+      final Connection connection = new Connection( null, ValueUtil.randomString() );
       assertEquals( sessionContext.getConnection(), null );
       sessionContext.setConnection( connection );
       assertEquals( sessionContext.getConnection(), connection );
@@ -62,7 +62,7 @@ public class SessionContextTest
     final String name = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
 
     final SessionContext sessionContext = new SessionContext( key );
     sessionContext.setConnection( connection );

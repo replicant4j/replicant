@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
  * to the local state etc.
  */
 public final class Connection
+  extends ReplicantService
 {
   //TODO: Make this package access after all classes migrated to replicant package
 
@@ -56,8 +57,9 @@ public final class Connection
   @Nonnull
   private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
 
-  public Connection( @Nonnull final String connectionId )
+  public Connection( @Nullable final ReplicantContext context, final String connectionId )
   {
+    super( context );
     _connectionId = Objects.requireNonNull( connectionId );
   }
 

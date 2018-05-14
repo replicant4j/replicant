@@ -51,7 +51,7 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onSuccess()
   {
     final Object[] results = new Object[ 1 ];
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 
@@ -72,7 +72,7 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onFailure()
   {
     final Object[] results = new Object[ 1 ];
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 

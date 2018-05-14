@@ -11,7 +11,7 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final String requestName = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
 
@@ -32,7 +32,7 @@ public class ConnectionTest
   @Test
   public void completeNormalRequest()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( "Y", "X" );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -46,7 +46,7 @@ public class ConnectionTest
   @Test
   public void completeNormalRequest_expectingResults()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( "Y", "X" );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -64,7 +64,7 @@ public class ConnectionTest
   @Test
   public void completeNormalRequest_resultsArrived()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( "Y", "X" );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -81,7 +81,7 @@ public class ConnectionTest
   @Test
   public void completeNonNormalRequest()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( "Y", "X" );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -95,7 +95,7 @@ public class ConnectionTest
   @Test
   public void completeNonNormalRequest_expectingResults()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( "Y", "X" );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -113,7 +113,7 @@ public class ConnectionTest
   @Test
   public void completeNonNormalRequest_resultsArrived()
   {
-    final Connection connection = new Connection( ValueUtil.randomString() );
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( "Y", "X" );
     final SafeProcedure action = mock( SafeProcedure.class );
 
