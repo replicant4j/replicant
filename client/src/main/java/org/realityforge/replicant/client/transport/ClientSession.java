@@ -1,8 +1,10 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -51,6 +53,14 @@ public final class ClientSession
   private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
 
   private int _lastRxSequence;
+
+  /**
+   * The current message action being processed.
+   */
+  @Nullable
+  private DataLoadAction _currentAction;
+  @Nonnull
+  private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
 
   public ClientSession( @Nonnull final String sessionID )
   {
@@ -185,5 +195,22 @@ public final class ClientSession
   private String newRequestID()
   {
     return String.valueOf( ++_requestID );
+  }
+
+  @Nullable
+  DataLoadAction getCurrentAction()
+  {
+    return _currentAction;
+  }
+
+  void setCurrentAction( @Nullable final DataLoadAction currentAction )
+  {
+    _currentAction = currentAction;
+  }
+
+  @Nonnull
+  List<AreaOfInterestEntry> getCurrentAoiActions()
+  {
+    return _currentAoiActions;
   }
 }

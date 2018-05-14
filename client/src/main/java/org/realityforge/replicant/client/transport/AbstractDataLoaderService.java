@@ -52,8 +52,6 @@ public abstract class AbstractDataLoaderService
 
   private final CacheService _cacheService;
 
-  private DataLoadAction _currentAction;
-  private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
@@ -121,7 +119,7 @@ public abstract class AbstractDataLoaderService
   protected void setSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
   {
     final Runnable runnable = () -> doSetSession( session, action );
-    if ( null == _currentAction )
+    if ( null == session || null == session.getCurrentAction() )
     {
       runnable.run();
     }
@@ -244,7 +242,8 @@ public abstract class AbstractDataLoaderService
    */
   protected boolean progressAreaOfInterestActions()
   {
-    if ( _currentAoiActions.isEmpty() )
+    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    if ( currentAOIActions.isEmpty() )
     {
       final LinkedList<AreaOfInterestEntry> actions = ensureSession().getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
@@ -252,21 +251,21 @@ public abstract class AbstractDataLoaderService
         return false;
       }
       final AreaOfInterestEntry first = actions.removeFirst();
-      _currentAoiActions.add( first );
+      currentAOIActions.add( first );
       while ( actions.size() > 0 && isCompatibleForBulkChange( first, actions.get( 0 ) ) )
       {
-        _currentAoiActions.add( actions.removeFirst() );
+        currentAOIActions.add( actions.removeFirst() );
       }
     }
 
-    if ( _currentAoiActions.get( 0 ).isInProgress() )
+    if ( currentAOIActions.get( 0 ).isInProgress() )
     {
       return false;
     }
     else
     {
-      _currentAoiActions.forEach( AreaOfInterestEntry::markAsInProgress );
-      final AreaOfInterestAction action = _currentAoiActions.get( 0 ).getAction();
+      currentAOIActions.forEach( AreaOfInterestEntry::markAsInProgress );
+      final AreaOfInterestAction action = currentAOIActions.get( 0 ).getAction();
       if ( action == AreaOfInterestAction.ADD )
       {
         return progressBulkAOIAddActions();
@@ -305,8 +304,9 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIUpdateActions()
   {
+    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
     context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
-      _currentAoiActions.removeIf( a -> {
+      currentAOIActions.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
@@ -318,7 +318,7 @@ public abstract class AbstractDataLoaderService
       } );
     } );
 
-    if ( 0 == _currentAoiActions.size() )
+    if ( 0 == currentAOIActions.size() )
     {
       completeAoiAction();
       return true;
@@ -326,24 +326,24 @@ public abstract class AbstractDataLoaderService
 
     final Consumer<SafeProcedure> completionAction = a ->
     {
-      LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " completed." );
+      LOG.warning( () -> "Subscription update of " + label( currentAOIActions ) + " completed." );
       completeAoiAction();
       a.call();
     };
     final Consumer<SafeProcedure> failAction = a ->
     {
-      LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " failed." );
+      LOG.warning( () -> "Subscription update of " + label( currentAOIActions ) + " failed." );
       completeAoiAction();
       a.call();
     };
-    LOG.warning( () -> "Subscription update of " + label( _currentAoiActions ) + " requested." );
+    LOG.warning( () -> "Subscription update of " + label( currentAOIActions ) + " requested." );
 
-    final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
+    final AreaOfInterestEntry aoiEntry = currentAOIActions.get( 0 );
     assert null != aoiEntry.getFilter();
-    if ( _currentAoiActions.size() > 1 )
+    if ( currentAOIActions.size() > 1 )
     {
       final List<ChannelAddress> ids =
-        _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
+        currentAOIActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
       requestBulkUpdateSubscription( ids, aoiEntry.getFilter(), completionAction, failAction );
     }
     else
@@ -356,8 +356,9 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIRemoveActions()
   {
+    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
     context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
-      _currentAoiActions.removeIf( a -> {
+      currentAOIActions.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
@@ -375,17 +376,17 @@ public abstract class AbstractDataLoaderService
       } );
     } );
 
-    if ( 0 == _currentAoiActions.size() )
+    if ( 0 == currentAOIActions.size() )
     {
       completeAoiAction();
       return true;
     }
 
-    LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " requested." );
+    LOG.info( () -> "Unsubscribe from " + label( currentAOIActions ) + " requested." );
     final Consumer<SafeProcedure> completionAction = postAction ->
     {
-      LOG.info( () -> "Unsubscribe from " + label( _currentAoiActions ) + " completed." );
-      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
+      LOG.info( () -> "Unsubscribe from " + label( currentAOIActions ) + " completed." );
+      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> currentAOIActions.forEach( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
@@ -398,8 +399,8 @@ public abstract class AbstractDataLoaderService
 
     final Consumer<SafeProcedure> failAction = postAction ->
     {
-      LOG.info( "Unsubscribe from " + label( _currentAoiActions ) + " failed." );
-      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> _currentAoiActions.forEach( a -> {
+      LOG.info( "Unsubscribe from " + label( currentAOIActions ) + " failed." );
+      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> currentAOIActions.forEach( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
@@ -410,11 +411,11 @@ public abstract class AbstractDataLoaderService
       postAction.call();
     };
 
-    final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
-    if ( _currentAoiActions.size() > 1 )
+    final AreaOfInterestEntry aoiEntry = currentAOIActions.get( 0 );
+    if ( currentAOIActions.size() > 1 )
     {
       final List<ChannelAddress> ids =
-        _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
+        currentAOIActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
       requestBulkUnsubscribeFromChannel( ids, completionAction, failAction );
     }
     else
@@ -427,9 +428,10 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIAddActions()
   {
+    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
     // Remove all Add Aoi actions that need no action as they are already present locally
     context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
-      _currentAoiActions.removeIf( a -> {
+      currentAOIActions.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
@@ -449,7 +451,7 @@ public abstract class AbstractDataLoaderService
       } );
     } );
 
-    if ( 0 == _currentAoiActions.size() )
+    if ( 0 == currentAOIActions.size() )
     {
       completeAoiAction();
       return true;
@@ -457,19 +459,19 @@ public abstract class AbstractDataLoaderService
 
     final Consumer<SafeProcedure> completionAction = a ->
     {
-      LOG.info( () -> "Subscription to " + label( _currentAoiActions ) + " completed." );
+      LOG.info( () -> "Subscription to " + label( currentAOIActions ) + " completed." );
       completeAoiAction();
       a.call();
     };
     final Consumer<SafeProcedure> failAction = a ->
     {
-      LOG.info( () -> "Subscription to " + label( _currentAoiActions ) + " failed." );
+      LOG.info( () -> "Subscription to " + label( currentAOIActions ) + " failed." );
       completeAoiAction();
       a.call();
     };
 
-    final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
-    if ( _currentAoiActions.size() == 1 )
+    final AreaOfInterestEntry aoiEntry = currentAOIActions.get( 0 );
+    if ( currentAOIActions.size() == 1 )
     {
       final String cacheKey = aoiEntry.getCacheKey();
       final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
@@ -511,7 +513,7 @@ public abstract class AbstractDataLoaderService
     {
       // don't support bulk loading of anything that is already cached
       final List<ChannelAddress> ids =
-        _currentAoiActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
+        currentAOIActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
       requestBulkSubscribeToChannel( ids, aoiEntry.getFilter(), completionAction, failAction );
     }
     return true;
@@ -532,8 +534,9 @@ public abstract class AbstractDataLoaderService
   private void completeAoiAction()
   {
     scheduleDataLoad();
-    _currentAoiActions.forEach( AreaOfInterestEntry::markAsComplete );
-    _currentAoiActions.clear();
+    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    currentAOIActions.forEach( AreaOfInterestEntry::markAsComplete );
+    currentAOIActions.clear();
   }
 
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress descriptor,
@@ -576,9 +579,10 @@ public abstract class AbstractDataLoaderService
                                                 @Nullable final Object filter )
   {
     final ClientSession session = getSession();
+    final List<AreaOfInterestEntry> currentAOIActions = null == session ? null : session.getCurrentAoiActions();
     return
-      null != _currentAoiActions &&
-      _currentAoiActions.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
+      null != currentAOIActions &&
+      currentAOIActions.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
       (
         null != session &&
         session.getPendingAreaOfInterestActions().stream().
@@ -595,8 +599,8 @@ public abstract class AbstractDataLoaderService
                                                  @Nullable final Object filter )
   {
     final ClientSession session = getSession();
-    if ( null != _currentAoiActions &&
-         _currentAoiActions.stream().anyMatch( a -> a.match( action, address, filter ) ) )
+    final List<AreaOfInterestEntry> currentAOIActions = null == session ? null : session.getCurrentAoiActions();
+    if ( null != currentAOIActions && currentAOIActions.stream().anyMatch( a -> a.match( action, address, filter ) ) )
     {
       return 0;
     }
@@ -620,41 +624,31 @@ public abstract class AbstractDataLoaderService
     return -1;
   }
 
-  // Method only used in tests
-  DataLoadAction getCurrentAction()
-  {
-    return _currentAction;
-  }
-
-  // Method only used in tests
-  List<AreaOfInterestEntry> getCurrentAOIActions()
-  {
-    return _currentAoiActions;
-  }
-
   protected boolean progressDataLoad()
   {
     final ClientSession session = ensureSession();
     // Step: Retrieve any out of band actions
     final LinkedList<DataLoadAction> oobActions = session.getOobActions();
-    if ( null == _currentAction && !oobActions.isEmpty() )
+    final DataLoadAction currentAction = session.getCurrentAction();
+    if ( null == currentAction && !oobActions.isEmpty() )
     {
-      _currentAction = oobActions.removeFirst();
+      session.setCurrentAction( oobActions.removeFirst() );
       return true;
     }
 
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
     final LinkedList<DataLoadAction> parsedActions = session.getParsedActions();
-    if ( null == _currentAction && !parsedActions.isEmpty() )
+    if ( null == currentAction && !parsedActions.isEmpty() )
     {
       final DataLoadAction action = parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
       if ( action.isOob() || session.getLastRxSequence() + 1 == changeSet.getSequence() )
       {
-        _currentAction = parsedActions.remove();
+        final DataLoadAction candidate = parsedActions.remove();
+        session.setCurrentAction( candidate );
         if ( LOG.isLoggable( getLogLevel() ) )
         {
-          LOG.log( getLogLevel(), "Parsed Action Selected: " + _currentAction );
+          LOG.log( getLogLevel(), "Parsed Action Selected: " + candidate );
         }
         return true;
       }
@@ -662,7 +656,7 @@ public abstract class AbstractDataLoaderService
 
     // Abort if there is no pending data load actions to take
     final LinkedList<DataLoadAction> pendingActions = session.getPendingActions();
-    if ( null == _currentAction && pendingActions.isEmpty() )
+    if ( null == currentAction && pendingActions.isEmpty() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
@@ -673,43 +667,45 @@ public abstract class AbstractDataLoaderService
     }
 
     //Step: Retrieve the action from the un-parsed queue
-    if ( null == _currentAction )
+    if ( null == currentAction )
     {
-      _currentAction = pendingActions.remove();
+      final DataLoadAction candidate = pendingActions.remove();
+      session.setCurrentAction( candidate );
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Un-parsed Action Selected: " + _currentAction );
+        LOG.log( getLogLevel(), "Un-parsed Action Selected: " + candidate );
       }
       return true;
     }
 
     //Step: Parse the json
-    final String rawJsonData = _currentAction.getRawJsonData();
+    final String rawJsonData = currentAction.getRawJsonData();
+    boolean isOutOfBandMessage = currentAction.isOob();
     if ( null != rawJsonData )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Parsing JSON: " + _currentAction );
+        LOG.log( getLogLevel(), "Parsing JSON: " + currentAction );
       }
-      final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
+      final ChangeSet changeSet = parseChangeSet( rawJsonData );
       // OOB messages are not in response to requests as such
-      final String requestID = _currentAction.isOob() ? null : changeSet.getRequestId();
+      final String requestID = isOutOfBandMessage ? null : changeSet.getRequestId();
       // OOB messages have no etags as from local cache or generated locally
-      final String eTag = _currentAction.isOob() ? null : changeSet.getETag();
-      final int sequence = _currentAction.isOob() ? 0 : changeSet.getSequence();
+      final String eTag = isOutOfBandMessage ? null : changeSet.getETag();
+      final int sequence = isOutOfBandMessage ? 0 : changeSet.getSequence();
       if ( LOG.isLoggable( getLogLevel() ) )
       {
         LOG.log( getLogLevel(),
                  "Parsed ChangeSet:" +
-                 " oob=" + _currentAction.isOob() +
+                 " oob=" + isOutOfBandMessage +
                  " seq=" + sequence +
                  " requestID=" + requestID +
                  " eTag=" + eTag +
-                 " changeCount=" + changeSet.getEntityChanges().length
+                 " changeCount=" + ( changeSet.hasEntityChanges() ? changeSet.getEntityChanges().length : 0 )
         );
       }
       final RequestEntry request;
-      if ( _currentAction.isOob() )
+      if ( isOutOfBandMessage )
       {
         request = null;
       }
@@ -748,96 +744,96 @@ public abstract class AbstractDataLoaderService
         }
       }
 
-      _currentAction.recordChangeSet( changeSet, request );
-      parsedActions.add( _currentAction );
+      currentAction.recordChangeSet( changeSet, request );
+      parsedActions.add( currentAction );
       Collections.sort( parsedActions );
-      _currentAction = null;
+      session.setCurrentAction( null );
       return true;
     }
 
-    if ( _currentAction.needsChannelActionsProcessed() )
+    if ( currentAction.needsChannelActionsProcessed() )
     {
       context().safeAction( generateName( "processChannelActions" ), this::processChannelActions );
       return true;
     }
 
     //Step: Process a chunk of changes
-    if ( _currentAction.areChangesPending() )
+    if ( currentAction.areChangesPending() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Processing ChangeSet: " + _currentAction );
+        LOG.log( getLogLevel(), "Processing ChangeSet: " + currentAction );
       }
 
-      final ChangeSet changeSet = _currentAction.getChangeSet();
+      final ChangeSet changeSet = currentAction.getChangeSet();
       context().safeAction( generateName( "applyChange" ), () -> {
         EntityChange change;
-        for ( int i = 0; i < _changesToProcessPerTick && null != ( change = _currentAction.nextChange() ); i++ )
+        for ( int i = 0; i < _changesToProcessPerTick && null != ( change = currentAction.nextChange() ); i++ )
         {
           final Object entity = getChangeMapper().applyChange( change );
           if ( LOG.isLoggable( Level.INFO ) )
           {
             if ( change.isUpdate() )
             {
-              _currentAction.incEntityUpdateCount();
+              currentAction.incEntityUpdateCount();
             }
             else
             {
-              _currentAction.incEntityRemoveCount();
+              currentAction.incEntityRemoveCount();
             }
           }
-          _currentAction.changeProcessed( change.isUpdate(), entity );
+          currentAction.changeProcessed( change.isUpdate(), entity );
         }
       }, changeSet.getSequence(), changeSet.getRequestId() );
       return true;
     }
 
     //Step: Calculate the entities that need to be linked
-    if ( !_currentAction.areEntityLinksCalculated() )
+    if ( !currentAction.areEntityLinksCalculated() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Calculating Link list: " + _currentAction );
+        LOG.log( getLogLevel(), "Calculating Link list: " + currentAction );
       }
-      _currentAction.calculateEntitiesToLink();
+      currentAction.calculateEntitiesToLink();
       return true;
     }
 
     //Step: Process a chunk of links
-    if ( _currentAction.areEntityLinksPending() )
+    if ( currentAction.areEntityLinksPending() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Linking Entities: " + _currentAction );
+        LOG.log( getLogLevel(), "Linking Entities: " + currentAction );
       }
-      final ChangeSet changeSet = _currentAction.getChangeSet();
+      final ChangeSet changeSet = currentAction.getChangeSet();
 
       context().safeAction( generateName( "link" ), () -> {
         Linkable linkable;
-        for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = _currentAction.nextEntityToLink() ); i++ )
+        for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
         {
           linkable.link();
           if ( LOG.isLoggable( Level.INFO ) )
           {
-            _currentAction.incEntityLinkCount();
+            currentAction.incEntityLinkCount();
           }
         }
       }, changeSet.getSequence(), changeSet.getRequestId() );
       return true;
     }
 
-    final ChangeSet changeSet = _currentAction.getChangeSet();
+    final ChangeSet changeSet = currentAction.getChangeSet();
 
     //Step: Finalize the change set
-    if ( !_currentAction.hasWorldBeenNotified() )
+    if ( !currentAction.hasWorldBeenNotified() )
     {
-      _currentAction.markWorldAsNotified();
+      currentAction.markWorldAsNotified();
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Finalizing action: " + _currentAction );
+        LOG.log( getLogLevel(), "Finalizing action: " + currentAction );
       }
       // OOB messages are not sequenced
-      if ( !_currentAction.isOob() )
+      if ( !isOutOfBandMessage )
       {
         session.setLastRxSequence( changeSet.getSequence() );
       }
@@ -849,7 +845,7 @@ public abstract class AbstractDataLoaderService
 
       return true;
     }
-    final DataLoadStatus status = _currentAction.toStatus();
+    final DataLoadStatus status = currentAction.toStatus();
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( status.toString() );
@@ -858,19 +854,19 @@ public abstract class AbstractDataLoaderService
     //Step: Run the post actions
     if ( LOG.isLoggable( getLogLevel() ) )
     {
-      LOG.log( getLogLevel(), "Running post action and cleaning action: " + _currentAction );
+      LOG.log( getLogLevel(), "Running post action and cleaning action: " + currentAction );
     }
-    final RequestEntry request = _currentAction.getRequest();
+    final RequestEntry request = currentAction.getRequest();
     if ( null != request )
     {
       request.markResultsAsArrived();
     }
-    final SafeProcedure runnable = _currentAction.getCompletionAction();
+    final SafeProcedure runnable = currentAction.getCompletionAction();
     if ( null != runnable )
     {
       runnable.call();
       // OOB messages are not in response to requests as such
-      final String requestId = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestId();
+      final String requestId = isOutOfBandMessage ? null : currentAction.getChangeSet().getRequestId();
       if ( null != requestId )
       {
         // We can remove the request because this side ran second and the
@@ -888,7 +884,7 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-    _currentAction = null;
+    session.setCurrentAction( null );
     onMessageProcessed( status );
     if ( null != _resetAction )
     {
@@ -900,8 +896,10 @@ public abstract class AbstractDataLoaderService
 
   private void processChannelActions()
   {
-    _currentAction.markChannelActionsProcessed();
-    final ChangeSet changeSet = _currentAction.getChangeSet();
+    final DataLoadAction currentAction = ensureSession().getCurrentAction();
+    assert null != currentAction;
+    currentAction.markChannelActionsProcessed();
+    final ChangeSet changeSet = currentAction.getChangeSet();
     final ChannelChange[] channelChanges = changeSet.getChannelChanges();
     for ( final ChannelChange channelChange : channelChanges )
     {
@@ -916,9 +914,10 @@ public abstract class AbstractDataLoaderService
 
       if ( ChannelChange.Action.ADD == actionType )
       {
-        _currentAction.incChannelAddCount();
+        currentAction.incChannelAddCount();
         boolean explicitSubscribe = false;
-        if ( _currentAoiActions.stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
+        if ( ensureSession().getCurrentAoiActions()
+          .stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
         {
           if ( LOG.isLoggable( getLogLevel() ) )
           {
@@ -933,7 +932,7 @@ public abstract class AbstractDataLoaderService
         final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
         Disposable.dispose( subscription );
-        _currentAction.incChannelRemoveCount();
+        currentAction.incChannelRemoveCount();
       }
       else if ( ChannelChange.Action.UPDATE == actionType )
       {
@@ -941,7 +940,7 @@ public abstract class AbstractDataLoaderService
         assert null != subscription;
         subscription.setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription, filter );
-        _currentAction.incChannelUpdateCount();
+        currentAction.incChannelUpdateCount();
       }
       else
       {
