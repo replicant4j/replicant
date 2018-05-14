@@ -30,55 +30,7 @@ public class ConnectionTest
   }
 
   @Test
-  public void completeNormalRequest()
-  {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    connection.completeRequest( e, action );
-
-    verify( action ).call();
-    assertEquals( e.getCompletionAction(), null );
-    assertNull( connection.getRequest( e.getRequestId() ) );
-  }
-
-  @Test
-  public void completeNormalRequest_expectingResults()
-  {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    e.setExpectingResults( true );
-
-    connection.completeRequest( e, action );
-
-    verify( action, never() ).call();
-
-    assertEquals( e.getCompletionAction(), action );
-    assertNotNull( connection.getRequest( e.getRequestId() ) );
-  }
-
-  @Test
-  public void completeNormalRequest_resultsArrived()
-  {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    e.setExpectingResults( true );
-    e.markResultsAsArrived();
-
-    connection.completeRequest( e, action );
-
-    verify( action ).call();
-    assertEquals( e.getCompletionAction(), null );
-    assertNull( connection.getRequest( e.getRequestId() ) );
-  }
-
-  @Test
-  public void completeNonNormalRequest()
+  public void completeRequest()
   {
     final Connection connection = new Connection( null, ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
@@ -103,7 +55,30 @@ public class ConnectionTest
     connection.completeRequest( e, action );
 
     verify( action, never() ).call();
+
     assertEquals( e.getCompletionAction(), action );
     assertNotNull( connection.getRequest( e.getRequestId() ) );
+  }
+
+  @Test
+  public void completeRequest_resultsArrived()
+  {
+    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
+    final SafeProcedure action = mock( SafeProcedure.class );
+
+    e.setExpectingResults( true );
+    e.markResultsAsArrived();
+
+    connection.completeRequest( e, action );
+
+    verify( action ).call();
+    assertEquals( e.getCompletionAction(), null );
+    assertNull( connection.getRequest( e.getRequestId() ) );
+  }
+
+  enum G
+  {
+    G1
   }
 }
