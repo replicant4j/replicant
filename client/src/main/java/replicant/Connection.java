@@ -134,7 +134,7 @@ public final class Connection
   {
     if ( request.isExpectingResults() && !request.haveResultsArrived() )
     {
-        request.setCompletionAction( completionAction );
+      request.setCompletionAction( completionAction );
     }
     else
     {
