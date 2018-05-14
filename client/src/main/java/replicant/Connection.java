@@ -119,7 +119,7 @@ public final class Connection
   @Nonnull
   public final RequestEntry newRequest( @Nullable final String name, @Nullable final String cacheKey )
   {
-    final RequestEntry entry = new RequestEntry( newRequestID(), name, cacheKey );
+    final RequestEntry entry = new RequestEntry( nextRequestId(), name, cacheKey );
     _requests.put( entry.getRequestId(), entry );
     if ( LOG.isLoggable( LOG_LEVEL ) )
     {
@@ -188,7 +188,7 @@ public final class Connection
     return null != _requests.remove( requestID );
   }
 
-  private String newRequestID()
+  private String nextRequestId()
   {
     return String.valueOf( ++_requestID );
   }
