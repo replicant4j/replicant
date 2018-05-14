@@ -18,7 +18,6 @@ public class DataLoadActionTest
     assertEquals( action.getRawJsonData(), rawJsonData );
     assertEquals( action.isOob(), false );
 
-    assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
@@ -137,7 +136,7 @@ public class DataLoadActionTest
   {
     final DataLoadAction action = new DataLoadAction( ValueUtil.randomString() );
     assertEquals( action.toString(),
-                  "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=0,RemovedEntities.size=0,EntitiesToLink.size=null,EntityLinksCalculated=false]" );
+                  "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
     final int sequence = 33;
     final String requestId = "XXX";
@@ -146,12 +145,13 @@ public class DataLoadActionTest
     action.recordChangeSet( changeSet, null );
 
     assertEquals( action.toString(),
-                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=0,RemovedEntities.size=0,EntitiesToLink.size=null,EntityLinksCalculated=false]" );
+                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
-    action.calculateEntitiesToLink();
+    // Null out Entities
+    action.nextEntityToLink();
 
     assertEquals( action.toString(),
-                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,Runnable.null?=true,UpdatedEntities.size=null,RemovedEntities.size=null,EntitiesToLink.size=0,EntityLinksCalculated=true]" );
+                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
     ReplicantTestUtil.disableNames();
 
@@ -208,7 +208,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
@@ -225,7 +224,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), true );
-    assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
@@ -258,13 +256,8 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
-    assertEquals( action.areEntityLinksPending(), false );
+    assertEquals( action.areEntityLinksPending(), true );
     assertEquals( action.hasWorldBeenNotified(), false );
-
-    action.calculateEntitiesToLink();
-
-    assertEquals( action.areEntityLinksCalculated(), true );
 
     // process links
     {
@@ -277,14 +270,12 @@ public class DataLoadActionTest
     assertEquals( action.areEntityLinksPending(), false );
 
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
     action.markWorldAsNotified();
 
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), true );
   }
@@ -321,7 +312,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
@@ -338,24 +328,14 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), true );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
     // processed as single block in caller
     action.markChannelActionsProcessed();
-    assertEquals( action.needsChannelActionsProcessed(), false );
-
-    assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
-
-    action.calculateEntitiesToLink();
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
@@ -363,7 +343,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), true );
   }
@@ -393,7 +372,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
@@ -405,15 +383,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
-
-    action.calculateEntitiesToLink();
-
-    assertEquals( action.needsChannelActionsProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), false );
 
@@ -421,7 +390,6 @@ public class DataLoadActionTest
 
     assertEquals( action.needsChannelActionsProcessed(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.areEntityLinksCalculated(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenNotified(), true );
   }

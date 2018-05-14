@@ -1,6 +1,5 @@
 package replicant;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -37,9 +36,6 @@ public final class DataLoadAction
   private int _changeIndex;
 
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
-  private HashSet<Linkable> _removedEntities = new HashSet<>();
-  private LinkedList<Linkable> _entitiesToLink;
-  private boolean _entityLinksCalculated;
   private boolean _worldNotified;
   private boolean _channelActionsProcessed;
   private RequestEntry _request;
@@ -221,51 +217,24 @@ public final class DataLoadAction
       {
         _updatedEntities.add( (Linkable) entity );
       }
-      else
-      {
-        // TODO: This should not be needed, seems like a bug in server code if it occurs
-        _removedEntities.add( (Linkable) entity );
-      }
     }
-  }
-
-  public boolean areEntityLinksCalculated()
-  {
-    return _entityLinksCalculated;
-  }
-
-  public void calculateEntitiesToLink()
-  {
-    _entityLinksCalculated = true;
-    _entitiesToLink = new LinkedList<>();
-    for ( final Linkable entity : _updatedEntities )
-    {
-      // TODO: This should not be needed, seems like a bug in server code if it occurs
-      // In some circumstances a create and remove can appear in same change set so guard against this
-      if ( !_removedEntities.contains( entity ) )
-      {
-        _entitiesToLink.add( entity );
-      }
-    }
-    _updatedEntities = null;
-    _removedEntities = null;
   }
 
   public boolean areEntityLinksPending()
   {
-    return null != _entitiesToLink && !_entitiesToLink.isEmpty();
+    return null != _updatedEntities && !_updatedEntities.isEmpty();
   }
 
   public Linkable nextEntityToLink()
   {
     if ( areEntityLinksPending() )
     {
-      assert null != _entitiesToLink;
-      return _entitiesToLink.remove();
+      assert null != _updatedEntities;
+      return _updatedEntities.remove();
     }
     else
     {
-      _entitiesToLink = null;
+      _updatedEntities = null;
       return null;
     }
   }
@@ -328,11 +297,8 @@ public final class DataLoadAction
              ",RawJson.null?=" + ( null == _rawJsonData ) +
              ",ChangeSet.null?=" + ( null == _changeSet ) +
              ",ChangeIndex=" + _changeIndex +
-             ",Runnable.null?=" + ( null == getCompletionAction() ) +
-             ",UpdatedEntities.size=" + ( null == _updatedEntities ? null : _updatedEntities.size() ) +
-             ",RemovedEntities.size=" + ( null == _removedEntities ? null : _removedEntities.size() ) +
-             ",EntitiesToLink.size=" + ( null == _entitiesToLink ? null : _entitiesToLink.size() ) +
-             ",EntityLinksCalculated=" + _entityLinksCalculated +
+             ",CompletionAction.null?=" + ( null == getCompletionAction() ) +
+             ",UpdatedEntities.size=" + ( null == _updatedEntities ? 0 : _updatedEntities.size() ) +
              "]";
     }
     else

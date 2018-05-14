@@ -793,17 +793,6 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    //Step: Calculate the entities that need to be linked
-    if ( !currentAction.areEntityLinksCalculated() )
-    {
-      if ( LOG.isLoggable( getLogLevel() ) )
-      {
-        LOG.log( getLogLevel(), "Calculating Link list: " + currentAction );
-      }
-      currentAction.calculateEntitiesToLink();
-      return true;
-    }
-
     //Step: Process a chunk of links
     if ( currentAction.areEntityLinksPending() )
     {
