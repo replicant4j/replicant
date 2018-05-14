@@ -25,6 +25,9 @@ public class ConnectionTest
     connection.setCurrentMessageResponse( response );
 
     assertEquals( connection.getCurrentMessageResponse(), response );
+
+    connection.setLastRxSequence( 2 );
+    assertEquals( connection.getLastRxSequence(), 2 );
   }
 
   @Test
