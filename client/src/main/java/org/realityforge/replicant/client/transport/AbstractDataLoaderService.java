@@ -261,7 +261,7 @@ public abstract class AbstractDataLoaderService
     if ( currentAOIActions.isEmpty() )
     {
       final LinkedList<AreaOfInterestEntry> actions = connection.getPendingAreaOfInterestActions();
-      if ( 0 == actions.size() )
+      if ( actions.isEmpty() )
       {
         return false;
       }
