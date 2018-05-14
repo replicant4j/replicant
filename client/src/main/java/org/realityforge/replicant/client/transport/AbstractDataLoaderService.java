@@ -155,7 +155,7 @@ public abstract class AbstractDataLoaderService
         // until it can disable broker. This will involve replacing _resetAction
         // with something more like existing action setup.
 
-        context().safeAction( generateName( "purgeSubscriptions" ), this::purgeSubscriptions );
+        purgeSubscriptions();
       }
     }
     action.call();
@@ -170,6 +170,7 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   protected abstract Connection ensureConnection();
 
+  @Action
   protected void purgeSubscriptions()
   {
     Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
