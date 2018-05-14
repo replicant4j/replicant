@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Notification when a Request completes.
+ * Notification when a Request starts.
  */
 public final class RequestStartedEvent
   implements SerializableEvent
