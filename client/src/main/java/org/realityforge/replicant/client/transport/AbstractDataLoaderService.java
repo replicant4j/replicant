@@ -213,7 +213,7 @@ public abstract class AbstractDataLoaderService
     }
     try
     {
-      _schedulerActive = progressAreaOfInterestRequests() || progressDataLoad();
+      _schedulerActive = progressAreaOfInterestRequestProcessing() || progressResponseProcessing();
     }
     catch ( final Exception e )
     {
@@ -257,7 +257,7 @@ public abstract class AbstractDataLoaderService
    *
    * @return true if more work is to be done.
    */
-  protected boolean progressAreaOfInterestRequests()
+  protected boolean progressAreaOfInterestRequestProcessing()
   {
     final Connection connection = ensureConnection();
     final List<AreaOfInterestRequest> requests = connection.getCurrentAreaOfInterestRequests();
@@ -645,7 +645,7 @@ public abstract class AbstractDataLoaderService
     return -1;
   }
 
-  protected boolean progressDataLoad()
+  protected boolean progressResponseProcessing()
   {
     final Connection connection = ensureConnection();
     // Step: Retrieve any out of band actions
@@ -1001,7 +1001,7 @@ public abstract class AbstractDataLoaderService
   }
 
   /**
-   * Template method invoked when progressDataLoad() is about to return false and terminate load process.
+   * Template method invoked when progressResponseProcessing() is about to return false and terminate load process.
    */
   protected void onTerminatingIncrementalDataLoadProcess()
   {
