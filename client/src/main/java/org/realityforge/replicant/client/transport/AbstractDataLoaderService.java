@@ -776,16 +776,13 @@ public abstract class AbstractDataLoaderService
         for ( int i = 0; i < _changesToProcessPerTick && null != ( change = currentAction.nextChange() ); i++ )
         {
           final Object entity = getChangeMapper().applyChange( change );
-          if ( LOG.isLoggable( Level.INFO ) )
+          if ( change.isUpdate() )
           {
-            if ( change.isUpdate() )
-            {
-              currentAction.incEntityUpdateCount();
-            }
-            else
-            {
-              currentAction.incEntityRemoveCount();
-            }
+            currentAction.incEntityUpdateCount();
+          }
+          else
+          {
+            currentAction.incEntityRemoveCount();
           }
           currentAction.changeProcessed( change.isUpdate(), entity );
         }
@@ -807,10 +804,7 @@ public abstract class AbstractDataLoaderService
         for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
         {
           linkable.link();
-          if ( LOG.isLoggable( Level.INFO ) )
-          {
-            currentAction.incEntityLinkCount();
-          }
+          currentAction.incEntityLinkCount();
         }
       }, changeSet.getSequence(), changeSet.getRequestId() );
       return true;
