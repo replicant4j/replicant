@@ -24,8 +24,14 @@ public final class Connection
   private static final Logger LOG = Logger.getLogger( Connection.class.getName() );
   private static final Level LOG_LEVEL = Level.INFO;
 
+  /**
+   * The containing Connector.
+   */
   @Nonnull
   private final Connector _connector;
+  /**
+   * A unique identifier for the connection, typically supplied by the backend.
+   */
   private final String _connectionId;
   /**
    * A map containing the rpc requests that are in progress.
