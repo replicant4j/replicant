@@ -13,9 +13,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Client-side representation of session.
- * Includes a database of outstanding requests, a subscription database and a
- * collection of outstanding data actions to apply.
+ * Connection state used by the connector to manage connection to backend system.
+ * This includes a list of pending requests, pending messages that needs to be applied
+ * to the local state etc.
  */
 public final class Connection
 {
