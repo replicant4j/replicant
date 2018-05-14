@@ -10,6 +10,24 @@ public class ConnectionTest
   extends AbstractReplicantTest
 {
   @Test
+  public void construct()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertEquals( connection.getConnectionId(), connectionId );
+    assertEquals( connection.getLastRxSequence(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+
+    final MessageResponse response = new MessageResponse( "" );
+    connection.setCurrentMessageResponse( response );
+
+    assertEquals( connection.getCurrentMessageResponse(), response );
+  }
+
+  @Test
   public void basicRequestManagementWorkflow()
   {
     final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
