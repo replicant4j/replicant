@@ -76,10 +76,10 @@ public abstract class AbstractRequestAdapter
     return _onSuccess;
   }
 
-  @Nullable
+  @Nonnull
   protected final SafeProcedure getOnCacheValid()
   {
-    return _onCacheValid;
+    return null == _onCacheValid ? NOOP : _onCacheValid;
   }
 
   @Nullable
