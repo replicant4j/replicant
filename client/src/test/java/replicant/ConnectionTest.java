@@ -33,13 +33,13 @@ public class ConnectionTest
   public void completeNormalRequest()
   {
     final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    connection.completeNormalRequest( e, action );
+    connection.completeRequest( e, action );
 
     verify( action ).call();
-    assertFalse( e.isCompletionDataPresent() );
+    assertEquals( e.getCompletionAction(), null );
     assertNull( connection.getRequest( e.getRequestId() ) );
   }
 
@@ -47,16 +47,15 @@ public class ConnectionTest
   public void completeNormalRequest_expectingResults()
   {
     final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
 
-    connection.completeNormalRequest( e, action );
+    connection.completeRequest( e, action );
 
     verify( action, never() ).call();
-    assertTrue( e.isCompletionDataPresent() );
-    assertTrue( e.isNormalCompletion() );
+
     assertEquals( e.getCompletionAction(), action );
     assertNotNull( connection.getRequest( e.getRequestId() ) );
   }
@@ -65,16 +64,16 @@ public class ConnectionTest
   public void completeNormalRequest_resultsArrived()
   {
     final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
     e.markResultsAsArrived();
 
-    connection.completeNormalRequest( e, action );
+    connection.completeRequest( e, action );
 
     verify( action ).call();
-    assertFalse( e.isCompletionDataPresent() );
+    assertEquals( e.getCompletionAction(), null );
     assertNull( connection.getRequest( e.getRequestId() ) );
   }
 
@@ -82,48 +81,29 @@ public class ConnectionTest
   public void completeNonNormalRequest()
   {
     final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    connection.completeNonNormalRequest( e, action );
+    connection.completeRequest( e, action );
 
     verify( action ).call();
-    assertFalse( e.isCompletionDataPresent() );
+    assertEquals( e.getCompletionAction(), null );
     assertNull( connection.getRequest( e.getRequestId() ) );
   }
 
   @Test
-  public void completeNonNormalRequest_expectingResults()
+  public void completeRequest_expectingResults()
   {
     final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setExpectingResults( true );
 
-    connection.completeNonNormalRequest( e, action );
+    connection.completeRequest( e, action );
 
     verify( action, never() ).call();
-    assertTrue( e.isCompletionDataPresent() );
-    assertFalse( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
     assertNotNull( connection.getRequest( e.getRequestId() ) );
-  }
-
-  @Test
-  public void completeNonNormalRequest_resultsArrived()
-  {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    e.setExpectingResults( true );
-    e.markResultsAsArrived();
-
-    connection.completeNonNormalRequest( e, action );
-
-    verify( action ).call();
-    assertFalse( e.isCompletionDataPresent() );
-    assertNull( connection.getRequest( e.getRequestId() ) );
   }
 }

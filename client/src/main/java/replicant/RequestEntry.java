@@ -67,15 +67,13 @@ public class RequestEntry
     return _completionAction;
   }
 
-  public void setNormalCompletionAction( @Nullable final SafeProcedure completionAction )
+  public void setNormalCompletion( final boolean normalCompletion )
   {
-    _normalCompletion = true;
-    _completionAction = completionAction;
+    _normalCompletion = normalCompletion;
   }
 
-  public void setNonNormalCompletionAction( @Nullable final SafeProcedure completionAction )
+  public void setCompletionAction( @Nonnull final SafeProcedure completionAction )
   {
-    _normalCompletion = false;
     _completionAction = completionAction;
   }
 

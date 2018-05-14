@@ -128,47 +128,17 @@ public final class Connection
     return entry;
   }
 
-  public final void completeNormalRequest( @Nonnull final RequestEntry request,
-                                           @Nonnull final SafeProcedure completionAction )
+  public final void completeRequest( @Nonnull final RequestEntry request,
+                                     @Nonnull final SafeProcedure completionAction )
   {
     if ( request.isExpectingResults() && !request.haveResultsArrived() )
     {
-      request.setNormalCompletionAction( completionAction );
-      if ( LOG.isLoggable( LOG_LEVEL ) )
-      {
-        LOG.log( LOG_LEVEL, "Request " + request + " completed normally. Change set has not arrived." );
-      }
+        request.setCompletionAction( completionAction );
     }
     else
     {
       completionAction.call();
       removeRequest( request.getRequestId() );
-      if ( LOG.isLoggable( LOG_LEVEL ) )
-      {
-        LOG.log( LOG_LEVEL, "Request " + request + " completed normally. No change set or already arrived." );
-      }
-    }
-  }
-
-  public final void completeNonNormalRequest( @Nonnull final RequestEntry request,
-                                              @Nonnull final SafeProcedure completionAction )
-  {
-    if ( request.isExpectingResults() && !request.haveResultsArrived() )
-    {
-      request.setNonNormalCompletionAction( completionAction );
-      if ( LOG.isLoggable( LOG_LEVEL ) )
-      {
-        LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. Change set has not arrived." );
-      }
-    }
-    else
-    {
-      completionAction.call();
-      removeRequest( request.getRequestId() );
-      if ( LOG.isLoggable( LOG_LEVEL ) )
-      {
-        LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. No change set or already arrived." );
-      }
     }
   }
 

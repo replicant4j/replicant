@@ -32,15 +32,13 @@ final class ActionCallbackAdapter
     final int statusCode = response.getStatusCode();
     if ( Response.SC_OK == statusCode )
     {
-      final SafeProcedure onSuccess = getOnSuccess();
-      calculateExpectingResults( response );
-      completeNormalRequest( onSuccess );
+      setNormalCompletion( response );
+      completeRequest( getOnSuccess() );
     }
     else if ( Response.SC_NO_CONTENT == statusCode )
     {
-      final SafeProcedure onCacheValid = getOnCacheValid();
-      calculateExpectingResults( response );
-      completeNormalRequest( null != onCacheValid ? onCacheValid : NOOP );
+      setNormalCompletion( response );
+      completeRequest( getOnCacheValid() );
     }
     else
     {
@@ -48,18 +46,20 @@ final class ActionCallbackAdapter
     }
   }
 
+  private void setNormalCompletion( @Nonnull final Response response )
+  {
+    final RequestEntry request = getRequest();
+    if ( null != request )
+    {
+      request.setNormalCompletion( true );
+      final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
+      request.setExpectingResults( !messageComplete );
+    }
+  }
+
   @Override
   public void onError( final Request request, final Throwable exception )
   {
     onFailure( exception );
-  }
-
-  private void calculateExpectingResults( @Nonnull final Response response )
-  {
-    if ( null != getRequest() )
-    {
-      final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
-      getRequest().setExpectingResults( !messageComplete );
-    }
   }
 }

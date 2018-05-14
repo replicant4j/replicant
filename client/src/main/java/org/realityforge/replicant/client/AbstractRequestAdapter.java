@@ -42,27 +42,16 @@ public abstract class AbstractRequestAdapter
     if ( null != request )
     {
       request.setExpectingResults( false );
+      request.setNormalCompletion( false );
     }
-    completeNonNormalRequest( () -> _onError.accept( caught ) );
+    completeRequest( () -> _onError.accept( caught ) );
   }
 
-  private void completeNonNormalRequest( @Nonnull final SafeProcedure action )
+  protected void completeRequest( @Nonnull final SafeProcedure completionAction )
   {
     if ( null != _request && null != _connection )
     {
-      _connection.completeNonNormalRequest( _request, action );
-    }
-    else
-    {
-      action.call();
-    }
-  }
-
-  protected void completeNormalRequest( @Nonnull final SafeProcedure completionAction )
-  {
-    if ( null != _request && null != _connection )
-    {
-      _connection.completeNormalRequest( _request, completionAction );
+      _connection.completeRequest( _request, completionAction );
     }
     else
     {

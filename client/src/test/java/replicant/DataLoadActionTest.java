@@ -213,11 +213,11 @@ public class DataLoadActionTest
 
     assertNull( action.getCompletionAction() );
 
-    request.setNormalCompletionAction( completionAction );
+    request.setCompletionAction( completionAction );
 
     action.recordChangeSet( changeSet, request );
 
-    assertEquals( action.getCompletionAction(), completionAction );
+    assertEquals( request.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
     assertEquals( action.getRawJsonData(), null );
@@ -317,11 +317,11 @@ public class DataLoadActionTest
 
     assertNull( action.getCompletionAction() );
 
-    request.setNormalCompletionAction( completionAction );
+    request.setCompletionAction( completionAction );
 
     action.recordChangeSet( changeSet, request );
 
-    assertEquals( action.getCompletionAction(), completionAction );
+    assertEquals( request.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
     assertEquals( action.getRawJsonData(), null );

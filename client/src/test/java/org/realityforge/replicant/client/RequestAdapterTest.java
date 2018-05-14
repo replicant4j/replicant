@@ -27,7 +27,12 @@ public class RequestAdapterTest
 
     void onSuccess()
     {
-      completeNormalRequest( getOnSuccess() );
+      final RequestEntry request = getRequest();
+      if ( null != request )
+      {
+        request.setNormalCompletion( true );
+      }
+      completeRequest( getOnSuccess() );
     }
   }
 
@@ -84,8 +89,8 @@ public class RequestAdapterTest
 
     final Throwable caught = new Throwable();
     adapter.onFailure( caught );
+
     assertEquals( results[ 0 ], caught );
-    assertFalse( request.isCompletionDataPresent() );
     assertNull( request.getCompletionAction() );
     assertFalse( request.isExpectingResults() );
   }

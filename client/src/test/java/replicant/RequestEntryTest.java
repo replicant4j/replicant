@@ -87,7 +87,8 @@ public class RequestEntryTest
     assertEquals( e.isCompletionDataPresent(), false );
     assertEquals( e.getCompletionAction(), null );
 
-    e.setNormalCompletionAction( action );
+    e.setNormalCompletion( true );
+    e.setCompletionAction( action );
 
     assertEquals( e.isCompletionDataPresent(), true );
     assertEquals( e.isNormalCompletion(), true );
@@ -103,7 +104,8 @@ public class RequestEntryTest
     assertEquals( e.isCompletionDataPresent(), false );
     assertEquals( e.getCompletionAction(), null );
 
-    e.setNonNormalCompletionAction( action );
+    e.setNormalCompletion( false );
+    e.setCompletionAction( action );
 
     assertEquals( e.isCompletionDataPresent(), true );
     assertEquals( e.isNormalCompletion(), false );
