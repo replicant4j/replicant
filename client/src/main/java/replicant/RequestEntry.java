@@ -11,6 +11,7 @@ import static org.realityforge.braincheck.Guards.*;
 public class RequestEntry
 {
   //TODO: Make this package access after all classes migrated to replicant package
+  @Nonnull
   private final String _requestId;
   @Nullable
   private final String _name;
