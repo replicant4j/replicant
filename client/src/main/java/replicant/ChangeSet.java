@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
@@ -17,15 +18,17 @@ public class ChangeSet
   private String request_id;
   @Nullable
   private String etag;
+  @Nullable
   private ChannelChange[] channel_actions;
+  @Nullable
   private EntityChange[] changes;
 
   @JsOverlay
   public static ChangeSet create( final int sequence,
                                   @Nullable final String requestId,
                                   @Nullable final String eTag,
-                                  @Nonnull final ChannelChange[] channelChanges,
-                                  @Nonnull final EntityChange[] entityChanges )
+                                  @Nullable final ChannelChange[] channelChanges,
+                                  @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
     changeSet.last_id = sequence;
@@ -71,6 +74,7 @@ public class ChangeSet
 
   /**
    * Return the channel changes that are part of the message.
+   * This should only be invoked if {@link #hasChannelChanges()} return true.
    *
    * @return the channel changes.
    */
@@ -78,11 +82,29 @@ public class ChangeSet
   @JsOverlay
   public final ChannelChange[] getChannelChanges()
   {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> null != channel_actions,
+                    () -> "Replicant-0013: ChangeSet.getChannelChanges() invoked when no changes are present. Should guard call with ChangeSet.hasChannelChanges()." );
+    }
+    assert null != channel_actions;
     return channel_actions;
   }
 
   /**
+   * Return true if this ChangeSet contains ChannelChanges.
+   *
+   * @return true if this ChangeSet contains ChannelChanges
+   */
+  @JsOverlay
+  public final boolean hasChannelChanges()
+  {
+    return null != channel_actions;
+  }
+
+  /**
    * Return the entity changes that are part of the message.
+   * This should only be invoked if {@link #hasEntityChanges()} return true.
    *
    * @return the entity changes.
    */
@@ -90,6 +112,23 @@ public class ChangeSet
   @JsOverlay
   public final EntityChange[] getEntityChanges()
   {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> null != changes,
+                    () -> "Replicant-0012: ChangeSet.getEntityChanges() invoked when no changes are present. Should guard call with ChangeSet.hasEntityChanges()." );
+    }
+    assert null != changes;
     return changes;
+  }
+
+  /**
+   * Return true if this ChangeSet contains EntityChanges.
+   *
+   * @return true if this ChangeSet contains EntityChanges
+   */
+  @JsOverlay
+  public final boolean hasEntityChanges()
+  {
+    return null != changes;
   }
 }

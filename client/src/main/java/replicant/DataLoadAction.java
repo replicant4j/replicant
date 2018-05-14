@@ -182,12 +182,15 @@ public final class DataLoadAction
 
   public boolean areChangesPending()
   {
-    return null != _changeSet && _changeIndex < _changeSet.getEntityChanges().length;
+    return null != _changeSet && _changeSet.hasEntityChanges() && _changeIndex < _changeSet.getEntityChanges().length;
   }
 
   public boolean needsChannelActionsProcessed()
   {
-    return null != _changeSet && 0 != _changeSet.getChannelChanges().length && !_channelActionsProcessed;
+    return null != _changeSet &&
+           _changeSet.hasChannelChanges() &&
+           0 != _changeSet.getChannelChanges().length &&
+           !_channelActionsProcessed;
   }
 
   public void markChannelActionsProcessed()
