@@ -120,7 +120,7 @@ public abstract class AbstractDataLoaderService
 
   protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
-    setConnection( new Connection( Replicant.areZonesEnabled() ? Replicant.context() : null, connectionId ), action );
+    setConnection( new Connection( this, connectionId ), action );
     scheduleDataLoad();
   }
 

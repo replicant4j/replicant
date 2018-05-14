@@ -17,13 +17,14 @@ import javax.annotation.Nullable;
  * to the local state etc.
  */
 public final class Connection
-  extends ReplicantService
 {
   //TODO: Make this package access after all classes migrated to replicant package
 
   private static final Logger LOG = Logger.getLogger( Connection.class.getName() );
   private static final Level LOG_LEVEL = Level.INFO;
 
+  @Nonnull
+  private final Connector _connector;
   private final String _connectionId;
   private final Map<String, RequestEntry> _requests = new HashMap<>();
   private int _requestID;
@@ -57,9 +58,9 @@ public final class Connection
   @Nonnull
   private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
 
-  public Connection( @Nullable final ReplicantContext context, final String connectionId )
+  public Connection( @Nonnull final Connector connector, @Nonnull final String connectionId )
   {
-    super( context );
+    _connector = connector;
     _connectionId = Objects.requireNonNull( connectionId );
   }
 
