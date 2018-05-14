@@ -31,6 +31,106 @@ public class ConnectionTest
   }
 
   @Test
+  public void requestSubscribe()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 23 );
+    final String filter1 = ValueUtil.randomString();
+    final String filter2 = ValueUtil.randomString();
+
+    connection.requestSubscribe( address1, filter1 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 1 );
+
+    connection.requestSubscribe( address2, filter2 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
+
+    final AreaOfInterestRequest request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
+    final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
+
+    assertEquals( request1.getAddress(), address1 );
+    assertEquals( request1.getFilter(), filter1 );
+    assertEquals( request1.getAction(), AreaOfInterestAction.ADD );
+
+    assertEquals( request2.getAddress(), address2 );
+    assertEquals( request2.getFilter(), filter2 );
+    assertEquals( request2.getAction(), AreaOfInterestAction.ADD );
+  }
+
+  @Test
+  public void requestSubscriptionUpdate()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 23 );
+    final String filter1 = ValueUtil.randomString();
+    final String filter2 = ValueUtil.randomString();
+
+    connection.requestSubscriptionUpdate( address1, filter1 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 1 );
+
+    connection.requestSubscriptionUpdate( address2, filter2 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
+
+    final AreaOfInterestRequest request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
+    final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
+
+    assertEquals( request1.getAddress(), address1 );
+    assertEquals( request1.getFilter(), filter1 );
+    assertEquals( request1.getAction(), AreaOfInterestAction.UPDATE );
+
+    assertEquals( request2.getAddress(), address2 );
+    assertEquals( request2.getFilter(), filter2 );
+    assertEquals( request2.getAction(), AreaOfInterestAction.UPDATE );
+  }
+
+  @Test
+  public void requestUnsubscribe()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 23 );
+
+    connection.requestUnsubscribe( address1 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 1 );
+
+    connection.requestUnsubscribe( address2 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
+
+    final AreaOfInterestRequest request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
+    final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
+
+    assertEquals( request1.getAddress(), address1 );
+    assertEquals( request1.getFilter(), null );
+    assertEquals( request1.getAction(), AreaOfInterestAction.REMOVE );
+
+    assertEquals( request2.getAddress(), address2 );
+    assertEquals( request2.getFilter(), null );
+    assertEquals( request2.getAction(), AreaOfInterestAction.REMOVE );
+  }
+
+  @Test
   public void basicRequestManagementWorkflow()
   {
     final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
@@ -140,6 +240,6 @@ public class ConnectionTest
 
   enum G
   {
-    G1
+    G1, G2
   }
 }
