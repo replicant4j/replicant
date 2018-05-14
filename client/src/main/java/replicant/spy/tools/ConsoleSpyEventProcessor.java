@@ -17,6 +17,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
@@ -82,6 +83,25 @@ public class ConsoleSpyEventProcessor
     on( UnsubscribeCompletedEvent.class, this::onUnsubscribeCompleted );
     on( UnsubscribeFailedEvent.class, this::onUnsubscribeFailed );
     on( UnsubscribeStartedEvent.class, this::onUnsubscribeStarted );
+
+    on( RequestCompletedEvent.class, this::onRequestCompleted );
+  }
+
+  /**
+   * Handle the RequestCompletedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onRequestCompleted( @Nonnull final RequestCompletedEvent e )
+  {
+    final String changeSetDescription =
+      !e.isExpectingResults() ? "No Change set expected." :
+      e.haveResultsArrived() ? "Change set has already arrived." :
+      "Change set has not arrived.";
+
+    log( "%cRequest completed " + ( e.isNormalCompletion() ? " normally" : "with an exception" ) +
+         ". System: " + e.getSystemType().getSimpleName() + " Request: " + e.getName() +
+         " RequestId: " + e.getRequestId() + " - " + changeSetDescription, CONNECTOR_COLOR );
   }
 
   /**
