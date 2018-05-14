@@ -40,7 +40,7 @@ public final class Connection
   /**
    * The id of the last rpc request sent to the server.
    */
-  private int _requestId;
+  private int _lastRequestId;
 
   /**
    * Pending actions that will change the area of interest.
@@ -210,7 +210,7 @@ public final class Connection
 
   private String nextRequestId()
   {
-    return String.valueOf( ++_requestId );
+    return String.valueOf( ++_lastRequestId );
   }
 
   @Nullable
