@@ -67,6 +67,16 @@ public final class Replicant
   }
 
   /**
+   * Return true if ChangeSet messages should be validated prior to processing, false otherwise.
+   *
+   * @return true if ChangeSet messages should be validated prior to processing, false otherwise.
+   */
+  public static boolean shouldValidateChangeSetOnRead()
+  {
+    return shouldCheckInvariants() && ReplicantConfig.shouldValidateChangeSetOnRead();
+  }
+
+  /**
    * Return true if a data load action should result in the local entity state being validated, false otherwise.
    *
    * @return true if a data load action should result in the local entity state being validated, false otherwise.

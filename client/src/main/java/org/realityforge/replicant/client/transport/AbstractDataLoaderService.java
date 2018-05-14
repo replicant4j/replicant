@@ -688,6 +688,11 @@ public abstract class AbstractDataLoaderService
         LOG.log( getLogLevel(), "Parsing JSON: " + currentAction );
       }
       final ChangeSet changeSet = parseChangeSet( rawJsonData );
+      if ( Replicant.shouldValidateChangeSetOnRead() )
+      {
+        changeSet.validate();
+      }
+
       // OOB messages are not in response to requests as such
       final String requestID = isOutOfBandMessage ? null : changeSet.getRequestId();
       // OOB messages have no etags as from local cache or generated locally

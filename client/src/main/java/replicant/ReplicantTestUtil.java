@@ -36,6 +36,7 @@ public final class ReplicantTestUtil
     if ( productionMode )
     {
       disableNames();
+      noValidateChangeSetOnRead();
       noValidateRepositoryOnLoad();
       noRequestsDebugOutputEnabled();
       disableSpies();
@@ -45,6 +46,7 @@ public final class ReplicantTestUtil
     else
     {
       enableNames();
+      validateChangeSetOnRead();
       validateRepositoryOnLoad();
       requestsDebugOutputEnabled();
       enableSpies();
@@ -90,6 +92,32 @@ public final class ReplicantTestUtil
   private static void setEnableNames( final boolean value )
   {
     setConstant( "ENABLE_NAMES", value );
+  }
+
+  /**
+   * Set `replicant.validateChangeSetOnRead` setting to true.
+   */
+  public static void validateChangeSetOnRead()
+  {
+    setValidateChangeSetOnRead( true );
+  }
+
+  /**
+   * Set `replicant.validateChangeSetOnRead` setting to false.
+   */
+  public static void noValidateChangeSetOnRead()
+  {
+    setValidateChangeSetOnRead( false );
+  }
+
+  /**
+   * Configure the `replicant.validateChangeSetOnRead` setting.
+   *
+   * @param value the setting.
+   */
+  private static void setValidateChangeSetOnRead( final boolean value )
+  {
+    setConstant( "VALIDATE_CHANGE_SET_ON_READ", value );
   }
 
   /**

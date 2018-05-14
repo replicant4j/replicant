@@ -17,6 +17,9 @@ final class ReplicantConfig
   private static boolean ENABLE_NAMES =
     "true".equals( System.getProperty( "replicant.enable_names", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_ZONES = "true".equals( System.getProperty( "replicant.enable_zones", "false" ) );
+  private static boolean VALIDATE_CHANGE_SET_ON_READ =
+    "true".equals( System.getProperty( "replicant.validateChangeSetOnRead",
+                                       PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean VALIDATE_REPOSITORY_ON_LOAD =
     "true".equals( System.getProperty( "replicant.validateRepositoryOnLoad",
                                        PRODUCTION_MODE ? "false" : "true" ) );
@@ -67,6 +70,11 @@ final class ReplicantConfig
   static boolean shouldValidateRepositoryOnLoad()
   {
     return VALIDATE_REPOSITORY_ON_LOAD;
+  }
+
+  static boolean shouldValidateChangeSetOnRead()
+  {
+    return VALIDATE_CHANGE_SET_ON_READ;
   }
 
   static boolean canRequestsDebugOutputBeEnabled()

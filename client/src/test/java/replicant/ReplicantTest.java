@@ -23,6 +23,14 @@ public class ReplicantTest
   }
 
   @Test
+  public void setting_shouldValidateChangeSetOnRead()
+  {
+    assertTrue( Replicant.shouldValidateChangeSetOnRead() );
+    ReplicantTestUtil.noValidateChangeSetOnRead();
+    assertFalse( Replicant.shouldValidateChangeSetOnRead() );
+  }
+
+  @Test
   public void setting_shouldValidateRepositoryOnLoad()
   {
     assertTrue( Replicant.shouldValidateRepositoryOnLoad() );
