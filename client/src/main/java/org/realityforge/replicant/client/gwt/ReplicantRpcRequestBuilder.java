@@ -6,7 +6,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.Connection;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.RequestEntry;
@@ -25,10 +25,10 @@ public class ReplicantRpcRequestBuilder
   @Override
   protected void doSetCallback( final RequestBuilder rb, final RequestCallback callback )
   {
-    final ClientSession session = _sessionContext.getSession();
-    if ( null != session )
+    final Connection connection = _sessionContext.getConnection();
+    if ( null != connection )
     {
-      rb.setHeader( SharedConstants.SESSION_ID_HEADER, session.getSessionID() );
+      rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, connection.getConnectionId() );
     }
     final RequestEntry entry = _sessionContext.getRequest();
     if ( null == entry )

@@ -18,14 +18,14 @@ public class SessionContextTest
     final SessionContext sessionContext = new SessionContext( key );
     assertEquals( sessionContext.getKey(), key );
 
-    //session
+    //connection
     {
-      final ClientSession session = new ClientSession( ValueUtil.randomString() );
-      assertEquals( sessionContext.getSession(), null );
-      sessionContext.setSession( session );
-      assertEquals( sessionContext.getSession(), session );
-      sessionContext.setSession( null );
-      assertEquals( sessionContext.getSession(), null );
+      final Connection connection = new Connection( ValueUtil.randomString() );
+      assertEquals( sessionContext.getConnection(), null );
+      sessionContext.setConnection( connection );
+      assertEquals( sessionContext.getConnection(), connection );
+      sessionContext.setConnection( null );
+      assertEquals( sessionContext.getConnection(), null );
     }
 
     //authToken
@@ -61,14 +61,14 @@ public class SessionContextTest
     final String name = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
-    final ClientSession session = new ClientSession( ValueUtil.randomString() );
+    final Connection connection = new Connection( ValueUtil.randomString() );
 
     final SessionContext sessionContext = new SessionContext( key );
-    sessionContext.setSession( session );
+    sessionContext.setConnection( connection );
 
     sessionContext.request( name, cacheKey, action );
 
-    assertEquals( action._session, session );
+    assertEquals( action._session, connection );
     assertNotNull( action._request );
     assertEquals( action._request.getName(), name );
     assertEquals( action._request.getCacheKey(), cacheKey );
@@ -77,13 +77,13 @@ public class SessionContextTest
   static class TestRequestAction
     implements RequestAction
   {
-    private ClientSession _session;
+    private Connection _session;
     private RequestEntry _request;
 
     @Override
-    public void invokeRequest( @Nullable final ClientSession session, @Nullable final RequestEntry request )
+    public void invokeRequest( @Nullable final Connection connection, @Nullable final RequestEntry request )
     {
-      _session = session;
+      _session = connection;
       _request = request;
     }
   }

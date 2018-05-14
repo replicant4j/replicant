@@ -129,7 +129,7 @@ public class DataLoaderServiceTest
   */
 /*
   @Test
-  public void setSession()
+  public void setConnection()
     throws Exception
   {
     final TestChangeSet changeSet =
@@ -137,23 +137,23 @@ public class DataLoaderServiceTest
                          mock( Runnable.class ) );
     final TestDataLoadService service = newService( changeSet );
     final SafeProcedure runnable1 = mock( SafeProcedure.class );
-    final String sessionID = ValueUtil.randomString();
-    final ClientSession session1 = new ClientSession( ValueUtil.randomString() );
+    final String connectionId = ValueUtil.randomString();
+    final Connection session1 = new Connection( ValueUtil.randomString() );
 
-    session1.enqueueOOB( sessionID, null );
+    session1.enqueueOOB( connectionId, null );
 
-    assertEquals( service.getSessionContext().getSession(), null );
+    assertEquals( service.getSessionContext().getConnection(), null );
 
-    service.setSession( session1, runnable1 );
+    service.setConnection( session1, runnable1 );
 
-    assertEquals( service.getSessionContext().getSession(), session1 );
-    assertEquals( service.getSession(), session1 );
+    assertEquals( service.getSessionContext().getConnection(), session1 );
+    assertEquals( service.getConnection(), session1 );
     verify( runnable1, times( 1 ) ).call();
 
     // Should be no oob actions left
     progressWorkTillDone( service, 7, 1 );
 
-    service.setSession( session1, runnable1 );
+    service.setConnection( session1, runnable1 );
     verify( runnable1, times( 2 ) ).call();
   }
 
@@ -192,15 +192,15 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet );
     final CacheService cacheService = service.getCacheService();
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
-    service.ensureSession().enqueueDataLoad( "Data" );
+    service.ensureConnection().enqueueDataLoad( "Data" );
     final RequestEntry request = configureRequest( changeSet, service );
     assertNotNull( request );
 
     progressWorkTillDone( service, 7, 1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureConnection().getLastRxSequence(), changeSet.getSequence() );
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
     verify( cacheService ).store( cacheKey, etag, "Data" );
@@ -221,13 +221,13 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet );
     final CacheService cacheService = service.getCacheService();
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
-    service.ensureSession().enqueueOOB( "Data", changeSet.getRunnable() );
+    service.ensureConnection().enqueueOOB( "Data", changeSet.getRunnable() );
 
     progressWorkTillDone( service, 7, 1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
     verify( cacheService, never() ).store( anyString(), anyString(), anyString() );
@@ -256,17 +256,17 @@ public class DataLoaderServiceTest
 
     when( service.getChangeMapper().applyChange( changeSet.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureSession().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable() );
+      service.ensureConnection().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable() );
     }
 
     progressWorkTillDone( service, 9, 1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
@@ -317,9 +317,9 @@ public class DataLoaderServiceTest
     final TestDataLoadService service = newService( changeSet );
 
     final RequestEntry request =
-      service.ensureSession().newRequest( "", null );
+      service.ensureConnection().newRequest( "", null );
     changeSet.setRequestID( request.getRequestID() );
-    service.ensureSession().enqueueDataLoad( "blah" );
+    service.ensureConnection().enqueueDataLoad( "blah" );
 
     progressWorkTillDone( service, 7, 1 );
 
@@ -339,13 +339,13 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
     progressWorkTillDone( service, 7, 1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureConnection().getLastRxSequence(), changeSet.getSequence() );
 
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
@@ -385,7 +385,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     ensureEnqueueDataLoads( service );
 
@@ -393,7 +393,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.getValidateRepositoryCallCount(), 1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), changeSet.getSequence() );
+    assertEquals( service.ensureConnection().getLastRxSequence(), changeSet.getSequence() );
   }
 
   @Test
@@ -430,20 +430,20 @@ public class DataLoaderServiceTest
     when( changeMapper.applyChange( changeSet1.getChange( 0 ) ) ).thenReturn( entity );
     when( changeMapper.applyChange( changeSet2.getChange( 0 ) ) ).thenReturn( entity );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     configureRequests( service, service.getChangeSets() );
-    service.ensureSession().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueDataLoad( "jsonData" );
     progressWorkTillDone( service, 3, 1 );
 
     //No progress should have been made other than parsing packet as out of sequence
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
-    service.ensureSession().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueDataLoad( "jsonData" );
     progressWorkTillDone( service, 15, 2 );
 
     //Progress should have been made as all sequence appears
-    assertEquals( service.ensureSession().getLastRxSequence(), 2 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 2 );
     final InOrder inOrder = inOrder( changeSet2.getRunnable(), changeSet1.getRunnable() );
     inOrder.verify( changeSet1.getRunnable() ).run();
     inOrder.verify( changeSet2.getRunnable() ).run();
@@ -462,10 +462,10 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     configureRequests( service, service.getChangeSets() );
-    service.ensureSession().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
@@ -499,12 +499,12 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = newService( changeSet1 );
 
-    assertEquals( service.ensureSession().getLastRxSequence(), 0 );
+    assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     Replicant.context().createSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
 
     configureRequests( service, service.getChangeSets() );
-    service.ensureSession().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
@@ -525,11 +525,11 @@ public class DataLoaderServiceTest
   {
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    assertNotNull( service.getSession() );
+    assertNotNull( service.getConnection() );
 
     // type channel
     {
-      service.ensureSession().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestActions().clear();
 
       final ChannelAddress channel1 = new ChannelAddress( TestSystem.A );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
@@ -551,7 +551,7 @@ public class DataLoaderServiceTest
 
     // instance channel
     {
-      service.ensureSession().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestActions().clear();
 
       final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 2 );
       final ChannelAddress channel2b = new ChannelAddress( TestSystem.B );
@@ -572,7 +572,7 @@ public class DataLoaderServiceTest
     }
 
     {
-      service.ensureSession().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestActions().clear();
 
       final ChannelAddress channel3 = new ChannelAddress( TestSystem.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
@@ -587,7 +587,7 @@ public class DataLoaderServiceTest
 
     // instance channel with filter
     {
-      service.ensureSession().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestActions().clear();
 
       final Object filter = new Object();
       final ChannelAddress channel4 = new ChannelAddress( TestSystem.B, 55 );
@@ -606,7 +606,7 @@ public class DataLoaderServiceTest
     }
 
     {
-      service.ensureSession().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestActions().clear();
 
       final ChannelAddress channel1 = new ChannelAddress( TestSystem.B, 1 );
       final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 2 );
@@ -651,7 +651,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    assertNotNull( service.getSession() );
+    assertNotNull( service.getConnection() );
 
     assertEquals( false, service.progressAreaOfInterestActions() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
@@ -687,13 +687,13 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    assertNotNull( service.getSession() );
+    assertNotNull( service.getConnection() );
 
     service.requestSubscribe( channel1, null );
     service.requestSubscribe( channel2, null );
     service.requestSubscribe( channel3, null );
 
-    final AreaOfInterestEntry channel2AOI = service.ensureSession().getPendingAreaOfInterestActions().get( 1 );
+    final AreaOfInterestEntry channel2AOI = service.ensureConnection().getPendingAreaOfInterestActions().get( 1 );
     when( service.getCacheService().lookup(
       eq( channel2AOI.getCacheKey() ) ) ).thenReturn(
       new CacheEntry( channel2AOI.getCacheKey(), "woo", "har" ) );
@@ -728,7 +728,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    assertNotNull( service.getSession() );
+    assertNotNull( service.getConnection() );
 
     assertEquals( false, service.progressAreaOfInterestActions() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
@@ -742,7 +742,7 @@ public class DataLoaderServiceTest
     service.requestUnsubscribe( channelA2 );
     service.requestUnsubscribe( channelB1 );
 
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 8 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 8 );
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
@@ -790,7 +790,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    assertNotNull( service.getSession() );
+    assertNotNull( service.getConnection() );
 
     assertEquals( false, service.progressAreaOfInterestActions() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
@@ -800,7 +800,7 @@ public class DataLoaderServiceTest
     service.requestSubscriptionUpdate( channelA1, "FilterB" );
     service.requestSubscriptionUpdate( channelA2, "FilterB" );
 
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 4 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 4 );
 
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
@@ -834,7 +834,7 @@ public class DataLoaderServiceTest
 
     final TestDataLoadService service = TestDataLoadService.create();
     configureService( service );
-    assertNotNull( service.getSession() );
+    assertNotNull( service.getConnection() );
 
     final Subscription subscriptionA1 = Replicant.context().createSubscription( channelA1, "boo", true );
     final Subscription subscriptionA2 = Replicant.context().createSubscription( channelA2, "boo", true );
@@ -842,10 +842,10 @@ public class DataLoaderServiceTest
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
 
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 2 );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 0 );
 
     Disposable.dispose( subscriptionA1 );
     Disposable.dispose( subscriptionA2 );
@@ -853,19 +853,19 @@ public class DataLoaderServiceTest
     service.requestSubscriptionUpdate( channelA1, "boo" );
     service.requestSubscriptionUpdate( channelA2, "boo" );
 
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 2 );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 0 );
 
     service.requestUnsubscribe( channelA1 );
     service.requestUnsubscribe( channelA2 );
     service.requestUnsubscribe( channelA3 );
 
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 3 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 3 );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
-    assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 0 );
   }
 
   private void completeOutstandingAOIs( final TestDataLoadService service )
@@ -884,7 +884,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureSession().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
+      service.ensureConnection().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
     }
   }
 
@@ -902,7 +902,7 @@ public class DataLoaderServiceTest
     if ( changeSet.isResponseToRequest() )
     {
       final RequestEntry request =
-        service.ensureSession().newRequest( "", changeSet.getCacheKey() );
+        service.ensureConnection().newRequest( "", changeSet.getCacheKey() );
       request.setNormalCompletionAction( changeSet.getRunnable() );
       changeSet.setRequestID( request.getRequestID() );
       return request;
@@ -950,7 +950,7 @@ public class DataLoaderServiceTest
   private void configureService( final TestDataLoadService service )
     throws Exception
   {
-    set( service, AbstractDataLoaderService.class, "_session", new ClientSession( ValueUtil.randomString() ) );
+    set( service, AbstractDataLoaderService.class, "_session", new Connection( ValueUtil.randomString() ) );
 
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );
@@ -978,12 +978,12 @@ public class DataLoaderServiceTest
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNull( service.ensureSession().getRequest( request.getRequestID() ) );
+    assertNull( service.ensureConnection().getRequest( request.getRequestID() ) );
   }
 
   private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNotNull( service.ensureSession().getRequest( request.getRequestID() ) );
+    assertNotNull( service.ensureConnection().getRequest( request.getRequestID() ) );
   }
   */
 }

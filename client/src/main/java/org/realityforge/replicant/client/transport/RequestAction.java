@@ -5,5 +5,5 @@ import replicant.RequestEntry;
 
 public interface RequestAction
 {
-  void invokeRequest( @Nullable ClientSession session, @Nullable RequestEntry request );
+  void invokeRequest( @Nullable Connection connection, @Nullable RequestEntry request );
 }

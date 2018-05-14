@@ -16,7 +16,7 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.transport.CacheService;
-import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.Connection;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.RequestEntry;
@@ -63,7 +63,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final Consumer<Response> onResponse =
       r -> onConnectResponse( r.getStatusCode(), r.getStatusText(), r::getText, action );
-    sendRequest( RequestBuilder.POST, getBaseSessionURL(), onResponse, this::onConnectFailure );
+    sendRequest( RequestBuilder.POST, getBaseConnectionURL(), onResponse, this::onConnectFailure );
   }
 
   @Override
@@ -71,11 +71,11 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final Consumer<Response> onResponse = r -> onDisconnectResponse( r.getStatusCode(), r.getStatusText(), action );
     final Consumer<Throwable> onError = t -> onDisconnectError( t, action );
-    sendRequest( RequestBuilder.DELETE, getSessionURL(), onResponse, onError );
+    sendRequest( RequestBuilder.DELETE, getConnectionURL(), onResponse, onError );
   }
 
   @Override
-  protected void doSubscribe( @Nullable final ClientSession session,
+  protected void doSubscribe( @Nullable final Connection connection,
                               @Nullable final RequestEntry request,
                               @Nullable final Object filterParameter,
                               @Nonnull final String channelURL,
@@ -84,7 +84,7 @@ public abstract class GwtWebPollerDataLoaderService
                               @Nullable final SafeProcedure onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
   {
-    httpRequest( session,
+    httpRequest( connection,
                  request,
                  RequestBuilder.PUT,
                  channelURL,
@@ -96,16 +96,16 @@ public abstract class GwtWebPollerDataLoaderService
   }
 
   @Override
-  protected void doUnsubscribe( @Nullable final ClientSession session,
+  protected void doUnsubscribe( @Nullable final Connection connection,
                                 @Nullable final RequestEntry request,
                                 @Nonnull final String channelURL,
                                 @Nonnull final SafeProcedure onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
-    httpRequest( session, request, RequestBuilder.DELETE, channelURL, null, null, onSuccess, null, onError );
+    httpRequest( connection, request, RequestBuilder.DELETE, channelURL, null, null, onSuccess, null, onError );
   }
 
-  private void httpRequest( @Nullable final ClientSession session,
+  private void httpRequest( @Nullable final Connection connection,
                             @Nullable final RequestEntry request,
                             @Nonnull final RequestBuilder.Method method,
                             @Nonnull final String url,
@@ -116,7 +116,7 @@ public abstract class GwtWebPollerDataLoaderService
                             @Nonnull final Consumer<Throwable> onError )
   {
     final ActionCallbackAdapter adapter =
-      new ActionCallbackAdapter( onSuccess, onCacheValid, onError, request, session );
+      new ActionCallbackAdapter( onSuccess, onCacheValid, onError, request, connection );
     final String requestID = null != request ? request.getRequestId() : null;
     final RequestBuilder rb = newRequestBuilder( method, url );
     if ( null != requestID )
@@ -178,7 +178,7 @@ public abstract class GwtWebPollerDataLoaderService
                                                            @Nonnull final String url )
   {
     final RequestBuilder rb = newRequestBuilder( method, url );
-    rb.setHeader( SharedConstants.SESSION_ID_HEADER, ensureSession().getSessionID() );
+    rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, ensureConnection().getConnectionId() );
     return rb;
   }
 

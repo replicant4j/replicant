@@ -49,7 +49,7 @@ import org.realityforge.replicant.shared.SharedConstants;
  * Extend this class and provider a SessionManager as required. ie.
  *
  * <pre>
- * \@Path( ReplicantContext.SESSION_URL_FRAGMENT )
+ * \@Path( ReplicantContext.CONNECTION_URL_FRAGMENT )
  * \@Produces( MediaType.APPLICATION_JSON )
  * \@ApplicationScoped
  * public class CalendarSessionRestService

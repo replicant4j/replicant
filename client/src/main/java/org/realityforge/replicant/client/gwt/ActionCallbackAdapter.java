@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.AbstractRequestAdapter;
-import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.Connection;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.RequestEntry;
@@ -21,9 +21,9 @@ final class ActionCallbackAdapter
                          @Nullable final SafeProcedure onCacheValid,
                          @Nonnull final Consumer<Throwable> onError,
                          @Nullable final RequestEntry request,
-                         @Nullable final ClientSession session )
+                         @Nullable final Connection connection )
   {
-    super( onSuccess, onCacheValid, onError, request, session );
+    super( onSuccess, onCacheValid, onError, request, connection );
   }
 
   @Override

@@ -62,9 +62,9 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected abstract String getEndpointOffset();
 
-  protected void onSessionCreated( @Nonnull final String sessionID, @Nonnull final SafeProcedure action )
+  protected void onSessionCreated( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
-    setSession( new ClientSession( sessionID ), action );
+    setConnection( new Connection( connectionId ), action );
     scheduleDataLoad();
     startPolling();
   }
@@ -95,42 +95,42 @@ public abstract class WebPollerDataLoaderService
   {
     return getBaseURL() +
            SharedConstants.REPLICANT_URL_FRAGMENT + "?" +
-           SharedConstants.RECEIVE_SEQUENCE_PARAM + "=" + ensureSession().getLastRxSequence();
+           SharedConstants.RECEIVE_SEQUENCE_PARAM + "=" + ensureConnection().getLastRxSequence();
   }
 
   /**
-   * Return the url to session service.
+   * Return the url to connection service.
    *
    * The implementation derives the url from getBaseURL().
    */
   @Nonnull
-  protected String getBaseSessionURL()
+  protected String getBaseConnectionURL()
   {
-    return getBaseURL() + SharedConstants.SESSION_URL_FRAGMENT;
+    return getBaseURL() + SharedConstants.CONNECTION_URL_FRAGMENT;
   }
 
   /**
-   * Return the url to the specific resource for specified session
+   * Return the url to the specific resource for specified connection
    */
   @Nonnull
-  protected String getSessionURL()
+  protected String getConnectionURL()
   {
-    return getBaseSessionURL() + "/" + ensureSession().getSessionID();
+    return getBaseConnectionURL() + "/" + ensureConnection().getConnectionId();
   }
 
   /**
-   * Return URL to the specified channel for this session.
+   * Return URL to the specified channel for this connection.
    */
   @Nonnull
   protected String getChannelURL( final int channel,
                                   @Nullable Integer subChannelId )
   {
-    return getSessionURL() + SharedConstants.CHANNEL_URL_FRAGMENT +
+    return getConnectionURL() + SharedConstants.CHANNEL_URL_FRAGMENT +
            "/" + channel + ( null == subChannelId ? "" : "." + subChannelId );
   }
 
   /**
-   * Return URL to the specified channel, for the set of subChannelIds for this session.
+   * Return URL to the specified channel, for the set of subChannelIds for this connection.
    */
   @Nonnull
   protected String getChannelURL( final int channel,
@@ -138,7 +138,7 @@ public abstract class WebPollerDataLoaderService
   {
     final String queryParam = SharedConstants.SUB_CHANNEL_ID_PARAM + "=" +
                               subChannelIds.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
-    return getSessionURL() + SharedConstants.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
+    return getConnectionURL() + SharedConstants.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
   }
 
   /**
@@ -156,7 +156,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void onDisconnectError( @Nonnull final Throwable t, @Nonnull final SafeProcedure action )
   {
-    setSession( null, action );
+    setConnection( null, action );
     onDisconnectFailure( t );
   }
 
@@ -169,11 +169,11 @@ public abstract class WebPollerDataLoaderService
     {
       if ( HTTP_STATUS_CODE_OK == statusCode )
       {
-        setSession( null, action );
+        setConnection( null, action );
       }
       else
       {
-        setSession( null, action );
+        setConnection( null, action );
         onDisconnectFailure( new InvalidHttpResponseException( statusCode, statusText ) );
       }
     }
@@ -208,7 +208,7 @@ public abstract class WebPollerDataLoaderService
     if ( null != rawJsonData )
     {
       logResponse( rawJsonData );
-      ensureSession().enqueueDataLoad( rawJsonData );
+      ensureConnection().enqueueDataLoad( rawJsonData );
       scheduleDataLoad();
       pauseWebPoller();
     }
@@ -250,13 +250,13 @@ public abstract class WebPollerDataLoaderService
   protected abstract RequestFactory newRequestFactory();
 
   @Override
-  protected void doSetSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
+  protected void doSetConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
-    if ( null == session )
+    if ( null == connection )
     {
       stopPolling();
     }
-    super.doSetSession( session, action );
+    super.doSetConnection( connection, action );
   }
 
   protected void stopPolling()
@@ -334,8 +334,8 @@ public abstract class WebPollerDataLoaderService
                                    @Nullable final SafeProcedure onCacheValid,
                                    @Nonnull final Consumer<Throwable> onError )
   {
-    getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( session, request ) ->
-      doSubscribe( session,
+    getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( connection, request ) ->
+      doSubscribe( connection,
                    request,
                    filterParameter,
                    getChannelURL( channel, subChannelId ),
@@ -377,8 +377,8 @@ public abstract class WebPollerDataLoaderService
                                        @Nonnull final SafeProcedure onSuccess,
                                        @Nonnull final Consumer<Throwable> onError )
   {
-    getSessionContext().request( toRequestKey( "BulkSubscribe", channel ), null, ( session, request ) ->
-      doSubscribe( session,
+    getSessionContext().request( toRequestKey( "BulkSubscribe", channel ), null, ( connection, request ) ->
+      doSubscribe( connection,
                    request,
                    filterParameter,
                    getChannelURL( channel, subChannelIds ),
@@ -419,8 +419,8 @@ public abstract class WebPollerDataLoaderService
                                             @Nonnull final SafeProcedure onSuccess,
                                             @Nonnull final Consumer<Throwable> onError )
   {
-    getSessionContext().request( toRequestKey( "SubscriptionUpdate", channel ), null, ( session, request ) ->
-      doSubscribe( session,
+    getSessionContext().request( toRequestKey( "SubscriptionUpdate", channel ), null, ( connection, request ) ->
+      doSubscribe( connection,
                    request,
                    filterParameter,
                    getChannelURL( channel, subChannelId ),
@@ -461,8 +461,8 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
-    getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channel ), null, ( session, request ) ->
-      doSubscribe( session,
+    getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channel ), null, ( connection, request ) ->
+      doSubscribe( connection,
                    request,
                    filterParameter,
                    getChannelURL( channel, subChannelIds ),
@@ -496,8 +496,8 @@ public abstract class WebPollerDataLoaderService
                                      @Nonnull final SafeProcedure onSuccess,
                                      @Nonnull final Consumer<Throwable> onError )
   {
-    getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
-      doUnsubscribe( session, request, getChannelURL( channel, subChannelId ), onSuccess, onError ) );
+    getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( connection, request ) ->
+      doUnsubscribe( connection, request, getChannelURL( channel, subChannelId ), onSuccess, onError ) );
   }
 
   @Override
@@ -529,15 +529,15 @@ public abstract class WebPollerDataLoaderService
                                          @Nonnull final SafeProcedure onSuccess,
                                          @Nonnull final Consumer<Throwable> onError )
   {
-    getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( session, request ) ->
-      doUnsubscribe( session,
+    getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( connection, request ) ->
+      doUnsubscribe( connection,
                      request,
                      getChannelURL( channel, subChannelIds ),
                      onSuccess,
                      onError ) );
   }
 
-  protected abstract void doSubscribe( @Nullable ClientSession session,
+  protected abstract void doSubscribe( @Nullable Connection connection,
                                        @Nullable RequestEntry request,
                                        @Nullable Object filterParameter,
                                        @Nonnull String channelURL,
@@ -546,7 +546,7 @@ public abstract class WebPollerDataLoaderService
                                        @Nullable SafeProcedure onCacheValid,
                                        @Nonnull Consumer<Throwable> onError );
 
-  protected abstract void doUnsubscribe( @Nullable ClientSession session,
+  protected abstract void doUnsubscribe( @Nullable Connection connection,
                                          @Nullable RequestEntry request,
                                          @Nonnull String channelURL,
                                          @Nonnull SafeProcedure onSuccess,

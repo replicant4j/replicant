@@ -57,11 +57,11 @@ public abstract class AbstractDataLoaderService
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   private boolean _incrementalDataLoadInProgress;
   /**
-   * Action invoked after current action completes to reset session state.
+   * Action invoked after current action completes to reset connection state.
    */
   private Runnable _resetAction;
 
-  private ClientSession _session;
+  private Connection _connection;
   private Disposable _schedulerLock;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
@@ -76,7 +76,7 @@ public abstract class AbstractDataLoaderService
   public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
   {
     //TODO: Send spy message ..
-    ensureSession().enqueueAoiAction( address, AreaOfInterestAction.ADD, filterParameter );
+    ensureConnection().enqueueAoiAction( address, AreaOfInterestAction.ADD, filterParameter );
     scheduleDataLoad();
   }
 
@@ -85,7 +85,7 @@ public abstract class AbstractDataLoaderService
                                                @Nullable final Object filterParameter )
   {
     //TODO: Send spy message ..
-    ensureSession().enqueueAoiAction( address, AreaOfInterestAction.UPDATE, filterParameter );
+    ensureConnection().enqueueAoiAction( address, AreaOfInterestAction.UPDATE, filterParameter );
     scheduleDataLoad();
   }
 
@@ -93,7 +93,7 @@ public abstract class AbstractDataLoaderService
   public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     //TODO: Send spy message ..
-    ensureSession().enqueueAoiAction( address, AreaOfInterestAction.REMOVE, null );
+    ensureConnection().enqueueAoiAction( address, AreaOfInterestAction.REMOVE, null );
     scheduleDataLoad();
   }
 
@@ -117,10 +117,10 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  protected void setSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
+  protected void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
-    final Runnable runnable = () -> doSetSession( session, action );
-    if ( null == session || null == session.getCurrentAction() )
+    final Runnable runnable = () -> doSetConnection( connection, action );
+    if ( null == connection || null == connection.getCurrentAction() )
     {
       runnable.run();
     }
@@ -130,13 +130,13 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  protected void doSetSession( @Nullable final ClientSession session, @Nonnull final SafeProcedure action )
+  protected void doSetConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
-    if ( session != _session )
+    if ( connection != _connection )
     {
-      _session = session;
+      _connection = connection;
       // This should probably be moved elsewhere ... but where?
-      getSessionContext().setSession( session );
+      getSessionContext().setConnection( connection );
       if ( shouldPurgeOnSessionChange() )
       {
         //TODO: else schedule action so that it runs in loop
@@ -150,13 +150,13 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nullable
-  protected final ClientSession getSession()
+  protected final Connection getConnection()
   {
-    return _session;
+    return _connection;
   }
 
   @Nonnull
-  protected abstract ClientSession ensureSession();
+  protected abstract Connection ensureConnection();
 
   protected void purgeSubscriptions()
   {
@@ -243,10 +243,10 @@ public abstract class AbstractDataLoaderService
    */
   protected boolean progressAreaOfInterestActions()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
     if ( currentAOIActions.isEmpty() )
     {
-      final LinkedList<AreaOfInterestEntry> actions = ensureSession().getPendingAreaOfInterestActions();
+      final LinkedList<AreaOfInterestEntry> actions = ensureConnection().getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
       {
         return false;
@@ -305,7 +305,7 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIUpdateActions()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
     context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
       currentAOIActions.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
@@ -357,7 +357,7 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIRemoveActions()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
     context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
       currentAOIActions.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
@@ -429,7 +429,7 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressBulkAOIAddActions()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
     // Remove all Add Aoi actions that need no action as they are already present locally
     context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
       currentAOIActions.removeIf( a -> {
@@ -492,7 +492,7 @@ public abstract class AbstractDataLoaderService
             completeAoiAction();
             a.call();
           };
-          ensureSession().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
+          ensureConnection().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
           scheduleDataLoad();
         };
       }
@@ -535,7 +535,7 @@ public abstract class AbstractDataLoaderService
   private void completeAoiAction()
   {
     scheduleDataLoad();
-    final List<AreaOfInterestEntry> currentAOIActions = ensureSession().getCurrentAoiActions();
+    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
     currentAOIActions.forEach( AreaOfInterestEntry::markAsComplete );
     currentAOIActions.clear();
   }
@@ -579,14 +579,14 @@ public abstract class AbstractDataLoaderService
                                                 @Nonnull final ChannelAddress address,
                                                 @Nullable final Object filter )
   {
-    final ClientSession session = getSession();
-    final List<AreaOfInterestEntry> currentAOIActions = null == session ? null : session.getCurrentAoiActions();
+    final Connection connection = getConnection();
+    final List<AreaOfInterestEntry> currentAOIActions = null == connection ? null : connection.getCurrentAoiActions();
     return
       null != currentAOIActions &&
       currentAOIActions.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
       (
-        null != session &&
-        session.getPendingAreaOfInterestActions().stream().
+        null != connection &&
+        connection.getPendingAreaOfInterestActions().stream().
           anyMatch( a -> a.match( action, address, filter ) )
       );
   }
@@ -599,15 +599,15 @@ public abstract class AbstractDataLoaderService
                                                  @Nonnull final ChannelAddress address,
                                                  @Nullable final Object filter )
   {
-    final ClientSession session = getSession();
-    final List<AreaOfInterestEntry> currentAOIActions = null == session ? null : session.getCurrentAoiActions();
+    final Connection connection = getConnection();
+    final List<AreaOfInterestEntry> currentAOIActions = null == connection ? null : connection.getCurrentAoiActions();
     if ( null != currentAOIActions && currentAOIActions.stream().anyMatch( a -> a.match( action, address, filter ) ) )
     {
       return 0;
     }
-    else if ( null != session )
+    else if ( null != connection )
     {
-      final LinkedList<AreaOfInterestEntry> actions = session.getPendingAreaOfInterestActions();
+      final LinkedList<AreaOfInterestEntry> actions = connection.getPendingAreaOfInterestActions();
       int index = actions.size();
 
       final Iterator<AreaOfInterestEntry> iterator = actions.descendingIterator();
@@ -627,26 +627,26 @@ public abstract class AbstractDataLoaderService
 
   protected boolean progressDataLoad()
   {
-    final ClientSession session = ensureSession();
+    final Connection connection = ensureConnection();
     // Step: Retrieve any out of band actions
-    final LinkedList<DataLoadAction> oobActions = session.getOobActions();
-    final DataLoadAction currentAction = session.getCurrentAction();
+    final LinkedList<DataLoadAction> oobActions = connection.getOobActions();
+    final DataLoadAction currentAction = connection.getCurrentAction();
     if ( null == currentAction && !oobActions.isEmpty() )
     {
-      session.setCurrentAction( oobActions.removeFirst() );
+      connection.setCurrentAction( oobActions.removeFirst() );
       return true;
     }
 
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
-    final LinkedList<DataLoadAction> parsedActions = session.getParsedActions();
+    final LinkedList<DataLoadAction> parsedActions = connection.getParsedActions();
     if ( null == currentAction && !parsedActions.isEmpty() )
     {
       final DataLoadAction action = parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
-      if ( action.isOob() || session.getLastRxSequence() + 1 == changeSet.getSequence() )
+      if ( action.isOob() || connection.getLastRxSequence() + 1 == changeSet.getSequence() )
       {
         final DataLoadAction candidate = parsedActions.remove();
-        session.setCurrentAction( candidate );
+        connection.setCurrentAction( candidate );
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(), "Parsed Action Selected: " + candidate );
@@ -656,7 +656,7 @@ public abstract class AbstractDataLoaderService
     }
 
     // Abort if there is no pending data load actions to take
-    final LinkedList<DataLoadAction> pendingActions = session.getPendingActions();
+    final LinkedList<DataLoadAction> pendingActions = connection.getPendingActions();
     if ( null == currentAction && pendingActions.isEmpty() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
@@ -671,7 +671,7 @@ public abstract class AbstractDataLoaderService
     if ( null == currentAction )
     {
       final DataLoadAction candidate = pendingActions.remove();
-      session.setCurrentAction( candidate );
+      connection.setCurrentAction( candidate );
       if ( LOG.isLoggable( getLogLevel() ) )
       {
         LOG.log( getLogLevel(), "Un-parsed Action Selected: " + candidate );
@@ -717,12 +717,12 @@ public abstract class AbstractDataLoaderService
       }
       else
       {
-        request = null != requestID ? session.getRequest( requestID ) : null;
+        request = null != requestID ? connection.getRequest( requestID ) : null;
         if ( null == request && null != requestID )
         {
           final String message =
             "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
-            " Existing Requests: " + session.getRequests();
+            " Existing Requests: " + connection.getRequests();
           if ( LOG.isLoggable( Level.WARNING ) )
           {
             LOG.warning( message );
@@ -753,7 +753,7 @@ public abstract class AbstractDataLoaderService
       currentAction.recordChangeSet( changeSet, request );
       parsedActions.add( currentAction );
       Collections.sort( parsedActions );
-      session.setCurrentAction( null );
+      connection.setCurrentAction( null );
       return true;
     }
 
@@ -811,7 +811,7 @@ public abstract class AbstractDataLoaderService
       // OOB messages are not sequenced
       if ( !isOutOfBandMessage )
       {
-        session.setLastRxSequence( changeSet.getSequence() );
+        connection.setLastRxSequence( changeSet.getSequence() );
       }
       if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
@@ -848,11 +848,11 @@ public abstract class AbstractDataLoaderService
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
 
-        final boolean removed = session.removeRequest( requestId );
+        final boolean removed = connection.removeRequest( requestId );
         if ( !removed )
         {
           LOG.severe( "ChangeSet " + changeSet.getSequence() + " expected to complete request '" +
-                      requestId + "' but no request was registered with session." );
+                      requestId + "' but no request was registered with connection." );
         }
         if ( requestDebugOutputEnabled() )
         {
@@ -860,7 +860,7 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-    session.setCurrentAction( null );
+    connection.setCurrentAction( null );
     onMessageProcessed( status );
     if ( null != _resetAction )
     {
@@ -883,7 +883,7 @@ public abstract class AbstractDataLoaderService
 
   private void processChannelActions()
   {
-    final DataLoadAction currentAction = ensureSession().getCurrentAction();
+    final DataLoadAction currentAction = ensureConnection().getCurrentAction();
     assert null != currentAction;
     currentAction.markChannelActionsProcessed();
     final ChangeSet changeSet = currentAction.getChangeSet();
@@ -903,7 +903,7 @@ public abstract class AbstractDataLoaderService
       {
         currentAction.incChannelAddCount();
         boolean explicitSubscribe = false;
-        if ( ensureSession().getCurrentAoiActions()
+        if ( ensureConnection().getCurrentAoiActions()
           .stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
         {
           if ( LOG.isLoggable( getLogLevel() ) )
@@ -1052,7 +1052,7 @@ public abstract class AbstractDataLoaderService
 
   protected void outputRequestDebug()
   {
-    getRequestDebugger().outputRequests( getKey() + ":", ensureSession() );
+    getRequestDebugger().outputRequests( getKey() + ":", ensureConnection() );
   }
 
   @Nonnull

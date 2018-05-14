@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.transport.ClientSession;
+import org.realityforge.replicant.client.transport.Connection;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.RequestEntry;
@@ -20,9 +20,9 @@ public class RequestAdapterTest
     TestRequestAdapter( @Nonnull final SafeProcedure onSuccess,
                         @Nonnull final Consumer<Throwable> onError,
                         @Nullable final RequestEntry request,
-                        @Nullable final ClientSession session )
+                        @Nullable final Connection connection )
     {
-      super( onSuccess, null, onError, request, session );
+      super( onSuccess, null, onError, request, connection );
     }
 
     void onSuccess()
@@ -51,12 +51,12 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onSuccess()
   {
     final Object[] results = new Object[ 1 ];
-    final ClientSession session = new ClientSession( ValueUtil.randomString() );
-    final RequestEntry request = session.newRequest( ValueUtil.randomString(), null );
+    final Connection connection = new Connection( ValueUtil.randomString() );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 
     final TestRequestAdapter adapter =
-      new TestRequestAdapter( () -> results[ 0 ] = true, t -> results[ 0 ] = t, request, session );
+      new TestRequestAdapter( () -> results[ 0 ] = true, t -> results[ 0 ] = t, request, connection );
 
     assertNull( request.getCompletionAction() );
     assertFalse( request.isCompletionDataPresent() );
@@ -72,12 +72,12 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onFailure()
   {
     final Object[] results = new Object[ 1 ];
-    final ClientSession session = new ClientSession( ValueUtil.randomString() );
-    final RequestEntry request = session.newRequest( ValueUtil.randomString(), null );
+    final Connection connection = new Connection( ValueUtil.randomString() );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 
     final TestRequestAdapter adapter =
-      new TestRequestAdapter( () -> results[ 0 ] = true, t -> results[ 0 ] = t, request, session );
+      new TestRequestAdapter( () -> results[ 0 ] = true, t -> results[ 0 ] = t, request, connection );
 
     assertNull( request.getCompletionAction() );
     assertFalse( request.isCompletionDataPresent() );

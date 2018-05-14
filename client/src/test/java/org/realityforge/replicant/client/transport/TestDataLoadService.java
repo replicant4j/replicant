@@ -74,11 +74,11 @@ abstract class TestDataLoadService
 
   @Nonnull
   @Override
-  public ClientSession ensureSession()
+  public Connection ensureConnection()
   {
-    final ClientSession session = getSession();
-    assert null != session;
-    return session;
+    final Connection connection = getConnection();
+    assert null != connection;
+    return connection;
   }
 
   @Override

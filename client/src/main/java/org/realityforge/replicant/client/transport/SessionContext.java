@@ -12,7 +12,7 @@ public final class SessionContext
   private String _authenticationToken;
   private String _baseURL;
   @Nullable
-  private ClientSession _session;
+  private Connection _connection;
   @Nullable
   private RequestEntry _request;
 
@@ -61,14 +61,14 @@ public final class SessionContext
   }
 
   @Nullable
-  public ClientSession getSession()
+  public Connection getConnection()
   {
-    return _session;
+    return _connection;
   }
 
-  public void setSession( @Nullable final ClientSession session )
+  public void setConnection( @Nullable final Connection connection )
   {
-    _session = session;
+    _connection = connection;
   }
 
   @Nullable
@@ -79,11 +79,11 @@ public final class SessionContext
 
   public void request( @Nullable final String key, @Nullable final String cacheKey, @Nonnull final RequestAction action )
   {
-    if ( null != _session )
+    if ( null != _connection )
     {
-      _request = _session.newRequest( key, cacheKey );
+      _request = _connection.newRequest( key, cacheKey );
     }
-    action.invokeRequest( _session, _request );
+    action.invokeRequest( _connection, _request );
     _request = null;
   }
 }
