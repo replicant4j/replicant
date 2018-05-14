@@ -70,8 +70,8 @@ public final class Connection
   }
 
   public void enqueueAoiAction( @Nonnull final ChannelAddress descriptor,
-                         @Nonnull final AreaOfInterestAction action,
-                         @Nullable final Object filterParameter )
+                                @Nonnull final AreaOfInterestAction action,
+                                @Nullable final Object filterParameter )
   {
     _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( descriptor, action, filterParameter ) );
   }
