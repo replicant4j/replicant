@@ -631,9 +631,9 @@ public class ReplicantRuntimeTest
     }
 
     @Override
-    public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                  @Nonnull final ChannelAddress address,
-                                                  @Nullable final Object filter )
+    public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
+                                                   @Nonnull final ChannelAddress address,
+                                                   @Nullable final Object filter )
     {
       return false;
     }
@@ -655,9 +655,9 @@ public class ReplicantRuntimeTest
     }
 
     @Override
-    public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
-                                                   @Nonnull final ChannelAddress address,
-                                                   @Nullable final Object filter )
+    public int indexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                    @Nonnull final ChannelAddress address,
+                                                    @Nullable final Object filter )
     {
       return -1;
     }

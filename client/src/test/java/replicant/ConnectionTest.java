@@ -1,5 +1,7 @@
 package replicant;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.RequestCompletedEvent;
@@ -316,6 +318,175 @@ public class ConnectionTest
       assertEquals( ev.isExpectingResults(), true );
       assertEquals( ev.haveResultsArrived(), true );
     } );
+  }
+
+  @Test
+  public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
+    throws Exception
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1 );
+
+    assertRequestPending( connection, AreaOfInterestAction.ADD, address1, null, false );
+    assertRequestPending( connection, AreaOfInterestAction.REMOVE, address1, null, false );
+    assertRequestPending( connection, AreaOfInterestAction.UPDATE, address1, null, false );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.ADD, address1, null, -1 );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.REMOVE, address1, null, -1 );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.UPDATE, address1, null, -1 );
+  }
+
+  @Test
+  public void pendingAreaOfInterestRequestQueries_requestPending()
+    throws Exception
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address3 = new ChannelAddress( G.G1, 3 );
+
+    final Object filter1 = null;
+    final Object filter2 = ValueUtil.randomString();
+    final Object filter3 = null;
+
+    assertRequestPendingState( connection, address1, filter1, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+
+    connection.requestSubscribe( address1, null );
+
+    assertRequestPendingState( connection, address1, filter1, true, false, false, 1, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+
+    connection.requestSubscriptionUpdate( address2, filter2 );
+
+    assertRequestPendingState( connection, address1, filter1, true, false, false, 1, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, true, false, -1, 2, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+
+    connection.requestUnsubscribe( address3 );
+
+    assertRequestPendingState( connection, address1, filter1, true, false, false, 1, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, true, false, -1, 2, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, true, -1, -1, 3 );
+  }
+
+  @Test
+  public void pendingAreaOfInterestRequestQueries_currentPending()
+    throws Exception
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address3 = new ChannelAddress( G.G1, 3 );
+
+    final Object filter1 = null;
+    final Object filter2 = null;
+    final Object filter3 = null;
+
+    assertRequestPendingState( connection, address1, filter1, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+
+    connection.getCurrentAreaOfInterestRequests()
+      .add( new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 ) );
+
+    assertRequestPendingState( connection, address1, filter1, true, false, false, 0, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+
+    connection.getCurrentAreaOfInterestRequests()
+      .add( new AreaOfInterestRequest( address2, AreaOfInterestAction.ADD, filter2 ) );
+
+    assertRequestPendingState( connection, address1, filter1, true, false, false, 0, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, true, false, false, 0, -1, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+  }
+
+  @Test
+  public void pendingAreaOfInterestRequestQueries_jumbledAggregate()
+    throws Exception
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address3 = new ChannelAddress( G.G1, 3 );
+    final ChannelAddress address4 = new ChannelAddress( G.G2 );
+
+    final Object filter1 = null;
+    final Object filter2 = ValueUtil.randomString();
+    final Object filter3 = null;
+    final Object filter4 = null;
+
+    assertRequestPendingState( connection, address1, filter1, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address4, filter4, false, false, false, -1, -1, -1 );
+
+    // Same address with multiple chained requests
+    connection.requestUnsubscribe( address1 );
+    connection.requestSubscribe( address1, filter1 );
+    connection.requestSubscriptionUpdate( address1, filter1 );
+
+    // Same address - multiple update requests
+    connection.requestSubscriptionUpdate( address2, filter2 );
+    connection.requestSubscriptionUpdate( address2, filter2 );
+
+    // Same address - bad requests sequence
+    connection.requestUnsubscribe( address3 );
+    connection.requestSubscriptionUpdate( address3, filter3 );
+
+    // Same address - bad requests sequence
+    connection.requestUnsubscribe( address3 );
+    connection.requestSubscriptionUpdate( address3, filter3 );
+
+    // Back to the first address
+    connection.requestSubscribe( address1, filter1 );
+
+    assertRequestPendingState( connection, address1, filter1, true, true, true, 10, 3, 1 );
+    assertRequestPendingState( connection, address2, filter2, false, true, false, -1, 5, -1 );
+    assertRequestPendingState( connection, address3, filter3, false, true, true, -1, 9, 8 );
+    assertRequestPendingState( connection, address4, filter4, false, false, false, -1, -1, -1 );
+  }
+
+  private void assertRequestPendingState( final Connection connection,
+                                          final ChannelAddress address,
+                                          final Object filter,
+                                          final boolean hasAdd,
+                                          final boolean hasUpdate,
+                                          final boolean hasRemove,
+                                          final int addIndex,
+                                          final int updateIndex,
+                                          final int removeIndex )
+  {
+    assertRequestPending( connection, AreaOfInterestAction.ADD, address, filter, hasAdd );
+    assertRequestPending( connection, AreaOfInterestAction.UPDATE, address, filter, hasUpdate );
+    assertRequestPending( connection, AreaOfInterestAction.REMOVE, address, filter, hasRemove );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.ADD, address, filter, addIndex );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.UPDATE, address, filter, updateIndex );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.REMOVE, address, filter, removeIndex );
+  }
+
+  private void assertRequestPendingIndex( @Nonnull final Connection connection,
+                                          @Nonnull final AreaOfInterestAction action,
+                                          @Nonnull final ChannelAddress address,
+                                          @Nullable final Object filter,
+                                          final int expected )
+  {
+    assertEquals( connection.indexOfPendingAreaOfInterestRequest( action, address, filter ), expected );
+  }
+
+  private void assertRequestPending( @Nonnull final Connection connection,
+                                     @Nonnull final AreaOfInterestAction action,
+                                     @Nonnull final ChannelAddress address,
+                                     @Nullable final Object filter,
+                                     final boolean expected )
+  {
+    assertEquals( connection.isAreaOfInterestRequestPending( action, address, filter ), expected );
   }
 
   enum G

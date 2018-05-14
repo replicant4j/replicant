@@ -150,11 +150,11 @@ abstract class Converger
       final Object filter = areaOfInterest.getFilter();
 
       final int addIndex =
-        connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, address, filter );
+        connector.indexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, filter );
       final int removeIndex =
-        connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.REMOVE, address, null );
+        connector.indexOfPendingAreaOfInterestRequest( AreaOfInterestAction.REMOVE, address, null );
       final int updateIndex =
-        connector.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.UPDATE, address, filter );
+        connector.indexOfPendingAreaOfInterestRequest( AreaOfInterestAction.UPDATE, address, filter );
 
       if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
       {
@@ -274,7 +274,7 @@ abstract class Converger
   {
     final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
     return ConnectorState.CONNECTED != connector.getState() ||
-           connector.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, address, null );
+           connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null );
   }
 
   @Nonnull

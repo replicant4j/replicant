@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -593,56 +592,24 @@ public abstract class AbstractDataLoaderService
    * {@inheritDoc}
    */
   @Override
-  public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final ChannelAddress address,
-                                                @Nullable final Object filter )
+  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
+                                                 @Nonnull final ChannelAddress address,
+                                                 @Nullable final Object filter )
   {
     final Connection connection = getConnection();
-    final List<AreaOfInterestRequest> requests =
-      null == connection ? null : connection.getCurrentAreaOfInterestRequests();
-    return
-      null != requests &&
-      requests.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
-      (
-        null != connection &&
-        connection.getPendingAreaOfInterestRequests().stream().
-          anyMatch( a -> a.match( action, address, filter ) )
-      );
+    return null != connection && connection.isAreaOfInterestRequestPending( action, address, filter );
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelAddress address,
-                                                 @Nullable final Object filter )
+  public int indexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                  @Nonnull final ChannelAddress address,
+                                                  @Nullable final Object filter )
   {
     final Connection connection = getConnection();
-    final List<AreaOfInterestRequest> currentRequests =
-      null == connection ? null : connection.getCurrentAreaOfInterestRequests();
-    if ( null != currentRequests && currentRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
-    {
-      return 0;
-    }
-    else if ( null != connection )
-    {
-      final LinkedList<AreaOfInterestRequest> requests = connection.getPendingAreaOfInterestRequests();
-      int index = requests.size();
-
-      final Iterator<AreaOfInterestRequest> iterator = requests.descendingIterator();
-      while ( iterator.hasNext() )
-      {
-        final AreaOfInterestRequest request = iterator.next();
-        if ( request.match( action, address, filter ) )
-        {
-          return index;
-        }
-        index -= 1;
-      }
-
-    }
-    return -1;
+    return null == connection ? -1 : connection.indexOfPendingAreaOfInterestRequest( action, address, filter );
   }
 
   protected boolean progressResponseProcessing()

@@ -2,6 +2,7 @@ package replicant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +148,52 @@ public final class Connection
   public void setLastRxSequence( final int lastRxSequence )
   {
     _lastRxSequence = lastRxSequence;
+  }
+
+  /**
+   * Return true if an area of interest request with specified parameters is pending or being processed.
+   * When the action parameter is DELETE the filter parameter is ignored.
+   */
+  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
+                                                 @Nonnull final ChannelAddress address,
+                                                 @Nullable final Object filter )
+  {
+    final List<AreaOfInterestRequest> requests = getCurrentAreaOfInterestRequests();
+    return
+      requests.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
+      getPendingAreaOfInterestRequests().stream().anyMatch( a -> a.match( action, address, filter ) );
+  }
+
+  /**
+   * Return the index of last matching AreaOfInterestAction in pending aoi request list.
+   */
+  public int indexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                  @Nonnull final ChannelAddress address,
+                                                  @Nullable final Object filter )
+  {
+    final List<AreaOfInterestRequest> currentRequests = getCurrentAreaOfInterestRequests();
+    if ( currentRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
+    {
+      return 0;
+    }
+    else
+    {
+      final LinkedList<AreaOfInterestRequest> requests = getPendingAreaOfInterestRequests();
+      int index = requests.size();
+
+      final Iterator<AreaOfInterestRequest> iterator = requests.descendingIterator();
+      while ( iterator.hasNext() )
+      {
+        final AreaOfInterestRequest request = iterator.next();
+        if ( request.match( action, address, filter ) )
+        {
+          return index;
+        }
+        index -= 1;
+      }
+
+    }
+    return -1;
   }
 
   @Nonnull
