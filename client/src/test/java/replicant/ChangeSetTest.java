@@ -13,9 +13,9 @@ public class ChangeSetTest
     final EntityChange[] entityChanges = {};
     final ChannelChange[] channelChanges = {};
 
-    final int sequence = 1;
+    final int sequence = ValueUtil.randomInt();
     final String requestId = ValueUtil.randomString();
-    final String eTag = null;
+    final String eTag = ValueUtil.randomString();
 
     final ChangeSet changeSet =
       ChangeSet.create( sequence, requestId, eTag, channelChanges, entityChanges );
