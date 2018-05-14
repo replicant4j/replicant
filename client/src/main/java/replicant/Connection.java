@@ -6,11 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.RequestCompletedEvent;
+import replicant.spy.RequestStartedEvent;
 
 /**
  * Connection state used by the connector to manage connection to backend system.
@@ -20,10 +19,6 @@ import replicant.spy.RequestCompletedEvent;
 public final class Connection
 {
   //TODO: Make this package access after all classes migrated to replicant package
-
-  private static final Logger LOG = Logger.getLogger( Connection.class.getName() );
-  private static final Level LOG_LEVEL = Level.INFO;
-
   /**
    * The containing Connector.
    */
@@ -157,13 +152,18 @@ public final class Connection
   @Nonnull
   public final RequestEntry newRequest( @Nullable final String name, @Nullable final String cacheKey )
   {
-    final RequestEntry entry = new RequestEntry( nextRequestId(), name, cacheKey );
-    _requests.put( entry.getRequestId(), entry );
-    if ( LOG.isLoggable( LOG_LEVEL ) )
+    final RequestEntry request = new RequestEntry( nextRequestId(), name, cacheKey );
+    _requests.put( request.getRequestId(), request );
+    if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      LOG.log( LOG_LEVEL, "Created request " + entry );
+      _connector
+        .getReplicantContext()
+        .getSpy()
+        .reportSpyEvent( new RequestStartedEvent( _connector.getSystemType(),
+                                                  request.getRequestId(),
+                                                  request.getName() ) );
     }
-    return entry;
+    return request;
   }
 
   public final void completeRequest( @Nonnull final RequestEntry request,

@@ -3,6 +3,7 @@ package replicant;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.RequestCompletedEvent;
+import replicant.spy.RequestStartedEvent;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -206,9 +207,19 @@ public class ConnectionTest
     final String requestName = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
 
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
     final RequestEntry request = connection.newRequest( requestName, cacheKey );
+
     assertEquals( request.getName(), requestName );
     assertEquals( request.getCacheKey(), cacheKey );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( RequestStartedEvent.class, e -> {
+      assertEquals( e.getSystemType(), G.class );
+      assertEquals( e.getRequestId(), request.getRequestId() );
+      assertEquals( e.getName(), request.getName() );
+    } );
 
     assertEquals( connection.getRequest( request.getRequestId() ), request );
     assertEquals( connection.getRequests().get( request.getRequestId() ), request );
