@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Connection;
 import replicant.RequestEntry;
+import replicant.TestConnector;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -21,7 +22,7 @@ public class SessionContextTest
 
     //connection
     {
-      final Connection connection = new Connection( null, ValueUtil.randomString() );
+      final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
       assertEquals( sessionContext.getConnection(), null );
       sessionContext.setConnection( connection );
       assertEquals( sessionContext.getConnection(), connection );
@@ -62,7 +63,7 @@ public class SessionContextTest
     final String name = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
 
     final SessionContext sessionContext = new SessionContext( key );
     sessionContext.setConnection( connection );
@@ -87,5 +88,10 @@ public class SessionContextTest
       _session = connection;
       _request = request;
     }
+  }
+
+  enum G
+  {
+    G1
   }
 }

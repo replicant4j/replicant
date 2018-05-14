@@ -11,7 +11,7 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
     final String requestName = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
 
@@ -32,7 +32,7 @@ public class ConnectionTest
   @Test
   public void completeRequest()
   {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -46,7 +46,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_expectingResults()
   {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -55,7 +55,6 @@ public class ConnectionTest
     connection.completeRequest( e, action );
 
     verify( action, never() ).call();
-
     assertEquals( e.getCompletionAction(), action );
     assertNotNull( connection.getRequest( e.getRequestId() ) );
   }
@@ -63,7 +62,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_resultsArrived()
   {
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 

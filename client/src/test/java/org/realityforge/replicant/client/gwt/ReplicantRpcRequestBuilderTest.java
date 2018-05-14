@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Connection;
 import replicant.RequestEntry;
+import replicant.TestConnector;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -36,7 +37,7 @@ public class ReplicantRpcRequestBuilderTest
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final SessionContext sessionContext = new SessionContext( "X" );
-    sessionContext.setConnection( new Connection( null, "1" ) );
+    sessionContext.setConnection( new Connection( TestConnector.create( G.class ), "1" ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
     verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( "1" ) );
@@ -47,10 +48,10 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndComplete()
     throws Exception
   {
-    final Connection session = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry requestEntry = session.newRequest( "", null );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final RequestEntry requestEntry = connection.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
-    sessionContext.setConnection( session );
+    sessionContext.setConnection( connection );
     setRequest( sessionContext, requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
@@ -65,7 +66,7 @@ public class ReplicantRpcRequestBuilderTest
               } ).when( rb ).setCallback( any( RequestCallback.class ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
-    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( session.getConnectionId() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( connection.getConnectionId() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
@@ -75,10 +76,10 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndIncomplete()
     throws Exception
   {
-    final Connection session = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry requestEntry = session.newRequest( "", null );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final RequestEntry requestEntry = connection.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
-    sessionContext.setConnection( session );
+    sessionContext.setConnection( connection );
     setRequest( sessionContext, requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
@@ -93,7 +94,7 @@ public class ReplicantRpcRequestBuilderTest
               } ).when( rb ).setCallback( any( RequestCallback.class ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
-    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( session.getConnectionId() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( connection.getConnectionId() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
 
     assertEquals( requestEntry.isCompletionDataPresent(), false );
@@ -104,10 +105,10 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withFailure()
     throws Exception
   {
-    final Connection session = new Connection( null, ValueUtil.randomString() );
-    final RequestEntry requestEntry = session.newRequest( "", null );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final RequestEntry requestEntry = connection.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext( "X" );
-    sessionContext.setConnection( session );
+    sessionContext.setConnection( connection );
     setRequest( sessionContext, requestEntry );
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
@@ -121,7 +122,7 @@ public class ReplicantRpcRequestBuilderTest
               } ).when( rb ).setCallback( any( RequestCallback.class ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onError( request, exception );
-    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( session.getConnectionId() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( connection.getConnectionId() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
@@ -133,5 +134,10 @@ public class ReplicantRpcRequestBuilderTest
     final Field field = SessionContext.class.getDeclaredField( "_request" );
     field.setAccessible( true );
     field.set( sessionContext, requestEntry );
+  }
+
+  enum G
+  {
+    G1
   }
 }

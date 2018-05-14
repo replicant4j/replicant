@@ -60,7 +60,7 @@ public final class Connection
 
   public Connection( @Nonnull final Connector connector, @Nonnull final String connectionId )
   {
-    _connector = connector;
+    _connector = Objects.requireNonNull( connector );
     _connectionId = Objects.requireNonNull( connectionId );
   }
 

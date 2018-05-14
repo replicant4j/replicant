@@ -9,6 +9,7 @@ import replicant.AbstractReplicantTest;
 import replicant.Connection;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
+import replicant.TestConnector;
 import static org.testng.Assert.*;
 
 public class RequestAdapterTest
@@ -56,7 +57,7 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onSuccess()
   {
     final Object[] results = new Object[ 1 ];
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
     final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 
@@ -77,7 +78,7 @@ public class RequestAdapterTest
   public void basicOperationWithSession_onFailure()
   {
     final Object[] results = new Object[ 1 ];
-    final Connection connection = new Connection( null, ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
     final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
     request.setExpectingResults( true );
 
@@ -93,5 +94,10 @@ public class RequestAdapterTest
     assertEquals( results[ 0 ], caught );
     assertNull( request.getCompletionAction() );
     assertFalse( request.isExpectingResults() );
+  }
+
+  enum G
+  {
+    G1
   }
 }
