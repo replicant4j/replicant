@@ -265,11 +265,14 @@ public abstract class AbstractDataLoaderService
       {
         return false;
       }
-      final AreaOfInterestEntry first = actions.removeFirst();
-      currentAOIActions.add( first );
-      while ( actions.size() > 0 && isCompatibleForBulkChange( first, actions.get( 0 ) ) )
+      else
       {
-        currentAOIActions.add( actions.removeFirst() );
+        final AreaOfInterestEntry first = actions.removeFirst();
+        currentAOIActions.add( first );
+        while ( actions.size() > 0 && isCompatibleForBulkChange( first, actions.get( 0 ) ) )
+        {
+          currentAOIActions.add( actions.removeFirst() );
+        }
       }
     }
 
@@ -281,11 +284,11 @@ public abstract class AbstractDataLoaderService
     {
       currentAOIActions.forEach( AreaOfInterestEntry::markAsInProgress );
       final AreaOfInterestAction action = currentAOIActions.get( 0 ).getAction();
-      if ( action == AreaOfInterestAction.ADD )
+      if ( AreaOfInterestAction.ADD == action )
       {
         return progressBulkAOIAddActions();
       }
-      else if ( action == AreaOfInterestAction.REMOVE )
+      else if ( AreaOfInterestAction.REMOVE == action )
       {
         return progressBulkAOIRemoveActions();
       }
