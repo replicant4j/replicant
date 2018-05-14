@@ -52,9 +52,9 @@ public abstract class GwtDataLoaderService
     return Js.cast( Global.JSON.parse( rawJsonData ));
   }
 
-  protected void doScheduleDataLoad()
+  protected void doActivateScheduler()
   {
-    Scheduler.get().scheduleIncremental( this::stepDataLoad );
+    Scheduler.get().scheduleIncremental( this::scheduleTick );
   }
 
   @Override

@@ -209,7 +209,7 @@ public abstract class WebPollerDataLoaderService
     if ( null != rawJsonData )
     {
       logResponse( rawJsonData );
-      ensureConnection().enqueueDataLoad( rawJsonData );
+      ensureConnection().enqueueResponse( rawJsonData );
       scheduleDataLoad();
       pauseWebPoller();
     }

@@ -140,7 +140,7 @@ public class DataLoaderServiceTest
     final String connectionId = ValueUtil.randomString();
     final Connection session1 = new Connection( ValueUtil.randomString() );
 
-    session1.enqueueOOB( connectionId, null );
+    session1.enqueueOutOfBandResponse( connectionId, null );
 
     assertEquals( service.getSessionContext().getConnection(), null );
 
@@ -194,7 +194,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
-    service.ensureConnection().enqueueDataLoad( "Data" );
+    service.ensureConnection().enqueueResponse( "Data" );
     final RequestEntry request = configureRequest( changeSet, service );
     assertNotNull( request );
 
@@ -223,7 +223,7 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
-    service.ensureConnection().enqueueOOB( "Data", changeSet.getRunnable() );
+    service.ensureConnection().enqueueOutOfBandResponse( "Data", changeSet.getRunnable() );
 
     progressWorkTillDone( service, 7, 1 );
 
@@ -244,7 +244,7 @@ public class DataLoaderServiceTest
   }
 
   @Test
-  public void enqueueOOB()
+  public void enqueueOutOfBandResponse()
     throws Exception
   {
     final Linkable entity = mock( Linkable.class );
@@ -261,7 +261,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureConnection().enqueueOOB( "BLAH:" + cs.getSequence(), changeSet.getRunnable() );
+      service.ensureConnection().enqueueOutOfBandResponse( "BLAH:" + cs.getSequence(), changeSet.getRunnable() );
     }
 
     progressWorkTillDone( service, 9, 1 );
@@ -290,18 +290,18 @@ public class DataLoaderServiceTest
     final TestChangeSet cs3 = new TestChangeSet( ChangeSet.create( 3, null, null, new ChannelChange[ 0 ],
                                                                    new EntityChange[ 0 ] ), null );
 
-    final DataLoadAction oob1 = new DataLoadAction( "oob1", true );
-    final DataLoadAction oob2 = new DataLoadAction( "oob2", true );
-    final DataLoadAction oob3 = new DataLoadAction( "oob3", true );
+    final MessageResponse oob1 = new MessageResponse( "oob1", true );
+    final MessageResponse oob2 = new MessageResponse( "oob2", true );
+    final MessageResponse oob3 = new MessageResponse( "oob3", true );
 
-    final DataLoadAction s1 = new DataLoadAction( "s1", false );
+    final MessageResponse s1 = new MessageResponse( "s1", false );
     s1.recordChangeSet( cs1, null );
-    final DataLoadAction s2 = new DataLoadAction( "s2", false );
+    final MessageResponse s2 = new MessageResponse( "s2", false );
     s2.recordChangeSet( cs2, null );
-    final DataLoadAction s3 = new DataLoadAction( "s3", false );
+    final MessageResponse s3 = new MessageResponse( "s3", false );
     s3.recordChangeSet( cs3, null );
 
-    final List<DataLoadAction> l1 = Arrays.asList( s2, s3, s1, oob1, oob2, oob3 );
+    final List<MessageResponse> l1 = Arrays.asList( s2, s3, s1, oob1, oob2, oob3 );
     Collections.sort( l1 );
     assertEquals( l1, Arrays.asList( oob1, oob2, oob3, s1, s2, s3 ) );
   }
@@ -319,7 +319,7 @@ public class DataLoaderServiceTest
     final RequestEntry request =
       service.ensureConnection().newRequest( "", null );
     changeSet.setRequestID( request.getRequestID() );
-    service.ensureConnection().enqueueDataLoad( "blah" );
+    service.ensureConnection().enqueueResponse( "blah" );
 
     progressWorkTillDone( service, 7, 1 );
 
@@ -433,13 +433,13 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     configureRequests( service, service.getChangeSets() );
-    service.ensureConnection().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueResponse( "jsonData" );
     progressWorkTillDone( service, 3, 1 );
 
     //No progress should have been made other than parsing packet as out of sequence
     assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
-    service.ensureConnection().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueResponse( "jsonData" );
     progressWorkTillDone( service, 15, 2 );
 
     //Progress should have been made as all sequence appears
@@ -465,10 +465,10 @@ public class DataLoaderServiceTest
     assertEquals( service.ensureConnection().getLastRxSequence(), 0 );
 
     configureRequests( service, service.getChangeSets() );
-    service.ensureConnection().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueResponse( "jsonData" );
     service.scheduleDataLoad();
 
-    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
+    final LinkedList<MessageResponse> actions = progressWorkTillDone( service, 8, 1 );
     final ChannelAddress address = new ChannelAddress( TestSystem.B, 72 );
 
     final Subscription subscription = Replicant.context().findSubscription( address );
@@ -477,7 +477,7 @@ public class DataLoaderServiceTest
     assertEquals( subscription.getFilter(), null );
     assertEquals( subscription.isExplicitSubscription(), false );
 
-    final DataLoadAction action = actions.getLast();
+    final MessageResponse action = actions.getLast();
 
     assertEquals( action.getChannelAddCount(), 1 );
     assertEquals( action.getChannelRemoveCount(), 0 );
@@ -504,12 +504,12 @@ public class DataLoaderServiceTest
     Replicant.context().createSubscription( new ChannelAddress( TestSystem.B, 33 ), null, true );
 
     configureRequests( service, service.getChangeSets() );
-    service.ensureConnection().enqueueDataLoad( "jsonData" );
+    service.ensureConnection().enqueueResponse( "jsonData" );
     service.scheduleDataLoad();
 
-    final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 8, 1 );
+    final LinkedList<MessageResponse> actions = progressWorkTillDone( service, 8, 1 );
 
-    final DataLoadAction action = actions.getLast();
+    final MessageResponse action = actions.getLast();
 
     assertEquals( action.getChannelAddCount(), 2 );
     assertEquals( action.getChannelRemoveCount(), 2 );
@@ -529,7 +529,7 @@ public class DataLoaderServiceTest
 
     // type channel
     {
-      service.ensureConnection().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestRequests().clear();
 
       final ChannelAddress channel1 = new ChannelAddress( TestSystem.A );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
@@ -551,7 +551,7 @@ public class DataLoaderServiceTest
 
     // instance channel
     {
-      service.ensureConnection().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestRequests().clear();
 
       final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 2 );
       final ChannelAddress channel2b = new ChannelAddress( TestSystem.B );
@@ -572,12 +572,12 @@ public class DataLoaderServiceTest
     }
 
     {
-      service.ensureConnection().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestRequests().clear();
 
       final ChannelAddress channel3 = new ChannelAddress( TestSystem.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
-      final AreaOfInterestEntry entry =
-        new AreaOfInterestEntry( channel3, AreaOfInterestAction.ADD, null );
+      final AreaOfInterestRequest entry =
+        new AreaOfInterestRequest( channel3, AreaOfInterestAction.ADD, null );
       addAoiAction( service, entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
@@ -587,7 +587,7 @@ public class DataLoaderServiceTest
 
     // instance channel with filter
     {
-      service.ensureConnection().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestRequests().clear();
 
       final Object filter = new Object();
       final ChannelAddress channel4 = new ChannelAddress( TestSystem.B, 55 );
@@ -606,7 +606,7 @@ public class DataLoaderServiceTest
     }
 
     {
-      service.ensureConnection().getPendingAreaOfInterestActions().clear();
+      service.ensureConnection().getPendingAreaOfInterestRequests().clear();
 
       final ChannelAddress channel1 = new ChannelAddress( TestSystem.B, 1 );
       final ChannelAddress channel2 = new ChannelAddress( TestSystem.B, 2 );
@@ -643,7 +643,7 @@ public class DataLoaderServiceTest
   }
 
   @Test
-  public void progressAreaOfInterestActions()
+  public void progressAreaOfInterestRequests()
     throws Exception
   {
     final ChannelAddress channel1 = new ChannelAddress( TestSystem.A, 1 );
@@ -653,26 +653,26 @@ public class DataLoaderServiceTest
     configureService( service );
     assertNotNull( service.getConnection() );
 
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertEquals( false, service.progressAreaOfInterestRequests() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
 
     service.requestSubscribe( channel1, null );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
 
     // Nothing to do until the first AOI completes
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertEquals( false, service.progressAreaOfInterestRequests() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
     service.requestSubscribe( channel2, null );
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertEquals( false, service.progressAreaOfInterestRequests() );
     assertEquals( 1, service.getCurrentAOIActions().size() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
 
     completeOutstandingAOIs( service );
 
-    assertEquals( true, service.progressAreaOfInterestActions() );
+    assertEquals( true, service.progressAreaOfInterestRequests() );
     assertEquals( 1, service.getCurrentAOIActions().size() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel2 );
   }
@@ -693,24 +693,24 @@ public class DataLoaderServiceTest
     service.requestSubscribe( channel2, null );
     service.requestSubscribe( channel3, null );
 
-    final AreaOfInterestEntry channel2AOI = service.ensureConnection().getPendingAreaOfInterestActions().get( 1 );
+    final AreaOfInterestRequest channel2AOI = service.ensureConnection().getPendingAreaOfInterestRequests().get( 1 );
     when( service.getCacheService().lookup(
       eq( channel2AOI.getCacheKey() ) ) ).thenReturn(
       new CacheEntry( channel2AOI.getCacheKey(), "woo", "har" ) );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel1 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channel3 );
@@ -730,7 +730,7 @@ public class DataLoaderServiceTest
     configureService( service );
     assertNotNull( service.getConnection() );
 
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertEquals( false, service.progressAreaOfInterestRequests() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
 
     service.requestSubscribe( channelA1, null );
@@ -742,21 +742,21 @@ public class DataLoaderServiceTest
     service.requestUnsubscribe( channelA2 );
     service.requestUnsubscribe( channelB1 );
 
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 8 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 8 );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelA2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelB1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelB2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA3 );
 
@@ -764,7 +764,7 @@ public class DataLoaderServiceTest
     Replicant.context().createSubscription( channelA2, null, true );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getAddress(), channelA2 );
@@ -772,13 +772,13 @@ public class DataLoaderServiceTest
     Replicant.context().createSubscription( channelB1, null, true );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelB1 );
 
-    assertEquals( service.progressAreaOfInterestActions(), false );
+    assertEquals( service.progressAreaOfInterestRequests(), false );
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), false );
+    assertEquals( service.progressAreaOfInterestRequests(), false );
   }
 
   @Test
@@ -792,7 +792,7 @@ public class DataLoaderServiceTest
     configureService( service );
     assertNotNull( service.getConnection() );
 
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertEquals( false, service.progressAreaOfInterestRequests() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
 
     service.requestSubscribe( channelA1, null );
@@ -800,14 +800,14 @@ public class DataLoaderServiceTest
     service.requestSubscriptionUpdate( channelA1, "FilterB" );
     service.requestSubscriptionUpdate( channelA2, "FilterB" );
 
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 4 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 4 );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA2 );
 
@@ -816,7 +816,7 @@ public class DataLoaderServiceTest
     Replicant.context().createSubscription( channelA1, null, true );
     Replicant.context().createSubscription( channelA2, "FilterB", true );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getAddress(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getFilterParameter(), "FilterB" );
@@ -842,10 +842,10 @@ public class DataLoaderServiceTest
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
 
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 2 );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 2 );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 0 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 0 );
 
     Disposable.dispose( subscriptionA1 );
     Disposable.dispose( subscriptionA2 );
@@ -853,19 +853,19 @@ public class DataLoaderServiceTest
     service.requestSubscriptionUpdate( channelA1, "boo" );
     service.requestSubscriptionUpdate( channelA2, "boo" );
 
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 2 );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 2 );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 0 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 0 );
 
     service.requestUnsubscribe( channelA1 );
     service.requestUnsubscribe( channelA2 );
     service.requestUnsubscribe( channelA3 );
 
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 3 );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 3 );
+    assertEquals( service.progressAreaOfInterestRequests(), true );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
-    assertEquals( service.ensureConnection().getPendingAreaOfInterestActions().size(), 0 );
+    assertEquals( service.ensureConnection().getPendingAreaOfInterestRequests().size(), 0 );
   }
 
   private void completeOutstandingAOIs( final TestDataLoadService service )
@@ -884,7 +884,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureConnection().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
+      service.ensureConnection().enqueueResponse( "BLAH:" + cs.getRequestID() );
     }
   }
 
@@ -910,17 +910,17 @@ public class DataLoaderServiceTest
     return null;
   }
 
-  private LinkedList<DataLoadAction> progressWorkTillDone( final TestDataLoadService service,
+  private LinkedList<MessageResponse> progressWorkTillDone( final TestDataLoadService service,
                                                            final int expectedStepCount,
                                                            final int expectedActions )
   {
-    final LinkedList<DataLoadAction> actionsProcessed = new LinkedList<>();
+    final LinkedList<MessageResponse> actionsProcessed = new LinkedList<>();
     int count = 0;
     while ( true )
     {
       count++;
       final boolean moreWork = service.progressDataLoad();
-      final DataLoadAction currentAction = service.getCurrentAction();
+      final MessageResponse currentAction = service.getCurrentMessageResponse();
       if ( null != currentAction && !actionsProcessed.contains( currentAction ) )
       {
         actionsProcessed.add( currentAction );
@@ -967,12 +967,12 @@ public class DataLoaderServiceTest
 
   @SuppressWarnings( "unchecked" )
   private void addAoiAction( @Nonnull final AbstractDataLoaderService instance,
-                             @Nonnull final AreaOfInterestEntry value )
+                             @Nonnull final AreaOfInterestRequest value )
     throws Exception
   {
     final Field field = AbstractDataLoaderService.class.getDeclaredField( "_currentAoiActions" );
     field.setAccessible( true );
-    final List<AreaOfInterestEntry> currentAoiActions = (List<AreaOfInterestEntry>) field.get( instance );
+    final List<AreaOfInterestRequest> currentAoiActions = (List<AreaOfInterestRequest>) field.get( instance );
     currentAoiActions.add( value );
   }
 

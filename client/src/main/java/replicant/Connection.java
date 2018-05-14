@@ -33,21 +33,21 @@ public final class Connection
   /**
    * Pending actions that will change the area of interest.
    */
-  private final LinkedList<AreaOfInterestEntry> _pendingAreaOfInterestActions = new LinkedList<>();
+  private final LinkedList<AreaOfInterestRequest> _pendingAreaOfInterestRequests = new LinkedList<>();
   /**
    * The set of data load actions that still need to have the json parsed.
    */
-  private final LinkedList<DataLoadAction> _pendingActions = new LinkedList<>();
+  private final LinkedList<MessageResponse> _unparsedResponses = new LinkedList<>();
   /**
    * The set of data load actions that have their json parsed. They are inserted into
    * this list according to their sequence.
    */
-  private final LinkedList<DataLoadAction> _parsedActions = new LinkedList<>();
+  private final LinkedList<MessageResponse> _pendingResponses = new LinkedList<>();
   /**
    * Sometimes a data load action occurs that is not initiated by the server. These do not
    * typically need to be sequenced and are prioritized above other actions.
    */
-  private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
+  private final LinkedList<MessageResponse> _outOfBandResponses = new LinkedList<>();
 
   private int _lastRxSequence;
 
@@ -55,9 +55,9 @@ public final class Connection
    * The current message action being processed.
    */
   @Nullable
-  private DataLoadAction _currentAction;
+  private MessageResponse _currentMessageResponse;
   @Nonnull
-  private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
+  private List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
 
   public Connection( @Nonnull final Connector connector, @Nonnull final String connectionId )
   {
@@ -71,41 +71,42 @@ public final class Connection
     return _connectionId;
   }
 
-  public void enqueueAoiAction( @Nonnull final ChannelAddress descriptor,
-                                @Nonnull final AreaOfInterestAction action,
-                                @Nullable final Object filterParameter )
+  public void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress descriptor,
+                                            @Nonnull final AreaOfInterestAction action,
+                                            @Nullable final Object filterParameter )
   {
-    getPendingAreaOfInterestActions().add( new AreaOfInterestEntry( descriptor, action, filterParameter ) );
+    getPendingAreaOfInterestRequests().add( new AreaOfInterestRequest( descriptor, action, filterParameter ) );
   }
 
-  public void enqueueDataLoad( @Nonnull final String rawJsonData )
+  public void enqueueResponse( @Nonnull final String rawJsonData )
   {
-    getPendingActions().add( new DataLoadAction( rawJsonData ) );
+    getUnparsedResponses().add( new MessageResponse( rawJsonData ) );
   }
 
-  public void enqueueOOB( @Nonnull final String rawJsonData, @Nonnull final SafeProcedure oobCompletionAction )
+  public void enqueueOutOfBandResponse( @Nonnull final String rawJsonData,
+                                        @Nonnull final SafeProcedure oobCompletionAction )
   {
-    getOobActions().add( new DataLoadAction( rawJsonData, oobCompletionAction ) );
+    getOutOfBandResponses().add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
 
-  public LinkedList<AreaOfInterestEntry> getPendingAreaOfInterestActions()
+  public LinkedList<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
   {
-    return _pendingAreaOfInterestActions;
+    return _pendingAreaOfInterestRequests;
   }
 
-  public LinkedList<DataLoadAction> getPendingActions()
+  public LinkedList<MessageResponse> getUnparsedResponses()
   {
-    return _pendingActions;
+    return _unparsedResponses;
   }
 
-  public LinkedList<DataLoadAction> getParsedActions()
+  public LinkedList<MessageResponse> getParsedResponses()
   {
-    return _parsedActions;
+    return _pendingResponses;
   }
 
-  public LinkedList<DataLoadAction> getOobActions()
+  public LinkedList<MessageResponse> getOutOfBandResponses()
   {
-    return _oobActions;
+    return _outOfBandResponses;
   }
 
   public int getLastRxSequence()
@@ -178,19 +179,19 @@ public final class Connection
   }
 
   @Nullable
-  public DataLoadAction getCurrentAction()
+  public MessageResponse getCurrentMessageResponse()
   {
-    return _currentAction;
+    return _currentMessageResponse;
   }
 
-  public void setCurrentAction( @Nullable final DataLoadAction currentAction )
+  public void setCurrentMessageResponse( @Nullable final MessageResponse currentMessageResponse )
   {
-    _currentAction = currentAction;
+    _currentMessageResponse = currentMessageResponse;
   }
 
   @Nonnull
-  public List<AreaOfInterestEntry> getCurrentAoiActions()
+  public List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
   {
-    return _currentAoiActions;
+    return _currentAreaOfInterestRequests;
   }
 }

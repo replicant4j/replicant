@@ -148,7 +148,7 @@ abstract class TestDataLoadService
   }
 
   @Override
-  protected void doScheduleDataLoad()
+  protected void doActivateScheduler()
   {
     _scheduleDataLoadCalled = true;
   }

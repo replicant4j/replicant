@@ -19,17 +19,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestAction;
-import replicant.AreaOfInterestEntry;
+import replicant.AreaOfInterestRequest;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
 import replicant.ChannelChange;
 import replicant.Connection;
 import replicant.Connector;
-import replicant.DataLoadAction;
 import replicant.Entity;
 import replicant.EntityChange;
 import replicant.FilterUtil;
 import replicant.Linkable;
+import replicant.MessageResponse;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.RequestEntry;
@@ -56,7 +56,11 @@ public abstract class AbstractDataLoaderService
 
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
-  private boolean _incrementalDataLoadInProgress;
+  /**
+   * Flag indicating that the Connectors internal scheduler is actively progressing
+   * requests and responses.
+   */
+  private boolean _schedulerActive;
   /**
    * Action invoked after current action completes to reset connection state.
    */
@@ -77,7 +81,7 @@ public abstract class AbstractDataLoaderService
   public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
   {
     //TODO: Send spy message ..
-    ensureConnection().enqueueAoiAction( address, AreaOfInterestAction.ADD, filterParameter );
+    ensureConnection().enqueueAreaOfInterestRequest( address, AreaOfInterestAction.ADD, filterParameter );
     scheduleDataLoad();
   }
 
@@ -86,7 +90,7 @@ public abstract class AbstractDataLoaderService
                                                @Nullable final Object filterParameter )
   {
     //TODO: Send spy message ..
-    ensureConnection().enqueueAoiAction( address, AreaOfInterestAction.UPDATE, filterParameter );
+    ensureConnection().enqueueAreaOfInterestRequest( address, AreaOfInterestAction.UPDATE, filterParameter );
     scheduleDataLoad();
   }
 
@@ -94,7 +98,7 @@ public abstract class AbstractDataLoaderService
   public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     //TODO: Send spy message ..
-    ensureConnection().enqueueAoiAction( address, AreaOfInterestAction.REMOVE, null );
+    ensureConnection().enqueueAreaOfInterestRequest( address, AreaOfInterestAction.REMOVE, null );
     scheduleDataLoad();
   }
 
@@ -132,7 +136,7 @@ public abstract class AbstractDataLoaderService
   private void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
     final Runnable runnable = () -> doSetConnection( connection, action );
-    if ( null == connection || null == connection.getCurrentAction() )
+    if ( null == connection || null == connection.getCurrentMessageResponse() )
     {
       runnable.run();
     }
@@ -187,20 +191,21 @@ public abstract class AbstractDataLoaderService
    */
   final void scheduleDataLoad()
   {
-    if ( !_incrementalDataLoadInProgress )
+    if ( !_schedulerActive )
     {
-      _incrementalDataLoadInProgress = true;
+      _schedulerActive = true;
 
-      doScheduleDataLoad();
+      doActivateScheduler();
     }
   }
 
   /**
-   * Perform a single step in incremental data load process.
+   * Perform a single step progressing requests and responses.
+   * This is invoked from the scheduler
    *
    * @return true if more work is to be done.
    */
-  protected boolean stepDataLoad()
+  protected boolean scheduleTick()
   {
     if ( null == _schedulerLock )
     {
@@ -208,31 +213,29 @@ public abstract class AbstractDataLoaderService
     }
     try
     {
-      final boolean aoiActionProgressed = progressAreaOfInterestActions();
-      final boolean dataActionProgressed = progressDataLoad();
-      _incrementalDataLoadInProgress = aoiActionProgressed || dataActionProgressed;
+      _schedulerActive = progressAreaOfInterestRequests() || progressDataLoad();
     }
     catch ( final Exception e )
     {
       onMessageProcessFailure( e );
-      _incrementalDataLoadInProgress = false;
+      _schedulerActive = false;
       return false;
     }
     finally
     {
-      if ( !_incrementalDataLoadInProgress )
+      if ( !_schedulerActive )
       {
         _schedulerLock.dispose();
         _schedulerLock = null;
       }
     }
-    return _incrementalDataLoadInProgress;
+    return _schedulerActive;
   }
 
   /**
-   * Actually perform the scheduling of the data load action.
+   * Activate the scheduler.
    */
-  protected abstract void doScheduleDataLoad();
+  protected abstract void doActivateScheduler();
 
   @SuppressWarnings( "SameParameterValue" )
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
@@ -254,52 +257,52 @@ public abstract class AbstractDataLoaderService
    *
    * @return true if more work is to be done.
    */
-  protected boolean progressAreaOfInterestActions()
+  protected boolean progressAreaOfInterestRequests()
   {
     final Connection connection = ensureConnection();
-    final List<AreaOfInterestEntry> currentAOIActions = connection.getCurrentAoiActions();
-    if ( currentAOIActions.isEmpty() )
+    final List<AreaOfInterestRequest> requests = connection.getCurrentAreaOfInterestRequests();
+    if ( requests.isEmpty() )
     {
-      final LinkedList<AreaOfInterestEntry> actions = connection.getPendingAreaOfInterestActions();
-      if ( actions.isEmpty() )
+      final LinkedList<AreaOfInterestRequest> pendingRequests = connection.getPendingAreaOfInterestRequests();
+      if ( pendingRequests.isEmpty() )
       {
         return false;
       }
       else
       {
-        final AreaOfInterestEntry first = actions.removeFirst();
-        currentAOIActions.add( first );
-        while ( actions.size() > 0 && isCompatibleForBulkChange( first, actions.get( 0 ) ) )
+        final AreaOfInterestRequest first = pendingRequests.removeFirst();
+        requests.add( first );
+        while ( pendingRequests.size() > 0 && isCompatibleForBulkChange( first, pendingRequests.get( 0 ) ) )
         {
-          currentAOIActions.add( actions.removeFirst() );
+          requests.add( pendingRequests.removeFirst() );
         }
       }
     }
 
-    if ( currentAOIActions.get( 0 ).isInProgress() )
+    if ( requests.get( 0 ).isInProgress() )
     {
       return false;
     }
     else
     {
-      currentAOIActions.forEach( AreaOfInterestEntry::markAsInProgress );
-      final AreaOfInterestAction action = currentAOIActions.get( 0 ).getAction();
+      requests.forEach( AreaOfInterestRequest::markAsInProgress );
+      final AreaOfInterestAction action = requests.get( 0 ).getAction();
       if ( AreaOfInterestAction.ADD == action )
       {
-        return progressBulkAOIAddActions();
+        return progressBulkAreaOfInterestAddRequests();
       }
       else if ( AreaOfInterestAction.REMOVE == action )
       {
-        return progressBulkAOIRemoveActions();
+        return progressBulkAreaOfInterestRemoveRequests();
       }
       else
       {
-        return progressBulkAOIUpdateActions();
+        return progressBulkAreaOfInterestUpdateRequests();
       }
     }
   }
 
-  private String label( AreaOfInterestEntry entry )
+  private String label( AreaOfInterestRequest entry )
   {
     final ChannelAddress descriptor = entry.getAddress();
     final Object filterParameter = entry.getFilter();
@@ -307,7 +310,7 @@ public abstract class AbstractDataLoaderService
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
 
-  private String label( List<AreaOfInterestEntry> entries )
+  private String label( List<AreaOfInterestRequest> entries )
   {
     if ( entries.size() == 0 )
     {
@@ -320,11 +323,11 @@ public abstract class AbstractDataLoaderService
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
 
-  private boolean progressBulkAOIUpdateActions()
+  private boolean progressBulkAreaOfInterestUpdateRequests()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
+    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
-      currentAOIActions.removeIf( a -> {
+      requests.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
@@ -336,47 +339,46 @@ public abstract class AbstractDataLoaderService
       } );
     } );
 
-    if ( 0 == currentAOIActions.size() )
+    if ( requests.isEmpty() )
     {
-      completeAoiAction();
+      completeAreaOfInterestRequest();
       return true;
     }
 
     final Consumer<SafeProcedure> completionAction = a ->
     {
-      LOG.warning( () -> "Subscription update of " + label( currentAOIActions ) + " completed." );
-      completeAoiAction();
+      LOG.warning( () -> "Subscription update of " + label( requests ) + " completed." );
+      completeAreaOfInterestRequest();
       a.call();
     };
     final Consumer<SafeProcedure> failAction = a ->
     {
-      LOG.warning( () -> "Subscription update of " + label( currentAOIActions ) + " failed." );
-      completeAoiAction();
+      LOG.warning( () -> "Subscription update of " + label( requests ) + " failed." );
+      completeAreaOfInterestRequest();
       a.call();
     };
-    LOG.warning( () -> "Subscription update of " + label( currentAOIActions ) + " requested." );
+    LOG.warning( () -> "Subscription update of " + label( requests ) + " requested." );
 
-    final AreaOfInterestEntry aoiEntry = currentAOIActions.get( 0 );
-    assert null != aoiEntry.getFilter();
-    if ( currentAOIActions.size() > 1 )
+    final AreaOfInterestRequest request = requests.get( 0 );
+    assert null != request.getFilter();
+    if ( requests.size() > 1 )
     {
-      final List<ChannelAddress> ids =
-        currentAOIActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
-      requestBulkUpdateSubscription( ids, aoiEntry.getFilter(), completionAction, failAction );
+      final List<ChannelAddress> addresses =
+        requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+      requestBulkUpdateSubscription( addresses, request.getFilter(), completionAction, failAction );
     }
     else
     {
-      final ChannelAddress descriptor = aoiEntry.getAddress();
-      requestUpdateSubscription( descriptor, aoiEntry.getFilter(), completionAction, failAction );
+      requestUpdateSubscription( request.getAddress(), request.getFilter(), completionAction, failAction );
     }
     return true;
   }
 
-  private boolean progressBulkAOIRemoveActions()
+  private boolean progressBulkAreaOfInterestRemoveRequests()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
+    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
-      currentAOIActions.removeIf( a -> {
+      requests.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
@@ -394,62 +396,61 @@ public abstract class AbstractDataLoaderService
       } );
     } );
 
-    if ( 0 == currentAOIActions.size() )
+    if ( requests.isEmpty() )
     {
-      completeAoiAction();
+      completeAreaOfInterestRequest();
       return true;
     }
 
-    LOG.info( () -> "Unsubscribe from " + label( currentAOIActions ) + " requested." );
+    LOG.info( () -> "Unsubscribe from " + label( requests ) + " requested." );
     final Consumer<SafeProcedure> completionAction = postAction ->
     {
-      LOG.info( () -> "Unsubscribe from " + label( currentAOIActions ) + " completed." );
-      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> currentAOIActions.forEach( a -> {
+      LOG.info( () -> "Unsubscribe from " + label( requests ) + " completed." );
+      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> requests.forEach( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
         }
       } ) );
-      completeAoiAction();
+      completeAreaOfInterestRequest();
       postAction.call();
     };
 
     final Consumer<SafeProcedure> failAction = postAction ->
     {
-      LOG.info( "Unsubscribe from " + label( currentAOIActions ) + " failed." );
-      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> currentAOIActions.forEach( a -> {
+      LOG.info( "Unsubscribe from " + label( requests ) + " failed." );
+      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> requests.forEach( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
           subscription.setExplicitSubscription( false );
         }
       } ) );
-      completeAoiAction();
+      completeAreaOfInterestRequest();
       postAction.call();
     };
 
-    final AreaOfInterestEntry aoiEntry = currentAOIActions.get( 0 );
-    if ( currentAOIActions.size() > 1 )
+    final AreaOfInterestRequest request = requests.get( 0 );
+    if ( requests.size() > 1 )
     {
-      final List<ChannelAddress> ids =
-        currentAOIActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
-      requestBulkUnsubscribeFromChannel( ids, completionAction, failAction );
+      final List<ChannelAddress> addresses =
+        requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+      requestBulkUnsubscribeFromChannel( addresses, completionAction, failAction );
     }
     else
     {
-      final ChannelAddress descriptor = aoiEntry.getAddress();
-      requestUnsubscribeFromChannel( descriptor, completionAction, failAction );
+      requestUnsubscribeFromChannel( request.getAddress(), completionAction, failAction );
     }
     return true;
   }
 
-  private boolean progressBulkAOIAddActions()
+  private boolean progressBulkAreaOfInterestAddRequests()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
+    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     // Remove all Add Aoi actions that need no action as they are already present locally
     context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
-      currentAOIActions.removeIf( a -> {
+      requests.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null != subscription )
         {
@@ -469,47 +470,47 @@ public abstract class AbstractDataLoaderService
       } );
     } );
 
-    if ( 0 == currentAOIActions.size() )
+    if ( requests.isEmpty() )
     {
-      completeAoiAction();
+      completeAreaOfInterestRequest();
       return true;
     }
 
     final Consumer<SafeProcedure> completionAction = a ->
     {
-      LOG.info( () -> "Subscription to " + label( currentAOIActions ) + " completed." );
-      completeAoiAction();
+      LOG.info( () -> "Subscription to " + label( requests ) + " completed." );
+      completeAreaOfInterestRequest();
       a.call();
     };
     final Consumer<SafeProcedure> failAction = a ->
     {
-      LOG.info( () -> "Subscription to " + label( currentAOIActions ) + " failed." );
-      completeAoiAction();
+      LOG.info( () -> "Subscription to " + label( requests ) + " failed." );
+      completeAreaOfInterestRequest();
       a.call();
     };
 
-    final AreaOfInterestEntry aoiEntry = currentAOIActions.get( 0 );
-    if ( currentAOIActions.size() == 1 )
+    final AreaOfInterestRequest request = requests.get( 0 );
+    if ( requests.size() == 1 )
     {
-      final String cacheKey = aoiEntry.getCacheKey();
+      final String cacheKey = request.getCacheKey();
       final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
       final String eTag;
       final Consumer<SafeProcedure> cacheAction;
       if ( null != cacheEntry )
       {
         eTag = cacheEntry.getETag();
-        LOG.info( () -> "Found locally cached data for channel " + label( aoiEntry ) + " with etag " + eTag + "." );
+        LOG.info( () -> "Found locally cached data for channel " + label( request ) + " with etag " + eTag + "." );
         cacheAction = a ->
         {
-          LOG.info( () -> "Loading cached data for channel " + label( aoiEntry ) + " with etag " + eTag );
-          final SafeProcedure completeAoiAction = () ->
+          LOG.info( () -> "Loading cached data for channel " + label( request ) + " with etag " + eTag );
+          final SafeProcedure completeCachedAction = () ->
           {
-            LOG.info( () -> "Completed load of cached data for channel " + label( aoiEntry ) +
+            LOG.info( () -> "Completed load of cached data for channel " + label( request ) +
                             " with etag " + eTag + "." );
-            completeAoiAction();
+            completeAreaOfInterestRequest();
             a.call();
           };
-          ensureConnection().enqueueOOB( cacheEntry.getContent(), completeAoiAction );
+          ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), completeCachedAction );
           scheduleDataLoad();
         };
       }
@@ -518,9 +519,9 @@ public abstract class AbstractDataLoaderService
         eTag = null;
         cacheAction = null;
       }
-      LOG.info( () -> "Subscription to " + label( aoiEntry ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
-      requestSubscribeToChannel( aoiEntry.getAddress(),
-                                 aoiEntry.getFilter(),
+      LOG.info( () -> "Subscription to " + label( request ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
+      requestSubscribeToChannel( request.getAddress(),
+                                 request.getFilter(),
                                  cacheKey,
                                  eTag,
                                  cacheAction,
@@ -531,14 +532,14 @@ public abstract class AbstractDataLoaderService
     {
       // don't support bulk loading of anything that is already cached
       final List<ChannelAddress> ids =
-        currentAOIActions.stream().map( AreaOfInterestEntry::getAddress ).collect( Collectors.toList() );
-      requestBulkSubscribeToChannel( ids, aoiEntry.getFilter(), completionAction, failAction );
+        requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+      requestBulkSubscribeToChannel( ids, request.getFilter(), completionAction, failAction );
     }
     return true;
   }
 
-  private boolean isCompatibleForBulkChange( final AreaOfInterestEntry template,
-                                             final AreaOfInterestEntry match )
+  private boolean isCompatibleForBulkChange( final AreaOfInterestRequest template,
+                                             final AreaOfInterestRequest match )
   {
     final AreaOfInterestAction action = match.getAction();
     return null == _cacheService.lookup( template.getCacheKey() ) &&
@@ -549,12 +550,12 @@ public abstract class AbstractDataLoaderService
              FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
   }
 
-  private void completeAoiAction()
+  private void completeAreaOfInterestRequest()
   {
     scheduleDataLoad();
-    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
-    currentAOIActions.forEach( AreaOfInterestEntry::markAsComplete );
-    currentAOIActions.clear();
+    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
+    requests.forEach( AreaOfInterestRequest::markAsComplete );
+    requests.clear();
   }
 
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress descriptor,
@@ -597,13 +598,14 @@ public abstract class AbstractDataLoaderService
                                                 @Nullable final Object filter )
   {
     final Connection connection = getConnection();
-    final List<AreaOfInterestEntry> currentAOIActions = null == connection ? null : connection.getCurrentAoiActions();
+    final List<AreaOfInterestRequest> requests =
+      null == connection ? null : connection.getCurrentAreaOfInterestRequests();
     return
-      null != currentAOIActions &&
-      currentAOIActions.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
+      null != requests &&
+      requests.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
       (
         null != connection &&
-        connection.getPendingAreaOfInterestActions().stream().
+        connection.getPendingAreaOfInterestRequests().stream().
           anyMatch( a -> a.match( action, address, filter ) )
       );
   }
@@ -617,21 +619,22 @@ public abstract class AbstractDataLoaderService
                                                  @Nullable final Object filter )
   {
     final Connection connection = getConnection();
-    final List<AreaOfInterestEntry> currentAOIActions = null == connection ? null : connection.getCurrentAoiActions();
-    if ( null != currentAOIActions && currentAOIActions.stream().anyMatch( a -> a.match( action, address, filter ) ) )
+    final List<AreaOfInterestRequest> currentRequests =
+      null == connection ? null : connection.getCurrentAreaOfInterestRequests();
+    if ( null != currentRequests && currentRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
     {
       return 0;
     }
     else if ( null != connection )
     {
-      final LinkedList<AreaOfInterestEntry> actions = connection.getPendingAreaOfInterestActions();
-      int index = actions.size();
+      final LinkedList<AreaOfInterestRequest> requests = connection.getPendingAreaOfInterestRequests();
+      int index = requests.size();
 
-      final Iterator<AreaOfInterestEntry> iterator = actions.descendingIterator();
+      final Iterator<AreaOfInterestRequest> iterator = requests.descendingIterator();
       while ( iterator.hasNext() )
       {
-        final AreaOfInterestEntry entry = iterator.next();
-        if ( entry.match( action, address, filter ) )
+        final AreaOfInterestRequest request = iterator.next();
+        if ( request.match( action, address, filter ) )
         {
           return index;
         }
@@ -646,24 +649,24 @@ public abstract class AbstractDataLoaderService
   {
     final Connection connection = ensureConnection();
     // Step: Retrieve any out of band actions
-    final LinkedList<DataLoadAction> oobActions = connection.getOobActions();
-    final DataLoadAction currentAction = connection.getCurrentAction();
-    if ( null == currentAction && !oobActions.isEmpty() )
+    final LinkedList<MessageResponse> oobResponses = connection.getOutOfBandResponses();
+    final MessageResponse response = connection.getCurrentMessageResponse();
+    if ( null == response && !oobResponses.isEmpty() )
     {
-      connection.setCurrentAction( oobActions.removeFirst() );
+      connection.setCurrentMessageResponse( oobResponses.removeFirst() );
       return true;
     }
 
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
-    final LinkedList<DataLoadAction> parsedActions = connection.getParsedActions();
-    if ( null == currentAction && !parsedActions.isEmpty() )
+    final LinkedList<MessageResponse> parsedActions = connection.getParsedResponses();
+    if ( null == response && !parsedActions.isEmpty() )
     {
-      final DataLoadAction action = parsedActions.get( 0 );
+      final MessageResponse action = parsedActions.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
       if ( action.isOob() || connection.getLastRxSequence() + 1 == changeSet.getSequence() )
       {
-        final DataLoadAction candidate = parsedActions.remove();
-        connection.setCurrentAction( candidate );
+        final MessageResponse candidate = parsedActions.remove();
+        connection.setCurrentMessageResponse( candidate );
         if ( LOG.isLoggable( getLogLevel() ) )
         {
           LOG.log( getLogLevel(), "Parsed Action Selected: " + candidate );
@@ -673,8 +676,8 @@ public abstract class AbstractDataLoaderService
     }
 
     // Abort if there is no pending data load actions to take
-    final LinkedList<DataLoadAction> pendingActions = connection.getPendingActions();
-    if ( null == currentAction && pendingActions.isEmpty() )
+    final LinkedList<MessageResponse> unparsedResponses = connection.getUnparsedResponses();
+    if ( null == response && unparsedResponses.isEmpty() )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
@@ -685,10 +688,10 @@ public abstract class AbstractDataLoaderService
     }
 
     //Step: Retrieve the action from the un-parsed queue
-    if ( null == currentAction )
+    if ( null == response )
     {
-      final DataLoadAction candidate = pendingActions.remove();
-      connection.setCurrentAction( candidate );
+      final MessageResponse candidate = unparsedResponses.remove();
+      connection.setCurrentMessageResponse( candidate );
       if ( LOG.isLoggable( getLogLevel() ) )
       {
         LOG.log( getLogLevel(), "Un-parsed Action Selected: " + candidate );
@@ -697,13 +700,13 @@ public abstract class AbstractDataLoaderService
     }
 
     //Step: Parse the json
-    final String rawJsonData = currentAction.getRawJsonData();
-    boolean isOutOfBandMessage = currentAction.isOob();
+    final String rawJsonData = response.getRawJsonData();
+    boolean isOutOfBandMessage = response.isOob();
     if ( null != rawJsonData )
     {
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Parsing JSON: " + currentAction );
+        LOG.log( getLogLevel(), "Parsing JSON: " + response );
       }
       final ChangeSet changeSet = parseChangeSet( rawJsonData );
       if ( Replicant.shouldValidateChangeSetOnRead() )
@@ -767,45 +770,45 @@ public abstract class AbstractDataLoaderService
         }
       }
 
-      currentAction.recordChangeSet( changeSet, request );
-      parsedActions.add( currentAction );
+      response.recordChangeSet( changeSet, request );
+      parsedActions.add( response );
       Collections.sort( parsedActions );
-      connection.setCurrentAction( null );
+      connection.setCurrentMessageResponse( null );
       return true;
     }
 
-    if ( currentAction.needsChannelActionsProcessed() )
+    if ( response.needsChannelActionsProcessed() )
     {
-      processChannelChanges( currentAction );
+      processChannelChanges( response );
       return true;
     }
 
     //Step: Process a chunk of changes
-    if ( currentAction.areChangesPending() )
+    if ( response.areChangesPending() )
     {
-      processEntityChanges( currentAction );
+      processEntityChanges( response );
       return true;
     }
 
     //Step: Process a chunk of links
-    if ( currentAction.areEntityLinksPending() )
+    if ( response.areEntityLinksPending() )
     {
-      processEntityLinks( currentAction );
+      processEntityLinks( response );
       return true;
     }
 
     //Step: Finalize the change set
-    if ( !currentAction.hasWorldBeenNotified() )
+    if ( !response.hasWorldBeenNotified() )
     {
-      currentAction.markWorldAsNotified();
+      response.markWorldAsNotified();
       if ( LOG.isLoggable( getLogLevel() ) )
       {
-        LOG.log( getLogLevel(), "Finalizing action: " + currentAction );
+        LOG.log( getLogLevel(), "Finalizing response: " + response );
       }
       // OOB messages are not sequenced
       if ( !isOutOfBandMessage )
       {
-        connection.setLastRxSequence( currentAction.getChangeSet().getSequence() );
+        connection.setLastRxSequence( response.getChangeSet().getSequence() );
       }
       if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
@@ -814,7 +817,7 @@ public abstract class AbstractDataLoaderService
 
       return true;
     }
-    final DataLoadStatus status = currentAction.toStatus();
+    final DataLoadStatus status = response.toStatus();
     if ( LOG.isLoggable( Level.INFO ) )
     {
       LOG.info( status.toString() );
@@ -823,19 +826,19 @@ public abstract class AbstractDataLoaderService
     //Step: Run the post actions
     if ( LOG.isLoggable( getLogLevel() ) )
     {
-      LOG.log( getLogLevel(), "Running post action and cleaning action: " + currentAction );
+      LOG.log( getLogLevel(), "Running post action and cleaning response: " + response );
     }
-    final RequestEntry request = currentAction.getRequest();
+    final RequestEntry request = response.getRequest();
     if ( null != request )
     {
       request.markResultsAsArrived();
     }
-    final SafeProcedure runnable = currentAction.getCompletionAction();
+    final SafeProcedure runnable = response.getCompletionAction();
     if ( null != runnable )
     {
       runnable.call();
       // OOB messages are not in response to requests as such
-      final String requestId = isOutOfBandMessage ? null : currentAction.getChangeSet().getRequestId();
+      final String requestId = isOutOfBandMessage ? null : response.getChangeSet().getRequestId();
       if ( null != requestId )
       {
         // We can remove the request because this side ran second and the
@@ -844,7 +847,7 @@ public abstract class AbstractDataLoaderService
         final boolean removed = connection.removeRequest( requestId );
         if ( !removed )
         {
-          LOG.severe( "ChangeSet " + currentAction.getChangeSet().getSequence() + " expected to " +
+          LOG.severe( "ChangeSet " + response.getChangeSet().getSequence() + " expected to " +
                       "complete request '" + requestId + "' but no request was registered with connection." );
         }
         if ( requestDebugOutputEnabled() )
@@ -853,7 +856,7 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-    connection.setCurrentAction( null );
+    connection.setCurrentMessageResponse( null );
     onMessageProcessed( status );
     if ( null != _resetAction )
     {
@@ -864,7 +867,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Action( reportParameters = false )
-  protected void processEntityChanges( @Nonnull final DataLoadAction currentAction )
+  protected void processEntityChanges( @Nonnull final MessageResponse currentAction )
   {
     EntityChange change;
     for ( int i = 0; i < _changesToProcessPerTick && null != ( change = currentAction.nextChange() ); i++ )
@@ -883,7 +886,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Action( reportParameters = false )
-  protected void processEntityLinks( @Nonnull final DataLoadAction currentAction )
+  protected void processEntityLinks( @Nonnull final MessageResponse currentAction )
   {
     Linkable linkable;
     for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
@@ -894,7 +897,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Action
-  protected void processChannelChanges( @Nonnull final DataLoadAction currentAction )
+  protected void processChannelChanges( @Nonnull final MessageResponse currentAction )
   {
     currentAction.markChannelActionsProcessed();
     final ChangeSet changeSet = currentAction.getChangeSet();
@@ -914,7 +917,7 @@ public abstract class AbstractDataLoaderService
       {
         currentAction.incChannelAddCount();
         boolean explicitSubscribe = false;
-        if ( ensureConnection().getCurrentAoiActions()
+        if ( ensureConnection().getCurrentAreaOfInterestRequests()
           .stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
         {
           if ( LOG.isLoggable( getLogLevel() ) )
@@ -950,10 +953,10 @@ public abstract class AbstractDataLoaderService
   protected abstract boolean requestDebugOutputEnabled();
 
   @Nonnull
-  private ChannelAddress toAddress( @Nonnull final ChannelChange action )
+  private ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
   {
-    final int channelId = action.getChannelId();
-    final Integer subChannelId = action.hasSubChannelId() ? action.getSubChannelId() : null;
+    final int channelId = channelChange.getChannelId();
+    final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
     final Enum channelType = channelIdToType( channelId );
     return new ChannelAddress( channelType, subChannelId );
   }
