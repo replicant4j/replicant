@@ -805,8 +805,7 @@ public abstract class AbstractDataLoaderService
       }
       if ( Replicant.shouldValidateRepositoryOnLoad() )
       {
-        // This should never need a transaction ... unless the repository is invalid and there is unlinked data.
-        context().safeAction( generateName( "validate" ), this::validateRepository );
+        validateRepository();
       }
 
       return true;
@@ -1025,15 +1024,15 @@ public abstract class AbstractDataLoaderService
 
   /**
    * Check all the entities in the repository and raise an exception if an entity fails to validateRepository.
+   * This method should not need a transaction ... unless an entity is invalid and there is unlinked data so we
+   * wrap in an @Action just in case.
    *
    * An entity can fail to validateRepository if it is {@link Disposable} and {@link Disposable#isDisposed()} returns
    * true. An entity can also fail to validateRepository if it is {@link Verifiable} and {@link Verifiable#verify()}
    * throws an exception.
-   *
-   * @throws IllegalStateException if an invalid entity is found in the repository.
    */
+  @Action
   protected void validateRepository()
-    throws IllegalStateException
   {
     if ( Replicant.shouldCheckInvariants() )
     {
