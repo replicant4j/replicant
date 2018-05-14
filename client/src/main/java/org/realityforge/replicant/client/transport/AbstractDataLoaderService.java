@@ -772,7 +772,7 @@ public abstract class AbstractDataLoaderService
 
     if ( currentAction.needsChannelActionsProcessed() )
     {
-      processChannelActions();
+      processChannelChanges();
       return true;
     }
 
@@ -895,7 +895,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Action
-  protected void processChannelActions()
+  protected void processChannelChanges()
   {
     final DataLoadAction currentAction = ensureConnection().getCurrentAction();
     assert null != currentAction;
