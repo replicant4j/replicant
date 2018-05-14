@@ -35,27 +35,34 @@ public final class Connection
    */
   private final LinkedList<AreaOfInterestRequest> _pendingAreaOfInterestRequests = new LinkedList<>();
   /**
-   * The set of data load actions that still need to have the json parsed.
+   * This contains the messages that are not yet parsed. These need to be parsed
+   * and placed in the {@link #_pendingResponses} list in order before they will
+   * progress.
    */
   private final LinkedList<MessageResponse> _unparsedResponses = new LinkedList<>();
   /**
-   * The set of data load actions that have their json parsed. They are inserted into
-   * this list according to their sequence.
+   * This list contains the messages that have been parsed and are ordered according to their sequence
+   * in ascending order.
    */
   private final LinkedList<MessageResponse> _pendingResponses = new LinkedList<>();
   /**
-   * Sometimes a data load action occurs that is not initiated by the server. These do not
-   * typically need to be sequenced and are prioritized above other actions.
+   * Sometimes a "Message" occurs that is not initiated by the server. These do not
+   * typically need to be sequenced and are prioritized above other actions. This is only
+   * really used in responding to requests with cached value.
    */
   private final LinkedList<MessageResponse> _outOfBandResponses = new LinkedList<>();
 
   private int _lastRxSequence;
 
   /**
-   * The current message action being processed.
+   * The current message being processed.
    */
   @Nullable
   private MessageResponse _currentMessageResponse;
+  /**
+   * The current requests being processed. This list can contain multiple requests if they
+   * are candidates for bulk actions.
+   */
   @Nonnull
   private List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
 
