@@ -163,6 +163,43 @@ public class ConnectionTest
   }
 
   @Test
+  public void enqueueOutOfBandResponse()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
+
+    final String data1 = ValueUtil.randomString();
+    final String data2 = ValueUtil.randomString();
+
+    final SafeProcedure action1 = () -> {
+    };
+    final SafeProcedure action2 = () -> {
+    };
+
+    assertEquals( connection.getOutOfBandResponses().size(), 0 );
+
+    connection.enqueueOutOfBandResponse( data1, action1 );
+
+    assertEquals( connection.getOutOfBandResponses().size(), 1 );
+
+    connection.enqueueOutOfBandResponse( data2, action2 );
+
+    assertEquals( connection.getOutOfBandResponses().size(), 2 );
+
+    final MessageResponse response1 = connection.getOutOfBandResponses().get( 0 );
+    final MessageResponse response2 = connection.getOutOfBandResponses().get( 1 );
+
+    assertEquals( response1.getRawJsonData(), data1 );
+    assertEquals( response1.getCompletionAction(), action1 );
+
+    assertEquals( response2.getRawJsonData(), data2 );
+    assertEquals( response2.getCompletionAction(), action2 );
+  }
+
+  @Test
   public void basicRequestManagementWorkflow()
   {
     final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
