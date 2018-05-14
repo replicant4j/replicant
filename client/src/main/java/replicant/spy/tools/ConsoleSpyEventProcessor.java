@@ -18,6 +18,7 @@ import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RequestCompletedEvent;
+import replicant.spy.RequestStartedEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
@@ -84,7 +85,19 @@ public class ConsoleSpyEventProcessor
     on( UnsubscribeFailedEvent.class, this::onUnsubscribeFailed );
     on( UnsubscribeStartedEvent.class, this::onUnsubscribeStarted );
 
+    on( RequestStartedEvent.class, this::onRequestStarted );
     on( RequestCompletedEvent.class, this::onRequestCompleted );
+  }
+
+  /**
+   * Handle the RequestStartedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onRequestStarted( @Nonnull final RequestStartedEvent e )
+  {
+    log( "%cRequest started. System: " + e.getSystemType().getSimpleName() + " Request: " + e.getName() +
+         " RequestId: " + e.getRequestId(), CONNECTOR_COLOR );
   }
 
   /**
