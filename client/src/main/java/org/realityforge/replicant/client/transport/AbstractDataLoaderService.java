@@ -309,17 +309,21 @@ public abstract class AbstractDataLoaderService
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
 
-  private String label( List<AreaOfInterestRequest> entries )
+  @Nonnull
+  private String label( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    if ( entries.size() == 0 )
+    if ( requests.isEmpty() )
     {
       return "";
     }
-    final Object filterParameter = entries.get( 0 ).getFilter();
-    return getKey() +
-           ":" +
-           entries.stream().map( e -> e.getAddress().toString() ).collect( Collectors.joining( "/" ) ) +
-           ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
+    else
+    {
+      final Object filter = requests.get( 0 ).getFilter();
+      return getKey() +
+             ":" +
+             requests.stream().map( e -> e.getAddress().toString() ).collect( Collectors.joining( "/" ) ) +
+             ( null == filter ? "" : "[" + filterToString( filter ) + "]" );
+    }
   }
 
   private boolean progressBulkAreaOfInterestUpdateRequests()
