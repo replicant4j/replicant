@@ -73,7 +73,7 @@ public final class Connection
                                 @Nonnull final AreaOfInterestAction action,
                                 @Nullable final Object filterParameter )
   {
-    _pendingAreaOfInterestActions.add( new AreaOfInterestEntry( descriptor, action, filterParameter ) );
+    getPendingAreaOfInterestActions().add( new AreaOfInterestEntry( descriptor, action, filterParameter ) );
   }
 
   public void enqueueDataLoad( @Nonnull final String rawJsonData )
