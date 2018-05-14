@@ -12,6 +12,8 @@ public final class RequestCompletedEvent
   implements SerializableEvent
 {
   @Nonnull
+  private final Class<?> _systemType;
+  @Nonnull
   private final String _requestId;
   @Nonnull
   private final String _name;
@@ -19,17 +21,25 @@ public final class RequestCompletedEvent
   private final boolean _expectingResults;
   private final boolean _resultsArrived;
 
-  public RequestCompletedEvent( @Nonnull final String requestId,
+  public RequestCompletedEvent( @Nonnull final Class<?> systemType,
+                                @Nonnull final String requestId,
                                 @Nonnull final String name,
                                 final boolean normalCompletion,
                                 final boolean expectingResults,
                                 final boolean resultsArrived )
   {
+    _systemType = Objects.requireNonNull( systemType );
     _requestId = Objects.requireNonNull( requestId );
     _name = Objects.requireNonNull( name );
     _normalCompletion = normalCompletion;
     _expectingResults = expectingResults;
     _resultsArrived = resultsArrived;
+  }
+
+  @Nonnull
+  public Class<?> getSystemType()
+  {
+    return _systemType;
   }
 
   @Nonnull
@@ -66,6 +76,7 @@ public final class RequestCompletedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Connector.RequestCompleted" );
+    map.put( "systemType", getSystemType().getSimpleName() );
     map.put( "requestId", getRequestId() );
     map.put( "name", getName() );
     map.put( "normalCompletion", isNormalCompletion() );
