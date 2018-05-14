@@ -27,7 +27,13 @@ public final class Connection
   @Nonnull
   private final Connector _connector;
   private final String _connectionId;
+  /**
+   * A map containing the rpc requests that are in progress.
+   */
   private final Map<String, RequestEntry> _requests = new HashMap<>();
+  /**
+   * The id of the last rpc request sent to the server.
+   */
   private int _requestId;
 
   /**
