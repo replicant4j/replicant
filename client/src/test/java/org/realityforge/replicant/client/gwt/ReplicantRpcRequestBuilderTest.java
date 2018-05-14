@@ -9,12 +9,14 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
+import replicant.AbstractReplicantTest;
 import replicant.Connection;
 import replicant.RequestEntry;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantRpcRequestBuilderTest
+  extends AbstractReplicantTest
 {
   @Test
   public void noContext()
