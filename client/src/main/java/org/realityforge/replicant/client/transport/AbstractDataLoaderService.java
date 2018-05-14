@@ -256,10 +256,11 @@ public abstract class AbstractDataLoaderService
    */
   protected boolean progressAreaOfInterestActions()
   {
-    final List<AreaOfInterestEntry> currentAOIActions = ensureConnection().getCurrentAoiActions();
+    final Connection connection = ensureConnection();
+    final List<AreaOfInterestEntry> currentAOIActions = connection.getCurrentAoiActions();
     if ( currentAOIActions.isEmpty() )
     {
-      final LinkedList<AreaOfInterestEntry> actions = ensureConnection().getPendingAreaOfInterestActions();
+      final LinkedList<AreaOfInterestEntry> actions = connection.getPendingAreaOfInterestActions();
       if ( 0 == actions.size() )
       {
         return false;
