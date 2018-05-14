@@ -1,7 +1,6 @@
 package replicant;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +25,6 @@ public final class Connection
 
   private final String _connectionId;
   private final Map<String, RequestEntry> _requests = new HashMap<>();
-  private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
   private int _requestID;
 
   /**
@@ -180,7 +178,7 @@ public final class Connection
 
   public Map<String, RequestEntry> getRequests()
   {
-    return _roRequests;
+    return _requests;
   }
 
   public boolean removeRequest( @Nonnull final String requestID )
