@@ -230,7 +230,7 @@ public class DataLoadActionTest
     // Process entity changes
     {
       assertEquals( action.nextChange(), entityChanges[ 0 ] );
-      action.changeProcessed( entityChanges[ 0 ].isUpdate(), entities[ 0 ] );
+      action.changeProcessed( entities[ 0 ] );
       action.incEntityUpdateCount();
 
       assertEquals( action.areChangesPending(), true );
@@ -242,7 +242,7 @@ public class DataLoadActionTest
 
       assertEquals( action.nextChange(), entityChanges[ 2 ] );
       action.incEntityUpdateCount();
-      action.changeProcessed( entityChanges[ 0 ].isUpdate(), entities[ 2 ] );
+      action.changeProcessed( entities[ 2 ] );
 
       assertEquals( action.areChangesPending(), false );
 

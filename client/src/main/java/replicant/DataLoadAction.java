@@ -209,14 +209,11 @@ public final class DataLoadAction
     }
   }
 
-  public void changeProcessed( final boolean isUpdate, final Object entity )
+  public void changeProcessed( @Nonnull final Object entity )
   {
     if ( entity instanceof Linkable )
     {
-      if ( isUpdate )
-      {
-        _updatedEntities.add( (Linkable) entity );
-      }
+      _updatedEntities.add( (Linkable) entity );
     }
   }
 

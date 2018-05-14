@@ -870,12 +870,12 @@ public abstract class AbstractDataLoaderService
       if ( change.isUpdate() )
       {
         currentAction.incEntityUpdateCount();
+        currentAction.changeProcessed( entity );
       }
       else
       {
         currentAction.incEntityRemoveCount();
       }
-      currentAction.changeProcessed( change.isUpdate(), entity );
     }
   }
 
