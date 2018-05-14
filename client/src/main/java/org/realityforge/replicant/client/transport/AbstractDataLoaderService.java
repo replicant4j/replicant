@@ -779,28 +779,7 @@ public abstract class AbstractDataLoaderService
     //Step: Process a chunk of changes
     if ( currentAction.areChangesPending() )
     {
-      if ( LOG.isLoggable( getLogLevel() ) )
-      {
-        LOG.log( getLogLevel(), "Processing ChangeSet: " + currentAction );
-      }
-
-      final ChangeSet changeSet = currentAction.getChangeSet();
-      context().safeAction( generateName( "applyChange" ), () -> {
-        EntityChange change;
-        for ( int i = 0; i < _changesToProcessPerTick && null != ( change = currentAction.nextChange() ); i++ )
-        {
-          final Object entity = getChangeMapper().applyChange( change );
-          if ( change.isUpdate() )
-          {
-            currentAction.incEntityUpdateCount();
-          }
-          else
-          {
-            currentAction.incEntityRemoveCount();
-          }
-          currentAction.changeProcessed( change.isUpdate(), entity );
-        }
-      }, changeSet.getSequence(), changeSet.getRequestId() );
+      processEntityChanges( currentAction );
       return true;
     }
 
@@ -881,6 +860,25 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  @Action( reportParameters = false )
+  protected void processEntityChanges( @Nonnull final DataLoadAction currentAction )
+  {
+    EntityChange change;
+    for ( int i = 0; i < _changesToProcessPerTick && null != ( change = currentAction.nextChange() ); i++ )
+    {
+      final Object entity = getChangeMapper().applyChange( change );
+      if ( change.isUpdate() )
+      {
+        currentAction.incEntityUpdateCount();
+      }
+      else
+      {
+        currentAction.incEntityRemoveCount();
+      }
+      currentAction.changeProcessed( change.isUpdate(), entity );
+    }
   }
 
   @Action( reportParameters = false )
