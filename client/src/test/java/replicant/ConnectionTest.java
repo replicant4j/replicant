@@ -131,6 +131,38 @@ public class ConnectionTest
   }
 
   @Test
+  public void enqueueResponse()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
+
+    final String data1 = ValueUtil.randomString();
+    final String data2 = ValueUtil.randomString();
+
+    assertEquals( connection.getUnparsedResponses().size(), 0 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    connection.enqueueResponse( data1 );
+
+    assertEquals( connection.getUnparsedResponses().size(), 1 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    connection.enqueueResponse( data2 );
+
+    assertEquals( connection.getUnparsedResponses().size(), 2 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    final MessageResponse response1 = connection.getUnparsedResponses().get( 0 );
+    final MessageResponse response2 = connection.getUnparsedResponses().get( 1 );
+
+    assertEquals( response1.getRawJsonData(), data1 );
+    assertEquals( response2.getRawJsonData(), data2 );
+  }
+
+  @Test
   public void basicRequestManagementWorkflow()
   {
     final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
