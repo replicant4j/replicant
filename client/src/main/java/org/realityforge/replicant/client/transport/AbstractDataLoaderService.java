@@ -303,9 +303,9 @@ public abstract class AbstractDataLoaderService
 
   private String label( AreaOfInterestRequest entry )
   {
-    final ChannelAddress descriptor = entry.getAddress();
+    final ChannelAddress address = entry.getAddress();
     final Object filterParameter = entry.getFilter();
-    return getKey() + ":" + descriptor +
+    return getKey() + ":" + address +
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
   }
 
@@ -557,7 +557,7 @@ public abstract class AbstractDataLoaderService
     requests.clear();
   }
 
-  protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress descriptor,
+  protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
                                                      @Nullable Object filterParameter,
                                                      @Nullable String cacheKey,
                                                      @Nullable String eTag,
@@ -565,25 +565,25 @@ public abstract class AbstractDataLoaderService
                                                      @Nonnull Consumer<SafeProcedure> completionAction,
                                                      @Nonnull Consumer<SafeProcedure> failAction );
 
-  protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress descriptor,
+  protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress address,
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
-  protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress descriptor,
+  protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress address,
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Consumer<SafeProcedure> completionAction,
                                                      @Nonnull Consumer<SafeProcedure> failAction );
 
-  protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> descriptor,
+  protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> addresses,
                                                          @Nullable Object filterParameter,
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
-  protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> descriptors,
+  protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> addresses,
                                                              @Nonnull Consumer<SafeProcedure> completionAction,
                                                              @Nonnull Consumer<SafeProcedure> failAction );
 
-  protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
+  protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
                                                          @Nonnull Object filterParameter,
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );

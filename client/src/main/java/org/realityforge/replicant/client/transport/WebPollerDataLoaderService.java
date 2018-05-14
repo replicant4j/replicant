@@ -390,20 +390,20 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestUpdateSubscription( @Nonnull final ChannelAddress descriptor,
+  protected void requestUpdateSubscription( @Nonnull final ChannelAddress address,
                                             @Nonnull final Object filterParameter,
                                             @Nonnull final Consumer<SafeProcedure> completionAction,
                                             @Nonnull final Consumer<SafeProcedure> failAction )
   {
-    if ( isChannelTypeValid( descriptor ) )
+    if ( isChannelTypeValid( address ) )
     {
-      onSubscriptionUpdateStarted( descriptor );
+      onSubscriptionUpdateStarted( address );
       final SafeProcedure onSuccess =
-        () -> completionAction.accept( () -> onSubscriptionUpdateCompleted( descriptor ) );
+        () -> completionAction.accept( () -> onSubscriptionUpdateCompleted( address ) );
       final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> onSubscriptionUpdateFailed( descriptor, error ) );
-      performUpdateSubscription( descriptor.getChannelType().ordinal(),
-                                 descriptor.getId(),
+        error -> failAction.accept( () -> onSubscriptionUpdateFailed( address, error ) );
+      performUpdateSubscription( address.getChannelType().ordinal(),
+                                 address.getId(),
                                  filterParameter,
                                  onSuccess,
                                  onError );
@@ -431,21 +431,21 @@ public abstract class WebPollerDataLoaderService
                    onError ) );
   }
 
-  protected void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
+  protected void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
                                                 @Nonnull Object filterParameter,
                                                 @Nonnull Consumer<SafeProcedure> completionAction,
                                                 @Nonnull Consumer<SafeProcedure> failAction )
   {
-    final ChannelAddress address = descriptors.get( 0 );
+    final ChannelAddress address = addresses.get( 0 );
     if ( isChannelTypeValid( address ) )
     {
-      descriptors.forEach( this::onSubscriptionUpdateStarted );
+      addresses.forEach( this::onSubscriptionUpdateStarted );
       final SafeProcedure onSuccess =
-        () -> completionAction.accept( () -> descriptors.forEach( x -> onSubscriptionUpdateCompleted( address ) ) );
+        () -> completionAction.accept( () -> addresses.forEach( x -> onSubscriptionUpdateCompleted( address ) ) );
       final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> descriptors.forEach( x -> onSubscriptionUpdateFailed( address, error ) ) );
+        error -> failAction.accept( () -> addresses.forEach( x -> onSubscriptionUpdateFailed( address, error ) ) );
       performBulkUpdateSubscription( address.getChannelType().ordinal(),
-                                     descriptors.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
+                                     addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
                                      filterParameter,
                                      onSuccess,
                                      onError );
