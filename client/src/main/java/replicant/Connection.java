@@ -28,7 +28,7 @@ public final class Connection
   private final Connector _connector;
   private final String _connectionId;
   private final Map<String, RequestEntry> _requests = new HashMap<>();
-  private int _requestID;
+  private int _requestId;
 
   /**
    * Pending actions that will change the area of interest.
@@ -191,7 +191,7 @@ public final class Connection
 
   private String nextRequestId()
   {
-    return String.valueOf( ++_requestID );
+    return String.valueOf( ++_requestId );
   }
 
   @Nullable
