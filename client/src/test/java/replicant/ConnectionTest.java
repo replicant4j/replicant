@@ -12,18 +12,21 @@ public class ConnectionTest
   public void basicRequestManagementWorkflow()
   {
     final Connection connection = new Connection( ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( "Y", "X" );
-    assertEquals( e.getName(), "Y" );
-    assertEquals( e.getCacheKey(), "X" );
+    final String requestName = ValueUtil.randomString();
+    final String cacheKey = ValueUtil.randomString();
 
-    assertEquals( connection.getRequest( e.getRequestId() ), e );
-    assertEquals( connection.getRequests().get( e.getRequestId() ), e );
-    assertEquals( connection.getRequest( "NotHere" + e.getRequestId() ), null );
+    final RequestEntry request = connection.newRequest( requestName, cacheKey );
+    assertEquals( request.getName(), requestName );
+    assertEquals( request.getCacheKey(), cacheKey );
 
-    assertTrue( connection.removeRequest( e.getRequestId() ) );
-    assertFalse( connection.removeRequest( e.getRequestId() ) );
+    assertEquals( connection.getRequest( request.getRequestId() ), request );
+    assertEquals( connection.getRequests().get( request.getRequestId() ), request );
+    assertEquals( connection.getRequest( "NotHere" + request.getRequestId() ), null );
 
-    assertEquals( connection.getRequest( e.getRequestId() ), null );
+    assertTrue( connection.removeRequest( request.getRequestId() ) );
+    assertFalse( connection.removeRequest( request.getRequestId() ) );
+
+    assertEquals( connection.getRequest( request.getRequestId() ), null );
   }
 
   @Test
