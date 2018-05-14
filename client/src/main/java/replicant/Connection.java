@@ -71,9 +71,25 @@ public final class Connection
     return _connectionId;
   }
 
-  public void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress descriptor,
-                                            @Nonnull final AreaOfInterestAction action,
-                                            @Nullable final Object filterParameter )
+  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
+  {
+    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.ADD, filterParameter );
+  }
+
+  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
+                                         @Nullable final Object filterParameter )
+  {
+    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.UPDATE, filterParameter );
+  }
+
+  public void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  {
+    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.REMOVE, null );
+  }
+
+  private void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress descriptor,
+                                             @Nonnull final AreaOfInterestAction action,
+                                             @Nullable final Object filterParameter )
   {
     getPendingAreaOfInterestRequests().add( new AreaOfInterestRequest( descriptor, action, filterParameter ) );
   }

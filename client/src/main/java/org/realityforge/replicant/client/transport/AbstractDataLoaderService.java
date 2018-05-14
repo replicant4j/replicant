@@ -81,7 +81,7 @@ public abstract class AbstractDataLoaderService
   public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
   {
     //TODO: Send spy message ..
-    ensureConnection().enqueueAreaOfInterestRequest( address, AreaOfInterestAction.ADD, filterParameter );
+    ensureConnection().requestSubscribe( address, filterParameter );
     scheduleDataLoad();
   }
 
@@ -90,7 +90,7 @@ public abstract class AbstractDataLoaderService
                                                @Nullable final Object filterParameter )
   {
     //TODO: Send spy message ..
-    ensureConnection().enqueueAreaOfInterestRequest( address, AreaOfInterestAction.UPDATE, filterParameter );
+    ensureConnection().requestSubscriptionUpdate( address, filterParameter );
     scheduleDataLoad();
   }
 
@@ -98,7 +98,7 @@ public abstract class AbstractDataLoaderService
   public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     //TODO: Send spy message ..
-    ensureConnection().enqueueAreaOfInterestRequest( address, AreaOfInterestAction.REMOVE, null );
+    ensureConnection().requestUnsubscribe( address );
     scheduleDataLoad();
   }
 
