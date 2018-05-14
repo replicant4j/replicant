@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.spy.RequestCompletedEvent;
 
 /**
  * Connection state used by the connector to manage connection to backend system.
@@ -140,6 +141,18 @@ public final class Connection
     {
       completionAction.call();
       removeRequest( request.getRequestId() );
+    }
+    if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      _connector
+        .getReplicantContext()
+        .getSpy()
+        .reportSpyEvent( new RequestCompletedEvent( _connector.getSystemType(),
+                                                    request.getRequestId(),
+                                                    request.getName(),
+                                                    request.isNormalCompletion(),
+                                                    request.isExpectingResults(),
+                                                    request.haveResultsArrived() ) );
     }
   }
 
