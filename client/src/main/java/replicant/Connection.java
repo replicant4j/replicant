@@ -86,15 +86,14 @@ public final class Connection
     return _connectionId;
   }
 
-  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
+  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.ADD, filterParameter );
+    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.ADD, filter );
   }
 
-  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                         @Nullable final Object filterParameter )
+  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.UPDATE, filterParameter );
+    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.UPDATE, filter );
   }
 
   public void requestUnsubscribe( @Nonnull final ChannelAddress address )
@@ -104,9 +103,9 @@ public final class Connection
 
   private void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress descriptor,
                                              @Nonnull final AreaOfInterestAction action,
-                                             @Nullable final Object filterParameter )
+                                             @Nullable final Object filter )
   {
-    getPendingAreaOfInterestRequests().add( new AreaOfInterestRequest( descriptor, action, filterParameter ) );
+    getPendingAreaOfInterestRequests().add( new AreaOfInterestRequest( descriptor, action, filter ) );
   }
 
   public void enqueueResponse( @Nonnull final String rawJsonData )
