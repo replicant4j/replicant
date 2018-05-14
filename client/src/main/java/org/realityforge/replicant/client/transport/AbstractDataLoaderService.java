@@ -1,6 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import arez.Disposable;
+import arez.annotations.Action;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -793,20 +794,7 @@ public abstract class AbstractDataLoaderService
     //Step: Process a chunk of links
     if ( currentAction.areEntityLinksPending() )
     {
-      if ( LOG.isLoggable( getLogLevel() ) )
-      {
-        LOG.log( getLogLevel(), "Linking Entities: " + currentAction );
-      }
-      final ChangeSet changeSet = currentAction.getChangeSet();
-
-      context().safeAction( generateName( "link" ), () -> {
-        Linkable linkable;
-        for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
-        {
-          linkable.link();
-          currentAction.incEntityLinkCount();
-        }
-      }, changeSet.getSequence(), changeSet.getRequestId() );
+      processEntityLinks( currentAction );
       return true;
     }
 
@@ -880,6 +868,17 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  @Action( reportParameters = false )
+  protected void processEntityLinks( @Nonnull final DataLoadAction currentAction )
+  {
+    Linkable linkable;
+    for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
+    {
+      linkable.link();
+      currentAction.incEntityLinkCount();
+    }
   }
 
   private void processChannelActions()
