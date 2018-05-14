@@ -31,8 +31,7 @@ public class AreaOfInterestTest
   {
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> Disposable.dispose( areaOfInterest ) );
     handler.assertEventCount( 1 );
@@ -208,8 +207,7 @@ public class AreaOfInterestTest
     Arez.context().pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
 

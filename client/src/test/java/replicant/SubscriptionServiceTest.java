@@ -406,8 +406,7 @@ public class SubscriptionServiceTest
     final ChannelAddress address = new ChannelAddress( G.G2 );
 
     final SubscriptionService service = SubscriptionService.create( null );
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Subscription subscription =
       Arez.context().safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
@@ -424,12 +423,11 @@ public class SubscriptionServiceTest
     final ChannelAddress address = new ChannelAddress( G.G2 );
 
     final SubscriptionService service = SubscriptionService.create( null );
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
 
     final Subscription subscription =
       Arez.context().safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
 
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Disposable.dispose( subscription );
 

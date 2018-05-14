@@ -69,8 +69,7 @@ public class AreaOfInterestServiceTest
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
 
     Arez.context().safeAction( () -> {
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      Replicant.context().getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest );
@@ -88,11 +87,9 @@ public class AreaOfInterestServiceTest
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
 
     Arez.context().safeAction( () -> {
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-
       service.createOrUpdateAreaOfInterest( address1, "Filter1" );
 
-      Replicant.context().getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, "Filter2" );
 
@@ -109,12 +106,10 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestService service = AreaOfInterestService.create( null );
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-
     final AreaOfInterest areaOfInterest =
       Arez.context().safeAction( () -> service.createOrUpdateAreaOfInterest( address1, "Filter1" ) );
 
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> Disposable.dispose( areaOfInterest ) );
     handler.assertEventCount( 1 );

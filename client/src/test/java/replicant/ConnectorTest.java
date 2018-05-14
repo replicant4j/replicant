@@ -150,8 +150,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     // Pause scheduler so runtime does not try to update state
     Arez.context().pauseScheduler();
@@ -194,8 +193,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Throwable error = new Throwable();
 
@@ -240,8 +238,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( connector::onConnected );
 
@@ -281,8 +278,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Throwable error = new Throwable();
 
@@ -306,8 +302,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final DataLoadStatus status =
       new DataLoadStatus( ValueUtil.randomInt(),
@@ -336,9 +331,6 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create( G.class );
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
-
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
@@ -357,8 +349,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Throwable error = new Throwable();
 
@@ -396,8 +387,7 @@ public class ConnectorTest
 
     final Throwable error = new Throwable();
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.disconnectIfPossible( error ) );
 
@@ -414,8 +404,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Throwable error = new Throwable();
 
@@ -435,9 +424,6 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create( G.class );
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
-
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
@@ -456,8 +442,7 @@ public class ConnectorTest
 
     Arez.context().safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Throwable error = new Throwable();
 
@@ -484,8 +469,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onSubscribeStarted( address ) );
 
@@ -519,8 +503,7 @@ public class ConnectorTest
     final Subscription subscription =
       Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onSubscribeCompleted( address ) );
 
@@ -553,8 +536,7 @@ public class ConnectorTest
 
     final Throwable error = new Throwable();
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onSubscribeFailed( address, error ) );
 
@@ -589,8 +571,7 @@ public class ConnectorTest
     final Subscription subscription =
       Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onUnsubscribeStarted( address ) );
 
@@ -621,8 +602,7 @@ public class ConnectorTest
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     Arez.context().safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onUnsubscribeCompleted( address ) );
 
@@ -655,8 +635,7 @@ public class ConnectorTest
 
     final Throwable error = new Throwable();
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onUnsubscribeFailed( address, error ) );
 
@@ -691,8 +670,7 @@ public class ConnectorTest
     final Subscription subscription =
       Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onSubscriptionUpdateStarted( address ) );
 
@@ -726,8 +704,7 @@ public class ConnectorTest
     final Subscription subscription =
       Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onSubscriptionUpdateCompleted( address ) );
 
@@ -763,8 +740,7 @@ public class ConnectorTest
     final Subscription subscription =
       Arez.context().safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
 
-    final TestSpyEventHandler handler = new TestSpyEventHandler();
-    Replicant.context().getSpy().addSpyEventHandler( handler );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Arez.context().safeAction( () -> connector.onSubscriptionUpdateFailed( address, error ) );
 

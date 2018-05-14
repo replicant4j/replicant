@@ -120,4 +120,12 @@ public abstract class AbstractReplicantTest
       throw new AssertionError( t );
     }
   }
+
+  @Nonnull
+  protected final TestSpyEventHandler registerTestSpyEventHandler()
+  {
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
+    Replicant.context().getSpy().addSpyEventHandler( handler );
+    return handler;
+  }
 }
