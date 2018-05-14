@@ -19,6 +19,8 @@ import javax.annotation.Nullable;
  */
 public final class Connection
 {
+  //TODO: Make this package access after all classes migrated to replicant package
+
   private static final Logger LOG = Logger.getLogger( Connection.class.getName() );
   private static final Level LOG_LEVEL = Level.INFO;
 
