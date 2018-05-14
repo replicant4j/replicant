@@ -115,9 +115,9 @@ public final class Connection
   }
 
   @Nonnull
-  public final RequestEntry newRequest( @Nullable final String requestKey, @Nullable final String cacheKey )
+  public final RequestEntry newRequest( @Nullable final String name, @Nullable final String cacheKey )
   {
-    final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey );
+    final RequestEntry entry = new RequestEntry( newRequestID(), name, cacheKey );
     _requests.put( entry.getRequestId(), entry );
     if ( LOG.isLoggable( LOG_LEVEL ) )
     {
