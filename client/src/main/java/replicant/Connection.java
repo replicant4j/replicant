@@ -134,7 +134,7 @@ public final class Connection
     return _unparsedResponses;
   }
 
-  public LinkedList<MessageResponse> getParsedResponses()
+  public LinkedList<MessageResponse> getPendingResponses()
   {
     return _pendingResponses;
   }

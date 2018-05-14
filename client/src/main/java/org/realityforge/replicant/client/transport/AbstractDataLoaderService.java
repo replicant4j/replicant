@@ -658,14 +658,14 @@ public abstract class AbstractDataLoaderService
     }
 
     //Step: Retrieve the action from the parsed queue if it is the next in the sequence
-    final LinkedList<MessageResponse> parsedActions = connection.getParsedResponses();
-    if ( null == response && !parsedActions.isEmpty() )
+    final LinkedList<MessageResponse> pendingResponses = connection.getPendingResponses();
+    if ( null == response && !pendingResponses.isEmpty() )
     {
-      final MessageResponse action = parsedActions.get( 0 );
+      final MessageResponse action = pendingResponses.get( 0 );
       final ChangeSet changeSet = action.getChangeSet();
       if ( action.isOob() || connection.getLastRxSequence() + 1 == changeSet.getSequence() )
       {
-        final MessageResponse candidate = parsedActions.remove();
+        final MessageResponse candidate = pendingResponses.remove();
         connection.setCurrentMessageResponse( candidate );
         if ( LOG.isLoggable( getLogLevel() ) )
         {
@@ -771,8 +771,8 @@ public abstract class AbstractDataLoaderService
       }
 
       response.recordChangeSet( changeSet, request );
-      parsedActions.add( response );
-      Collections.sort( parsedActions );
+      pendingResponses.add( response );
+      Collections.sort( pendingResponses );
       connection.setCurrentMessageResponse( null );
       return true;
     }
