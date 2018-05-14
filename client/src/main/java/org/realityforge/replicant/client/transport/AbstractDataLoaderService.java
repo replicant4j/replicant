@@ -608,12 +608,12 @@ public abstract class AbstractDataLoaderService
    * {@inheritDoc}
    */
   @Override
-  public int indexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
-                                                  @Nonnull final ChannelAddress address,
-                                                  @Nullable final Object filter )
+  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                      @Nonnull final ChannelAddress address,
+                                                      @Nullable final Object filter )
   {
     final Connection connection = getConnection();
-    return null == connection ? -1 : connection.indexOfPendingAreaOfInterestRequest( action, address, filter );
+    return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
   }
 
   protected boolean progressResponseProcessing()

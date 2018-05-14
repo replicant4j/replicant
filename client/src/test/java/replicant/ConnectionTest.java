@@ -477,7 +477,7 @@ public class ConnectionTest
                                           @Nullable final Object filter,
                                           final int expected )
   {
-    assertEquals( connection.indexOfPendingAreaOfInterestRequest( action, address, filter ), expected );
+    assertEquals( connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter ), expected );
   }
 
   private void assertRequestPending( @Nonnull final Connection connection,

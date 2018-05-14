@@ -655,9 +655,9 @@ public class ReplicantRuntimeTest
     }
 
     @Override
-    public int indexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
-                                                    @Nonnull final ChannelAddress address,
-                                                    @Nullable final Object filter )
+    public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                        @Nonnull final ChannelAddress address,
+                                                        @Nullable final Object filter )
     {
       return -1;
     }

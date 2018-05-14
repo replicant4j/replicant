@@ -130,9 +130,9 @@ public abstract class Connector
   /**
    * Return the index of last matching AreaOfInterestAction in pending aoi actions list.
    */
-  public abstract int indexOfPendingAreaOfInterestRequest( @Nonnull AreaOfInterestAction action,
-                                                           @Nonnull ChannelAddress address,
-                                                           @Nullable Object filter );
+  public abstract int lastIndexOfPendingAreaOfInterestRequest( @Nonnull AreaOfInterestAction action,
+                                                               @Nonnull ChannelAddress address,
+                                                               @Nullable Object filter );
 
   public abstract void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filterParameter );
 

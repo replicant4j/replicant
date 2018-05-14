@@ -150,11 +150,11 @@ abstract class Converger
       final Object filter = areaOfInterest.getFilter();
 
       final int addIndex =
-        connector.indexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, filter );
+        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, filter );
       final int removeIndex =
-        connector.indexOfPendingAreaOfInterestRequest( AreaOfInterestAction.REMOVE, address, null );
+        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.REMOVE, address, null );
       final int updateIndex =
-        connector.indexOfPendingAreaOfInterestRequest( AreaOfInterestAction.UPDATE, address, filter );
+        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.UPDATE, address, filter );
 
       if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
       {

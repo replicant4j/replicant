@@ -166,9 +166,9 @@ public final class Connection
   /**
    * Return the index of last matching AreaOfInterestAction in pending aoi request list.
    */
-  public int indexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
-                                                  @Nonnull final ChannelAddress address,
-                                                  @Nullable final Object filter )
+  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                      @Nonnull final ChannelAddress address,
+                                                      @Nullable final Object filter )
   {
     final List<AreaOfInterestRequest> currentRequests = getCurrentAreaOfInterestRequests();
     if ( currentRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
