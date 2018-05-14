@@ -162,9 +162,9 @@ public abstract class Connector
   protected void onConnected()
   {
     setState( ConnectorState.CONNECTED );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new ConnectedEvent( getSystemType() ) );
+      getReplicantContext().getSpy().reportSpyEvent( new ConnectedEvent( getSystemType() ) );
     }
   }
 
@@ -175,9 +175,9 @@ public abstract class Connector
   protected void onConnectFailure( @Nonnull final Throwable error )
   {
     setState( ConnectorState.ERROR );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new ConnectFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy().reportSpyEvent( new ConnectFailureEvent( getSystemType(), error ) );
     }
   }
 
@@ -188,9 +188,9 @@ public abstract class Connector
   protected void onDisconnected()
   {
     setState( ConnectorState.DISCONNECTED );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DisconnectedEvent( getSystemType() ) );
+      getReplicantContext().getSpy().reportSpyEvent( new DisconnectedEvent( getSystemType() ) );
     }
   }
 
@@ -201,9 +201,9 @@ public abstract class Connector
   protected void onDisconnectFailure( @Nonnull final Throwable error )
   {
     setState( ConnectorState.ERROR );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new DisconnectFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy().reportSpyEvent( new DisconnectFailureEvent( getSystemType(), error ) );
     }
   }
 
@@ -214,9 +214,9 @@ public abstract class Connector
    */
   protected void onMessageProcessed( @Nonnull final DataLoadStatus status )
   {
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new MessageProcessedEvent( getSystemType(), status ) );
+      getReplicantContext().getSpy().reportSpyEvent( new MessageProcessedEvent( getSystemType(), status ) );
     }
   }
 
@@ -226,9 +226,9 @@ public abstract class Connector
   @Action
   protected void onMessageProcessFailure( @Nonnull final Throwable error )
   {
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new MessageProcessFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy().reportSpyEvent( new MessageProcessFailureEvent( getSystemType(), error ) );
     }
     disconnectIfPossible( error );
   }
@@ -239,9 +239,9 @@ public abstract class Connector
   @Action
   protected void onMessageReadFailure( @Nonnull final Throwable error )
   {
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new MessageReadFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy().reportSpyEvent( new MessageReadFailureEvent( getSystemType(), error ) );
     }
     disconnectIfPossible( error );
   }
@@ -250,9 +250,9 @@ public abstract class Connector
   {
     if ( !ConnectorState.isTransitionState( getState() ) )
     {
-      if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+      if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
       {
-        Replicant.context().getSpy().reportSpyEvent( new RestartEvent( getSystemType(), cause ) );
+        getReplicantContext().getSpy().reportSpyEvent( new RestartEvent( getSystemType(), cause ) );
       }
       disconnect();
     }
@@ -262,9 +262,9 @@ public abstract class Connector
   protected void onSubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new SubscribeStartedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscribeStartedEvent( getSystemType(), address ) );
     }
   }
 
@@ -272,9 +272,9 @@ public abstract class Connector
   protected void onSubscribeCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new SubscribeCompletedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscribeCompletedEvent( getSystemType(), address ) );
     }
   }
 
@@ -282,9 +282,9 @@ public abstract class Connector
   protected void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new SubscribeFailedEvent( getSystemType(), address, error ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscribeFailedEvent( getSystemType(), address, error ) );
     }
   }
 
@@ -292,9 +292,9 @@ public abstract class Connector
   protected void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new UnsubscribeStartedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeStartedEvent( getSystemType(), address ) );
     }
   }
 
@@ -302,9 +302,9 @@ public abstract class Connector
   protected void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new UnsubscribeCompletedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeCompletedEvent( getSystemType(), address ) );
     }
   }
 
@@ -312,9 +312,9 @@ public abstract class Connector
   protected void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new UnsubscribeFailedEvent( getSystemType(), address, error ) );
+      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeFailedEvent( getSystemType(), address, error ) );
     }
   }
 
@@ -322,9 +322,9 @@ public abstract class Connector
   protected void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new SubscriptionUpdateStartedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateStartedEvent( getSystemType(), address ) );
     }
   }
 
@@ -332,9 +332,9 @@ public abstract class Connector
   protected void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context().getSpy().reportSpyEvent( new SubscriptionUpdateCompletedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateCompletedEvent( getSystemType(), address ) );
     }
   }
 
@@ -343,9 +343,9 @@ public abstract class Connector
                                              @Nonnull final Throwable error )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATE_FAILED, error );
-    if ( Replicant.areSpiesEnabled() && Replicant.context().getSpy().willPropagateSpyEvents() )
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      Replicant.context()
+      getReplicantContext()
         .getSpy()
         .reportSpyEvent( new SubscriptionUpdateFailedEvent( getSystemType(), address, error ) );
     }
@@ -355,7 +355,7 @@ public abstract class Connector
                                      @Nonnull final AreaOfInterest.Status status,
                                      @Nullable final Throwable error )
   {
-    final AreaOfInterest areaOfInterest = Replicant.context().findAreaOfInterestByAddress( address );
+    final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
       areaOfInterest.updateAreaOfInterest( status, error );
