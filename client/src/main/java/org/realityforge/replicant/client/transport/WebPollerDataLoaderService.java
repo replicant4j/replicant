@@ -63,10 +63,10 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected abstract String getEndpointOffset();
 
-  protected void onSessionCreated( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
+  @Override
+  protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
-    setConnection( new Connection( connectionId ), action );
-    scheduleDataLoad();
+    super.onConnection( connectionId, action );
     startPolling();
   }
 
@@ -157,7 +157,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void onDisconnectError( @Nonnull final Throwable t, @Nonnull final SafeProcedure action )
   {
-    setConnection( null, action );
+    super.onDisconnection( action );
     onDisconnectFailure( t );
   }
 
@@ -170,11 +170,11 @@ public abstract class WebPollerDataLoaderService
     {
       if ( HTTP_STATUS_CODE_OK == statusCode )
       {
-        setConnection( null, action );
+        super.onDisconnection( action );
       }
       else
       {
-        setConnection( null, action );
+        super.onDisconnection( action );
         onDisconnectFailure( new InvalidHttpResponseException( statusCode, statusText ) );
       }
     }
@@ -191,7 +191,7 @@ public abstract class WebPollerDataLoaderService
   {
     if ( HTTP_STATUS_CODE_OK == statusCode )
     {
-      onSessionCreated( content.get(), action );
+      onConnection( content.get(), action );
     }
     else
     {

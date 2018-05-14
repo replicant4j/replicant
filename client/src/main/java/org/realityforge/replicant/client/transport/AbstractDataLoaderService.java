@@ -118,7 +118,18 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  protected void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
+  protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
+  {
+    setConnection( new Connection( connectionId ), action );
+    scheduleDataLoad();
+  }
+
+  protected void onDisconnection( @Nonnull final SafeProcedure action )
+  {
+    setConnection( null, action );
+  }
+
+  private void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
     final Runnable runnable = () -> doSetConnection( connection, action );
     if ( null == connection || null == connection.getCurrentAction() )
