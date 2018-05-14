@@ -15,6 +15,7 @@ import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.ChannelAddress;
+import replicant.Connection;
 import replicant.Replicant;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;

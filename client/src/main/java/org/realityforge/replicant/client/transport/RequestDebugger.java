@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import replicant.Connection;
 import replicant.RequestEntry;
 
 public class RequestDebugger

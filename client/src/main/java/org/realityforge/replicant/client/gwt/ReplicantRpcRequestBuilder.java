@@ -6,9 +6,9 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.Connection;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
+import replicant.Connection;
 import replicant.RequestEntry;
 
 public class ReplicantRpcRequestBuilder

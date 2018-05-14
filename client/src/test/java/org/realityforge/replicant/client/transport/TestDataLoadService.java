@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
+import replicant.Connection;
 import replicant.Entity;
 import replicant.Replicant;
 import replicant.ReplicantContext;

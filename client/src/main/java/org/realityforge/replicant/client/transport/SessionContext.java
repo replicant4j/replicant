@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.Connection;
 import replicant.RequestEntry;
 
 public final class SessionContext

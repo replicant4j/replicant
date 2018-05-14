@@ -7,9 +7,9 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.AbstractRequestAdapter;
-import org.realityforge.replicant.client.transport.Connection;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
+import replicant.Connection;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 
