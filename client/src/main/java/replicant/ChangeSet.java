@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.HashSet;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
@@ -130,5 +131,46 @@ public class ChangeSet
   public final boolean hasEntityChanges()
   {
     return null != changes;
+  }
+
+  /**
+   * This method will validate the ChangeSet to make sure it is internally consistent if invariants are enabled.
+   * The validation will ensure that there is not multiple EntityChange messages for the same entity and that
+   * there is not multiple ChannelChange messages for the same channel.
+   */
+  @JsOverlay
+  public final void validate()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      if ( null != changes )
+      {
+        final HashSet<String> existing = new HashSet<>();
+        for ( final EntityChange change : changes )
+        {
+          final int typeId = change.getTypeId();
+          final int id = change.getId();
+          final String key = typeId + "-" + id;
+          apiInvariant( () -> existing.add( key ),
+                        () -> "Replicant-0014: ChangeSet " + last_id + " contains multiple EntityChange " +
+                              "messages for the entity of type " + typeId + " and id " + id + "." );
+        }
+      }
+      if ( null != channel_actions )
+      {
+        final HashSet<String> existing = new HashSet<>();
+        for ( final ChannelChange channelAction : channel_actions )
+        {
+          final int channelId = channelAction.getChannelId();
+          final Integer subChannelId = channelAction.hasSubChannelId() ? channelAction.getSubChannelId() : null;
+          final String key = channelId + "-" + subChannelId;
+          apiInvariant( () -> existing.add( key ),
+                        () -> "Replicant-0022: ChangeSet " + last_id + " contains multiple ChannelChange " +
+                              "messages for the channel with id " + channelId +
+                              ( null != subChannelId ? " and the subChannel with id " + subChannelId : "" ) + "." );
+
+        }
+      }
+    }
   }
 }
