@@ -79,9 +79,10 @@ public final class AreaOfInterestRequest
     if ( Replicant.areNamesEnabled() )
     {
       final ChannelAddress address = getAddress();
-      return "AOI[" +
-             "Channel=" + address +
-             ( null == _filter ? "" : ",filter=" + FilterUtil.filterToString( _filter ) ) + "]" +
+      return "AreaOfInterestRequest[" +
+             "Action=" + _action +
+             " Address=" + address +
+             ( null == _filter ? "" : " Filter=" + FilterUtil.filterToString( _filter ) ) + "]" +
              ( _inProgress ? "(InProgress)" : "" );
     }
     else

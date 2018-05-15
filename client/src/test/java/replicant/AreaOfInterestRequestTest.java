@@ -19,7 +19,7 @@ public class AreaOfInterestRequestTest
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getAction(), action );
     assertEquals( entry.getCacheKey(), "G:G1" );
-    assertEquals( entry.toString(), "AOI[Channel=G.G1]" );
+    assertEquals( entry.toString(), "AreaOfInterestRequest[Action=ADD Address=G.G1]" );
     assertEquals( entry.getFilter(), filterParameter );
     assertEquals( entry.match( action, address, filterParameter ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), false );
@@ -40,7 +40,7 @@ public class AreaOfInterestRequestTest
     final AreaOfInterestRequest entry =
       new AreaOfInterestRequest( new ChannelAddress( G.G1 ), AreaOfInterestAction.UPDATE, "XXX" );
 
-    assertEquals( entry.toString(), "AOI[Channel=G.G1,filter=XXX]" );
+    assertEquals( entry.toString(), "AreaOfInterestRequest[Action=UPDATE Address=G.G1 Filter=XXX]" );
   }
 
   @Test
