@@ -12,18 +12,18 @@ public class AreaOfInterestRequestTest
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final Object filter = null;
-    final AreaOfInterestAction action = AreaOfInterestAction.ADD;
+    final AreaOfInterestRequest.Type action = AreaOfInterestRequest.Type.ADD;
 
     final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, filter );
 
     assertEquals( entry.getAddress(), address );
-    assertEquals( entry.getAction(), action );
+    assertEquals( entry.getType(), action );
     assertEquals( entry.getCacheKey(), "G:G1" );
-    assertEquals( entry.toString(), "AreaOfInterestRequest[Action=ADD Address=G.G1]" );
+    assertEquals( entry.toString(), "AreaOfInterestRequest[Type=ADD Address=G.G1]" );
     assertEquals( entry.getFilter(), filter );
     assertEquals( entry.match( action, address, filter ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), false );
-    assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filter ), false );
+    assertEquals( entry.match( AreaOfInterestRequest.Type.REMOVE, address, filter ), false );
     assertEquals( entry.match( action, new ChannelAddress( G.G2, ValueUtil.randomInt() ), filter ),
                   false );
 
@@ -40,7 +40,7 @@ public class AreaOfInterestRequestTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> new AreaOfInterestRequest( new ChannelAddress( G.G1 ),
-                                                     AreaOfInterestAction.REMOVE,
+                                                     AreaOfInterestRequest.Type.REMOVE,
                                                      "XXX" ) );
 
     assertEquals( exception.getMessage(),
@@ -51,9 +51,9 @@ public class AreaOfInterestRequestTest
   public void toString_WithFilter()
   {
     final AreaOfInterestRequest entry =
-      new AreaOfInterestRequest( new ChannelAddress( G.G1 ), AreaOfInterestAction.UPDATE, "XXX" );
+      new AreaOfInterestRequest( new ChannelAddress( G.G1 ), AreaOfInterestRequest.Type.UPDATE, "XXX" );
 
-    assertEquals( entry.toString(), "AreaOfInterestRequest[Action=UPDATE Address=G.G1 Filter=XXX]" );
+    assertEquals( entry.toString(), "AreaOfInterestRequest[Type=UPDATE Address=G.G1 Filter=XXX]" );
   }
 
   @Test
@@ -61,7 +61,7 @@ public class AreaOfInterestRequestTest
   {
     ReplicantTestUtil.disableNames();
     final AreaOfInterestRequest entry =
-      new AreaOfInterestRequest( new ChannelAddress( G.G1 ), AreaOfInterestAction.UPDATE, "XXX" );
+      new AreaOfInterestRequest( new ChannelAddress( G.G1 ), AreaOfInterestRequest.Type.UPDATE, "XXX" );
 
     assertEquals( entry.toString(),
                   "replicant.AreaOfInterestRequest@" + Integer.toHexString( System.identityHashCode( entry ) ) );
@@ -71,13 +71,13 @@ public class AreaOfInterestRequestTest
   public void removeActionIgnoredFilterDuringMatch()
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
-    final AreaOfInterestAction action = AreaOfInterestAction.REMOVE;
+    final AreaOfInterestRequest.Type action = AreaOfInterestRequest.Type.REMOVE;
 
     final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, null );
 
     assertEquals( entry.match( action, address, null ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), true );
-    assertEquals( entry.match( AreaOfInterestAction.ADD, address, null ), false );
+    assertEquals( entry.match( AreaOfInterestRequest.Type.ADD, address, null ), false );
   }
 
   public enum G

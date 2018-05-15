@@ -92,21 +92,21 @@ public final class Connection
 
   public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.ADD, filter );
+    enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
   }
 
   public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.UPDATE, filter );
+    enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.UPDATE, filter );
   }
 
   public void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
-    enqueueAreaOfInterestRequest( address, AreaOfInterestAction.REMOVE, null );
+    enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
   }
 
   private void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress descriptor,
-                                             @Nonnull final AreaOfInterestAction action,
+                                             @Nonnull final AreaOfInterestRequest.Type action,
                                              @Nullable final Object filter )
   {
     _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( descriptor, action, filter ) );
@@ -157,13 +157,13 @@ public final class Connection
    * Return true if an area of interest request with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
-  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
+  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
                                                  @Nonnull final ChannelAddress address,
                                                  @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> action != AreaOfInterestAction.REMOVE || null == filter,
+      invariant( () -> action != AreaOfInterestRequest.Type.REMOVE || null == filter,
                  () -> "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE " +
                        "request for address '" + address + "' with a non-null filter '" + filter + "'." );
     }
@@ -173,15 +173,15 @@ public final class Connection
   }
 
   /**
-   * Return the index of last matching AreaOfInterestAction in pending aoi request list.
+   * Return the index of last matching Type in pending aoi request list.
    */
-  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
                                                       @Nonnull final ChannelAddress address,
                                                       @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> action != AreaOfInterestAction.REMOVE || null == filter,
+      invariant( () -> action != AreaOfInterestRequest.Type.REMOVE || null == filter,
                  () -> "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE " +
                        "request for address '" + address + "' with a non-null filter '" + filter + "'." );
     }
@@ -315,9 +315,9 @@ public final class Connection
            null != match.getAddress().getId() &&
            ( null == cacheService || null == cacheService.lookup( template.getCacheKey() ) ) &&
            ( null == cacheService || null == cacheService.lookup( match.getCacheKey() ) ) &&
-           template.getAction().equals( match.getAction() ) &&
+           template.getType().equals( match.getType() ) &&
            template.getAddress().getChannelType().equals( match.getAddress().getChannelType() ) &&
-           ( AreaOfInterestAction.REMOVE == match.getAction() ||
+           ( AreaOfInterestRequest.Type.REMOVE == match.getType() ||
              FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
   }
 

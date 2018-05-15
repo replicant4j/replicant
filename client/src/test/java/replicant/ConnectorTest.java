@@ -769,19 +769,19 @@ public class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
-    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), -1 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
+    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, null ), -1 );
 
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
-    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), -1 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
+    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, null ), -1 );
 
     connection.requestSubscribe( address, null );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), true );
-    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), 1 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), true );
+    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, null ), 1 );
   }
 
   @Test
@@ -966,14 +966,14 @@ public class ConnectorTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     assertEquals( connector.getActivateSchedulerCount(), 0 );
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestSubscribe( address, null );
 
     assertEquals( connector.getActivateSchedulerCount(), 1 );
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), true );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), true );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
@@ -988,14 +988,14 @@ public class ConnectorTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     assertEquals( connector.getActivateSchedulerCount(), 0 );
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), false );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestSubscriptionUpdate( address, null );
 
     assertEquals( connector.getActivateSchedulerCount(), 1 );
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), true );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), true );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class,
@@ -1011,14 +1011,14 @@ public class ConnectorTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     assertEquals( connector.getActivateSchedulerCount(), 0 );
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), false );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), false );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestUnsubscribe( address );
 
     assertEquals( connector.getActivateSchedulerCount(), 1 );
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), true );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), true );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeRequestQueuedEvent.class,

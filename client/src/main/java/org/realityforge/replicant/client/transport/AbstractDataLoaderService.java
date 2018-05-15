@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Verifiable;
-import replicant.AreaOfInterestAction;
 import replicant.AreaOfInterestRequest;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
@@ -145,12 +144,12 @@ public abstract class AbstractDataLoaderService
     else
     {
       requests.forEach( AreaOfInterestRequest::markAsInProgress );
-      final AreaOfInterestAction action = requests.get( 0 ).getAction();
-      if ( AreaOfInterestAction.ADD == action )
+      final AreaOfInterestRequest.Type type = requests.get( 0 ).getType();
+      if ( AreaOfInterestRequest.Type.ADD == type )
       {
         return progressAreaOfInterestAddRequests( requests );
       }
-      else if ( AreaOfInterestAction.REMOVE == action )
+      else if ( AreaOfInterestRequest.Type.REMOVE == type )
       {
         return progressAreaOfInterestRemoveRequests( requests );
       }

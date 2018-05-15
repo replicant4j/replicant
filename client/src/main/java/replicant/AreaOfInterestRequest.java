@@ -8,26 +8,31 @@ import static org.realityforge.braincheck.Guards.*;
 // TODO: This class should become package access once all relevant classes migrated to replicant package
 public final class AreaOfInterestRequest
 {
+  public enum Type
+  {
+    ADD, REMOVE, UPDATE
+  }
+
   @Nonnull
   private final ChannelAddress _address;
   @Nonnull
-  private final AreaOfInterestAction _action;
+  private final Type _type;
   @Nullable
   private final Object _filter;
   private boolean _inProgress;
 
   public AreaOfInterestRequest( @Nonnull final ChannelAddress address,
-                                @Nonnull final AreaOfInterestAction action,
+                                @Nonnull final Type type,
                                 @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> action != AreaOfInterestAction.REMOVE || null == filter,
+      invariant( () -> type != Type.REMOVE || null == filter,
                  () -> "Replicant-0027: AreaOfInterestRequest constructor passed a REMOVE " +
                        "request for address '" + address + "' with a non-null filter '" + filter + "'." );
     }
     _address = Objects.requireNonNull( address );
-    _action = Objects.requireNonNull( action );
+    _type = Objects.requireNonNull( type );
     _filter = filter;
   }
 
@@ -38,9 +43,9 @@ public final class AreaOfInterestRequest
   }
 
   @Nonnull
-  public AreaOfInterestAction getAction()
+  public Type getType()
   {
-    return _action;
+    return _type;
   }
 
   @Nonnull
@@ -71,13 +76,13 @@ public final class AreaOfInterestRequest
     _inProgress = false;
   }
 
-  public boolean match( @Nonnull final AreaOfInterestAction action,
+  public boolean match( @Nonnull final Type action,
                         @Nonnull final ChannelAddress descriptor,
                         @Nullable final Object filter )
   {
-    return getAction().equals( action ) &&
+    return getType().equals( action ) &&
            getAddress().equals( descriptor ) &&
-           ( AreaOfInterestAction.REMOVE == action || FilterUtil.filtersEqual( filter, getFilter() ) );
+           ( Type.REMOVE == action || FilterUtil.filtersEqual( filter, getFilter() ) );
   }
 
   @Override
@@ -87,7 +92,7 @@ public final class AreaOfInterestRequest
     {
       final ChannelAddress address = getAddress();
       return "AreaOfInterestRequest[" +
-             "Action=" + _action +
+             "Type=" + _type +
              " Address=" + address +
              ( null == _filter ? "" : " Filter=" + FilterUtil.filterToString( _filter ) ) + "]" +
              ( _inProgress ? "(InProgress)" : "" );

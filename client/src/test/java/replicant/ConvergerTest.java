@@ -117,61 +117,61 @@ public class ConvergerTest
       final ChannelAddress address = new ChannelAddress( G.G1 );
       final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
-      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest, AreaOfInterestAction.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest, AreaOfInterestRequest.Type.ADD ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.ADD,
+                               AreaOfInterestRequest.Type.ADD,
                                areaOfInterest,
-                               AreaOfInterestAction.UPDATE ) );
+                               AreaOfInterestRequest.Type.UPDATE ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.ADD,
+                               AreaOfInterestRequest.Type.ADD,
                                areaOfInterest,
-                               AreaOfInterestAction.REMOVE ) );
+                               AreaOfInterestRequest.Type.REMOVE ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.UPDATE,
+                               AreaOfInterestRequest.Type.UPDATE,
                                areaOfInterest,
-                               AreaOfInterestAction.ADD ) );
+                               AreaOfInterestRequest.Type.ADD ) );
       assertTrue( c.canGroup( areaOfInterest,
-                              AreaOfInterestAction.UPDATE,
+                              AreaOfInterestRequest.Type.UPDATE,
                               areaOfInterest,
-                              AreaOfInterestAction.UPDATE ) );
+                              AreaOfInterestRequest.Type.UPDATE ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.UPDATE,
+                               AreaOfInterestRequest.Type.UPDATE,
                                areaOfInterest,
-                               AreaOfInterestAction.REMOVE ) );
+                               AreaOfInterestRequest.Type.REMOVE ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.REMOVE,
+                               AreaOfInterestRequest.Type.REMOVE,
                                areaOfInterest,
-                               AreaOfInterestAction.ADD ) );
+                               AreaOfInterestRequest.Type.ADD ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.REMOVE,
+                               AreaOfInterestRequest.Type.REMOVE,
                                areaOfInterest,
-                               AreaOfInterestAction.UPDATE ) );
+                               AreaOfInterestRequest.Type.UPDATE ) );
       assertTrue( c.canGroup( areaOfInterest,
-                              AreaOfInterestAction.REMOVE,
+                              AreaOfInterestRequest.Type.REMOVE,
                               areaOfInterest,
-                              AreaOfInterestAction.REMOVE ) );
+                              AreaOfInterestRequest.Type.REMOVE ) );
 
       final ChannelAddress channel2 = new ChannelAddress( G.G1, 2 );
       final AreaOfInterest areaOfInterest2 = createAreaOfInterest( channel2, null );
-      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest2, AreaOfInterestAction.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest2, AreaOfInterestRequest.Type.ADD ) );
 
       final ChannelAddress address3 = new ChannelAddress( G.G2, 1 );
       final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
-      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest3, AreaOfInterestAction.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest3, AreaOfInterestRequest.Type.ADD ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.ADD,
+                               AreaOfInterestRequest.Type.ADD,
                                areaOfInterest3,
-                               AreaOfInterestAction.UPDATE ) );
+                               AreaOfInterestRequest.Type.UPDATE ) );
       assertFalse( c.canGroup( areaOfInterest,
-                               AreaOfInterestAction.ADD,
+                               AreaOfInterestRequest.Type.ADD,
                                areaOfInterest3,
-                               AreaOfInterestAction.REMOVE ) );
+                               AreaOfInterestRequest.Type.REMOVE ) );
 
       final ChannelAddress address4 = new ChannelAddress( G.G1, 1 );
       final AreaOfInterest areaOfInterest4 = createAreaOfInterest( address4, "Filter" );
-      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD ) );
       areaOfInterest.setFilter( "Filter" );
-      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestAction.ADD, areaOfInterest4, AreaOfInterestAction.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD ) );
     } );
   }
 
@@ -200,7 +200,7 @@ public class ConvergerTest
       final List<AreaOfInterestRequest> requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
       assertEquals( requests.size(), 1 );
       final AreaOfInterestRequest request = requests.get( 0 );
-      assertEquals( request.getAction(), AreaOfInterestAction.REMOVE );
+      assertEquals( request.getType(), AreaOfInterestRequest.Type.REMOVE );
       assertEquals( request.getAddress(), address );
 
       handler.assertEventCount( 2 );
@@ -243,7 +243,7 @@ public class ConvergerTest
       final List<AreaOfInterestRequest> requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
       assertEquals( requests.size(), 1 );
       final AreaOfInterestRequest request = requests.get( 0 );
-      assertEquals( request.getAction(), AreaOfInterestAction.REMOVE );
+      assertEquals( request.getType(), AreaOfInterestRequest.Type.REMOVE );
       assertEquals( request.getAddress(), address );
 
       handler.assertEventCount( 2 );

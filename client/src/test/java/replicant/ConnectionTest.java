@@ -63,11 +63,11 @@ public class ConnectionTest
 
     assertEquals( request1.getAddress(), address1 );
     assertEquals( request1.getFilter(), filter1 );
-    assertEquals( request1.getAction(), AreaOfInterestAction.ADD );
+    assertEquals( request1.getType(), AreaOfInterestRequest.Type.ADD );
 
     assertEquals( request2.getAddress(), address2 );
     assertEquals( request2.getFilter(), filter2 );
-    assertEquals( request2.getAction(), AreaOfInterestAction.ADD );
+    assertEquals( request2.getType(), AreaOfInterestRequest.Type.ADD );
   }
 
   @Test
@@ -97,11 +97,11 @@ public class ConnectionTest
 
     assertEquals( request1.getAddress(), address1 );
     assertEquals( request1.getFilter(), filter1 );
-    assertEquals( request1.getAction(), AreaOfInterestAction.UPDATE );
+    assertEquals( request1.getType(), AreaOfInterestRequest.Type.UPDATE );
 
     assertEquals( request2.getAddress(), address2 );
     assertEquals( request2.getFilter(), filter2 );
-    assertEquals( request2.getAction(), AreaOfInterestAction.UPDATE );
+    assertEquals( request2.getType(), AreaOfInterestRequest.Type.UPDATE );
   }
 
   @Test
@@ -129,11 +129,11 @@ public class ConnectionTest
 
     assertEquals( request1.getAddress(), address1 );
     assertEquals( request1.getFilter(), null );
-    assertEquals( request1.getAction(), AreaOfInterestAction.REMOVE );
+    assertEquals( request1.getType(), AreaOfInterestRequest.Type.REMOVE );
 
     assertEquals( request2.getAddress(), address2 );
     assertEquals( request2.getFilter(), null );
-    assertEquals( request2.getAction(), AreaOfInterestAction.REMOVE );
+    assertEquals( request2.getType(), AreaOfInterestRequest.Type.REMOVE );
   }
 
   @Test
@@ -247,8 +247,8 @@ public class ConnectionTest
     final Object filter1 = null;
     final Object filter2 = null;
 
-    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 );
-    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( address2, AreaOfInterestAction.ADD, filter2 );
+    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter1 );
+    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter2 );
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
 
@@ -379,21 +379,21 @@ public class ConnectionTest
     final String filterQ = "F1";
     final String filterR = "F2";
 
-    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.ADD, filterP );
-    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.REMOVE, filterP );
-    final AreaOfInterestRequest request3 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.UPDATE, filterP );
-    final AreaOfInterestRequest request4 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.ADD, filterP );
+    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
+    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.REMOVE, filterP );
+    final AreaOfInterestRequest request3 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.UPDATE, filterP );
+    final AreaOfInterestRequest request4 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
 
-    final AreaOfInterestRequest request10 = new AreaOfInterestRequest( addressB, AreaOfInterestAction.ADD, filterQ );
-    final AreaOfInterestRequest request11 = new AreaOfInterestRequest( addressC, AreaOfInterestAction.ADD, filterQ );
-    final AreaOfInterestRequest request12 = new AreaOfInterestRequest( addressD, AreaOfInterestAction.REMOVE, null );
-    final AreaOfInterestRequest request13 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.REMOVE, null );
-    final AreaOfInterestRequest request14 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterQ );
-    final AreaOfInterestRequest request15 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.ADD, filterP );
-    final AreaOfInterestRequest request16 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterP );
-    final AreaOfInterestRequest request17 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.REMOVE, null );
-    final AreaOfInterestRequest request18 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterP );
-    final AreaOfInterestRequest request19 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterR );
+    final AreaOfInterestRequest request10 = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, filterQ );
+    final AreaOfInterestRequest request11 = new AreaOfInterestRequest( addressC, AreaOfInterestRequest.Type.ADD, filterQ );
+    final AreaOfInterestRequest request12 = new AreaOfInterestRequest( addressD, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request13 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request14 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterQ );
+    final AreaOfInterestRequest request15 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.ADD, filterP );
+    final AreaOfInterestRequest request16 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
+    final AreaOfInterestRequest request17 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request18 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
+    final AreaOfInterestRequest request19 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterR );
 
     final List<AreaOfInterestRequest> requests =
       Arrays.asList( request1,
@@ -442,8 +442,8 @@ public class ConnectionTest
     final ChannelAddress addressA = new ChannelAddress( G.G2, 1 );
     final ChannelAddress addressB = new ChannelAddress( G.G2, 2 );
 
-    final AreaOfInterestRequest requestA = new AreaOfInterestRequest( addressA, AreaOfInterestAction.ADD, null );
-    final AreaOfInterestRequest requestB = new AreaOfInterestRequest( addressB, AreaOfInterestAction.ADD, null );
+    final AreaOfInterestRequest requestA = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, null );
+    final AreaOfInterestRequest requestB = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, null );
 
     assertEquals( connection.canGroupRequests( requestA, requestB ), true );
     assertEquals( connection.canGroupRequests( requestB, requestA ), true );
@@ -499,7 +499,7 @@ public class ConnectionTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> connection.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.REMOVE,
+                    () -> connection.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.REMOVE,
                                                                               address,
                                                                               filter ) );
     assertEquals( exception.getMessage(),
@@ -517,7 +517,7 @@ public class ConnectionTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> connection.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE,
+                    () -> connection.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE,
                                                                      address,
                                                                      filter ) );
     assertEquals( exception.getMessage(),
@@ -532,12 +532,12 @@ public class ConnectionTest
 
     final ChannelAddress address1 = new ChannelAddress( G.G1 );
 
-    assertRequestPending( connection, AreaOfInterestAction.ADD, address1, null, false );
-    assertRequestPending( connection, AreaOfInterestAction.REMOVE, address1, null, false );
-    assertRequestPending( connection, AreaOfInterestAction.UPDATE, address1, null, false );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.ADD, address1, null, -1 );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.REMOVE, address1, null, -1 );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.UPDATE, address1, null, -1 );
+    assertRequestPending( connection, AreaOfInterestRequest.Type.ADD, address1, null, false );
+    assertRequestPending( connection, AreaOfInterestRequest.Type.REMOVE, address1, null, false );
+    assertRequestPending( connection, AreaOfInterestRequest.Type.UPDATE, address1, null, false );
+    assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.ADD, address1, null, -1 );
+    assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.REMOVE, address1, null, -1 );
+    assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.UPDATE, address1, null, -1 );
   }
 
   @Test
@@ -596,7 +596,7 @@ public class ConnectionTest
     assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address1,
-                                                                              AreaOfInterestAction.ADD,
+                                                                              AreaOfInterestRequest.Type.ADD,
                                                                               filter1 ) );
 
     assertRequestPendingState( connection, address1, filter1, true, false, false, 0, -1, -1 );
@@ -604,7 +604,7 @@ public class ConnectionTest
     assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address2,
-                                                                              AreaOfInterestAction.ADD,
+                                                                              AreaOfInterestRequest.Type.ADD,
                                                                               filter2 ) );
 
     assertRequestPendingState( connection, address1, filter1, true, false, false, 0, -1, -1 );
@@ -654,10 +654,10 @@ public class ConnectionTest
     connection.requestSubscribe( address1, filter1 );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address1,
-                                                                              AreaOfInterestAction.ADD,
+                                                                              AreaOfInterestRequest.Type.ADD,
                                                                               filter1 ) );
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address4,
-                                                                              AreaOfInterestAction.ADD,
+                                                                              AreaOfInterestRequest.Type.ADD,
                                                                               filter4 ) );
 
     assertRequestPendingState( connection, address1, filter1, true, true, true, 10, 3, 1 );
@@ -676,16 +676,16 @@ public class ConnectionTest
                                           final int updateIndex,
                                           final int removeIndex )
   {
-    assertRequestPending( connection, AreaOfInterestAction.ADD, address, filter, hasAdd );
-    assertRequestPending( connection, AreaOfInterestAction.UPDATE, address, filter, hasUpdate );
-    assertRequestPending( connection, AreaOfInterestAction.REMOVE, address, null, hasRemove );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.ADD, address, filter, addIndex );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.UPDATE, address, filter, updateIndex );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.REMOVE, address, null, removeIndex );
+    assertRequestPending( connection, AreaOfInterestRequest.Type.ADD, address, filter, hasAdd );
+    assertRequestPending( connection, AreaOfInterestRequest.Type.UPDATE, address, filter, hasUpdate );
+    assertRequestPending( connection, AreaOfInterestRequest.Type.REMOVE, address, null, hasRemove );
+    assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.ADD, address, filter, addIndex );
+    assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.UPDATE, address, filter, updateIndex );
+    assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.REMOVE, address, null, removeIndex );
   }
 
   private void assertRequestPendingIndex( @Nonnull final Connection connection,
-                                          @Nonnull final AreaOfInterestAction action,
+                                          @Nonnull final AreaOfInterestRequest.Type action,
                                           @Nonnull final ChannelAddress address,
                                           @Nullable final Object filter,
                                           final int expected )
@@ -694,7 +694,7 @@ public class ConnectionTest
   }
 
   private void assertRequestPending( @Nonnull final Connection connection,
-                                     @Nonnull final AreaOfInterestAction action,
+                                     @Nonnull final AreaOfInterestRequest.Type action,
                                      @Nonnull final ChannelAddress address,
                                      @Nullable final Object filter,
                                      final boolean expected )

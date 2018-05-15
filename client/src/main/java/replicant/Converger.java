@@ -94,7 +94,7 @@ abstract class Converger
   private void convergeStep()
   {
     AreaOfInterest groupTemplate = null;
-    AreaOfInterestAction groupAction = null;
+    AreaOfInterestRequest.Type groupAction = null;
     for ( final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest() )
     {
       final ConvergeAction convergeAction =
@@ -104,11 +104,11 @@ abstract class Converger
         case TERMINATE:
           return;
         case SUBMITTED_ADD:
-          groupAction = AreaOfInterestAction.ADD;
+          groupAction = AreaOfInterestRequest.Type.ADD;
           groupTemplate = areaOfInterest;
           break;
         case SUBMITTED_UPDATE:
-          groupAction = AreaOfInterestAction.UPDATE;
+          groupAction = AreaOfInterestRequest.Type.UPDATE;
           groupTemplate = areaOfInterest;
           break;
         case IN_PROGRESS:
@@ -132,7 +132,7 @@ abstract class Converger
 
   final ConvergeAction convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
                                                @Nullable final AreaOfInterest groupTemplate,
-                                               @Nullable final AreaOfInterestAction groupAction,
+                                               @Nullable final AreaOfInterestRequest.Type groupAction,
                                                final boolean canGroup )
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -150,11 +150,11 @@ abstract class Converger
       final Object filter = areaOfInterest.getFilter();
 
       final int addIndex =
-        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, filter );
+        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, filter );
       final int removeIndex =
-        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.REMOVE, address, null );
+        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.REMOVE, address, null );
       final int updateIndex =
-        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.UPDATE, address, filter );
+        connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.UPDATE, address, filter );
 
       if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
       {
@@ -163,7 +163,7 @@ abstract class Converger
           return ConvergeAction.TERMINATE;
         }
         if ( null == groupTemplate ||
-             canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.ADD ) )
+             canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.ADD ) )
         {
           connector.requestSubscribe( address, filter );
           return ConvergeAction.SUBMITTED_ADD;
@@ -195,7 +195,7 @@ abstract class Converger
           }
 
           if ( null == groupTemplate ||
-               canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestAction.UPDATE ) )
+               canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE ) )
           {
             connector.requestSubscriptionUpdate( address, filter );
             return ConvergeAction.SUBMITTED_UPDATE;
@@ -211,9 +211,9 @@ abstract class Converger
   }
 
   boolean canGroup( @Nonnull final AreaOfInterest groupTemplate,
-                    @Nullable final AreaOfInterestAction groupAction,
+                    @Nullable final AreaOfInterestRequest.Type groupAction,
                     @Nonnull final AreaOfInterest areaOfInterest,
-                    @Nullable final AreaOfInterestAction action )
+                    @Nullable final AreaOfInterestRequest.Type action )
   {
     if ( null != groupAction && null != action && !groupAction.equals( action ) )
     {
@@ -225,7 +225,7 @@ abstract class Converger
         groupTemplate.getAddress().getChannelType().equals( areaOfInterest.getAddress().getChannelType() );
 
       return sameChannel &&
-             ( AreaOfInterestAction.REMOVE == action ||
+             ( AreaOfInterestRequest.Type.REMOVE == action ||
                FilterUtil.filtersEqual( groupTemplate.getFilter(), areaOfInterest.getFilter() ) );
     }
   }
@@ -274,7 +274,7 @@ abstract class Converger
   {
     final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
     return ConnectorState.CONNECTED != connector.getState() ||
-           connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null );
+           connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null );
   }
 
   @Nonnull
