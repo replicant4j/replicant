@@ -134,9 +134,9 @@ public abstract class Connector
                                                                @Nonnull ChannelAddress address,
                                                                @Nullable Object filter );
 
-  public abstract void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filterParameter );
+  public abstract void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
 
-  public abstract void requestSubscriptionUpdate( @Nonnull ChannelAddress address, @Nullable Object filterParameter );
+  public abstract void requestSubscriptionUpdate( @Nonnull ChannelAddress address, @Nullable Object filter );
 
   public abstract void requestUnsubscribe( @Nonnull ChannelAddress address );
 

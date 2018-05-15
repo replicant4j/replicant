@@ -11,20 +11,20 @@ public class AreaOfInterestRequestTest
   public void basicOperation()
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Object filterParameter = null;
+    final Object filter = null;
     final AreaOfInterestAction action = AreaOfInterestAction.ADD;
 
-    final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, filterParameter );
+    final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, filter );
 
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getAction(), action );
     assertEquals( entry.getCacheKey(), "G:G1" );
     assertEquals( entry.toString(), "AreaOfInterestRequest[Action=ADD Address=G.G1]" );
-    assertEquals( entry.getFilter(), filterParameter );
-    assertEquals( entry.match( action, address, filterParameter ), true );
+    assertEquals( entry.getFilter(), filter );
+    assertEquals( entry.match( action, address, filter ), true );
     assertEquals( entry.match( action, address, "OtherFilter" ), false );
-    assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filterParameter ), false );
-    assertEquals( entry.match( action, new ChannelAddress( G.G2, ValueUtil.randomInt() ), filterParameter ),
+    assertEquals( entry.match( AreaOfInterestAction.REMOVE, address, filter ), false );
+    assertEquals( entry.match( action, new ChannelAddress( G.G2, ValueUtil.randomInt() ), filter ),
                   false );
 
     assertEquals( entry.isInProgress(), false );

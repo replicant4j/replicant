@@ -159,7 +159,7 @@ abstract class TestDataLoadService
 
   @Override
   protected void requestSubscribeToChannel( @Nonnull final ChannelAddress address,
-                                            @Nullable final Object filterParameter,
+                                            @Nullable final Object filter,
                                             @Nullable final String cacheKey,
                                             @Nullable final String eTag,
                                             @Nullable final Consumer<SafeProcedure> cacheAction,
@@ -177,7 +177,7 @@ abstract class TestDataLoadService
 
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelAddress address,
-                                            @Nonnull final Object filterParameter,
+                                            @Nonnull final Object filter,
                                             @Nonnull final Consumer<SafeProcedure> completionAction,
                                             @Nonnull final Consumer<SafeProcedure> failAction )
   {
@@ -185,7 +185,7 @@ abstract class TestDataLoadService
 
   @Override
   protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> addresses,
-                                                @Nullable final Object filterParameter,
+                                                @Nullable final Object filter,
                                                 @Nonnull final Consumer<SafeProcedure> completionAction,
                                                 @Nonnull final Consumer<SafeProcedure> failAction )
   {
@@ -200,7 +200,7 @@ abstract class TestDataLoadService
 
   @Override
   protected void requestBulkUpdateSubscription( @Nonnull final List<ChannelAddress> addresses,
-                                                @Nonnull final Object filterParameter,
+                                                @Nonnull final Object filter,
                                                 @Nonnull final Consumer<SafeProcedure> completionAction,
                                                 @Nonnull final Consumer<SafeProcedure> failAction )
   {
@@ -216,9 +216,9 @@ abstract class TestDataLoadService
 
   @Nonnull
   @Override
-  protected String doFilterToString( @Nonnull final Object filterParameter )
+  protected String doFilterToString( @Nonnull final Object filter )
   {
-    return String.valueOf( filterParameter );
+    return String.valueOf( filter );
   }
 
   @Override

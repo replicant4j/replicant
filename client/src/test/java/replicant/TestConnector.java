@@ -73,12 +73,12 @@ public abstract class TestConnector
   }
 
   @Override
-  public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
+  public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
   }
 
   @Override
-  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
+  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
   }
 

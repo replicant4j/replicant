@@ -290,7 +290,7 @@ public abstract class WebPollerDataLoaderService
 
   @Override
   protected void requestSubscribeToChannel( @Nonnull final ChannelAddress address,
-                                            @Nullable final Object filterParameter,
+                                            @Nullable final Object filter,
                                             @Nullable final String cacheKey,
                                             @Nullable final String eTag,
                                             @Nullable final Consumer<SafeProcedure> cacheAction,
@@ -308,7 +308,7 @@ public abstract class WebPollerDataLoaderService
       final Consumer<Throwable> onError = error -> failAction.accept( () -> onSubscribeFailed( address, error ) );
       performSubscribe( address.getChannelType().ordinal(),
                         address.getId(),
-                        filterParameter,
+                        filter,
                         cacheKey,
                         eTag,
                         onSuccess,
@@ -328,7 +328,7 @@ public abstract class WebPollerDataLoaderService
 
   protected void performSubscribe( final int channel,
                                    @Nullable Integer subChannelId,
-                                   @Nullable final Object filterParameter,
+                                   @Nullable final Object filter,
                                    @Nullable String cacheKey,
                                    @Nullable String eTag,
                                    @Nonnull final SafeProcedure onSuccess,
@@ -338,7 +338,7 @@ public abstract class WebPollerDataLoaderService
     getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( connection, request ) ->
       doSubscribe( connection,
                    request,
-                   filterParameter,
+                   filter,
                    getChannelURL( channel, subChannelId ),
                    eTag,
                    onSuccess,
@@ -348,7 +348,7 @@ public abstract class WebPollerDataLoaderService
 
   @Override
   protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> addresses,
-                                                @Nullable final Object filterParameter,
+                                                @Nullable final Object filter,
                                                 @Nonnull final Consumer<SafeProcedure> completionAction,
                                                 @Nonnull final Consumer<SafeProcedure> failAction )
   {
@@ -362,7 +362,7 @@ public abstract class WebPollerDataLoaderService
         error -> failAction.accept( () -> addresses.forEach( x -> onSubscribeFailed( address, error ) ) );
       performBulkSubscribe( address.getChannelType().ordinal(),
                             addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
-                            filterParameter,
+                            filter,
                             onSuccess,
                             onError );
     }
@@ -374,14 +374,14 @@ public abstract class WebPollerDataLoaderService
 
   protected void performBulkSubscribe( final int channel,
                                        @Nonnull List<Integer> subChannelIds,
-                                       @Nullable final Object filterParameter,
+                                       @Nullable final Object filter,
                                        @Nonnull final SafeProcedure onSuccess,
                                        @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkSubscribe", channel ), null, ( connection, request ) ->
       doSubscribe( connection,
                    request,
-                   filterParameter,
+                   filter,
                    getChannelURL( channel, subChannelIds ),
                    null,
                    onSuccess,
@@ -391,7 +391,7 @@ public abstract class WebPollerDataLoaderService
 
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelAddress address,
-                                            @Nonnull final Object filterParameter,
+                                            @Nonnull final Object filter,
                                             @Nonnull final Consumer<SafeProcedure> completionAction,
                                             @Nonnull final Consumer<SafeProcedure> failAction )
   {
@@ -404,7 +404,7 @@ public abstract class WebPollerDataLoaderService
         error -> failAction.accept( () -> onSubscriptionUpdateFailed( address, error ) );
       performUpdateSubscription( address.getChannelType().ordinal(),
                                  address.getId(),
-                                 filterParameter,
+                                 filter,
                                  onSuccess,
                                  onError );
     }
@@ -416,14 +416,14 @@ public abstract class WebPollerDataLoaderService
 
   protected void performUpdateSubscription( final int channel,
                                             @Nullable Integer subChannelId,
-                                            @Nullable final Object filterParameter,
+                                            @Nullable final Object filter,
                                             @Nonnull final SafeProcedure onSuccess,
                                             @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "SubscriptionUpdate", channel ), null, ( connection, request ) ->
       doSubscribe( connection,
                    request,
-                   filterParameter,
+                   filter,
                    getChannelURL( channel, subChannelId ),
                    null,
                    onSuccess,
@@ -432,7 +432,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
-                                                @Nonnull Object filterParameter,
+                                                @Nonnull Object filter,
                                                 @Nonnull Consumer<SafeProcedure> completionAction,
                                                 @Nonnull Consumer<SafeProcedure> failAction )
   {
@@ -446,7 +446,7 @@ public abstract class WebPollerDataLoaderService
         error -> failAction.accept( () -> addresses.forEach( x -> onSubscriptionUpdateFailed( address, error ) ) );
       performBulkUpdateSubscription( address.getChannelType().ordinal(),
                                      addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
-                                     filterParameter,
+                                     filter,
                                      onSuccess,
                                      onError );
     }
@@ -458,14 +458,14 @@ public abstract class WebPollerDataLoaderService
 
   protected void performBulkUpdateSubscription( final int channel,
                                                 @Nonnull List<Integer> subChannelIds,
-                                                @Nullable final Object filterParameter,
+                                                @Nullable final Object filter,
                                                 @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channel ), null, ( connection, request ) ->
       doSubscribe( connection,
                    request,
-                   filterParameter,
+                   filter,
                    getChannelURL( channel, subChannelIds ),
                    null,
                    onSuccess,
@@ -540,7 +540,7 @@ public abstract class WebPollerDataLoaderService
 
   protected abstract void doSubscribe( @Nullable Connection connection,
                                        @Nullable RequestEntry request,
-                                       @Nullable Object filterParameter,
+                                       @Nullable Object filter,
                                        @Nonnull String channelURL,
                                        @Nullable String eTag,
                                        @Nonnull SafeProcedure onSuccess,

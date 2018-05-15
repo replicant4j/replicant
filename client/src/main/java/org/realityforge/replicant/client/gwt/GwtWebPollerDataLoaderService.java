@@ -75,7 +75,7 @@ public abstract class GwtWebPollerDataLoaderService
   @Override
   protected void doSubscribe( @Nullable final Connection connection,
                               @Nullable final RequestEntry request,
-                              @Nullable final Object filterParameter,
+                              @Nullable final Object filter,
                               @Nonnull final String channelURL,
                               @Nullable final String eTag,
                               @Nonnull final SafeProcedure onSuccess,
@@ -87,7 +87,7 @@ public abstract class GwtWebPollerDataLoaderService
                  RequestBuilder.PUT,
                  channelURL,
                  eTag,
-                 filterToString( filterParameter ),
+                 filterToString( filter ),
                  onSuccess,
                  onCacheValid,
                  onError );
@@ -198,8 +198,8 @@ public abstract class GwtWebPollerDataLoaderService
 
   @Nonnull
   @Override
-  protected String doFilterToString( @Nonnull final Object filterParameter )
+  protected String doFilterToString( @Nonnull final Object filter )
   {
-    return new JSONObject( (JavaScriptObject) filterParameter ).toString();
+    return new JSONObject( (JavaScriptObject) filter ).toString();
   }
 }

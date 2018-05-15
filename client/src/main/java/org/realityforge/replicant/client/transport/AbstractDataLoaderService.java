@@ -73,19 +73,19 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
+  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     //TODO: Send spy message ..
-    ensureConnection().requestSubscribe( address, filterParameter );
+    ensureConnection().requestSubscribe( address, filter );
     scheduleDataLoad();
   }
 
   @Override
   public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                               @Nullable final Object filterParameter )
+                                               @Nullable final Object filter )
   {
     //TODO: Send spy message ..
-    ensureConnection().requestSubscriptionUpdate( address, filterParameter );
+    ensureConnection().requestSubscriptionUpdate( address, filter );
     scheduleDataLoad();
   }
 
@@ -528,7 +528,7 @@ public abstract class AbstractDataLoaderService
   }
 
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
-                                                     @Nullable Object filterParameter,
+                                                     @Nullable Object filter,
                                                      @Nullable String cacheKey,
                                                      @Nullable String eTag,
                                                      @Nullable Consumer<SafeProcedure> cacheAction,
@@ -540,12 +540,12 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress address,
-                                                     @Nonnull Object filterParameter,
+                                                     @Nonnull Object filter,
                                                      @Nonnull Consumer<SafeProcedure> completionAction,
                                                      @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> addresses,
-                                                         @Nullable Object filterParameter,
+                                                         @Nullable Object filter,
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
@@ -554,7 +554,7 @@ public abstract class AbstractDataLoaderService
                                                              @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
-                                                         @Nonnull Object filterParameter,
+                                                         @Nonnull Object filter,
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
@@ -949,20 +949,20 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  protected String filterToString( @Nullable final Object filterParameter )
+  protected String filterToString( @Nullable final Object filter )
   {
-    if ( null == filterParameter )
+    if ( null == filter )
     {
       return "";
     }
     else
     {
-      return doFilterToString( filterParameter );
+      return doFilterToString( filter );
     }
   }
 
   @Nonnull
-  protected abstract String doFilterToString( @Nonnull Object filterParameter );
+  protected abstract String doFilterToString( @Nonnull Object filter );
 
   @Nonnull
   protected Level getLogLevel()

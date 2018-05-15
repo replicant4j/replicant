@@ -639,13 +639,13 @@ public class ReplicantRuntimeTest
     }
 
     @Override
-    public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filterParameter )
+    public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
     {
     }
 
     @Override
     public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                           @Nullable final Object filterParameter )
+                                           @Nullable final Object filter )
     {
     }
 
