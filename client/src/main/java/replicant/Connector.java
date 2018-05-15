@@ -123,16 +123,24 @@ public abstract class Connector
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
-  public abstract boolean isAreaOfInterestRequestPending( @Nonnull AreaOfInterestAction action,
-                                                          @Nonnull ChannelAddress address,
-                                                          @Nullable Object filter );
+  public final boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
+                                                       @Nonnull final ChannelAddress address,
+                                                       @Nullable final Object filter )
+  {
+    final Connection connection = getConnection();
+    return null != connection && connection.isAreaOfInterestRequestPending( action, address, filter );
+  }
 
   /**
    * Return the index of last matching AreaOfInterestAction in pending aoi actions list.
    */
-  public abstract int lastIndexOfPendingAreaOfInterestRequest( @Nonnull AreaOfInterestAction action,
-                                                               @Nonnull ChannelAddress address,
-                                                               @Nullable Object filter );
+  public final int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
+                                                            @Nonnull final ChannelAddress address,
+                                                            @Nullable final Object filter )
+  {
+    final Connection connection = getConnection();
+    return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
+  }
 
   public abstract void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
 

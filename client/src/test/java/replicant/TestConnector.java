@@ -57,22 +57,6 @@ public abstract class TestConnector
   }
 
   @Override
-  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelAddress address,
-                                                 @Nullable final Object filter )
-  {
-    return false;
-  }
-
-  @Override
-  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
-                                                      @Nonnull final ChannelAddress address,
-                                                      @Nullable final Object filter )
-  {
-    return -1;
-  }
-
-  @Override
   public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
   }

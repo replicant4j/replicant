@@ -758,6 +758,28 @@ public class ConnectorTest
     } );
   }
 
+  @Test
+  public void areaOfInterestRequestPendingQueries()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
+    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), -1 );
+
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
+    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), -1 );
+
+    connection.requestSubscribe( address, null );
+
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), true );
+    assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), 1 );
+  }
+
   enum G
   {
     G1

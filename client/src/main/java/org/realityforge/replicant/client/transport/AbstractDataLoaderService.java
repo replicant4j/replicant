@@ -558,30 +558,6 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelAddress address,
-                                                 @Nullable final Object filter )
-  {
-    final Connection connection = getConnection();
-    return null != connection && connection.isAreaOfInterestRequestPending( action, address, filter );
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestAction action,
-                                                      @Nonnull final ChannelAddress address,
-                                                      @Nullable final Object filter )
-  {
-    final Connection connection = getConnection();
-    return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
-  }
-
   protected boolean progressResponseProcessing()
   {
     final Connection connection = ensureConnection();
