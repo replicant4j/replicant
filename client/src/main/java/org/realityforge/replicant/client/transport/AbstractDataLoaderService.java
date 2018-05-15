@@ -748,16 +748,11 @@ public abstract class AbstractDataLoaderService
       if ( ChannelChange.Action.ADD == actionType )
       {
         currentAction.incChannelAddCount();
-        boolean explicitSubscribe = false;
-        if ( ensureConnection().getCurrentAreaOfInterestRequests()
-          .stream().anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) ) )
-        {
-          if ( LOG.isLoggable( getLogLevel() ) )
-          {
-            LOG.log( getLogLevel(), "Recording explicit subscription for " + address );
-          }
-          explicitSubscribe = true;
-        }
+        final boolean explicitSubscribe =
+          ensureConnection()
+            .getCurrentAreaOfInterestRequests()
+            .stream()
+            .anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) );
         getReplicantContext().createSubscription( address, filter, explicitSubscribe );
       }
       else if ( ChannelChange.Action.REMOVE == actionType )
