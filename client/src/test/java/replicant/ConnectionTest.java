@@ -234,6 +234,47 @@ public class ConnectionTest
   }
 
   @Test
+  public void completeAreaOfInterestRequest()
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
+
+    final Object filter1 = null;
+    final Object filter2 = null;
+
+    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 );
+    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( address2, AreaOfInterestAction.ADD, filter2 );
+    connection.getCurrentAreaOfInterestRequests().add( request1 );
+    connection.getCurrentAreaOfInterestRequests().add( request2 );
+
+    request1.markAsInProgress();
+    request2.markAsInProgress();
+
+    assertEquals( request1.isInProgress(), true );
+    assertEquals( request1.isInProgress(), true );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 2 );
+
+    connection.completeAreaOfInterestRequest();
+
+    assertEquals( request1.isInProgress(), false );
+    assertEquals( request1.isInProgress(), false );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
+  }
+
+  @Test
+  public void completeAreaOfInterestRequest_whenNoRequests()
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, connection::completeAreaOfInterestRequest );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0023: Connection.completeAreaOfInterestRequest() invoked when there is no current AreaOfInterest requests." );
+  }
+
+  @Test
   public void completeRequest()
   {
     final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );

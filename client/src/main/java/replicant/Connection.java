@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Connection state used by the connector to manage connection to backend system.
@@ -274,5 +275,19 @@ public final class Connection
   public List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
   {
     return _currentAreaOfInterestRequests;
+  }
+
+  /**
+   * Mark all the current AreaOfInterest requests as complete and clear out the current requests list
+   */
+  public void completeAreaOfInterestRequest()
+  {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> !_currentAreaOfInterestRequests.isEmpty(),
+                 () -> "Replicant-0023: Connection.completeAreaOfInterestRequest() invoked when there is no current AreaOfInterest requests." );
+    }
+    _currentAreaOfInterestRequests.forEach( AreaOfInterestRequest::markAsComplete );
+    _currentAreaOfInterestRequests.clear();
   }
 }

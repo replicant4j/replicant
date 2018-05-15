@@ -556,9 +556,7 @@ public abstract class AbstractDataLoaderService
   private void completeAreaOfInterestRequest()
   {
     scheduleDataLoad();
-    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
-    requests.forEach( AreaOfInterestRequest::markAsComplete );
-    requests.clear();
+    ensureConnection().completeAreaOfInterestRequest();
   }
 
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
