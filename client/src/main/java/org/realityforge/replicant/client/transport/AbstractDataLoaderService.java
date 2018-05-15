@@ -264,18 +264,7 @@ public abstract class AbstractDataLoaderService
 
   private boolean progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
-      requests.removeIf( a -> {
-        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-        if ( null == subscription )
-        {
-          LOG.warning( () -> "Subscription update of " + a + " requested but not subscribed." );
-          a.markAsComplete();
-          return true;
-        }
-        return false;
-      } );
-    } );
+    removeUnneededUpdateRequests( requests );
 
     if ( requests.isEmpty() )
     {
@@ -312,26 +301,24 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
+  @Action
+  protected void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.removeIf( a -> {
+      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
+      if ( null == subscription )
+      {
+        LOG.warning( () -> "Subscription update of " + a + " requested but not subscribed." );
+        a.markAsComplete();
+        return true;
+      }
+      return false;
+    } );
+  }
+
   private boolean progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
-      requests.removeIf( a -> {
-        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-        if ( null == subscription )
-        {
-          LOG.warning( () -> "Unsubscribe from " + a + " requested but not subscribed." );
-          a.markAsComplete();
-          return true;
-        }
-        else if ( !subscription.isExplicitSubscription() )
-        {
-          LOG.warning( () -> "Unsubscribe from " + a + " requested but not explicitly subscribed." );
-          a.markAsComplete();
-          return true;
-        }
-        return false;
-      } );
-    } );
+    removeUnneededRemoveRequests( requests );
 
     if ( requests.isEmpty() )
     {
@@ -382,29 +369,30 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
+  @Action
+  protected void removeUnneededRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.removeIf( a -> {
+      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
+      if ( null == subscription )
+      {
+        LOG.warning( () -> "Unsubscribe from " + a + " requested but not subscribed." );
+        a.markAsComplete();
+        return true;
+      }
+      else if ( !subscription.isExplicitSubscription() )
+      {
+        LOG.warning( () -> "Unsubscribe from " + a + " requested but not explicitly subscribed." );
+        a.markAsComplete();
+        return true;
+      }
+      return false;
+    } );
+  }
+
   private boolean progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    // Remove all Add Aoi actions that need no action as they are already present locally
-    context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
-      requests.removeIf( a -> {
-        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-        if ( null != subscription )
-        {
-          if ( subscription.isExplicitSubscription() )
-          {
-            LOG.warning( "Subscription to " + a + " requested but already subscribed." );
-          }
-          else
-          {
-            LOG.warning( () -> "Existing subscription to " + a + " converted to a explicit subscription." );
-            subscription.setExplicitSubscription( true );
-          }
-          a.markAsComplete();
-          return true;
-        }
-        return false;
-      } );
-    } );
+    removeUnneededAddRequests( requests );
 
     if ( requests.isEmpty() )
     {
@@ -472,6 +460,29 @@ public abstract class AbstractDataLoaderService
       requestBulkSubscribeToChannel( ids, request.getFilter(), completionAction, failAction );
     }
     return true;
+  }
+
+  @Action
+  protected void removeUnneededAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.removeIf( a -> {
+      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
+      if ( null != subscription )
+      {
+        if ( subscription.isExplicitSubscription() )
+        {
+          LOG.warning( "Subscription to " + a + " requested but already subscribed." );
+        }
+        else
+        {
+          LOG.warning( () -> "Existing subscription to " + a + " converted to a explicit subscription." );
+          subscription.setExplicitSubscription( true );
+        }
+        a.markAsComplete();
+        return true;
+      }
+      return false;
+    } );
   }
 
   private void completeAreaOfInterestRequest()
