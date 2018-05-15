@@ -1,9 +1,11 @@
 package replicant;
 
 import arez.Arez;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.testng.Assert.*;
@@ -178,6 +180,7 @@ public class ConvergerTest
     final ReplicantContext context = Replicant.context();
 
     final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
@@ -194,7 +197,11 @@ public class ConvergerTest
 
       context.getConverger().removeOrphanSubscriptions();
 
-      //TODO: Verify requestUnsubscribe( address ) invoked
+      final List<AreaOfInterestRequest> requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
+      assertEquals( requests.size(), 1 );
+      final AreaOfInterestRequest request = requests.get( 0 );
+      assertEquals( request.getAction(), AreaOfInterestAction.REMOVE );
+      assertEquals( request.getAddress(), address );
 
       handler.assertEventCount( 1 );
 
@@ -209,6 +216,7 @@ public class ConvergerTest
     final ReplicantContext context = Replicant.context();
 
     final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
@@ -231,7 +239,11 @@ public class ConvergerTest
 
       context.getConverger().removeOrphanSubscriptions();
 
-      //TODO: Verify requestUnsubscribe( address ) invoked
+      final List<AreaOfInterestRequest> requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
+      assertEquals( requests.size(), 1 );
+      final AreaOfInterestRequest request = requests.get( 0 );
+      assertEquals( request.getAction(), AreaOfInterestAction.REMOVE );
+      assertEquals( request.getAddress(), address );
 
       handler.assertEventCount( 1 );
 
@@ -263,8 +275,6 @@ public class ConvergerTest
       context.getConverger().removeOrphanSubscriptions();
 
       handler.assertEventCount( 0 );
-
-      //TODO: Verify requestUnsubscribe( address ) NOT invoked
     } );
   }
 
@@ -291,8 +301,6 @@ public class ConvergerTest
       context.getConverger().removeOrphanSubscriptions();
 
       handler.assertEventCount( 0 );
-
-      //TODO: Verify requestUnsubscribe( address ) NOT invoked
     } );
   }
 
@@ -322,19 +330,21 @@ public class ConvergerTest
       context.getConverger().removeOrphanSubscriptions();
 
       handler.assertEventCount( 0 );
-
-      //TODO: Verify requestUnsubscribe( address ) NOT invoked
     } );
   }
 
-  @Test( enabled = false )
+  @Test
   public void removeOrphanSubscriptions_whenRemoveIsPending()
   {
-    //TODO: This test should be re-enabled once figure out how can manipulate AOI action queue
     final ReplicantContext context = Replicant.context();
 
     final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
     final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    // Enqueue remove request
+    connector.requestUnsubscribe( address );
 
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
@@ -351,8 +361,6 @@ public class ConvergerTest
       context.getConverger().removeOrphanSubscriptions();
 
       handler.assertEventCount( 0 );
-
-      //TODO: Verify requestUnsubscribe( address ) NOT invoked
     } );
   }
 

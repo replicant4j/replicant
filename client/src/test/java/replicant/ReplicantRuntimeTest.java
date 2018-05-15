@@ -631,22 +631,6 @@ public class ReplicantRuntimeTest
     }
 
     @Override
-    public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
-    {
-    }
-
-    @Override
-    public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                           @Nullable final Object filter )
-    {
-    }
-
-    @Override
-    public void requestUnsubscribe( @Nonnull final ChannelAddress address )
-    {
-    }
-
-    @Override
     protected void activateScheduler()
     {
     }

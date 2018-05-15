@@ -954,6 +954,57 @@ public class ConnectorTest
     } );
   }
 
+  @Test
+  public void requestSubscribe()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    assertEquals( connector.getActivateSchedulerCount(), 0 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
+
+    connector.requestSubscribe( address, null );
+
+    assertEquals( connector.getActivateSchedulerCount(), 1 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), true );
+  }
+
+  @Test
+  public void requestSubscriptionUpdate()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    assertEquals( connector.getActivateSchedulerCount(), 0 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), false );
+
+    connector.requestSubscriptionUpdate( address, null );
+
+    assertEquals( connector.getActivateSchedulerCount(), 1 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), true );
+  }
+
+  @Test
+  public void requestUnsubscribe()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+
+    assertEquals( connector.getActivateSchedulerCount(), 0 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), false );
+
+    connector.requestUnsubscribe( address );
+
+    assertEquals( connector.getActivateSchedulerCount(), 1 );
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), true );
+  }
+
   enum G
   {
     G1, G2

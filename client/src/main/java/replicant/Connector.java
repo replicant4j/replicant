@@ -199,11 +199,24 @@ public abstract class Connector
     return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
   }
 
-  public abstract void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
+  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  {
+    ensureConnection().requestSubscribe( address, filter );
+    triggerScheduler();
+  }
 
-  public abstract void requestSubscriptionUpdate( @Nonnull ChannelAddress address, @Nullable Object filter );
+  public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
+                                               @Nullable final Object filter )
+  {
+    ensureConnection().requestSubscriptionUpdate( address, filter );
+    triggerScheduler();
+  }
 
-  public abstract void requestUnsubscribe( @Nonnull ChannelAddress address );
+  public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  {
+    ensureConnection().requestUnsubscribe( address );
+    triggerScheduler();
+  }
 
   final boolean isSchedulerActive()
   {

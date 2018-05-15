@@ -62,31 +62,6 @@ public abstract class AbstractDataLoaderService
     super( context, systemType );
   }
 
-  @Override
-  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
-  {
-    //TODO: Send spy message ..
-    ensureConnection().requestSubscribe( address, filter );
-    triggerScheduler();
-  }
-
-  @Override
-  public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                               @Nullable final Object filter )
-  {
-    //TODO: Send spy message ..
-    ensureConnection().requestSubscriptionUpdate( address, filter );
-    triggerScheduler();
-  }
-
-  @Override
-  public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
-  {
-    //TODO: Send spy message ..
-    ensureConnection().requestUnsubscribe( address );
-    triggerScheduler();
-  }
-
   /**
    * A symbolic key for describing system.
    */
