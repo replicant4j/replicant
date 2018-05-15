@@ -191,7 +191,6 @@ public final class Connection
         }
         index -= 1;
       }
-
     }
     return -1;
   }
