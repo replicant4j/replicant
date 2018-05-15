@@ -24,15 +24,15 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
-import replicant.spy.SubscribeRequestCreatedEvent;
+import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
-import replicant.spy.SubscriptionUpdateRequestCreatedEvent;
+import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
-import replicant.spy.UnsubscribeRequestCreatedEvent;
+import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 
 /**
@@ -208,7 +208,7 @@ public abstract class Connector
     triggerScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestCreatedEvent( address, filter ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestQueuedEvent( address, filter ) );
     }
   }
 
@@ -219,7 +219,7 @@ public abstract class Connector
     triggerScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateRequestCreatedEvent( address, filter ) );
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateRequestQueuedEvent( address, filter ) );
     }
   }
 
@@ -229,7 +229,7 @@ public abstract class Connector
     triggerScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeRequestCreatedEvent( address ) );
+      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeRequestQueuedEvent( address ) );
     }
   }
 

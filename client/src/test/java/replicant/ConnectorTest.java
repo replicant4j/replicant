@@ -18,15 +18,15 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
-import replicant.spy.SubscribeRequestCreatedEvent;
+import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
-import replicant.spy.SubscriptionUpdateRequestCreatedEvent;
+import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
-import replicant.spy.UnsubscribeRequestCreatedEvent;
+import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 import static org.testng.Assert.*;
 
@@ -976,7 +976,7 @@ public class ConnectorTest
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), true );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscribeRequestCreatedEvent.class, e -> assertEquals( e.getAddress(), address ) );
+    handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
   }
 
   @Test
@@ -998,7 +998,7 @@ public class ConnectorTest
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), true );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscriptionUpdateRequestCreatedEvent.class,
+    handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class,
                              e -> assertEquals( e.getAddress(), address ) );
   }
 
@@ -1021,7 +1021,7 @@ public class ConnectorTest
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), true );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( UnsubscribeRequestCreatedEvent.class,
+    handler.assertNextEvent( UnsubscribeRequestQueuedEvent.class,
                              e -> assertEquals( e.getAddress(), address ) );
   }
 
