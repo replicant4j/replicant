@@ -282,6 +282,11 @@ public final class Connection
     _currentMessageResponse = currentMessageResponse;
   }
 
+  /**
+   * Return the list of AreaOfInterest requests currently being processed. If there is none
+   * currently being processed and there are pending requests then derive the next batch of
+   * requests and set them as current.
+   */
   @Nonnull
   public List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
   {
