@@ -14,7 +14,7 @@ AREZ_DEPS = [
   :arez_annotations, :arez_core, :arez_processor, :arez_component, :braincheck, :anodoc, :jetbrains_annotations
 ]
 
-GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :jsinterop_base, :jsinterop_base_sources, :jsinterop_annotations, :jsinterop_annotations_sources, :gwt_user]
+GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_base_sources, :jsinterop_annotations, :jsinterop_annotations_sources, :gwt_user]
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS

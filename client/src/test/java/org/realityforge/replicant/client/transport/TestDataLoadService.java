@@ -16,6 +16,7 @@ import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.SafeProcedure;
 import replicant.Subscription;
+import replicant.spi.CacheService;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 

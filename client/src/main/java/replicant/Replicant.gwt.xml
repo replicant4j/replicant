@@ -5,6 +5,9 @@
   <!-- This is required while the browser ConsoleSpyEvent is present -->
   <inherits name='elemental2.dom.Dom'/>
 
+  <!-- This is required while the browser WebStorageCacheService is present -->
+  <inherits name='elemental2.webstorage.WebStorage'/>
+
   <source path='' includes='*.java'/>
   <source path='spy'/>
   <super-source path='super'/>

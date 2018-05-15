@@ -5,12 +5,12 @@ import elemental2.core.Global;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.base.Js;
-import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 import replicant.ChangeSet;
 import replicant.Replicant;
 import replicant.ReplicantContext;
+import replicant.spi.CacheService;
 
 public abstract class GwtDataLoaderService
   extends WebPollerDataLoaderService
