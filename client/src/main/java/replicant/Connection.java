@@ -182,10 +182,9 @@ public final class Connection
                  () -> "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE " +
                        "request for address '" + address + "' with a non-null filter '" + filter + "'." );
     }
-    final LinkedList<AreaOfInterestRequest> requests = getPendingAreaOfInterestRequests();
-    int index = requests.size();
+    int index = _pendingAreaOfInterestRequests.size();
 
-    final Iterator<AreaOfInterestRequest> iterator = requests.descendingIterator();
+    final Iterator<AreaOfInterestRequest> iterator = _pendingAreaOfInterestRequests.descendingIterator();
     while ( iterator.hasNext() )
     {
       final AreaOfInterestRequest request = iterator.next();
@@ -195,8 +194,7 @@ public final class Connection
       }
       index -= 1;
     }
-    final List<AreaOfInterestRequest> currentRequests = getCurrentAreaOfInterestRequests();
-    if ( currentRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
+    if ( _currentAreaOfInterestRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
     {
       return 0;
     }
