@@ -1026,7 +1026,7 @@ public class ConnectorTest
   }
 
   @Test
-  public void convergeSubscription()
+  public void convergeAreaOfInterest()
   {
     final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
