@@ -59,5 +59,4 @@ Some actions that should occur at some point in the future.
   - Add ability to dump subscriptions as table?
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
 
-
 RequestEntry.ID should be an integer....
