@@ -1044,10 +1044,10 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final ConvergeAction result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
 
-    assertEquals( result, ConvergeAction.SUBMITTED_ADD );
+    assertEquals( result, Converger.Action.SUBMITTED_ADD );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );

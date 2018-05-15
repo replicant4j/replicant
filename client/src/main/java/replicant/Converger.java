@@ -15,6 +15,23 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class Converger
   extends ReplicantService
 {
+  /**
+   * Enum describing action during converge step.
+   */
+  enum Action
+  {
+    /// The submission has been added to the AOI queue
+    SUBMITTED_ADD,
+    /// The submission has been added to the AOI queue
+    SUBMITTED_UPDATE,
+    /// The submission has been added to the AOI queue, and can't be grouped
+    TERMINATE,
+    /// The submission is already in progress, still waiting for a response
+    IN_PROGRESS,
+    /// Nothing was done, fully converged
+    NO_ACTION
+  }
+
   static Converger create( @Nullable final ReplicantContext context )
   {
     return new Arez_Converger( context );
@@ -97,9 +114,8 @@ abstract class Converger
     AreaOfInterestRequest.Type groupAction = null;
     for ( final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest() )
     {
-      final ConvergeAction convergeAction =
-        convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
-      switch ( convergeAction )
+      final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
+      switch ( action )
       {
         case TERMINATE:
           return;
@@ -130,10 +146,10 @@ abstract class Converger
     convergeComplete();
   }
 
-  final ConvergeAction convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
-                                               @Nullable final AreaOfInterest groupTemplate,
-                                               @Nullable final AreaOfInterestRequest.Type groupAction,
-                                               final boolean canGroup )
+  final Action convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
+                                       @Nullable final AreaOfInterest groupTemplate,
+                                       @Nullable final AreaOfInterestRequest.Type groupAction,
+                                       final boolean canGroup )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -160,23 +176,23 @@ abstract class Converger
       {
         if ( null != groupTemplate && !canGroup )
         {
-          return ConvergeAction.TERMINATE;
+          return Action.TERMINATE;
         }
         if ( null == groupTemplate ||
              canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.ADD ) )
         {
           connector.requestSubscribe( address, filter );
-          return ConvergeAction.SUBMITTED_ADD;
+          return Action.SUBMITTED_ADD;
         }
         else
         {
-          return ConvergeAction.NO_ACTION;
+          return Action.NO_ACTION;
         }
       }
       else if ( addIndex >= 0 )
       {
         //Must have add in pipeline so pause until it completed
-        return ConvergeAction.IN_PROGRESS;
+        return Action.IN_PROGRESS;
       }
       else
       {
@@ -184,30 +200,30 @@ abstract class Converger
         if ( updateIndex >= 0 )
         {
           //Update in progress so wait till it completes
-          return ConvergeAction.IN_PROGRESS;
+          return Action.IN_PROGRESS;
         }
 
         if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
           if ( null != groupTemplate && !canGroup )
           {
-            return ConvergeAction.TERMINATE;
+            return Action.TERMINATE;
           }
 
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE ) )
           {
             connector.requestSubscriptionUpdate( address, filter );
-            return ConvergeAction.SUBMITTED_UPDATE;
+            return Action.SUBMITTED_UPDATE;
           }
           else
           {
-            return ConvergeAction.NO_ACTION;
+            return Action.NO_ACTION;
           }
         }
       }
     }
-    return ConvergeAction.NO_ACTION;
+    return Action.NO_ACTION;
   }
 
   boolean canGroup( @Nonnull final AreaOfInterest groupTemplate,
