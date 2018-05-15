@@ -164,10 +164,9 @@ public final class Connection
                  () -> "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE " +
                        "request for address '" + address + "' with a non-null filter '" + filter + "'." );
     }
-    final List<AreaOfInterestRequest> requests = getCurrentAreaOfInterestRequests();
     return
-      requests.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
-      getPendingAreaOfInterestRequests().stream().anyMatch( a -> a.match( action, address, filter ) );
+      _currentAreaOfInterestRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
+      _pendingAreaOfInterestRequests.stream().anyMatch( a -> a.match( action, address, filter ) );
   }
 
   /**
