@@ -74,7 +74,7 @@ public abstract class AbstractDataLoaderService
   {
     //TODO: Send spy message ..
     ensureConnection().requestSubscribe( address, filter );
-    scheduleDataLoad();
+    triggerScheduler();
   }
 
   @Override
@@ -83,7 +83,7 @@ public abstract class AbstractDataLoaderService
   {
     //TODO: Send spy message ..
     ensureConnection().requestSubscriptionUpdate( address, filter );
-    scheduleDataLoad();
+    triggerScheduler();
   }
 
   @Override
@@ -91,7 +91,7 @@ public abstract class AbstractDataLoaderService
   {
     //TODO: Send spy message ..
     ensureConnection().requestUnsubscribe( address );
-    scheduleDataLoad();
+    triggerScheduler();
   }
 
   /**
@@ -112,7 +112,7 @@ public abstract class AbstractDataLoaderService
   protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
     setConnection( new Connection( this, connectionId ), action );
-    scheduleDataLoad();
+    triggerScheduler();
   }
 
   protected void onDisconnection( @Nonnull final SafeProcedure action )
@@ -147,7 +147,7 @@ public abstract class AbstractDataLoaderService
   /**
    * Schedule data loads using incremental scheduler.
    */
-  final void scheduleDataLoad()
+  final void triggerScheduler()
   {
     if ( !_schedulerActive )
     {
@@ -457,7 +457,7 @@ public abstract class AbstractDataLoaderService
             a.call();
           };
           ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), completeCachedAction );
-          scheduleDataLoad();
+          triggerScheduler();
         };
       }
       else
@@ -486,7 +486,7 @@ public abstract class AbstractDataLoaderService
 
   private void completeAreaOfInterestRequest()
   {
-    scheduleDataLoad();
+    triggerScheduler();
     ensureConnection().completeAreaOfInterestRequest();
   }
 

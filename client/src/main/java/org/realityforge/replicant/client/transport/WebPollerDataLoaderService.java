@@ -19,7 +19,6 @@ import replicant.Connection;
 import replicant.Replicant;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
-import replicant.spi.CacheService;
 import replicant.spy.DataLoadStatus;
 
 public abstract class WebPollerDataLoaderService
@@ -210,7 +209,7 @@ public abstract class WebPollerDataLoaderService
     {
       logResponse( rawJsonData );
       ensureConnection().enqueueResponse( rawJsonData );
-      scheduleDataLoad();
+      triggerScheduler();
       pauseWebPoller();
     }
   }

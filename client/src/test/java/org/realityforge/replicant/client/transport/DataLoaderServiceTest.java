@@ -466,7 +466,7 @@ public class DataLoaderServiceTest
 
     configureRequests( service, service.getChangeSets() );
     service.ensureConnection().enqueueResponse( "jsonData" );
-    service.scheduleDataLoad();
+    service.triggerScheduler();
 
     final LinkedList<MessageResponse> actions = progressWorkTillDone( service, 8, 1 );
     final ChannelAddress address = new ChannelAddress( TestSystem.B, 72 );
@@ -505,7 +505,7 @@ public class DataLoaderServiceTest
 
     configureRequests( service, service.getChangeSets() );
     service.ensureConnection().enqueueResponse( "jsonData" );
-    service.scheduleDataLoad();
+    service.triggerScheduler();
 
     final LinkedList<MessageResponse> actions = progressWorkTillDone( service, 8, 1 );
 
