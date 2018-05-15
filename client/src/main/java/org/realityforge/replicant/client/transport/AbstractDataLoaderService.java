@@ -688,10 +688,6 @@ public abstract class AbstractDataLoaderService
           LOG.severe( "ChangeSet " + response.getChangeSet().getSequence() + " expected to " +
                       "complete request '" + requestId + "' but no request was registered with connection." );
         }
-        if ( requestDebugOutputEnabled() )
-        {
-          outputRequestDebug();
-        }
       }
     }
     connection.setCurrentMessageResponse( null );
@@ -777,8 +773,6 @@ public abstract class AbstractDataLoaderService
       }
     }
   }
-
-  protected abstract boolean requestDebugOutputEnabled();
 
   @Nonnull
   private ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
@@ -883,17 +877,6 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-  }
-
-  protected void outputRequestDebug()
-  {
-    getRequestDebugger().outputRequests( getKey() + ":", ensureConnection() );
-  }
-
-  @Nonnull
-  protected RequestDebugger getRequestDebugger()
-  {
-    return new RequestDebugger();
   }
 
   @Nullable

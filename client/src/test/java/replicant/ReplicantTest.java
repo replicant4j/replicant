@@ -55,14 +55,6 @@ public class ReplicantTest
   }
 
   @Test
-  public void setting_canRequestDebugOutputBeEnabled()
-  {
-    assertTrue( Replicant.canRequestsDebugOutputBeEnabled() );
-    ReplicantTestUtil.noRequestsDebugOutputEnabled();
-    assertFalse( Replicant.canRequestsDebugOutputBeEnabled() );
-  }
-
-  @Test
   public void context_when_zones_disabled()
   {
     ReplicantTestUtil.disableZones();

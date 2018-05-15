@@ -87,16 +87,6 @@ public final class Replicant
   }
 
   /**
-   * Return true if request debugging can be enabled at runtime, false otherwise.
-   *
-   * @return true if request debugging can be enabled at runtime, false otherwise.
-   */
-  public static boolean canRequestsDebugOutputBeEnabled()
-  {
-    return ReplicantConfig.canRequestsDebugOutputBeEnabled();
-  }
-
-  /**
    * Return the ReplicantContext from the provider.
    *
    * @return the ReplicantContext.

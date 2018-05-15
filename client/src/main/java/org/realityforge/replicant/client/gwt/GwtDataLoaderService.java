@@ -8,15 +8,11 @@ import jsinterop.base.Js;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 import replicant.ChangeSet;
-import replicant.Replicant;
 import replicant.ReplicantContext;
-import replicant.spi.CacheService;
 
 public abstract class GwtDataLoaderService
   extends WebPollerDataLoaderService
 {
-  private static final String REQUEST_DEBUG = "imitRequestDebug";
-
   private final SessionContext _sessionContext;
 
   protected GwtDataLoaderService( @Nullable final ReplicantContext context,
@@ -25,16 +21,6 @@ public abstract class GwtDataLoaderService
   {
     super( context, systemType );
     _sessionContext = sessionContext;
-
-    if ( Replicant.canRequestsDebugOutputBeEnabled() )
-    {
-      final String message =
-        getKey() + ".RequestDebugOutput module is enabled. Run the javascript " +
-        "'window." + REQUEST_DEBUG + " = true' to enable debug output when change messages arrive. To limit " +
-        "the debug output to just this data loader run the javascript '" +
-        toSessionSpecificJavascript( REQUEST_DEBUG ) + "'";
-      LOG.info( message );
-    }
   }
 
   @Nonnull
@@ -55,21 +41,4 @@ public abstract class GwtDataLoaderService
   {
     Scheduler.get().scheduleIncremental( this::scheduleTick );
   }
-
-  @Override
-  protected final boolean requestDebugOutputEnabled()
-  {
-    return Replicant.canRequestsDebugOutputBeEnabled() && isEnabled( getKey(), REQUEST_DEBUG );
-  }
-
-  @Nonnull
-  private String toSessionSpecificJavascript( @Nonnull final String variable )
-  {
-    final String key = getKey();
-    return "( window." + key + " ? window." + key + " : window." + key + " = {} )." + variable + " = true";
-  }
-
-  private static native boolean isEnabled( String sessionKey, String feature ) /*-{
-    return $wnd[feature] == true || ($wnd[sessionKey] && $wnd[sessionKey][feature] == true);
-  }-*/;
 }

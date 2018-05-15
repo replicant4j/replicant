@@ -23,8 +23,6 @@ final class ReplicantConfig
   private static boolean VALIDATE_REPOSITORY_ON_LOAD =
     "true".equals( System.getProperty( "replicant.validateRepositoryOnLoad",
                                        PRODUCTION_MODE ? "false" : "true" ) );
-  private static boolean REQUESTS_DEBUG_OUTPUT_ENABLED =
-    "true".equals( System.getProperty( "replicant.requestsDebugOutputEnabled", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_SPIES =
     "true".equals( System.getProperty( "replicant.enable_spies", PRODUCTION_MODE ? "false" : "true" ) );
   /**
@@ -75,11 +73,6 @@ final class ReplicantConfig
   static boolean shouldValidateChangeSetOnRead()
   {
     return VALIDATE_CHANGE_SET_ON_READ;
-  }
-
-  static boolean canRequestsDebugOutputBeEnabled()
-  {
-    return REQUESTS_DEBUG_OUTPUT_ENABLED;
   }
 
   static String loggerType()

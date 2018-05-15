@@ -122,12 +122,6 @@ abstract class TestDataLoadService
     _scheduleDataLoadCalled = true;
   }
 
-  @Override
-  protected boolean requestDebugOutputEnabled()
-  {
-    return false;
-  }
-
   @Nonnull
   @Override
   protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
