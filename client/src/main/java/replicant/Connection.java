@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.anodoc.TestOnly;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -314,5 +315,11 @@ public final class Connection
     }
     _currentAreaOfInterestRequests.forEach( AreaOfInterestRequest::markAsComplete );
     _currentAreaOfInterestRequests.clear();
+  }
+
+  @TestOnly
+  final void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest first )
+  {
+    _currentAreaOfInterestRequests.add( first );
   }
 }

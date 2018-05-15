@@ -25,7 +25,6 @@ public class ConnectionTest
 
     assertEquals( connection.getConnectionId(), connectionId );
     assertEquals( connection.getLastRxSequence(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
     assertEquals( connection.getCurrentMessageResponse(), null );
 
     final MessageResponse response = new MessageResponse( "" );
@@ -250,8 +249,8 @@ public class ConnectionTest
 
     final AreaOfInterestRequest request1 = new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 );
     final AreaOfInterestRequest request2 = new AreaOfInterestRequest( address2, AreaOfInterestAction.ADD, filter2 );
-    connection.getCurrentAreaOfInterestRequests().add( request1 );
-    connection.getCurrentAreaOfInterestRequests().add( request2 );
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+    connection.injectCurrentAreaOfInterestRequest( request2 );
 
     request1.markAsInProgress();
     request2.markAsInProgress();
@@ -565,15 +564,17 @@ public class ConnectionTest
     assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
     assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
 
-    connection.getCurrentAreaOfInterestRequests()
-      .add( new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 ) );
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address1,
+                                                                              AreaOfInterestAction.ADD,
+                                                                              filter1 ) );
 
     assertRequestPendingState( connection, address1, filter1, true, false, false, 0, -1, -1 );
     assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
     assertRequestPendingState( connection, address3, filter3, false, false, false, -1, -1, -1 );
 
-    connection.getCurrentAreaOfInterestRequests()
-      .add( new AreaOfInterestRequest( address2, AreaOfInterestAction.ADD, filter2 ) );
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address2,
+                                                                              AreaOfInterestAction.ADD,
+                                                                              filter2 ) );
 
     assertRequestPendingState( connection, address1, filter1, true, false, false, 0, -1, -1 );
     assertRequestPendingState( connection, address2, filter2, true, false, false, 0, -1, -1 );
@@ -621,10 +622,12 @@ public class ConnectionTest
     // Back to the first address
     connection.requestSubscribe( address1, filter1 );
 
-    connection.getCurrentAreaOfInterestRequests()
-      .add( new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 ) );
-    connection.getCurrentAreaOfInterestRequests()
-      .add( new AreaOfInterestRequest( address4, AreaOfInterestAction.ADD, filter4 ) );
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address1,
+                                                                              AreaOfInterestAction.ADD,
+                                                                              filter1 ) );
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address4,
+                                                                              AreaOfInterestAction.ADD,
+                                                                              filter4 ) );
 
     assertRequestPendingState( connection, address1, filter1, true, true, true, 10, 3, 1 );
     assertRequestPendingState( connection, address2, filter2, false, true, false, -1, 5, -1 );
