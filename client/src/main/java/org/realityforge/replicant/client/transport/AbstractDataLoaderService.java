@@ -301,12 +301,13 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  private String label( AreaOfInterestRequest entry )
+  @Nonnull
+  private String label( @Nonnull final AreaOfInterestRequest entry )
   {
     final ChannelAddress address = entry.getAddress();
-    final Object filterParameter = entry.getFilter();
+    final Object filter = entry.getFilter();
     return getKey() + ":" + address +
-           ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
+           ( null == filter ? "" : "[" + filterToString( filter ) + "]" );
   }
 
   @Nonnull
