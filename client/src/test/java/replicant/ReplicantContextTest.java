@@ -4,6 +4,8 @@ import arez.Arez;
 import arez.Disposable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.spi.CacheService;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantContextTest
@@ -272,6 +274,26 @@ public class ReplicantContextTest
     assertTrue( context.getRuntime().getConnectorEntryBySystemType( G.class ).isRequired() );
     context.setConnectorRequired( G.class, false );
     assertFalse( context.getRuntime().getConnectorEntryBySystemType( G.class ).isRequired() );
+  }
+
+  @Test
+  public void setCacheService()
+    throws Exception
+  {
+    TestConnector.create( G.class );
+
+    final ReplicantContext context = Replicant.context();
+    final CacheService cacheService = mock( CacheService.class );
+
+    assertEquals( context.getCacheService(), null );
+
+    context.setCacheService( cacheService );
+
+    assertEquals( context.getCacheService(), cacheService );
+
+    context.setCacheService( null );
+
+    assertEquals( context.getCacheService(), null );
   }
 
   enum G

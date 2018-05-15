@@ -51,8 +51,6 @@ public abstract class AbstractDataLoaderService
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
-  private final CacheService _cacheService;
-
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   /**
@@ -69,11 +67,9 @@ public abstract class AbstractDataLoaderService
   private Disposable _schedulerLock;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
-                                       @Nonnull final Class<?> systemType,
-                                       @Nonnull final CacheService cacheService )
+                                       @Nonnull final Class<?> systemType )
   {
     super( context, systemType );
-    _cacheService = Objects.requireNonNull( cacheService );
   }
 
   @Override

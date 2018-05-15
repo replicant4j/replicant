@@ -20,7 +20,6 @@ import org.realityforge.replicant.shared.SharedConstants;
 import replicant.Connection;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
-import replicant.spi.CacheService;
 
 public abstract class GwtWebPollerDataLoaderService
   extends GwtDataLoaderService
@@ -37,10 +36,9 @@ public abstract class GwtWebPollerDataLoaderService
 
   public GwtWebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
                                         @Nonnull final Class<?> systemType,
-                                        @Nonnull final CacheService cacheService,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( context, systemType, cacheService, sessionContext );
+    super( context, systemType, sessionContext );
     createWebPoller();
     setupCloseHandler();
   }

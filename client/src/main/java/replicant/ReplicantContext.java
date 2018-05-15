@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.spi.CacheService;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -19,6 +20,11 @@ public final class ReplicantContext
     SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
   private final ReplicantRuntime _runtime = ReplicantRuntime.create();
   private final Converger _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
+  /**
+   * Service responsible for caching data to avoid hitting the network during requests.
+   */
+  @Nullable
+  private CacheService _cacheService;
   /**
    * Support infrastructure for spy events.
    */
@@ -322,6 +328,27 @@ public final class ReplicantContext
   public void setConnectorRequired( @Nonnull final Class<?> systemType, final boolean required )
   {
     getRuntime().setConnectorRequired( systemType, required );
+  }
+
+  /**
+   * Return the CacheService associated with context if any.
+   *
+   * @return the CacheService associated with context if any.
+   */
+  @Nullable
+  public CacheService getCacheService()
+  {
+    return _cacheService;
+  }
+
+  /**
+   * Specify the CacheService used by context if any.
+   *
+   * @param cacheService the CacheService.
+   */
+  public void setCacheService( @Nullable final CacheService cacheService )
+  {
+    _cacheService = cacheService;
   }
 
   /**

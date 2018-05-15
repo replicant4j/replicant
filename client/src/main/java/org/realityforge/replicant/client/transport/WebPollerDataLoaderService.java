@@ -29,10 +29,9 @@ public abstract class WebPollerDataLoaderService
   private WebPoller _webPoller;
 
   protected WebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
-                                        @Nonnull final Class<?> systemType,
-                                        @Nonnull final CacheService cacheService )
+                                        @Nonnull final Class<?> systemType )
   {
-    super( context, systemType, cacheService );
+    super( context, systemType );
   }
 
   @Nonnull

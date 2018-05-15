@@ -16,7 +16,6 @@ import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.SafeProcedure;
 import replicant.Subscription;
-import replicant.spi.CacheService;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 
@@ -24,7 +23,6 @@ import static org.mockito.Mockito.*;
 abstract class TestDataLoadService
   extends AbstractDataLoaderService
 {
-  private final CacheService _cacheService;
   private boolean _scheduleDataLoadCalled;
   private LinkedList<ChangeSet> _changeSets = new LinkedList<>();
   private int _terminateCount;
@@ -42,22 +40,14 @@ abstract class TestDataLoadService
   @Nonnull
   private static TestDataLoadService create( @Nullable final ReplicantContext context )
   {
-    return Arez.context()
-      .safeAction( () -> new Arez_TestDataLoadService( context, mock( CacheService.class ) ) );
+    return Arez.context().safeAction( () -> new Arez_TestDataLoadService( context ) );
   }
 
-  TestDataLoadService( @Nullable final ReplicantContext context,
-                       @Nonnull final CacheService cacheService )
+  TestDataLoadService( @Nullable final ReplicantContext context )
   {
-    super( context, TestSystem.class, cacheService );
+    super( context, TestSystem.class );
     _sessionContext = new SessionContext( "X" );
     _changeMapper = mock( ChangeMapper.class );
-    _cacheService = cacheService;
-  }
-
-  CacheService getCacheService()
-  {
-    return _cacheService;
   }
 
   @Nonnull

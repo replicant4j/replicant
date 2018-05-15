@@ -21,10 +21,9 @@ public abstract class GwtDataLoaderService
 
   protected GwtDataLoaderService( @Nullable final ReplicantContext context,
                                   @Nonnull final Class<?> systemType,
-                                  @Nonnull final CacheService cacheService,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( context, systemType, cacheService );
+    super( context, systemType );
     _sessionContext = sessionContext;
 
     if ( Replicant.canRequestsDebugOutputBeEnabled() )
