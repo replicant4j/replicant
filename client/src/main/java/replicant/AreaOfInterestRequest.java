@@ -3,6 +3,7 @@ package replicant;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import static org.realityforge.braincheck.Guards.*;
 
 // TODO: This class should become package access once all relevant classes migrated to replicant package
 public final class AreaOfInterestRequest
@@ -19,6 +20,12 @@ public final class AreaOfInterestRequest
                                 @Nonnull final AreaOfInterestAction action,
                                 @Nullable final Object filter )
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> action != AreaOfInterestAction.REMOVE || null == filter,
+                 () -> "Replicant-0027: AreaOfInterestRequest constructor passed a REMOVE " +
+                       "request for address '" + address + "' with a non-null filter '" + filter + "'." );
+    }
     _address = Objects.requireNonNull( address );
     _action = Objects.requireNonNull( action );
     _filter = filter;

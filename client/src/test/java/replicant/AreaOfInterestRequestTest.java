@@ -35,6 +35,19 @@ public class AreaOfInterestRequestTest
   }
 
   @Test
+  public void construct_withNOnNullFIlterAndRemoveAction()
+  {
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> new AreaOfInterestRequest( new ChannelAddress( G.G1 ),
+                                                     AreaOfInterestAction.REMOVE,
+                                                     "XXX" ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0027: AreaOfInterestRequest constructor passed a REMOVE request for address 'G.G1' with a non-null filter 'XXX'." );
+  }
+
+  @Test
   public void toString_WithFilter()
   {
     final AreaOfInterestRequest entry =
