@@ -57,7 +57,6 @@ Some actions that should occur at some point in the future.
   - ReplicantSystem state changes should result in spy events
   - Requests should result in spy events
   - Add ability to dump subscriptions as table?
-  - `Replicant.can*DebugOutputBeEnabled()` should be removed.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
 
 
