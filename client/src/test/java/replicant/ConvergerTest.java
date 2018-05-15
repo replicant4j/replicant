@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.SubscriptionOrphanedEvent;
+import replicant.spy.UnsubscribeRequestCreatedEvent;
 import static org.testng.Assert.*;
 
 public class ConvergerTest
@@ -203,10 +204,12 @@ public class ConvergerTest
       assertEquals( request.getAction(), AreaOfInterestAction.REMOVE );
       assertEquals( request.getAddress(), address );
 
-      handler.assertEventCount( 1 );
+      handler.assertEventCount( 2 );
 
       handler.assertNextEvent( SubscriptionOrphanedEvent.class,
                                e -> assertEquals( e.getSubscription(), subscription ) );
+      handler.assertNextEvent( UnsubscribeRequestCreatedEvent.class,
+                               e -> assertEquals( e.getAddress(), address ) );
     } );
   }
 
@@ -245,10 +248,12 @@ public class ConvergerTest
       assertEquals( request.getAction(), AreaOfInterestAction.REMOVE );
       assertEquals( request.getAddress(), address );
 
-      handler.assertEventCount( 1 );
+      handler.assertEventCount( 2 );
 
       handler.assertNextEvent( SubscriptionOrphanedEvent.class,
                                e -> assertEquals( e.getSubscription(), subscription ) );
+      handler.assertNextEvent( UnsubscribeRequestCreatedEvent.class,
+                               e -> assertEquals( e.getAddress(), address ) );
     } );
   }
 

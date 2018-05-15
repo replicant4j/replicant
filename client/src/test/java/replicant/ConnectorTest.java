@@ -18,12 +18,15 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
+import replicant.spy.SubscribeRequestCreatedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
+import replicant.spy.SubscriptionUpdateRequestCreatedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
+import replicant.spy.UnsubscribeRequestCreatedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 import static org.testng.Assert.*;
 
@@ -965,10 +968,15 @@ public class ConnectorTest
     assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), false );
 
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
     connector.requestSubscribe( address, null );
 
     assertEquals( connector.getActivateSchedulerCount(), 1 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.ADD, address, null ), true );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeRequestCreatedEvent.class, e -> assertEquals( e.getAddress(), address ) );
   }
 
   @Test
@@ -982,10 +990,16 @@ public class ConnectorTest
     assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), false );
 
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
     connector.requestSubscriptionUpdate( address, null );
 
     assertEquals( connector.getActivateSchedulerCount(), 1 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.UPDATE, address, null ), true );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionUpdateRequestCreatedEvent.class,
+                             e -> assertEquals( e.getAddress(), address ) );
   }
 
   @Test
@@ -999,10 +1013,16 @@ public class ConnectorTest
     assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), false );
 
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
     connector.requestUnsubscribe( address );
 
     assertEquals( connector.getActivateSchedulerCount(), 1 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestAction.REMOVE, address, null ), true );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( UnsubscribeRequestCreatedEvent.class,
+                             e -> assertEquals( e.getAddress(), address ) );
   }
 
   enum G

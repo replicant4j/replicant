@@ -24,12 +24,15 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
+import replicant.spy.SubscribeRequestCreatedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
+import replicant.spy.SubscriptionUpdateRequestCreatedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
+import replicant.spy.UnsubscribeRequestCreatedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 
 /**
@@ -203,6 +206,10 @@ public abstract class Connector
   {
     ensureConnection().requestSubscribe( address, filter );
     triggerScheduler();
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestCreatedEvent( address, filter ) );
+    }
   }
 
   public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
@@ -210,12 +217,20 @@ public abstract class Connector
   {
     ensureConnection().requestSubscriptionUpdate( address, filter );
     triggerScheduler();
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateRequestCreatedEvent( address, filter ) );
+    }
   }
 
   public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     ensureConnection().requestUnsubscribe( address );
     triggerScheduler();
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeRequestCreatedEvent( address ) );
+    }
   }
 
   final boolean isSchedulerActive()
