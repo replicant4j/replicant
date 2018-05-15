@@ -1,5 +1,9 @@
 package replicant;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -359,6 +363,99 @@ public class ConnectionTest
       assertEquals( ev.isExpectingResults(), true );
       assertEquals( ev.haveResultsArrived(), true );
     } );
+  }
+
+  @Test
+  public void canGroupRequests()
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress addressA = new ChannelAddress( G.G1 );
+    final ChannelAddress addressB = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress addressC = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress addressD = new ChannelAddress( G.G2, 3 );
+    final ChannelAddress addressE = new ChannelAddress( G.G2, 4 );
+
+    final String filterP = null;
+    final String filterQ = "F1";
+    final String filterR = "F2";
+
+    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.ADD, filterP );
+    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.REMOVE, filterP );
+    final AreaOfInterestRequest request3 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.UPDATE, filterP );
+    final AreaOfInterestRequest request4 = new AreaOfInterestRequest( addressA, AreaOfInterestAction.ADD, filterP );
+
+    final AreaOfInterestRequest request10 = new AreaOfInterestRequest( addressB, AreaOfInterestAction.ADD, filterQ );
+    final AreaOfInterestRequest request11 = new AreaOfInterestRequest( addressC, AreaOfInterestAction.ADD, filterQ );
+    final AreaOfInterestRequest request12 = new AreaOfInterestRequest( addressD, AreaOfInterestAction.REMOVE, null );
+    final AreaOfInterestRequest request13 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.REMOVE, null );
+    final AreaOfInterestRequest request14 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterQ );
+    final AreaOfInterestRequest request15 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.ADD, filterP );
+    final AreaOfInterestRequest request16 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterP );
+    final AreaOfInterestRequest request17 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.REMOVE, null );
+    final AreaOfInterestRequest request18 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterP );
+    final AreaOfInterestRequest request19 = new AreaOfInterestRequest( addressE, AreaOfInterestAction.UPDATE, filterR );
+
+    final List<AreaOfInterestRequest> requests =
+      Arrays.asList( request1,
+                     request2,
+                     request3,
+                     request4,
+                     request10,
+                     request11,
+                     request12,
+                     request13,
+                     request14,
+                     request15,
+                     request16,
+                     request17,
+                     request18,
+                     request19 );
+
+    final HashMap<String, String> groupingPairs = new HashMap<>();
+
+    groupingPairs.put( request10.toString(), request11.toString() );
+    groupingPairs.put( request12.toString(), request13.toString() );
+    groupingPairs.put( request12.toString(), request17.toString() );
+    groupingPairs.put( request13.toString(), request17.toString() );
+    groupingPairs.put( request16.toString(), request18.toString() );
+
+    for ( final AreaOfInterestRequest r1 : requests )
+    {
+      for ( final AreaOfInterestRequest r2 : requests )
+      {
+        final boolean expected =
+          ( r1 == r2 && null != r1.getAddress().getId() ) ||
+          Objects.equals( String.valueOf( groupingPairs.get( r1.toString() ) ), r2.toString() ) ||
+          Objects.equals( String.valueOf( groupingPairs.get( r2.toString() ) ), r1.toString() );
+        assertEquals( connection.canGroupRequests( r1, r2 ),
+                      expected,
+                      "Comparing " + r1 + " versus " + r2 );
+      }
+    }
+  }
+
+  @Test
+  public void canGroupRequests_presentInCache()
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress addressA = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress addressB = new ChannelAddress( G.G2, 2 );
+
+    final AreaOfInterestRequest requestA = new AreaOfInterestRequest( addressA, AreaOfInterestAction.ADD, null );
+    final AreaOfInterestRequest requestB = new AreaOfInterestRequest( addressB, AreaOfInterestAction.ADD, null );
+
+    assertEquals( connection.canGroupRequests( requestA, requestB ), true );
+    assertEquals( connection.canGroupRequests( requestB, requestA ), true );
+
+    final TestCacheService cacheService = new TestCacheService();
+    Replicant.context().setCacheService( cacheService );
+
+    cacheService.store( requestA.getCacheKey(), ValueUtil.randomString(), ValueUtil.randomString() );
+
+    assertEquals( connection.canGroupRequests( requestA, requestB ), false );
+    assertEquals( connection.canGroupRequests( requestB, requestA ), false );
   }
 
   @Test

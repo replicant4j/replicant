@@ -284,6 +284,23 @@ public final class Connection
   {
     return _currentAreaOfInterestRequests;
   }
+  /**
+   * Return true if the match request can be grouped with the template request and sent to the backend using a
+   * single network message.
+   */
+  final boolean canGroupRequests( @Nonnull final AreaOfInterestRequest template,
+                                  @Nonnull final AreaOfInterestRequest match )
+  {
+    final CacheService cacheService = _connector.getReplicantContext().getCacheService();
+    return null != template.getAddress().getId() &&
+           null != match.getAddress().getId() &&
+           ( null == cacheService || null == cacheService.lookup( template.getCacheKey() ) ) &&
+           ( null == cacheService || null == cacheService.lookup( match.getCacheKey() ) ) &&
+           template.getAction().equals( match.getAction() ) &&
+           template.getAddress().getChannelType().equals( match.getAddress().getChannelType() ) &&
+           ( AreaOfInterestAction.REMOVE == match.getAction() ||
+             FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
+  }
 
   /**
    * Mark all the current AreaOfInterest requests as complete and clear out the current requests list
