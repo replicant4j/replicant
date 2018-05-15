@@ -246,15 +246,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  private String label( @Nonnull final AreaOfInterestRequest entry )
-  {
-    final ChannelAddress address = entry.getAddress();
-    final Object filter = entry.getFilter();
-    return getKey() + ":" + address +
-           ( null == filter ? "" : "[" + filterToString( filter ) + "]" );
-  }
-
-  @Nonnull
   private String label( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     if ( requests.isEmpty() )
@@ -278,7 +269,7 @@ public abstract class AbstractDataLoaderService
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
-          LOG.warning( () -> "Subscription update of " + label( a ) + " requested but not subscribed." );
+          LOG.warning( () -> "Subscription update of " + a + " requested but not subscribed." );
           a.markAsComplete();
           return true;
         }
@@ -328,13 +319,13 @@ public abstract class AbstractDataLoaderService
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
         if ( null == subscription )
         {
-          LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not subscribed." );
+          LOG.warning( () -> "Unsubscribe from " + a + " requested but not subscribed." );
           a.markAsComplete();
           return true;
         }
         else if ( !subscription.isExplicitSubscription() )
         {
-          LOG.warning( () -> "Unsubscribe from " + label( a ) + " requested but not explicitly subscribed." );
+          LOG.warning( () -> "Unsubscribe from " + a + " requested but not explicitly subscribed." );
           a.markAsComplete();
           return true;
         }
@@ -401,11 +392,11 @@ public abstract class AbstractDataLoaderService
         {
           if ( subscription.isExplicitSubscription() )
           {
-            LOG.warning( "Subscription to " + label( a ) + " requested but already subscribed." );
+            LOG.warning( "Subscription to " + a + " requested but already subscribed." );
           }
           else
           {
-            LOG.warning( () -> "Existing subscription to " + label( a ) + " converted to a explicit subscription." );
+            LOG.warning( () -> "Existing subscription to " + a + " converted to a explicit subscription." );
             subscription.setExplicitSubscription( true );
           }
           a.markAsComplete();
@@ -445,14 +436,13 @@ public abstract class AbstractDataLoaderService
       if ( null != cacheEntry )
       {
         eTag = cacheEntry.getETag();
-        LOG.info( () -> "Found locally cached data for channel " + label( request ) + " with etag " + eTag + "." );
+        LOG.info( () -> "Found locally cached data for channel " + request + " with etag " + eTag + "." );
         cacheAction = a ->
         {
-          LOG.info( () -> "Loading cached data for channel " + label( request ) + " with etag " + eTag );
+          LOG.info( () -> "Loading cached data for channel " + request + " with etag " + eTag );
           final SafeProcedure completeCachedAction = () ->
           {
-            LOG.info( () -> "Completed load of cached data for channel " + label( request ) +
-                            " with etag " + eTag + "." );
+            LOG.info( () -> "Completed load of cached data for channel " + request + " with etag " + eTag + "." );
             completeAreaOfInterestRequest();
             a.call();
           };
@@ -465,7 +455,7 @@ public abstract class AbstractDataLoaderService
         eTag = null;
         cacheAction = null;
       }
-      LOG.info( () -> "Subscription to " + label( request ) + " with eTag " + cacheKey + "=" + eTag + " requested" );
+      LOG.info( () -> "Subscription to " + request + " with eTag " + cacheKey + "=" + eTag + " requested" );
       requestSubscribeToChannel( request.getAddress(),
                                  request.getFilter(),
                                  cacheKey,
