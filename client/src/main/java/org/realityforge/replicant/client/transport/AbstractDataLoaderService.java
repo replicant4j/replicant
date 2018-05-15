@@ -288,15 +288,15 @@ public abstract class AbstractDataLoaderService
       final AreaOfInterestAction action = requests.get( 0 ).getAction();
       if ( AreaOfInterestAction.ADD == action )
       {
-        return progressBulkAreaOfInterestAddRequests();
+        return progressAreaOfInterestAddRequests( requests );
       }
       else if ( AreaOfInterestAction.REMOVE == action )
       {
-        return progressBulkAreaOfInterestRemoveRequests();
+        return progressAreaOfInterestRemoveRequests( requests );
       }
       else
       {
-        return progressBulkAreaOfInterestUpdateRequests();
+        return progressAreaOfInterestUpdateRequests( requests );
       }
     }
   }
@@ -327,9 +327,8 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  private boolean progressBulkAreaOfInterestUpdateRequests()
+  private boolean progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     context().safeAction( generateName( "removeUnneededUpdateRequests" ), () -> {
       requests.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
@@ -378,9 +377,8 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  private boolean progressBulkAreaOfInterestRemoveRequests()
+  private boolean progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     context().safeAction( generateName( "removeUnneededRemoveRequests" ), () -> {
       requests.removeIf( a -> {
         final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
@@ -449,9 +447,8 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  private boolean progressBulkAreaOfInterestAddRequests()
+  private boolean progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     // Remove all Add Aoi actions that need no action as they are already present locally
     context().safeAction( generateName( "removeUnneededAddRequests" ), () -> {
       requests.removeIf( a -> {
