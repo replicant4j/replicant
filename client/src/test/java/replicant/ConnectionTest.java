@@ -488,10 +488,15 @@ public class ConnectionTest
     // Back to the first address
     connection.requestSubscribe( address1, filter1 );
 
+    connection.getCurrentAreaOfInterestRequests()
+      .add( new AreaOfInterestRequest( address1, AreaOfInterestAction.ADD, filter1 ) );
+    connection.getCurrentAreaOfInterestRequests()
+      .add( new AreaOfInterestRequest( address4, AreaOfInterestAction.ADD, filter4 ) );
+
     assertRequestPendingState( connection, address1, filter1, true, true, true, 10, 3, 1 );
     assertRequestPendingState( connection, address2, filter2, false, true, false, -1, 5, -1 );
     assertRequestPendingState( connection, address3, filter3, false, true, true, -1, 9, 8 );
-    assertRequestPendingState( connection, address4, filter4, false, false, false, -1, -1, -1 );
+    assertRequestPendingState( connection, address4, filter4, true, false, false, 0, -1, -1 );
   }
 
   private void assertRequestPendingState( final Connection connection,

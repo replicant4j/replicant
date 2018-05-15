@@ -171,27 +171,25 @@ public final class Connection
                                                       @Nonnull final ChannelAddress address,
                                                       @Nullable final Object filter )
   {
+    final LinkedList<AreaOfInterestRequest> requests = getPendingAreaOfInterestRequests();
+    int index = requests.size();
+
+    final Iterator<AreaOfInterestRequest> iterator = requests.descendingIterator();
+    while ( iterator.hasNext() )
+    {
+      final AreaOfInterestRequest request = iterator.next();
+      if ( request.match( action, address, filter ) )
+      {
+        return index;
+      }
+      index -= 1;
+    }
     final List<AreaOfInterestRequest> currentRequests = getCurrentAreaOfInterestRequests();
     if ( currentRequests.stream().anyMatch( a -> a.match( action, address, filter ) ) )
     {
       return 0;
     }
-    else
-    {
-      final LinkedList<AreaOfInterestRequest> requests = getPendingAreaOfInterestRequests();
-      int index = requests.size();
 
-      final Iterator<AreaOfInterestRequest> iterator = requests.descendingIterator();
-      while ( iterator.hasNext() )
-      {
-        final AreaOfInterestRequest request = iterator.next();
-        if ( request.match( action, address, filter ) )
-        {
-          return index;
-        }
-        index -= 1;
-      }
-    }
     return -1;
   }
 
