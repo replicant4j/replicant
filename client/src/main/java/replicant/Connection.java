@@ -109,7 +109,7 @@ public final class Connection
                                              @Nonnull final AreaOfInterestAction action,
                                              @Nullable final Object filter )
   {
-    getPendingAreaOfInterestRequests().add( new AreaOfInterestRequest( descriptor, action, filter ) );
+    _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( descriptor, action, filter ) );
   }
 
   public void enqueueResponse( @Nonnull final String rawJsonData )
@@ -123,9 +123,9 @@ public final class Connection
     getOutOfBandResponses().add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
 
-  public LinkedList<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
+  public List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
   {
-    return _pendingAreaOfInterestRequests;
+    return RepositoryUtil.toResults( _pendingAreaOfInterestRequests );
   }
 
   public LinkedList<MessageResponse> getUnparsedResponses()
