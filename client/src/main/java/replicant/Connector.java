@@ -1,11 +1,14 @@
 package replicant;
 
 import arez.ArezContext;
+import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.Guards;
@@ -128,6 +131,7 @@ public abstract class Connector
   protected final void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
+    purgeSubscriptions();
   }
 
   @Nullable
@@ -147,6 +151,19 @@ public abstract class Connector
     assert null != _connection;
     return _connection;
   }
+
+  @Action
+  protected void purgeSubscriptions()
+  {
+    Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
+                   getReplicantContext().getInstanceSubscriptions().stream() )
+      // Only purge subscriptions for current system
+      .filter( s -> s.getAddress().getSystem().equals( getSystemType() ) )
+      // Purge in reverse order. First instance subscriptions then type subscriptions
+      .sorted( Comparator.reverseOrder() )
+      .forEachOrdered( Disposable::dispose );
+  }
+
   /**
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.

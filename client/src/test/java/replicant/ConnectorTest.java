@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Arez;
+import arez.ArezContext;
 import arez.Disposable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.Assert;
@@ -791,12 +792,18 @@ public class ConnectorTest
 
     connector.setConnection( connection );
 
+    final Subscription subscription1 =
+      Arez.context()
+        .safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ), null, true ) );
+
     assertEquals( connector.getConnection(), connection );
     assertEquals( connector.ensureConnection(), connection );
+    assertEquals( Disposable.isDisposed( subscription1 ), false );
 
     connector.setConnection( null );
 
     assertEquals( connector.getConnection(), null );
+    assertEquals( Disposable.isDisposed( subscription1 ), true );
   }
 
   @Test
@@ -810,8 +817,45 @@ public class ConnectorTest
                   "Replicant-0031: Connector.ensureConnection() when no connection is present." );
   }
 
+  @Test
+  public void purgeSubscriptions()
+  {
+    final TestConnector connector1 = TestConnector.create( G.class );
+    TestConnector.create( F.class );
+
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    final Subscription subscription1 =
+      context.safeAction( () -> rContext.createSubscription( new ChannelAddress( G.G1 ), null, true ) );
+    final Subscription subscription2 =
+      context.safeAction( () -> rContext.createSubscription( new ChannelAddress( G.G2, 2 ), null, true ) );
+    // The next two are from a different Connector
+    final Subscription subscription3 =
+      context.safeAction( () -> rContext.createSubscription( new ChannelAddress( F.F2, 1 ), null, true ) );
+    final Subscription subscription4 =
+      context.safeAction( () -> rContext.createSubscription( new ChannelAddress( F.F2, 2 ), null, true ) );
+
+    assertEquals( Disposable.isDisposed( subscription1 ), false );
+    assertEquals( Disposable.isDisposed( subscription2 ), false );
+    assertEquals( Disposable.isDisposed( subscription3 ), false );
+    assertEquals( Disposable.isDisposed( subscription4 ), false );
+
+    connector1.purgeSubscriptions();
+
+    assertEquals( Disposable.isDisposed( subscription1 ), true );
+    assertEquals( Disposable.isDisposed( subscription2 ), true );
+    assertEquals( Disposable.isDisposed( subscription3 ), false );
+    assertEquals( Disposable.isDisposed( subscription4 ), false );
+  }
+
   enum G
   {
-    G1
+    G1, G2
+  }
+
+  enum F
+  {
+    F1, F2
   }
 }

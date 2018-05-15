@@ -5,14 +5,12 @@ import arez.annotations.Action;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Verifiable;
@@ -111,11 +109,6 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   protected abstract ChangeMapper getChangeMapper();
 
-  protected boolean shouldPurgeOnSessionChange()
-  {
-    return true;
-  }
-
   protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
     setConnection( new Connection( this, connectionId ), action );
@@ -147,28 +140,8 @@ public abstract class AbstractDataLoaderService
       setConnection( connection );
       // This should probably be moved elsewhere ... but where?
       getSessionContext().setConnection( connection );
-      if ( shouldPurgeOnSessionChange() )
-      {
-        //TODO: else schedule action so that it runs in loop
-        // until it can disable broker. This will involve replacing _resetAction
-        // with something more like existing action setup.
-
-        purgeSubscriptions();
-      }
     }
     action.call();
-  }
-
-  @Action
-  protected void purgeSubscriptions()
-  {
-    Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
-                   getReplicantContext().getInstanceSubscriptions().stream() )
-      // Only purge subscriptions for current system
-      .filter( s -> s.getAddress().getSystem().equals( getSystemType() ) )
-      // Purge in reverse order. First instance subscriptions then type subscriptions
-      .sorted( Comparator.reverseOrder() )
-      .forEachOrdered( Disposable::dispose );
   }
 
   /**
