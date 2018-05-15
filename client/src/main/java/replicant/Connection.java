@@ -171,6 +171,12 @@ public final class Connection
                                                       @Nonnull final ChannelAddress address,
                                                       @Nullable final Object filter )
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> action != AreaOfInterestAction.REMOVE || null == filter,
+                 () -> "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE " +
+                       "request for address '" + address + "' with a non-null filter '" + filter + "'." );
+    }
     final LinkedList<AreaOfInterestRequest> requests = getPendingAreaOfInterestRequests();
     int index = requests.size();
 

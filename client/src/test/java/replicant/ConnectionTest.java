@@ -362,6 +362,24 @@ public class ConnectionTest
   }
 
   @Test
+  public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
+    throws Exception
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final String filter = "MyFilter";
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> connection.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.REMOVE,
+                                                                              address,
+                                                                              filter ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for address 'G.G1' with a non-null filter 'MyFilter'." );
+  }
+
+  @Test
   public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
     throws Exception
   {
