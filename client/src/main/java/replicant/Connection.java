@@ -158,6 +158,12 @@ public final class Connection
                                                  @Nonnull final ChannelAddress address,
                                                  @Nullable final Object filter )
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> action != AreaOfInterestAction.REMOVE || null == filter,
+                 () -> "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE " +
+                       "request for address '" + address + "' with a non-null filter '" + filter + "'." );
+    }
     final List<AreaOfInterestRequest> requests = getCurrentAreaOfInterestRequests();
     return
       requests.stream().anyMatch( a -> a.match( action, address, filter ) ) ||
