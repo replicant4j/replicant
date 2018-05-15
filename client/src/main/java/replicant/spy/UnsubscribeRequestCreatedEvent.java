@@ -4,7 +4,6 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import replicant.ChannelAddress;
 
 /**
@@ -15,25 +14,16 @@ public final class UnsubscribeRequestCreatedEvent
 {
   @Nonnull
   private final ChannelAddress _address;
-  @Nullable
-  private final Object _filter;
 
-  public UnsubscribeRequestCreatedEvent( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  public UnsubscribeRequestCreatedEvent( @Nonnull final ChannelAddress address )
   {
     _address = Objects.requireNonNull( address );
-    _filter = filter;
   }
 
   @Nonnull
   public ChannelAddress getAddress()
   {
     return _address;
-  }
-
-  @Nullable
-  public Object getFilter()
-  {
-    return _filter;
   }
 
   /**
@@ -46,6 +36,5 @@ public final class UnsubscribeRequestCreatedEvent
     final ChannelAddress address = getAddress();
     map.put( "channel.type", address.getChannelType().name() );
     map.put( "channel.id", address.getId() );
-    map.put( "channel.filter", getFilter() );
   }
 }

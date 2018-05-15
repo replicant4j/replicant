@@ -2,7 +2,6 @@ package replicant.spy;
 
 import arez.Arez;
 import java.util.HashMap;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
@@ -15,12 +14,10 @@ public class UnsubscribeRequestCreatedEventTest
   public void basicOperation()
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
-    final String filter = ValueUtil.randomString();
 
-    final UnsubscribeRequestCreatedEvent event = new UnsubscribeRequestCreatedEvent( address, filter );
+    final UnsubscribeRequestCreatedEvent event = new UnsubscribeRequestCreatedEvent( address );
 
     assertEquals( event.getAddress(), address );
-    assertEquals( event.getFilter(), filter );
 
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
@@ -28,8 +25,7 @@ public class UnsubscribeRequestCreatedEventTest
     assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestCreated" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), null );
-    assertEquals( data.get( "channel.filter" ), filter );
-    assertEquals( data.size(), 4 );
+    assertEquals( data.size(), 3 );
   }
 
   enum G
