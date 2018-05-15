@@ -22,15 +22,18 @@ import replicant.spy.RequestStartedEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
+import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
+import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
+import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 
 /**
@@ -75,12 +78,15 @@ public class ConsoleSpyEventProcessor
     on( MessageProcessFailureEvent.class, this::onMessageProcessFailure );
     on( MessageReadFailureEvent.class, this::onMessageReadFailure );
     on( RestartEvent.class, this::onRestart );
+    on( SubscribeRequestQueuedEvent.class, this::onSubscribeRequestQueued );
     on( SubscribeCompletedEvent.class, this::onSubscribeCompleted );
     on( SubscribeFailedEvent.class, this::onSubscribeFailed );
     on( SubscribeStartedEvent.class, this::onSubscribeStarted );
+    on( SubscriptionUpdateRequestQueuedEvent.class, this::onSubscriptionUpdateRequestQueued );
     on( SubscriptionUpdateCompletedEvent.class, this::onSubscriptionUpdateCompleted );
     on( SubscriptionUpdateFailedEvent.class, this::onSubscriptionUpdateFailed );
     on( SubscriptionUpdateStartedEvent.class, this::onSubscriptionUpdateStarted );
+    on( UnsubscribeRequestQueuedEvent.class, this::onUnsubscribeRequestQueued );
     on( UnsubscribeCompletedEvent.class, this::onUnsubscribeCompleted );
     on( UnsubscribeFailedEvent.class, this::onUnsubscribeFailed );
     on( UnsubscribeStartedEvent.class, this::onUnsubscribeStarted );
@@ -349,6 +355,40 @@ public class ConsoleSpyEventProcessor
   protected void onAreaOfInterestDisposed( @Nonnull final AreaOfInterestDisposedEvent e )
   {
     log( "%cAreaOfInterest Disposed " + e.getAreaOfInterest().getAddress(), AREA_OF_INTEREST_COLOR );
+  }
+
+  /**
+   * Handle the SubscribeRequestQueuedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onSubscribeRequestQueued( @Nonnull final SubscribeRequestQueuedEvent e )
+  {
+    final Object filter = e.getFilter();
+    final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
+    log( "%cSubscribe Request Queued " + e.getAddress() + filterString, SUBSCRIPTION_COLOR );
+  }
+
+  /**
+   * Handle the SubscriptionUpdateRequestQueuedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onSubscriptionUpdateRequestQueued( @Nonnull final SubscriptionUpdateRequestQueuedEvent e )
+  {
+    final Object filter = e.getFilter();
+    final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
+    log( "%cSubscription Update Request Queued " + e.getAddress() + filterString, SUBSCRIPTION_COLOR );
+  }
+
+  /**
+   * Handle the UnsubscribeRequestQueuedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onUnsubscribeRequestQueued( @Nonnull final UnsubscribeRequestQueuedEvent e )
+  {
+    log( "%cUnsubscribe Request Queued " + e.getAddress(), SUBSCRIPTION_COLOR );
   }
 
   /**
