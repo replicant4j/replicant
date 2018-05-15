@@ -547,10 +547,10 @@ public class ConnectionTest
   {
     assertRequestPending( connection, AreaOfInterestAction.ADD, address, filter, hasAdd );
     assertRequestPending( connection, AreaOfInterestAction.UPDATE, address, filter, hasUpdate );
-    assertRequestPending( connection, AreaOfInterestAction.REMOVE, address, filter, hasRemove );
+    assertRequestPending( connection, AreaOfInterestAction.REMOVE, address, null, hasRemove );
     assertRequestPendingIndex( connection, AreaOfInterestAction.ADD, address, filter, addIndex );
     assertRequestPendingIndex( connection, AreaOfInterestAction.UPDATE, address, filter, updateIndex );
-    assertRequestPendingIndex( connection, AreaOfInterestAction.REMOVE, address, filter, removeIndex );
+    assertRequestPendingIndex( connection, AreaOfInterestAction.REMOVE, address, null, removeIndex );
   }
 
   private void assertRequestPendingIndex( @Nonnull final Connection connection,
