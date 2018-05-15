@@ -193,8 +193,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      context.getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       context.getConverger().removeOrphanSubscriptions();
 
@@ -237,8 +236,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      context.getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       context.getConverger().removeOrphanSubscriptions();
 
@@ -274,8 +272,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.DISCONNECTED );
 
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      context.getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       context.getConverger().removeOrphanSubscriptions();
 
@@ -300,8 +297,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      context.getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       context.getConverger().removeOrphanSubscriptions();
 
@@ -329,8 +325,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      context.getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       context.getConverger().removeOrphanSubscriptions();
 
@@ -360,8 +355,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final TestSpyEventHandler handler = new TestSpyEventHandler();
-      context.getSpy().addSpyEventHandler( handler );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       context.getConverger().removeOrphanSubscriptions();
 
