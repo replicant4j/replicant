@@ -225,7 +225,6 @@ public class WebStorageCacheServiceTest
 
     final String key = ValueUtil.randomString();
     final String eTag = ValueUtil.randomString();
-    final String content = ValueUtil.randomString();
 
     when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
       .thenReturn( eTag );
