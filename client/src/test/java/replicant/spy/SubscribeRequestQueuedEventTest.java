@@ -25,7 +25,7 @@ public class SubscribeRequestQueuedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "Connector.SubscribeRequestCreated" );
+    assertEquals( data.get( "type" ), "Connector.SubscribeRequestQueued" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), null );
     assertEquals( data.get( "channel.filter" ), filter );

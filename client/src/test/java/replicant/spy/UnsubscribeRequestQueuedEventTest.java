@@ -22,7 +22,7 @@ public class UnsubscribeRequestQueuedEventTest
     final HashMap<String, Object> data = new HashMap<>();
     Arez.context().safeAction( () -> event.toMap( data ) );
 
-    assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestCreated" );
+    assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestQueued" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), null );
     assertEquals( data.size(), 3 );
