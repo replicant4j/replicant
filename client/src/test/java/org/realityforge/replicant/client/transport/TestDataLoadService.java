@@ -24,7 +24,6 @@ abstract class TestDataLoadService
 {
   private boolean _scheduleDataLoadCalled;
   private LinkedList<ChangeSet> _changeSets = new LinkedList<>();
-  private int _terminateCount;
   private DataLoadStatus _status;
   private final SessionContext _sessionContext;
   private final ChangeMapper _changeMapper;
@@ -93,17 +92,6 @@ abstract class TestDataLoadService
   LinkedList<ChangeSet> getChangeSets()
   {
     return _changeSets;
-  }
-
-  @Override
-  protected void onTerminatingIncrementalDataLoadProcess()
-  {
-    _terminateCount++;
-  }
-
-  int getTerminateCount()
-  {
-    return _terminateCount;
   }
 
   boolean isScheduleDataLoadCalled()

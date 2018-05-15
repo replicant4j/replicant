@@ -559,7 +559,6 @@ public abstract class AbstractDataLoaderService
       {
         LOG.log( getLogLevel(), "No data to load. Terminating incremental load process." );
       }
-      onTerminatingIncrementalDataLoadProcess();
       return false;
     }
 
@@ -878,13 +877,6 @@ public abstract class AbstractDataLoaderService
   {
     assert getSystemType().isEnum();
     return (Enum) getSystemType().getEnumConstants()[ channel ];
-  }
-
-  /**
-   * Template method invoked when progressResponseProcessing() is about to return false and terminate load process.
-   */
-  protected void onTerminatingIncrementalDataLoadProcess()
-  {
   }
 
   @Nonnull
