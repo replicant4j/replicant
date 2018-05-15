@@ -70,4 +70,16 @@ public abstract class TestConnector
   public void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
   }
+
+  @Override
+  protected boolean progressAreaOfInterestRequestProcessing()
+  {
+    return false;
+  }
+
+  @Override
+  protected boolean progressResponseProcessing()
+  {
+    return false;
+  }
 }

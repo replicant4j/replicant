@@ -211,10 +211,9 @@ public abstract class AbstractDataLoaderService
   protected abstract ChangeSet parseChangeSet( @Nonnull String rawJsonData );
 
   /**
-   * Perform a single step in sending one (or a batch) or requests to the server.
-   *
-   * @return true if more work is to be done.
+   * {@inheritDoc}
    */
+  @Override
   protected boolean progressAreaOfInterestRequestProcessing()
   {
     final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
@@ -522,6 +521,10 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<SafeProcedure> completionAction,
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   protected boolean progressResponseProcessing()
   {
     final Connection connection = ensureConnection();

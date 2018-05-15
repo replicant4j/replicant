@@ -194,6 +194,20 @@ public abstract class Connector
   public abstract void requestUnsubscribe( @Nonnull ChannelAddress address );
 
   /**
+   * Perform a single step in sending one (or a batch) or requests to the server.
+   *
+   * @return true if more work is to be done.
+   */
+  protected abstract boolean progressAreaOfInterestRequestProcessing();
+
+  /**
+   * Perform a single step processing messages received from the server.
+   *
+   * @return true if more work is to be done.
+   */
+  protected abstract boolean progressResponseProcessing();
+
+  /**
    * {@inheritDoc}
    */
   @Nonnull
