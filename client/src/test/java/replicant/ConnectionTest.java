@@ -458,6 +458,37 @@ public class ConnectionTest
   }
 
   @Test
+  public void getCurrentAreaOfInterestRequests()
+  {
+    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+
+    final ChannelAddress addressA = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress addressB = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress addressC = new ChannelAddress( G.G2, 3 );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
+
+    connection.requestSubscribe( addressA, null );
+    connection.requestSubscribe( addressB, null );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
+
+    // This should transfer the above two and group them
+    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 2 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
+
+    // These should all go to pending queue
+    connection.requestSubscribe( addressA, null );
+    connection.requestSubscribe( addressB, null );
+    connection.requestSubscribe( addressC, null );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 2 );
+
+    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 3 );
+  }
+
+  @Test
   public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
     throws Exception
   {

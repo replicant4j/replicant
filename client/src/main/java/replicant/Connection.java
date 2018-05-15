@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.component.RepositoryUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -284,8 +285,19 @@ public final class Connection
   @Nonnull
   public List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
   {
-    return _currentAreaOfInterestRequests;
+    if ( _currentAreaOfInterestRequests.isEmpty() && !_pendingAreaOfInterestRequests.isEmpty() )
+    {
+      final AreaOfInterestRequest first = _pendingAreaOfInterestRequests.removeFirst();
+      _currentAreaOfInterestRequests.add( first );
+      while ( _pendingAreaOfInterestRequests.size() > 0 &&
+              canGroupRequests( first, _pendingAreaOfInterestRequests.get( 0 ) ) )
+      {
+        _currentAreaOfInterestRequests.add( _pendingAreaOfInterestRequests.removeFirst() );
+      }
+    }
+    return RepositoryUtil.toResults( _currentAreaOfInterestRequests );
   }
+
   /**
    * Return true if the match request can be grouped with the template request and sent to the backend using a
    * single network message.

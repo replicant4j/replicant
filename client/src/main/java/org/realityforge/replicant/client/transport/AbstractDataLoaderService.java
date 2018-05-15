@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +25,6 @@ import replicant.Connection;
 import replicant.Connector;
 import replicant.Entity;
 import replicant.EntityChange;
-import replicant.FilterUtil;
 import replicant.Linkable;
 import replicant.MessageResponse;
 import replicant.Replicant;
@@ -256,27 +254,12 @@ public abstract class AbstractDataLoaderService
    */
   protected boolean progressAreaOfInterestRequestProcessing()
   {
-    final Connection connection = ensureConnection();
-    final List<AreaOfInterestRequest> requests = connection.getCurrentAreaOfInterestRequests();
+    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
     if ( requests.isEmpty() )
     {
-      final LinkedList<AreaOfInterestRequest> pendingRequests = connection.getPendingAreaOfInterestRequests();
-      if ( pendingRequests.isEmpty() )
-      {
-        return false;
-      }
-      else
-      {
-        final AreaOfInterestRequest first = pendingRequests.removeFirst();
-        requests.add( first );
-        while ( pendingRequests.size() > 0 && isCompatibleForBulkChange( first, pendingRequests.get( 0 ) ) )
-        {
-          requests.add( pendingRequests.removeFirst() );
-        }
-      }
+      return false;
     }
-
-    if ( requests.get( 0 ).isInProgress() )
+    else if ( requests.get( 0 ).isInProgress() )
     {
       return false;
     }
@@ -536,18 +519,6 @@ public abstract class AbstractDataLoaderService
       requestBulkSubscribeToChannel( ids, request.getFilter(), completionAction, failAction );
     }
     return true;
-  }
-
-  private boolean isCompatibleForBulkChange( final AreaOfInterestRequest template,
-                                             final AreaOfInterestRequest match )
-  {
-    final AreaOfInterestAction action = match.getAction();
-    return null == _cacheService.lookup( template.getCacheKey() ) &&
-           null == _cacheService.lookup( match.getCacheKey() ) &&
-           template.getAction().equals( action ) &&
-           template.getAddress().getChannelType().equals( match.getAddress().getChannelType() ) &&
-           ( AreaOfInterestAction.REMOVE == action ||
-             FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
   }
 
   private void completeAreaOfInterestRequest()
