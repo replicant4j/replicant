@@ -38,7 +38,6 @@ public final class ReplicantTestUtil
       disableNames();
       noValidateChangeSetOnRead();
       noValidateRepositoryOnLoad();
-      noRequestsDebugOutputEnabled();
       disableSpies();
       noCheckInvariants();
       noCheckApiInvariants();
@@ -48,7 +47,6 @@ public final class ReplicantTestUtil
       enableNames();
       validateChangeSetOnRead();
       validateRepositoryOnLoad();
-      requestsDebugOutputEnabled();
       enableSpies();
       checkInvariants();
       checkApiInvariants();
@@ -144,32 +142,6 @@ public final class ReplicantTestUtil
   private static void setValidateRepositoryOnLoad( final boolean value )
   {
     setConstant( "VALIDATE_REPOSITORY_ON_LOAD", value );
-  }
-
-  /**
-   * Set `replicant.requestsDebugOutputEnabled` setting to true.
-   */
-  public static void requestsDebugOutputEnabled()
-  {
-    setRequestsDebugOutputEnabled( true );
-  }
-
-  /**
-   * Set `replicant.requestsDebugOutputEnabled` setting to false.
-   */
-  public static void noRequestsDebugOutputEnabled()
-  {
-    setRequestsDebugOutputEnabled( false );
-  }
-
-  /**
-   * Configure the `replicant.requestsDebugOutputEnabled` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setRequestsDebugOutputEnabled( final boolean value )
-  {
-    setConstant( "REQUESTS_DEBUG_OUTPUT_ENABLED", value );
   }
 
   /**
