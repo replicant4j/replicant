@@ -63,7 +63,6 @@ public abstract class AbstractDataLoaderService
    */
   private Runnable _resetAction;
 
-  private Connection _connection;
   private Disposable _schedulerLock;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
@@ -143,9 +142,9 @@ public abstract class AbstractDataLoaderService
 
   protected void doSetConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
-    if ( connection != _connection )
+    if ( connection != getConnection() )
     {
-      _connection = connection;
+      setConnection( connection );
       // This should probably be moved elsewhere ... but where?
       getSessionContext().setConnection( connection );
       if ( shouldPurgeOnSessionChange() )
@@ -159,15 +158,6 @@ public abstract class AbstractDataLoaderService
     }
     action.call();
   }
-
-  @Nullable
-  protected final Connection getConnection()
-  {
-    return _connection;
-  }
-
-  @Nonnull
-  protected abstract Connection ensureConnection();
 
   @Action
   protected void purgeSubscriptions()

@@ -10,7 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
-import replicant.Connection;
 import replicant.Entity;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -62,15 +61,6 @@ abstract class TestDataLoadService
   protected ChangeMapper getChangeMapper()
   {
     return _changeMapper;
-  }
-
-  @Nonnull
-  @Override
-  public Connection ensureConnection()
-  {
-    final Connection connection = getConnection();
-    assert null != connection;
-    return connection;
   }
 
   @Override

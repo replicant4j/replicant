@@ -780,6 +780,36 @@ public class ConnectorTest
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestAction.ADD, address, null ), 1 );
   }
 
+  @Test
+  public void connection()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    assertEquals( connector.getConnection(), null );
+
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+
+    connector.setConnection( connection );
+
+    assertEquals( connector.getConnection(), connection );
+    assertEquals( connector.ensureConnection(), connection );
+
+    connector.setConnection( null );
+
+    assertEquals( connector.getConnection(), null );
+  }
+
+  @Test
+  public void ensureConnection_WhenNoConnection()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final IllegalStateException exception = expectThrows( IllegalStateException.class, connector::ensureConnection );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0031: Connector.ensureConnection() when no connection is present." );
+  }
+
   enum G
   {
     G1

@@ -8,6 +8,7 @@ import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.braincheck.Guards;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;
@@ -40,6 +41,11 @@ public abstract class Connector
   private final Class<?> _systemType;
   @Nonnull
   private ConnectorState _state = ConnectorState.DISCONNECTED;
+  /**
+   * The current connection managed by the connector, if any.
+   */
+  @Nullable
+  private Connection _connection;
 
   protected Connector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
@@ -119,6 +125,28 @@ public abstract class Connector
     return _systemType;
   }
 
+  protected final void setConnection( @Nullable final Connection connection )
+  {
+    _connection = connection;
+  }
+
+  @Nullable
+  protected final Connection getConnection()
+  {
+    return _connection;
+  }
+
+  @Nonnull
+  protected final Connection ensureConnection()
+  {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      Guards.invariant( () -> null != _connection,
+                        () -> "Replicant-0031: Connector.ensureConnection() when no connection is present." );
+    }
+    assert null != _connection;
+    return _connection;
+  }
   /**
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
