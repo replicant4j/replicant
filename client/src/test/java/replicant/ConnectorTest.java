@@ -1025,6 +1025,34 @@ public class ConnectorTest
                              e -> assertEquals( e.getAddress(), address ) );
   }
 
+  @Test
+  public void convergeSubscription()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final ConvergeAction result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, ConvergeAction.SUBMITTED_ADD );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
+  }
+
   enum G
   {
     G1, G2
