@@ -414,7 +414,7 @@ public abstract class AbstractDataLoaderService
     };
 
     final AreaOfInterestRequest request = requests.get( 0 );
-    if ( requests.size() == 1 )
+    if ( 1 == requests.size() )
     {
       final String cacheKey = request.getCacheKey();
       final CacheService cacheService = getReplicantContext().getCacheService();
