@@ -34,6 +34,8 @@ import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 import replicant.Subscription;
+import replicant.spi.CacheEntry;
+import replicant.spi.CacheService;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -490,7 +492,8 @@ public abstract class AbstractDataLoaderService
     if ( requests.size() == 1 )
     {
       final String cacheKey = request.getCacheKey();
-      final CacheEntry cacheEntry = _cacheService.lookup( cacheKey );
+      final CacheService cacheService = getReplicantContext().getCacheService();
+      final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
       final String eTag;
       final Consumer<SafeProcedure> cacheAction;
       if ( null != cacheEntry )
@@ -721,7 +724,11 @@ public abstract class AbstractDataLoaderService
             {
               LOG.log( getLogLevel(), "Caching ChangeSet: seq=" + sequence + " cacheKey=" + cacheKey );
             }
-            _cacheService.store( cacheKey, eTag, rawJsonData );
+            final CacheService cacheService = getReplicantContext().getCacheService();
+            if ( null != cacheService )
+            {
+              cacheService.store( cacheKey, eTag, rawJsonData );
+            }
           }
           else
           {
