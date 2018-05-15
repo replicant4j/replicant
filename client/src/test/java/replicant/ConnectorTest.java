@@ -849,6 +849,111 @@ public class ConnectorTest
     assertEquals( Disposable.isDisposed( subscription4 ), false );
   }
 
+  @Test
+  public void triggerScheduler()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    assertEquals( connector.isSchedulerActive(), false );
+    assertEquals( connector.getActivateSchedulerCount(), 0 );
+
+    connector.triggerScheduler();
+
+    assertEquals( connector.isSchedulerActive(), true );
+    assertEquals( connector.getActivateSchedulerCount(), 1 );
+
+    connector.triggerScheduler();
+
+    assertEquals( connector.isSchedulerActive(), true );
+    assertEquals( connector.getActivateSchedulerCount(), 1 );
+  }
+
+  @Test
+  public void scheduleTick()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    connector.triggerScheduler();
+
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 0 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 0 );
+    assertNull( connector.getSchedulerLock() );
+
+    connector.setProgressAreaOfInterestRequestProcessing( () -> true );
+    connector.setProgressResponseProcessing( () -> true );
+
+    final boolean result1 = connector.scheduleTick();
+
+    assertEquals( result1, true );
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 1 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 1 );
+    final Disposable schedulerLock1 = connector.getSchedulerLock();
+    assertNotNull( schedulerLock1 );
+
+    final boolean result2 = connector.scheduleTick();
+
+    assertEquals( result2, true );
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 2 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 2 );
+    assertNotNull( connector.getSchedulerLock() );
+
+    connector.setProgressAreaOfInterestRequestProcessing( () -> false );
+    connector.setProgressResponseProcessing( () -> false );
+
+    final boolean result3 = connector.scheduleTick();
+
+    assertEquals( result3, false );
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 3 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 3 );
+    assertNull( connector.getSchedulerLock() );
+    assertTrue( Disposable.isDisposed( schedulerLock1 ) );
+  }
+
+  @Test
+  public void scheduleTick_withError()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    connector.triggerScheduler();
+
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 0 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 0 );
+    assertNull( connector.getSchedulerLock() );
+
+    connector.setProgressAreaOfInterestRequestProcessing( () -> true );
+    connector.setProgressResponseProcessing( () -> true );
+
+    final boolean result1 = connector.scheduleTick();
+
+    assertEquals( result1, true );
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 1 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 1 );
+    final Disposable schedulerLock1 = connector.getSchedulerLock();
+    assertNotNull( schedulerLock1 );
+
+    final IllegalStateException error = new IllegalStateException();
+    connector.setProgressAreaOfInterestRequestProcessing( () -> {
+      throw error;
+    } );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final boolean result2 = connector.scheduleTick();
+
+    assertEquals( result2, false );
+    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 2 );
+    assertEquals( connector.getProgressResponseProcessingCount(), 1 );
+
+    assertNull( connector.getSchedulerLock() );
+    assertTrue( Disposable.isDisposed( schedulerLock1 ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
+      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
   enum G
   {
     G1, G2
@@ -856,6 +961,6 @@ public class ConnectorTest
 
   enum F
   {
-    F1, F2
+    F2
   }
 }

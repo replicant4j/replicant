@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.anodoc.TestOnly;
 import org.realityforge.braincheck.Guards;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -49,6 +50,17 @@ public abstract class Connector
    */
   @Nullable
   private Connection _connection;
+  /**
+   * Flag indicating that the Connectors internal scheduler is actively progressing
+   * requests and responses. A scheduler should only be active if there is a connection present.
+   */
+  private boolean _schedulerActive;
+  /**
+   * This lock is acquired by the Connector when it begins processing messages from the network.
+   * Once the processor is idle the lock should be released to allow Arez to reflect all the changes.
+   */
+  @Nullable
+  private Disposable _schedulerLock;
 
   protected Connector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
@@ -192,6 +204,68 @@ public abstract class Connector
   public abstract void requestSubscriptionUpdate( @Nonnull ChannelAddress address, @Nullable Object filter );
 
   public abstract void requestUnsubscribe( @Nonnull ChannelAddress address );
+
+  final boolean isSchedulerActive()
+  {
+    return _schedulerActive;
+  }
+
+  /**
+   * Schedule request and response processing.
+   * This method should be invoked when requests are queued or responses are received.
+   */
+  protected final void triggerScheduler()
+  {
+    if ( !_schedulerActive )
+    {
+      _schedulerActive = true;
+
+      activateScheduler();
+    }
+  }
+
+  /**
+   * Perform a single step progressing requests and responses.
+   * This is invoked from the scheduler and will continue to be
+   * invoked until it returns false.
+   *
+   * @return true if more work is to be done.
+   */
+  protected final boolean scheduleTick()
+  {
+    if ( null == _schedulerLock )
+    {
+      _schedulerLock = context().pauseScheduler();
+    }
+    try
+    {
+      final boolean step1 = progressAreaOfInterestRequestProcessing();
+      final boolean step2 = progressResponseProcessing();
+      _schedulerActive = step1 || step2;
+    }
+    catch ( final Throwable e )
+    {
+      onMessageProcessFailure( e );
+      _schedulerActive = false;
+      return false;
+    }
+    finally
+    {
+      if ( !_schedulerActive )
+      {
+        _schedulerLock.dispose();
+        _schedulerLock = null;
+      }
+    }
+    return _schedulerActive;
+  }
+
+  /**
+   * Activate the scheduler.
+   * This involves creating a scheduler that will invoke {@link #scheduleTick()} until
+   * that method returns false.
+   */
+  protected abstract void activateScheduler();
 
   /**
    * Perform a single step in sending one (or a batch) or requests to the server.
@@ -438,4 +512,11 @@ public abstract class Connector
   @ContextRef
   @Nonnull
   protected abstract ArezContext context();
+
+  @TestOnly
+  @Nullable
+  final Disposable getSchedulerLock()
+  {
+    return _schedulerLock;
+  }
 }

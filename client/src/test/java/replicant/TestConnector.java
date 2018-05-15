@@ -12,6 +12,11 @@ public abstract class TestConnector
 {
   private boolean _errorOnConnect;
   private boolean _errorOnDisconnect;
+  private int _progressAreaOfInterestRequestProcessingCount;
+  private int _progressResponseProcessingCount;
+  private int _activateSchedulerCount;
+  private SafeFunction<Boolean> _progressAreaOfInterestRequestProcessing;
+  private SafeFunction<Boolean> _progressResponseProcessing;
 
   public static TestConnector create( @Nonnull final Class<?> systemType )
   {
@@ -72,14 +77,47 @@ public abstract class TestConnector
   }
 
   @Override
+  protected void activateScheduler()
+  {
+    _activateSchedulerCount++;
+  }
+
+  @Override
   protected boolean progressAreaOfInterestRequestProcessing()
   {
-    return false;
+    _progressAreaOfInterestRequestProcessingCount++;
+    return null == _progressAreaOfInterestRequestProcessing ? false : _progressAreaOfInterestRequestProcessing.call();
   }
 
   @Override
   protected boolean progressResponseProcessing()
   {
-    return false;
+    _progressResponseProcessingCount++;
+    return null == _progressResponseProcessing ? false : _progressResponseProcessing.call();
+  }
+
+  int getProgressAreaOfInterestRequestProcessingCount()
+  {
+    return _progressAreaOfInterestRequestProcessingCount;
+  }
+
+  int getProgressResponseProcessingCount()
+  {
+    return _progressResponseProcessingCount;
+  }
+
+  int getActivateSchedulerCount()
+  {
+    return _activateSchedulerCount;
+  }
+
+  void setProgressAreaOfInterestRequestProcessing( final SafeFunction<Boolean> progressAreaOfInterestRequestProcessing )
+  {
+    _progressAreaOfInterestRequestProcessing = progressAreaOfInterestRequestProcessing;
+  }
+
+  void setProgressResponseProcessing( final SafeFunction<Boolean> progressResponseProcessing )
+  {
+    _progressResponseProcessing = progressResponseProcessing;
   }
 }

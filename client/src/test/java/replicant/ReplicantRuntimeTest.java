@@ -647,6 +647,11 @@ public class ReplicantRuntimeTest
     }
 
     @Override
+    protected void activateScheduler()
+    {
+    }
+
+    @Override
     protected boolean progressAreaOfInterestRequestProcessing()
     {
       return false;

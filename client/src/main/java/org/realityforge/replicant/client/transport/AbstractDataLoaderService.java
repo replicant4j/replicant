@@ -52,16 +52,9 @@ public abstract class AbstractDataLoaderService
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   /**
-   * Flag indicating that the Connectors internal scheduler is actively progressing
-   * requests and responses.
-   */
-  private boolean _schedulerActive;
-  /**
    * Action invoked after current action completes to reset connection state.
    */
   private Runnable _resetAction;
-
-  private Disposable _schedulerLock;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
                                        @Nonnull final Class<?> systemType )
@@ -143,57 +136,6 @@ public abstract class AbstractDataLoaderService
     }
     action.call();
   }
-
-  /**
-   * Schedule data loads using incremental scheduler.
-   */
-  final void triggerScheduler()
-  {
-    if ( !_schedulerActive )
-    {
-      _schedulerActive = true;
-
-      doActivateScheduler();
-    }
-  }
-
-  /**
-   * Perform a single step progressing requests and responses.
-   * This is invoked from the scheduler
-   *
-   * @return true if more work is to be done.
-   */
-  protected boolean scheduleTick()
-  {
-    if ( null == _schedulerLock )
-    {
-      _schedulerLock = context().pauseScheduler();
-    }
-    try
-    {
-      _schedulerActive = progressAreaOfInterestRequestProcessing() || progressResponseProcessing();
-    }
-    catch ( final Exception e )
-    {
-      onMessageProcessFailure( e );
-      _schedulerActive = false;
-      return false;
-    }
-    finally
-    {
-      if ( !_schedulerActive )
-      {
-        _schedulerLock.dispose();
-        _schedulerLock = null;
-      }
-    }
-    return _schedulerActive;
-  }
-
-  /**
-   * Activate the scheduler.
-   */
-  protected abstract void doActivateScheduler();
 
   @SuppressWarnings( "SameParameterValue" )
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
