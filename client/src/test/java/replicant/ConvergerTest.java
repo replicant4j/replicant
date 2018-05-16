@@ -13,6 +13,7 @@ import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import static org.testng.Assert.*;
 
+@SuppressWarnings( "Duplicates" )
 public class ConvergerTest
   extends AbstractReplicantTest
 {
@@ -740,6 +741,43 @@ public class ConvergerTest
     assertEquals( result, Converger.Action.NO_ACTION );
 
     handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_groupingUpdate()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+
+    final String filterOld = ValueUtil.randomString();
+    final String filterNew = ValueUtil.randomString();
+
+    final AreaOfInterest areaOfInterest1 =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
+    context.safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
+    final AreaOfInterest areaOfInterest2 =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
+    context.safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE, true ) );
+
+    assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address2 ) );
   }
 
   private enum G
