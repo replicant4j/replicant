@@ -3,15 +3,7 @@
 ### Unreleased
 
 Stop using replicant specific mechanisms for managing state and instead start to move to Arez. This is
-a major rewrite of the library and involved large scale changes. Some of the more significant changes
-included:
-
-* Remove `EntitySystem` and all supporting infrastructure.
-* Remove `EntityRepository` and all supporting infrastructure.
-* Remove `EntityChangeBroker` and all supporting infrastructure.
-* Remove `EntityRepositoryDebugger` and all supporting infrastructure.
-* Inline and remove `EntityRepositoryValidator` and all supporting infrastructure.
-* Replace Gin with Dagger2.
+a major rewrite of the library and involved large scale changes. See the git history for full details.
 
 ### [v5.99](https://github.com/realityforge/replicant/tree/v5.99) (2018-04-26)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v5.98...v5.99)
