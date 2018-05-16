@@ -2,7 +2,6 @@ package replicant;
 
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
-import arez.annotations.ComponentId;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import java.util.Objects;
