@@ -1336,6 +1336,80 @@ public class ConnectorTest
     handler.assertEventCount( 0 );
   }
 
+  @Test
+  public void processChannelChanges_update_implicitSubscription()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final ChannelAddress address = new ChannelAddress( G.G1, 33 );
+    final int channelId = address.getChannelType().ordinal();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final String oldFilter = ValueUtil.randomString();
+    final String newFilter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address, oldFilter, false ) );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelUpdateCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges( response ) );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelUpdateCount(), 0 );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0029: Received ChannelChange of type UPDATE for address G.G1:33 but subscription is implicitly subscribed." );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void processChannelChanges_update_missingSubscription()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final ChannelAddress address = new ChannelAddress( G.G1, 42 );
+    final int channelId = address.getChannelType().ordinal();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final String oldFilter = ValueUtil.randomString();
+    final String newFilter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelUpdateCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges( response ) );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelUpdateCount(), 0 );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0033: Received ChannelChange of type UPDATE for address G.G1:42 but no such subscription exists." );
+
+    handler.assertEventCount( 0 );
+  }
+
   enum G
   {
     G1, G2

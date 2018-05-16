@@ -383,6 +383,16 @@ public abstract class Connector
       {
         assert ChannelChange.Action.UPDATE == actionType;
         final Subscription subscription = getReplicantContext().findSubscription( address );
+        if ( Replicant.shouldCheckInvariants() )
+        {
+          invariant( () -> null != subscription,
+                     () -> "Replicant-0033: Received ChannelChange of type UPDATE for address " + address +
+                           " but no such subscription exists." );
+          assert null != subscription;
+          invariant( subscription::isExplicitSubscription,
+                     () -> "Replicant-0029: Received ChannelChange of type UPDATE for address " + address +
+                           " but subscription is implicitly subscribed." );
+        }
         assert null != subscription;
         subscription.setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription );
