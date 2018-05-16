@@ -1057,6 +1057,34 @@ public class ConnectorTest
   }
 
   @Test
+  public void convergeAreaOfInterest_alreadySubscribed()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+    context.safeAction( () -> rContext.createSubscription( address, null, true ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.NO_ACTION );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @Test
   public void convergeAreaOfInterest_subscribing()
   {
     final ArezContext context = Arez.context();
