@@ -391,81 +391,34 @@ public abstract class WebPollerDataLoaderService
   @Override
   protected void requestUpdateSubscription( @Nonnull final ChannelAddress address,
                                             @Nonnull final Object filter,
-                                            @Nonnull final Consumer<SafeProcedure> completionAction,
-                                            @Nonnull final Consumer<SafeProcedure> failAction )
-  {
-    if ( isChannelTypeValid( address ) )
-    {
-      onSubscriptionUpdateStarted( address );
-      final SafeProcedure onSuccess =
-        () -> completionAction.accept( () -> onSubscriptionUpdateCompleted( address ) );
-      final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> onSubscriptionUpdateFailed( address, error ) );
-      performUpdateSubscription( address.getChannelType().ordinal(),
-                                 address.getId(),
-                                 filter,
-                                 onSuccess,
-                                 onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
-  protected void performUpdateSubscription( final int channel,
-                                            @Nullable Integer subChannelId,
-                                            @Nullable final Object filter,
                                             @Nonnull final SafeProcedure onSuccess,
                                             @Nonnull final Consumer<Throwable> onError )
   {
+    final int channel = address.getChannelType().ordinal();
     getSessionContext().request( toRequestKey( "SubscriptionUpdate", channel ), null, ( connection, request ) ->
       doSubscribe( connection,
                    request,
                    filter,
-                   getChannelURL( channel, subChannelId ),
+                   getChannelURL( channel, address.getId() ),
                    null,
                    onSuccess,
                    null,
                    onError ) );
   }
 
-  protected void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
-                                                @Nonnull Object filter,
-                                                @Nonnull Consumer<SafeProcedure> completionAction,
-                                                @Nonnull Consumer<SafeProcedure> failAction )
-  {
-    final ChannelAddress address = addresses.get( 0 );
-    if ( isChannelTypeValid( address ) )
-    {
-      addresses.forEach( this::onSubscriptionUpdateStarted );
-      final SafeProcedure onSuccess =
-        () -> completionAction.accept( () -> addresses.forEach( x -> onSubscriptionUpdateCompleted( address ) ) );
-      final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> addresses.forEach( x -> onSubscriptionUpdateFailed( address, error ) ) );
-      performBulkUpdateSubscription( address.getChannelType().ordinal(),
-                                     addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
-                                     filter,
-                                     onSuccess,
-                                     onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
-  protected void performBulkUpdateSubscription( final int channel,
-                                                @Nonnull List<Integer> subChannelIds,
-                                                @Nullable final Object filter,
+  @Override
+  protected void requestBulkUpdateSubscription( @Nonnull final List<ChannelAddress> addresses,
+                                                @Nonnull final Object filter,
                                                 @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
+    final int channel = addresses.get( 0 ).getChannelType().ordinal();
     getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channel ), null, ( connection, request ) ->
       doSubscribe( connection,
                    request,
                    filter,
-                   getChannelURL( channel, subChannelIds ),
+                   getChannelURL( channel,
+                                  addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ) ),
                    null,
                    onSuccess,
                    null,

@@ -155,29 +155,44 @@ public abstract class AbstractDataLoaderService
       completeAreaOfInterestRequest();
       return true;
     }
-
-    final Consumer<SafeProcedure> completionAction = a ->
-    {
-      completeAreaOfInterestRequest();
-      a.call();
-    };
-    final Consumer<SafeProcedure> failAction = a ->
-    {
-      completeAreaOfInterestRequest();
-      a.call();
-    };
-
-    final AreaOfInterestRequest request = requests.get( 0 );
-    assert null != request.getFilter();
-    if ( requests.size() > 1 )
+    else if ( requests.size() > 1 )
     {
       final List<ChannelAddress> addresses =
         requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
-      requestBulkUpdateSubscription( addresses, request.getFilter(), completionAction, failAction );
+      addresses.forEach( this::onSubscriptionUpdateStarted );
+      final SafeProcedure onSuccess = () -> {
+        completeAreaOfInterestRequest();
+        addresses.forEach( this::onSubscriptionUpdateCompleted );
+      };
+
+      final Consumer<Throwable> onError = error -> {
+        completeAreaOfInterestRequest();
+        addresses.forEach( a -> onSubscriptionUpdateFailed( a, error ) );
+      };
+      // All filters will be the same if they are grouped
+      final Object filter = requests.get( 0 ).getFilter();
+      assert null != filter;
+      requestBulkUpdateSubscription( addresses, filter, onSuccess, onError );
     }
     else
     {
-      requestUpdateSubscription( request.getAddress(), request.getFilter(), completionAction, failAction );
+      final AreaOfInterestRequest request = requests.get( 0 );
+      final ChannelAddress address = request.getAddress();
+      onSubscriptionUpdateStarted( address );
+      final SafeProcedure onSuccess = () -> {
+        completeAreaOfInterestRequest();
+        onSubscriptionUpdateCompleted( address );
+      };
+
+      final Consumer<Throwable> onError = error ->
+      {
+        completeAreaOfInterestRequest();
+        onSubscriptionUpdateFailed( address, error );
+      };
+
+      final Object filter = request.getFilter();
+      assert null != filter;
+      requestUpdateSubscription( address, filter, onSuccess, onError );
     }
     return true;
   }
@@ -374,8 +389,8 @@ public abstract class AbstractDataLoaderService
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress address,
                                                      @Nonnull Object filter,
-                                                     @Nonnull Consumer<SafeProcedure> completionAction,
-                                                     @Nonnull Consumer<SafeProcedure> failAction );
+                                                     @Nonnull SafeProcedure onSuccess,
+                                                     @Nonnull Consumer<Throwable> onError );
 
   protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> addresses,
                                                          @Nullable Object filter,
@@ -388,8 +403,8 @@ public abstract class AbstractDataLoaderService
 
   protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
                                                          @Nonnull Object filter,
-                                                         @Nonnull Consumer<SafeProcedure> completionAction,
-                                                         @Nonnull Consumer<SafeProcedure> failAction );
+                                                         @Nonnull SafeProcedure onSuccess,
+                                                         @Nonnull Consumer<Throwable> onError );
 
   /**
    * {@inheritDoc}
