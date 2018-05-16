@@ -56,6 +56,7 @@ public class ChannelChange
                                       @Nonnull final Action action,
                                       @Nullable final Object filter )
   {
+    //TODO: filter should be null when Action is REMOVE
     final ChannelChange channel = create( cid, action, filter );
     channel.scid = (double) scid;
     return channel;
