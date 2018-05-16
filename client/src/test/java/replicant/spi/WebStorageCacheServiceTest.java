@@ -7,12 +7,63 @@ import org.mockito.Mockito;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.Replicant;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class WebStorageCacheServiceTest
   extends AbstractReplicantTest
 {
+  @Test
+  public void install_defaults()
+  {
+    final WebStorageWindow window = new WebStorageWindow();
+    final Storage storage = mock( Storage.class );
+    window.localStorage = storage;
+    DomGlobal.window = window;
+
+    assertEquals( Replicant.context().getCacheService(), null );
+
+    WebStorageCacheService.install();
+
+    final CacheService cacheService = Replicant.context().getCacheService();
+    assertNotNull( cacheService );
+    assertTrue( cacheService instanceof WebStorageCacheService );
+    assertEquals( ( (WebStorageCacheService) cacheService ).getStorage(), storage );
+  }
+
+  @Test
+  public void install_withSpecificStorage()
+  {
+    assertEquals( Replicant.context().getCacheService(), null );
+
+    final Storage storage = mock( Storage.class );
+
+    WebStorageCacheService.install( storage );
+
+    final CacheService cacheService = Replicant.context().getCacheService();
+    assertNotNull( cacheService );
+    assertTrue( cacheService instanceof WebStorageCacheService );
+    assertEquals( ( (WebStorageCacheService) cacheService ).getStorage(), storage );
+  }
+
+  @Test
+  public void install_withSpecificWindow()
+  {
+    final WebStorageWindow window = new WebStorageWindow();
+    final Storage storage = mock( Storage.class );
+    window.localStorage = storage;
+
+    assertEquals( Replicant.context().getCacheService(), null );
+
+    WebStorageCacheService.install( window );
+
+    final CacheService cacheService = Replicant.context().getCacheService();
+    assertNotNull( cacheService );
+    assertTrue( cacheService instanceof WebStorageCacheService );
+    assertEquals( ( (WebStorageCacheService) cacheService ).getStorage(), storage );
+  }
+
   @Test
   public void lookupStorageWhenNotSupported()
   {

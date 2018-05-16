@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.Guards;
 import replicant.Replicant;
+import replicant.ReplicantContext;
 
 /**
  * An implementation of the CacheService that uses LocalStorage or SessionStorage.
@@ -41,6 +42,70 @@ public class WebStorageCacheService
   {
     final WebStorageWindow wsWindow = WebStorageWindow.of( Objects.requireNonNull( window ) );
     return null != wsWindow.localStorage || null != wsWindow.sessionStorage;
+  }
+
+  /**
+   * Install CacheService into the default context where persistence occurs in storage attached to root window.
+   * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
+   */
+  public static void install()
+  {
+    install( Replicant.context() );
+  }
+
+  /**
+   * Install CacheService into specified context where persistence occurs in storage attached to root window.
+   * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
+   *
+   * @param context the replicant context.
+   */
+  public static void install( @Nonnull final ReplicantContext context )
+  {
+    install( context, DomGlobal.window );
+  }
+
+  /**
+   * Install CacheService into the default context where persistence occurs in storage attached to specified window.
+   * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
+   *
+   * @param window the window to use to lookup stores.
+   */
+  public static void install( @Nonnull final Window window )
+  {
+    install( Replicant.context(), lookupStorage( window ) );
+  }
+
+  /**
+   * Install CacheService into specified context where persistence occurs in storage attached to specified window.
+   * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
+   *
+   * @param context the replicant context.
+   * @param window  the window to use to lookup stores.
+   */
+  public static void install( @Nonnull final ReplicantContext context, @Nonnull final Window window )
+  {
+    install( context, lookupStorage( window ) );
+  }
+
+  /**
+   * Install CacheService into the current context where persistence occurs in specified storage.
+   *
+   * @param storage the store used to cache data.
+   */
+  public static void install( @Nonnull final Storage storage )
+  {
+    install( Replicant.context(), storage );
+  }
+
+  /**
+   * Install CacheService into specified context where persistence occurs in specified storage.
+   *
+   * @param context the replicant context.
+   * @param storage the store used to cache data.
+   */
+  public static void install( @Nonnull final ReplicantContext context, @Nonnull final Storage storage )
+  {
+    Objects.requireNonNull( context ).setCacheService( new WebStorageCacheService( storage ) );
   }
 
   WebStorageCacheService( @Nonnull final Storage storage )
