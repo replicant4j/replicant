@@ -92,6 +92,19 @@ public abstract class GwtWebPollerDataLoaderService
                  onError );
   }
 
+  @Nonnull
+  private String filterToString( @Nullable final Object filter )
+  {
+    if ( null == filter )
+    {
+      return "";
+    }
+    else
+    {
+      return doFilterToString( filter );
+    }
+  }
+
   @Override
   protected void doUnsubscribe( @Nullable final Connection connection,
                                 @Nullable final RequestEntry request,

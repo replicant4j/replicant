@@ -600,19 +600,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  protected String filterToString( @Nullable final Object filter )
-  {
-    if ( null == filter )
-    {
-      return "";
-    }
-    else
-    {
-      return doFilterToString( filter );
-    }
-  }
-
-  @Nonnull
   protected abstract String doFilterToString( @Nonnull Object filter );
 
   /**
