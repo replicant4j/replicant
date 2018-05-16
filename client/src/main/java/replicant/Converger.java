@@ -24,8 +24,6 @@ abstract class Converger
     SUBMITTED_ADD,
     /// The submission has been added to the AOI queue
     SUBMITTED_UPDATE,
-    /// The submission has been added to the AOI queue, and can't be grouped
-    TERMINATE,
     /// The submission is already in progress, still waiting for a response
     IN_PROGRESS,
     /// Nothing was done, fully converged
@@ -114,11 +112,9 @@ abstract class Converger
     AreaOfInterestRequest.Type groupAction = null;
     for ( final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest() )
     {
-      final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction, true );
+      final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction );
       switch ( action )
       {
-        case TERMINATE:
-          return;
         case SUBMITTED_ADD:
           groupAction = AreaOfInterestRequest.Type.ADD;
           groupTemplate = areaOfInterest;
@@ -149,8 +145,7 @@ abstract class Converger
   @Nonnull
   final Action convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
                                        @Nullable final AreaOfInterest groupTemplate,
-                                       @Nullable final AreaOfInterestRequest.Type groupAction,
-                                       final boolean canGroup )
+                                       @Nullable final AreaOfInterestRequest.Type groupAction )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -175,10 +170,6 @@ abstract class Converger
 
       if ( ( !subscribed && addIndex < 0 ) || removeIndex > addIndex )
       {
-        if ( null != groupTemplate && !canGroup )
-        {
-          return Action.TERMINATE;
-        }
         if ( null == groupTemplate ||
              canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.ADD ) )
         {
@@ -206,11 +197,6 @@ abstract class Converger
 
         if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
-          if ( null != groupTemplate && !canGroup )
-          {
-            return Action.TERMINATE;
-          }
-
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE ) )
           {
