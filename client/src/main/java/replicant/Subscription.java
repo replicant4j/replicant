@@ -64,8 +64,7 @@ public abstract class Subscription
     return _filter;
   }
 
-  //TODO: Make this package access when the state transform section moves to this package
-  public void setFilter( @Nullable final Object filter )
+  void setFilter( @Nullable final Object filter )
   {
     _filter = filter;
   }
