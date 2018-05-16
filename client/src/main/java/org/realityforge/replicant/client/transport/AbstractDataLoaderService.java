@@ -28,7 +28,6 @@ import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 import replicant.Subscription;
-import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -562,7 +561,6 @@ public abstract class AbstractDataLoaderService
 
       return true;
     }
-    final DataLoadStatus status = response.toStatus();
 
     //Step: Run the post actions
     final RequestEntry request = response.getRequest();
@@ -590,7 +588,7 @@ public abstract class AbstractDataLoaderService
       }
     }
     connection.setCurrentMessageResponse( null );
-    onMessageProcessed( status );
+    onMessageProcessed( response.toStatus() );
     if ( null != _resetAction )
     {
       _resetAction.run();
