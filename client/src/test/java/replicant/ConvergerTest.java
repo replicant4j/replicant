@@ -5,8 +5,6 @@ import arez.ArezContext;
 import arez.Disposable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.SubscribeRequestQueuedEvent;
@@ -119,7 +117,7 @@ public class ConvergerTest
 
     Arez.context().safeAction( () -> {
       final ChannelAddress address = new ChannelAddress( G.G1 );
-      final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
+      final AreaOfInterest areaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, null );
 
       assertTrue( c.canGroup( areaOfInterest,
                               AreaOfInterestRequest.Type.ADD,
@@ -159,14 +157,14 @@ public class ConvergerTest
                               AreaOfInterestRequest.Type.REMOVE ) );
 
       final ChannelAddress channel2 = new ChannelAddress( G.G1, 2 );
-      final AreaOfInterest areaOfInterest2 = createAreaOfInterest( channel2, null );
+      final AreaOfInterest areaOfInterest2 = Replicant.context().createOrUpdateAreaOfInterest( channel2, null );
       assertTrue( c.canGroup( areaOfInterest,
                               AreaOfInterestRequest.Type.ADD,
                               areaOfInterest2,
                               AreaOfInterestRequest.Type.ADD ) );
 
       final ChannelAddress address3 = new ChannelAddress( G.G2, 1 );
-      final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
+      final AreaOfInterest areaOfInterest3 = Replicant.context().createOrUpdateAreaOfInterest( address3, null );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
                                areaOfInterest3,
@@ -181,7 +179,7 @@ public class ConvergerTest
                                AreaOfInterestRequest.Type.REMOVE ) );
 
       final ChannelAddress address4 = new ChannelAddress( G.G1, 1 );
-      final AreaOfInterest areaOfInterest4 = createAreaOfInterest( address4, "Filter" );
+      final AreaOfInterest areaOfInterest4 = Replicant.context().createOrUpdateAreaOfInterest( address4, "Filter" );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
                                areaOfInterest4,
@@ -621,12 +619,6 @@ public class ConvergerTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
-  }
-
-  @Nonnull
-  private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
-  {
-    return Replicant.context().createOrUpdateAreaOfInterest( address, filter );
   }
 
   private enum G
