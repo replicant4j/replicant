@@ -693,15 +693,6 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  @Nonnull
-  private ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
-  {
-    final int channelId = channelChange.getChannelId();
-    final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
-    final Enum channelType = channelIdToType( channelId );
-    return new ChannelAddress( channelType, subChannelId );
-  }
-
   protected abstract void updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
                                                                  @Nullable Object filter );
 
@@ -725,21 +716,6 @@ public abstract class AbstractDataLoaderService
   protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelAddress address,
                                                     @Nullable Object filter,
                                                     @Nonnull Entity entity );
-
-  /**
-   * Return the type for specified channel.
-   *
-   * @param channel the channel code.
-   * @return the channelType associated with channelId.
-   * @throws IllegalArgumentException if no such channel
-   */
-  @Nonnull
-  protected Enum channelIdToType( final int channel )
-    throws IllegalArgumentException
-  {
-    assert getSystemType().isEnum();
-    return (Enum) getSystemType().getEnumConstants()[ channel ];
-  }
 
   @Nonnull
   protected String filterToString( @Nullable final Object filter )

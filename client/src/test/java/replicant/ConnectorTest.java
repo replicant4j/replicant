@@ -1028,6 +1028,16 @@ public class ConnectorTest
                              e -> assertEquals( e.getAddress(), address ) );
   }
 
+  @Test
+  public void toAddress()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    assertEquals( connector.toAddress( ChannelChange.create( 0, ChannelChange.Action.ADD, null ) ),
+                  new ChannelAddress( G.G1 ) );
+    assertEquals( connector.toAddress( ChannelChange.create( 1, 2, ChannelChange.Action.ADD, null ) ),
+                  new ChannelAddress( G.G2, 2 ) );
+  }
+
   enum G
   {
     G1, G2

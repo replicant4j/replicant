@@ -325,6 +325,21 @@ public abstract class Connector
   }
 
   /**
+   * Build a ChannelAddress from a ChannelChange value.
+   *
+   * @param channelChange the change.
+   * @return the address.
+   */
+  @Nonnull
+  protected final ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
+  {
+    final int channelId = channelChange.getChannelId();
+    final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
+    final Enum channelType = (Enum) getSystemType().getEnumConstants()[ channelId ];
+    return new ChannelAddress( channelType, subChannelId );
+  }
+
+  /**
    * Invoked to fire an event when disconnect has completed.
    */
   @Action
