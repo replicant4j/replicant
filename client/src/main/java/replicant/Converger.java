@@ -146,6 +146,7 @@ abstract class Converger
     convergeComplete();
   }
 
+  @Nonnull
   final Action convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
                                        @Nullable final AreaOfInterest groupTemplate,
                                        @Nullable final AreaOfInterestRequest.Type groupAction,
