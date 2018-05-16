@@ -2,8 +2,6 @@ package org.realityforge.replicant.client.transport;
 
 import arez.Disposable;
 import arez.annotations.Action;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +20,6 @@ import replicant.ChannelAddress;
 import replicant.ChannelChange;
 import replicant.Connection;
 import replicant.Connector;
-import replicant.Entity;
 import replicant.EntityChange;
 import replicant.Linkable;
 import replicant.MessageResponse;
@@ -666,7 +663,7 @@ public abstract class AbstractDataLoaderService
         final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
         subscription.setFilter( filter );
-        updateSubscriptionForFilteredEntities( subscription, filter );
+        updateSubscriptionForFilteredEntities( subscription );
         currentAction.incChannelUpdateCount();
       }
       else
@@ -675,30 +672,6 @@ public abstract class AbstractDataLoaderService
       }
     }
   }
-
-  protected abstract void updateSubscriptionForFilteredEntities( @Nonnull Subscription subscription,
-                                                                 @Nullable Object filter );
-
-  protected void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription,
-                                                        @Nullable final Object filter,
-                                                        @Nonnull final Collection<Entity> entities )
-  {
-    if ( !entities.isEmpty() )
-    {
-      final ChannelAddress address = subscription.getAddress();
-      for ( final Entity entity : new ArrayList<>( entities ) )
-      {
-        if ( !doesEntityMatchFilter( address, filter, entity ) )
-        {
-          entity.delinkFromSubscription( subscription );
-        }
-      }
-    }
-  }
-
-  protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelAddress address,
-                                                    @Nullable Object filter,
-                                                    @Nonnull Entity entity );
 
   @Nonnull
   protected String filterToString( @Nullable final Object filter )

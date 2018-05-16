@@ -43,6 +43,13 @@ public abstract class TestConnector
     _errorOnDisconnect = errorOnDisconnect;
   }
 
+  @Nonnull
+  @Override
+  protected SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter()
+  {
+    return ( address, filter, entity ) -> entity.getId() > 0;
+  }
+
   @Override
   protected void doConnect( @Nonnull final SafeProcedure action )
   {

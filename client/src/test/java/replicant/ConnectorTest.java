@@ -1029,6 +1029,68 @@ public class ConnectorTest
   }
 
   @Test
+  public void updateSubscriptionForFilteredEntities()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
+
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    final Subscription subscription1 =
+      context.safeAction( () -> rContext.createSubscription( address1, ValueUtil.randomString(), true ) );
+    final Subscription subscription2 =
+      context.safeAction( () -> rContext.createSubscription( address2, ValueUtil.randomString(), true ) );
+
+    // Use Integer and String as arbitrary types for our entities...
+    // Anything with id below 0 will be removed during update ...
+    final Entity entity1 = context.safeAction( () -> rContext.findOrCreateEntity( Integer.class, -1 ) );
+    final Entity entity2 = context.safeAction( () -> rContext.findOrCreateEntity( Integer.class, -2 ) );
+    final Entity entity3 = context.safeAction( () -> rContext.findOrCreateEntity( Integer.class, -3 ) );
+    final Entity entity4 = context.safeAction( () -> rContext.findOrCreateEntity( Integer.class, -4 ) );
+    final Entity entity5 = context.safeAction( () -> rContext.findOrCreateEntity( String.class, 5 ) );
+    final Entity entity6 = context.safeAction( () -> rContext.findOrCreateEntity( String.class, 6 ) );
+
+    context.safeAction( () -> {
+      entity1.linkToSubscription( subscription1 );
+      entity2.linkToSubscription( subscription1 );
+      entity3.linkToSubscription( subscription1 );
+      entity4.linkToSubscription( subscription1 );
+      entity5.linkToSubscription( subscription1 );
+      entity6.linkToSubscription( subscription1 );
+
+      entity3.linkToSubscription( subscription2 );
+      entity4.linkToSubscription( subscription2 );
+
+      assertEquals( subscription1.getEntities().size(), 2 );
+      assertEquals( subscription1.findAllEntitiesByType( Integer.class ).size(), 4 );
+      assertEquals( subscription1.findAllEntitiesByType( String.class ).size(), 2 );
+      assertEquals( subscription2.getEntities().size(), 1 );
+      assertEquals( subscription2.findAllEntitiesByType( Integer.class ).size(), 2 );
+    } );
+
+    context.safeAction( () -> connector.updateSubscriptionForFilteredEntities( subscription1 ) );
+
+    context.safeAction( () -> {
+      assertEquals( Disposable.isDisposed( entity1 ), true );
+      assertEquals( Disposable.isDisposed( entity2 ), true );
+      assertEquals( Disposable.isDisposed( entity3 ), false );
+      assertEquals( Disposable.isDisposed( entity4 ), false );
+      assertEquals( Disposable.isDisposed( entity5 ), false );
+      assertEquals( Disposable.isDisposed( entity6 ), false );
+
+      assertEquals( subscription1.getEntities().size(), 1 );
+      assertEquals( subscription1.findAllEntitiesByType( Integer.class ).size(), 0 );
+      assertEquals( subscription1.findAllEntitiesByType( String.class ).size(), 2 );
+      assertEquals( subscription2.getEntities().size(), 1 );
+      assertEquals( subscription2.findAllEntitiesByType( Integer.class ).size(), 2 );
+    } );
+  }
+
+  @Test
   public void toAddress()
   {
     final TestConnector connector = TestConnector.create( G.class );

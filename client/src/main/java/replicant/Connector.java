@@ -6,7 +6,9 @@ import arez.annotations.Action;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -338,6 +340,36 @@ public abstract class Connector
     final Enum channelType = (Enum) getSystemType().getEnumConstants()[ channelId ];
     return new ChannelAddress( channelType, subChannelId );
   }
+
+  /**
+   * Method invoked when a filter has updated and the Connector needs to delink any entities
+   * that are no longer part of the subscription now that the filter has changed.
+   *
+   * @param subscription the subscription that was updated.
+   */
+  protected final void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
+  {
+    for ( final Class<?> entityType : new ArrayList<>( subscription.findAllEntityTypes() ) )
+    {
+      final List<Entity> entities = subscription.findAllEntitiesByType( entityType );
+      if ( !entities.isEmpty() )
+      {
+        final SubscriptionUpdateEntityFilter entityFilter = getSubscriptionUpdateFilter();
+        final ChannelAddress address = subscription.getAddress();
+        final Object filter = subscription.getFilter();
+        for ( final Entity entity : entities )
+        {
+          if ( !entityFilter.doesEntityMatchFilter( address, filter, entity ) )
+          {
+            entity.delinkFromSubscription( subscription );
+          }
+        }
+      }
+    }
+  }
+
+  @Nonnull
+  protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
   /**
    * Invoked to fire an event when disconnect has completed.

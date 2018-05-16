@@ -646,5 +646,12 @@ public class ReplicantRuntimeTest
     {
       return false;
     }
+
+    @Nonnull
+    @Override
+    protected SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter()
+    {
+      return ( address, filter, entity ) -> entity.getId() > 0;
+    }
   }
 }
