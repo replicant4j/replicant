@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.anodoc.TestOnly;
-import org.realityforge.braincheck.Guards;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;
@@ -36,6 +35,7 @@ import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The Connector is responsible for managing a Connection to a backend datasource.
@@ -166,8 +166,8 @@ public abstract class Connector
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      Guards.invariant( () -> null != _connection,
-                        () -> "Replicant-0031: Connector.ensureConnection() when no connection is present." );
+      invariant( () -> null != _connection,
+                 () -> "Replicant-0031: Connector.ensureConnection() when no connection is present." );
     }
     assert null != _connection;
     return _connection;
