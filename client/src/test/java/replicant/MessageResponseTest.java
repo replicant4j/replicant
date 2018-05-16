@@ -216,7 +216,9 @@ public class MessageResponseTest
     request.setCompletionAction( completionAction );
 
     action.recordChangeSet( changeSet, request );
+    request.setNormalCompletion( true );
 
+    assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( request.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
