@@ -21,7 +21,6 @@ import replicant.ChannelChange;
 import replicant.Connection;
 import replicant.Connector;
 import replicant.EntityChange;
-import replicant.Linkable;
 import replicant.MessageResponse;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -42,10 +41,8 @@ public abstract class AbstractDataLoaderService
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
-  private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
 
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
-  private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
   /**
    * Action invoked after current action completes to reset connection state.
    */
@@ -111,12 +108,6 @@ public abstract class AbstractDataLoaderService
   protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {
     _changesToProcessPerTick = changesToProcessPerTick;
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  protected void setLinksToProcessPerTick( final int linksToProcessPerTick )
-  {
-    _linksToProcessPerTick = linksToProcessPerTick;
   }
 
   @Nonnull
@@ -613,17 +604,6 @@ public abstract class AbstractDataLoaderService
       {
         currentAction.incEntityRemoveCount();
       }
-    }
-  }
-
-  @Action( reportParameters = false )
-  protected void processEntityLinks( @Nonnull final MessageResponse currentAction )
-  {
-    Linkable linkable;
-    for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
-    {
-      linkable.link();
-      currentAction.incEntityLinkCount();
     }
   }
 

@@ -28,6 +28,7 @@ import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ConnectorTest
@@ -1098,6 +1099,52 @@ public class ConnectorTest
                   new ChannelAddress( G.G1 ) );
     assertEquals( connector.toAddress( ChannelChange.create( 1, 2, ChannelChange.Action.ADD, null ) ),
                   new ChannelAddress( G.G2, 2 ) );
+  }
+
+  @Test
+  public void processEntityLinks()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setLinksToProcessPerTick( 1 );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final Linkable entity1 = mock( Linkable.class );
+    final Linkable entity2 = mock( Linkable.class );
+    final Linkable entity3 = mock( Linkable.class );
+    final Linkable entity4 = mock( Linkable.class );
+
+    response.changeProcessed( entity1 );
+    response.changeProcessed( entity2 );
+    response.changeProcessed( entity3 );
+    response.changeProcessed( entity4 );
+
+    verify( entity1, never() ).link();
+    verify( entity2, never() ).link();
+    verify( entity3, never() ).link();
+    verify( entity4, never() ).link();
+
+    assertEquals( response.getEntityLinkCount(), 0 );
+
+    connector.setLinksToProcessPerTick( 1 );
+
+    connector.processEntityLinks( response );
+
+    assertEquals( response.getEntityLinkCount(), 1 );
+    verify( entity1, times( 1 ) ).link();
+    verify( entity2, never() ).link();
+    verify( entity3, never() ).link();
+    verify( entity4, never() ).link();
+
+    connector.setLinksToProcessPerTick( 2 );
+
+    connector.processEntityLinks( response );
+
+    assertEquals( response.getEntityLinkCount(), 3 );
+    verify( entity1, times( 1 ) ).link();
+    verify( entity2, times( 1 ) ).link();
+    verify( entity3, times( 1 ) ).link();
+    verify( entity4, never() ).link();
   }
 
   enum G

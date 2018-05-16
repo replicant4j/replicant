@@ -43,6 +43,8 @@ import replicant.spy.UnsubscribeStartedEvent;
 public abstract class Connector
   extends ReplicantService
 {
+  private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
+
   @Nonnull
   private final Class<?> _systemType;
   @Nonnull
@@ -63,6 +65,11 @@ public abstract class Connector
    */
   @Nullable
   private Disposable _schedulerLock;
+  /**
+   * Maximum number of entity links to attempt in a single tick of the scheduler. After this many links have
+   * been processed then return and any remaining links can occur in a later tick.
+   */
+  private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
 
   protected Connector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
@@ -176,6 +183,11 @@ public abstract class Connector
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );
+  }
+
+  protected void setLinksToProcessPerTick( final int linksToProcessPerTick )
+  {
+    _linksToProcessPerTick = linksToProcessPerTick;
   }
 
   /**
@@ -337,6 +349,17 @@ public abstract class Connector
     final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
     final Enum channelType = (Enum) getSystemType().getEnumConstants()[ channelId ];
     return new ChannelAddress( channelType, subChannelId );
+  }
+
+  @Action( reportParameters = false )
+  protected void processEntityLinks( @Nonnull final MessageResponse currentAction )
+  {
+    Linkable linkable;
+    for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
+    {
+      linkable.link();
+      currentAction.incEntityLinkCount();
+    }
   }
 
   /**
