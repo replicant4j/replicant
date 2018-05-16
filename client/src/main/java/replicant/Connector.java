@@ -351,6 +351,47 @@ public abstract class Connector
     return new ChannelAddress( channelType, subChannelId );
   }
 
+  @Action
+  protected void processChannelChanges( @Nonnull final MessageResponse response )
+  {
+    response.markChannelActionsProcessed();
+    final ChangeSet changeSet = response.getChangeSet();
+    final ChannelChange[] channelChanges = changeSet.getChannelChanges();
+    for ( final ChannelChange channelChange : channelChanges )
+    {
+      final ChannelAddress address = toAddress( channelChange );
+      final Object filter = channelChange.getChannelFilter();
+      final ChannelChange.Action actionType = channelChange.getAction();
+
+      if ( ChannelChange.Action.ADD == actionType )
+      {
+        response.incChannelAddCount();
+        final boolean explicitSubscribe =
+          ensureConnection()
+            .getCurrentAreaOfInterestRequests()
+            .stream()
+            .anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) );
+        getReplicantContext().createSubscription( address, filter, explicitSubscribe );
+      }
+      else if ( ChannelChange.Action.REMOVE == actionType )
+      {
+        final Subscription subscription = getReplicantContext().findSubscription( address );
+        assert null != subscription;
+        Disposable.dispose( subscription );
+        response.incChannelRemoveCount();
+      }
+      else
+      {
+        assert ChannelChange.Action.UPDATE == actionType;
+        final Subscription subscription = getReplicantContext().findSubscription( address );
+        assert null != subscription;
+        subscription.setFilter( filter );
+        updateSubscriptionForFilteredEntities( subscription );
+        response.incChannelUpdateCount();
+      }
+    }
+  }
+
   @Action( reportParameters = false )
   protected void processEntityLinks( @Nonnull final MessageResponse currentAction )
   {

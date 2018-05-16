@@ -17,7 +17,6 @@ import replicant.CacheEntry;
 import replicant.CacheService;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
-import replicant.ChannelChange;
 import replicant.Connection;
 import replicant.Connector;
 import replicant.EntityChange;
@@ -595,47 +594,6 @@ public abstract class AbstractDataLoaderService
       else
       {
         currentAction.incEntityRemoveCount();
-      }
-    }
-  }
-
-  @Action
-  protected void processChannelChanges( @Nonnull final MessageResponse currentAction )
-  {
-    currentAction.markChannelActionsProcessed();
-    final ChangeSet changeSet = currentAction.getChangeSet();
-    final ChannelChange[] channelChanges = changeSet.getChannelChanges();
-    for ( final ChannelChange channelChange : channelChanges )
-    {
-      final ChannelAddress address = toAddress( channelChange );
-      final Object filter = channelChange.getChannelFilter();
-      final ChannelChange.Action actionType = channelChange.getAction();
-
-      if ( ChannelChange.Action.ADD == actionType )
-      {
-        currentAction.incChannelAddCount();
-        final boolean explicitSubscribe =
-          ensureConnection()
-            .getCurrentAreaOfInterestRequests()
-            .stream()
-            .anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) );
-        getReplicantContext().createSubscription( address, filter, explicitSubscribe );
-      }
-      else if ( ChannelChange.Action.REMOVE == actionType )
-      {
-        final Subscription subscription = getReplicantContext().findSubscription( address );
-        assert null != subscription;
-        Disposable.dispose( subscription );
-        currentAction.incChannelRemoveCount();
-      }
-      else
-      {
-        assert ChannelChange.Action.UPDATE == actionType;
-        final Subscription subscription = getReplicantContext().findSubscription( address );
-        assert null != subscription;
-        subscription.setFilter( filter );
-        updateSubscriptionForFilteredEntities( subscription );
-        currentAction.incChannelUpdateCount();
       }
     }
   }

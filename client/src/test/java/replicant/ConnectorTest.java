@@ -3,6 +3,7 @@ package replicant;
 import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
+import java.util.Objects;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -20,6 +21,8 @@ import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
+import replicant.spy.SubscriptionCreatedEvent;
+import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
@@ -1165,6 +1168,173 @@ public class ConnectorTest
 
     assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
     assertEquals( connector.getActivateSchedulerCount(), 1 );
+  }
+
+  @Test
+  public void processChannelChanges_add()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final int channelId = G.G1.ordinal();
+    final int subChannelId = ValueUtil.randomInt();
+    final String filter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges( response );
+
+    assertEquals( response.needsChannelChangesProcessed(), false );
+
+    final ChannelAddress address = new ChannelAddress( G.G1, subChannelId );
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().findSubscription( address ) );
+    assertNotNull( subscription );
+    assertEquals( subscription.getAddress(), address );
+    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
+    Arez.context().safeAction( () -> assertEquals( subscription.isExplicitSubscription(), false ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
+      assertEquals( e.getSubscription().getAddress(), address );
+      Arez.context().safeAction( () -> assertEquals( e.getSubscription().getFilter(), filter ) );
+    } );
+  }
+
+  @Test
+  public void processChannelChanges_addConvertingImplicitToExplicit()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final ChannelAddress address = new ChannelAddress( G.G1, ValueUtil.randomInt() );
+    final int channelId = address.getChannelType().ordinal();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final String filter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+
+    final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
+    connection.injectCurrentAreaOfInterestRequest( request );
+    request.markAsInProgress();
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelAddCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges( response );
+
+    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertEquals( response.getChannelAddCount(), 1 );
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().findSubscription( address ) );
+    assertNotNull( subscription );
+    assertEquals( subscription.getAddress(), address );
+    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
+    Arez.context().safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
+      assertEquals( e.getSubscription().getAddress(), address );
+      Arez.context().safeAction( () -> assertEquals( e.getSubscription().getFilter(), filter ) );
+    } );
+  }
+
+  @Test
+  public void processChannelChanges_remove()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final ChannelAddress address = new ChannelAddress( G.G1, ValueUtil.randomInt() );
+    final int channelId = address.getChannelType().ordinal();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final String filter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+
+    final Subscription initialSubscription =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address, filter, true ) );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelRemoveCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges( response );
+
+    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertEquals( response.getChannelRemoveCount(), 1 );
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().findSubscription( address ) );
+    assertNull( subscription );
+    assertEquals( Disposable.isDisposed( initialSubscription ), true );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionDisposedEvent.class, e -> {
+      assertEquals( e.getSubscription().getAddress(), address );
+    } );
+  }
+
+  @Test
+  public void processChannelChanges_update()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final ChannelAddress address = new ChannelAddress( G.G1, ValueUtil.randomInt() );
+    final int channelId = address.getChannelType().ordinal();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final String oldFilter = ValueUtil.randomString();
+    final String newFilter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+
+    final Subscription initialSubscription =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address, oldFilter, true ) );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.getChannelUpdateCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges( response );
+
+    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertEquals( response.getChannelUpdateCount(), 1 );
+
+    final Subscription subscription =
+      Arez.context().safeAction( () -> Replicant.context().findSubscription( address ) );
+    assertNotNull( subscription );
+    assertEquals( Disposable.isDisposed( initialSubscription ), false );
+
+    handler.assertEventCount( 0 );
   }
 
   enum G
