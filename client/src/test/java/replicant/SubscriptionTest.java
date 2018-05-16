@@ -3,7 +3,6 @@ package replicant;
 import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -160,7 +159,8 @@ public class SubscriptionTest
                                                              A.class,
                                                              ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( EntityTest.G.G1, 1 ) );
+    final Subscription subscription1 =
+      Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );
 
     entity.subscriptions().put( subscription1.getAddress(), subscription1 );
     Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
@@ -182,7 +182,8 @@ public class SubscriptionTest
                                                                          A.class,
                                                                          ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( EntityTest.G.G1, 1 ) );
+    final Subscription subscription1 =
+      Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );
 
     Arez.context().safeAction( () -> entity2.linkToSubscription( subscription1 ) );
 
@@ -209,12 +210,6 @@ public class SubscriptionTest
     assertEquals( subscription1.compareTo( subscription2 ), -1 );
     assertEquals( subscription2.compareTo( subscription1 ), 1 );
     assertEquals( subscription2.compareTo( subscription2 ), 0 );
-  }
-
-  @Nonnull
-  private Subscription createSubscription( @Nonnull final ChannelAddress address )
-  {
-    return Subscription.create( null, address, null, true );
   }
 
   enum G
