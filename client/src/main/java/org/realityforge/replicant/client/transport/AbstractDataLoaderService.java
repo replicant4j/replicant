@@ -222,30 +222,45 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    final Consumer<SafeProcedure> completionAction = postAction ->
-    {
-      removeExplicitSubscriptions( requests );
-      completeAreaOfInterestRequest();
-      postAction.call();
-    };
-
-    final Consumer<SafeProcedure> failAction = postAction ->
-    {
-      removeExplicitSubscriptions( requests );
-      completeAreaOfInterestRequest();
-      postAction.call();
-    };
-
     final AreaOfInterestRequest request = requests.get( 0 );
     if ( requests.size() > 1 )
     {
       final List<ChannelAddress> addresses =
         requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
-      requestBulkUnsubscribeFromChannel( addresses, completionAction, failAction );
+      addresses.forEach( this::onUnsubscribeStarted );
+
+      final SafeProcedure onSuccess = () -> {
+        removeExplicitSubscriptions( requests );
+        completeAreaOfInterestRequest();
+        addresses.forEach( this::onUnsubscribeCompleted );
+      };
+
+      final Consumer<Throwable> onError = error -> {
+        removeExplicitSubscriptions( requests );
+        completeAreaOfInterestRequest();
+        addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
+      };
+
+      requestBulkUnsubscribeFromChannel( addresses, onSuccess, onError );
     }
     else
     {
-      requestUnsubscribeFromChannel( request.getAddress(), completionAction, failAction );
+      final ChannelAddress address = request.getAddress();
+      onUnsubscribeStarted( address );
+      final SafeProcedure onSuccess = () -> {
+        removeExplicitSubscriptions( requests );
+        completeAreaOfInterestRequest();
+        onUnsubscribeCompleted( address );
+      };
+
+      final Consumer<Throwable> onError = error ->
+      {
+        removeExplicitSubscriptions( requests );
+        completeAreaOfInterestRequest();
+        onUnsubscribeFailed( address, error );
+      };
+
+      requestUnsubscribeFromChannel( address, onSuccess, onError );
     }
     return true;
   }
@@ -384,8 +399,8 @@ public abstract class AbstractDataLoaderService
                                                      @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress address,
-                                                         @Nonnull Consumer<SafeProcedure> completionAction,
-                                                         @Nonnull Consumer<SafeProcedure> failAction );
+                                                         @Nonnull SafeProcedure onSuccess,
+                                                         @Nonnull Consumer<Throwable> onError );
 
   protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress address,
                                                      @Nonnull Object filter,
@@ -398,8 +413,8 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Consumer<SafeProcedure> failAction );
 
   protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> addresses,
-                                                             @Nonnull Consumer<SafeProcedure> completionAction,
-                                                             @Nonnull Consumer<SafeProcedure> failAction );
+                                                             @Nonnull SafeProcedure onSuccess,
+                                                             @Nonnull Consumer<Throwable> onError );
 
   protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
                                                          @Nonnull Object filter,

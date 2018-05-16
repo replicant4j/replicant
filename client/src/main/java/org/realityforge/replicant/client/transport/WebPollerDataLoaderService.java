@@ -427,65 +427,25 @@ public abstract class WebPollerDataLoaderService
 
   @Override
   protected void requestUnsubscribeFromChannel( @Nonnull final ChannelAddress address,
-                                                @Nonnull final Consumer<SafeProcedure> completionAction,
-                                                @Nonnull final Consumer<SafeProcedure> failAction )
+                                                @Nonnull final SafeProcedure onSuccess,
+                                                @Nonnull final Consumer<Throwable> onError )
   {
-    if ( isChannelTypeValid( address ) )
-    {
-      onUnsubscribeStarted( address );
-      final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> onUnsubscribeFailed( address, error ) );
-      final SafeProcedure onSuccess = () -> completionAction.accept( () -> onUnsubscribeCompleted( address ) );
-      performUnsubscribe( address.getChannelType().ordinal(), address.getId(), onSuccess, onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
-  protected void performUnsubscribe( final int channel,
-                                     @Nullable Integer subChannelId,
-                                     @Nonnull final SafeProcedure onSuccess,
-                                     @Nonnull final Consumer<Throwable> onError )
-  {
+    final int channel = address.getChannelType().ordinal();
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( connection, request ) ->
-      doUnsubscribe( connection, request, getChannelURL( channel, subChannelId ), onSuccess, onError ) );
+      doUnsubscribe( connection, request, getChannelURL( channel, address.getId() ), onSuccess, onError ) );
   }
 
   @Override
   protected void requestBulkUnsubscribeFromChannel( @Nonnull final List<ChannelAddress> addresses,
-                                                    @Nonnull final Consumer<SafeProcedure> completionAction,
-                                                    @Nonnull final Consumer<SafeProcedure> failAction )
+                                                    @Nonnull final SafeProcedure onSuccess,
+                                                    @Nonnull final Consumer<Throwable> onError )
   {
-    final ChannelAddress address = addresses.get( 0 );
-    if ( isChannelTypeValid( address ) )
-    {
-      addresses.forEach( this::onUnsubscribeStarted );
-      final SafeProcedure onSuccess =
-        () -> completionAction.accept( () -> addresses.forEach( this::onUnsubscribeCompleted ) );
-      final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> addresses.forEach( x -> onUnsubscribeFailed( address, error ) ) );
-      performBulkUnsubscribe( address.getChannelType().ordinal(),
-                              addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
-                              onSuccess,
-                              onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
-  protected void performBulkUnsubscribe( final int channel,
-                                         @Nonnull List<Integer> subChannelIds,
-                                         @Nonnull final SafeProcedure onSuccess,
-                                         @Nonnull final Consumer<Throwable> onError )
-  {
+    final int channel = addresses.get( 0 ).getChannelType().ordinal();
     getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( connection, request ) ->
       doUnsubscribe( connection,
                      request,
-                     getChannelURL( channel, subChannelIds ),
+                     getChannelURL( channel,
+                                    addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ) ),
                      onSuccess,
                      onError ) );
   }
