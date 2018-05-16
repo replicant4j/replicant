@@ -777,7 +777,8 @@ public class ConvergerTest
     assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address2 ) );
+    handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class,
+                             e -> assertEquals( e.getAddress(), address2 ) );
   }
 
   private enum G
