@@ -14,12 +14,29 @@ public class SubscriptionTest
   public void basicConstruction()
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
-    final Subscription subscription = Subscription.create( null, address, null, true );
+    final Object filter = ValueUtil.randomString();
+    final Subscription subscription = Subscription.create( null, address, filter, true );
 
     assertEquals( subscription.getAddress(), address );
 
     Arez.context().safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
     Arez.context().safeAction( () -> assertEquals( subscription.getEntities().size(), 0 ) );
+    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
+  }
+
+  @Test
+  public void filter()
+  {
+    final Object filter1 = ValueUtil.randomString();
+    final Object filter2 = ValueUtil.randomString();
+
+    final Subscription subscription =
+      Subscription.create( null, new ChannelAddress( G.G1 ), filter1, ValueUtil.randomBoolean() );
+
+    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter1 ) );
+    Arez.context().safeAction( () -> subscription.setFilter( filter2 ) );
+    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter2 ) );
+
   }
 
   @Test
