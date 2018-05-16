@@ -354,7 +354,6 @@ public abstract class Connector
   @Action
   protected void processChannelChanges( @Nonnull final MessageResponse response )
   {
-    response.markChannelActionsProcessed();
     final ChangeSet changeSet = response.getChangeSet();
     final ChannelChange[] channelChanges = changeSet.getChannelChanges();
     for ( final ChannelChange channelChange : channelChanges )
@@ -390,6 +389,7 @@ public abstract class Connector
         response.incChannelUpdateCount();
       }
     }
+    response.markChannelActionsProcessed();
   }
 
   @Action( reportParameters = false )
