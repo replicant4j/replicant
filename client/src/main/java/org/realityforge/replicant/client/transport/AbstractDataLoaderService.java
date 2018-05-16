@@ -245,13 +245,7 @@ public abstract class AbstractDataLoaderService
     final Consumer<SafeProcedure> completionAction = postAction ->
     {
       LOG.info( () -> "Unsubscribe from " + label( requests ) + " completed." );
-      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> requests.forEach( a -> {
-        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-        if ( null != subscription )
-        {
-          subscription.setExplicitSubscription( false );
-        }
-      } ) );
+      removeExplicitSubscriptions( requests );
       completeAreaOfInterestRequest();
       postAction.call();
     };
@@ -259,13 +253,7 @@ public abstract class AbstractDataLoaderService
     final Consumer<SafeProcedure> failAction = postAction ->
     {
       LOG.info( "Unsubscribe from " + label( requests ) + " failed." );
-      context().safeAction( generateName( "setExplicitSubscription(false)" ), () -> requests.forEach( a -> {
-        final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-        if ( null != subscription )
-        {
-          subscription.setExplicitSubscription( false );
-        }
-      } ) );
+      removeExplicitSubscriptions( requests );
       completeAreaOfInterestRequest();
       postAction.call();
     };
@@ -282,6 +270,18 @@ public abstract class AbstractDataLoaderService
       requestUnsubscribeFromChannel( request.getAddress(), completionAction, failAction );
     }
     return true;
+  }
+
+  @Action
+  protected void removeExplicitSubscriptions( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.forEach( a -> {
+      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
+      if ( null != subscription )
+      {
+        subscription.setExplicitSubscription( false );
+      }
+    } );
   }
 
   @Action
@@ -772,12 +772,6 @@ public abstract class AbstractDataLoaderService
         }
       }
     }
-  }
-
-  @Nullable
-  protected String generateName( @Nonnull final String name )
-  {
-    return Replicant.areNamesEnabled() ? toString() + "." + name : null;
   }
 
   @Override
