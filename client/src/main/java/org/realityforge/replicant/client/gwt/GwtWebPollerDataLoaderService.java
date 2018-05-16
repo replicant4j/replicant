@@ -86,23 +86,10 @@ public abstract class GwtWebPollerDataLoaderService
                  RequestBuilder.PUT,
                  channelURL,
                  eTag,
-                 filterToString( filter ),
+                 null == filter ? "" : Global.JSON.stringify( filter ),
                  onSuccess,
                  onCacheValid,
                  onError );
-  }
-
-  @Nonnull
-  private String filterToString( @Nullable final Object filter )
-  {
-    if ( null == filter )
-    {
-      return "";
-    }
-    else
-    {
-      return doFilterToString( filter );
-    }
   }
 
   @Override
@@ -208,10 +195,4 @@ public abstract class GwtWebPollerDataLoaderService
     return rb;
   }
 
-  @Nonnull
-  @Override
-  protected String doFilterToString( @Nonnull final Object filter )
-  {
-    return Global.JSON.stringify( filter );
-  }
 }

@@ -599,9 +599,6 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  @Nonnull
-  protected abstract String doFilterToString( @Nonnull Object filter );
-
   /**
    * Check all the entities in the repository and raise an exception if an entity fails to validateRepository.
    * This method should not need a transaction ... unless an entity is invalid and there is unlinked data so we
