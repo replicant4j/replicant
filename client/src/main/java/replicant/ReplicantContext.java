@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.spi.CacheService;
 import static org.realityforge.braincheck.Guards.*;
 
 /**

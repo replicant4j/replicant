@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestRequest;
+import replicant.CacheEntry;
+import replicant.CacheService;
 import replicant.ChangeSet;
 import replicant.ChannelAddress;
 import replicant.ChannelChange;
@@ -29,8 +31,6 @@ import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 import replicant.Subscription;
-import replicant.spi.CacheEntry;
-import replicant.spi.CacheService;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 

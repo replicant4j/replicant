@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.spi.CacheEntry;
-import replicant.spi.CacheService;
 
 public class TestCacheService
   implements CacheService
