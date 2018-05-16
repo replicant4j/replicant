@@ -1292,9 +1292,8 @@ public class ConnectorTest
     assertEquals( Disposable.isDisposed( initialSubscription ), true );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscriptionDisposedEvent.class, e -> {
-      assertEquals( e.getSubscription().getAddress(), address );
-    } );
+    handler.assertNextEvent( SubscriptionDisposedEvent.class,
+                             e -> assertEquals( e.getSubscription().getAddress(), address ) );
   }
 
   @Test
