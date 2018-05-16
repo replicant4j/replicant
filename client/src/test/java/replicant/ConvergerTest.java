@@ -1,12 +1,14 @@
 package replicant;
 
 import arez.Arez;
+import arez.ArezContext;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import static org.testng.Assert.*;
@@ -117,7 +119,10 @@ public class ConvergerTest
       final ChannelAddress address = new ChannelAddress( G.G1 );
       final AreaOfInterest areaOfInterest = createAreaOfInterest( address, null );
 
-      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest, AreaOfInterestRequest.Type.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest,
+                              AreaOfInterestRequest.Type.ADD,
+                              areaOfInterest,
+                              AreaOfInterestRequest.Type.ADD ) );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
                                areaOfInterest,
@@ -153,11 +158,17 @@ public class ConvergerTest
 
       final ChannelAddress channel2 = new ChannelAddress( G.G1, 2 );
       final AreaOfInterest areaOfInterest2 = createAreaOfInterest( channel2, null );
-      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest2, AreaOfInterestRequest.Type.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest,
+                              AreaOfInterestRequest.Type.ADD,
+                              areaOfInterest2,
+                              AreaOfInterestRequest.Type.ADD ) );
 
       final ChannelAddress address3 = new ChannelAddress( G.G2, 1 );
       final AreaOfInterest areaOfInterest3 = createAreaOfInterest( address3, null );
-      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest3, AreaOfInterestRequest.Type.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestRequest.Type.ADD,
+                               areaOfInterest3,
+                               AreaOfInterestRequest.Type.ADD ) );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
                                areaOfInterest3,
@@ -169,9 +180,15 @@ public class ConvergerTest
 
       final ChannelAddress address4 = new ChannelAddress( G.G1, 1 );
       final AreaOfInterest areaOfInterest4 = createAreaOfInterest( address4, "Filter" );
-      assertFalse( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD ) );
+      assertFalse( c.canGroup( areaOfInterest,
+                               AreaOfInterestRequest.Type.ADD,
+                               areaOfInterest4,
+                               AreaOfInterestRequest.Type.ADD ) );
       areaOfInterest.setFilter( "Filter" );
-      assertTrue( c.canGroup( areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD ) );
+      assertTrue( c.canGroup( areaOfInterest,
+                              AreaOfInterestRequest.Type.ADD,
+                              areaOfInterest4,
+                              AreaOfInterestRequest.Type.ADD ) );
     } );
   }
 
@@ -361,6 +378,123 @@ public class ConvergerTest
 
       handler.assertEventCount( 0 );
     } );
+  }
+
+  @Test
+  public void convergeAreaOfInterest()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.SUBMITTED_ADD );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_alreadySubscribed()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+    context.safeAction( () -> rContext.createSubscription( address, null, true ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.NO_ACTION );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_subscribing()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address,
+                                                                              AreaOfInterestRequest.Type.ADD,
+                                                                              null ) );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.IN_PROGRESS );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_subscribedButRemovePending()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+    context.safeAction( () -> rContext.createSubscription( address, null, true ) );
+    connector.requestUnsubscribe( address );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.SUBMITTED_ADD );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
   }
 
   @Nonnull
