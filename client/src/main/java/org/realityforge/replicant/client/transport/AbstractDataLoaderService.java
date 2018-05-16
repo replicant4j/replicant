@@ -430,11 +430,9 @@ public abstract class AbstractDataLoaderService
     if ( null == response && !pendingResponses.isEmpty() )
     {
       final MessageResponse action = pendingResponses.get( 0 );
-      final ChangeSet changeSet = action.getChangeSet();
-      if ( action.isOob() || connection.getLastRxSequence() + 1 == changeSet.getSequence() )
+      if ( action.isOob() || connection.getLastRxSequence() + 1 == action.getChangeSet().getSequence() )
       {
-        final MessageResponse candidate = pendingResponses.remove();
-        connection.setCurrentMessageResponse( candidate );
+        connection.setCurrentMessageResponse( pendingResponses.remove() );
         return true;
       }
     }
