@@ -38,10 +38,7 @@ import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 
 /**
- * Base class responsible for managing data loading from a particular source.
- *
- * TODO: This class exists as separate base class to make it easier to incrementally test code but should
- * eventually be migrated into AbstractDataLoaderService.
+ * The Connector is responsible for managing a Connection to a backend datasource.
  */
 public abstract class Connector
   extends ReplicantService
