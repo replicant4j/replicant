@@ -292,37 +292,20 @@ public abstract class WebPollerDataLoaderService
                                             @Nullable final Object filter,
                                             @Nullable final String cacheKey,
                                             @Nullable final String eTag,
-                                            @Nullable final Consumer<SafeProcedure> cacheAction,
-                                            @Nonnull final Consumer<SafeProcedure> completionAction,
-                                            @Nonnull final Consumer<SafeProcedure> failAction )
+                                            @Nullable final SafeProcedure onCacheValid,
+                                            @Nonnull final SafeProcedure onSuccess,
+                                            @Nonnull final Consumer<Throwable> onError )
   {
     //If eTag passed then cache action is expected.
-    assert null == eTag || null != cacheAction;
-    if ( isChannelTypeValid( address ) )
-    {
-      onSubscribeStarted( address );
-      final SafeProcedure onSuccess = () -> completionAction.accept( () -> onSubscribeCompleted( address ) );
-      final SafeProcedure onCacheValid =
-        null != cacheAction ? () -> cacheAction.accept( () -> onSubscribeCompleted( address ) ) : null;
-      final Consumer<Throwable> onError = error -> failAction.accept( () -> onSubscribeFailed( address, error ) );
-      performSubscribe( address.getChannelType().ordinal(),
-                        address.getId(),
-                        filter,
-                        cacheKey,
-                        eTag,
-                        onSuccess,
-                        onCacheValid,
-                        onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
-  }
-
-  private boolean isChannelTypeValid( @Nonnull final ChannelAddress address )
-  {
-    return getSystemType() == address.getChannelType().getClass();
+    assert null == eTag || null != onCacheValid;
+    performSubscribe( address.getChannelType().ordinal(),
+                      address.getId(),
+                      filter,
+                      cacheKey,
+                      eTag,
+                      onSuccess,
+                      onCacheValid,
+                      onError );
   }
 
   protected void performSubscribe( final int channel,
@@ -348,27 +331,14 @@ public abstract class WebPollerDataLoaderService
   @Override
   protected void requestBulkSubscribeToChannel( @Nonnull final List<ChannelAddress> addresses,
                                                 @Nullable final Object filter,
-                                                @Nonnull final Consumer<SafeProcedure> completionAction,
-                                                @Nonnull final Consumer<SafeProcedure> failAction )
+                                                @Nonnull final SafeProcedure onSuccess,
+                                                @Nonnull final Consumer<Throwable> onError )
   {
-    final ChannelAddress address = addresses.get( 0 );
-    if ( isChannelTypeValid( address ) )
-    {
-      addresses.forEach( this::onSubscribeStarted );
-      final SafeProcedure onSuccess =
-        () -> completionAction.accept( () -> addresses.forEach( this::onSubscribeCompleted ) );
-      final Consumer<Throwable> onError =
-        error -> failAction.accept( () -> addresses.forEach( x -> onSubscribeFailed( address, error ) ) );
-      performBulkSubscribe( address.getChannelType().ordinal(),
-                            addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
-                            filter,
-                            onSuccess,
-                            onError );
-    }
-    else
-    {
-      throw new IllegalStateException();
-    }
+    performBulkSubscribe( addresses.get( 0 ).getChannelType().ordinal(),
+                          addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
+                          filter,
+                          onSuccess,
+                          onError );
   }
 
   protected void performBulkSubscribe( final int channel,

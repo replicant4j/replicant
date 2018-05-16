@@ -308,37 +308,38 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    final Consumer<SafeProcedure> completionAction = a ->
-    {
-      completeAreaOfInterestRequest();
-      a.call();
-    };
-    final Consumer<SafeProcedure> failAction = a ->
-    {
-      completeAreaOfInterestRequest();
-      a.call();
-    };
-
     final AreaOfInterestRequest request = requests.get( 0 );
     if ( 1 == requests.size() )
     {
+      final ChannelAddress address = request.getAddress();
+      onSubscribeStarted( address );
+      final SafeProcedure onSuccess = () -> {
+        completeAreaOfInterestRequest();
+        onSubscribeCompleted( address );
+      };
+
+      final Consumer<Throwable> onError = error ->
+      {
+        completeAreaOfInterestRequest();
+        onSubscribeFailed( address, error );
+      };
+
       final String cacheKey = request.getCacheKey();
       final CacheService cacheService = getReplicantContext().getCacheService();
       final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
       final String eTag;
-      final Consumer<SafeProcedure> cacheAction;
+      final SafeProcedure cacheAction;
       if ( null != cacheEntry )
       {
         eTag = cacheEntry.getETag();
         LOG.info( () -> "Found locally cached data for channel " + request + " with etag " + eTag + "." );
-        cacheAction = a ->
+        cacheAction = () ->
         {
           LOG.info( () -> "Loading cached data for channel " + request + " with etag " + eTag );
           final SafeProcedure completeCachedAction = () ->
           {
             LOG.info( () -> "Completed load of cached data for channel " + request + " with etag " + eTag + "." );
-            completeAreaOfInterestRequest();
-            a.call();
+            onSuccess.call();
           };
           ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), completeCachedAction );
           triggerScheduler();
@@ -354,15 +355,27 @@ public abstract class AbstractDataLoaderService
                                  cacheKey,
                                  eTag,
                                  cacheAction,
-                                 completionAction,
-                                 failAction );
+                                 onSuccess,
+                                 onError );
     }
     else
     {
       // don't support bulk loading of anything that is already cached
-      final List<ChannelAddress> ids =
+      final List<ChannelAddress> addresses =
         requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
-      requestBulkSubscribeToChannel( ids, request.getFilter(), completionAction, failAction );
+      addresses.forEach( this::onSubscribeStarted );
+
+      final SafeProcedure onSuccess = () -> {
+        completeAreaOfInterestRequest();
+        addresses.forEach( this::onSubscribeCompleted );
+      };
+
+      final Consumer<Throwable> onError = error -> {
+        completeAreaOfInterestRequest();
+        addresses.forEach( a -> onSubscribeFailed( a, error ) );
+      };
+
+      requestBulkSubscribeToChannel( addresses, request.getFilter(), onSuccess, onError );
     }
     return true;
   }
@@ -394,9 +407,9 @@ public abstract class AbstractDataLoaderService
                                                      @Nullable Object filter,
                                                      @Nullable String cacheKey,
                                                      @Nullable String eTag,
-                                                     @Nullable Consumer<SafeProcedure> cacheAction,
-                                                     @Nonnull Consumer<SafeProcedure> completionAction,
-                                                     @Nonnull Consumer<SafeProcedure> failAction );
+                                                     @Nullable SafeProcedure cacheAction,
+                                                     @Nonnull SafeProcedure onSuccess,
+                                                     @Nonnull Consumer<Throwable> onError );
 
   protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress address,
                                                          @Nonnull SafeProcedure onSuccess,
@@ -409,8 +422,8 @@ public abstract class AbstractDataLoaderService
 
   protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> addresses,
                                                          @Nullable Object filter,
-                                                         @Nonnull Consumer<SafeProcedure> completionAction,
-                                                         @Nonnull Consumer<SafeProcedure> failAction );
+                                                         @Nonnull SafeProcedure onSuccess,
+                                                         @Nonnull Consumer<Throwable> onError );
 
   protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> addresses,
                                                              @Nonnull SafeProcedure onSuccess,
