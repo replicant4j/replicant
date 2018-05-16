@@ -10,6 +10,7 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
+import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import static org.testng.Assert.*;
 
@@ -527,6 +528,39 @@ public class ConvergerTest
     assertEquals( result, Converger.Action.IN_PROGRESS );
 
     handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_requestSubscriptionUpdate()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
+    context.safeAction( () -> rContext.createSubscription( address, ValueUtil.randomString(), true ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class, e -> {
+      assertEquals( e.getAddress(), address );
+      assertEquals( e.getFilter(), filter );
+    } );
   }
 
   @Test
