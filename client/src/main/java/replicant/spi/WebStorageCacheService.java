@@ -43,11 +43,6 @@ public class WebStorageCacheService
     return null != wsWindow.localStorage || null != wsWindow.sessionStorage;
   }
 
-  WebStorageCacheService( @Nonnull final Window window )
-  {
-    this( lookupStorage( window ) );
-  }
-
   WebStorageCacheService( @Nonnull final Storage storage )
   {
     _storage = Objects.requireNonNull( storage );
@@ -118,7 +113,7 @@ public class WebStorageCacheService
   }
 
   @Nonnull
-  private static Storage lookupStorage( @Nonnull final Window window )
+  static Storage lookupStorage( @Nonnull final Window window )
   {
     if ( Replicant.shouldCheckInvariants() )
     {

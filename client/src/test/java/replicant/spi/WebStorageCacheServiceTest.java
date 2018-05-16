@@ -14,20 +14,20 @@ public class WebStorageCacheServiceTest
   extends AbstractReplicantTest
 {
   @Test
-  public void constructWhenNotSupported()
+  public void lookupStorageWhenNotSupported()
   {
     DomGlobal.window = new WebStorageWindow();
     assertEquals( WebStorageCacheService.isSupported(), false );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> new WebStorageCacheService( DomGlobal.window ) );
+      expectThrows( IllegalStateException.class, () -> WebStorageCacheService.lookupStorage( DomGlobal.window ) );
 
     assertEquals( exception.getMessage(),
                   "Replicant-0026: Attempted to create WebStorageCacheService on window that does not support WebStorage" );
   }
 
   @Test
-  public void constructWithLocalStorage()
+  public void lookupStorageWithLocalStorage()
   {
     final WebStorageWindow window = new WebStorageWindow();
     window.localStorage = mock( Storage.class );
@@ -35,13 +35,11 @@ public class WebStorageCacheServiceTest
 
     assertEquals( WebStorageCacheService.isSupported(), true );
 
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
-
-    assertEquals( service.getStorage(), window.localStorage );
+    assertEquals( WebStorageCacheService.lookupStorage( DomGlobal.window ), window.localStorage );
   }
 
   @Test
-  public void constructWithSessionStorage()
+  public void lookupStorageWithSessionStorage()
   {
     final WebStorageWindow window = new WebStorageWindow();
     window.sessionStorage = mock( Storage.class );
@@ -49,68 +47,54 @@ public class WebStorageCacheServiceTest
 
     assertEquals( WebStorageCacheService.isSupported(), true );
 
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
-
-    assertEquals( service.getStorage(), window.sessionStorage );
+    assertEquals( WebStorageCacheService.lookupStorage( DomGlobal.window ), window.sessionStorage );
   }
 
   @Test
   public void invalidate_whenNotPresent()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
 
-    when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) ).thenReturn( null );
+    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) ).thenReturn( null );
 
     final boolean removed = service.invalidate( key );
 
     assertEquals( removed, false );
 
-    verify( window.localStorage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
   }
 
   @Test
   public void invalidate_whenPresent()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
 
-    when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
+    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
       .thenReturn( ValueUtil.randomString() );
 
     final boolean removed = service.invalidate( key );
 
     assertEquals( removed, true );
 
-    verify( window.localStorage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( window.localStorage ).removeItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( window.localStorage ).removeItem( key );
+    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).removeItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).removeItem( key );
   }
 
   @Test
   public void store_whenPresent()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
     final String eTag = ValueUtil.randomString();
@@ -120,59 +104,51 @@ public class WebStorageCacheServiceTest
 
     assertEquals( stored, true );
 
-    verify( window.localStorage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
-    verify( window.localStorage ).setItem( key, content );
+    verify( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
+    verify( storage ).setItem( key, content );
   }
 
   @Test
   public void store_generatesError()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
     final String eTag = ValueUtil.randomString();
     final String content = ValueUtil.randomString();
 
-    when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
+    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
       .thenReturn( null );
 
     Mockito.doAnswer( i -> {
       throw new IllegalStateException();
-    } ).when( window.localStorage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
+    } ).when( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
 
     final boolean stored = service.store( key, eTag, content );
 
     assertEquals( stored, false );
 
-    verify( window.localStorage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
-    verify( window.localStorage, never() ).setItem( key, content );
-    verify( window.localStorage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
+    verify( storage, never() ).setItem( key, content );
+    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
   }
 
   @Test
   public void lookup()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
     final String eTag = ValueUtil.randomString();
     final String content = ValueUtil.randomString();
 
-    when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
+    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
       .thenReturn( eTag );
-    when( window.localStorage.getItem( key ) )
+    when( storage.getItem( key ) )
       .thenReturn( content );
 
     final CacheEntry entry = service.lookup( key );
@@ -182,59 +158,51 @@ public class WebStorageCacheServiceTest
     assertEquals( entry.getETag(), eTag );
     assertEquals( entry.getContent(), content );
 
-    verify( window.localStorage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( window.localStorage ).getItem( key );
+    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).getItem( key );
   }
 
   @Test
   public void lookup_eTagMissing()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
     final String content = ValueUtil.randomString();
 
-    when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
+    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
       .thenReturn( null );
-    when( window.localStorage.getItem( key ) )
+    when( storage.getItem( key ) )
       .thenReturn( content );
 
     final CacheEntry entry = service.lookup( key );
     assertNull( entry );
 
-    verify( window.localStorage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( window.localStorage ).getItem( key );
+    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).getItem( key );
   }
 
   @Test
   public void lookup_ContentMissing()
   {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
+    final Storage storage = mock( Storage.class );
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
-
-    final WebStorageCacheService service = new WebStorageCacheService( DomGlobal.window );
+    final WebStorageCacheService service = new WebStorageCacheService( storage );
 
     final String key = ValueUtil.randomString();
     final String eTag = ValueUtil.randomString();
 
-    when( window.localStorage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
+    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
       .thenReturn( eTag );
-    when( window.localStorage.getItem( key ) )
+    when( storage.getItem( key ) )
       .thenReturn( null );
 
     final CacheEntry entry = service.lookup( key );
     assertNull( entry );
 
-    verify( window.localStorage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( window.localStorage ).getItem( key );
+    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).getItem( key );
   }
 }
