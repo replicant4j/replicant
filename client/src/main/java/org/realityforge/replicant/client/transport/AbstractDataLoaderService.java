@@ -510,7 +510,7 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    if ( response.needsChannelActionsProcessed() )
+    if ( response.needsChannelChangesProcessed() )
     {
       processChannelChanges( response );
       return true;

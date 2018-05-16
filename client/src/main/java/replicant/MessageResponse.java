@@ -181,7 +181,7 @@ public final class MessageResponse
     return null != _changeSet && _changeSet.hasEntityChanges() && _changeIndex < _changeSet.getEntityChanges().length;
   }
 
-  public boolean needsChannelActionsProcessed()
+  public boolean needsChannelChangesProcessed()
   {
     return null != _changeSet &&
            _changeSet.hasChannelChanges() &&
