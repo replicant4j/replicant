@@ -66,7 +66,6 @@ public abstract class AreaOfInterest
     }
   }
 
-  @ComponentId
   @Nonnull
   public final ChannelAddress getAddress()
   {

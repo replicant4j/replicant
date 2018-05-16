@@ -21,7 +21,7 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @ArezComponent
 abstract class AreaOfInterestService
-  extends AbstractContainer<ChannelAddress, AreaOfInterest>
+  extends AbstractContainer<Integer, AreaOfInterest>
 {
   /**
    * Reference to the context to which this service belongs.
@@ -70,7 +70,7 @@ abstract class AreaOfInterestService
   @Nullable
   AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
   {
-    return super.findByArezId( address );
+    return entities().filter( e -> e.getAddress().equals( address ) ).findAny().orElse( null );
   }
 
   /**
