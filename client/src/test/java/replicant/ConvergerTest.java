@@ -498,6 +498,38 @@ public class ConvergerTest
   }
 
   @Test
+  public void convergeAreaOfInterest_updatePending()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final Object filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
+    context.safeAction( () -> rContext.createSubscription( address, ValueUtil.randomString(), true ) );
+
+    connector.requestSubscriptionUpdate( address, filter );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null, true ) );
+
+    assertEquals( result, Converger.Action.IN_PROGRESS );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @Test
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
     final ArezContext context = Arez.context();
