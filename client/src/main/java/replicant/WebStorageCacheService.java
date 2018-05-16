@@ -7,7 +7,7 @@ import elemental2.webstorage.WebStorageWindow;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.braincheck.Guards;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * An implementation of the CacheService that uses LocalStorage or SessionStorage.
@@ -180,8 +180,8 @@ public class WebStorageCacheService
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      Guards.invariant( () -> isSupported( window ),
-                        () -> "Replicant-0026: Attempted to create WebStorageCacheService on window that does not support WebStorage" );
+      invariant( () -> isSupported( window ),
+                 () -> "Replicant-0026: Attempted to create WebStorageCacheService on window that does not support WebStorage" );
     }
     final WebStorageWindow wsWindow = WebStorageWindow.of( Objects.requireNonNull( window ) );
     if ( null != wsWindow.localStorage )
