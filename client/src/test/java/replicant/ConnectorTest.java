@@ -1147,6 +1147,26 @@ public class ConnectorTest
     verify( entity4, never() ).link();
   }
 
+  @Test
+  public void completeAreaOfInterestRequest()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( G.G1 ),
+                                                                              AreaOfInterestRequest.Type.ADD,
+                                                                              null ) );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertEquals( connector.getActivateSchedulerCount(), 0 );
+
+    connector.completeAreaOfInterestRequest();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertEquals( connector.getActivateSchedulerCount(), 1 );
+  }
+
   enum G
   {
     G1, G2

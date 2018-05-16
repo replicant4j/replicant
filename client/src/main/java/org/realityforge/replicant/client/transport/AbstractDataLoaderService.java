@@ -378,12 +378,6 @@ public abstract class AbstractDataLoaderService
     } );
   }
 
-  private void completeAreaOfInterestRequest()
-  {
-    triggerScheduler();
-    ensureConnection().completeAreaOfInterestRequest();
-  }
-
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
                                                      @Nullable Object filter,
                                                      @Nullable String cacheKey,

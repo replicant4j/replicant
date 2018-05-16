@@ -393,6 +393,16 @@ public abstract class Connector
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
   /**
+   * The AreaOfInterestRequest currently being processed can be completed and
+   * trigger scheduler to start next step.
+   */
+  protected final void completeAreaOfInterestRequest()
+  {
+    ensureConnection().completeAreaOfInterestRequest();
+    triggerScheduler();
+  }
+
+  /**
    * Invoked to fire an event when disconnect has completed.
    */
   @Action
