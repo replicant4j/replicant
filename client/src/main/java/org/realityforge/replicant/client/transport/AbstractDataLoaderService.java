@@ -189,17 +189,14 @@ public abstract class AbstractDataLoaderService
 
     final Consumer<SafeProcedure> completionAction = a ->
     {
-      LOG.warning( () -> "Subscription update of " + label( requests ) + " completed." );
       completeAreaOfInterestRequest();
       a.call();
     };
     final Consumer<SafeProcedure> failAction = a ->
     {
-      LOG.warning( () -> "Subscription update of " + label( requests ) + " failed." );
       completeAreaOfInterestRequest();
       a.call();
     };
-    LOG.warning( () -> "Subscription update of " + label( requests ) + " requested." );
 
     final AreaOfInterestRequest request = requests.get( 0 );
     assert null != request.getFilter();
@@ -241,10 +238,8 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    LOG.info( () -> "Unsubscribe from " + label( requests ) + " requested." );
     final Consumer<SafeProcedure> completionAction = postAction ->
     {
-      LOG.info( () -> "Unsubscribe from " + label( requests ) + " completed." );
       removeExplicitSubscriptions( requests );
       completeAreaOfInterestRequest();
       postAction.call();
@@ -252,7 +247,6 @@ public abstract class AbstractDataLoaderService
 
     final Consumer<SafeProcedure> failAction = postAction ->
     {
-      LOG.info( "Unsubscribe from " + label( requests ) + " failed." );
       removeExplicitSubscriptions( requests );
       completeAreaOfInterestRequest();
       postAction.call();
@@ -317,13 +311,11 @@ public abstract class AbstractDataLoaderService
 
     final Consumer<SafeProcedure> completionAction = a ->
     {
-      LOG.info( () -> "Subscription to " + label( requests ) + " completed." );
       completeAreaOfInterestRequest();
       a.call();
     };
     final Consumer<SafeProcedure> failAction = a ->
     {
-      LOG.info( () -> "Subscription to " + label( requests ) + " failed." );
       completeAreaOfInterestRequest();
       a.call();
     };
@@ -358,7 +350,6 @@ public abstract class AbstractDataLoaderService
         eTag = null;
         cacheAction = null;
       }
-      LOG.info( () -> "Subscription to " + request + " with eTag " + cacheKey + "=" + eTag + " requested" );
       requestSubscribeToChannel( request.getAddress(),
                                  request.getFilter(),
                                  cacheKey,
@@ -522,10 +513,6 @@ public abstract class AbstractDataLoaderService
           final String cacheKey = request.getCacheKey();
           if ( null != eTag && null != cacheKey )
           {
-            if ( LOG.isLoggable( getLogLevel() ) )
-            {
-              LOG.log( getLogLevel(), "Caching ChangeSet: seq=" + sequence + " cacheKey=" + cacheKey );
-            }
             final CacheService cacheService = getReplicantContext().getCacheService();
             if ( null != cacheService )
             {
@@ -579,10 +566,6 @@ public abstract class AbstractDataLoaderService
       return true;
     }
     final DataLoadStatus status = response.toStatus();
-    if ( LOG.isLoggable( Level.INFO ) )
-    {
-      LOG.info( status.toString() );
-    }
 
     //Step: Run the post actions
     final RequestEntry request = response.getRequest();
@@ -732,12 +715,6 @@ public abstract class AbstractDataLoaderService
 
   @Nonnull
   protected abstract String doFilterToString( @Nonnull Object filter );
-
-  @Nonnull
-  protected Level getLogLevel()
-  {
-    return Level.FINEST;
-  }
 
   /**
    * Check all the entities in the repository and raise an exception if an entity fails to validateRepository.
