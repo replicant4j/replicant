@@ -20,6 +20,7 @@ import replicant.ChannelAddress;
 import replicant.Connection;
 import replicant.Connector;
 import replicant.EntityChange;
+import replicant.FilterUtil;
 import replicant.MessageResponse;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -159,7 +160,7 @@ public abstract class AbstractDataLoaderService
       return getKey() +
              ":" +
              requests.stream().map( e -> e.getAddress().toString() ).collect( Collectors.joining( "/" ) ) +
-             ( null == filter ? "" : "[" + filterToString( filter ) + "]" );
+             ( null == filter ? "" : "[" + FilterUtil.filterToString( filter ) + "]" );
     }
   }
 
