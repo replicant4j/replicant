@@ -76,9 +76,7 @@ public final class AreaOfInterestRequest
     _inProgress = false;
   }
 
-  public boolean match( @Nonnull final Type action,
-                        @Nonnull final ChannelAddress descriptor,
-                        @Nullable final Object filter )
+  boolean match( @Nonnull final Type action, @Nonnull final ChannelAddress descriptor, @Nullable final Object filter )
   {
     return getType().equals( action ) &&
            getAddress().equals( descriptor ) &&
