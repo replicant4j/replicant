@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Arez;
 import arez.ArezContext;
+import arez.Disposable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -561,6 +562,35 @@ public class ConvergerTest
       assertEquals( e.getAddress(), address );
       assertEquals( e.getFilter(), filter );
     } );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_disposedAreaOfInterest()
+  {
+    final ArezContext context = Arez.context();
+    final ReplicantContext rContext = Replicant.context();
+
+    // Pause schedule so can manually interact with converger
+    context.pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
+      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
+
+    Disposable.dispose( areaOfInterest );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> context.safeAction( () -> rContext.getConverger()
+                      .convergeAreaOfInterest( areaOfInterest, null, null, true ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
   }
 
   @Test
