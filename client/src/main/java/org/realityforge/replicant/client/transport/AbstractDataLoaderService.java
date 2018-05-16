@@ -630,17 +630,14 @@ public abstract class AbstractDataLoaderService
         Disposable.dispose( subscription );
         currentAction.incChannelRemoveCount();
       }
-      else if ( ChannelChange.Action.UPDATE == actionType )
+      else
       {
+        assert ChannelChange.Action.UPDATE == actionType;
         final Subscription subscription = getReplicantContext().findSubscription( address );
         assert null != subscription;
         subscription.setFilter( filter );
         updateSubscriptionForFilteredEntities( subscription );
         currentAction.incChannelUpdateCount();
-      }
-      else
-      {
-        throw new IllegalStateException();
       }
     }
   }
