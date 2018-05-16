@@ -20,7 +20,6 @@ import replicant.ChannelAddress;
 import replicant.Connection;
 import replicant.Connector;
 import replicant.EntityChange;
-import replicant.FilterUtil;
 import replicant.MessageResponse;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -144,23 +143,6 @@ public abstract class AbstractDataLoaderService
       {
         return progressAreaOfInterestUpdateRequests( requests );
       }
-    }
-  }
-
-  @Nonnull
-  private String label( @Nonnull final List<AreaOfInterestRequest> requests )
-  {
-    if ( requests.isEmpty() )
-    {
-      return "";
-    }
-    else
-    {
-      final Object filter = requests.get( 0 ).getFilter();
-      return getKey() +
-             ":" +
-             requests.stream().map( e -> e.getAddress().toString() ).collect( Collectors.joining( "/" ) ) +
-             ( null == filter ? "" : "[" + FilterUtil.filterToString( filter ) + "]" );
     }
   }
 
