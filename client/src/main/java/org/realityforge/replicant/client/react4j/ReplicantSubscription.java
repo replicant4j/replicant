@@ -2,6 +2,7 @@ package org.realityforge.replicant.client.react4j;
 
 import arez.Disposable;
 import arez.annotations.Action;
+import arez.annotations.Dependency;
 import arez.annotations.Observable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -118,6 +119,7 @@ public abstract class ReplicantSubscription<T>
   @Nullable
   protected abstract BasicCallback onUnloaded();
 
+  @Dependency( action = Dependency.Action.SET_NULL )
   @Observable
   @Nullable
   protected abstract AreaOfInterest getAreaOfInterest();
@@ -175,9 +177,7 @@ public abstract class ReplicantSubscription<T>
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
     if ( null != areaOfInterest )
     {
-      //TODO: Rather than trying to manually clear AreaOfInterest, should make it disposeOnDeactivate and manage it thusly
       Disposable.dispose( areaOfInterest );
-      setAreaOfInterest( null );
     }
   }
 
