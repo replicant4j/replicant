@@ -214,6 +214,7 @@ public abstract class Connector
   public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
                                                @Nullable final Object filter )
   {
+    //TODO: Verify that this address is for an updateable channel
     ensureConnection().requestSubscriptionUpdate( address, filter );
     triggerScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )

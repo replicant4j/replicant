@@ -197,6 +197,12 @@ abstract class Converger
 
         if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
+          /*
+          TODO: If the subscription needs an update but the backend does not support updates
+          and subscription is explicitly subscribed then need to do a remove. Eventually it will
+          fall through the add path once remove goes through. If the subscription is NOT explicitly
+          subscribed then generate an error and fail.
+          */
           if ( null == groupTemplate ||
                canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE ) )
           {
