@@ -47,12 +47,12 @@ public final class MessageResponse
   private int _entityRemoveCount;
   private int _entityLinkCount;
 
-  public MessageResponse( @Nonnull final String rawJsonData )
+  MessageResponse( @Nonnull final String rawJsonData )
   {
     this( rawJsonData, null );
   }
 
-  public MessageResponse( @Nonnull final String rawJsonData, @Nullable final SafeProcedure oobCompletionAction )
+  MessageResponse( @Nonnull final String rawJsonData, @Nullable final SafeProcedure oobCompletionAction )
   {
     _rawJsonData = Objects.requireNonNull( rawJsonData );
     _oobCompletionAction = oobCompletionAction;
