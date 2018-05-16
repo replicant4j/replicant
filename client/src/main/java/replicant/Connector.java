@@ -375,6 +375,16 @@ public abstract class Connector
       else if ( ChannelChange.Action.REMOVE == actionType )
       {
         final Subscription subscription = getReplicantContext().findSubscription( address );
+        if ( Replicant.shouldCheckInvariants() )
+        {
+          invariant( () -> null != subscription,
+                     () -> "Replicant-0028: Received ChannelChange of type REMOVE for address " + address +
+                           " but no such subscription exists." );
+          assert null != subscription;
+          invariant( subscription::isExplicitSubscription,
+                     () -> "Replicant-0030: Received ChannelChange of type REMOVE for address " + address +
+                           " but subscription is implicitly subscribed." );
+        }
         assert null != subscription;
         Disposable.dispose( subscription );
         response.incChannelRemoveCount();
