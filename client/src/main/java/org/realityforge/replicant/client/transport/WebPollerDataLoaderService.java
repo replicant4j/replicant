@@ -298,30 +298,12 @@ public abstract class WebPollerDataLoaderService
   {
     //If eTag passed then cache action is expected.
     assert null == eTag || null != onCacheValid;
-    performSubscribe( address.getChannelType().ordinal(),
-                      address.getId(),
-                      filter,
-                      cacheKey,
-                      eTag,
-                      onSuccess,
-                      onCacheValid,
-                      onError );
-  }
-
-  protected void performSubscribe( final int channel,
-                                   @Nullable Integer subChannelId,
-                                   @Nullable final Object filter,
-                                   @Nullable String cacheKey,
-                                   @Nullable String eTag,
-                                   @Nonnull final SafeProcedure onSuccess,
-                                   @Nullable final SafeProcedure onCacheValid,
-                                   @Nonnull final Consumer<Throwable> onError )
-  {
+    final int channel = address.getChannelType().ordinal();
     getSessionContext().request( toRequestKey( "Subscribe", channel ), cacheKey, ( connection, request ) ->
       doSubscribe( connection,
                    request,
                    filter,
-                   getChannelURL( channel, subChannelId ),
+                   getChannelURL( channel, address.getId() ),
                    eTag,
                    onSuccess,
                    onCacheValid,
@@ -334,24 +316,13 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
-    performBulkSubscribe( addresses.get( 0 ).getChannelType().ordinal(),
-                          addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ),
-                          filter,
-                          onSuccess,
-                          onError );
-  }
-
-  protected void performBulkSubscribe( final int channel,
-                                       @Nonnull List<Integer> subChannelIds,
-                                       @Nullable final Object filter,
-                                       @Nonnull final SafeProcedure onSuccess,
-                                       @Nonnull final Consumer<Throwable> onError )
-  {
+    final int channel = addresses.get( 0 ).getChannelType().ordinal();
     getSessionContext().request( toRequestKey( "BulkSubscribe", channel ), null, ( connection, request ) ->
       doSubscribe( connection,
                    request,
                    filter,
-                   getChannelURL( channel, subChannelIds ),
+                   getChannelURL( channel,
+                                  addresses.stream().map( ChannelAddress::getId ).collect( Collectors.toList() ) ),
                    null,
                    onSuccess,
                    null,
