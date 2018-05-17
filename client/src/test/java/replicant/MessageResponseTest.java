@@ -20,7 +20,7 @@ public class MessageResponseTest
 
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.areChangesPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     assertEquals( action.getChannelAddCount(), 0 );
     assertEquals( action.getChannelUpdateCount(), 0 );
@@ -209,7 +209,7 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     assertNull( action.getCompletionAction() );
 
@@ -227,7 +227,7 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), true );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     // Process entity changes
     {
@@ -259,7 +259,7 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), true );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     // process links
     {
@@ -273,13 +273,13 @@ public class MessageResponseTest
 
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
-    action.markWorldAsNotified();
+    action.markWorldAsValidated();
 
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), true );
+    assertEquals( action.hasWorldBeenValidated(), true );
   }
 
   @Test
@@ -315,7 +315,7 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     assertNull( action.getCompletionAction() );
 
@@ -331,7 +331,7 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), true );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     // processed as single block in caller
     action.markChannelActionsProcessed();
@@ -339,14 +339,14 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
-    action.markWorldAsNotified();
+    action.markWorldAsValidated();
 
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), true );
+    assertEquals( action.hasWorldBeenValidated(), true );
   }
 
   @Test
@@ -375,7 +375,7 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
     action.recordChangeSet( changeSet, null );
 
@@ -386,14 +386,14 @@ public class MessageResponseTest
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertEquals( action.hasWorldBeenValidated(), false );
 
-    action.markWorldAsNotified();
+    action.markWorldAsValidated();
 
     assertEquals( action.needsChannelChangesProcessed(), false );
     assertEquals( action.areChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), true );
+    assertEquals( action.hasWorldBeenValidated(), true );
   }
 
   @Test

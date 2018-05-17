@@ -37,7 +37,7 @@ public final class MessageResponse
   private int _changeIndex;
 
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
-  private boolean _worldNotified;
+  private boolean _worldValidated;
   private boolean _channelActionsProcessed;
   private RequestEntry _request;
 
@@ -261,14 +261,17 @@ public final class MessageResponse
     }
   }
 
-  public void markWorldAsNotified()
+  public void markWorldAsValidated()
   {
-    _worldNotified = true;
+    if ( Replicant.shouldValidateRepositoryOnLoad() )
+    {
+      _worldValidated = true;
+    }
   }
 
-  public boolean hasWorldBeenNotified()
+  public boolean hasWorldBeenValidated()
   {
-    return _worldNotified;
+    return !Replicant.shouldValidateRepositoryOnLoad() || _worldValidated;
   }
 
   @Nonnull
