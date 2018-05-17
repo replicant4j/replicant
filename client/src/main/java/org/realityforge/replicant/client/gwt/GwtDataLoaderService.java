@@ -34,7 +34,7 @@ public abstract class GwtDataLoaderService
   @Override
   protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
   {
-    return Js.cast( Global.JSON.parse( rawJsonData ));
+    return Js.cast( Global.JSON.parse( rawJsonData ) );
   }
 
   protected void activateScheduler()
