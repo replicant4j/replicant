@@ -14,12 +14,10 @@ public class ReplicantRuntimeTest
 {
   private enum TestSystemA
   {
-    A
   }
 
   private enum TestSystemB
   {
-    B
   }
 
   private enum TestSystemC
