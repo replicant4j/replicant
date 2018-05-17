@@ -259,7 +259,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionUpdateFailed( @Nonnull final SubscriptionUpdateFailedEvent e )
   {
-    log( "%cConnector subscribe failed. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector subscription update failed. System: " + e.getSystemType().getSimpleName() +
          " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
