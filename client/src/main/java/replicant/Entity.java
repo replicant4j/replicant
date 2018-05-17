@@ -56,7 +56,7 @@ public abstract class Entity
     }
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _type = Objects.requireNonNull( type );
-    _id = Objects.requireNonNull( id );
+    _id = id;
   }
 
   /**
