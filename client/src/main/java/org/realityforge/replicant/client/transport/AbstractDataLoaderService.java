@@ -5,6 +5,7 @@ import arez.annotations.Action;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +41,7 @@ public abstract class AbstractDataLoaderService
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
+  private final SessionContext _sessionContext;
 
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   /**
@@ -48,9 +50,11 @@ public abstract class AbstractDataLoaderService
   private Runnable _resetAction;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
-                                       @Nonnull final Class<?> systemType )
+                                       @Nonnull final Class<?> systemType,
+                                       @Nonnull final SessionContext sessionContext )
   {
     super( context, systemType );
+    _sessionContext = Objects.requireNonNull( sessionContext );
   }
 
   /**
@@ -63,7 +67,10 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  protected abstract SessionContext getSessionContext();
+  protected final SessionContext getSessionContext()
+  {
+    return _sessionContext;
+  }
 
   @Nonnull
   protected abstract ChangeMapper getChangeMapper();

@@ -13,21 +13,11 @@ import replicant.ReplicantContext;
 public abstract class GwtDataLoaderService
   extends WebPollerDataLoaderService
 {
-  private final SessionContext _sessionContext;
-
   protected GwtDataLoaderService( @Nullable final ReplicantContext context,
                                   @Nonnull final Class<?> systemType,
                                   @Nonnull final SessionContext sessionContext )
   {
-    super( context, systemType );
-    _sessionContext = sessionContext;
-  }
-
-  @Nonnull
-  @Override
-  protected SessionContext getSessionContext()
-  {
-    return _sessionContext;
+    super( context, systemType, sessionContext );
   }
 
   @Nonnull
