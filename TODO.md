@@ -60,3 +60,7 @@ Some actions that should occur at some point in the future.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
 
 RequestEntry.ID should be an integer....
+
+* Simplify tests by adding a safeAction method to base test class?
+
+* Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that. 
