@@ -13,6 +13,10 @@ import static org.realityforge.braincheck.Guards.*;
 public final class SystemSchema
 {
   /**
+   * A unique id of the system. Multiple systems with the same id can not be present in a single Context.
+   */
+  private final int _id;
+  /**
    * A human consumable name for the syste,. It should be non-null if {@link Replicant#areNamesEnabled()} returns
    * true and <tt>null</tt> otherwise.
    */
@@ -29,7 +33,8 @@ public final class SystemSchema
   @Nonnull
   private final EntitySchema[] _entities;
 
-  public SystemSchema( @Nullable final String name,
+  public SystemSchema( final int id,
+                       @Nullable final String name,
                        @Nonnull final ChannelSchema[] channels,
                        @Nonnull final EntitySchema[] entities )
   {
@@ -61,9 +66,20 @@ public final class SystemSchema
                             "have id matching index." );
       }
     }
+    _id = id;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _entities = Objects.requireNonNull( entities );
     _channels = Objects.requireNonNull( channels );
+  }
+
+  /**
+   * Return the id of the system.
+   *
+   * @return the id of the system.
+   */
+  public int getId()
+  {
+    return _id;
   }
 
   /**
