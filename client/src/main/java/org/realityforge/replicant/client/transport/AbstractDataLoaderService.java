@@ -54,15 +54,6 @@ public abstract class AbstractDataLoaderService
     _sessionContext = Objects.requireNonNull( sessionContext );
   }
 
-  /**
-   * A symbolic key for describing system.
-   */
-  @Nonnull
-  protected String getKey()
-  {
-    return getSessionContext().getKey();
-  }
-
   @Nonnull
   protected final SessionContext getSessionContext()
   {

@@ -17,8 +17,7 @@ public class SessionContextTest
   public void basicOperation()
   {
     final String key = ValueUtil.randomString();
-    final SessionContext sessionContext = new SessionContext( key );
-    assertEquals( sessionContext.getKey(), key );
+    final SessionContext sessionContext = new SessionContext();
 
     //connection
     {
@@ -49,7 +48,7 @@ public class SessionContextTest
     final String cacheKey = ValueUtil.randomString();
     final RequestAction action = mock( RequestAction.class );
 
-    final SessionContext sessionContext = new SessionContext( key );
+    final SessionContext sessionContext = new SessionContext();
 
     sessionContext.request( requestKey, cacheKey, action );
 
@@ -65,7 +64,7 @@ public class SessionContextTest
     final TestRequestAction action = new TestRequestAction();
     final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
 
-    final SessionContext sessionContext = new SessionContext( key );
+    final SessionContext sessionContext = new SessionContext();
     sessionContext.setConnection( connection );
 
     sessionContext.request( name, cacheKey, action );

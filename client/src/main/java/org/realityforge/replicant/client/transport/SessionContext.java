@@ -7,8 +7,6 @@ import replicant.RequestEntry;
 
 public final class SessionContext
 {
-  @Nonnull
-  private final String _key;
   @Nullable
   private String _authenticationToken;
   private String _baseURL;
@@ -16,21 +14,6 @@ public final class SessionContext
   private Connection _connection;
   @Nullable
   private RequestEntry _request;
-
-  public SessionContext( @Nonnull final String key )
-  {
-    _key = key;
-  }
-
-  /**
-   * Symbolic key identifying session. Usually the name of the
-   * replicant session such as "Planner" or "Tyrell".
-   */
-  @Nonnull
-  public String getKey()
-  {
-    return _key;
-  }
 
   /**
    * Return the authentication token.
@@ -78,7 +61,9 @@ public final class SessionContext
     return _request;
   }
 
-  public void request( @Nullable final String key, @Nullable final String cacheKey, @Nonnull final RequestAction action )
+  public void request( @Nullable final String key,
+                       @Nullable final String cacheKey,
+                       @Nonnull final RequestAction action )
   {
     if ( null != _connection )
     {
