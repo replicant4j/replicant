@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.gwt;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -10,18 +11,21 @@ import elemental2.core.Global;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.transport.SessionContext;
+import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 import org.realityforge.replicant.shared.SharedConstants;
+import replicant.ChangeSet;
 import replicant.Connection;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 
 public abstract class GwtWebPollerDataLoaderService
-  extends GwtDataLoaderService
+  extends WebPollerDataLoaderService
 {
   protected class ReplicantRequestFactory
     extends AbstractHttpRequestFactory
@@ -40,6 +44,18 @@ public abstract class GwtWebPollerDataLoaderService
     super( context, systemType, sessionContext );
     createWebPoller();
     setupCloseHandler();
+  }
+
+  @Nonnull
+  @Override
+  protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+  {
+    return Js.cast( Global.JSON.parse( rawJsonData ) );
+  }
+
+  protected void activateScheduler()
+  {
+    Scheduler.get().scheduleIncremental( this::scheduleTick );
   }
 
   @Nonnull
