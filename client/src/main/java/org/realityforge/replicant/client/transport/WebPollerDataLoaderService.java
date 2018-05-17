@@ -202,7 +202,7 @@ public abstract class WebPollerDataLoaderService
     disconnect();
   }
 
-  private void handlePollSuccess( final String rawJsonData )
+  private void onPollMessage( @Nullable final String rawJsonData )
   {
     if ( null != rawJsonData )
     {
@@ -379,7 +379,7 @@ public abstract class WebPollerDataLoaderService
                            @Nonnull final Map<String, String> context,
                            @Nonnull final String data )
     {
-      handlePollSuccess( data );
+      onPollMessage( data );
     }
 
     @Override
