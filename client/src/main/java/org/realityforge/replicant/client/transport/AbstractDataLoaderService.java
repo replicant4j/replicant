@@ -418,11 +418,24 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    //Step: Finalize the change set
-    if ( !response.hasWorldBeenNotified() )
+    //Step: Validate the world after the change set has been applied (if feature is enabled)
+    if ( !response.hasWorldBeenValidated() )
     {
-      finalizeResponse( response );
+      validateWorld( response );
       return true;
+    }
+    completeMessageResponse( response );
+    return true;
+  }
+
+  private void completeMessageResponse( @Nonnull final MessageResponse response )
+  {
+    final Connection connection = ensureConnection();
+      
+    // OOB messages are not sequenced
+    if ( !response.isOob() )
+    {
+      connection.setLastRxSequence( response.getChangeSet().getSequence() );
     }
 
     //Step: Run the post actions
@@ -457,17 +470,11 @@ public abstract class AbstractDataLoaderService
       _resetAction.run();
       _resetAction = null;
     }
-    return true;
   }
 
-  private void finalizeResponse( @Nonnull final MessageResponse response )
+  private void validateWorld( @Nonnull final MessageResponse response )
   {
-    response.markWorldAsNotified();
-    // OOB messages are not sequenced
-    if ( !response.isOob() )
-    {
-      ensureConnection().setLastRxSequence( response.getChangeSet().getSequence() );
-    }
+    response.markWorldAsValidated();
     if ( Replicant.shouldValidateRepositoryOnLoad() )
     {
       validateRepository();
