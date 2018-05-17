@@ -192,12 +192,12 @@ public abstract class Connector
       .forEachOrdered( Disposable::dispose );
   }
 
-  protected final void setLinksToProcessPerTick( final int linksToProcessPerTick )
+  final void setLinksToProcessPerTick( final int linksToProcessPerTick )
   {
     _linksToProcessPerTick = linksToProcessPerTick;
   }
 
-  protected final void setChangesToProcessPerTick( final int changesToProcessPerTick )
+  final void setChangesToProcessPerTick( final int changesToProcessPerTick )
   {
     _changesToProcessPerTick = changesToProcessPerTick;
   }
@@ -206,9 +206,9 @@ public abstract class Connector
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
-  public final boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
-                                                       @Nonnull final ChannelAddress address,
-                                                       @Nullable final Object filter )
+  final boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
+                                                @Nonnull final ChannelAddress address,
+                                                @Nullable final Object filter )
   {
     final Connection connection = getConnection();
     return null != connection && connection.isAreaOfInterestRequestPending( action, address, filter );
@@ -217,15 +217,15 @@ public abstract class Connector
   /**
    * Return the index of last matching Type in pending aoi actions list.
    */
-  public final int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
-                                                            @Nonnull final ChannelAddress address,
-                                                            @Nullable final Object filter )
+  final int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
+                                                     @Nonnull final ChannelAddress address,
+                                                     @Nullable final Object filter )
   {
     final Connection connection = getConnection();
     return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
   }
 
-  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     ensureConnection().requestSubscribe( address, filter );
     triggerScheduler();
@@ -235,8 +235,8 @@ public abstract class Connector
     }
   }
 
-  public final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                               @Nullable final Object filter )
+  final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
+                                        @Nullable final Object filter )
   {
     //TODO: Verify that this address is for an updateable channel
     ensureConnection().requestSubscriptionUpdate( address, filter );
@@ -247,7 +247,7 @@ public abstract class Connector
     }
   }
 
-  public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     ensureConnection().requestUnsubscribe( address );
     triggerScheduler();
@@ -355,7 +355,7 @@ public abstract class Connector
    * @return the address.
    */
   @Nonnull
-  protected final ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
+  final ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
   {
     final int channelId = channelChange.getChannelId();
     final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
@@ -438,7 +438,7 @@ public abstract class Connector
    *
    * @param subscription the subscription that was updated.
    */
-  protected final void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
+  final void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
   {
     for ( final Class<?> entityType : new ArrayList<>( subscription.findAllEntityTypes() ) )
     {
@@ -810,7 +810,7 @@ public abstract class Connector
   }
 
   @Nonnull
-  protected final ReplicantRuntime getReplicantRuntime()
+  final ReplicantRuntime getReplicantRuntime()
   {
     return getReplicantContext().getRuntime();
   }

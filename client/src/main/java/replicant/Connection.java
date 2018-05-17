@@ -89,17 +89,17 @@ public final class Connection
     return _connectionId;
   }
 
-  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
   }
 
-  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.UPDATE, filter );
   }
 
-  public void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
   }
@@ -122,7 +122,7 @@ public final class Connection
     getOutOfBandResponses().add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
 
-  public List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
+  List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
   {
     return RepositoryUtil.toResults( _pendingAreaOfInterestRequests );
   }
@@ -156,9 +156,9 @@ public final class Connection
    * Return true if an area of interest request with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
-  public boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
-                                                 @Nonnull final ChannelAddress address,
-                                                 @Nullable final Object filter )
+  boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
+                                          @Nonnull final ChannelAddress address,
+                                          @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -174,9 +174,9 @@ public final class Connection
   /**
    * Return the index of last matching Type in pending aoi request list.
    */
-  public int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
-                                                      @Nonnull final ChannelAddress address,
-                                                      @Nullable final Object filter )
+  int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
+                                               @Nonnull final ChannelAddress address,
+                                               @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -323,7 +323,7 @@ public final class Connection
   /**
    * Mark all the current AreaOfInterest requests as complete and clear out the current requests list
    */
-  public void completeAreaOfInterestRequest()
+  void completeAreaOfInterestRequest()
   {
     if ( Replicant.shouldCheckInvariants() )
     {

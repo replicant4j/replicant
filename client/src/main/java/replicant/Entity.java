@@ -122,7 +122,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  public final void linkToSubscription( @Nonnull final Subscription subscription )
+  final void linkToSubscription( @Nonnull final Subscription subscription )
   {
     //TODO: Add additional guards here
     linkEntityToSubscription( subscription );
@@ -145,7 +145,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  public final void delinkFromSubscription( @Nonnull final Subscription subscription )
+  final void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
     // TODO: This next method should have better defensive programming inside
     subscription.delinkEntityFromSubscription( this );

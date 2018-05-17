@@ -71,7 +71,7 @@ public final class AreaOfInterestRequest
     _inProgress = true;
   }
 
-  public void markAsComplete()
+  void markAsComplete()
   {
     _inProgress = false;
   }

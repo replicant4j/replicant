@@ -72,7 +72,7 @@ public class RequestEntry
     _normalCompletion = normalCompletion;
   }
 
-  public void setCompletionAction( @Nonnull final SafeProcedure completionAction )
+  void setCompletionAction( @Nonnull final SafeProcedure completionAction )
   {
     _completionAction = completionAction;
   }
@@ -102,7 +102,7 @@ public class RequestEntry
     _expectingResults = expectingResults;
   }
 
-  public boolean haveResultsArrived()
+  boolean haveResultsArrived()
   {
     return _resultsArrived;
   }

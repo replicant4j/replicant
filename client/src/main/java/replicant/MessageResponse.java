@@ -89,7 +89,7 @@ public final class MessageResponse
     return _entityLinkCount;
   }
 
-  public void incChannelAddCount()
+  void incChannelAddCount()
   {
     if ( Replicant.areSpiesEnabled() )
     {
@@ -97,7 +97,7 @@ public final class MessageResponse
     }
   }
 
-  public void incChannelUpdateCount()
+  void incChannelUpdateCount()
   {
     if ( Replicant.areSpiesEnabled() )
     {
@@ -105,7 +105,7 @@ public final class MessageResponse
     }
   }
 
-  public void incChannelRemoveCount()
+  void incChannelRemoveCount()
   {
     if ( Replicant.areSpiesEnabled() )
     {
@@ -113,7 +113,7 @@ public final class MessageResponse
     }
   }
 
-  public void incEntityUpdateCount()
+  void incEntityUpdateCount()
   {
     if ( Replicant.areSpiesEnabled() )
     {
@@ -121,7 +121,7 @@ public final class MessageResponse
     }
   }
 
-  public void incEntityRemoveCount()
+  void incEntityRemoveCount()
   {
     if ( Replicant.areSpiesEnabled() )
     {
@@ -129,7 +129,7 @@ public final class MessageResponse
     }
   }
 
-  public void incEntityLinkCount()
+  void incEntityLinkCount()
   {
     if ( Replicant.areSpiesEnabled() )
     {
@@ -190,12 +190,12 @@ public final class MessageResponse
            !_channelActionsProcessed;
   }
 
-  public void markChannelActionsProcessed()
+  void markChannelActionsProcessed()
   {
     _channelActionsProcessed = true;
   }
 
-  public EntityChange nextChange()
+  EntityChange nextChange()
   {
     if ( areChangesPending() )
     {
@@ -210,7 +210,7 @@ public final class MessageResponse
     }
   }
 
-  public void changeProcessed( @Nonnull final Object entity )
+  void changeProcessed( @Nonnull final Object entity )
   {
     if ( entity instanceof Linkable )
     {
@@ -223,7 +223,7 @@ public final class MessageResponse
     return null != _updatedEntities && !_updatedEntities.isEmpty();
   }
 
-  public Linkable nextEntityToLink()
+  Linkable nextEntityToLink()
   {
     if ( areEntityLinksPending() )
     {
