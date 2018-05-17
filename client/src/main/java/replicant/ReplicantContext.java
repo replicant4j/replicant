@@ -351,9 +351,9 @@ public final class ReplicantContext
   }
 
   /**
-   * Return the underlying AreaOfInterestService implementation.
+   * Return the underlying AreaOfInterestService.
    *
-   * @return the underlying AreaOfInterestService implementation.
+   * @return the underlying AreaOfInterestService.
    */
   @Nonnull
   final AreaOfInterestService getAreaOfInterestService()
@@ -362,9 +362,9 @@ public final class ReplicantContext
   }
 
   /**
-   * Return the underlying EntityService implementation.
+   * Return the underlying EntityService.
    *
-   * @return the underlying EntityService implementation.
+   * @return the underlying EntityService.
    */
   @Nonnull
   final EntityService getEntityService()
@@ -373,9 +373,9 @@ public final class ReplicantContext
   }
 
   /**
-   * Return the underlying SubscriptionService implementation.
+   * Return the underlying SubscriptionService.
    *
-   * @return the underlying SubscriptionService implementation.
+   * @return the underlying SubscriptionService.
    */
   @Nonnull
   final SubscriptionService getSubscriptionService()
@@ -384,9 +384,9 @@ public final class ReplicantContext
   }
 
   /**
-   * Return the underlying ReplicantRuntime implementation.
+   * Return the underlying ReplicantRuntime.
    *
-   * @return the underlying ReplicantRuntime implementation.
+   * @return the underlying ReplicantRuntime.
    */
   @Nonnull
   final ReplicantRuntime getRuntime()
@@ -395,9 +395,9 @@ public final class ReplicantContext
   }
 
   /**
-   * Return the underlying Converger implementation.
+   * Return the underlying Converger.
    *
-   * @return the underlying Converger implementation.
+   * @return the underlying Converger.
    */
   @Nonnull
   final Converger getConverger()
