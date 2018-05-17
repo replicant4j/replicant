@@ -185,7 +185,7 @@ public abstract class Connector
       .forEachOrdered( Disposable::dispose );
   }
 
-  protected void setLinksToProcessPerTick( final int linksToProcessPerTick )
+  protected final void setLinksToProcessPerTick( final int linksToProcessPerTick )
   {
     _linksToProcessPerTick = linksToProcessPerTick;
   }
