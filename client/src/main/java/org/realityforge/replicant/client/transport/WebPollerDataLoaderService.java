@@ -206,29 +206,10 @@ public abstract class WebPollerDataLoaderService
   {
     if ( null != rawJsonData )
     {
-      logResponse( rawJsonData );
       ensureConnection().enqueueResponse( rawJsonData );
       triggerScheduler();
       pauseWebPoller();
     }
-  }
-
-  private void logResponse( final String rawJsonData )
-  {
-    if ( LOG.isLoggable( Level.INFO ) )
-    {
-      final int threshold = getThresholdForResponseLogging();
-      final String messageData =
-        0 != threshold && rawJsonData.length() > threshold ?
-        rawJsonData.substring( 0, threshold ) + "..." :
-        rawJsonData;
-      LOG.info( getKey() + ".Poll - Received data: " + messageData );
-    }
-  }
-
-  protected int getThresholdForResponseLogging()
-  {
-    return 300;
   }
 
   @Override
