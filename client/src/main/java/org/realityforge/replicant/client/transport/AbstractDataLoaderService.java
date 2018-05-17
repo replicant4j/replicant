@@ -392,58 +392,9 @@ public abstract class AbstractDataLoaderService
     }
 
     //Step: Parse the json
-    final String rawJsonData = response.getRawJsonData();
-    boolean isOutOfBandMessage = response.isOob();
-    if ( null != rawJsonData )
+    if ( null != response.getRawJsonData() )
     {
-      final ChangeSet changeSet = parseChangeSet( rawJsonData );
-      if ( Replicant.shouldValidateChangeSetOnRead() )
-      {
-        changeSet.validate();
-      }
-
-      // OOB messages are not in response to requests as such
-      final String requestID = isOutOfBandMessage ? null : changeSet.getRequestId();
-      // OOB messages have no etags as from local cache or generated locally
-      final String eTag = isOutOfBandMessage ? null : changeSet.getETag();
-      final int sequence = isOutOfBandMessage ? 0 : changeSet.getSequence();
-      final RequestEntry request;
-      if ( isOutOfBandMessage )
-      {
-        request = null;
-      }
-      else
-      {
-        request = null != requestID ? connection.getRequest( requestID ) : null;
-        if ( null == request && null != requestID )
-        {
-          final String message =
-            "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
-            " Existing Requests: " + connection.getRequests();
-          if ( LOG.isLoggable( Level.WARNING ) )
-          {
-            LOG.warning( message );
-          }
-          throw new IllegalStateException( message );
-        }
-        else if ( null != request )
-        {
-          final String cacheKey = request.getCacheKey();
-          if ( null != eTag && null != cacheKey )
-          {
-            final CacheService cacheService = getReplicantContext().getCacheService();
-            if ( null != cacheService )
-            {
-              cacheService.store( cacheKey, eTag, rawJsonData );
-            }
-          }
-        }
-      }
-
-      response.recordChangeSet( changeSet, request );
-      pendingResponses.add( response );
-      Collections.sort( pendingResponses );
-      connection.setCurrentMessageResponse( null );
+      parseMessageResponse( response );
       return true;
     }
 
@@ -466,6 +417,8 @@ public abstract class AbstractDataLoaderService
       processEntityLinks( response );
       return true;
     }
+
+    final boolean isOutOfBandMessage = response.isOob();
 
     //Step: Finalize the change set
     if ( !response.hasWorldBeenNotified() )
@@ -517,6 +470,60 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  private void parseMessageResponse( @Nonnull final MessageResponse response )
+  {
+    final Connection connection = ensureConnection();
+    final String rawJsonData = response.getRawJsonData();
+    assert null != rawJsonData;
+    final ChangeSet changeSet = parseChangeSet( rawJsonData );
+    if ( Replicant.shouldValidateChangeSetOnRead() )
+    {
+      changeSet.validate();
+    }
+
+    final RequestEntry request;
+    if ( response.isOob() )
+    {
+      request = null;
+    }
+    else
+    {
+      final String requestId = changeSet.getRequestId();
+      final String eTag = changeSet.getETag();
+      final int sequence = changeSet.getSequence();
+      request = null != requestId ? connection.getRequest( requestId ) : null;
+      if ( null == request && null != requestId )
+      {
+        final String message =
+          "Unable to locate requestID '" + requestId + "' specified for ChangeSet: seq=" + sequence +
+          " Existing Requests: " + connection.getRequests();
+        if ( LOG.isLoggable( Level.WARNING ) )
+        {
+          LOG.warning( message );
+        }
+        throw new IllegalStateException( message );
+      }
+      else if ( null != request )
+      {
+        final String cacheKey = request.getCacheKey();
+        if ( null != eTag && null != cacheKey )
+        {
+          final CacheService cacheService = getReplicantContext().getCacheService();
+          if ( null != cacheService )
+          {
+            cacheService.store( cacheKey, eTag, rawJsonData );
+          }
+        }
+      }
+    }
+
+    response.recordChangeSet( changeSet, request );
+    final LinkedList<MessageResponse> pendingResponses = connection.getPendingResponses();
+    pendingResponses.add( response );
+    Collections.sort( pendingResponses );
+    connection.setCurrentMessageResponse( null );
   }
 
   /**
