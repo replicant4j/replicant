@@ -65,7 +65,7 @@ abstract class EntityService
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Integer id )
+  Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
   {
     final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )

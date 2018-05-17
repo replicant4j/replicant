@@ -111,7 +111,7 @@ public final class ReplicantContext
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, @Nonnull final Integer id )
+  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
   {
     return getEntityService().findEntityByTypeAndId( type, id );
   }
