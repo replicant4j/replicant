@@ -577,10 +577,4 @@ public abstract class AbstractDataLoaderService
       }
     }
   }
-
-  @Override
-  public String toString()
-  {
-    return Replicant.areNamesEnabled() ? "DataLoader[" + getSystemType().getSimpleName() + "]" : super.toString();
-  }
 }

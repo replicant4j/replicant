@@ -793,6 +793,15 @@ public abstract class Connector
   @Nonnull
   protected abstract ArezContext context();
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Replicant.areNamesEnabled() ? "Connector[" + getSystemType().getSimpleName() + "]" : super.toString();
+  }
+
   @TestOnly
   @Nullable
   final Disposable getSchedulerLock()

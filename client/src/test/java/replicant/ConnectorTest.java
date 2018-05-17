@@ -78,6 +78,16 @@ public class ConnectorTest
   }
 
   @Test
+  public void testToString()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    assertEquals( connector.toString(), "Connector[G]" );
+    ReplicantTestUtil.disableNames();
+    assertEquals( connector.toString(), "replicant.Arez_TestConnector@" + Integer.toHexString( connector.hashCode() ) );
+  }
+
+  @Test
   public void connect()
   {
     Arez.context().pauseScheduler();
