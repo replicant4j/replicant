@@ -3,6 +3,7 @@ package replicant;
 import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
+import java.util.ArrayList;
 import java.util.Objects;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.Assert;
@@ -1476,6 +1477,56 @@ public class ConnectorTest
                   "Replicant-0033: Received ChannelChange of type UPDATE for address G.G1:42 but no such subscription exists." );
 
     handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void removeExplicitSubscriptions()
+  {
+    // Pause converger
+    Arez.context().pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress address3 = new ChannelAddress( G.G2, 3 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null ) );
+    requests.add( new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null ) );
+    requests.add( new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null ) );
+
+    final Subscription subscription1 =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    // Address2 is already implicit ...
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address2, null, false ) );
+    // Address3 has no subscription ... maybe not converged yet
+
+    Arez.context().safeAction( () -> connector.removeExplicitSubscriptions( requests ) );
+
+    Arez.context().safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
+  }
+
+  @Test
+  public void removeExplicitSubscriptions_passedBadAction()
+  {
+    // Pause converger
+    Arez.context().pauseScheduler();
+
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null ) );
+
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> connector.removeExplicitSubscriptions( requests ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=ADD Address=G.G2:1]" );
   }
 
   enum G

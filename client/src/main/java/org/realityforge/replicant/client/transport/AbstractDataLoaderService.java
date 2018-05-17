@@ -266,18 +266,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @Action
-  protected void removeExplicitSubscriptions( @Nonnull final List<AreaOfInterestRequest> requests )
-  {
-    requests.forEach( a -> {
-      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-      if ( null != subscription )
-      {
-        subscription.setExplicitSubscription( false );
-      }
-    } );
-  }
-
-  @Action
   protected void removeUnneededRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( a -> {

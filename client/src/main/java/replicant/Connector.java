@@ -450,6 +450,28 @@ public abstract class Connector
     }
   }
 
+  @Action
+  protected void removeExplicitSubscriptions( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.forEach( request -> {
+      if ( Replicant.shouldCheckInvariants() )
+      {
+        invariant( () -> AreaOfInterestRequest.Type.REMOVE == request.getType(),
+                   () -> "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request " +
+                         "with type that is not REMOVE. Request: " + request );
+      }
+      final Subscription subscription = getReplicantContext().findSubscription( request.getAddress() );
+      if ( null != subscription )
+      {
+        /*
+         * It is unclear whether this code is actually required as should note the response form the server
+         * automatically setExplicitSubscription to false?
+         */
+        subscription.setExplicitSubscription( false );
+      }
+    } );
+  }
+
   @Nonnull
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
