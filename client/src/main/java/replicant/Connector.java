@@ -473,6 +473,34 @@ public abstract class Connector
   }
 
   @Action
+  protected void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.removeIf( a -> {
+      final ChannelAddress address = a.getAddress();
+      final Subscription subscription = getReplicantContext().findSubscription( address );
+      if ( Replicant.shouldCheckInvariants() )
+      {
+        invariant( () -> null != subscription,
+                   () -> "Replicant-0048: Request to update channel at address " + address +
+                         " but not subscribed to channel." );
+      }
+      // The following code can probably be removed but it was present in the previous system
+      // and it is unclear if there is any scenarios where it can still happen. The code has
+      // been left in until we can verify it is no longer an issue. The above invariants will trigger
+      // in development mode to help us track down these scenarios
+      if ( null == subscription )
+      {
+        a.markAsComplete();
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    } );
+  }
+
+  @Action
   protected void removeUnneededRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( request -> {

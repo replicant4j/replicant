@@ -197,21 +197,6 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  @Action
-  protected void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
-  {
-    requests.removeIf( a -> {
-      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-      if ( null == subscription )
-      {
-        LOG.warning( () -> "Subscription update of " + a + " requested but not subscribed." );
-        a.markAsComplete();
-        return true;
-      }
-      return false;
-    } );
-  }
-
   private boolean progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededRemoveRequests( requests );
