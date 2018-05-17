@@ -66,7 +66,7 @@ public final class ChannelAddress
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( Replicant::areNamesEnabled,
-                    () -> "Replicant-0054: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
+                    () -> "Replicant-0042: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
     return getSystem().getSimpleName() + "." + _channelType.toString() + ( null != _id ? ":" + _id : "" );
   }

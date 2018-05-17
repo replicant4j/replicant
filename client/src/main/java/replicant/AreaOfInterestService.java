@@ -34,7 +34,7 @@ abstract class AreaOfInterestService
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> Replicant.areZonesEnabled() || null == context,
-                 () -> "Replicant-0180: AreaOfInterestService passed a context but Replicant.areZonesEnabled() is false" );
+                 () -> "Replicant-0035: AreaOfInterestService passed a context but Replicant.areZonesEnabled() is false" );
     }
     _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
   }

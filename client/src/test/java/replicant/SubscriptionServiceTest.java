@@ -544,7 +544,7 @@ public class SubscriptionServiceTest
                     () -> SubscriptionService.create( Replicant.context() ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0134: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
+                  "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
   }
 
   enum G

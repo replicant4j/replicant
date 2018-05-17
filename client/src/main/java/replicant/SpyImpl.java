@@ -26,7 +26,7 @@ final class SpyImpl
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> !_spyEventHandlers.contains( handler ),
-                    () -> "Replicant-0102: Attempting to add handler " + handler + " that is already " +
+                    () -> "Replicant-0040: Attempting to add handler " + handler + " that is already " +
                           "in the list of spy handlers." );
     }
     _spyEventHandlers.add( Objects.requireNonNull( handler ) );
@@ -41,7 +41,7 @@ final class SpyImpl
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> _spyEventHandlers.contains( handler ),
-                    () -> "Replicant-0103: Attempting to remove handler " + handler + " that is not " +
+                    () -> "Replicant-0039: Attempting to remove handler " + handler + " that is not " +
                           "in the list of spy handlers." );
     }
     _spyEventHandlers.remove( Objects.requireNonNull( handler ) );
@@ -56,7 +56,7 @@ final class SpyImpl
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( this::willPropagateSpyEvents,
-                 () -> "Replicant-0104: Attempting to report SpyEvent '" + event + "' but " +
+                 () -> "Replicant-0038: Attempting to report SpyEvent '" + event + "' but " +
                        "willPropagateSpyEvents() returns false." );
     }
     for ( final SpyEventHandler handler : _spyEventHandlers )

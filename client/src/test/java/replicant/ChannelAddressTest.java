@@ -57,7 +57,7 @@ public class ChannelAddressTest
     final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
     final IllegalStateException exception = expectThrows( IllegalStateException.class, address::getName );
     assertEquals( exception.getMessage(),
-                  "Replicant-0054: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
+                  "Replicant-0042: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
   }
 
   @SuppressWarnings( "EqualsWithItself" )

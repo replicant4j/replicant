@@ -89,7 +89,7 @@ public class ChannelTypeTest
                        ValueUtil.randomBoolean() );
     final IllegalStateException exception = expectThrows( IllegalStateException.class, channelType::getName );
     assertEquals( exception.getMessage(),
-                  "Replicant-0053: ChannelType.getName() invoked when Replicant.areNamesEnabled() is false" );
+                  "Replicant-0044: ChannelType.getName() invoked when Replicant.areNamesEnabled() is false" );
     assertEquals( channelType.toString(), "replicant.ChannelType@" + Integer.toHexString( channelType.hashCode() ) );
   }
 
@@ -106,6 +106,6 @@ public class ChannelTypeTest
                                            ValueUtil.randomBoolean(),
                                            ValueUtil.randomBoolean() ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0052: ChannelType passed a name 'MyChannel' but Replicant.areNamesEnabled() is false" );
+                  "Replicant-0045: ChannelType passed a name 'MyChannel' but Replicant.areNamesEnabled() is false" );
   }
 }

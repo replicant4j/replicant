@@ -34,7 +34,7 @@ public abstract class AbstractSpyEventProcessor
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> !_processors.containsKey( type ),
-                    () -> "Replicant-0157: Attempting to call AbstractSpyEventProcessor.on() to register a processor " +
+                    () -> "Replicant-0036: Attempting to call AbstractSpyEventProcessor.on() to register a processor " +
                           "for type " + type + " but an existing processor already exists for type" );
     }
     _processors.put( type, processor );

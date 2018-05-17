@@ -67,7 +67,7 @@ public class SpyEventProcessorTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> processor.on( FakeEvent.class, handler ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0157: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class replicant.spy.tools.SpyEventProcessorTest$FakeEvent but an existing processor already exists for type" );
+                  "Replicant-0036: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class replicant.spy.tools.SpyEventProcessorTest$FakeEvent but an existing processor already exists for type" );
   }
 
   enum G

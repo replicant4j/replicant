@@ -24,7 +24,7 @@ public class ConvergerTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Converger.create( context ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0134: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
+                  "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
   }
 
   @Test

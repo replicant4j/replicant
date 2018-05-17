@@ -29,7 +29,7 @@ public class RequestEntry
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> Replicant.areNamesEnabled() || null == name,
-                 () -> "Replicant-0064: RequestEntry passed a name '" + name +
+                 () -> "Replicant-0041: RequestEntry passed a name '" + name +
                        "' but Replicant.areNamesEnabled() is false" );
     }
     _requestId = Objects.requireNonNull( requestId );

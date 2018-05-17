@@ -36,7 +36,7 @@ public class RequestEntryTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> new RequestEntry( "123", "ABC", null ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0064: RequestEntry passed a name 'ABC' but Replicant.areNamesEnabled() is false" );
+                  "Replicant-0041: RequestEntry passed a name 'ABC' but Replicant.areNamesEnabled() is false" );
   }
 
   @Test

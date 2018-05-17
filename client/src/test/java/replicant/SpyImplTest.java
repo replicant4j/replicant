@@ -58,7 +58,7 @@ public class SpyImplTest
       expectThrows( IllegalStateException.class, () -> spy.reportSpyEvent( event ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0104: Attempting to report SpyEvent '" + event +
+                  "Replicant-0038: Attempting to report SpyEvent '" + event +
                   "' but willPropagateSpyEvents() returns false." );
   }
 
@@ -75,7 +75,7 @@ public class SpyImplTest
       expectThrows( IllegalStateException.class, () -> support.addSpyEventHandler( handler ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0102: Attempting to add handler " +
+                  "Replicant-0040: Attempting to add handler " +
                   handler +
                   " that is already in the list of spy handlers." );
   }
@@ -92,7 +92,7 @@ public class SpyImplTest
       expectThrows( IllegalStateException.class, () -> support.removeSpyEventHandler( handler ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0103: Attempting to remove handler " +
+                  "Replicant-0039: Attempting to remove handler " +
                   handler +
                   " that is not in the list of spy handlers." );
   }

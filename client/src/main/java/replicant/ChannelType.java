@@ -62,7 +62,7 @@ public final class ChannelType
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> Replicant.areNamesEnabled() || null == name,
-                    () -> "Replicant-0052: ChannelType passed a name '" + name +
+                    () -> "Replicant-0045: ChannelType passed a name '" + name +
                           "' but Replicant.areNamesEnabled() is false" );
     }
     _id = id;
@@ -96,7 +96,7 @@ public final class ChannelType
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( Replicant::areNamesEnabled,
-                    () -> "Replicant-0053: ChannelType.getName() invoked when Replicant.areNamesEnabled() is false" );
+                    () -> "Replicant-0044: ChannelType.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
     assert null != _name;
     return _name;

@@ -39,6 +39,6 @@ public class ReplicantServiceTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> new TestReplicantService( context ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0134: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
+                  "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
   }
 }
