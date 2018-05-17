@@ -1529,6 +1529,91 @@ public class ConnectorTest
                   "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=ADD Address=G.G2:1]" );
   }
 
+  @Test
+  public void removeUnneededRemoveRequests_whenInvariantsDisabled()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress address3 = new ChannelAddress( G.G2, 3 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request3 =
+      new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null );
+    requests.add( request1 );
+    requests.add( request2 );
+    requests.add( request3 );
+
+    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+
+    final Subscription subscription1 =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    // Address2 is already implicit ...
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address2, null, false ) );
+    // Address3 has no subscription ... maybe not converged yet
+
+    ReplicantTestUtil.noCheckInvariants();
+
+    Arez.context().safeAction( () -> connector.removeUnneededRemoveRequests( requests ) );
+
+    assertEquals( requests.size(), 1 );
+    assertEquals( requests.contains( request1 ), true );
+    assertEquals( request1.isInProgress(), true );
+    assertEquals( request2.isInProgress(), false );
+    assertEquals( request3.isInProgress(), false );
+  }
+
+  @Test
+  public void removeUnneededRemoveRequests_noSubscription()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
+    requests.add( request1 );
+
+    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> connector.removeUnneededRemoveRequests( requests ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0046: Request to unsubscribe from channel at address G.G2:1 but not subscribed to channel." );
+  }
+
+  @Test
+  public void removeUnneededRemoveRequests_implicitSubscription()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
+    requests.add( request1 );
+
+    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address1, null, false ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> connector.removeUnneededRemoveRequests( requests ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0047: Request to unsubscribe from channel at address G.G2:1 but subscription is not an explicit subscription." );
+  }
+
   enum G
   {
     G1, G2

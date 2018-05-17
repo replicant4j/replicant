@@ -265,27 +265,6 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  @Action
-  protected void removeUnneededRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
-  {
-    requests.removeIf( a -> {
-      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-      if ( null == subscription )
-      {
-        LOG.warning( () -> "Unsubscribe from " + a + " requested but not subscribed." );
-        a.markAsComplete();
-        return true;
-      }
-      else if ( !subscription.isExplicitSubscription() )
-      {
-        LOG.warning( () -> "Unsubscribe from " + a + " requested but not explicitly subscribed." );
-        a.markAsComplete();
-        return true;
-      }
-      return false;
-    } );
-  }
-
   private boolean progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededAddRequests( requests );
