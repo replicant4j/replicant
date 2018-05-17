@@ -64,3 +64,7 @@ RequestEntry.ID should be an integer....
 * Simplify tests by adding a safeAction method to base test class?
 
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
+
+* Remove type from `EntitySchema` and somehow get connector to manage mapping `EntitySchema` -> `Class`.
+  The motivation for this is that then the `EntitySchema` can be used outside of runtime ... hopefully
+  to build the source code for entities.
