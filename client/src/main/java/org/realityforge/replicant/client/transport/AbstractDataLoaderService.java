@@ -418,22 +418,10 @@ public abstract class AbstractDataLoaderService
       return true;
     }
 
-    final boolean isOutOfBandMessage = response.isOob();
-
     //Step: Finalize the change set
     if ( !response.hasWorldBeenNotified() )
     {
-      response.markWorldAsNotified();
-      // OOB messages are not sequenced
-      if ( !isOutOfBandMessage )
-      {
-        connection.setLastRxSequence( response.getChangeSet().getSequence() );
-      }
-      if ( Replicant.shouldValidateRepositoryOnLoad() )
-      {
-        validateRepository();
-      }
-
+      finalizeResponse( response );
       return true;
     }
 
@@ -448,7 +436,7 @@ public abstract class AbstractDataLoaderService
     {
       runnable.call();
       // OOB messages are not in response to requests as such
-      final String requestId = isOutOfBandMessage ? null : response.getChangeSet().getRequestId();
+      final String requestId = response.isOob() ? null : response.getChangeSet().getRequestId();
       if ( null != requestId )
       {
         // We can remove the request because this side ran second and the
@@ -470,6 +458,20 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
+  }
+
+  private void finalizeResponse( @Nonnull final MessageResponse response )
+  {
+    response.markWorldAsNotified();
+    // OOB messages are not sequenced
+    if ( !response.isOob() )
+    {
+      ensureConnection().setLastRxSequence( response.getChangeSet().getSequence() );
+    }
+    if ( Replicant.shouldValidateRepositoryOnLoad() )
+    {
+      validateRepository();
+    }
   }
 
   private void parseMessageResponse( @Nonnull final MessageResponse response )
