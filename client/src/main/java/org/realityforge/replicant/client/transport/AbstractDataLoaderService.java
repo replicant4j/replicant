@@ -318,29 +318,6 @@ public abstract class AbstractDataLoaderService
     return true;
   }
 
-  @Action
-  protected void removeUnneededAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
-  {
-    requests.removeIf( a -> {
-      final Subscription subscription = getReplicantContext().findSubscription( a.getAddress() );
-      if ( null != subscription )
-      {
-        if ( subscription.isExplicitSubscription() )
-        {
-          LOG.warning( "Subscription to " + a + " requested but already subscribed." );
-        }
-        else
-        {
-          LOG.warning( () -> "Existing subscription to " + a + " converted to a explicit subscription." );
-          subscription.setExplicitSubscription( true );
-        }
-        a.markAsComplete();
-        return true;
-      }
-      return false;
-    } );
-  }
-
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
                                                      @Nullable Object filter,
                                                      @Nullable String cacheKey,

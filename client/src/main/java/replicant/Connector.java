@@ -482,6 +482,32 @@ public abstract class Connector
   }
 
   @Action
+  protected void removeUnneededAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    requests.removeIf( request -> {
+      final ChannelAddress address = request.getAddress();
+      final Subscription subscription = getReplicantContext().findSubscription( address );
+      if ( Replicant.shouldCheckInvariants() )
+      {
+        invariant( () -> null == subscription || !subscription.isExplicitSubscription(),
+                   () -> "Replicant-0030: Request to add channel at address " + address +
+                         " but already explicitly subscribed to channel." );
+      }
+      if ( null != subscription && !subscription.isExplicitSubscription() )
+      {
+        // Existing subscription converted to an explicit subscription
+        subscription.setExplicitSubscription( true );
+        request.markAsComplete();
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    } );
+  }
+
+  @Action
   protected void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( a -> {

@@ -1560,6 +1560,61 @@ public class ConnectorTest
   }
 
   @Test
+  public void removeUnneededAddRequests_upgradeExisting()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, null );
+    requests.add( request1 );
+    requests.add( request2 );
+
+    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+
+    // Address1 is implicitly subscribed
+    final Subscription subscription1 =
+      Arez.context().safeAction( () -> Replicant.context().createSubscription( address1, null, false ) );
+
+    Arez.context().safeAction( () -> connector.removeUnneededAddRequests( requests ) );
+
+    assertEquals( requests.size(), 1 );
+    assertEquals( requests.contains( request2 ), true );
+    assertEquals( request1.isInProgress(), false );
+    assertEquals( request2.isInProgress(), true );
+    Arez.context().safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+  }
+
+  @Test
+  public void removeUnneededAddRequests_explicitAlreadyPresent()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+
+    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null );
+    requests.add( request1 );
+
+    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Arez.context().safeAction( () -> connector.removeUnneededAddRequests( requests ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0030: Request to add channel at address G.G2:1 but already explicitly subscribed to channel." );
+  }
+
+  @Test
   public void removeUnneededRemoveRequests_whenInvariantsDisabled()
   {
     final TestConnector connector = TestConnector.create( G.class );
