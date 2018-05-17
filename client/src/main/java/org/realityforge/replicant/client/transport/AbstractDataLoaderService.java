@@ -287,12 +287,12 @@ public abstract class AbstractDataLoaderService
       final CacheService cacheService = getReplicantContext().getCacheService();
       final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
       final String eTag;
-      final SafeProcedure cacheAction;
+      final SafeProcedure onCacheValid;
       if ( null != cacheEntry )
       {
         eTag = cacheEntry.getETag();
         LOG.info( () -> "Found locally cached data for channel " + request + " with etag " + eTag + "." );
-        cacheAction = () ->
+        onCacheValid = () ->
         {
           LOG.info( () -> "Loading cached data for channel " + request + " with etag " + eTag );
           final SafeProcedure completeCachedAction = () ->
@@ -307,13 +307,13 @@ public abstract class AbstractDataLoaderService
       else
       {
         eTag = null;
-        cacheAction = null;
+        onCacheValid = null;
       }
       requestSubscribeToChannel( request.getAddress(),
                                  request.getFilter(),
                                  cacheKey,
                                  eTag,
-                                 cacheAction,
+                                 onCacheValid,
                                  onSuccess,
                                  onError );
     }
@@ -366,7 +366,7 @@ public abstract class AbstractDataLoaderService
                                                      @Nullable Object filter,
                                                      @Nullable String cacheKey,
                                                      @Nullable String eTag,
-                                                     @Nullable SafeProcedure cacheAction,
+                                                     @Nullable SafeProcedure onCacheValid,
                                                      @Nonnull SafeProcedure onSuccess,
                                                      @Nonnull Consumer<Throwable> onError );
 
