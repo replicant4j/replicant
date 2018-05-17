@@ -266,10 +266,9 @@ public abstract class AbstractDataLoaderService
       completeAreaOfInterestRequest();
       return true;
     }
-
-    final AreaOfInterestRequest request = requests.get( 0 );
-    if ( 1 == requests.size() )
+    else if ( 1 == requests.size() )
     {
+      final AreaOfInterestRequest request = requests.get( 0 );
       final ChannelAddress address = request.getAddress();
       onSubscribeStarted( address );
       final SafeProcedure onSuccess = () -> {
@@ -334,7 +333,7 @@ public abstract class AbstractDataLoaderService
         addresses.forEach( a -> onSubscribeFailed( a, error ) );
       };
 
-      requestBulkSubscribeToChannel( addresses, request.getFilter(), onSuccess, onError );
+      requestBulkSubscribeToChannel( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
     }
     return true;
   }
