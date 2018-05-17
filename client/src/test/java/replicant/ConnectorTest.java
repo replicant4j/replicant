@@ -1106,6 +1106,62 @@ public class ConnectorTest
   }
 
   @Test
+  public void processEntityChanges()
+  {
+    final TestConnector connector = TestConnector.create( G.class );
+    connector.setLinksToProcessPerTick( 1 );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    final Linkable entity1 = mock( Linkable.class );
+    final Linkable entity2 = mock( Linkable.class );
+    final Linkable entity3 = mock( Linkable.class );
+
+    final EntityChange[] entityChanges = {
+      // Update changes
+      EntityChange.create( 1, 1, new EntityChannel[]{ EntityChannel.create( 1 ) }, mock( EntityChangeData.class ) ),
+      EntityChange.create( 2, 1, new EntityChannel[]{ EntityChannel.create( 1 ) }, mock( EntityChangeData.class ) ),
+      // Remove change
+      EntityChange.create( 3, 1, new EntityChannel[]{ EntityChannel.create( 1 ) } )
+    };
+    final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, null, null, entityChanges );
+    response.recordChangeSet( changeSet, null );
+
+    when( connector.getChangeMapper().applyChange( entityChanges[ 0 ] ) ).thenReturn( entity1 );
+    when( connector.getChangeMapper().applyChange( entityChanges[ 1 ] ) ).thenReturn( entity2 );
+    when( connector.getChangeMapper().applyChange( entityChanges[ 2 ] ) ).thenReturn( entity3 );
+
+    verify( connector.getChangeMapper(), never() ).applyChange( any( EntityChange.class ) );
+
+    assertEquals( response.getUpdatedEntities().size(), 0 );
+    assertEquals( response.getEntityUpdateCount(), 0 );
+    assertEquals( response.getEntityRemoveCount(), 0 );
+
+    connector.setChangesToProcessPerTick( 1 );
+
+    connector.processEntityChanges( response );
+
+    verify( connector.getChangeMapper(), times( 1 ) ).applyChange( any( EntityChange.class ) );
+
+    assertEquals( response.getUpdatedEntities().size(), 1 );
+    assertEquals( response.getUpdatedEntities().contains( entity1 ), true );
+    assertEquals( response.getEntityUpdateCount(), 1 );
+    assertEquals( response.getEntityRemoveCount(), 0 );
+
+    connector.setChangesToProcessPerTick( 2 );
+
+    connector.processEntityChanges( response );
+
+    verify( connector.getChangeMapper(), times( 3 ) ).applyChange( any( EntityChange.class ) );
+
+    assertEquals( response.getUpdatedEntities().size(), 2 );
+    assertEquals( response.getUpdatedEntities().contains( entity1 ), true );
+    assertEquals( response.getUpdatedEntities().contains( entity2 ), true );
+    assertEquals( response.getEntityUpdateCount(), 2 );
+    assertEquals( response.getEntityRemoveCount(), 1 );
+  }
+
+  @Test
   public void processEntityLinks()
   {
     final TestConnector connector = TestConnector.create( G.class );

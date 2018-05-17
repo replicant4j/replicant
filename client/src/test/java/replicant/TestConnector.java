@@ -4,12 +4,15 @@ import arez.Arez;
 import arez.annotations.ArezComponent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.transport.ChangeMapper;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings( "SameParameterValue" )
 @ArezComponent
 public abstract class TestConnector
   extends Connector
 {
+  private final ChangeMapper _changeMapper = mock( ChangeMapper.class );
   private boolean _errorOnConnect;
   private boolean _errorOnDisconnect;
   private int _progressAreaOfInterestRequestProcessingCount;
@@ -111,5 +114,12 @@ public abstract class TestConnector
   void setProgressResponseProcessing( final SafeFunction<Boolean> progressResponseProcessing )
   {
     _progressResponseProcessing = progressResponseProcessing;
+  }
+
+  @Nonnull
+  @Override
+  protected ChangeMapper getChangeMapper()
+  {
+    return _changeMapper;
   }
 }

@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.anodoc.TestOnly;
+import org.realityforge.replicant.client.transport.ChangeMapper;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;
@@ -44,6 +45,7 @@ public abstract class Connector
   extends ReplicantService
 {
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
+  private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
 
   @Nonnull
   private final Class<?> _systemType;
@@ -70,6 +72,11 @@ public abstract class Connector
    * been processed then return and any remaining links can occur in a later tick.
    */
   private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
+  /**
+   * Maximum number of EntityChange messages processed in a single tick of the scheduler. After this many changes have
+   * been processed then return and any remaining change can be processed in a later tick.
+   */
+  private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
 
   protected Connector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
   {
@@ -188,6 +195,11 @@ public abstract class Connector
   protected final void setLinksToProcessPerTick( final int linksToProcessPerTick )
   {
     _linksToProcessPerTick = linksToProcessPerTick;
+  }
+
+  protected final void setChangesToProcessPerTick( final int changesToProcessPerTick )
+  {
+    _changesToProcessPerTick = changesToProcessPerTick;
   }
 
   /**
@@ -527,6 +539,29 @@ public abstract class Connector
       }
     } );
   }
+
+  @Action( reportParameters = false )
+  protected void processEntityChanges( @Nonnull final MessageResponse response )
+  {
+    EntityChange change;
+    for ( int i = 0; i < _changesToProcessPerTick && null != ( change = response.nextChange() ); i++ )
+    {
+      //TODO: Inline all or the majority of the ChangeMappers logic here
+      final Object entity = getChangeMapper().applyChange( change );
+      if ( change.isUpdate() )
+      {
+        response.incEntityUpdateCount();
+        response.changeProcessed( entity );
+      }
+      else
+      {
+        response.incEntityRemoveCount();
+      }
+    }
+  }
+
+  @Nonnull
+  protected abstract ChangeMapper getChangeMapper();
 
   @Nonnull
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();

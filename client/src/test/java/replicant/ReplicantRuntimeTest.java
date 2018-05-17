@@ -6,7 +6,9 @@ import arez.annotations.ArezComponent;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.client.transport.ChangeMapper;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantRuntimeTest
@@ -650,6 +652,13 @@ public class ReplicantRuntimeTest
     protected SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter()
     {
       return ( address, filter, entity ) -> entity.getId() > 0;
+    }
+
+    @Nonnull
+    @Override
+    protected ChangeMapper getChangeMapper()
+    {
+      return mock( ChangeMapper.class );
     }
   }
 }

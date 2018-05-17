@@ -20,7 +20,6 @@ import replicant.ChangeSet;
 import replicant.ChannelAddress;
 import replicant.Connection;
 import replicant.Connector;
-import replicant.EntityChange;
 import replicant.MessageResponse;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -40,10 +39,8 @@ public abstract class AbstractDataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
-  private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private final SessionContext _sessionContext;
 
-  private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
   /**
    * Action invoked after current action completes to reset connection state.
    */
@@ -71,9 +68,6 @@ public abstract class AbstractDataLoaderService
   {
     return _sessionContext;
   }
-
-  @Nonnull
-  protected abstract ChangeMapper getChangeMapper();
 
   protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
@@ -111,11 +105,6 @@ public abstract class AbstractDataLoaderService
   }
 
   @SuppressWarnings( "SameParameterValue" )
-  protected void setChangesToProcessPerTick( final int changesToProcessPerTick )
-  {
-    _changesToProcessPerTick = changesToProcessPerTick;
-  }
-
   @Nonnull
   protected abstract ChangeSet parseChangeSet( @Nonnull String rawJsonData );
 
@@ -561,25 +550,6 @@ public abstract class AbstractDataLoaderService
       _resetAction = null;
     }
     return true;
-  }
-
-  @Action( reportParameters = false )
-  protected void processEntityChanges( @Nonnull final MessageResponse currentAction )
-  {
-    EntityChange change;
-    for ( int i = 0; i < _changesToProcessPerTick && null != ( change = currentAction.nextChange() ); i++ )
-    {
-      final Object entity = getChangeMapper().applyChange( change );
-      if ( change.isUpdate() )
-      {
-        currentAction.incEntityUpdateCount();
-        currentAction.changeProcessed( entity );
-      }
-      else
-      {
-        currentAction.incEntityRemoveCount();
-      }
-    }
   }
 
   /**

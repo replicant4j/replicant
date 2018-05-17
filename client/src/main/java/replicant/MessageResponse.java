@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.anodoc.TestOnly;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -325,5 +326,11 @@ public final class MessageResponse
       final ChangeSet changeSet2 = other.getChangeSet();
       return changeSet1.getSequence() - changeSet2.getSequence();
     }
+  }
+
+  @TestOnly
+  final LinkedList<Linkable> getUpdatedEntities()
+  {
+    return _updatedEntities;
   }
 }
