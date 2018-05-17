@@ -194,5 +194,4 @@ public abstract class GwtWebPollerDataLoaderService
     }
     return rb;
   }
-
 }
