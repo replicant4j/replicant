@@ -381,9 +381,6 @@ public abstract class Connector
                      () -> "Replicant-0028: Received ChannelChange of type REMOVE for address " + address +
                            " but no such subscription exists." );
           assert null != subscription;
-          invariant( subscription::isExplicitSubscription,
-                     () -> "Replicant-0030: Received ChannelChange of type REMOVE for address " + address +
-                           " but subscription is implicitly subscribed." );
         }
         assert null != subscription;
         Disposable.dispose( subscription );
