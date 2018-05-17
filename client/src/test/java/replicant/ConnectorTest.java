@@ -1314,8 +1314,7 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
 
-    final Subscription initialSubscription =
-      Arez.context().safeAction( () -> Replicant.context().createSubscription( address, filter, false ) );
+    Arez.context().safeAction( () -> Replicant.context().createSubscription( address, filter, false ) );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1346,7 +1345,6 @@ public class ConnectorTest
     final int channelId = address.getChannelType().ordinal();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
-    final String filter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
@@ -1458,7 +1456,6 @@ public class ConnectorTest
     final int channelId = address.getChannelType().ordinal();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
-    final String oldFilter = ValueUtil.randomString();
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
