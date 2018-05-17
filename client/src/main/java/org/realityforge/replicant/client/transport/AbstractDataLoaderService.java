@@ -25,7 +25,6 @@ import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
-import replicant.Subscription;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
