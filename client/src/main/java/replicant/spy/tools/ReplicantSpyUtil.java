@@ -1,15 +1,16 @@
 package replicant.spy.tools;
 
+import java.util.HashMap;
+import java.util.Map;
 import replicant.Replicant;
+import replicant.ReplicantContext;
 
 /**
  * Utility class for interacting with spy capabilities.
  */
 public final class ReplicantSpyUtil
 {
-  private static final ConsoleSpyEventProcessor PROCESSOR =
-    Replicant.areSpiesEnabled() ? new ConsoleSpyEventProcessor() : null;
-  private static boolean c_loggingEnabled;
+  private static final Map<ReplicantContext, ConsoleSpyEventProcessor> c_processors = new HashMap<>();
 
   /**
    * Return true if spy event logging is enabled.
@@ -18,7 +19,7 @@ public final class ReplicantSpyUtil
    */
   public static boolean isSpyEventLoggingEnabled()
   {
-    return c_loggingEnabled;
+    return c_processors.containsKey( Replicant.context() );
   }
 
   /**
@@ -29,8 +30,10 @@ public final class ReplicantSpyUtil
   {
     if ( Replicant.areSpiesEnabled() && !isSpyEventLoggingEnabled() )
     {
-      Replicant.context().getSpy().addSpyEventHandler( PROCESSOR );
-      c_loggingEnabled = true;
+      final ConsoleSpyEventProcessor handler = new ConsoleSpyEventProcessor();
+      final ReplicantContext context = Replicant.context();
+      context.getSpy().addSpyEventHandler( handler );
+      c_processors.put( context, handler );
     }
   }
 
@@ -42,8 +45,10 @@ public final class ReplicantSpyUtil
   {
     if ( Replicant.areSpiesEnabled() && isSpyEventLoggingEnabled() )
     {
-      Replicant.context().getSpy().removeSpyEventHandler( PROCESSOR );
-      c_loggingEnabled = false;
+      final ReplicantContext context = Replicant.context();
+      final ConsoleSpyEventProcessor handler = c_processors.remove( context );
+      assert null != handler;
+      context.getSpy().removeSpyEventHandler( handler );
     }
   }
 
