@@ -17,7 +17,7 @@ public class AreaOfInterestTest
   {
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
       assertEquals( areaOfInterest.getAddress(), new ChannelAddress( G.G1 ) );
       assertEquals( areaOfInterest.getFilter(), null );
@@ -33,7 +33,7 @@ public class AreaOfInterestTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    Arez.context().safeAction( () -> Disposable.dispose( areaOfInterest ) );
+    safeAction( () -> Disposable.dispose( areaOfInterest ) );
     handler.assertEventCount( 1 );
 
     final AreaOfInterestDisposedEvent event = handler.assertNextEvent( AreaOfInterestDisposedEvent.class );
@@ -80,25 +80,25 @@ public class AreaOfInterestTest
     assertEquals( getErrorCallCount.get(), 1 );
     assertEquals( getSubscriptionCallCount.get(), 1 );
 
-    Arez.context().safeAction( () -> areaOfInterest.setStatus( AreaOfInterest.Status.LOADED ) );
+    safeAction( () -> areaOfInterest.setStatus( AreaOfInterest.Status.LOADED ) );
 
     assertEquals( getStatusCallCount.get(), 2 );
     assertEquals( getErrorCallCount.get(), 1 );
     assertEquals( getSubscriptionCallCount.get(), 1 );
 
-    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
-    Arez.context().safeAction( () -> assertNull( areaOfInterest.getError() ) );
-    Arez.context().safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
-    Arez.context().safeAction( () -> areaOfInterest.setError( new Throwable() ) );
+    safeAction( () -> areaOfInterest.setError( new Throwable() ) );
 
     assertEquals( getStatusCallCount.get(), 2 );
     assertEquals( getErrorCallCount.get(), 2 );
     assertEquals( getSubscriptionCallCount.get(), 1 );
 
-    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
-    Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
-    Arez.context().safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
     Arez.context()
       .safeAction( () -> {
@@ -112,9 +112,9 @@ public class AreaOfInterestTest
     assertEquals( getErrorCallCount.get(), 2 );
     assertEquals( getSubscriptionCallCount.get(), 2 );
 
-    Arez.context().safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
-    Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
-    Arez.context().safeAction( () -> assertNotNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
+    safeAction( () -> assertNotNull( areaOfInterest.getSubscription() ) );
   }
 
   @Test
@@ -150,55 +150,55 @@ public class AreaOfInterestTest
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
     final Throwable error = new Throwable();
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, error ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), error ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, error ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    safeAction( () -> assertEquals( aoi.getError(), error ) );
 
     final Subscription subscription =
-      Arez.context().safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
+      safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATE_FAILED, error ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), error ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATE_FAILED, error ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    safeAction( () -> assertEquals( aoi.getError(), error ) );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     Disposable.dispose( subscription );
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
-    Arez.context().safeAction( () -> assertEquals( aoi.getError(), null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
+    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
+    safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
+    safeAction( () -> assertEquals( aoi.getError(), null ) );
   }
 
   @Test
@@ -209,7 +209,7 @@ public class AreaOfInterestTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    Arez.context().safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
+    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
 
     handler.assertEventCount( 1 );
     final AreaOfInterestStatusUpdatedEvent event = handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class );
@@ -266,7 +266,7 @@ public class AreaOfInterestTest
     Arez.context().pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
-    Arez.context().safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
+    safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,

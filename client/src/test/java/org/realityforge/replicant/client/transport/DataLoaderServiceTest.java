@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.Arez;
 import arez.Disposable;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
@@ -15,7 +14,7 @@ public class DataLoaderServiceTest
   @Override
   public void run( final IHookCallBack callBack, final ITestResult testResult )
   {
-    Arez.context().safeAction( () -> callBack.runTestMethod( testResult ) );
+    safeAction( () -> callBack.runTestMethod( testResult ) );
   }
 
   static class MyType

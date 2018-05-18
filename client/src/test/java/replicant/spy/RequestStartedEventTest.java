@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import arez.Arez;
 import java.util.HashMap;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -22,7 +21,7 @@ public class RequestStartedEventTest
     assertEquals( event.getName(), name );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.RequestStarted" );
     assertEquals( data.get( "systemType" ), "G" );

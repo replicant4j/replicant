@@ -76,15 +76,15 @@ public class EntityServiceTest
     assertEquals( findEntityByTypeAndId1CallCount.get(), 1 );
     assertEquals( findEntityByTypeAndId2CallCount.get(), 1 );
 
-    Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-    Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+    safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 0 ) );
+    safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+    safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+    safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
 
     // add first entity
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
+      safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 2 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
@@ -92,16 +92,16 @@ public class EntityServiceTest
       assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
       assertEquals( findEntityByTypeAndId2CallCount.get(), 2 );
 
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
     }
 
     // Attempt to add same entity
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
+      safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 2 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
@@ -109,16 +109,16 @@ public class EntityServiceTest
       assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
       assertEquals( findEntityByTypeAndId2CallCount.get(), 2 );
 
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
     }
 
     // add an entity of the same type
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( "A/2", A.class, 2 ) );
+      safeAction( () -> service.findOrCreateEntity( "A/2", A.class, 2 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 3 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 3 );
@@ -126,16 +126,16 @@ public class EntityServiceTest
       assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
       assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
 
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
     }
 
     // Add an entity of a different type
     {
-      Arez.context().safeAction( () -> service.findOrCreateEntity( "B/-53", B.class, -53 ) );
+      safeAction( () -> service.findOrCreateEntity( "B/-53", B.class, -53 ) );
 
       assertEquals( findAllEntityTypesCallCount.get(), 4 );
       assertEquals( findAllEntitiesByTypeACallCount.get(), 4 );
@@ -143,16 +143,16 @@ public class EntityServiceTest
       assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
       assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
 
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 1 ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 2 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 1 ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
     }
 
     // Dispose entity of different type
     {
-      Arez.context().safeAction( () -> {
+      safeAction( () -> {
         final Entity entity = service.findEntityByTypeAndId( B.class, -53 );
         assertNotNull( entity );
         Disposable.dispose( entity );
@@ -164,16 +164,16 @@ public class EntityServiceTest
       assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
       assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
 
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
     }
 
     // Dispose entity of A type
     {
-      Arez.context().safeAction( () -> {
+      safeAction( () -> {
         final Entity entity = service.findEntityByTypeAndId( A.class, 1 );
         assertNotNull( entity );
         Disposable.dispose( entity );
@@ -185,11 +185,11 @@ public class EntityServiceTest
       assertEquals( findEntityByTypeAndId1CallCount.get(), 3 );
       assertEquals( findEntityByTypeAndId2CallCount.get(), 3 );
 
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
-      Arez.context().safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( B.class ).size(), 0 ) );
+      safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 2 ) ) );
     }
   }
 
@@ -202,7 +202,7 @@ public class EntityServiceTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkEntity( entity ) ) );
+                    () -> safeAction( () -> service.unlinkEntity( entity ) ) );
 
     assertEquals( exception.getMessage(), "Entity type A not present in EntityService" );
   }
@@ -212,12 +212,12 @@ public class EntityServiceTest
   {
     final EntityService service = Replicant.context().getEntityService();
 
-    Arez.context().safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
+    safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity = Entity.create( null, "A/2", A.class, 2 );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkEntity( entity ) ) );
+                    () -> safeAction( () -> service.unlinkEntity( entity ) ) );
 
     assertEquals( exception.getMessage(), "Entity instance A/2 not present in EntityService" );
   }

@@ -19,9 +19,9 @@ public class SubscriptionTest
 
     assertEquals( subscription.getAddress(), address );
 
-    Arez.context().safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.getEntities().size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
+    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription.getEntities().size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
   }
 
   @Test
@@ -33,9 +33,9 @@ public class SubscriptionTest
     final Subscription subscription =
       Subscription.create( null, new ChannelAddress( G.G1 ), filter1, ValueUtil.randomBoolean() );
 
-    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter1 ) );
-    Arez.context().safeAction( () -> subscription.setFilter( filter2 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.getFilter(), filter2 ) );
+    safeAction( () -> assertEquals( subscription.getFilter(), filter1 ) );
+    safeAction( () -> subscription.setFilter( filter2 ) );
+    safeAction( () -> assertEquals( subscription.getFilter(), filter2 ) );
 
   }
 
@@ -43,8 +43,8 @@ public class SubscriptionTest
   public void entities()
   {
     final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
-    final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
+    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
+    final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
     final ChannelAddress address = new ChannelAddress( G.G1, 1 );
     final Subscription subscription =
@@ -67,89 +67,89 @@ public class SubscriptionTest
 
     assertEquals( callCount.get(), 1 );
     assertEquals( findCallCount.get(), 1 );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), false ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), false ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
 
-    Arez.context().safeAction( () -> subscription.linkSubscriptionToEntity( entity1 ) );
+    safeAction( () -> subscription.linkSubscriptionToEntity( entity1 ) );
 
     assertEquals( callCount.get(), 2 );
     assertEquals( findCallCount.get(), 2 );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), true ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), true ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
 
     // Add second entity, finder no need to re-find
-    Arez.context().safeAction( () -> subscription.linkSubscriptionToEntity( entity2 ) );
+    safeAction( () -> subscription.linkSubscriptionToEntity( entity2 ) );
 
     assertEquals( callCount.get(), 3 );
     assertEquals( findCallCount.get(), 2 );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), true ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 2 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), true ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 2 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
 
     // Duplicate link ... ignored as no change
-    Arez.context().safeAction( () -> subscription.linkSubscriptionToEntity( entity2 ) );
+    safeAction( () -> subscription.linkSubscriptionToEntity( entity2 ) );
 
     assertEquals( callCount.get(), 3 );
     assertEquals( findCallCount.get(), 2 );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 2 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 2 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
 
     // Removing entity 1, finder will react
-    Arez.context().safeAction( () -> subscription.delinkEntityFromSubscription( entity1 ) );
+    safeAction( () -> subscription.delinkEntityFromSubscription( entity1 ) );
 
     assertEquals( callCount.get(), 4 );
     assertEquals( findCallCount.get(), 3 );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
 
     // Removing entity 2, state is reset
-    Arez.context().safeAction( () -> subscription.delinkEntityFromSubscription( entity2 ) );
+    safeAction( () -> subscription.delinkEntityFromSubscription( entity2 ) );
 
     assertEquals( callCount.get(), 5 );
     assertEquals( findCallCount.get(), 4 );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
-    Arez.context().safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
   }
 
   @Test
   public void dispose_delinksFromEntity()
   {
     final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
-    final Entity entity2 = Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
+    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
+    final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
     final Subscription subscription1 =
       Subscription.create( null, new ChannelAddress( G.G1, 1 ), null, true );
     final Subscription subscription2 =
       Subscription.create( null, new ChannelAddress( G.G1, 2 ), null, true );
 
-    Arez.context().safeAction( () -> entity1.linkToSubscription( subscription1 ) );
-    Arez.context().safeAction( () -> entity2.linkToSubscription( subscription1 ) );
-    Arez.context().safeAction( () -> entity1.linkToSubscription( subscription2 ) );
+    safeAction( () -> entity1.linkToSubscription( subscription1 ) );
+    safeAction( () -> entity2.linkToSubscription( subscription1 ) );
+    safeAction( () -> entity1.linkToSubscription( subscription2 ) );
 
-    Arez.context().safeAction( () -> assertEquals( subscription1.findAllEntityTypes().size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( subscription2.findAllEntityTypes().size(), 1 ) );
-    Arez.context().safeAction( () -> assertEquals( entity1.getSubscriptions().size(), 2 ) );
+    safeAction( () -> assertEquals( subscription1.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( subscription2.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( entity1.getSubscriptions().size(), 2 ) );
 
     assertFalse( Disposable.isDisposed( subscription1 ) );
     assertFalse( Disposable.isDisposed( subscription2 ) );
@@ -180,11 +180,11 @@ public class SubscriptionTest
       Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );
 
     entity.subscriptions().put( subscription1.getAddress(), subscription1 );
-    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+    safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
+                    () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
     assertEquals( exception.getMessage(), "Entity type A not present in subscription to channel G.G1:1" );
   }
 
@@ -193,23 +193,23 @@ public class SubscriptionTest
   {
     final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity =
-      Arez.context().safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
+      safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
     final Entity entity2 =
-      Arez.context().safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
-                                                                         A.class,
-                                                                         ValueUtil.randomInt() ) );
+      safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                          A.class,
+                                                          ValueUtil.randomInt() ) );
 
     final Subscription subscription1 =
       Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );
 
-    Arez.context().safeAction( () -> entity2.linkToSubscription( subscription1 ) );
+    safeAction( () -> entity2.linkToSubscription( subscription1 ) );
 
     entity.subscriptions().put( subscription1.getAddress(), subscription1 );
-    Arez.context().safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+    safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
+                    () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
     assertEquals( exception.getMessage(), "Entity instance A/123 not present in subscription to channel G.G1:1" );
   }
 

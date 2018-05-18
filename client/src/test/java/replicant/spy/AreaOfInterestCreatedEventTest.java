@@ -22,14 +22,14 @@ public class AreaOfInterestCreatedEventTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
 
     final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
 
     assertEquals( event.getAreaOfInterest(), areaOfInterest );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "AreaOfInterest.Created" );
     assertEquals( data.get( "channel.type" ), "G1" );

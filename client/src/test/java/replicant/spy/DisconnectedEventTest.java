@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import arez.Arez;
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
@@ -17,7 +16,7 @@ public class DisconnectedEventTest
     assertEquals( event.getSystemType(), G.class );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.Disconnect" );
     assertEquals( data.get( "systemType" ), "G" );

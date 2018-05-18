@@ -21,15 +21,15 @@ public class AreaOfInterestDisposedEventTest
 
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                                         filter ) );
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
+                                                                          filter ) );
 
     final AreaOfInterestDisposedEvent event = new AreaOfInterestDisposedEvent( areaOfInterest );
 
     assertEquals( event.getAreaOfInterest(), areaOfInterest );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "AreaOfInterest.Disposed" );
     assertEquals( data.get( "channel.type" ), "G1" );

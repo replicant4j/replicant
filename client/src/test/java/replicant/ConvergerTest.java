@@ -57,23 +57,23 @@ public class ConvergerTest
     Arez.context().pauseScheduler();
 
     // should do nothing ...
-    Arez.context().safeAction( c::preConverge );
+    safeAction( c::preConverge );
 
     final AtomicInteger callCount = new AtomicInteger();
 
-    Arez.context().safeAction( () -> c.setPreConvergeAction( callCount::incrementAndGet ) );
+    safeAction( () -> c.setPreConvergeAction( callCount::incrementAndGet ) );
 
-    Arez.context().safeAction( c::preConverge );
+    safeAction( c::preConverge );
 
     assertEquals( callCount.get(), 1 );
 
-    Arez.context().safeAction( c::preConverge );
+    safeAction( c::preConverge );
 
     assertEquals( callCount.get(), 2 );
 
-    Arez.context().safeAction( () -> c.setPreConvergeAction( null ) );
+    safeAction( () -> c.setPreConvergeAction( null ) );
 
-    Arez.context().safeAction( c::preConverge );
+    safeAction( c::preConverge );
 
     assertEquals( callCount.get(), 2 );
   }
@@ -87,23 +87,23 @@ public class ConvergerTest
     Arez.context().pauseScheduler();
 
     // should do nothing ...
-    Arez.context().safeAction( c::convergeComplete );
+    safeAction( c::convergeComplete );
 
     final AtomicInteger callCount = new AtomicInteger();
 
-    Arez.context().safeAction( () -> c.setConvergeCompleteAction( callCount::incrementAndGet ) );
+    safeAction( () -> c.setConvergeCompleteAction( callCount::incrementAndGet ) );
 
-    Arez.context().safeAction( c::convergeComplete );
+    safeAction( c::convergeComplete );
 
     assertEquals( callCount.get(), 1 );
 
-    Arez.context().safeAction( c::convergeComplete );
+    safeAction( c::convergeComplete );
 
     assertEquals( callCount.get(), 2 );
 
-    Arez.context().safeAction( () -> c.setConvergeCompleteAction( null ) );
+    safeAction( () -> c.setConvergeCompleteAction( null ) );
 
-    Arez.context().safeAction( c::convergeComplete );
+    safeAction( c::convergeComplete );
 
     assertEquals( callCount.get(), 2 );
   }
@@ -116,7 +116,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final ChannelAddress address = new ChannelAddress( G.G1 );
       final AreaOfInterest areaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, null );
 
@@ -205,7 +205,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
 
       final Subscription subscription = context.createSubscription( address, null, true );
 
@@ -242,7 +242,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
 
       context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 1 ), null );
       context.createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 2 ), null );
@@ -284,7 +284,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
 
       context.createSubscription( address, null, true );
 
@@ -309,7 +309,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
 
       context.createSubscription( address, null, false );
 
@@ -334,7 +334,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
 
       // Add expectation
       context.createOrUpdateAreaOfInterest( address, null );
@@ -367,7 +367,7 @@ public class ConvergerTest
     // Pause scheduler so Autoruns don't auto-converge
     Arez.context().pauseScheduler();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
 
       context.createSubscription( address, null, true );
 
@@ -392,15 +392,15 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
@@ -420,16 +420,16 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
-    context.safeAction( () -> rContext.createSubscription( address, null, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+    safeAction( () -> rContext.createSubscription( address, null, true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -449,18 +449,18 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address,
                                                                               AreaOfInterestRequest.Type.ADD,
                                                                               null ) );
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
@@ -480,17 +480,17 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
 
     connector.requestSubscribe( address, null );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
@@ -510,19 +510,19 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final Object filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
-    context.safeAction( () -> rContext.createSubscription( address, ValueUtil.randomString(), true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
+    safeAction( () -> rContext.createSubscription( address, ValueUtil.randomString(), true ) );
 
     connector.requestSubscriptionUpdate( address, filter );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
@@ -541,17 +541,17 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
-    context.safeAction( () -> rContext.createSubscription( address, ValueUtil.randomString(), true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
+    safeAction( () -> rContext.createSubscription( address, ValueUtil.randomString(), true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
@@ -574,18 +574,18 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, filter ) );
 
     Disposable.dispose( areaOfInterest );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> context.safeAction( () -> rContext.getConverger()
+                    () -> safeAction( () -> rContext.getConverger()
                       .convergeAreaOfInterest( areaOfInterest, null, null ) ) );
 
     assertEquals( exception.getMessage(),
@@ -603,17 +603,17 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
     final AreaOfInterest areaOfInterest =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
-    context.safeAction( () -> rContext.createSubscription( address, null, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address, null ) );
+    safeAction( () -> rContext.createSubscription( address, null, true ) );
     connector.requestUnsubscribe( address );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest, null, null ) );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
@@ -633,18 +633,18 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, null ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
@@ -664,21 +664,21 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, null ) );
 
     // areaOfInterest2 would actually require an update as already present
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, null ) );
-    context.safeAction( () -> rContext.createSubscription( address2, ValueUtil.randomString(), true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, null ) );
+    safeAction( () -> rContext.createSubscription( address2, ValueUtil.randomString(), true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -697,18 +697,18 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -727,18 +727,18 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G1 );
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, null ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, null ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -757,7 +757,7 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
@@ -766,15 +766,15 @@ public class ConvergerTest
     final String filterNew = ValueUtil.randomString();
 
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
-    context.safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
+    safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
-    context.safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
+    safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
 
     assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
@@ -795,7 +795,7 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
@@ -804,14 +804,14 @@ public class ConvergerTest
     final String filterNew = ValueUtil.randomString();
 
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
-    context.safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
+    safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -830,7 +830,7 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G1 );
@@ -839,15 +839,15 @@ public class ConvergerTest
     final String filterNew = ValueUtil.randomString();
 
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
-    context.safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, filterNew ) );
+    safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
-    context.safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, filterNew ) );
+    safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -866,7 +866,7 @@ public class ConvergerTest
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    context.safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
@@ -874,15 +874,15 @@ public class ConvergerTest
     final String filterOld = ValueUtil.randomString();
 
     final AreaOfInterest areaOfInterest1 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
-    context.safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
+    safeAction( () -> rContext.createSubscription( address1, filterOld, true ) );
     final AreaOfInterest areaOfInterest2 =
-      context.safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
-    context.safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
+      safeAction( () -> rContext.createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
+    safeAction( () -> rContext.createSubscription( address2, filterOld, true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = context.safeAction( () -> rContext.getConverger()
+    final Converger.Action result = safeAction( () -> rContext.getConverger()
       .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
 
     assertEquals( result, Converger.Action.NO_ACTION );

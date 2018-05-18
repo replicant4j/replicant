@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.Collection;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -37,7 +36,7 @@ public class AreaOfInterestServiceTest
     final ChannelAddress address2 = new ChannelAddress( TestSystem.B, 1 );
     final ChannelAddress address3 = new ChannelAddress( TestSystem.B, 2 );
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest( address1, null );
       assertNotNull( areaOfInterest1 );
 
@@ -68,7 +67,7 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestService service = AreaOfInterestService.create( null );
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       final AreaOfInterest areaOfInterest = service.createOrUpdateAreaOfInterest( address1, null );
@@ -86,7 +85,7 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestService service = AreaOfInterestService.create( null );
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       service.createOrUpdateAreaOfInterest( address1, "Filter1" );
 
       final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -107,11 +106,11 @@ public class AreaOfInterestServiceTest
     final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
 
     final AreaOfInterest areaOfInterest =
-      Arez.context().safeAction( () -> service.createOrUpdateAreaOfInterest( address1, "Filter1" ) );
+      safeAction( () -> service.createOrUpdateAreaOfInterest( address1, "Filter1" ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    Arez.context().safeAction( () -> Disposable.dispose( areaOfInterest ) );
+    safeAction( () -> Disposable.dispose( areaOfInterest ) );
     handler.assertEventCount( 1 );
 
     handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
@@ -121,7 +120,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void createSubscription()
   {
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final AreaOfInterestService service = AreaOfInterestService.create( null );
 
       final ChannelAddress address1 = new ChannelAddress( TestSystem.A );
@@ -145,7 +144,7 @@ public class AreaOfInterestServiceTest
   @Test
   public void createOrUpdateAreaOfInterest()
   {
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final ChannelAddress channel = new ChannelAddress( TestSystem.A );
       final String filter1 = ValueUtil.randomString();
       final String filter2 = ValueUtil.randomString();

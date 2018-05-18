@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import arez.Arez;
 import java.util.HashMap;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -23,7 +22,7 @@ public class SubscriptionUpdateRequestQueuedEventTest
     assertEquals( event.getFilter(), filter );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateRequestQueued" );
     assertEquals( data.get( "channel.type" ), "G1" );

@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import arez.Arez;
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
@@ -20,7 +19,7 @@ public class SubscribeCompletedEventTest
     assertEquals( event.getAddress(), address );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.SubscribeCompleted" );
     assertEquals( data.get( "systemType" ), "G" );

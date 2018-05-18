@@ -64,53 +64,53 @@ public class SubscriptionServiceTest
     assertEquals( findSubscriptionAddress2CallCount.get(), 1 );
     assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
     assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-    Arez.context().safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
-    Arez.context().safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
-    Arez.context().safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 0 ) );
+    safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
+    safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+    safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 0 ) );
 
     // Add subscription on address1
     {
-      Arez.context().safeAction( () -> service.createSubscription( address1, null, true ) );
+      safeAction( () -> service.createSubscription( address1, null, true ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 2 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 2 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
     }
 
     // Add subscription on address2
     {
-      Arez.context().safeAction( () -> service.createSubscription( address2, null, true ) );
+      safeAction( () -> service.createSubscription( address2, null, true ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 3 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
     }
 
     // Add subscription on address3
     {
-      Arez.context().safeAction( () -> service.createSubscription( address3, null, true ) );
+      safeAction( () -> service.createSubscription( address3, null, true ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 4 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 3 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 3 ) );
     }
 
     // Dispose subscription on address3
     // Should only reschedule `getTypeSubscriptions()`
     {
-      Arez.context().safeAction( () -> {
+      safeAction( () -> {
         final Subscription subscription = service.findSubscription( address3 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
@@ -125,15 +125,15 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 5 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
     }
 
     // Dispose subscription on address2
     // Should reschedule `getTypeSubscriptions()` and findSubscription( address2 )
     {
-      Arez.context().safeAction( () -> {
+      safeAction( () -> {
         final Subscription subscription = service.findSubscription( address2 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
@@ -148,14 +148,14 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 4 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 6 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
     }
 
     // Dispose service
     {
-      Arez.context().safeAction( () -> Disposable.dispose( service ) );
+      safeAction( () -> Disposable.dispose( service ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 3 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 5 );
@@ -216,61 +216,61 @@ public class SubscriptionServiceTest
     assertEquals( findSubscriptionAddress2CallCount.get(), 1 );
     assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
     assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-    Arez.context().safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
-    Arez.context().safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
-    Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 0 ) );
-    Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+    safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
+    safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 0 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 0 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
 
     // Add subscription on address1
     {
-      Arez.context().safeAction( () -> service.createSubscription( address1, null, true ) );
+      safeAction( () -> service.createSubscription( address1, null, true ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 2 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 2 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
     }
 
     // Add subscription on address2
     {
-      Arez.context().safeAction( () -> service.createSubscription( address2, null, true ) );
+      safeAction( () -> service.createSubscription( address2, null, true ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 3 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
     }
 
     // Add subscription on address3
     {
-      Arez.context().safeAction( () -> service.createSubscription( address3, null, true ) );
+      safeAction( () -> service.createSubscription( address3, null, true ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 4 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 3 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 1 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 3 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 1 ) );
     }
 
     // Dispose subscription on address3
     // Should only reschedule `getInstanceSubscriptions()`
     {
-      Arez.context().safeAction( () -> {
+      safeAction( () -> {
         final Subscription subscription = service.findSubscription( address3 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
@@ -286,17 +286,17 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 5 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
     }
 
     // Dispose subscription on address2
     // Should reschedule `getInstanceSubscriptions()` and findSubscription( address2 )
     {
-      Arez.context().safeAction( () -> {
+      safeAction( () -> {
         final Subscription subscription = service.findSubscription( address2 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
@@ -312,16 +312,16 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 4 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 6 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      Arez.context().safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      Arez.context().safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 ) );
-      Arez.context().safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
+      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
     }
 
     // Dispose service
     {
-      Arez.context().safeAction( () -> Disposable.dispose( service ) );
+      safeAction( () -> Disposable.dispose( service ) );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 3 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 5 );
@@ -338,7 +338,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     // instance channel, no filter, explicit subscription
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final Subscription subscription = service.createSubscription( address, null, true );
       assertEquals( subscription.getAddress(), address );
       assertEquals( subscription.getFilter(), null );
@@ -354,7 +354,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     // instance channel, filter, not explicit subscription
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final String filter = ValueUtil.randomString();
       final boolean explicitSubscription = false;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
@@ -372,7 +372,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     // type channel, no filter, no explicit subscription
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final String filter = null;
       final boolean explicitSubscription = false;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
@@ -390,7 +390,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     // type channel, filter, explicit subscription
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final String filter = ValueUtil.randomString();
       final boolean explicitSubscription = true;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
@@ -409,7 +409,7 @@ public class SubscriptionServiceTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final Subscription subscription =
-      Arez.context().safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
+      safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
 
     handler.assertEventCount( 1 );
 
@@ -425,7 +425,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     final Subscription subscription =
-      Arez.context().safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
+      safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -444,11 +444,11 @@ public class SubscriptionServiceTest
 
     final SubscriptionService service = SubscriptionService.create( null );
 
-    Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
+    safeAction( () -> service.createSubscription( address, null, true ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.createSubscription( address, null, true ) ) );
+                    () -> safeAction( () -> service.createSubscription( address, null, true ) ) );
 
     assertEquals( exception.getMessage(),
                   "createSubscription invoked with address G.G1 but a subscription with that address already exists." );
@@ -463,7 +463,7 @@ public class SubscriptionServiceTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
+                    () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
                   "unlinkSubscription invoked with address G.G1 but no subscription with that address exists." );
@@ -476,11 +476,11 @@ public class SubscriptionServiceTest
 
     final SubscriptionService service = SubscriptionService.create( null );
 
-    Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
+    safeAction( () -> service.createSubscription( address, null, true ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
+                    () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
                   "unlinkSubscription invoked with address G.G1 but subscription has not already been disposed." );
@@ -495,7 +495,7 @@ public class SubscriptionServiceTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
+                    () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
                   "unlinkSubscription invoked with address G.G1:1 but no subscription with that address exists." );
@@ -509,11 +509,11 @@ public class SubscriptionServiceTest
 
     final SubscriptionService service = SubscriptionService.create( null );
 
-    Arez.context().safeAction( () -> service.createSubscription( address2, null, true ) );
+    safeAction( () -> service.createSubscription( address2, null, true ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address1 ) ) );
+                    () -> safeAction( () -> service.unlinkSubscription( address1 ) ) );
 
     assertEquals( exception.getMessage(),
                   "unlinkSubscription invoked with address G.G1:1 but no subscription with that address exists." );
@@ -526,11 +526,11 @@ public class SubscriptionServiceTest
 
     final SubscriptionService service = SubscriptionService.create( null );
 
-    Arez.context().safeAction( () -> service.createSubscription( address, null, true ) );
+    safeAction( () -> service.createSubscription( address, null, true ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context().safeAction( () -> service.unlinkSubscription( address ) ) );
+                    () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
                   "unlinkSubscription invoked with address G.G1:2 but subscription has not already been disposed." );

@@ -38,7 +38,7 @@ public class ReplicantContextTest
     final String filter = ValueUtil.randomString();
     final String filter2 = ValueUtil.randomString();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       assertEquals( context.getAreasOfInterest().size(), 0 );
       assertEquals( context.findAreaOfInterestByAddress( address ), null );
 
@@ -63,7 +63,7 @@ public class ReplicantContextTest
   {
     final ReplicantContext context = Replicant.context();
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       assertEquals( context.findAllEntityTypes().size(), 0 );
       assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 );
       assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
@@ -146,7 +146,7 @@ public class ReplicantContextTest
     final boolean explicitSubscription2 = true;
     final boolean explicitSubscription3 = false;
 
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       assertEquals( context.getTypeSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptionIds( G.G2 ).size(), 0 );
@@ -242,7 +242,7 @@ public class ReplicantContextTest
   public void preConvergeAction()
     throws Exception
   {
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final SafeProcedure action = () -> {
       };
       assertEquals( Replicant.context().getPreConvergeAction(), null );
@@ -255,7 +255,7 @@ public class ReplicantContextTest
   public void convergeCompleteAction()
     throws Exception
   {
-    Arez.context().safeAction( () -> {
+    safeAction( () -> {
       final SafeProcedure action = () -> {
       };
       assertEquals( Replicant.context().getConvergeCompleteAction(), null );
@@ -269,14 +269,14 @@ public class ReplicantContextTest
     throws Exception
   {
     final ReplicantContext context = Replicant.context();
-    Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
-    Arez.context().safeAction( () -> assertEquals( context.isActive(), true ) );
+    safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
+    safeAction( () -> assertEquals( context.isActive(), true ) );
     context.deactivate();
-    Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.DISCONNECTED ) );
-    Arez.context().safeAction( () -> assertEquals( context.isActive(), false ) );
+    safeAction( () -> assertEquals( context.getState(), RuntimeState.DISCONNECTED ) );
+    safeAction( () -> assertEquals( context.isActive(), false ) );
     context.activate();
-    Arez.context().safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
-    Arez.context().safeAction( () -> assertEquals( context.isActive(), true ) );
+    safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
+    safeAction( () -> assertEquals( context.isActive(), true ) );
   }
 
   @Test

@@ -21,16 +21,16 @@ public class SubscriptionCreatedEventTest
 
     final String filter = ValueUtil.randomString();
     final Subscription subscription =
-      Arez.context().safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ),
-                                                                               filter,
-                                                                               true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ),
+                                                                filter,
+                                                                true ) );
 
     final SubscriptionCreatedEvent event = new SubscriptionCreatedEvent( subscription );
 
     assertEquals( event.getSubscription(), subscription );
 
     final HashMap<String, Object> data = new HashMap<>();
-    Arez.context().safeAction( () -> event.toMap( data ) );
+    safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Subscription.Created" );
     assertEquals( data.get( "channel.type" ), "G1" );
