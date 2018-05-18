@@ -11,6 +11,23 @@ public class ReplicantContextTest
   extends AbstractReplicantTest
 {
   @Test
+  public void schemas()
+  {
+    final ReplicantContext context = Replicant.context();
+    safeAction( () -> assertEquals( context.getSchemas().size(), 0 ) );
+    final SystemSchema schema1 =
+      new SystemSchema( ValueUtil.randomInt(),
+                        ValueUtil.randomString(),
+                        new ChannelSchema[ 0 ],
+                        new EntitySchema[ 0 ] );
+
+    safeAction( () -> context.getSchemaService().registerSchema( schema1 ) );
+
+    safeAction( () -> assertEquals( context.getSchemas().size(), 1 ) );
+    safeAction( () -> assertEquals( context.getSchemas().contains( schema1 ), true ) );
+  }
+
+  @Test
   public void areasOfInterest()
   {
     // Pause scheduler so Autoruns don't auto-converge

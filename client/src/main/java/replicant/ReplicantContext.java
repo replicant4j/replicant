@@ -19,6 +19,7 @@ public final class ReplicantContext
     SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
   private final ReplicantRuntime _runtime = ReplicantRuntime.create();
   private final Converger _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
+  private final SchemaService _schemaService = SchemaService.create();
   /**
    * Service responsible for caching data to avoid hitting the network during requests.
    */
@@ -198,6 +199,17 @@ public final class ReplicantContext
   public final Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
     return getSubscriptionService().findSubscription( address );
+  }
+
+  /**
+   * Return the SystemSchema instances registered with the context.
+   *
+   * @return the SystemSchema instances registered with the context.
+   */
+  @Nonnull
+  public Collection<SystemSchema> getSchemas()
+  {
+    return getSchemaService().getSchemas();
   }
 
   /**
@@ -403,5 +415,16 @@ public final class ReplicantContext
   final Converger getConverger()
   {
     return _converger;
+  }
+
+  /**
+   * Return the underlying SchemaService.
+   *
+   * @return the underlying SchemaService.
+   */
+  @Nonnull
+  final SchemaService getSchemaService()
+  {
+    return _schemaService;
   }
 }
