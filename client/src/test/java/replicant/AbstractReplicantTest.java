@@ -39,10 +39,9 @@ public abstract class AbstractReplicantTest
     DomGlobal.window = null;
   }
 
-  @Nonnull
-  protected final Observer autorun( @Nonnull final Procedure procedure )
+  protected final void autorun( @Nonnull final Procedure procedure )
   {
-    return Arez.context().autorun( procedure );
+    Arez.context().autorun( procedure );
   }
 
   protected final void safeAction( @Nonnull final SafeProcedure action )
