@@ -1,14 +1,9 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
-import arez.annotations.ArezComponent;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.realityforge.replicant.client.transport.ChangeMapper;
 import org.testng.annotations.Test;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantRuntimeTest
@@ -123,8 +118,8 @@ public class ReplicantRuntimeTest
   public void getConnector()
   {
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
-    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
+    final TestConnector service2 = TestConnector.create( TestSystemB.class );
 
     assertEquals( runtime.getConnector( service1.getSystemType() ), service1 );
     assertEquals( runtime.getConnector( service2.getSystemType() ), service2 );
@@ -136,18 +131,18 @@ public class ReplicantRuntimeTest
   public void activate()
   {
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
     final Disposable schedulerLock1 = pauseScheduler();
     runtime.deactivate();
+    final int initialConnectCallCount = service1.getConnectCallCount();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.activate();
     schedulerLock1.dispose();
-    assertEquals( service1.isConnectCalled(), true );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
 
     // set service state to in transition so connect is not called
 
@@ -155,17 +150,15 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.activate();
     schedulerLock2.dispose();
-    assertEquals( service1.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
 
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.activate();
-    assertEquals( service1.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
 
     // set service state to connected so no action required
 
@@ -173,10 +166,9 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.activate();
     schedulerLock3.dispose();
-    assertEquals( service1.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
 
     // set service state to disconnected but rate limit it
 
@@ -184,21 +176,18 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
-    service1.reset();
     runtime.activate();
     schedulerLock4.dispose();
-    assertEquals( service1.isConnectCalled(), false );
-
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
     // set service state to disconnected but rate limit it
 
     final Disposable schedulerLock5 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.activate();
     schedulerLock5.dispose();
-    assertEquals( service1.isConnectCalled(), true );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 2 );
   }
 
   @Test
@@ -206,11 +195,14 @@ public class ReplicantRuntimeTest
   {
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
-    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
+    final TestConnector service3 = TestConnector.create( TestSystemC.class );
     final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemType( service3.getSystemType() );
+
+    final int initialConnectCallCount1 = service1.getConnectCallCount();
+    final int initialConnectCallCount3 = service3.getConnectCallCount();
 
     final Disposable schedulerLock1 = pauseScheduler();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
@@ -218,12 +210,10 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     entry1.getRateLimiter().fillBucket();
     entry3.getRateLimiter().fillBucket();
-    service1.reset();
-    service3.reset();
     runtime.activate();
     schedulerLock1.dispose();
-    assertEquals( service1.isConnectCalled(), true );
-    assertEquals( service3.isConnectCalled(), true );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
+    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
 
     // set service state to in transition so connect is not called
 
@@ -231,27 +221,23 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     safeAction( () -> service3.setState( ConnectorState.CONNECTING ) );
     entry3.getRateLimiter().fillBucket();
-    service3.reset();
     runtime.activate();
     schedulerLock2.dispose();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
+    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
 
     final Disposable schedulerLock3 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     safeAction( () -> service3.setState( ConnectorState.DISCONNECTING ) );
     entry3.getRateLimiter().fillBucket();
-    service3.reset();
     runtime.activate();
     schedulerLock3.dispose();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
+    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
 
     // set service state to connected so no action required
 
@@ -259,14 +245,12 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
     entry3.getRateLimiter().fillBucket();
-    service3.reset();
     runtime.activate();
     schedulerLock4.dispose();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
+    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
 
     // set service state to disconnected but rate limit it
 
@@ -274,14 +258,12 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
-    service1.reset();
     safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     entry3.getRateLimiter().setTokenCount( 0 );
-    service3.reset();
     runtime.activate();
     schedulerLock5.dispose();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
+    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
 
     // set service state to disconnected but rate limit it
 
@@ -289,92 +271,86 @@ public class ReplicantRuntimeTest
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     entry3.getRateLimiter().fillBucket();
-    service3.reset();
     runtime.activate();
     schedulerLock6.dispose();
-    assertEquals( service1.isConnectCalled(), true );
-    assertEquals( service3.isConnectCalled(), true );
+    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 2 );
+    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 2 );
   }
 
   @Test
   public void deactivate()
   {
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
     runtime.activate();
+
+    final int disconnectCallCount1 = service1.getDisconnectCallCount();
+
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
 
     // set service state to in transition so connect is not called
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
 
     // set service state to DISCONNECTED so no action required
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
 
     // set service state to ERROR so no action required
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.ERROR ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
 
     // set service state to connected but rate limit it
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
 
     // set service state to connected
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 2 );
   }
 
   @Test
   public void deactivateMultipleDataSources()
   {
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
-    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
+    final TestConnector service3 = TestConnector.create( TestSystemC.class );
     safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
@@ -382,13 +358,15 @@ public class ReplicantRuntimeTest
     entry3.setRequired( false );
 
     runtime.activate();
+
+    final int disconnectCallCount1 = service1.getDisconnectCallCount();
+    final int disconnectCallCount3 = service3.getDisconnectCallCount();
+
     entry1.getRateLimiter().fillBucket();
-    service1.reset();
     entry3.getRateLimiter().fillBucket();
-    service3.reset();
     runtime.deactivate();
-    assertEquals( service1.isDisconnectCalled(), true );
-    assertEquals( service3.isDisconnectCalled(), true );
+    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    assertEquals( service3.getDisconnectCallCount(), disconnectCallCount3 + 1 );
   }
 
   @Test
@@ -529,7 +507,7 @@ public class ReplicantRuntimeTest
     ReplicantTestUtil.resetState();
     final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
     safeAction( () -> service1.setState( service1State ) );
 
     safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
@@ -544,9 +522,9 @@ public class ReplicantRuntimeTest
     ReplicantTestUtil.resetState();
     final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
     safeAction( () -> service1.setState( service1State ) );
-    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
+    final TestConnector service2 = TestConnector.create( TestSystemB.class );
     safeAction( () -> service2.setState( service2State ) );
 
     safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
@@ -563,13 +541,13 @@ public class ReplicantRuntimeTest
     final Disposable schedulerLock = pauseScheduler();
 
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
+    final TestConnector service1 = TestConnector.create( TestSystemA.class );
     safeAction( () -> service1.setState( service1State ) );
 
-    final TestDataLoaderService service2 = TestDataLoaderService.create( TestSystemB.class );
+    final TestConnector service2 = TestConnector.create( TestSystemB.class );
     safeAction( () -> service2.setState( service2State ) );
 
-    final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
+    final TestConnector service3 = TestConnector.create( TestSystemC.class );
     safeAction( () -> service3.setState( service3State ) );
 
     runtime.setConnectorRequired( service3.getSystemType(), false );
@@ -577,88 +555,5 @@ public class ReplicantRuntimeTest
     safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
 
     schedulerLock.dispose();
-  }
-
-  @ArezComponent
-  static abstract class TestDataLoaderService
-    extends Connector
-  {
-    private boolean _connectCalled;
-    private boolean _disconnectCalled;
-
-    static TestDataLoaderService create( @Nonnull final Class<?> systemType )
-    {
-      return create( Replicant.areZonesEnabled() ? Replicant.context() : null, systemType );
-    }
-
-    static TestDataLoaderService create( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
-    {
-      return Arez.context()
-        .safeAction( () -> new ReplicantRuntimeTest_Arez_TestDataLoaderService( context, systemType ) );
-    }
-
-    TestDataLoaderService( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
-    {
-      super( context, systemType );
-    }
-
-    @Override
-    protected void doConnect( @Nonnull final SafeProcedure action )
-    {
-      _connectCalled = true;
-    }
-
-    @Override
-    protected void doDisconnect( @Nonnull final SafeProcedure action )
-    {
-      _disconnectCalled = true;
-    }
-
-    void reset()
-    {
-      _connectCalled = false;
-      _disconnectCalled = false;
-    }
-
-    boolean isConnectCalled()
-    {
-      return _connectCalled;
-    }
-
-    boolean isDisconnectCalled()
-    {
-      return _disconnectCalled;
-    }
-
-    @Override
-    protected void activateScheduler()
-    {
-    }
-
-    @Override
-    protected boolean progressAreaOfInterestRequestProcessing()
-    {
-      return false;
-    }
-
-    @Override
-    protected boolean progressResponseProcessing()
-    {
-      return false;
-    }
-
-    @Nonnull
-    @Override
-    protected SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter()
-    {
-      return ( address, filter, entity ) -> entity.getId() > 0;
-    }
-
-    @Nonnull
-    @Override
-    protected ChangeMapper getChangeMapper()
-    {
-      return mock( ChangeMapper.class );
-    }
   }
 }

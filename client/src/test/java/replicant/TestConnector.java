@@ -20,6 +20,8 @@ public abstract class TestConnector
   private int _activateSchedulerCount;
   private SafeFunction<Boolean> _progressAreaOfInterestRequestProcessing;
   private SafeFunction<Boolean> _progressResponseProcessing;
+  private int _connectCallCount;
+  private int _disconnectCallCount;
 
   public static TestConnector create( @Nonnull final Class<?> systemType )
   {
@@ -56,6 +58,7 @@ public abstract class TestConnector
   @Override
   protected void doConnect( @Nonnull final SafeProcedure action )
   {
+    _connectCallCount++;
     if ( _errorOnConnect )
     {
       throw new IllegalStateException();
@@ -65,6 +68,7 @@ public abstract class TestConnector
   @Override
   protected void doDisconnect( @Nonnull final SafeProcedure action )
   {
+    _disconnectCallCount++;
     if ( _errorOnDisconnect )
     {
       throw new IllegalStateException();
@@ -114,6 +118,16 @@ public abstract class TestConnector
   void setProgressResponseProcessing( final SafeFunction<Boolean> progressResponseProcessing )
   {
     _progressResponseProcessing = progressResponseProcessing;
+  }
+
+  public int getConnectCallCount()
+  {
+    return _connectCallCount;
+  }
+
+  public int getDisconnectCallCount()
+  {
+    return _disconnectCallCount;
   }
 
   @Nonnull
