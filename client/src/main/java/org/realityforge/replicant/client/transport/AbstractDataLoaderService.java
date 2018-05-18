@@ -431,7 +431,7 @@ public abstract class AbstractDataLoaderService
   private void completeMessageResponse( @Nonnull final MessageResponse response )
   {
     final Connection connection = ensureConnection();
-      
+
     // OOB messages are not sequenced
     if ( !response.isOob() )
     {
