@@ -247,8 +247,10 @@ public class ConnectionTest
     final Object filter1 = null;
     final Object filter2 = null;
 
-    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter1 );
-    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter2 );
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter1 );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter2 );
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
 
@@ -379,21 +381,35 @@ public class ConnectionTest
     final String filterQ = "F1";
     final String filterR = "F2";
 
-    final AreaOfInterestRequest request1 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
-    final AreaOfInterestRequest request2 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.REMOVE, filterP );
-    final AreaOfInterestRequest request3 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.UPDATE, filterP );
-    final AreaOfInterestRequest request4 = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.REMOVE, filterP );
+    final AreaOfInterestRequest request3 =
+      new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.UPDATE, filterP );
+    final AreaOfInterestRequest request4 =
+      new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
 
-    final AreaOfInterestRequest request10 = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, filterQ );
-    final AreaOfInterestRequest request11 = new AreaOfInterestRequest( addressC, AreaOfInterestRequest.Type.ADD, filterQ );
-    final AreaOfInterestRequest request12 = new AreaOfInterestRequest( addressD, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request13 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request14 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterQ );
-    final AreaOfInterestRequest request15 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.ADD, filterP );
-    final AreaOfInterestRequest request16 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
-    final AreaOfInterestRequest request17 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request18 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
-    final AreaOfInterestRequest request19 = new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterR );
+    final AreaOfInterestRequest request10 =
+      new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, filterQ );
+    final AreaOfInterestRequest request11 =
+      new AreaOfInterestRequest( addressC, AreaOfInterestRequest.Type.ADD, filterQ );
+    final AreaOfInterestRequest request12 =
+      new AreaOfInterestRequest( addressD, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request13 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request14 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterQ );
+    final AreaOfInterestRequest request15 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.ADD, filterP );
+    final AreaOfInterestRequest request16 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
+    final AreaOfInterestRequest request17 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
+    final AreaOfInterestRequest request18 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
+    final AreaOfInterestRequest request19 =
+      new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterR );
 
     final List<AreaOfInterestRequest> requests =
       Arrays.asList( request1,
