@@ -53,8 +53,6 @@ public abstract class Connector
   @Nonnull
   private final SystemSchema _schema;
   @Nonnull
-  private final Class<?> _systemType;
-  @Nonnull
   private ConnectorState _state = ConnectorState.DISCONNECTED;
   /**
    * The current connection managed by the connector, if any.
@@ -84,12 +82,10 @@ public abstract class Connector
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
 
   protected Connector( @Nullable final ReplicantContext context,
-                       @Nonnull final SystemSchema schema,
-                       @Nonnull final Class<?> systemType )
+                       @Nonnull final SystemSchema schema )
   {
     super( context );
     _schema = Objects.requireNonNull( schema );
-    _systemType = Objects.requireNonNull( systemType );
     getReplicantRuntime().registerConnector( this );
     final SchemaService schemaService = getReplicantContext().getSchemaService();
     if ( !schemaService.contains( schema ) )
@@ -161,15 +157,6 @@ public abstract class Connector
   protected abstract void doDisconnect( @Nonnull SafeProcedure action );
 
   /**
-   * Return the class of channels that this loader processes.
-   */
-  @Nonnull
-  public final Class<?> getSystemType()
-  {
-    return _systemType;
-  }
-
-  /**
    * Return the schema associated with the connector.
    *
    * @return the schema associated with the connector.
@@ -210,7 +197,7 @@ public abstract class Connector
     Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
                    getReplicantContext().getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
-      .filter( s -> s.getAddress().getSystem().equals( getSystemType() ) )
+      .filter( s -> s.getAddress().getSystemId() == getSchema().getId() )
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );
@@ -383,8 +370,7 @@ public abstract class Connector
   {
     final int channelId = channelChange.getChannelId();
     final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
-    final Enum channelType = (Enum) getSystemType().getEnumConstants()[ channelId ];
-    return new ChannelAddress( channelType, subChannelId );
+    return new ChannelAddress( getSchema().getId(), channelId, subChannelId );
   }
 
   @Action

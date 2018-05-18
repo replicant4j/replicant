@@ -37,7 +37,7 @@ public class ReplicantRpcRequestBuilderTest
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
     final SessionContext sessionContext = new SessionContext();
-    sessionContext.setConnection( new Connection( TestConnector.create( G.class ), "1" ) );
+    sessionContext.setConnection( new Connection( TestConnector.create(), "1" ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
     verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( "1" ) );
@@ -48,7 +48,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndComplete()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final RequestEntry requestEntry = connection.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext();
     sessionContext.setConnection( connection );
@@ -76,7 +76,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withSuccessAndIncomplete()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final RequestEntry requestEntry = connection.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext();
     sessionContext.setConnection( connection );
@@ -105,7 +105,7 @@ public class ReplicantRpcRequestBuilderTest
   public void requestIDSet_withFailure()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final RequestEntry requestEntry = connection.newRequest( "", null );
     final SessionContext sessionContext = new SessionContext();
     sessionContext.setConnection( connection );

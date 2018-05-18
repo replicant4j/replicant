@@ -127,7 +127,7 @@ public abstract class Subscription
   @Override
   public int compareTo( @NotNull final Subscription o )
   {
-    return getAddress().getChannelType().compareTo( o.getAddress().getChannelType() );
+    return getAddress().compareTo( o.getAddress() );
   }
 
   final void linkSubscriptionToEntity( @Nonnull final Entity entity )

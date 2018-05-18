@@ -29,9 +29,9 @@ abstract class ReplicantRuntime
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> _connectors.stream()
-                   .noneMatch( e -> e.getConnector().getSystemType() == connector.getSystemType() ),
-                 () -> "Replicant-0015: Invoked registerConnector for system type " + connector.getSystemType() +
-                       " but a Connector for specified system type exists." );
+                   .noneMatch( e -> e.getConnector().getSchema().getId() == connector.getSchema().getId() ),
+                 () -> "Replicant-0015: Invoked registerConnector for system schema named '" +
+                       connector.getSchema().getName() + "' but a Connector for specified schema exists." );
     }
     getConnectorsObservable().preReportChanged();
     _connectors.add( new ConnectorEntry( connector, true ) );
@@ -43,12 +43,12 @@ abstract class ReplicantRuntime
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> _connectors.stream()
-                   .anyMatch( e -> e.getConnector().getSystemType() == connector.getSystemType() ),
-                 () -> "Replicant-0006: Invoked deregisterConnector for system type " + connector.getSystemType() +
-                       " but no Connector for specified system type exists." );
+                   .anyMatch( e -> e.getConnector().getSchema().getId() == connector.getSchema().getId() ),
+                 () -> "Replicant-0006: Invoked deregisterConnector for schema named '" +
+                       connector.getSchema().getName() + "' but no Connector for specified schema exists." );
     }
     getConnectorsObservable().preReportChanged();
-    _connectors.removeIf( e -> e.getConnector().getSystemType() == connector.getSystemType() );
+    _connectors.removeIf( e -> e.getConnector().getSchema().getId() == connector.getSchema().getId() );
     getConnectorsObservable().reportChanged();
   }
 
@@ -64,12 +64,12 @@ abstract class ReplicantRuntime
   /**
    * Set the "required" flag for connector for specified type.
    *
-   * @param systemType the type handled by connector.
-   * @param required   true if connector is required for the context to be active, false otherwise.
+   * @param schemaId the if of the schema handled by connector.
+   * @param required true if connector is required for the context to be active, false otherwise.
    */
-  void setConnectorRequired( @Nonnull final Class<?> systemType, final boolean required )
+  void setConnectorRequired( final int schemaId, final boolean required )
   {
-    getConnectorEntryBySystemType( systemType ).setRequired( required );
+    getConnectorEntryBySchemaId( schemaId ).setRequired( required );
   }
 
   /**
@@ -187,32 +187,33 @@ abstract class ReplicantRuntime
   }
 
   /**
-   * Retrieve the Connector service associated with the systemType.
+   * Retrieve the Connector service associated with the schema.
    */
   @Nonnull
-  Connector getConnector( @Nonnull final Class<?> systemType )
+  Connector getConnector( final int schemaId )
   {
-    return getConnectorEntryBySystemType( systemType ).getConnector();
+    return getConnectorEntryBySchemaId( schemaId ).getConnector();
   }
 
   @Nonnull
-  ConnectorEntry getConnectorEntryBySystemType( @Nonnull final Class<?> systemType )
+  ConnectorEntry getConnectorEntryBySchemaId( final int schemaId )
   {
-    final ConnectorEntry entry = findConnectorEntryBySystemType( systemType );
+    final ConnectorEntry entry = findConnectorEntryBySchemaId( schemaId );
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> null != entry, () -> "Replicant-0007: Unable to locate Connector by systemType " + systemType );
+      invariant( () -> null != entry,
+                 () -> "Replicant-0007: Unable to locate Connector by schemaId " + schemaId );
     }
     assert null != entry;
     return entry;
   }
 
   @Nullable
-  private ConnectorEntry findConnectorEntryBySystemType( @Nonnull final Class<?> systemType )
+  private ConnectorEntry findConnectorEntryBySchemaId( final int schemaId )
   {
     for ( final ConnectorEntry dataLoader : _connectors )
     {
-      if ( dataLoader.getConnector().getSystemType().equals( systemType ) )
+      if ( dataLoader.getConnector().getSchema().getId() == schemaId )
       {
         return dataLoader;
       }

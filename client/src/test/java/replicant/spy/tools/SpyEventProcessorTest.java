@@ -69,9 +69,4 @@ public class SpyEventProcessorTest
     assertEquals( exception.getMessage(),
                   "Replicant-0036: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class replicant.spy.tools.SpyEventProcessorTest$FakeEvent but an existing processor already exists for type" );
   }
-
-  enum G
-  {
-    G1
-  }
 }

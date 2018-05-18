@@ -160,8 +160,14 @@ public abstract class AbstractReplicantTest
   @Nonnull
   protected final SystemSchema newSchema()
   {
+    return newSchema( ValueUtil.randomInt() );
+  }
+
+  @Nonnull
+  protected final SystemSchema newSchema( final int schemaId )
+  {
     final ChannelSchema[] channels = new ChannelSchema[ 0 ];
     final EntitySchema[] entities = new EntitySchema[ 0 ];
-    return new SystemSchema( ValueUtil.randomInt(), ValueUtil.randomString(), channels, entities );
+    return new SystemSchema( schemaId, ValueUtil.randomString(), channels, entities );
   }
 }

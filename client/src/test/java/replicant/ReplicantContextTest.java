@@ -33,7 +33,7 @@ public class ReplicantContextTest
     pauseScheduler();
 
     final ReplicantContext context = Replicant.context();
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
     final String filter2 = ValueUtil.randomString();
 
@@ -135,9 +135,9 @@ public class ReplicantContextTest
     pauseScheduler();
 
     final ReplicantContext context = Replicant.context();
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress address3 = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, 2 );
     final String filter1 = null;
     final String filter2 = ValueUtil.randomString();
     final String filter3 = ValueUtil.randomString();
@@ -148,7 +148,7 @@ public class ReplicantContextTest
     safeAction( () -> {
       assertEquals( context.getTypeSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
-      assertEquals( context.getInstanceSubscriptionIds( G.G2 ).size(), 0 );
+      assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 0 );
       assertEquals( context.findSubscription( address1 ), null );
       assertEquals( context.findSubscription( address2 ), null );
       assertEquals( context.findSubscription( address3 ), null );
@@ -161,7 +161,7 @@ public class ReplicantContextTest
 
       assertEquals( context.getTypeSubscriptions().size(), 1 );
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
-      assertEquals( context.getInstanceSubscriptionIds( G.G2 ).size(), 0 );
+      assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 0 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
       assertEquals( context.findSubscription( address2 ), null );
       assertEquals( context.findSubscription( address3 ), null );
@@ -174,7 +174,7 @@ public class ReplicantContextTest
 
       assertEquals( context.getTypeSubscriptions().size(), 1 );
       assertEquals( context.getInstanceSubscriptions().size(), 1 );
-      assertEquals( context.getInstanceSubscriptionIds( G.G2 ).size(), 1 );
+      assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 1 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
       assertEquals( context.findSubscription( address2 ), subscription2 );
       assertEquals( context.findSubscription( address3 ), null );
@@ -187,7 +187,7 @@ public class ReplicantContextTest
 
       assertEquals( context.getTypeSubscriptions().size(), 1 );
       assertEquals( context.getInstanceSubscriptions().size(), 2 );
-      assertEquals( context.getInstanceSubscriptionIds( G.G2 ).size(), 2 );
+      assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 2 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
       assertEquals( context.findSubscription( address2 ), subscription2 );
       assertEquals( context.findSubscription( address3 ), subscription3 );
@@ -197,7 +197,7 @@ public class ReplicantContextTest
 
       assertEquals( context.getTypeSubscriptions().size(), 1 );
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
-      assertEquals( context.getInstanceSubscriptionIds( G.G2 ).size(), 0 );
+      assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 0 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
       assertEquals( context.findSubscription( address2 ), null );
       assertEquals( context.findSubscription( address3 ), null );
@@ -282,20 +282,23 @@ public class ReplicantContextTest
   public void setConnectorRequired()
     throws Exception
   {
-    TestConnector.create( G.class );
+    final SystemSchema schema = newSchema();
+
+    TestConnector.create( schema );
 
     final ReplicantContext context = Replicant.context();
 
-    assertTrue( context.getRuntime().getConnectorEntryBySystemType( G.class ).isRequired() );
-    context.setConnectorRequired( G.class, false );
-    assertFalse( context.getRuntime().getConnectorEntryBySystemType( G.class ).isRequired() );
+    final int schemaId = schema.getId();
+    assertTrue( context.getRuntime().getConnectorEntryBySchemaId( schemaId ).isRequired() );
+    context.setConnectorRequired( schemaId, false );
+    assertFalse( context.getRuntime().getConnectorEntryBySchemaId( schemaId ).isRequired() );
   }
 
   @Test
   public void setCacheService()
     throws Exception
   {
-    TestConnector.create( G.class );
+    TestConnector.create();
 
     final ReplicantContext context = Replicant.context();
     final CacheService cacheService = mock( CacheService.class );
@@ -309,11 +312,6 @@ public class ReplicantContextTest
     context.setCacheService( null );
 
     assertEquals( context.getCacheService(), null );
-  }
-
-  enum G
-  {
-    G1, G2
   }
 
   static class A

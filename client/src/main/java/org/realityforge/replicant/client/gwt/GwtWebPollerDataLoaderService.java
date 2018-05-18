@@ -40,10 +40,9 @@ public abstract class GwtWebPollerDataLoaderService
 
   public GwtWebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
                                         @Nonnull final SystemSchema schema,
-                                        @Nonnull final Class<?> systemType,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( context, schema, systemType, sessionContext );
+    super( context, schema, sessionContext );
     createWebPoller();
     setupCloseHandler();
   }

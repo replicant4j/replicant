@@ -160,13 +160,14 @@ public final class ReplicantContext
   /**
    * Return the collection of instance subscriptions for channel.
    *
-   * @param channelType the channel type.
+   * @param systemId  the system id.
+   * @param channelId the channel id.
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
   @Nonnull
-  public Set<Object> getInstanceSubscriptionIds( @Nonnull final Enum channelType )
+  public Set<Object> getInstanceSubscriptionIds( final int systemId, final int channelId )
   {
-    return getSubscriptionService().getInstanceSubscriptionIds( channelType );
+    return getSubscriptionService().getInstanceSubscriptionIds( systemId, channelId );
   }
 
   /**
@@ -333,12 +334,12 @@ public final class ReplicantContext
    * Set the "required" flag for connector for specified type.
    * NOTE: It is expected that the way this is done will change in the future.
    *
-   * @param systemType the type handled by connector.
-   * @param required   true if connector is required for the context to be active, false otherwise.
+   * @param schemaId the if of the schema handled by connector.
+   * @param required true if connector is required for the context to be active, false otherwise.
    */
-  public void setConnectorRequired( @Nonnull final Class<?> systemType, final boolean required )
+  public void setConnectorRequired( final int schemaId, final boolean required )
   {
-    getRuntime().setConnectorRequired( systemType, required );
+    getRuntime().setConnectorRequired( schemaId, required );
   }
 
   /**

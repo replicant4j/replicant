@@ -13,32 +13,31 @@ import static org.realityforge.braincheck.Guards.*;
 public final class ChannelAddress
   implements Comparable<ChannelAddress>
 {
-  @Nonnull
-  private final Enum _channelType;
+  private final int _systemId;
+  private final int _channelId;
   @Nullable
   private final Integer _id;
 
-  public ChannelAddress( @Nonnull final Enum channelType )
+  public ChannelAddress( final int systemId, final int channelId )
   {
-    this( channelType, null );
+    this( systemId, channelId, null );
   }
 
-  public ChannelAddress( @Nonnull final Enum channelType, @Nullable final Integer id )
+  public ChannelAddress( final int systemId, final int channelId, @Nullable final Integer id )
   {
-    _channelType = Objects.requireNonNull( channelType );
+    _systemId = systemId;
+    _channelId = channelId;
     _id = id;
   }
 
-  @Nonnull
-  public Class getSystem()
+  public int getSystemId()
   {
-    return _channelType.getDeclaringClass();
+    return _systemId;
   }
 
-  @Nonnull
-  public Enum getChannelType()
+  public int getChannelId()
   {
-    return _channelType;
+    return _channelId;
   }
 
   @Nullable
@@ -68,7 +67,7 @@ public final class ChannelAddress
       apiInvariant( Replicant::areNamesEnabled,
                     () -> "Replicant-0042: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
-    return getSystem().getSimpleName() + "." + _channelType.toString() + ( null != _id ? ":" + _id : "" );
+    return getSystemId() + "." + getChannelId() + ( null != _id ? "." + _id : "" );
   }
 
   @Override
@@ -85,14 +84,17 @@ public final class ChannelAddress
     else
     {
       final ChannelAddress that = (ChannelAddress) o;
-      return Objects.equals( _channelType, that._channelType ) && Objects.equals( _id, that._id );
+      return Objects.equals( _systemId, that._systemId ) &&
+             Objects.equals( _channelId, that._channelId ) &&
+             Objects.equals( _id, that._id );
     }
   }
 
   @Override
   public int hashCode()
   {
-    int result = _channelType.hashCode();
+    int result = _systemId;
+    result = 17 * result + _channelId;
     result = 31 * result + ( _id != null ? _id.hashCode() : 0 );
     return result;
   }
@@ -104,6 +106,7 @@ public final class ChannelAddress
   @Override
   public int compareTo( @Nonnull final ChannelAddress o )
   {
-    return getChannelType().compareTo( o.getChannelType() );
+    final int systemDiff = Integer.compare( getSystemId(), o.getSystemId() );
+    return 0 == systemDiff ? Integer.compare( getChannelId(), o.getChannelId() ) : systemDiff;
   }
 }

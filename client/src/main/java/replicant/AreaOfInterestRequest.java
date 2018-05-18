@@ -52,7 +52,7 @@ public final class AreaOfInterestRequest
   public String getCacheKey()
   {
     final Integer id = _address.getId();
-    return _address.getSystem().getSimpleName() + ":" + _address.getChannelType() + ( null != id ? ":" + id : "" );
+    return _address.getSystemId() + "." + _address.getChannelId() + ( null != id ? "." + id : "" );
   }
 
   @Nullable

@@ -14,11 +14,11 @@ public class AreaOfInterestTest
   @Test
   public void onConstruct()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     safeAction( () -> {
       assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-      assertEquals( areaOfInterest.getAddress(), new ChannelAddress( G.G1 ) );
+      assertEquals( areaOfInterest.getAddress(), new ChannelAddress( 1, 0 ) );
       assertEquals( areaOfInterest.getFilter(), null );
       assertEquals( areaOfInterest.getSubscription(), null );
       assertEquals( areaOfInterest.getError(), null );
@@ -28,7 +28,7 @@ public class AreaOfInterestTest
   @Test
   public void disposeAreaOfInterestGeneratesSpyEvent()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -43,7 +43,7 @@ public class AreaOfInterestTest
   @Test
   public void notifications()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
     autorun( () -> {
@@ -118,15 +118,15 @@ public class AreaOfInterestTest
   @Test
   public void testToString()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
-    assertEquals( areaOfInterest.toString(), "AreaOfInterest[G.G1 Status: NOT_ASKED]" );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    assertEquals( areaOfInterest.toString(), "AreaOfInterest[1.0 Status: NOT_ASKED]" );
   }
 
   @Test
   public void testToStringWithFilter()
   {
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( null, new ChannelAddress( G.G1 ), "MyFilter" );
-    assertEquals( areaOfInterest.toString(), "AreaOfInterest[G.G1 Filter: MyFilter Status: NOT_ASKED]" );
+    final AreaOfInterest areaOfInterest = AreaOfInterest.create( null, new ChannelAddress( 1, 0 ), "MyFilter" );
+    assertEquals( areaOfInterest.toString(), "AreaOfInterest[1.0 Filter: MyFilter Status: NOT_ASKED]" );
   }
 
   @Test
@@ -134,7 +134,7 @@ public class AreaOfInterestTest
   {
     ReplicantTestUtil.disableNames();
 
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     assertEquals( areaOfInterest.toString(),
                   "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
@@ -145,7 +145,7 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
     final Throwable error = new Throwable();
 
     safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null ) );
@@ -203,7 +203,7 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_generatesSpyEvent()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -218,13 +218,13 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_missingErrorWhenExpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0016: Invoked updateAreaOfInterest for channel at address G.G1 with status LOAD_FAILED but failed to supply the expected error." );
+                  "Replicant-0016: Invoked updateAreaOfInterest for channel at address 1.0 with status LOAD_FAILED but failed to supply the expected error." );
   }
 
   @SuppressWarnings( "ThrowableNotThrown" )
@@ -232,34 +232,34 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_errorWhenUnexpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
     final Throwable error = new Throwable();
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0017: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and supplied an unexpected error." );
+                  "Replicant-0017: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and supplied an unexpected error." );
   }
 
   @Test
   public void updateAreaOfInterest_missingSubscriptionWhenExpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0018: Invoked updateAreaOfInterest for channel at address G.G1 with status LOADED and the context is missing expected subscription." );
+                  "Replicant-0018: Invoked updateAreaOfInterest for channel at address 1.0 with status LOADED and the context is missing expected subscription." );
   }
 
   @Test
   public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
 
@@ -267,17 +267,12 @@ public class AreaOfInterestTest
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0019: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and found unexpected subscription in the context." );
+                  "Replicant-0019: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and found unexpected subscription in the context." );
   }
 
   @Nonnull
   private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address )
   {
     return AreaOfInterest.create( Replicant.areZonesEnabled() ? Replicant.context() : null, address, null );
-  }
-
-  enum G
-  {
-    G1
   }
 }

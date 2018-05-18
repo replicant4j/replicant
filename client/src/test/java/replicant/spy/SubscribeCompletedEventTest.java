@@ -12,7 +12,7 @@ public class SubscribeCompletedEventTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1,2 );
     final SubscribeCompletedEvent event = new SubscribeCompletedEvent( 23, "Rose", address );
 
     assertEquals( event.getSchemaId(), 23 );
@@ -25,13 +25,9 @@ public class SubscribeCompletedEventTest
     assertEquals( data.get( "type" ), "Connector.SubscribeCompleted" );
     assertEquals( data.get( "schema.id" ), 23 );
     assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "channel.type" ), "G1" );
+    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.channelId" ), 2 );
     assertEquals( data.get( "channel.id" ), address.getId() );
-    assertEquals( data.size(), 5 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 6 );
   }
 }

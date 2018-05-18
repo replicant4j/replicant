@@ -50,10 +50,9 @@ public class ConnectorTest
                         ValueUtil.randomString(),
                         new ChannelSchema[ 0 ],
                         new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema, G.class );
+    final TestConnector connector = TestConnector.create( schema );
 
     assertEquals( connector.getSchema(), schema );
-    assertEquals( connector.getSystemType(), G.class );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
@@ -74,7 +73,7 @@ public class ConnectorTest
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
@@ -87,7 +86,7 @@ public class ConnectorTest
   public void testToString()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     assertEquals( connector.toString(), "Connector[Rose]" );
     ReplicantTestUtil.disableNames();
     assertEquals( connector.toString(), "replicant.Arez_TestConnector@" + Integer.toHexString( connector.hashCode() ) );
@@ -98,7 +97,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     safeAction( connector::connect );
@@ -111,7 +110,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     connector.setErrorOnConnect( true );
@@ -125,7 +124,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     safeAction( connector::disconnect );
@@ -138,7 +137,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     connector.setErrorOnDisconnect( true );
@@ -150,7 +149,7 @@ public class ConnectorTest
   @Test
   public void onDisconnected()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -171,7 +170,7 @@ public class ConnectorTest
   public void onDisconnected_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -191,7 +190,7 @@ public class ConnectorTest
   public void onDisconnectFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -214,7 +213,7 @@ public class ConnectorTest
   public void onDisconnectFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -238,7 +237,7 @@ public class ConnectorTest
   public void onConnected()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -259,7 +258,7 @@ public class ConnectorTest
   public void onConnected_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -276,7 +275,7 @@ public class ConnectorTest
   public void onConnectFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -299,7 +298,7 @@ public class ConnectorTest
   public void onConnectFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -323,7 +322,7 @@ public class ConnectorTest
   public void onMessageProcessed_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -353,7 +352,7 @@ public class ConnectorTest
   public void onMessageProcessFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
@@ -370,7 +369,7 @@ public class ConnectorTest
   public void onMessageProcessFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -391,7 +390,7 @@ public class ConnectorTest
   public void disconnectIfPossible()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -406,7 +405,7 @@ public class ConnectorTest
   public void disconnectIfPossible_noActionAsConnecting()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -425,7 +424,7 @@ public class ConnectorTest
   public void disconnectIfPossible_generatesSpyEvent()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -446,7 +445,7 @@ public class ConnectorTest
   public void onMessageReadFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
@@ -463,7 +462,7 @@ public class ConnectorTest
   public void onMessageReadFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -484,9 +483,9 @@ public class ConnectorTest
   public void onSubscribeStarted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -515,9 +514,9 @@ public class ConnectorTest
   public void onSubscribeCompleted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -549,9 +548,9 @@ public class ConnectorTest
   public void onSubscribeFailed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -583,9 +582,9 @@ public class ConnectorTest
   public void onUnsubscribeStarted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -617,9 +616,9 @@ public class ConnectorTest
   public void onUnsubscribeCompleted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -648,9 +647,9 @@ public class ConnectorTest
   public void onUnsubscribeFailed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -682,9 +681,9 @@ public class ConnectorTest
   public void onSubscriptionUpdateStarted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -716,9 +715,9 @@ public class ConnectorTest
   public void onSubscriptionUpdateCompleted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -750,9 +749,9 @@ public class ConnectorTest
   public void onSubscriptionUpdateFailed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -786,9 +785,9 @@ public class ConnectorTest
   @Test
   public void areaOfInterestRequestPendingQueries()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, null ),
@@ -811,7 +810,7 @@ public class ConnectorTest
   @Test
   public void connection()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     assertEquals( connector.getConnection(), null );
 
@@ -820,7 +819,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 0 ), null, true ) );
 
     assertEquals( connector.getConnection(), connection );
     assertEquals( connector.ensureConnection(), connection );
@@ -835,7 +834,7 @@ public class ConnectorTest
   @Test
   public void ensureConnection_WhenNoConnection()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, connector::ensureConnection );
 
@@ -846,18 +845,18 @@ public class ConnectorTest
   @Test
   public void purgeSubscriptions()
   {
-    final TestConnector connector1 = TestConnector.create( G.class );
-    TestConnector.create( F.class );
+    final TestConnector connector1 = TestConnector.create( newSchema( 1 ) );
+    TestConnector.create( newSchema( 2 ) );
 
     final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 0 ), null, true ) );
     final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G2, 2 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 1, 2 ), null, true ) );
     // The next two are from a different Connector
     final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( F.F2, 1 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 2, 0, 1 ), null, true ) );
     final Subscription subscription4 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( F.F2, 2 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 2, 0, 2 ), null, true ) );
 
     assertEquals( Disposable.isDisposed( subscription1 ), false );
     assertEquals( Disposable.isDisposed( subscription2 ), false );
@@ -875,7 +874,7 @@ public class ConnectorTest
   @Test
   public void triggerScheduler()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     assertEquals( connector.isSchedulerActive(), false );
     assertEquals( connector.getActivateSchedulerCount(), 0 );
@@ -894,7 +893,7 @@ public class ConnectorTest
   @Test
   public void scheduleTick()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     connector.triggerScheduler();
 
@@ -935,7 +934,7 @@ public class ConnectorTest
   @Test
   public void scheduleTick_withError()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
     connector.triggerScheduler();
 
@@ -980,10 +979,10 @@ public class ConnectorTest
   @Test
   public void requestSubscribe()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
@@ -1002,10 +1001,10 @@ public class ConnectorTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
@@ -1025,10 +1024,10 @@ public class ConnectorTest
   @Test
   public void requestUnsubscribe()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), false );
@@ -1048,11 +1047,11 @@ public class ConnectorTest
   @Test
   public void updateSubscriptionForFilteredEntities()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
     final Subscription subscription1 =
       safeAction( () -> Replicant.context().createSubscription( address1, ValueUtil.randomString(), true ) );
@@ -1107,17 +1106,17 @@ public class ConnectorTest
   @Test
   public void toAddress()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     assertEquals( connector.toAddress( ChannelChange.create( 0, ChannelChange.Action.ADD, null ) ),
-                  new ChannelAddress( G.G1 ) );
+                  new ChannelAddress( 1, 0 ) );
     assertEquals( connector.toAddress( ChannelChange.create( 1, 2, ChannelChange.Action.ADD, null ) ),
-                  new ChannelAddress( G.G2, 2 ) );
+                  new ChannelAddress( 1, 1, 2 ) );
   }
 
   @Test
   public void processEntityChanges()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setLinksToProcessPerTick( 1 );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1173,7 +1172,7 @@ public class ConnectorTest
   @Test
   public void processEntityLinks()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setLinksToProcessPerTick( 1 );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1219,11 +1218,11 @@ public class ConnectorTest
   @Test
   public void completeAreaOfInterestRequest()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( G.G1 ),
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 1, 0 ),
                                                                               AreaOfInterestRequest.Type.ADD,
                                                                               null ) );
 
@@ -1239,13 +1238,13 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_add()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final int channelId = G.G1.ordinal();
+    final int channelId = 0;
     final int subChannelId = ValueUtil.randomInt();
     final String filter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
@@ -1260,7 +1259,7 @@ public class ConnectorTest
 
     assertEquals( response.needsChannelChangesProcessed(), false );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, subChannelId );
+    final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
     final Subscription subscription =
       safeAction( () -> Replicant.context().findSubscription( address ) );
     assertNotNull( subscription );
@@ -1278,14 +1277,14 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_addConvertingImplicitToExplicit()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, ValueUtil.randomInt() );
-    final int channelId = address.getChannelType().ordinal();
+    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
     final String filter = ValueUtil.randomString();
@@ -1324,14 +1323,14 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_remove()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, ValueUtil.randomInt() );
-    final int channelId = address.getChannelType().ordinal();
+    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
     final String filter = ValueUtil.randomString();
@@ -1365,14 +1364,14 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_remove_WithMissingSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, 72 );
-    final int channelId = address.getChannelType().ordinal();
+    final ChannelAddress address = new ChannelAddress( 1, 0, 72 );
+    final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
     final ChannelChange[] channelChanges =
@@ -1390,7 +1389,7 @@ public class ConnectorTest
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelRemoveCount(), 0 );
     assertEquals( exception.getMessage(),
-                  "Replicant-0028: Received ChannelChange of type REMOVE for address G.G1:72 but no such subscription exists." );
+                  "Replicant-0028: Received ChannelChange of type REMOVE for address 1.0.72 but no such subscription exists." );
 
     handler.assertEventCount( 0 );
   }
@@ -1398,14 +1397,14 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, ValueUtil.randomInt() );
-    final int channelId = address.getChannelType().ordinal();
+    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
     final String oldFilter = ValueUtil.randomString();
@@ -1438,14 +1437,14 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update_implicitSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, 33 );
-    final int channelId = address.getChannelType().ordinal();
+    final ChannelAddress address = new ChannelAddress( 1, 0, 33 );
+    final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
     final String oldFilter = ValueUtil.randomString();
@@ -1468,7 +1467,7 @@ public class ConnectorTest
     assertEquals( response.getChannelUpdateCount(), 0 );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0029: Received ChannelChange of type UPDATE for address G.G1:33 but subscription is implicitly subscribed." );
+                  "Replicant-0029: Received ChannelChange of type UPDATE for address 1.0.33 but subscription is implicitly subscribed." );
 
     handler.assertEventCount( 0 );
   }
@@ -1476,14 +1475,14 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update_missingSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, 42 );
-    final int channelId = address.getChannelType().ordinal();
+    final ChannelAddress address = new ChannelAddress( 1, 0, 42 );
+    final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
 
     final String newFilter = ValueUtil.randomString();
@@ -1503,7 +1502,7 @@ public class ConnectorTest
     assertEquals( response.getChannelUpdateCount(), 0 );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0033: Received ChannelChange of type UPDATE for address G.G1:42 but no such subscription exists." );
+                  "Replicant-0033: Received ChannelChange of type UPDATE for address 1.0.42 but no such subscription exists." );
 
     handler.assertEventCount( 0 );
   }
@@ -1514,11 +1513,11 @@ public class ConnectorTest
     // Pause converger
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G2, 3 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, 3 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null ) );
@@ -1542,9 +1541,9 @@ public class ConnectorTest
     // Pause converger
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null ) );
@@ -1555,16 +1554,16 @@ public class ConnectorTest
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> connector.removeExplicitSubscriptions( requests ) ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=ADD Address=G.G2:1]" );
+                  "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=ADD Address=1.1.1]" );
   }
 
   @Test
   public void removeUnneededAddRequests_upgradeExisting()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1592,9 +1591,9 @@ public class ConnectorTest
   @Test
   public void removeUnneededAddRequests_explicitAlreadyPresent()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1610,17 +1609,17 @@ public class ConnectorTest
                     () -> safeAction( () -> connector.removeUnneededAddRequests( requests ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0030: Request to add channel at address G.G2:1 but already explicitly subscribed to channel." );
+                  "Replicant-0030: Request to add channel at address 1.1.1 but already explicitly subscribed to channel." );
   }
 
   @Test
   public void removeUnneededRemoveRequests_whenInvariantsDisabled()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G2, 3 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, 3 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1654,9 +1653,9 @@ public class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_noSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1670,15 +1669,15 @@ public class ConnectorTest
                     () -> safeAction( () -> connector.removeUnneededRemoveRequests( requests ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0046: Request to unsubscribe from channel at address G.G2:1 but not subscribed to channel." );
+                  "Replicant-0046: Request to unsubscribe from channel at address 1.1.1 but not subscribed to channel." );
   }
 
   @Test
   public void removeUnneededRemoveRequests_implicitSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1694,17 +1693,17 @@ public class ConnectorTest
                     () -> safeAction( () -> connector.removeUnneededRemoveRequests( requests ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0047: Request to unsubscribe from channel at address G.G2:1 but subscription is not an explicit subscription." );
+                  "Replicant-0047: Request to unsubscribe from channel at address 1.1.1 but subscription is not an explicit subscription." );
   }
 
   @Test
   public void removeUnneededUpdateRequests_whenInvariantsDisabled()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G2, 3 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, 3 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1739,9 +1738,9 @@ public class ConnectorTest
   @Test
   public void removeUnneededUpdateRequests_noSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
 
-    final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     final AreaOfInterestRequest request1 =
@@ -1755,16 +1754,6 @@ public class ConnectorTest
                     () -> safeAction( () -> connector.removeUnneededUpdateRequests( requests ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0048: Request to update channel at address G.G2:1 but not subscribed to channel." );
-  }
-
-  enum G
-  {
-    G1, G2
-  }
-
-  enum F
-  {
-    F2
+                  "Replicant-0048: Request to update channel at address 1.1.1 but not subscribed to channel." );
   }
 }

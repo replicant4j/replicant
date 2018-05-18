@@ -60,7 +60,8 @@ public final class SubscriptionUpdateFailedEvent
     map.put( "schema.id", getSchemaId() );
     map.put( "schema.name", getSchemaName() );
     final ChannelAddress address = getAddress();
-    map.put( "channel.type", address.getChannelType().name() );
+    map.put( "channel.systemId", address.getSystemId() );
+    map.put( "channel.channelId", address.getChannelId() );
     map.put( "channel.id", address.getId() );
     final Throwable throwable = getError();
     map.put( "message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage() );

@@ -19,9 +19,9 @@ public class AreaOfInterestFilterUpdatedEventTest
     pauseScheduler();
 
     final String filter = ValueUtil.randomString();
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
     final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G1 ),
-                                                                          filter ) );
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
 
     final AreaOfInterestFilterUpdatedEvent event = new AreaOfInterestFilterUpdatedEvent( areaOfInterest );
 
@@ -31,14 +31,10 @@ public class AreaOfInterestFilterUpdatedEventTest
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "AreaOfInterest.Updated" );
-    assertEquals( data.get( "channel.type" ), "G1" );
+    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.channelId" ), 2 );
     assertEquals( data.get( "channel.id" ), null );
     assertEquals( data.get( "channel.filter" ), filter );
-    assertEquals( data.size(), 4 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 5 );
   }
 }

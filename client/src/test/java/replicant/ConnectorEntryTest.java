@@ -22,7 +22,7 @@ public class ConnectorEntryTest
   @Test
   public void basicOperation()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     assertEquals( entry.getConnector(), connector );
     assertEquals( entry.isRequired(), true );
@@ -43,7 +43,7 @@ public class ConnectorEntryTest
   @Test
   public void optionalService()
   {
-    final ConnectorEntry entry = new ConnectorEntry( TestConnector.create( G.class ), false );
+    final ConnectorEntry entry = new ConnectorEntry( TestConnector.create(), false );
     assertEquals( entry.isRequired(), false );
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_MILLISECOND );
   }
@@ -51,14 +51,9 @@ public class ConnectorEntryTest
   @Test
   public void flipRequiredState()
   {
-    final ConnectorEntry entry = new ConnectorEntry( TestConnector.create( G.class ), true );
+    final ConnectorEntry entry = new ConnectorEntry( TestConnector.create(), true );
     assertEquals( entry.isRequired(), true );
     entry.setRequired( false );
     assertEquals( entry.isRequired(), false );
-  }
-
-  enum G
-  {
-    G1
   }
 }

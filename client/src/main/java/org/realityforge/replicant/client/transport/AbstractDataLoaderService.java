@@ -48,10 +48,9 @@ public abstract class AbstractDataLoaderService
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
                                        @Nonnull final SystemSchema schema,
-                                       @Nonnull final Class<?> systemType,
                                        @Nonnull final SessionContext sessionContext )
   {
-    super( context, schema, systemType );
+    super( context, schema );
     _sessionContext = Objects.requireNonNull( sessionContext );
   }
 

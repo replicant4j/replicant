@@ -33,11 +33,11 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class SubscriptionService
   extends ReplicantService
 {
-  //ChannelType => InstanceID
-  private final HashMap<Enum, Map<Object, Subscription>> _instanceSubscriptions = new HashMap<>();
+  //SystemId -> ChannelId => Id => Entry
+  private final Map<Integer, Map<Integer, Map<Integer, Subscription>>> _instanceSubscriptions = new HashMap<>();
 
-  //ChannelType => Type
-  private final HashMap<Enum, SubscriptionEntry> _typeSubscriptions = new HashMap<>();
+  //SystemId -> ChannelId => Entry
+  private final Map<Integer, Map<Integer, SubscriptionEntry>> _typeSubscriptions = new HashMap<>();
 
   static SubscriptionService create( @Nullable final ReplicantContext context )
   {
@@ -88,6 +88,7 @@ abstract class SubscriptionService
     return _typeSubscriptions
       .values()
       .stream()
+      .flatMap( s -> s.values().stream() )
       .filter( s -> !Disposable.isDisposed( s ) )
       .map( SubscriptionEntry::getSubscription )
       .collect( Collectors.toList() );
@@ -109,6 +110,7 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
+      .flatMap( s -> s.values().stream() )
       .filter( s -> !Disposable.isDisposed( s ) )
       .collect( Collectors.toList() );
   }
@@ -119,14 +121,16 @@ abstract class SubscriptionService
   /**
    * Return the collection of instance subscriptions for channel.
    *
-   * @param channelType the channel type.
+   * @param systemId  the system id.
+   * @param channelId the channel id.
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
   @Nonnull
-  Set<Object> getInstanceSubscriptionIds( @Nonnull final Enum channelType )
+  Set<Object> getInstanceSubscriptionIds( final int systemId, final int channelId )
   {
     getInstanceSubscriptionsObservable().reportObserved();
-    final Map<Object, Subscription> map = _instanceSubscriptions.get( channelType );
+    final Map<Integer, Map<Integer, Subscription>> channelMaps = _instanceSubscriptions.get( systemId );
+    final Map<Integer, Subscription> map = null == channelMaps ? null : channelMaps.get( channelId );
     if ( null == map )
     {
       return Collections.emptySet();
@@ -161,10 +165,10 @@ abstract class SubscriptionService
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> null == findSubscription( address ),
-                    () -> "createSubscription invoked with address " + address +
+                    () -> "Replicant-0064: createSubscription invoked with address " + address +
                           " but a subscription with that address already exists." );
     }
-    final Object id = address.getId();
+    final Integer id = address.getId();
     if ( null == id )
     {
       getTypeSubscriptionsObservable().preReportChanged();
@@ -181,13 +185,16 @@ abstract class SubscriptionService
     final SubscriptionEntry entry = createSubscriptionEntry( subscription );
     if ( null == id )
     {
-      _typeSubscriptions.put( address.getChannelType(), entry );
+      _typeSubscriptions
+        .computeIfAbsent( address.getSystemId(), HashMap::new )
+        .put( address.getChannelId(), entry );
       getTypeSubscriptionsObservable().reportChanged();
     }
     else
     {
       _instanceSubscriptions
-        .computeIfAbsent( address.getChannelType(), k -> new HashMap<>() )
+        .computeIfAbsent( address.getSystemId(), HashMap::new )
+        .computeIfAbsent( address.getChannelId(), HashMap::new )
         .put( id, subscription );
       getInstanceSubscriptionsObservable().reportChanged();
     }
@@ -227,9 +234,12 @@ abstract class SubscriptionService
   @Nullable
   final Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
-    final Enum channelType = address.getChannelType();
-    final Object id = address.getId();
-    return null == id ? findTypeSubscription( channelType ) : findInstanceSubscription( channelType, id );
+    final int systemId = address.getSystemId();
+    final int channelId = address.getChannelId();
+    final Integer id = address.getId();
+    return null == id ?
+           findTypeSubscription( systemId, channelId ) :
+           findInstanceSubscription( systemId, channelId, id );
   }
 
   /**
@@ -238,13 +248,15 @@ abstract class SubscriptionService
    * found and the result {@link Subscription} if found. This ensures that if an observer
    * invokes this method then the observer will be rescheduled when the result changes.
    *
-   * @param channelType the channel type.
+   * @param systemId  the system id.
+   * @param channelId the channel id.
    * @return the subscription if any matches.
    */
   @Nullable
-  private Subscription findTypeSubscription( @Nonnull final Enum channelType )
+  private Subscription findTypeSubscription( final int systemId, final int channelId )
   {
-    final SubscriptionEntry entry = _typeSubscriptions.get( channelType );
+    final Map<Integer, SubscriptionEntry> channelMap = _typeSubscriptions.get( systemId );
+    final SubscriptionEntry entry = null == channelMap ? null : channelMap.get( channelId );
     if ( null == entry || Disposable.isDisposed( entry.getSubscription() ) )
     {
       getTypeSubscriptionsObservable().reportObserved();
@@ -264,32 +276,26 @@ abstract class SubscriptionService
    * found and the result {@link Subscription} if found. This ensures that if an observer
    * invokes this method then the observer will be rescheduled when the result changes.
    *
-   * @param channelType the channel type.
-   * @param id          the channel id.
+   * @param systemId  the system id.
+   * @param channelId the channel id.
+   * @param id        the channel id.
    * @return the subscription if any matches.
    */
   @Nullable
-  private Subscription findInstanceSubscription( @Nonnull final Enum channelType, @Nonnull final Object id )
+  private Subscription findInstanceSubscription( final int systemId, final int channelId, final int id )
   {
-    final Map<Object, Subscription> instanceMap = _instanceSubscriptions.get( channelType );
-    if ( null == instanceMap )
+    final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( systemId );
+    final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
+    final Subscription subscription = null == instanceMap ? null : instanceMap.get( id );
+    if ( null == subscription || Disposable.isDisposed( subscription ) )
     {
       getInstanceSubscriptionsObservable().reportObserved();
       return null;
     }
     else
     {
-      final Subscription subscription = instanceMap.get( id );
-      if ( null == subscription || Disposable.isDisposed( subscription ) )
-      {
-        getInstanceSubscriptionsObservable().reportObserved();
-        return null;
-      }
-      else
-      {
-        ComponentObservable.observe( subscription );
-        return subscription;
-      }
+      ComponentObservable.observe( subscription );
+      return subscription;
     }
   }
 
@@ -303,43 +309,57 @@ abstract class SubscriptionService
   @Nonnull
   final Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
   {
-    final Object id = address.getId();
+    final int systemId = address.getSystemId();
+    final int channelId = address.getChannelId();
+    final Integer id = address.getId();
     if ( null == id )
     {
       getTypeSubscriptionsObservable().preReportChanged();
-      final SubscriptionEntry entry = _typeSubscriptions.remove( address.getChannelType() );
+      final Map<Integer, SubscriptionEntry> entryMap = _typeSubscriptions.get( systemId );
+      final SubscriptionEntry entry = null == entryMap ? null : entryMap.remove( channelId );
+      if ( null != entry && entryMap.isEmpty() )
+      {
+        _typeSubscriptions.remove( systemId );
+      }
       if ( Replicant.shouldCheckInvariants() )
       {
         invariant( () -> null != entry,
-                   () -> "unlinkSubscription invoked with address " + address +
+                   () -> "Replicant-0062: unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
+        assert null != entry;
         invariant( () -> Disposable.isDisposed( entry ),
-                   () -> "unlinkSubscription invoked with address " + address +
+                   () -> "Replicant-0063: unlinkSubscription invoked with address " + address +
                          " but subscription has not already been disposed." );
       }
+      assert null != entry;
       getTypeSubscriptionsObservable().reportChanged();
       return entry.getSubscription();
     }
     else
     {
       getInstanceSubscriptionsObservable().preReportChanged();
-      final Map<Object, Subscription> instanceMap = _instanceSubscriptions.get( address.getChannelType() );
-      if ( Replicant.shouldCheckInvariants() )
+      final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( systemId );
+      final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
+      final Subscription subscription = null == instanceMap ? null : instanceMap.remove( id );
+      if ( null != subscription && instanceMap.isEmpty() )
       {
-        invariant( () -> null != instanceMap,
-                   () -> "unlinkSubscription invoked with address " + address +
-                         " but no subscription with that address exists." );
+        channelMap.remove( channelId );
+        if ( channelMap.isEmpty() )
+        {
+          _instanceSubscriptions.remove( systemId );
+        }
       }
-      final Subscription subscription = instanceMap.remove( id );
       if ( Replicant.shouldCheckInvariants() )
       {
         invariant( () -> null != subscription,
-                   () -> "unlinkSubscription invoked with address " + address +
+                   () -> "Replicant-0060: unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
+        assert null != subscription;
         invariant( () -> Disposable.isDisposed( subscription ),
-                   () -> "unlinkSubscription invoked with address " + address +
+                   () -> "Replicant-0061: unlinkSubscription invoked with address " + address +
                          " but subscription has not already been disposed." );
       }
+      assert null != subscription;
       getInstanceSubscriptionsObservable().reportChanged();
       return subscription;
     }
@@ -348,7 +368,16 @@ abstract class SubscriptionService
   @PreDispose
   final void preDispose()
   {
-    _typeSubscriptions.values().forEach( s -> Disposable.dispose( s ) );
-    _instanceSubscriptions.values().stream().flatMap( t -> t.values().stream() ).forEach( Disposable::dispose );
+    _typeSubscriptions
+      .values()
+      .stream()
+      .flatMap( s -> s.values().stream() )
+      .forEach( s -> Disposable.dispose( s ) );
+    _instanceSubscriptions
+      .values()
+      .stream()
+      .flatMap( t -> t.values().stream() )
+      .flatMap( t -> t.values().stream() )
+      .forEach( Disposable::dispose );
   }
 }

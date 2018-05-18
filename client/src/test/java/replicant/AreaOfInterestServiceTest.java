@@ -12,11 +12,6 @@ import static org.testng.Assert.*;
 public class AreaOfInterestServiceTest
   extends AbstractReplicantTest
 {
-  enum TestSystem
-  {
-    A, B
-  }
-
   @Test
   public void constructPassingContextWhenZonesDisabled()
   {
@@ -32,9 +27,9 @@ public class AreaOfInterestServiceTest
   {
     final AreaOfInterestService service = AreaOfInterestService.create( null );
 
-    final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
-    final ChannelAddress address2 = new ChannelAddress( TestSystem.B, 1 );
-    final ChannelAddress address3 = new ChannelAddress( TestSystem.B, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, 2 );
 
     safeAction( () -> {
       final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest( address1, null );
@@ -65,7 +60,7 @@ public class AreaOfInterestServiceTest
   public void createAreaOfInterestGeneratesSpyEvent()
   {
     final AreaOfInterestService service = AreaOfInterestService.create( null );
-    final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null );
 
     safeAction( () -> {
       final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -83,7 +78,7 @@ public class AreaOfInterestServiceTest
   public void updateAreaOfInterestGeneratesSpyEvent()
   {
     final AreaOfInterestService service = AreaOfInterestService.create( null );
-    final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null );
 
     safeAction( () -> {
       service.createOrUpdateAreaOfInterest( address1, "Filter1" );
@@ -103,7 +98,7 @@ public class AreaOfInterestServiceTest
   public void disposeAreaOfInterestGeneratesSpyEvent()
   {
     final AreaOfInterestService service = AreaOfInterestService.create( null );
-    final ChannelAddress address1 = new ChannelAddress( TestSystem.A, null );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null );
 
     final AreaOfInterest areaOfInterest =
       safeAction( () -> service.createOrUpdateAreaOfInterest( address1, "Filter1" ) );
@@ -123,8 +118,8 @@ public class AreaOfInterestServiceTest
     safeAction( () -> {
       final AreaOfInterestService service = AreaOfInterestService.create( null );
 
-      final ChannelAddress address1 = new ChannelAddress( TestSystem.A );
-      final ChannelAddress address2 = new ChannelAddress( TestSystem.B );
+      final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+      final ChannelAddress address2 = new ChannelAddress( 1, 1 );
 
       final String filer1 = "Filer1";
       final String filer2 = null;
@@ -145,7 +140,7 @@ public class AreaOfInterestServiceTest
   public void createOrUpdateAreaOfInterest()
   {
     safeAction( () -> {
-      final ChannelAddress channel = new ChannelAddress( TestSystem.A );
+      final ChannelAddress channel = new ChannelAddress( 1, 0 );
       final String filter1 = ValueUtil.randomString();
       final String filter2 = ValueUtil.randomString();
 

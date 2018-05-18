@@ -1,23 +1,19 @@
 package replicant;
 
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class ChannelAddressTest
   extends AbstractReplicantTest
 {
-  enum TestSystem
-  {
-    A, B
-  }
-
   @Test
   public void construct()
   {
-    final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
+    final ChannelAddress address = new ChannelAddress( 2, 4, 1 );
 
-    assertEquals( address.getSystem(), TestSystem.class );
-    assertEquals( address.getChannelType(), TestSystem.B );
+    assertEquals( address.getSystemId(), 2 );
+    assertEquals( address.getChannelId(), 4 );
     assertEquals( address.getId(), (Integer) 1 );
   }
 
@@ -25,9 +21,9 @@ public class ChannelAddressTest
   @Test
   public void testEquals()
   {
-    final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
-    final ChannelAddress address2 = new ChannelAddress( TestSystem.B, 2 );
-    final ChannelAddress address3 = new ChannelAddress( TestSystem.A );
+    final ChannelAddress address = new ChannelAddress( 1, 2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 2, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1 );
 
     assertEquals( address.equals( address ), true );
     assertEquals( address.equals( new Object() ), false );
@@ -38,15 +34,16 @@ public class ChannelAddressTest
   @Test
   public void toStringTest()
   {
-    final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
-    assertEquals( address.toString(), "TestSystem.B:1" );
+    final ChannelAddress address = new ChannelAddress( 1, 2, 1 );
+    assertEquals( address.toString(), "1.2.1" );
   }
 
   @Test
   public void toStringTest_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
+    final ChannelAddress address =
+      new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt() );
     assertEquals( address.toString(), "replicant.ChannelAddress@" + Integer.toHexString( address.hashCode() ) );
   }
 
@@ -54,7 +51,8 @@ public class ChannelAddressTest
   public void getName_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final ChannelAddress address = new ChannelAddress( TestSystem.B, 1 );
+    final ChannelAddress address =
+      new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt() );
     final IllegalStateException exception = expectThrows( IllegalStateException.class, address::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0042: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
@@ -64,8 +62,8 @@ public class ChannelAddressTest
   @Test
   public void compareTo()
   {
-    final ChannelAddress address1 = new ChannelAddress( TestSystem.A );
-    final ChannelAddress address2 = new ChannelAddress( TestSystem.B, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 2, 1 );
 
     assertEquals( address1.compareTo( address1 ), 0 );
     assertEquals( address1.compareTo( address2 ), -1 );

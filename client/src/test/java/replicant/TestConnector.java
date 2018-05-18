@@ -23,28 +23,24 @@ public abstract class TestConnector
   private int _connectCallCount;
   private int _disconnectCallCount;
 
-  public static TestConnector create( @Nonnull final Class<?> systemType )
+  public static TestConnector create()
   {
-    return create( TestData.ROSE_SYSTEM, systemType );
+    return create( TestData.ROSE_SYSTEM );
   }
 
-  public static TestConnector create( @Nonnull final SystemSchema schema, @Nonnull final Class<?> systemType )
+  public static TestConnector create( @Nonnull final SystemSchema schema )
   {
-    return create( Replicant.areZonesEnabled() ? Replicant.context() : null, schema, systemType );
+    return create( Replicant.areZonesEnabled() ? Replicant.context() : null, schema );
   }
 
-  static TestConnector create( @Nullable final ReplicantContext context,
-                               @Nonnull final SystemSchema schema,
-                               @Nonnull final Class<?> systemType )
+  static TestConnector create( @Nullable final ReplicantContext context, @Nonnull final SystemSchema schema )
   {
-    return Arez.context().safeAction( () -> new Arez_TestConnector( context, schema, systemType ) );
+    return Arez.context().safeAction( () -> new Arez_TestConnector( context, schema ) );
   }
 
-  TestConnector( @Nullable final ReplicantContext context,
-                 @Nonnull final SystemSchema schema,
-                 @Nonnull final Class<?> systemType )
+  TestConnector( @Nullable final ReplicantContext context, @Nonnull final SystemSchema schema )
   {
-    super( context, schema, systemType );
+    super( context, schema );
   }
 
   void setErrorOnConnect( final boolean errorOnConnect )

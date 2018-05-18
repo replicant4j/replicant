@@ -20,7 +20,7 @@ public class SubscriptionOrphanedEventTest
 
     final String filter = ValueUtil.randomString();
     final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ),
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 2 ),
                                                                 filter,
                                                                 true ) );
 
@@ -32,14 +32,10 @@ public class SubscriptionOrphanedEventTest
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Subscription.Orphaned" );
-    assertEquals( data.get( "channel.type" ), "G1" );
+    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.channelId" ), 2 );
     assertEquals( data.get( "channel.id" ), null );
     assertEquals( data.get( "channel.filter" ), filter );
-    assertEquals( data.size(), 4 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 5 );
   }
 }

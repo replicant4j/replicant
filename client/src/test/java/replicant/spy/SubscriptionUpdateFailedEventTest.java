@@ -15,7 +15,7 @@ public class SubscriptionUpdateFailedEventTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
     final SubscriptionUpdateFailedEvent event =
       new SubscriptionUpdateFailedEvent( 23, "Rose", address, new Error( "Something Bad Happened" ) );
 
@@ -29,14 +29,10 @@ public class SubscriptionUpdateFailedEventTest
     assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateFailed" );
     assertEquals( data.get( "schema.id" ), 23 );
     assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "channel.type" ), "G1" );
+    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.channelId" ), 2 );
     assertEquals( data.get( "channel.id" ), address.getId() );
     assertEquals( data.get( "message" ), "Something Bad Happened" );
-    assertEquals( data.size(), 6 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 7 );
   }
 }

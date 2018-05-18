@@ -104,8 +104,8 @@ public class EntityTest
                                                           String.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1 ) );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0 ) );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 1 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
     autorun( () -> {
@@ -173,8 +173,8 @@ public class EntityTest
                                                           String.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
     autorun( () -> {
@@ -243,8 +243,8 @@ public class EntityTest
     final String name = "A/" + id;
     final Entity entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
 
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
     safeAction( () -> entity.linkToSubscription( subscription1 ) );
@@ -305,7 +305,7 @@ public class EntityTest
     final Entity entity =
       safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
     safeAction( () -> entity.linkToSubscription( subscription1 ) );
@@ -316,7 +316,7 @@ public class EntityTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> entity.delinkSubscriptionFromEntity( subscription1 ) ) );
-    assertEquals( exception.getMessage(), "Unable to locate subscription for channel G.G1:1 on entity A/123" );
+    assertEquals( exception.getMessage(), "Unable to locate subscription for channel 1.0.1 on entity A/123" );
   }
 
   @Test
@@ -327,7 +327,7 @@ public class EntityTest
     final Entity entity =
       safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
 
-    final Subscription subscription = createSubscription( new ChannelAddress( G.G1, 1 ) );
+    final Subscription subscription = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
     safeAction( () -> entity.linkToSubscription( subscription ) );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
@@ -343,18 +343,13 @@ public class EntityTest
   @Nonnull
   private Subscription createSubscription()
   {
-    return createSubscription( new ChannelAddress( G.G1 ) );
+    return createSubscription( new ChannelAddress( 1, 0 ) );
   }
 
   @Nonnull
   private Subscription createSubscription( @Nonnull final ChannelAddress address )
   {
     return Subscription.create( null, address, null, true );
-  }
-
-  enum G
-  {
-    G1, G2
   }
 
   static class A

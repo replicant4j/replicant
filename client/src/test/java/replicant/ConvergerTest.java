@@ -116,7 +116,7 @@ public class ConvergerTest
     final Converger c = Replicant.context().getConverger();
 
     safeAction( () -> {
-      final ChannelAddress address = new ChannelAddress( G.G1 );
+      final ChannelAddress address = new ChannelAddress( 1, 0 );
       final AreaOfInterest areaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, null );
 
       assertTrue( c.canGroup( areaOfInterest,
@@ -156,14 +156,14 @@ public class ConvergerTest
                               areaOfInterest,
                               AreaOfInterestRequest.Type.REMOVE ) );
 
-      final ChannelAddress channel2 = new ChannelAddress( G.G1, 2 );
+      final ChannelAddress channel2 = new ChannelAddress( 1, 0, 2 );
       final AreaOfInterest areaOfInterest2 = Replicant.context().createOrUpdateAreaOfInterest( channel2, null );
       assertTrue( c.canGroup( areaOfInterest,
                               AreaOfInterestRequest.Type.ADD,
                               areaOfInterest2,
                               AreaOfInterestRequest.Type.ADD ) );
 
-      final ChannelAddress address3 = new ChannelAddress( G.G2, 1 );
+      final ChannelAddress address3 = new ChannelAddress( 1, 1, 1 );
       final AreaOfInterest areaOfInterest3 = Replicant.context().createOrUpdateAreaOfInterest( address3, null );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
@@ -178,7 +178,7 @@ public class ConvergerTest
                                areaOfInterest3,
                                AreaOfInterestRequest.Type.REMOVE ) );
 
-      final ChannelAddress address4 = new ChannelAddress( G.G1, 1 );
+      final ChannelAddress address4 = new ChannelAddress( 1, 0, 1 );
       final AreaOfInterest areaOfInterest4 = Replicant.context().createOrUpdateAreaOfInterest( address4, "Filter" );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
@@ -195,9 +195,9 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
       final Subscription subscription = Replicant.context().createSubscription( address, null, true );
@@ -226,17 +226,17 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription_whenManyPresent()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
-      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 1 ), null );
-      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 2 ), null );
-      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 3 ), null );
-      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 4 ), null );
-      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( G.G2, 5 ), null );
+      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 1 ), null );
+      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 2 ), null );
+      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 3 ), null );
+      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 4 ), null );
+      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 5 ), null );
 
       final Subscription subscription = Replicant.context().createSubscription( address, null, true );
 
@@ -264,8 +264,8 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenConnectorDisconnected()
   {
-    final TestConnector connector = TestConnector.create( G.class );
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final TestConnector connector = TestConnector.create();
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -284,8 +284,8 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenSubscriptionImplicit()
   {
-    final TestConnector connector = TestConnector.create( G.class );
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final TestConnector connector = TestConnector.create();
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -304,8 +304,8 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenSubscriptionExpected()
   {
-    final TestConnector connector = TestConnector.create( G.class );
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final TestConnector connector = TestConnector.create();
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -327,10 +327,10 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenRemoveIsPending()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     // Enqueue remove request
     connector.requestUnsubscribe( address );
@@ -352,11 +352,11 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -374,11 +374,11 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_alreadySubscribed()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
     safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
@@ -396,12 +396,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribing()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -421,12 +421,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_addPending()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
@@ -445,12 +445,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_updatePending()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final Object filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
@@ -471,11 +471,11 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_requestSubscriptionUpdate()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
@@ -498,11 +498,11 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_disposedAreaOfInterest()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
@@ -521,11 +521,11 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
     safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
@@ -545,12 +545,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingAdd()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
     final AreaOfInterest areaOfInterest2 =
@@ -570,12 +570,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffers()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
 
@@ -597,12 +597,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffers()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
     final AreaOfInterest areaOfInterest2 =
@@ -621,12 +621,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffers()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
     final AreaOfInterest areaOfInterest2 =
@@ -645,12 +645,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingUpdate()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
     final String filterOld = ValueUtil.randomString();
     final String filterNew = ValueUtil.randomString();
@@ -677,12 +677,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffersForUpdate()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
     final String filterOld = ValueUtil.randomString();
     final String filterNew = ValueUtil.randomString();
@@ -706,12 +706,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffersForUpdate()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0 );
 
     final String filterOld = ValueUtil.randomString();
     final String filterNew = ValueUtil.randomString();
@@ -736,12 +736,12 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffersForUpdate()
   {
-    final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
+    final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( ConnectorTest.G.G2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( ConnectorTest.G.G2, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
     final String filterOld = ValueUtil.randomString();
 
@@ -760,10 +760,5 @@ public class ConvergerTest
     assertEquals( result, Converger.Action.NO_ACTION );
 
     handler.assertEventCount( 0 );
-  }
-
-  private enum G
-  {
-    G1, G2
   }
 }

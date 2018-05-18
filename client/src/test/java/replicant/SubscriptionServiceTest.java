@@ -14,9 +14,9 @@ public class SubscriptionServiceTest
   @Test
   public void typeSubscriptions()
   {
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G3 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 2 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -166,9 +166,9 @@ public class SubscriptionServiceTest
   @Test
   public void instanceSubscriptions()
   {
-    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G2, ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, ValueUtil.randomInt() );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -218,8 +218,8 @@ public class SubscriptionServiceTest
     safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
     safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
     safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 0 ) );
-    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 0 ) );
-    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 0 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
 
     // Add subscription on address1
     {
@@ -232,8 +232,8 @@ public class SubscriptionServiceTest
       safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
       safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
     }
 
     // Add subscription on address2
@@ -247,8 +247,8 @@ public class SubscriptionServiceTest
       safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
       safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
     }
 
     // Add subscription on address3
@@ -262,8 +262,8 @@ public class SubscriptionServiceTest
       safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
       safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 3 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 1 ) );
     }
 
     // Dispose subscription on address3
@@ -278,7 +278,7 @@ public class SubscriptionServiceTest
         // to ensure not possible that disposed is returned
         assertEquals( service.getInstanceSubscriptions().size(), 2 );
         assertNull( service.findSubscription( address3 ) );
-        assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 );
+        assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 );
       } );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
@@ -288,8 +288,8 @@ public class SubscriptionServiceTest
       safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
       safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 2 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
     }
 
     // Dispose subscription on address2
@@ -304,7 +304,7 @@ public class SubscriptionServiceTest
         // to ensure not possible that disposed is returned
         assertEquals( service.getInstanceSubscriptions().size(), 1 );
         assertNull( service.findSubscription( address2 ) );
-        assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 );
+        assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 1 );
       } );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 2 );
@@ -314,8 +314,8 @@ public class SubscriptionServiceTest
       safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
       safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G1 ).size(), 1 ) );
-      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( G.G2 ).size(), 0 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 1 ) );
+      safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
     }
 
     // Dispose service
@@ -332,7 +332,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_instanceChannel_NoFilter_Explicit()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -348,7 +348,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_instanceChannel_Filter_NoExplicit()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 2 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -366,7 +366,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_typeChannel_NoFilter_NoExplicit()
   {
-    final ChannelAddress address = new ChannelAddress( G.G2 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -384,7 +384,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_typeChannel_Filter_Explicit()
   {
-    final ChannelAddress address = new ChannelAddress( G.G2 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -402,7 +402,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_generatesSpyEvent()
   {
-    final ChannelAddress address = new ChannelAddress( G.G2 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
     final SubscriptionService service = SubscriptionService.create( null );
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -419,7 +419,7 @@ public class SubscriptionServiceTest
   @Test
   public void disposeSubscription_generatesSpyEvent()
   {
-    final ChannelAddress address = new ChannelAddress( G.G2 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -439,7 +439,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_alreadyExists()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -450,13 +450,13 @@ public class SubscriptionServiceTest
                     () -> safeAction( () -> service.createSubscription( address, null, true ) ) );
 
     assertEquals( exception.getMessage(),
-                  "createSubscription invoked with address G.G1 but a subscription with that address already exists." );
+                  "Replicant-0064: createSubscription invoked with address 1.0 but a subscription with that address already exists." );
   }
 
   @Test
   public void removeSubscription_typeSubscription_noExist()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -465,13 +465,13 @@ public class SubscriptionServiceTest
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
-                  "unlinkSubscription invoked with address G.G1 but no subscription with that address exists." );
+                  "Replicant-0062: unlinkSubscription invoked with address 1.0 but no subscription with that address exists." );
   }
 
   @Test
   public void removeSubscription_typeSubscription_notDisposed()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -482,13 +482,13 @@ public class SubscriptionServiceTest
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
-                  "unlinkSubscription invoked with address G.G1 but subscription has not already been disposed." );
+                  "Replicant-0063: unlinkSubscription invoked with address 1.0 but subscription has not already been disposed." );
   }
 
   @Test
   public void removeSubscription_instanceSubscription_noExist()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -497,14 +497,14 @@ public class SubscriptionServiceTest
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
-                  "unlinkSubscription invoked with address G.G1:1 but no subscription with that address exists." );
+                  "Replicant-0060: unlinkSubscription invoked with address 1.0.1 but no subscription with that address exists." );
   }
 
   @Test
   public void removeSubscription_instanceSubscription_noExist_butSameChannelTypeExists()
   {
-    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -515,13 +515,13 @@ public class SubscriptionServiceTest
                     () -> safeAction( () -> service.unlinkSubscription( address1 ) ) );
 
     assertEquals( exception.getMessage(),
-                  "unlinkSubscription invoked with address G.G1:1 but no subscription with that address exists." );
+                  "Replicant-0060: unlinkSubscription invoked with address 1.0.1 but no subscription with that address exists." );
   }
 
   @Test
   public void removeSubscription_instanceSubscription_notDisposed()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 2 );
 
     final SubscriptionService service = SubscriptionService.create( null );
 
@@ -532,7 +532,7 @@ public class SubscriptionServiceTest
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
     assertEquals( exception.getMessage(),
-                  "unlinkSubscription invoked with address G.G1:2 but subscription has not already been disposed." );
+                  "Replicant-0061: unlinkSubscription invoked with address 1.0.2 but subscription has not already been disposed." );
   }
 
   @Test
@@ -544,10 +544,5 @@ public class SubscriptionServiceTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
-  }
-
-  enum G
-  {
-    G1, G2, G3
   }
 }

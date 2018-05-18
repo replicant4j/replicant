@@ -33,9 +33,4 @@ public class RequestStartedEventTest
 
     assertEquals( data.size(), 5 );
   }
-
-  enum G
-  {
-    G1
-  }
 }

@@ -52,8 +52,9 @@ public abstract class ReplicantSubscription<T>
     ReactNode render( @Nonnull Subscription entry, @Nonnull Throwable error );
   }
 
-  @Nonnull
-  protected abstract Enum getChannelType();
+  protected abstract int getSystemId();
+
+  protected abstract int getChannelId();
 
   @Nullable
   protected Integer getId()
@@ -183,8 +184,8 @@ public abstract class ReplicantSubscription<T>
 
   private void updateAreaOfInterest()
   {
-    final AreaOfInterest newAreaOfInterest =
-      Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( getChannelType(), getId() ), getFilter() );
+    final ChannelAddress address = new ChannelAddress( getSystemId(), getChannelId(), getId() );
+    final AreaOfInterest newAreaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, getFilter() );
     if ( getAreaOfInterest() != newAreaOfInterest )
     {
       clearAreaOfInterest();

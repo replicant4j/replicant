@@ -19,7 +19,7 @@ public class ConnectionTest
   @Test
   public void construct()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -39,14 +39,14 @@ public class ConnectionTest
   @Test
   public void requestSubscribe()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 23 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 23 );
     final String filter1 = ValueUtil.randomString();
     final String filter2 = ValueUtil.randomString();
 
@@ -73,14 +73,14 @@ public class ConnectionTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 23 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 23 );
     final String filter1 = ValueUtil.randomString();
     final String filter2 = ValueUtil.randomString();
 
@@ -107,14 +107,14 @@ public class ConnectionTest
   @Test
   public void requestUnsubscribe()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2, 23 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 23 );
 
     connection.requestUnsubscribe( address1 );
 
@@ -139,7 +139,7 @@ public class ConnectionTest
   @Test
   public void enqueueResponse()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -171,7 +171,7 @@ public class ConnectionTest
   @Test
   public void enqueueOutOfBandResponse()
   {
-    final TestConnector connector = TestConnector.create( G.class );
+    final TestConnector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -208,7 +208,7 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final String requestName = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
 
@@ -239,10 +239,10 @@ public class ConnectionTest
   @Test
   public void completeAreaOfInterestRequest()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
 
     final Object filter1 = null;
     final Object filter2 = null;
@@ -271,7 +271,7 @@ public class ConnectionTest
   @Test
   public void completeAreaOfInterestRequest_whenNoRequests()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, connection::completeAreaOfInterestRequest );
@@ -282,7 +282,7 @@ public class ConnectionTest
   @Test
   public void completeRequest()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -310,7 +310,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_expectingResults()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -339,7 +339,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_resultsArrived()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
@@ -369,13 +369,13 @@ public class ConnectionTest
   @Test
   public void canGroupRequests()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress addressA = new ChannelAddress( G.G1 );
-    final ChannelAddress addressB = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress addressC = new ChannelAddress( G.G2, 2 );
-    final ChannelAddress addressD = new ChannelAddress( G.G2, 3 );
-    final ChannelAddress addressE = new ChannelAddress( G.G2, 4 );
+    final ChannelAddress addressA = new ChannelAddress( 1, 0 );
+    final ChannelAddress addressB = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress addressC = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress addressD = new ChannelAddress( 1, 1, 3 );
+    final ChannelAddress addressE = new ChannelAddress( 1, 1, 4 );
 
     final String filterP = null;
     final String filterQ = "F1";
@@ -453,10 +453,10 @@ public class ConnectionTest
   @Test
   public void canGroupRequests_presentInCache()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress addressA = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress addressB = new ChannelAddress( G.G2, 2 );
+    final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
 
     final AreaOfInterestRequest requestA = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, null );
     final AreaOfInterestRequest requestB = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, null );
@@ -476,11 +476,11 @@ public class ConnectionTest
   @Test
   public void getCurrentAreaOfInterestRequests()
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress addressA = new ChannelAddress( G.G2, 1 );
-    final ChannelAddress addressB = new ChannelAddress( G.G2, 2 );
-    final ChannelAddress addressC = new ChannelAddress( G.G2, 3 );
+    final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress addressC = new ChannelAddress( 1, 1, 3 );
 
     assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
 
@@ -508,9 +508,9 @@ public class ConnectionTest
   public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = "MyFilter";
 
     final IllegalStateException exception =
@@ -519,16 +519,16 @@ public class ConnectionTest
                                                                               address,
                                                                               filter ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for address 'G.G1' with a non-null filter 'MyFilter'." );
+                  "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for address '1.0' with a non-null filter 'MyFilter'." );
   }
 
   @Test
   public void isAreaOfInterestRequestPending_passingNonnullFilterForDelete()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = "MyFilter";
 
     final IllegalStateException exception =
@@ -537,16 +537,16 @@ public class ConnectionTest
                                                                      address,
                                                                      filter ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE request for address 'G.G1' with a non-null filter 'MyFilter'." );
+                  "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE request for address '1.0' with a non-null filter 'MyFilter'." );
   }
 
   @Test
   public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
 
     assertRequestPending( connection, AreaOfInterestRequest.Type.ADD, address1, null, false );
     assertRequestPending( connection, AreaOfInterestRequest.Type.REMOVE, address1, null, false );
@@ -560,11 +560,11 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_requestPending()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G1, 3 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
 
     final Object filter1 = null;
     final Object filter2 = ValueUtil.randomString();
@@ -597,11 +597,11 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_currentPending()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G1, 3 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
 
     final Object filter1 = null;
     final Object filter2 = null;
@@ -632,12 +632,12 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_jumbledAggregate()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create( G.class ), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
 
-    final ChannelAddress address1 = new ChannelAddress( G.G1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( G.G1, 3 );
-    final ChannelAddress address4 = new ChannelAddress( G.G2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
+    final ChannelAddress address4 = new ChannelAddress( 1, 1 );
 
     final Object filter1 = null;
     final Object filter2 = ValueUtil.randomString();
@@ -716,10 +716,5 @@ public class ConnectionTest
                                      final boolean expected )
   {
     assertEquals( connection.isAreaOfInterestRequestPending( action, address, filter ), expected );
-  }
-
-  enum G
-  {
-    G1, G2
   }
 }

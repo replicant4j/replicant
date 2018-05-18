@@ -42,8 +42,10 @@ public class SubscriptionUtil
    * that are reachable from the source channelTypes. If an expected subscription is missing it is added,
    * if an additional subscription is present then it is released.
    */
-  public static void convergeCrossDataSourceSubscriptions( @Nonnull final Enum sourceChannelType,
-                                                           @Nonnull final Enum targetChannelType,
+  public static void convergeCrossDataSourceSubscriptions( final int sourceSystemId,
+                                                           final int sourceChannelId,
+                                                           final int targetSystemId,
+                                                           final int targetChannelId,
                                                            @Nullable final Object filter,
                                                            @Nonnull final Function<Object, Stream<Integer>> sourceIDToTargetIDs )
   {
@@ -54,25 +56,29 @@ public class SubscriptionUtil
       context
         .getAreasOfInterest()
         .stream()
-        .filter( s -> s.getAddress().getChannelType().equals( targetChannelType ) )
+        .filter( s -> s.getAddress().getSystemId() == targetSystemId &&
+                      s.getAddress().getChannelId() == targetChannelId )
         .filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
         .collect( Collectors.toMap( s -> s.getAddress().getId(), Function.identity() ) );
 
     context
       .getAreasOfInterest()
       .stream()
-      .filter( s -> s.getAddress().getChannelType() == sourceChannelType )
+      .filter( s -> s.getAddress().getSystemId() == sourceSystemId &&
+                    s.getAddress().getChannelId() == sourceChannelId )
       .map( s -> s.getAddress().getId() )
       .flatMap( sourceIDToTargetIDs )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
-      .forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetChannelType, id ), filter ) );
+      .forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetSystemId, targetChannelId, id ),
+                                                            filter ) );
 
-    context.getInstanceSubscriptionIds( sourceChannelType ).stream().
+    context.getInstanceSubscriptionIds( sourceSystemId, sourceChannelId ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetChannelType, id ), filter ) );
+      forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetSystemId, targetChannelId, id ),
+                                                           filter ) );
 
     existing.values().forEach( Disposable::dispose );
   }

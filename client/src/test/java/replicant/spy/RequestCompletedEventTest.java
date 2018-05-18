@@ -40,9 +40,4 @@ public class RequestCompletedEventTest
 
     assertEquals( data.size(), 8 );
   }
-
-  enum G
-  {
-    G1
-  }
 }

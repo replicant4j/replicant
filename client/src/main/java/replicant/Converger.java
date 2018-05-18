@@ -153,7 +153,7 @@ abstract class Converger
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
-    final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
+    final Connector connector = getReplicantRuntime().getConnector( address.getSystemId() );
     // service can be disconnected if it is not a required service and will converge later when it connects
     if ( ConnectorState.CONNECTED == connector.getState() )
     {
@@ -231,7 +231,8 @@ abstract class Converger
     else
     {
       final boolean sameChannel =
-        groupTemplate.getAddress().getChannelType().equals( areaOfInterest.getAddress().getChannelType() );
+        groupTemplate.getAddress().getSystemId() == areaOfInterest.getAddress().getSystemId() &&
+        groupTemplate.getAddress().getChannelId() == areaOfInterest.getAddress().getChannelId();
 
       return sameChannel &&
              ( AreaOfInterestRequest.Type.REMOVE == action ||
@@ -271,7 +272,7 @@ abstract class Converger
       assert null != subscription;
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
     }
-    getReplicantRuntime().getConnector( address.getSystem() ).requestUnsubscribe( address );
+    getReplicantRuntime().getConnector( address.getSystemId() ).requestUnsubscribe( address );
   }
 
   /**
@@ -281,7 +282,7 @@ abstract class Converger
    */
   private boolean isRemovePending( @Nonnull final ChannelAddress address )
   {
-    final Connector connector = getReplicantRuntime().getConnector( address.getSystem() );
+    final Connector connector = getReplicantRuntime().getConnector( address.getSystemId() );
     return ConnectorState.CONNECTED != connector.getState() ||
            connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null );
   }

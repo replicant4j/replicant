@@ -12,7 +12,7 @@ public class SubscriptionTest
   @Test
   public void basicConstruction()
   {
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
     final Object filter = ValueUtil.randomString();
     final Subscription subscription = Subscription.create( null, address, filter, true );
 
@@ -30,7 +30,7 @@ public class SubscriptionTest
     final Object filter2 = ValueUtil.randomString();
 
     final Subscription subscription =
-      Subscription.create( null, new ChannelAddress( G.G1 ), filter1, ValueUtil.randomBoolean() );
+      Subscription.create( null, new ChannelAddress( 1, 0 ), filter1, ValueUtil.randomBoolean() );
 
     safeAction( () -> assertEquals( subscription.getFilter(), filter1 ) );
     safeAction( () -> subscription.setFilter( filter2 ) );
@@ -45,7 +45,7 @@ public class SubscriptionTest
     final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
     final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
-    final ChannelAddress address = new ChannelAddress( G.G1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
     final Subscription subscription =
       Subscription.create( null, address, null, true );
 
@@ -138,9 +138,9 @@ public class SubscriptionTest
     final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
     final Subscription subscription1 =
-      Subscription.create( null, new ChannelAddress( G.G1, 1 ), null, true );
+      Subscription.create( null, new ChannelAddress( 1, 0, 1 ), null, true );
     final Subscription subscription2 =
-      Subscription.create( null, new ChannelAddress( G.G1, 2 ), null, true );
+      Subscription.create( null, new ChannelAddress( 1, 0, 2 ), null, true );
 
     safeAction( () -> entity1.linkToSubscription( subscription1 ) );
     safeAction( () -> entity2.linkToSubscription( subscription1 ) );
@@ -173,7 +173,7 @@ public class SubscriptionTest
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(), A.class, ValueUtil.randomInt() ) );
 
     final Subscription subscription1 =
-      Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );
+      Subscription.create( null, new ChannelAddress( 1, 0, 1 ), null, true );
 
     entity.subscriptions().put( subscription1.getAddress(), subscription1 );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
@@ -181,7 +181,7 @@ public class SubscriptionTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
-    assertEquals( exception.getMessage(), "Entity type A not present in subscription to channel G.G1:1" );
+    assertEquals( exception.getMessage(), "Entity type A not present in subscription to channel 1.0.1" );
   }
 
   @Test
@@ -196,7 +196,7 @@ public class SubscriptionTest
                                                           ValueUtil.randomInt() ) );
 
     final Subscription subscription1 =
-      Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );
+      Subscription.create( null, new ChannelAddress( 1, 0, 1 ), null, true );
 
     safeAction( () -> entity2.linkToSubscription( subscription1 ) );
 
@@ -206,15 +206,15 @@ public class SubscriptionTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
-    assertEquals( exception.getMessage(), "Entity instance A/123 not present in subscription to channel G.G1:1" );
+    assertEquals( exception.getMessage(), "Entity instance A/123 not present in subscription to channel 1.0.1" );
   }
 
   @SuppressWarnings( "EqualsWithItself" )
   @Test
   public void comparable()
   {
-    final ChannelAddress address1 = new ChannelAddress( G.G1 );
-    final ChannelAddress address2 = new ChannelAddress( G.G2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1 );
 
     final Subscription subscription1 = Subscription.create( null, address1, null, true );
     final Subscription subscription2 = Subscription.create( null, address2, null, true );
@@ -223,11 +223,6 @@ public class SubscriptionTest
     assertEquals( subscription1.compareTo( subscription2 ), -1 );
     assertEquals( subscription2.compareTo( subscription1 ), 1 );
     assertEquals( subscription2.compareTo( subscription2 ), 0 );
-  }
-
-  enum G
-  {
-    G1, G2
   }
 
   static class A

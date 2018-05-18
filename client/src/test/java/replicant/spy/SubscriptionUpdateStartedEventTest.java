@@ -15,7 +15,7 @@ public class SubscriptionUpdateStartedEventTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final ChannelAddress address = new ChannelAddress( G.G1 );
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
     final SubscriptionUpdateStartedEvent event = new SubscriptionUpdateStartedEvent( 23, "Rose", address );
 
     assertEquals( event.getSchemaId(), 23 );
@@ -28,13 +28,9 @@ public class SubscriptionUpdateStartedEventTest
     assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateStarted" );
     assertEquals( data.get( "schema.id" ), 23 );
     assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "channel.type" ), "G1" );
+    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.channelId" ), 2 );
     assertEquals( data.get( "channel.id" ), address.getId() );
-    assertEquals( data.size(), 5 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 6 );
   }
 }

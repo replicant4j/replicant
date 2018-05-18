@@ -34,7 +34,8 @@ public final class UnsubscribeRequestQueuedEvent
   {
     map.put( "type", "Connector.UnsubscribeRequestQueued" );
     final ChannelAddress address = getAddress();
-    map.put( "channel.type", address.getChannelType().name() );
+    map.put( "channel.systemId", address.getSystemId() );
+    map.put( "channel.channelId", address.getChannelId() );
     map.put( "channel.id", address.getId() );
   }
 }

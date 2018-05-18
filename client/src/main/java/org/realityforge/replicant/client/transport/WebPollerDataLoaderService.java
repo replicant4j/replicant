@@ -30,10 +30,9 @@ public abstract class WebPollerDataLoaderService
 
   protected WebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
                                         @Nonnull final SystemSchema schema,
-                                       @Nonnull final Class<?> systemType,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( context, schema, systemType, sessionContext );
+    super( context, schema, sessionContext );
   }
 
   @Nonnull
@@ -127,7 +126,7 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected String getChannelURL( @Nonnull final ChannelAddress address )
   {
-    final int channelId = address.getChannelType().ordinal();
+    final int channelId = address.getChannelId();
     final Integer subChannelId = address.getId();
     return getConnectionURL() + SharedConstants.CHANNEL_URL_FRAGMENT +
            "/" + channelId + ( null == subChannelId ? "" : "." + subChannelId );
@@ -136,7 +135,7 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   private String getChannelURL( @Nonnull final List<ChannelAddress> addresses )
   {
-    final int channelId = addresses.get( 0 ).getChannelType().ordinal();
+    final int channelId = addresses.get( 0 ).getChannelId();
     final String queryParam =
       SharedConstants.SUB_CHANNEL_ID_PARAM + "=" +
       addresses.stream().map( ChannelAddress::getId ).map( Object::toString ).collect( Collectors.joining( "," ) );
@@ -291,8 +290,9 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
-    final Enum channelType = addresses.get( 0 ).getChannelType();
-    getSessionContext().request( toRequestKey( "BulkSubscribe", channelType ), null, ( connection, request ) ->
+    final ChannelAddress address = addresses.get( 0 );
+    final ChannelAddress template = new ChannelAddress( address.getSystemId(), address.getChannelId() );
+    getSessionContext().request( toRequestKey( "BulkSubscribe", template ), null, ( connection, request ) ->
       doSubscribe( connection, request, filter, getChannelURL( addresses ), null, onSuccess, null, onError ) );
   }
 
@@ -319,8 +319,9 @@ public abstract class WebPollerDataLoaderService
                                                 @Nonnull final SafeProcedure onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
   {
-    final Enum channelType = addresses.get( 0 ).getChannelType();
-    getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", channelType ), null, ( connection, request ) ->
+    final ChannelAddress address = addresses.get( 0 );
+    final ChannelAddress template = new ChannelAddress( address.getSystemId(), address.getChannelId() );
+    getSessionContext().request( toRequestKey( "BulkSubscriptionUpdate", template ), null, ( connection, request ) ->
       doSubscribe( connection, request, filter, getChannelURL( addresses ), null, onSuccess, null, onError ) );
   }
 
@@ -338,8 +339,9 @@ public abstract class WebPollerDataLoaderService
                                                     @Nonnull final SafeProcedure onSuccess,
                                                     @Nonnull final Consumer<Throwable> onError )
   {
-    final Enum channelType = addresses.get( 0 ).getChannelType();
-    getSessionContext().request( toRequestKey( "BulkUnsubscribe", channelType ), null, ( connection, request ) ->
+    final ChannelAddress address = addresses.get( 0 );
+    final ChannelAddress template = new ChannelAddress( address.getSystemId(), address.getChannelId() );
+    getSessionContext().request( toRequestKey( "BulkUnsubscribe", template ), null, ( connection, request ) ->
       doUnsubscribe( connection, request, getChannelURL( addresses ), onSuccess, onError ) );
   }
 
@@ -357,14 +359,6 @@ public abstract class WebPollerDataLoaderService
                                          @Nonnull String channelURL,
                                          @Nonnull SafeProcedure onSuccess,
                                          @Nonnull Consumer<Throwable> onError );
-
-  @Nullable
-  private String toRequestKey( @Nonnull final String requestType, final Enum channelId )
-  {
-    return Replicant.areNamesEnabled() ?
-           requestType + ":" + channelId :
-           null;
-  }
 
   @Nullable
   private String toRequestKey( @Nonnull final String requestType, @Nonnull final ChannelAddress address )

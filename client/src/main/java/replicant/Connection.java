@@ -317,7 +317,7 @@ public final class Connection
            ( null == cacheService || null == cacheService.lookup( template.getCacheKey() ) ) &&
            ( null == cacheService || null == cacheService.lookup( match.getCacheKey() ) ) &&
            template.getType().equals( match.getType() ) &&
-           template.getAddress().getChannelType().equals( match.getAddress().getChannelType() ) &&
+           template.getAddress().getChannelId() == match.getAddress().getChannelId() &&
            ( AreaOfInterestRequest.Type.REMOVE == match.getType() ||
              FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
   }
