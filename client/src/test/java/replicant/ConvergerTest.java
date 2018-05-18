@@ -4,6 +4,7 @@ import arez.Disposable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -11,10 +12,19 @@ import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import static org.testng.Assert.*;
 
-@SuppressWarnings( "Duplicates" )
 public class ConvergerTest
   extends AbstractReplicantTest
 {
+  @BeforeMethod
+  @Override
+  protected void beforeTest()
+    throws Exception
+  {
+    super.beforeTest();
+    // Pause schedule so can manually interact with converger
+    pauseScheduler();
+  }
+
   @Test
   public void construct_withUnnecessaryContext()
   {
@@ -51,9 +61,6 @@ public class ConvergerTest
   {
     final Converger c = Replicant.context().getConverger();
 
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
-
     // should do nothing ...
     safeAction( c::preConverge );
 
@@ -81,9 +88,6 @@ public class ConvergerTest
   {
     final Converger c = Replicant.context().getConverger();
 
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
-
     // should do nothing ...
     safeAction( c::convergeComplete );
 
@@ -110,9 +114,6 @@ public class ConvergerTest
   public void canGroup()
   {
     final Converger c = Replicant.context().getConverger();
-
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
 
     safeAction( () -> {
       final ChannelAddress address = new ChannelAddress( G.G1 );
@@ -198,9 +199,6 @@ public class ConvergerTest
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
-
     safeAction( () -> {
       final Subscription subscription = Replicant.context().createSubscription( address, null, true );
 
@@ -231,9 +229,6 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create( G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final ChannelAddress address = new ChannelAddress( G.G1 );
-
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
 
     safeAction( () -> {
 
@@ -272,9 +267,6 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create( G.class );
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
-
     safeAction( () -> {
 
       Replicant.context().createSubscription( address, null, true );
@@ -295,9 +287,6 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create( G.class );
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
-
     safeAction( () -> {
 
       Replicant.context().createSubscription( address, null, false );
@@ -317,9 +306,6 @@ public class ConvergerTest
   {
     final TestConnector connector = TestConnector.create( G.class );
     final ChannelAddress address = new ChannelAddress( G.G1 );
-
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
 
     safeAction( () -> {
 
@@ -349,9 +335,6 @@ public class ConvergerTest
     // Enqueue remove request
     connector.requestUnsubscribe( address );
 
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
-
     safeAction( () -> {
 
       Replicant.context().createSubscription( address, null, true );
@@ -369,9 +352,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -394,9 +374,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_alreadySubscribed()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -419,9 +396,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribing()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
@@ -447,9 +421,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_addPending()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
@@ -474,9 +445,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_updatePending()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
@@ -503,9 +471,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_requestSubscriptionUpdate()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -533,9 +498,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_disposedAreaOfInterest()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -559,9 +521,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -586,9 +545,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingAdd()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -614,9 +570,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffers()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -644,9 +597,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffers()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -671,9 +621,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffers()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -698,9 +645,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingUpdate()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -733,9 +677,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffersForUpdate()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -765,9 +706,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffersForUpdate()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -798,9 +736,6 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffersForUpdate()
   {
-    // Pause schedule so can manually interact with converger
-    pauseScheduler();
-
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
