@@ -23,6 +23,7 @@ import replicant.ChangeSet;
 import replicant.Connection;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
+import replicant.SystemSchema;
 
 public abstract class GwtWebPollerDataLoaderService
   extends WebPollerDataLoaderService
@@ -38,10 +39,11 @@ public abstract class GwtWebPollerDataLoaderService
   }
 
   public GwtWebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
+                                        @Nonnull final SystemSchema schema,
                                         @Nonnull final Class<?> systemType,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( context, systemType, sessionContext );
+    super( context, schema, systemType, sessionContext );
     createWebPoller();
     setupCloseHandler();
   }

@@ -19,6 +19,7 @@ import replicant.Connection;
 import replicant.Replicant;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
+import replicant.SystemSchema;
 import replicant.spy.DataLoadStatus;
 
 public abstract class WebPollerDataLoaderService
@@ -28,10 +29,11 @@ public abstract class WebPollerDataLoaderService
   private WebPoller _webPoller;
 
   protected WebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
-                                        @Nonnull final Class<?> systemType,
+                                        @Nonnull final SystemSchema schema,
+                                       @Nonnull final Class<?> systemType,
                                         @Nonnull final SessionContext sessionContext )
   {
-    super( context, systemType, sessionContext );
+    super( context, schema, systemType, sessionContext );
   }
 
   @Nonnull

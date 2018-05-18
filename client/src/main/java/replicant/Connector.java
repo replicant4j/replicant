@@ -47,6 +47,11 @@ public abstract class Connector
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
 
+  /**
+   * The schema that defines data-API used to interact with datasource.
+   */
+  @Nonnull
+  private final SystemSchema _schema;
   @Nonnull
   private final Class<?> _systemType;
   @Nonnull
@@ -78,11 +83,19 @@ public abstract class Connector
    */
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
 
-  protected Connector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
+  protected Connector( @Nullable final ReplicantContext context,
+                       @Nonnull final SystemSchema schema,
+                       @Nonnull final Class<?> systemType )
   {
     super( context );
+    _schema = Objects.requireNonNull( schema );
     _systemType = Objects.requireNonNull( systemType );
     getReplicantRuntime().registerConnector( this );
+    final SchemaService schemaService = getReplicantContext().getSchemaService();
+    if ( !schemaService.contains( schema ) )
+    {
+      schemaService.registerSchema( schema );
+    }
   }
 
   @PreDispose
@@ -154,6 +167,17 @@ public abstract class Connector
   public final Class<?> getSystemType()
   {
     return _systemType;
+  }
+
+  /**
+   * Return the schema associated with the connector.
+   *
+   * @return the schema associated with the connector.
+   */
+  @Nonnull
+  public final SystemSchema getSchema()
+  {
+    return _schema;
   }
 
   protected final void setConnection( @Nullable final Connection connection )

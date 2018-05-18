@@ -25,6 +25,7 @@ import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
+import replicant.SystemSchema;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -46,10 +47,11 @@ public abstract class AbstractDataLoaderService
   private Runnable _resetAction;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
+                                       @Nonnull final SystemSchema schema,
                                        @Nonnull final Class<?> systemType,
                                        @Nonnull final SessionContext sessionContext )
   {
-    super( context, systemType );
+    super( context, schema, systemType );
     _sessionContext = Objects.requireNonNull( sessionContext );
   }
 

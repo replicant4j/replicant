@@ -45,11 +45,20 @@ public class ConnectorTest
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create( G.class );
+    final SystemSchema schema =
+      new SystemSchema( ValueUtil.randomInt(),
+                        ValueUtil.randomString(),
+                        new ChannelSchema[ 0 ],
+                        new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema, G.class );
+
+    assertEquals( connector.getSchema(), schema );
+    assertEquals( connector.getSystemType(), G.class );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
     assertEquals( connector.getReplicantRuntime(), runtime );
+    safeAction( () -> assertEquals( connector.getReplicantContext().getSchemaService().contains( schema ), true ) );
 
     safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 

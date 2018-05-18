@@ -25,17 +25,26 @@ public abstract class TestConnector
 
   public static TestConnector create( @Nonnull final Class<?> systemType )
   {
-    return create( Replicant.areZonesEnabled() ? Replicant.context() : null, systemType );
+    return create( TestData.ROSE_SYSTEM, systemType );
   }
 
-  static TestConnector create( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
+  public static TestConnector create( @Nonnull final SystemSchema schema, @Nonnull final Class<?> systemType )
   {
-    return Arez.context().safeAction( () -> new Arez_TestConnector( context, systemType ) );
+    return create( Replicant.areZonesEnabled() ? Replicant.context() : null, schema, systemType );
   }
 
-  TestConnector( @Nullable final ReplicantContext context, @Nonnull final Class<?> systemType )
+  static TestConnector create( @Nullable final ReplicantContext context,
+                               @Nonnull final SystemSchema schema,
+                               @Nonnull final Class<?> systemType )
   {
-    super( context, systemType );
+    return Arez.context().safeAction( () -> new Arez_TestConnector( context, schema, systemType ) );
+  }
+
+  TestConnector( @Nullable final ReplicantContext context,
+                 @Nonnull final SystemSchema schema,
+                 @Nonnull final Class<?> systemType )
+  {
+    super( context, schema, systemType );
   }
 
   void setErrorOnConnect( final boolean errorOnConnect )
