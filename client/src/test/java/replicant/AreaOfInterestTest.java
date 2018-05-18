@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -100,13 +99,12 @@ public class AreaOfInterestTest
     safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
-    Arez.context()
-      .safeAction( () -> {
-        final SubscriptionService subscriptionService = SubscriptionService.create( null );
-        final Subscription subscription =
-          subscriptionService.createSubscription( areaOfInterest.getAddress(), areaOfInterest.getFilter(), true );
-        areaOfInterest.setSubscription( subscription );
-      } );
+    safeAction( () -> {
+      final SubscriptionService subscriptionService = SubscriptionService.create( null );
+      final Subscription subscription =
+        subscriptionService.createSubscription( areaOfInterest.getAddress(), areaOfInterest.getFilter(), true );
+      areaOfInterest.setSubscription( subscription );
+    } );
 
     assertEquals( getStatusCallCount.get(), 2 );
     assertEquals( getErrorCallCount.get(), 2 );
@@ -224,8 +222,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) ) );
+                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0016: Invoked updateAreaOfInterest for channel at address G.G1 with status LOAD_FAILED but failed to supply the expected error." );
   }
@@ -240,8 +237,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) ) );
+                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0017: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and supplied an unexpected error." );
   }
@@ -254,8 +250,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) ) );
+                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0018: Invoked updateAreaOfInterest for channel at address G.G1 with status LOADED and the context is missing expected subscription." );
   }
@@ -270,8 +265,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> Arez.context()
-                      .safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) ) );
+                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0019: Invoked updateAreaOfInterest for channel at address G.G1 with status UNLOADED and found unexpected subscription in the context." );
   }

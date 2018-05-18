@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -171,10 +170,7 @@ public class SubscriptionTest
   {
     final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity =
-      Arez.context()
-        .safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
-                                                             A.class,
-                                                             ValueUtil.randomInt() ) );
+      safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(), A.class, ValueUtil.randomInt() ) );
 
     final Subscription subscription1 =
       Subscription.create( null, new ChannelAddress( EntityTest.G.G1, 1 ), null, true );

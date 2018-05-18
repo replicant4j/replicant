@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -52,8 +51,7 @@ public class ConnectorTest
 
     assertEquals( connector.getReplicantRuntime(), runtime );
 
-    Arez.context()
-      .safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     schedulerLock.dispose();
 
@@ -813,8 +811,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final Subscription subscription1 =
-      Arez.context()
-        .safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ), null, true ) );
 
     assertEquals( connector.getConnection(), connection );
     assertEquals( connector.ensureConnection(), connection );

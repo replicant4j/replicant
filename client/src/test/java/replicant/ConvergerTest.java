@@ -1,7 +1,5 @@
 package replicant;
 
-import arez.Arez;
-import arez.ArezContext;
 import arez.Disposable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -384,11 +382,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -412,11 +409,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_alreadySubscribed()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -440,11 +436,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribing()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
@@ -471,11 +466,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_addPending()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
@@ -501,11 +495,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_updatePending()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
@@ -533,11 +526,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_requestSubscriptionUpdate()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -566,11 +558,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_disposedAreaOfInterest()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -595,11 +586,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -625,11 +615,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingAdd()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -656,11 +645,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffers()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -689,11 +677,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffers()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -719,11 +706,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffers()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -749,11 +735,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingUpdate()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -787,11 +772,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffersForUpdate()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -822,11 +806,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffersForUpdate()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
@@ -858,11 +841,10 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffersForUpdate()
   {
-    final ArezContext context = Arez.context();
     final ReplicantContext rContext = Replicant.context();
 
     // Pause schedule so can manually interact with converger
-    context.pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( ConnectorTest.G.class );
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
