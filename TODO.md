@@ -68,3 +68,5 @@ RequestEntry.ID should be an integer....
 * Remove type from `EntitySchema` and somehow get connector to manage mapping `EntitySchema` -> `Class`.
   The motivation for this is that then the `EntitySchema` can be used outside of runtime ... hopefully
   to build the source code for entities.
+
+* Remove `Connector.SystemType` and replace with reference to schema.
