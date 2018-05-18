@@ -140,7 +140,7 @@ public class ReplicantRuntimeTest
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemType( service1.getSystemType() );
 
-    final Disposable schedulerLock1 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock1 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -151,7 +151,7 @@ public class ReplicantRuntimeTest
 
     // set service state to in transition so connect is not called
 
-    final Disposable schedulerLock2 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock2 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
@@ -169,7 +169,7 @@ public class ReplicantRuntimeTest
 
     // set service state to connected so no action required
 
-    final Disposable schedulerLock3 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock3 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -180,7 +180,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock4 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock4 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
@@ -191,7 +191,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock5 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock5 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -212,7 +212,7 @@ public class ReplicantRuntimeTest
     final TestDataLoaderService service3 = TestDataLoaderService.create( TestSystemC.class );
     final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemType( service3.getSystemType() );
 
-    final Disposable schedulerLock1 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock1 = pauseScheduler();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     runtime.deactivate();
@@ -227,7 +227,7 @@ public class ReplicantRuntimeTest
 
     // set service state to in transition so connect is not called
 
-    final Disposable schedulerLock2 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock2 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
@@ -240,7 +240,7 @@ public class ReplicantRuntimeTest
     assertEquals( service1.isConnectCalled(), false );
     assertEquals( service3.isConnectCalled(), false );
 
-    final Disposable schedulerLock3 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock3 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
@@ -255,7 +255,7 @@ public class ReplicantRuntimeTest
 
     // set service state to connected so no action required
 
-    final Disposable schedulerLock4 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock4 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -270,7 +270,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock5 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock5 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
@@ -285,7 +285,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock6 = Arez.context().pauseScheduler();
+    final Disposable schedulerLock6 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -508,7 +508,7 @@ public class ReplicantRuntimeTest
                                   final boolean isActive )
   {
     ReplicantTestUtil.resetState();
-    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     if ( isActive )
     {
@@ -527,7 +527,7 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service1State )
   {
     ReplicantTestUtil.resetState();
-    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     safeAction( () -> service1.setState( service1State ) );
@@ -542,7 +542,7 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service2State )
   {
     ReplicantTestUtil.resetState();
-    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );
     safeAction( () -> service1.setState( service1State ) );
@@ -560,7 +560,7 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service3State )
   {
     ReplicantTestUtil.resetState();
-    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final Disposable schedulerLock = pauseScheduler();
 
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     final TestDataLoaderService service1 = TestDataLoaderService.create( TestSystemA.class );

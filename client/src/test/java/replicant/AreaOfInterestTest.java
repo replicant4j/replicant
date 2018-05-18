@@ -146,7 +146,7 @@ public class AreaOfInterestTest
   @Test
   public void updateAreaOfInterest()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
     final Throwable error = new Throwable();
 
@@ -204,7 +204,7 @@ public class AreaOfInterestTest
   @Test
   public void updateAreaOfInterest_generatesSpyEvent()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -219,7 +219,7 @@ public class AreaOfInterestTest
   @Test
   public void updateAreaOfInterest_missingErrorWhenExpected()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final IllegalStateException exception =
@@ -234,7 +234,7 @@ public class AreaOfInterestTest
   @Test
   public void updateAreaOfInterest_errorWhenUnexpected()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
     final Throwable error = new Throwable();
 
@@ -249,7 +249,7 @@ public class AreaOfInterestTest
   @Test
   public void updateAreaOfInterest_missingSubscriptionWhenExpected()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final IllegalStateException exception =
@@ -263,7 +263,7 @@ public class AreaOfInterestTest
   @Test
   public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );

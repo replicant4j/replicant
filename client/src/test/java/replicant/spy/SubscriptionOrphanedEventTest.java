@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import arez.Arez;
 import java.util.HashMap;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -17,7 +16,7 @@ public class SubscriptionOrphanedEventTest
   public void basicOperation()
   {
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final String filter = ValueUtil.randomString();
     final Subscription subscription =

@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Arez;
 import arez.ArezTestUtil;
+import arez.Disposable;
 import arez.Observer;
 import arez.ObserverError;
 import arez.Procedure;
@@ -37,6 +38,12 @@ public abstract class AbstractReplicantTest
     _observerErrors.clear();
     Arez.context().addObserverErrorHandler( this::onObserverError );
     DomGlobal.window = null;
+  }
+
+  @Nonnull
+  protected final Disposable pauseScheduler()
+  {
+    return Arez.context().pauseScheduler();
   }
 
   protected final void autorun( @Nonnull final Procedure procedure )

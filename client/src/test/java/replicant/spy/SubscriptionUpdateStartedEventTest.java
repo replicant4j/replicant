@@ -1,6 +1,5 @@
 package replicant.spy;
 
-import arez.Arez;
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
@@ -14,7 +13,7 @@ public class SubscriptionUpdateStartedEventTest
   public void basicOperation()
   {
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final ChannelAddress address = new ChannelAddress( G.G1 );
     final SubscriptionUpdateStartedEvent event = new SubscriptionUpdateStartedEvent( G.class, address );

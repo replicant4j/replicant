@@ -41,7 +41,7 @@ public class ConnectorTest
   public void construct()
     throws Exception
   {
-    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
@@ -89,7 +89,7 @@ public class ConnectorTest
   @Test
   public void connect()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class );
     safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
@@ -102,7 +102,7 @@ public class ConnectorTest
   @Test
   public void connect_causesError()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class );
     safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
@@ -116,7 +116,7 @@ public class ConnectorTest
   @Test
   public void disconnect()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -129,7 +129,7 @@ public class ConnectorTest
   @Test
   public void disconnect_causesError()
   {
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -151,7 +151,7 @@ public class ConnectorTest
                                     RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( connector::onDisconnected );
 
@@ -171,7 +171,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( connector::onDisconnected );
 
@@ -194,7 +194,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> connector.onDisconnectFailure( error ) );
 
@@ -216,7 +216,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> connector.onDisconnectFailure( error ) );
 
@@ -239,7 +239,7 @@ public class ConnectorTest
                                     RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( connector::onConnected );
 
@@ -279,7 +279,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> connector.onConnectFailure( error ) );
 
@@ -301,7 +301,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> connector.onConnectFailure( error ) );
 
@@ -352,7 +352,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> connector.onMessageProcessFailure( error ) );
 
@@ -445,7 +445,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> connector.onMessageReadFailure( error ) );
 
@@ -1510,7 +1510,7 @@ public class ConnectorTest
   public void removeExplicitSubscriptions()
   {
     // Pause converger
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class );
 
@@ -1538,7 +1538,7 @@ public class ConnectorTest
   public void removeExplicitSubscriptions_passedBadAction()
   {
     // Pause converger
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final TestConnector connector = TestConnector.create( G.class );
 

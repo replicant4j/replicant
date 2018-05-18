@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -31,7 +30,7 @@ public class ReplicantContextTest
   public void areasOfInterest()
   {
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final ReplicantContext context = Replicant.context();
     final ChannelAddress address = new ChannelAddress( G.G1 );
@@ -133,7 +132,7 @@ public class ReplicantContextTest
   public void subscriptions()
   {
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     final ReplicantContext context = Replicant.context();
     final ChannelAddress address1 = new ChannelAddress( G.G1 );

@@ -54,7 +54,7 @@ public class ConvergerTest
     final Converger c = Replicant.context().getConverger();
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     // should do nothing ...
     safeAction( c::preConverge );
@@ -84,7 +84,7 @@ public class ConvergerTest
     final Converger c = Replicant.context().getConverger();
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     // should do nothing ...
     safeAction( c::convergeComplete );
@@ -114,7 +114,7 @@ public class ConvergerTest
     final Converger c = Replicant.context().getConverger();
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
       final ChannelAddress address = new ChannelAddress( G.G1 );
@@ -203,7 +203,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
 
@@ -240,7 +240,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
 
@@ -282,7 +282,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
 
@@ -307,7 +307,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
 
@@ -332,7 +332,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( G.G1 );
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
 
@@ -365,7 +365,7 @@ public class ConvergerTest
     connector.requestUnsubscribe( address );
 
     // Pause scheduler so Autoruns don't auto-converge
-    Arez.context().pauseScheduler();
+    pauseScheduler();
 
     safeAction( () -> {
 
