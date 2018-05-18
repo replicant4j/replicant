@@ -321,7 +321,7 @@ public class ReplicantContextTest
   {
   }
 
-  static class B
+  private static class B
   {
   }
 }
