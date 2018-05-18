@@ -90,7 +90,8 @@ public class ChannelSchemaTest
     final IllegalStateException exception = expectThrows( IllegalStateException.class, channelSchema::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0044: ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false" );
-    assertEquals( channelSchema.toString(), "replicant.ChannelSchema@" + Integer.toHexString( channelSchema.hashCode() ) );
+    assertEquals( channelSchema.toString(),
+                  "replicant.ChannelSchema@" + Integer.toHexString( channelSchema.hashCode() ) );
   }
 
   @Test
