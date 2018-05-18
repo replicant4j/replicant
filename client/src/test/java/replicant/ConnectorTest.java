@@ -840,17 +840,15 @@ public class ConnectorTest
     final TestConnector connector1 = TestConnector.create( G.class );
     TestConnector.create( F.class );
 
-    final ReplicantContext rContext = Replicant.context();
-
     final Subscription subscription1 =
-      safeAction( () -> rContext.createSubscription( new ChannelAddress( G.G1 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G1 ), null, true ) );
     final Subscription subscription2 =
-      safeAction( () -> rContext.createSubscription( new ChannelAddress( G.G2, 2 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( G.G2, 2 ), null, true ) );
     // The next two are from a different Connector
     final Subscription subscription3 =
-      safeAction( () -> rContext.createSubscription( new ChannelAddress( F.F2, 1 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( F.F2, 1 ), null, true ) );
     final Subscription subscription4 =
-      safeAction( () -> rContext.createSubscription( new ChannelAddress( F.F2, 2 ), null, true ) );
+      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( F.F2, 2 ), null, true ) );
 
     assertEquals( Disposable.isDisposed( subscription1 ), false );
     assertEquals( Disposable.isDisposed( subscription2 ), false );
@@ -1047,21 +1045,19 @@ public class ConnectorTest
     final ChannelAddress address1 = new ChannelAddress( G.G2, 1 );
     final ChannelAddress address2 = new ChannelAddress( G.G2, 2 );
 
-    final ReplicantContext rContext = Replicant.context();
-
     final Subscription subscription1 =
-      safeAction( () -> rContext.createSubscription( address1, ValueUtil.randomString(), true ) );
+      safeAction( () -> Replicant.context().createSubscription( address1, ValueUtil.randomString(), true ) );
     final Subscription subscription2 =
-      safeAction( () -> rContext.createSubscription( address2, ValueUtil.randomString(), true ) );
+      safeAction( () -> Replicant.context().createSubscription( address2, ValueUtil.randomString(), true ) );
 
     // Use Integer and String as arbitrary types for our entities...
     // Anything with id below 0 will be removed during update ...
-    final Entity entity1 = safeAction( () -> rContext.findOrCreateEntity( Integer.class, -1 ) );
-    final Entity entity2 = safeAction( () -> rContext.findOrCreateEntity( Integer.class, -2 ) );
-    final Entity entity3 = safeAction( () -> rContext.findOrCreateEntity( Integer.class, -3 ) );
-    final Entity entity4 = safeAction( () -> rContext.findOrCreateEntity( Integer.class, -4 ) );
-    final Entity entity5 = safeAction( () -> rContext.findOrCreateEntity( String.class, 5 ) );
-    final Entity entity6 = safeAction( () -> rContext.findOrCreateEntity( String.class, 6 ) );
+    final Entity entity1 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -1 ) );
+    final Entity entity2 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -2 ) );
+    final Entity entity3 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -3 ) );
+    final Entity entity4 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -4 ) );
+    final Entity entity5 = safeAction( () -> Replicant.context().findOrCreateEntity( String.class, 5 ) );
+    final Entity entity6 = safeAction( () -> Replicant.context().findOrCreateEntity( String.class, 6 ) );
 
     safeAction( () -> {
       entity1.linkToSubscription( subscription1 );
