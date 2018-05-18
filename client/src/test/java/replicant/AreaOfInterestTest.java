@@ -47,7 +47,7 @@ public class AreaOfInterestTest
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( G.G1 ) );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state
@@ -57,7 +57,7 @@ public class AreaOfInterestTest
     } );
 
     final AtomicInteger getErrorCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state
@@ -67,7 +67,7 @@ public class AreaOfInterestTest
     } );
 
     final AtomicInteger getSubscriptionCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( areaOfInterest ) )
       {
         // Observe state

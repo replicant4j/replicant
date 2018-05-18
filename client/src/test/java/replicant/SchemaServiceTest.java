@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -19,19 +18,19 @@ public class SchemaServiceTest
       new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
 
     final AtomicInteger findById1CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       service.findById( schemaId1 );
       findById1CallCount.incrementAndGet();
     } );
 
     final AtomicInteger contains1CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       service.findById( schemaId1 );
       contains1CallCount.incrementAndGet();
     } );
 
     final AtomicInteger getSchemasCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       service.getSchemas();
       getSchemasCallCount.incrementAndGet();
     } );

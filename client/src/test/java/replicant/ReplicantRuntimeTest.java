@@ -33,7 +33,7 @@ public class ReplicantRuntimeTest
     final ReplicantRuntime runtime2 = ReplicantRuntime.create();
 
     final AtomicInteger callCount1 = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( runtime1 ) )
       {
         runtime1.getConnectors();
@@ -42,7 +42,7 @@ public class ReplicantRuntimeTest
     } );
 
     final AtomicInteger callCount2 = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( runtime2 ) )
       {
         runtime2.getConnectors();

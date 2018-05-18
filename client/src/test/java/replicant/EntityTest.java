@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -109,7 +108,7 @@ public class EntityTest
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G2 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( entity ) )
       {
         // Access observable next line
@@ -178,7 +177,7 @@ public class EntityTest
     final Subscription subscription2 = createSubscription( new ChannelAddress( G.G1, 2 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( entity ) )
       {
         // Access observable next line

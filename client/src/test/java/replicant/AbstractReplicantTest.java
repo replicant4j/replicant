@@ -4,6 +4,7 @@ import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Observer;
 import arez.ObserverError;
+import arez.Procedure;
 import arez.SafeFunction;
 import arez.SafeProcedure;
 import elemental2.dom.DomGlobal;
@@ -36,6 +37,12 @@ public abstract class AbstractReplicantTest
     _observerErrors.clear();
     Arez.context().addObserverErrorHandler( this::onObserverError );
     DomGlobal.window = null;
+  }
+
+  @Nonnull
+  protected final Observer autorun( @Nonnull final Procedure procedure )
+  {
+    return Arez.context().autorun( procedure );
   }
 
   protected final void safeAction( @Nonnull final SafeProcedure action )

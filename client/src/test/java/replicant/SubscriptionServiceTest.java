@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -22,7 +21,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -33,7 +32,7 @@ public class SubscriptionServiceTest
     } );
 
     final AtomicInteger findSubscriptionAddress2CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -43,7 +42,7 @@ public class SubscriptionServiceTest
     } );
 
     final AtomicInteger getInstanceSubscriptionsCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         service.getInstanceSubscriptions();
@@ -52,7 +51,7 @@ public class SubscriptionServiceTest
     } );
 
     final AtomicInteger getTypeSubscriptionsCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         service.getTypeSubscriptions();
@@ -174,7 +173,7 @@ public class SubscriptionServiceTest
     final SubscriptionService service = SubscriptionService.create( null );
 
     final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -185,7 +184,7 @@ public class SubscriptionServiceTest
     } );
 
     final AtomicInteger findSubscriptionAddress2CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -195,7 +194,7 @@ public class SubscriptionServiceTest
     } );
 
     final AtomicInteger getInstanceSubscriptionsCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         service.getInstanceSubscriptions();
@@ -204,7 +203,7 @@ public class SubscriptionServiceTest
     } );
 
     final AtomicInteger getTypeSubscriptionsCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         service.getTypeSubscriptions();

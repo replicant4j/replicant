@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
@@ -16,7 +15,7 @@ public class EntityServiceTest
     final EntityService service = Replicant.context().getEntityService();
 
     final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -27,7 +26,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -38,7 +37,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findAllEntitiesByTypeBCallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -49,7 +48,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
@@ -60,7 +59,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findEntityByTypeAndId2CallCount = new AtomicInteger();
-    Arez.context().autorun( () -> {
+    autorun( () -> {
       if ( !Disposable.isDisposed( service ) )
       {
         // Access observable next line
