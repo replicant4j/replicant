@@ -102,7 +102,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onRequestStarted( @Nonnull final RequestStartedEvent e )
   {
-    log( "%cRequest started. System: " + e.getSystemType().getSimpleName() + " Request: " + e.getName() +
+    log( "%cRequest started. System: " + e.getName() + " Request: " + e.getName() +
          " RequestId: " + e.getRequestId(), CONNECTOR_COLOR );
   }
 
@@ -119,7 +119,7 @@ public class ConsoleSpyEventProcessor
       "Change set has not arrived.";
 
     log( "%cRequest completed " + ( e.isNormalCompletion() ? " normally" : "with an exception" ) +
-         ". System: " + e.getSystemType().getSimpleName() + " Request: " + e.getName() +
+         ". System: " + e.getSchemaName() + " Request: " + e.getName() +
          " RequestId: " + e.getRequestId() + " - " + changeSetDescription, CONNECTOR_COLOR );
   }
 
@@ -130,7 +130,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onConnected( @Nonnull final ConnectedEvent e )
   {
-    log( "%cConnector Connected. System: " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
+    log( "%cConnector Connected. System: " + e.getSchemaName(), CONNECTOR_COLOR );
   }
 
   /**
@@ -140,7 +140,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onConnectFailure( @Nonnull final ConnectFailureEvent e )
   {
-    log( "%cConnector Connect Failed. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+    log( "%cConnector Connect Failed. System: " + e.getSchemaName() + " Error: " + e.getError(),
          ERROR_COLOR );
   }
 
@@ -151,7 +151,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onDisconnected( @Nonnull final DisconnectedEvent e )
   {
-    log( "%cConnector Disconnected. System: " + e.getSystemType().getSimpleName(), CONNECTOR_COLOR );
+    log( "%cConnector Disconnected. System: " + e.getSchemaName(), CONNECTOR_COLOR );
   }
 
   /**
@@ -161,7 +161,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
   {
-    log( "%cConnector Disconnect Failed. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+    log( "%cConnector Disconnect Failed. System: " + e.getSchemaName() + " Error: " + e.getError(),
          ERROR_COLOR );
   }
 
@@ -183,7 +183,7 @@ public class ConsoleSpyEventProcessor
   protected void onMessageProcessFailure( @Nonnull final MessageProcessFailureEvent e )
   {
     log( "%cConnector Error Processing Message. System: " +
-         e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
+         e.getSchemaName() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
@@ -193,7 +193,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onMessageReadFailure( @Nonnull final MessageReadFailureEvent e )
   {
-    log( "%cConnector Error Reading Message. System: " + e.getSystemType().getSimpleName() + " Error: " + e.getError(),
+    log( "%cConnector Error Reading Message. System: " + e.getSchemaName() + " Error: " + e.getError(),
          ERROR_COLOR );
   }
 
@@ -205,7 +205,7 @@ public class ConsoleSpyEventProcessor
   protected void onRestart( @Nonnull final RestartEvent e )
   {
     log( "%cConnector attempting to disconnect and restart due to error. System: " +
-         e.getSystemType().getSimpleName() + " Error: " + e.getError(), ERROR_COLOR );
+         e.getSchemaName() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
@@ -215,7 +215,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscribeCompleted( @Nonnull final SubscribeCompletedEvent e )
   {
-    log( "%cConnector completed subscribe. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector completed subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
@@ -226,7 +226,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscribeFailed( @Nonnull final SubscribeFailedEvent e )
   {
-    log( "%cConnector subscribe failed. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector subscribe failed. System: " + e.getSchemaName() +
          " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
@@ -237,7 +237,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscribeStarted( @Nonnull final SubscribeStartedEvent e )
   {
-    log( "%cConnector started subscribe. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector started subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
@@ -248,7 +248,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionUpdateCompleted( @Nonnull final SubscriptionUpdateCompletedEvent e )
   {
-    log( "%cConnector completed subscribe. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector completed subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
@@ -259,7 +259,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionUpdateFailed( @Nonnull final SubscriptionUpdateFailedEvent e )
   {
-    log( "%cConnector subscription update failed. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector subscription update failed. System: " + e.getSchemaName() +
          " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
@@ -270,7 +270,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionUpdateStarted( @Nonnull final SubscriptionUpdateStartedEvent e )
   {
-    log( "%cConnector started subscribe. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector started subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
@@ -281,7 +281,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onUnsubscribeCompleted( @Nonnull final UnsubscribeCompletedEvent e )
   {
-    log( "%cConnector completed unsubscribe. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector completed unsubscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
@@ -292,7 +292,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onUnsubscribeFailed( @Nonnull final UnsubscribeFailedEvent e )
   {
-    log( "%cConnector unsubscribe failed. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector unsubscribe failed. System: " + e.getSchemaName() +
          " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
@@ -303,7 +303,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onUnsubscribeStarted( @Nonnull final UnsubscribeStartedEvent e )
   {
-    log( "%cConnector started unsubscribe. System: " + e.getSystemType().getSimpleName() +
+    log( "%cConnector started unsubscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 

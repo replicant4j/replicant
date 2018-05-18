@@ -30,16 +30,18 @@ public class MessageProcessedEventTest
                           entityRemoveCount,
                           entityLinkCount );
     final MessageProcessedEvent event =
-      new MessageProcessedEvent( G.class, dataLoadStatus );
+      new MessageProcessedEvent( 23, "Rose", dataLoadStatus );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getDataLoadStatus(), dataLoadStatus );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.MessageProcess" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "sequence" ), sequence );
     assertEquals( data.get( "requestId" ), requestId );
     assertEquals( data.get( "channelAddCount" ), channelAddCount );
@@ -48,11 +50,6 @@ public class MessageProcessedEventTest
     assertEquals( data.get( "entityUpdateCount" ), entityUpdateCount );
     assertEquals( data.get( "entityRemoveCount" ), entityRemoveCount );
     assertEquals( data.get( "entityLinkCount" ), entityLinkCount );
-    assertEquals( data.size(), 10 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 11 );
   }
 }

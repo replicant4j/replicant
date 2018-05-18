@@ -12,21 +12,28 @@ import replicant.ChannelAddress;
 public final class SubscribeStartedEvent
   implements SerializableEvent
 {
+  private final int _schemaId;
   @Nonnull
-  private final Class<?> _systemType;
+  private final String _schemaName;
   @Nonnull
   private final ChannelAddress _address;
 
-  public SubscribeStartedEvent( @Nonnull final Class<?> systemType, @Nonnull final ChannelAddress address )
+  public SubscribeStartedEvent( final int schemaId, @Nonnull final String schemaName, @Nonnull final ChannelAddress address )
   {
-    _systemType = Objects.requireNonNull( systemType );
+    _schemaId = schemaId;
+    _schemaName = Objects.requireNonNull( schemaName );
     _address = Objects.requireNonNull( address );
   }
 
-  @Nonnull
-  public Class<?> getSystemType()
+  public int getSchemaId()
   {
-    return _systemType;
+    return _schemaId;
+  }
+
+  @Nonnull
+  public String getSchemaName()
+  {
+    return _schemaName;
   }
 
   @Nonnull
@@ -42,7 +49,8 @@ public final class SubscribeStartedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Connector.SubscribeStarted" );
-    map.put( "systemType", getSystemType().getSimpleName() );
+    map.put( "schema.id", getSchemaId() );
+    map.put( "schema.name", getSchemaName() );
     final ChannelAddress address = getAddress();
     map.put( "channel.type", address.getChannelType().name() );
     map.put( "channel.id", address.getId() );

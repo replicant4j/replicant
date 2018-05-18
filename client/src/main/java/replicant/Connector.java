@@ -635,7 +635,7 @@ public abstract class Connector
     setState( ConnectorState.CONNECTED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new ConnectedEvent( getSystemType() ) );
+      getReplicantContext().getSpy().reportSpyEvent( new ConnectedEvent( getSchema().getId(), getSchema().getName() ) );
     }
   }
 
@@ -648,7 +648,8 @@ public abstract class Connector
     setState( ConnectorState.ERROR );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new ConnectFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new ConnectFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
     }
   }
 
@@ -661,7 +662,8 @@ public abstract class Connector
     setState( ConnectorState.DISCONNECTED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new DisconnectedEvent( getSystemType() ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new DisconnectedEvent( getSchema().getId(), getSchema().getName() ) );
     }
   }
 
@@ -674,7 +676,8 @@ public abstract class Connector
     setState( ConnectorState.ERROR );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new DisconnectFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new DisconnectFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
     }
   }
 
@@ -687,7 +690,8 @@ public abstract class Connector
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new MessageProcessedEvent( getSystemType(), status ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new MessageProcessedEvent( getSchema().getId(), getSchema().getName(), status ) );
     }
   }
 
@@ -699,7 +703,8 @@ public abstract class Connector
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new MessageProcessFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new MessageProcessFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
     }
     disconnectIfPossible( error );
   }
@@ -712,7 +717,8 @@ public abstract class Connector
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new MessageReadFailureEvent( getSystemType(), error ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new MessageReadFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
     }
     disconnectIfPossible( error );
   }
@@ -723,7 +729,8 @@ public abstract class Connector
     {
       if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
       {
-        getReplicantContext().getSpy().reportSpyEvent( new RestartEvent( getSystemType(), cause ) );
+        getReplicantContext().getSpy()
+          .reportSpyEvent( new RestartEvent( getSchema().getId(), getSchema().getName(), cause ) );
       }
       disconnect();
     }
@@ -735,7 +742,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscribeStartedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new SubscribeStartedEvent( getSchema().getId(), getSchema().getName(), address ) );
     }
   }
 
@@ -745,7 +753,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscribeCompletedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new SubscribeCompletedEvent( getSchema().getId(), getSchema().getName(), address ) );
     }
   }
 
@@ -755,7 +764,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscribeFailedEvent( getSystemType(), address, error ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new SubscribeFailedEvent( getSchema().getId(), getSchema().getName(), address, error ) );
     }
   }
 
@@ -765,7 +775,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeStartedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new UnsubscribeStartedEvent( getSchema().getId(), getSchema().getName(), address ) );
     }
   }
 
@@ -775,7 +786,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeCompletedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new UnsubscribeCompletedEvent( getSchema().getId(), getSchema().getName(), address ) );
     }
   }
 
@@ -785,7 +797,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeFailedEvent( getSystemType(), address, error ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new UnsubscribeFailedEvent( getSchema().getId(), getSchema().getName(), address, error ) );
     }
   }
 
@@ -795,7 +808,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateStartedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new SubscriptionUpdateStartedEvent( getSchema().getId(), getSchema().getName(), address ) );
     }
   }
 
@@ -805,7 +819,8 @@ public abstract class Connector
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateCompletedEvent( getSystemType(), address ) );
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new SubscriptionUpdateCompletedEvent( getSchema().getId(), getSchema().getName(), address ) );
     }
   }
 
@@ -818,7 +833,10 @@ public abstract class Connector
     {
       getReplicantContext()
         .getSpy()
-        .reportSpyEvent( new SubscriptionUpdateFailedEvent( getSystemType(), address, error ) );
+        .reportSpyEvent( new SubscriptionUpdateFailedEvent( getSchema().getId(),
+                                                            getSchema().getName(),
+                                                            address,
+                                                            error ) );
     }
   }
 
@@ -849,7 +867,7 @@ public abstract class Connector
   @Override
   public String toString()
   {
-    return Replicant.areNamesEnabled() ? "Connector[" + getSystemType().getSimpleName() + "]" : super.toString();
+    return Replicant.areNamesEnabled() ? "Connector[" + getSchema().getName() + "]" : super.toString();
   }
 
   @TestOnly

@@ -12,38 +12,37 @@ public class MessageReadFailureEventTest
   public void basicOperation()
   {
     final MessageReadFailureEvent event =
-      new MessageReadFailureEvent( G.class, new Error( "Some ERROR" ) );
+      new MessageReadFailureEvent( 23, "Rose", new Error( "Some ERROR" ) );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.MessageReadFailure" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "message" ), "Some ERROR" );
-    assertEquals( data.size(), 3 );
+    assertEquals( data.size(), 4 );
   }
 
   @Test
   public void basicOperation_ThrowableNoMessage()
   {
     final MessageReadFailureEvent event =
-      new MessageReadFailureEvent( G.class, new NullPointerException() );
+      new MessageReadFailureEvent( 23, "Rose", new NullPointerException() );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.MessageReadFailure" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "message" ), "java.lang.NullPointerException" );
-    assertEquals( data.size(), 3 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 4 );
   }
 }

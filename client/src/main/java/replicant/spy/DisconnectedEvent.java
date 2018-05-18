@@ -11,18 +11,25 @@ import javax.annotation.Nonnull;
 public final class DisconnectedEvent
   implements SerializableEvent
 {
+  private final int _schemaId;
   @Nonnull
-  private final Class<?> _systemType;
+  private final String _schemaName;
 
-  public DisconnectedEvent( @Nonnull final Class<?> systemType )
+  public DisconnectedEvent( final int schemaId, @Nonnull final String schemaName )
   {
-    _systemType = Objects.requireNonNull( systemType );
+    _schemaId = schemaId;
+    _schemaName = Objects.requireNonNull( schemaName );
+  }
+
+  public int getSchemaId()
+  {
+    return _schemaId;
   }
 
   @Nonnull
-  public Class<?> getSystemType()
+  public String getSchemaName()
   {
-    return _systemType;
+    return _schemaName;
   }
 
   /**
@@ -32,6 +39,7 @@ public final class DisconnectedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Connector.Disconnect" );
-    map.put( "systemType", getSystemType().getSimpleName() );
+    map.put( "schema.id", getSchemaId() );
+    map.put( "schema.name", getSchemaName() );
   }
 }

@@ -11,21 +11,28 @@ import javax.annotation.Nonnull;
 public final class RestartEvent
   implements SerializableEvent
 {
+  private final int _schemaId;
   @Nonnull
-  private final Class<?> _systemType;
+  private final String _schemaName;
   @Nonnull
   private final Throwable _error;
 
-  public RestartEvent( @Nonnull final Class<?> systemType, @Nonnull final Throwable error )
+  public RestartEvent( final int schemaId, @Nonnull final String schemaName, @Nonnull final Throwable error )
   {
-    _systemType = Objects.requireNonNull( systemType );
+    _schemaId = schemaId;
+    _schemaName = Objects.requireNonNull( schemaName );
     _error = Objects.requireNonNull( error );
   }
 
-  @Nonnull
-  public Class<?> getSystemType()
+  public int getSchemaId()
   {
-    return _systemType;
+    return _schemaId;
+  }
+
+  @Nonnull
+  public String getSchemaName()
+  {
+    return _schemaName;
   }
 
   @Nonnull
@@ -41,7 +48,8 @@ public final class RestartEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Connector.Restart" );
-    map.put( "systemType", getSystemType().getSimpleName() );
+    map.put( "schema.id", getSchemaId() );
+    map.put( "schema.name", getSchemaName() );
     final Throwable throwable = getError();
     map.put( "message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage() );
   }

@@ -13,19 +13,21 @@ public class SubscribeCompletedEventTest
   public void basicOperation()
   {
     final ChannelAddress address = new ChannelAddress( G.G1 );
-    final SubscribeCompletedEvent event = new SubscribeCompletedEvent( G.class, address );
+    final SubscribeCompletedEvent event = new SubscribeCompletedEvent( 23, "Rose", address );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getAddress(), address );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.SubscribeCompleted" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "channel.type" ), "G1" );
     assertEquals( data.get( "channel.id" ), address.getId() );
-    assertEquals( data.size(), 4 );
+    assertEquals( data.size(), 5 );
   }
 
   enum G

@@ -88,7 +88,7 @@ public class ConnectorTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create( G.class );
-    assertEquals( connector.toString(), "Connector[G]" );
+    assertEquals( connector.toString(), "Connector[Rose]" );
     ReplicantTestUtil.disableNames();
     assertEquals( connector.toString(), "replicant.Arez_TestConnector@" + Integer.toHexString( connector.hashCode() ) );
   }
@@ -184,7 +184,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DisconnectedEvent.class,
-                             e -> assertEquals( e.getSystemType(), connector.getSystemType() ) );
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
@@ -229,7 +229,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DisconnectFailureEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError(), error );
     } );
   }
@@ -269,7 +269,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ConnectedEvent.class,
-                             e -> assertEquals( e.getSystemType(), connector.getSystemType() ) );
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
@@ -314,7 +314,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ConnectFailureEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError(), error );
     } );
   }
@@ -344,7 +344,7 @@ public class ConnectorTest
     handler.assertEventCount( 1 );
 
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getDataLoadStatus(), status );
     } );
   }
@@ -382,7 +382,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError(), error );
     } );
   }
@@ -437,7 +437,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RestartEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError(), error );
     } );
   }
@@ -475,7 +475,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageReadFailureEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError(), error );
     } );
   }
@@ -506,7 +506,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
   }
@@ -540,7 +540,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
   }
@@ -573,7 +573,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
       assertEquals( e.getError(), error );
     } );
@@ -608,7 +608,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
   }
@@ -639,7 +639,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( UnsubscribeCompletedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
   }
@@ -672,7 +672,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
       assertEquals( e.getError(), error );
     } );
@@ -707,7 +707,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
   }
@@ -741,7 +741,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
   }
@@ -777,7 +777,7 @@ public class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
       assertEquals( e.getError(), error );
     } );
@@ -972,7 +972,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
-      assertEquals( e.getSystemType(), connector.getSystemType() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError(), error );
     } );
   }

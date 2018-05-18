@@ -11,20 +11,17 @@ public class DisconnectedEventTest
   @Test
   public void basicOperation()
   {
-    final DisconnectedEvent event = new DisconnectedEvent( G.class );
+    final DisconnectedEvent event = new DisconnectedEvent( 23, "Rose" );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.Disconnect" );
-    assertEquals( data.get( "systemType" ), "G" );
-    assertEquals( data.size(), 2 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
+    assertEquals( data.size(), 3 );
   }
 }

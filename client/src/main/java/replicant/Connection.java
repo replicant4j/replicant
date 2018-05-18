@@ -216,7 +216,8 @@ public final class Connection
       _connector
         .getReplicantContext()
         .getSpy()
-        .reportSpyEvent( new RequestStartedEvent( _connector.getSystemType(),
+        .reportSpyEvent( new RequestStartedEvent( _connector.getSchema().getId(),
+                                                  _connector.getSchema().getName(),
                                                   request.getRequestId(),
                                                   request.getName() ) );
     }
@@ -240,7 +241,8 @@ public final class Connection
       _connector
         .getReplicantContext()
         .getSpy()
-        .reportSpyEvent( new RequestCompletedEvent( _connector.getSystemType(),
+        .reportSpyEvent( new RequestCompletedEvent( _connector.getSchema().getId(),
+                                                    _connector.getSchema().getName(),
                                                     request.getRequestId(),
                                                     request.getName(),
                                                     request.isNormalCompletion(),

@@ -12,38 +12,37 @@ public class ConnectFailureEventTest
   public void basicOperation()
   {
     final ConnectFailureEvent event =
-      new ConnectFailureEvent( G.class, new Error( "Some ERROR" ) );
+      new ConnectFailureEvent( 23, "Rose", new Error( "Some ERROR" ) );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.ConnectFailure" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "message" ), "Some ERROR" );
-    assertEquals( data.size(), 3 );
+    assertEquals( data.size(), 4 );
   }
 
   @Test
   public void basicOperation_ThrowableNoMessage()
   {
     final ConnectFailureEvent event =
-      new ConnectFailureEvent( G.class, new NullPointerException() );
+      new ConnectFailureEvent( 23, "Rose", new NullPointerException() );
 
-    assertEquals( event.getSystemType(), G.class );
+    assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaName(), "Rose" );
 
     final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.ConnectFailure" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "message" ), "java.lang.NullPointerException" );
-    assertEquals( data.size(), 3 );
-  }
-
-  enum G
-  {
-    G1
+    assertEquals( data.size(), 4 );
   }
 }

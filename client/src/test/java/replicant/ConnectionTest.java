@@ -221,7 +221,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
-      assertEquals( e.getSystemType(), G.class );
+      assertEquals( e.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
       assertEquals( e.getRequestId(), request.getRequestId() );
       assertEquals( e.getName(), request.getName() );
     } );
@@ -298,7 +298,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSystemType(), G.class );
+      assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
       assertEquals( ev.getRequestId(), e.getRequestId() );
       assertEquals( ev.getName(), e.getName() );
       assertEquals( ev.isNormalCompletion(), false );
@@ -327,7 +327,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSystemType(), G.class );
+      assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
       assertEquals( ev.getRequestId(), e.getRequestId() );
       assertEquals( ev.getName(), e.getName() );
       assertEquals( ev.isNormalCompletion(), true );
@@ -357,7 +357,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSystemType(), G.class );
+      assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
       assertEquals( ev.getRequestId(), e.getRequestId() );
       assertEquals( ev.getName(), e.getName() );
       assertEquals( ev.isNormalCompletion(), true );

@@ -11,8 +11,9 @@ import javax.annotation.Nonnull;
 public final class RequestCompletedEvent
   implements SerializableEvent
 {
+  private final int _schemaId;
   @Nonnull
-  private final Class<?> _systemType;
+  private final String _schemaName;
   @Nonnull
   private final String _requestId;
   @Nonnull
@@ -21,14 +22,16 @@ public final class RequestCompletedEvent
   private final boolean _expectingResults;
   private final boolean _resultsArrived;
 
-  public RequestCompletedEvent( @Nonnull final Class<?> systemType,
+  public RequestCompletedEvent( final int schemaId,
+                                @Nonnull final String schemaName,
                                 @Nonnull final String requestId,
                                 @Nonnull final String name,
                                 final boolean normalCompletion,
                                 final boolean expectingResults,
                                 final boolean resultsArrived )
   {
-    _systemType = Objects.requireNonNull( systemType );
+    _schemaId = schemaId;
+    _schemaName = Objects.requireNonNull( schemaName );
     _requestId = Objects.requireNonNull( requestId );
     _name = Objects.requireNonNull( name );
     _normalCompletion = normalCompletion;
@@ -36,10 +39,15 @@ public final class RequestCompletedEvent
     _resultsArrived = resultsArrived;
   }
 
-  @Nonnull
-  public Class<?> getSystemType()
+  public int getSchemaId()
   {
-    return _systemType;
+    return _schemaId;
+  }
+
+  @Nonnull
+  public String getSchemaName()
+  {
+    return _schemaName;
   }
 
   @Nonnull
@@ -76,7 +84,8 @@ public final class RequestCompletedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Connector.RequestCompleted" );
-    map.put( "systemType", getSystemType().getSimpleName() );
+    map.put( "schema.id", getSchemaId() );
+    map.put( "schema.name", getSchemaName() );
     map.put( "requestId", getRequestId() );
     map.put( "name", getName() );
     map.put( "normalCompletion", isNormalCompletion() );

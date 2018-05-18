@@ -18,7 +18,7 @@ public class RequestCompletedEventTest
     final boolean expectingResults = ValueUtil.randomBoolean();
     final boolean resultsArrived = ValueUtil.randomBoolean();
     final RequestCompletedEvent event =
-      new RequestCompletedEvent( G.class, requestId, name, normalCompletion, expectingResults, resultsArrived );
+      new RequestCompletedEvent( 23, "Rose", requestId, name, normalCompletion, expectingResults, resultsArrived );
 
     assertEquals( event.getRequestId(), requestId );
     assertEquals( event.getName(), name );
@@ -30,14 +30,15 @@ public class RequestCompletedEventTest
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Connector.RequestCompleted" );
-    assertEquals( data.get( "systemType" ), "G" );
+    assertEquals( data.get( "schema.id" ), 23 );
+    assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "requestId" ), requestId );
     assertEquals( data.get( "name" ), name );
     assertEquals( data.get( "normalCompletion" ), normalCompletion );
     assertEquals( data.get( "expectingResults" ), expectingResults );
     assertEquals( data.get( "resultsArrived" ), resultsArrived );
 
-    assertEquals( data.size(), 7 );
+    assertEquals( data.size(), 8 );
   }
 
   enum G
