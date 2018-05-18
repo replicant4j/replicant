@@ -4,6 +4,8 @@ import arez.Arez;
 import arez.ArezTestUtil;
 import arez.Observer;
 import arez.ObserverError;
+import arez.SafeFunction;
+import arez.SafeProcedure;
 import elemental2.dom.DomGlobal;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -34,6 +36,16 @@ public abstract class AbstractReplicantTest
     _observerErrors.clear();
     Arez.context().addObserverErrorHandler( this::onObserverError );
     DomGlobal.window = null;
+  }
+
+  protected final void safeAction( @Nonnull final SafeProcedure action )
+  {
+    Arez.context().safeAction( action );
+  }
+
+  protected final <T> T safeAction( @Nonnull final SafeFunction<T> action )
+  {
+    return Arez.context().safeAction( action );
   }
 
   @AfterMethod
