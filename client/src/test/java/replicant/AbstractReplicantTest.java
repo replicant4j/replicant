@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.braincheck.BrainCheckTestUtil;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import static org.testng.Assert.*;
@@ -154,5 +155,13 @@ public abstract class AbstractReplicantTest
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
     return handler;
+  }
+
+  @Nonnull
+  protected final SystemSchema newSchema()
+  {
+    final ChannelSchema[] channels = new ChannelSchema[ 0 ];
+    final EntitySchema[] entities = new EntitySchema[ 0 ];
+    return new SystemSchema( ValueUtil.randomInt(), ValueUtil.randomString(), channels, entities );
   }
 }
