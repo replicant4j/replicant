@@ -62,70 +62,68 @@ public class ReplicantContextTest
   {
     final ReplicantContext context = Replicant.context();
 
-    safeAction( () -> {
-      assertEquals( context.findAllEntityTypes().size(), 0 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 0 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
 
-      final Entity entity1 = context.findOrCreateEntity( A.class, 1 );
+    final Entity entity1 = safeAction( () -> context.findOrCreateEntity( A.class, 1 ) );
 
-      assertEquals( entity1.getName(), "A/1" );
-      assertEquals( context.findAllEntityTypes().size(), 1 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
+    safeAction( () -> assertEquals( entity1.getName(), "A/1" ) );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
 
-      final Entity entity2 = context.findOrCreateEntity( "Super-dee-duper", A.class, 2 );
+    final Entity entity2 = safeAction( () -> context.findOrCreateEntity( "Super-dee-duper", A.class, 2 ) );
 
-      assertEquals( entity2.getName(), "Super-dee-duper" );
-      assertEquals( context.findAllEntityTypes().size(), 1 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
+    safeAction( () -> assertEquals( entity2.getName(), "Super-dee-duper" ) );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
 
-      final Entity entity3 = context.findOrCreateEntity( B.class, 47 );
+    final Entity entity3 = safeAction( () -> context.findOrCreateEntity( B.class, 47 ) );
 
-      assertEquals( context.findAllEntityTypes().size(), 2 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 2 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 ) );
 
-      Disposable.dispose( entity1 );
+    Disposable.dispose( entity1 );
 
-      assertEquals( context.findAllEntityTypes().size(), 2 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 2 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 ) );
 
-      Disposable.dispose( entity2 );
+    Disposable.dispose( entity2 );
 
-      assertEquals( context.findAllEntityTypes().size(), 1 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 ) );
 
-      Disposable.dispose( entity3 );
+    Disposable.dispose( entity3 );
 
-      assertEquals( context.findAllEntityTypes().size(), 0 );
-      assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 );
-      assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 );
-      assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null );
-      assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null );
-      assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null );
-    } );
+    safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 0 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
   }
 
   @Test
