@@ -62,11 +62,11 @@ public class ChangeSetTest
     };
     final EntityChange[] entityChanges = new EntityChange[]{
       EntityChange.create( 1, 1, new EntityChannel[ 0 ] ),
-      EntityChange.create( 2, 1, new EntityChannel[ 0 ], new TestEntityChangeData() ),
-      EntityChange.create( 3, 1, new EntityChannel[ 0 ], new TestEntityChangeData() ),
+      EntityChange.create( 2, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 3, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
       EntityChange.create( 4, 1, new EntityChannel[ 0 ] ),
-      EntityChange.create( 33, 2, new EntityChannel[ 0 ], new TestEntityChangeData() ),
-      EntityChange.create( 34, 3, new EntityChannel[ 0 ], new TestEntityChangeData() ),
+      EntityChange.create( 33, 2, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 34, 3, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
       EntityChange.create( 1, 4, new EntityChannel[ 0 ] )
     };
 
@@ -119,12 +119,12 @@ public class ChangeSetTest
   public void validate_duplicateEntityChanges()
   {
     final EntityChange[] entityChanges = new EntityChange[]{
-      EntityChange.create( 1, 1, new EntityChannel[ 0 ], new TestEntityChangeData() ),
-      EntityChange.create( 2, 1, new EntityChannel[ 0 ], new TestEntityChangeData() ),
-      EntityChange.create( 3, 1, new EntityChannel[ 0 ], new TestEntityChangeData() ),
+      EntityChange.create( 1, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 2, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 3, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
       EntityChange.create( 4, 1, new EntityChannel[ 0 ] ),
-      EntityChange.create( 33, 2, new EntityChannel[ 0 ], new TestEntityChangeData() ),
-      EntityChange.create( 34, 3, new EntityChannel[ 0 ], new TestEntityChangeData() ),
+      EntityChange.create( 33, 2, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 34, 3, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
       EntityChange.create( 1, 1, new EntityChannel[ 0 ] )
     };
 

@@ -177,7 +177,7 @@ public class MessageResponseTest
       EntityChange.create( 50,
                            100,
                            new EntityChannel[]{ EntityChannel.create( channelId ) },
-                           new TestEntityChangeData() );
+                           new EntityChangeDataImpl() );
     // Entity Remove
     final EntityChange change2 =
       EntityChange.create( 51,
@@ -188,7 +188,7 @@ public class MessageResponseTest
       EntityChange.create( 52,
                            100,
                            new EntityChannel[]{ EntityChannel.create( channelId ) },
-                           new TestEntityChangeData() );
+                           new EntityChangeDataImpl() );
     final EntityChange[] entityChanges = new EntityChange[]{ change1, change2, change3 };
 
     final Object[] entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
