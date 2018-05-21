@@ -439,10 +439,10 @@ public abstract class AbstractDataLoaderService
     {
       request.markResultsAsArrived();
     }
-    final SafeProcedure runnable = response.getCompletionAction();
-    if ( null != runnable )
+    final SafeProcedure action = response.getCompletionAction();
+    if ( null != action )
     {
-      runnable.call();
+      action.call();
       // OOB messages are not in response to requests as such
       final String requestId = response.isOob() ? null : response.getChangeSet().getRequestId();
       if ( null != requestId )
