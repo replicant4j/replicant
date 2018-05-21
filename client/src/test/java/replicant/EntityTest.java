@@ -319,27 +319,6 @@ public class EntityTest
     assertEquals( exception.getMessage(), "Unable to locate subscription for channel 1.0.1 on entity A/123" );
   }
 
-  @Test
-  public void postDispose_whenSubscriptionsExist()
-  {
-    final EntityService entityService = Replicant.context().getEntityService();
-
-    final Entity entity =
-      safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
-
-    final Subscription subscription = createSubscription( new ChannelAddress( 1, 0, 1 ) );
-
-    safeAction( () -> entity.linkToSubscription( subscription ) );
-    safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> safeAction( entity::postDispose ) );
-    assertEquals( exception.getMessage(),
-                  "Entity A/123 was disposed in non-standard way that left 1 subscriptions linked." );
-
-    safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
-  }
-
   @Nonnull
   private Subscription createSubscription()
   {

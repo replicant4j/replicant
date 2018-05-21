@@ -221,6 +221,97 @@ public class EntityServiceTest
     assertEquals( exception.getMessage(), "Entity instance A/2 not present in EntityService" );
   }
 
+  @Test
+  public void disposedEntityNeverReturned()
+  {
+    final EntityService service = Replicant.context().getEntityService();
+
+    final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
+    autorun( () -> {
+      if ( Disposable.isNotDisposed( service ) )
+      {
+        // Access observable next line
+        service.findAllEntityTypes();
+      }
+
+      findAllEntityTypesCallCount.incrementAndGet();
+    } );
+
+    final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
+    autorun( () -> {
+      if ( Disposable.isNotDisposed( service ) )
+      {
+        // Access observable next line
+        service.findAllEntitiesByType( A.class );
+      }
+
+      findAllEntitiesByTypeACallCount.incrementAndGet();
+    } );
+
+    final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
+    autorun( () -> {
+      if ( Disposable.isNotDisposed( service ) )
+      {
+        // Access observable next line
+        service.findEntityByTypeAndId( A.class, 1 );
+      }
+
+      findEntityByTypeAndId1CallCount.incrementAndGet();
+    } );
+
+    assertEquals( findAllEntityTypesCallCount.get(), 1 );
+    assertEquals( findAllEntitiesByTypeACallCount.get(), 1 );
+    assertEquals( findEntityByTypeAndId1CallCount.get(), 1 );
+
+    safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 0 ) );
+    safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
+    safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+
+    {
+      safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 2 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
+      safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+      safeAction( () -> assertEquals( service.getEntities().get( A.class ).size(), 1 ) );
+    }
+
+    // Dispose entity
+    {
+      final Disposable schedulerLock = pauseScheduler();
+      safeAction( () -> {
+        final Entity entity = service.findEntityByTypeAndId( A.class, 1 );
+        assertNotNull( entity );
+        Disposable.dispose( entity );
+      } );
+
+      assertEquals( findAllEntityTypesCallCount.get(), 2 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
+
+      safeAction( () -> assertEquals( service.getEntities().get( A.class ).size(), 1 ) );
+      // Oddity - we have a type with 0 members. Can happen during deletion
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
+      safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+
+      schedulerLock.dispose();
+
+      assertEquals( findAllEntityTypesCallCount.get(), 3 );
+      assertEquals( findAllEntitiesByTypeACallCount.get(), 3 );
+      assertEquals( findEntityByTypeAndId1CallCount.get(), 3 );
+
+      safeAction( () -> assertEquals( service.getEntities().size(), 0 ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 0 ) );
+      safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
+      safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
+    }
+  }
+
   private static class A
   {
   }

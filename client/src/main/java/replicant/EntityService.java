@@ -1,11 +1,18 @@
 package replicant;
 
+import arez.Arez;
+import arez.ArezContext;
+import arez.Component;
 import arez.Disposable;
+import arez.Observer;
 import arez.annotations.ArezComponent;
+import arez.annotations.ComponentNameRef;
+import arez.annotations.ComponentRef;
+import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.component.ComponentObservable;
-import java.util.ArrayList;
+import arez.component.RepositoryUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +30,7 @@ abstract class EntityService
   extends ReplicantService
 {
   // Entity map: Type => ID
-  private final Map<Class<?>, Map<Integer, Entity>> _entities = new HashMap<>();
+  private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
 
   @Nonnull
   static EntityService create( @Nullable final ReplicantContext context )
@@ -40,14 +47,16 @@ abstract class EntityService
   protected abstract arez.Observable getEntitiesObservable();
 
   @Observable( expectSetter = false )
-  Map<Class<?>, Map<Integer, Entity>> getEntities()
+  Map<Class<?>, Map<Integer, EntityEntry>> getEntities()
   {
     return _entities;
   }
 
   /**
    * Return the collection of entity types that exist in the system.
-   * Only entity types that have at least one instance will be returned from this method.
+   * Only entity types that have at least one instance will be returned from this method unless
+   * an Entity has been disposed and the scheduler is yet to invoke code to remove type from set.
+   * This is a unlikely to be exposed to normal user code.
    *
    * @return the collection of entity types.
    */
@@ -67,7 +76,7 @@ abstract class EntityService
   @Nullable
   Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
   {
-    final Map<Integer, Entity> typeMap = _entities.get( type );
+    final Map<Integer, EntityEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       getEntitiesObservable().reportObserved();
@@ -75,14 +84,15 @@ abstract class EntityService
     }
     else
     {
-      final Entity entity = typeMap.get( id );
-      if ( null == entity )
+      final EntityEntry entry = typeMap.get( id );
+      if ( null == entry || Disposable.isDisposed( entry ) || Disposable.isDisposed( entry.getEntity() ) )
       {
         getEntitiesObservable().reportObserved();
         return null;
       }
       else
       {
+        final Entity entity = entry.getEntity();
         ComponentObservable.observe( entity );
         return entity;
       }
@@ -92,8 +102,15 @@ abstract class EntityService
   @Nonnull
   List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    final Map<Integer, Entity> typeMap = getEntities().get( type );
-    return null == typeMap ? Collections.emptyList() : new ArrayList<>( typeMap.values() );
+    final Map<Integer, EntityEntry> typeMap = getEntities().get( type );
+    return null == typeMap ?
+           Collections.emptyList() :
+           RepositoryUtil.asList( typeMap
+                                    .values()
+                                    .stream()
+                                    .filter( Disposable::isNotDisposed )
+                                    .map( EntityEntry::getEntity )
+                                    .filter( Disposable::isNotDisposed ) );
   }
 
   /**
@@ -107,14 +124,14 @@ abstract class EntityService
 
     final Class<?> entityType = entity.getType();
     final int id = entity.getId();
-    final Map<Integer, Entity> typeMap = _entities.get( entityType );
+    final Map<Integer, EntityEntry> typeMap = _entities.get( entityType );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,
                  () -> "Entity type " + entityType.getSimpleName() + " not present in EntityService" );
     }
     assert null != typeMap;
-    final Entity removed = typeMap.remove( id );
+    final EntityEntry removed = typeMap.remove( id );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed, () -> "Entity instance " + entity + " not present in EntityService" );
@@ -138,22 +155,23 @@ abstract class EntityService
   @Nonnull
   Entity findOrCreateEntity( @Nullable final String name, @Nonnull final Class<?> type, final int id )
   {
-    final Map<Integer, Entity> typeMap = _entities.get( type );
+    final Map<Integer, EntityEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
-      final HashMap<Integer, Entity> newTypeMap = new HashMap<>();
+      final HashMap<Integer, EntityEntry> newTypeMap = new HashMap<>();
       _entities.put( type, newTypeMap );
       return createEntity( newTypeMap, name, type, id );
     }
     else
     {
-      final Entity entity = typeMap.get( id );
-      if ( null == entity )
+      final EntityEntry entry = typeMap.get( id );
+      if ( null == entry || Disposable.isDisposed( entry ) || Disposable.isDisposed( entry.getEntity() ) )
       {
         return createEntity( typeMap, name, type, id );
       }
       else
       {
+        final Entity entity = entry.getEntity();
         ComponentObservable.observe( entity );
         return entity;
       }
@@ -161,15 +179,65 @@ abstract class EntityService
   }
 
   @Nonnull
-  private Entity createEntity( @Nonnull final Map<Integer, Entity> typeMap,
+  private Entity createEntity( @Nonnull final Map<Integer, EntityEntry> typeMap,
                                @Nullable final String name,
                                @Nonnull final Class<?> type,
                                final int id )
   {
     getEntitiesObservable().preReportChanged();
     final Entity entity = Entity.create( Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id );
-    typeMap.put( id, entity );
+    final EntityEntry entry = EntityEntry.create( entity );
+    final String monitorName =
+      Arez.areNamesEnabled() ?
+      getComponentName() +
+      ".EntityWatcher." + ( Replicant.areNamesEnabled() ? entity.getName() : entity.getId() ) :
+      null;
+    final Observer monitor =
+      getContext().when( Arez.areNativeComponentsEnabled() ? component() : null,
+                         monitorName,
+                         true,
+                         () -> !ComponentObservable.observe( entity ),
+                         () -> destroy( entity ),
+                         true,
+                         true );
+    entry.setMonitor( monitor );
+
+    typeMap.put( id, entry );
     getEntitiesObservable().reportChanged();
+    ComponentObservable.observe( entity );
     return entity;
   }
+
+  private void destroy( @Nonnull final Entity entity )
+  {
+    entity.delinkEntityFromAllSubscriptions();
+    unlinkEntity( entity );
+  }
+
+  /**
+   * Return the component associated with the container if native components enabled.
+   *
+   * @return the component associated with the container if native components enabled.
+   */
+  @ComponentRef
+  @Nonnull
+  protected abstract Component component();
+
+  /**
+   * Return the context associated with the container.
+   *
+   * @return the context associated with the container.
+   */
+  @ContextRef
+  @Nonnull
+  protected abstract ArezContext getContext();
+
+  /**
+   * Return the name associated with the container.
+   *
+   * @return the name associated with the container.
+   */
+  @ComponentNameRef
+  @Nonnull
+  protected abstract String getComponentName();
 }

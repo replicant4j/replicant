@@ -4,7 +4,6 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
-import arez.annotations.PostDispose;
 import arez.annotations.PreDispose;
 import java.util.Collection;
 import java.util.HashMap;
@@ -149,8 +148,9 @@ public abstract class Entity
   final void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
     // TODO: This next method should have better defensive programming inside
-    subscription.delinkEntityFromSubscription( this );
-    delinkSubscriptionFromEntity( subscription );
+    delinkSubscriptionFromEntity( subscription, false );
+    subscription.delinkEntityFromSubscription( this, false );
+    disposeIfNoSubscriptions();
   }
 
   /**
@@ -162,6 +162,12 @@ public abstract class Entity
    */
   final void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription )
   {
+    delinkSubscriptionFromEntity( subscription, true );
+  }
+
+  final void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription,
+                                           final boolean disposeEntityIfNoSubscriptions )
+  {
     getSubscriptionsObservable().preReportChanged();
     final ChannelAddress address = subscription.getAddress();
     final Subscription candidate = _subscriptions.remove( address );
@@ -171,6 +177,14 @@ public abstract class Entity
       apiInvariant( () -> null != candidate,
                     () -> "Unable to locate subscription for channel " + address + " on entity " + this );
     }
+    if ( disposeEntityIfNoSubscriptions )
+    {
+      disposeIfNoSubscriptions();
+    }
+  }
+
+  final void disposeIfNoSubscriptions()
+  {
     if ( _subscriptions.isEmpty() )
     {
       Disposable.dispose( this );
@@ -180,28 +194,13 @@ public abstract class Entity
   @PreDispose
   final void preDispose()
   {
-    //TODO: FIgure out how this next line works - it is READ-WRITE transaction inside DISPOSE????
-    delinkEntityFromAllSubscriptions();
-    getReplicantContext().getEntityService().unlinkEntity( this );
-
     if ( null != _userObject )
     {
       Disposable.dispose( _userObject );
     }
   }
 
-  @PostDispose
-  final void postDispose()
-  {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( _subscriptions::isEmpty,
-                    () -> "Entity " + this + " was disposed in non-standard way that left " +
-                          _subscriptions.size() + " subscriptions linked." );
-    }
-  }
-
-  private void delinkEntityFromAllSubscriptions()
+  void delinkEntityFromAllSubscriptions()
   {
     _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this ) );
     _subscriptions.clear();
