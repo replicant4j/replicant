@@ -125,7 +125,9 @@ public final class ReplicantContext
 
   /**
    * Return the collection of entity types that exist in the system.
-   * Only entity types that have at least one instance will be returned from this method.
+   * Only entity types that have at least one instance will be returned from this method unless
+   * an Entity has been disposed and the scheduler is yet to invoke code to remove type from set.
+   * This is a unlikely to be exposed to normal user code.
    *
    * @return the collection of entity types.
    */
