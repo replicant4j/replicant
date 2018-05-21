@@ -211,7 +211,7 @@ public abstract class Entity
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return _type.getSimpleName() + "/" + _id;
+      return getName();
     }
     else
     {
