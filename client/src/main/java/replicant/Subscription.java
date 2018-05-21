@@ -23,6 +23,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * Representation of a subscription to a channel.
  */
+@SuppressWarnings( "Duplicates" )
 @ArezComponent
 public abstract class Subscription
   extends ReplicantService
@@ -92,7 +93,12 @@ public abstract class Subscription
     final Map<Integer, EntityEntry> typeMap = getEntities().get( type );
     return null == typeMap ?
            Collections.emptyList() :
-           typeMap.values().stream().map( EntityEntry::getEntity ).collect( Collectors.toList() );
+           typeMap.values()
+             .stream()
+             .filter( Disposable::isNotDisposed )
+             .map( EntityEntry::getEntity )
+             .filter( Disposable::isNotDisposed )
+             .collect( Collectors.toList() );
   }
 
   @Nullable
@@ -107,15 +113,16 @@ public abstract class Subscription
     else
     {
       final EntityEntry entry = typeMap.get( id );
-      if ( null == entry )
+      if ( null == entry || Disposable.isDisposed( entry ) || Disposable.isDisposed( entry.getEntity() ) )
       {
         getEntitiesObservable().reportObserved();
         return null;
       }
       else
       {
-        ComponentObservable.observe( entry );
-        return entry.getEntity();
+        final Entity entity = entry.getEntity();
+        ComponentObservable.observe( entity );
+        return entity;
       }
     }
   }
@@ -162,6 +169,12 @@ public abstract class Subscription
    */
   final void delinkEntityFromSubscription( @Nonnull final Entity entity )
   {
+    delinkEntityFromSubscription( entity, true );
+  }
+
+  final void delinkEntityFromSubscription( @Nonnull final Entity entity,
+                                           final boolean disposeEntityIfNoSubscriptions )
+  {
     getEntitiesObservable().preReportChanged();
     final Class<?> entityType = entity.getType();
     final Map<Integer, EntityEntry> typeMap = _entities.get( entityType );
@@ -179,7 +192,10 @@ public abstract class Subscription
       invariant( () -> null != removed,
                  () -> "Entity instance " + entity + " not present in subscription to channel " + address );
     }
-    Disposable.dispose( removed );
+    if ( disposeEntityIfNoSubscriptions )
+    {
+      entity.disposeIfNoSubscriptions();
+    }
     if ( typeMap.isEmpty() )
     {
       _entities.remove( entityType );
@@ -190,14 +206,13 @@ public abstract class Subscription
   @PreDispose
   final void preDispose()
   {
-    delinkSubscriptionFromAllEntities();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionDisposedEvent( this ) );
     }
   }
 
-  private void delinkSubscriptionFromAllEntities()
+  void delinkSubscriptionFromAllEntities()
   {
     _entities.values()
       .stream()
