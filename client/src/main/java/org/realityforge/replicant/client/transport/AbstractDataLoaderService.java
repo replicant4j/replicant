@@ -415,13 +415,18 @@ public abstract class AbstractDataLoaderService
       validateWorld( response );
       return true;
     }
-    completeMessageResponse( response );
-    return true;
+    else
+    {
+      completeMessageResponse();
+      return true;
+    }
   }
 
-  private void completeMessageResponse( @Nonnull final MessageResponse response )
+  private void completeMessageResponse()
   {
     final Connection connection = ensureConnection();
+    final MessageResponse response = connection.getCurrentMessageResponse();
+    assert null != response;
 
     // OOB messages are not sequenced
     if ( !response.isOob() )
