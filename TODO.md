@@ -68,6 +68,8 @@ RequestEntry.ID should be an integer....
   to build the source code for entities.
 
 * Remove `Connector.SystemType` and replace with reference to schema.
+  - Done but we should change the code that registers to ensure uniqueness
+  - we should also start using to stop updates of filters that should not be.
 
 * Strategy for having JVM specific code.
   - Define class `MyServiceA` that is the gwt compatible variant. Extend this variant as `JvmMyServiceA`
