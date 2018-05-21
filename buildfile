@@ -71,6 +71,8 @@ define 'replicant' do
   end
 
   define 'client' do
+    pom.provided_dependencies.concat [:javax_javaee, :gwt_user]
+
     project.processorpath << :react4j_processor
     project.processorpath << :arez_processor
     project.processorpath << [DAGGER_COMPILER_DEPS]
@@ -82,7 +84,9 @@ define 'replicant' do
                  GWT_DEPS,
                  REACT4J_DEPS,
                  AREZ_DEPS,
-                 DAGGER_GWT_DEPS
+                 DAGGER_GWT_DEPS,
+                 # javax_javaee is provided so that JSON parsing can occur for JRE variant.
+                 :javax_javaee
 
     gwt_enhance(project, :extra_deps => [_('src/main/super')])
 
