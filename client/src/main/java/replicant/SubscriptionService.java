@@ -56,7 +56,7 @@ abstract class SubscriptionService
    */
   @ContextRef
   @Nonnull
-  protected abstract ArezContext getContext();
+  abstract ArezContext getContext();
 
   /**
    * Return the name associated with the service.
@@ -65,7 +65,7 @@ abstract class SubscriptionService
    */
   @ComponentNameRef
   @Nonnull
-  protected abstract String getComponentName();
+  abstract String getComponentName();
 
   /**
    * Return the component associated with service if native components enabled.
@@ -74,7 +74,7 @@ abstract class SubscriptionService
    */
   @ComponentRef
   @Nonnull
-  protected abstract Component component();
+  abstract Component component();
 
   /**
    * Return the collection of type subscriptions.
