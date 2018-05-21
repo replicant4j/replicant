@@ -221,7 +221,7 @@ abstract class EntityService
    */
   @ComponentRef
   @Nonnull
-  protected abstract Component component();
+  abstract Component component();
 
   /**
    * Return the context associated with the service.
@@ -230,7 +230,7 @@ abstract class EntityService
    */
   @ContextRef
   @Nonnull
-  protected abstract ArezContext getContext();
+  abstract ArezContext getContext();
 
   /**
    * Return the name associated with the service.
@@ -239,5 +239,5 @@ abstract class EntityService
    */
   @ComponentNameRef
   @Nonnull
-  protected abstract String getComponentName();
+  abstract String getComponentName();
 }
