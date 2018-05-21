@@ -47,6 +47,10 @@ public abstract class Connector
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
 
   /**
+   * The code to parse changesets. Extracted into a separate class so it can be vary by environment.
+   */
+  private final ChangeSetParser _changeSetParser = new ChangeSetParser();
+  /**
    * The schema that defines data-API used to interact with datasource.
    */
   @Nonnull
@@ -567,6 +571,63 @@ public abstract class Connector
         return false;
       }
     } );
+  }
+
+  /**
+   * Parse the json data associated with the current response and then enqueue it.
+   */
+  protected void parseMessageResponse()
+  {
+    final Connection connection = ensureConnection();
+    final MessageResponse response = connection.getCurrentMessageResponse();
+    assert null != response;
+    final String rawJsonData = response.getRawJsonData();
+    assert null != rawJsonData;
+    final ChangeSet changeSet = _changeSetParser.parseChangeSet( rawJsonData );
+    if ( Replicant.shouldValidateChangeSetOnRead() )
+    {
+      changeSet.validate();
+    }
+
+    final RequestEntry request;
+    if ( response.isOob() )
+    {
+      /*
+       * OOB messages are really just cached messages at this stage and they are the
+       * same bytes as originally sent down and then cached. So the requestId present
+       * in the json blob is for old connection and can be ignored.
+       */
+      request = null;
+    }
+    else
+    {
+      final String requestId = changeSet.getRequestId();
+      final String eTag = changeSet.getETag();
+      final int sequence = changeSet.getSequence();
+      request = null != requestId ? connection.getRequest( requestId ) : null;
+      if ( Replicant.shouldCheckApiInvariants() )
+      {
+        apiInvariant( () -> null != request || null == requestId,
+                      () -> "Replicant-0066: Unable to locate request with id '" +
+                            requestId + "' specified for ChangeSet with sequence " +
+                            sequence + ". Existing Requests: " + connection.getRequests() );
+      }
+      if ( null != request )
+      {
+        final String cacheKey = request.getCacheKey();
+        if ( null != eTag && null != cacheKey )
+        {
+          final CacheService cacheService = getReplicantContext().getCacheService();
+          if ( null != cacheService )
+          {
+            cacheService.store( cacheKey, eTag, rawJsonData );
+          }
+        }
+      }
+    }
+
+    response.recordChangeSet( changeSet, request );
+    connection.queueCurrentResponse();
   }
 
   @Action( reportParameters = false )

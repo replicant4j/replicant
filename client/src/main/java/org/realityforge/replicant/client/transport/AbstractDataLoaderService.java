@@ -1,11 +1,9 @@
 package org.realityforge.replicant.client.transport;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -13,12 +11,10 @@ import javax.annotation.Nullable;
 import replicant.AreaOfInterestRequest;
 import replicant.CacheEntry;
 import replicant.CacheService;
-import replicant.ChangeSet;
 import replicant.ChannelAddress;
 import replicant.Connection;
 import replicant.Connector;
 import replicant.MessageResponse;
-import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
@@ -90,10 +86,6 @@ public abstract class AbstractDataLoaderService
     }
     action.call();
   }
-
-  @SuppressWarnings( "SameParameterValue" )
-  @Nonnull
-  protected abstract ChangeSet parseChangeSet( @Nonnull String rawJsonData );
 
   /**
    * {@inheritDoc}
@@ -391,7 +383,7 @@ public abstract class AbstractDataLoaderService
     //Step: Parse the json
     if ( null != response.getRawJsonData() )
     {
-      parseMessageResponse( response );
+      parseMessageResponse();
       return true;
     }
 
@@ -467,59 +459,5 @@ public abstract class AbstractDataLoaderService
       _resetAction.run();
       _resetAction = null;
     }
-  }
-
-  private void parseMessageResponse( @Nonnull final MessageResponse response )
-  {
-    final Connection connection = ensureConnection();
-    final String rawJsonData = response.getRawJsonData();
-    assert null != rawJsonData;
-    final ChangeSet changeSet = parseChangeSet( rawJsonData );
-    if ( Replicant.shouldValidateChangeSetOnRead() )
-    {
-      changeSet.validate();
-    }
-
-    final RequestEntry request;
-    if ( response.isOob() )
-    {
-      request = null;
-    }
-    else
-    {
-      final String requestId = changeSet.getRequestId();
-      final String eTag = changeSet.getETag();
-      final int sequence = changeSet.getSequence();
-      request = null != requestId ? connection.getRequest( requestId ) : null;
-      if ( null == request && null != requestId )
-      {
-        final String message =
-          "Unable to locate requestID '" + requestId + "' specified for ChangeSet: seq=" + sequence +
-          " Existing Requests: " + connection.getRequests();
-        if ( LOG.isLoggable( Level.WARNING ) )
-        {
-          LOG.warning( message );
-        }
-        throw new IllegalStateException( message );
-      }
-      else if ( null != request )
-      {
-        final String cacheKey = request.getCacheKey();
-        if ( null != eTag && null != cacheKey )
-        {
-          final CacheService cacheService = getReplicantContext().getCacheService();
-          if ( null != cacheService )
-          {
-            cacheService.store( cacheKey, eTag, rawJsonData );
-          }
-        }
-      }
-    }
-
-    response.recordChangeSet( changeSet, request );
-    final LinkedList<MessageResponse> pendingResponses = connection.getPendingResponses();
-    pendingResponses.add( response );
-    Collections.sort( pendingResponses );
-    connection.setCurrentMessageResponse( null );
   }
 }

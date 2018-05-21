@@ -4,6 +4,7 @@ import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.intellij.lang.annotations.Language;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -1838,5 +1839,157 @@ public class ConnectorTest
         throw _exception;
       }
     }
+  }
+
+  @Test
+  public void parseMessageResponse_basicMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    @Language( "json" )
+    final String rawJsonData = "{\"last_id\": 1}";
+    final MessageResponse response = new MessageResponse( rawJsonData );
+
+    connection.setCurrentMessageResponse( response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    connector.parseMessageResponse();
+
+    assertEquals( response.getRawJsonData(), null );
+    final ChangeSet changeSet = response.getChangeSet();
+    assertNotNull( changeSet );
+    assertEquals( changeSet.getSequence(), 1 );
+    assertNull( response.getRequest() );
+
+    assertEquals( connection.getPendingResponses().size(), 1 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+  }
+
+  @Test
+  public void parseMessageResponse_requestPresent()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final RequestEntry request = connection.newRequest( "SomeAction", null );
+
+    final String requestId = request.getRequestId();
+
+    @Language( "json" )
+    final String rawJsonData = "{\"last_id\": 1, \"request_id\": \"" + requestId + "\"}";
+    final MessageResponse response = new MessageResponse( rawJsonData );
+
+    connection.setCurrentMessageResponse( response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    connector.parseMessageResponse();
+
+    assertEquals( response.getRawJsonData(), null );
+    final ChangeSet changeSet = response.getChangeSet();
+    assertNotNull( changeSet );
+    assertEquals( changeSet.getSequence(), 1 );
+    assertEquals( response.getRequest(), request );
+
+    assertEquals( connection.getPendingResponses().size(), 1 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+  }
+
+  @Test
+  public void parseMessageResponse_cacheResult()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final String cacheKey = ValueUtil.randomString();
+    final RequestEntry request = connection.newRequest( "SomeAction", cacheKey );
+
+    final String requestId = request.getRequestId();
+
+    final String etag = ValueUtil.randomString();
+
+    final String rawJsonData =
+      "{\"last_id\": 1, \"request_id\": \"" + requestId + "\", \"etag\": \"" + etag + "\"}";
+    final MessageResponse response = new MessageResponse( rawJsonData );
+
+    connection.setCurrentMessageResponse( response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    final CacheService cacheService = new TestCacheService();
+    Replicant.context().setCacheService( cacheService );
+    assertNull( cacheService.lookup( cacheKey ) );
+
+    connector.parseMessageResponse();
+
+    assertEquals( response.getRawJsonData(), null );
+    final ChangeSet changeSet = response.getChangeSet();
+    assertNotNull( changeSet );
+    assertEquals( changeSet.getSequence(), 1 );
+    assertEquals( response.getRequest(), request );
+
+    assertEquals( connection.getPendingResponses().size(), 1 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+
+    final CacheEntry entry = cacheService.lookup( cacheKey );
+    assertNotNull( entry );
+    assertEquals( entry.getKey(), cacheKey );
+    assertEquals( entry.getETag(), etag );
+    assertEquals( entry.getContent(), rawJsonData );
+  }
+
+  @Test
+  public void parseMessageResponse_oob()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final RequestEntry request = connection.newRequest( "SomeAction", null );
+
+    final String requestId = request.getRequestId();
+
+    @Language( "json" )
+    final String rawJsonData = "{\"last_id\": 1, \"request_id\": \"" + requestId + "\"}";
+    final SafeProcedure oobCompletionAction = () -> {
+    };
+    final MessageResponse response = new MessageResponse( rawJsonData, oobCompletionAction );
+
+    connection.setCurrentMessageResponse( response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    connector.parseMessageResponse();
+
+    assertEquals( response.getRawJsonData(), null );
+    final ChangeSet changeSet = response.getChangeSet();
+    assertNotNull( changeSet );
+    assertEquals( changeSet.getSequence(), 1 );
+    assertNull( response.getRequest() );
+
+    assertEquals( connection.getPendingResponses().size(), 1 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+  }
+
+  @Test
+  public void parseMessageResponse_invalidRequestId()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    @Language( "json" )
+    final String rawJsonData = "{\"last_id\": 1, \"request_id\": \"R1\"}";
+    final MessageResponse response = new MessageResponse( rawJsonData );
+
+    connection.setCurrentMessageResponse( response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, connector::parseMessageResponse );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0066: Unable to locate request with id 'R1' specified for ChangeSet with sequence 1. Existing Requests: {}" );
   }
 }

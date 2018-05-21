@@ -11,7 +11,6 @@ import elemental2.core.Global;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jsinterop.base.Js;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
@@ -19,7 +18,6 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.client.transport.WebPollerDataLoaderService;
 import org.realityforge.replicant.shared.SharedConstants;
-import replicant.ChangeSet;
 import replicant.Connection;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
@@ -45,13 +43,6 @@ public abstract class GwtWebPollerDataLoaderService
     super( context, schema, sessionContext );
     createWebPoller();
     setupCloseHandler();
-  }
-
-  @Nonnull
-  @Override
-  protected ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
-  {
-    return Js.cast( Global.JSON.parse( rawJsonData ) );
   }
 
   protected void activateScheduler()
