@@ -26,11 +26,13 @@ public class ConnectionTest
     assertEquals( connection.getConnectionId(), connectionId );
     assertEquals( connection.getLastRxSequence(), 0 );
     assertEquals( connection.getCurrentMessageResponse(), null );
+    assertThrows( connection::ensureCurrentMessageResponse );
 
     final MessageResponse response = new MessageResponse( "" );
     connection.setCurrentMessageResponse( response );
 
     assertEquals( connection.getCurrentMessageResponse(), response );
+    assertEquals( connection.ensureCurrentMessageResponse(), response );
 
     connection.setLastRxSequence( 2 );
     assertEquals( connection.getLastRxSequence(), 2 );

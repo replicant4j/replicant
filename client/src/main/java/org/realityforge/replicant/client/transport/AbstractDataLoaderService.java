@@ -425,8 +425,7 @@ public abstract class AbstractDataLoaderService
   private void completeMessageResponse()
   {
     final Connection connection = ensureConnection();
-    final MessageResponse response = connection.getCurrentMessageResponse();
-    assert null != response;
+    final MessageResponse response = connection.ensureCurrentMessageResponse();
 
     // OOB messages are not sequenced
     if ( !response.isOob() )

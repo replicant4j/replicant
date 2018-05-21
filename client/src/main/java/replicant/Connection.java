@@ -292,6 +292,13 @@ public final class Connection
     return _currentMessageResponse;
   }
 
+  @Nonnull
+  public MessageResponse ensureCurrentMessageResponse()
+  {
+    assert null != _currentMessageResponse;
+    return _currentMessageResponse;
+  }
+
   public void setCurrentMessageResponse( @Nullable final MessageResponse currentMessageResponse )
   {
     _currentMessageResponse = currentMessageResponse;

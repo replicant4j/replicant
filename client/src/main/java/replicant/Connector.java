@@ -579,8 +579,7 @@ public abstract class Connector
   protected void parseMessageResponse()
   {
     final Connection connection = ensureConnection();
-    final MessageResponse response = connection.getCurrentMessageResponse();
-    assert null != response;
+    final MessageResponse response = connection.ensureCurrentMessageResponse();
     final String rawJsonData = response.getRawJsonData();
     assert null != rawJsonData;
     final ChangeSet changeSet = _changeSetParser.parseChangeSet( rawJsonData );
