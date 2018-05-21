@@ -89,7 +89,7 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
-      .filter( s -> !Disposable.isDisposed( s ) )
+      .filter( Disposable::isNotDisposed )
       .map( SubscriptionEntry::getSubscription )
       .collect( Collectors.toList() );
   }
@@ -111,7 +111,7 @@ abstract class SubscriptionService
       .stream()
       .flatMap( s -> s.values().stream() )
       .flatMap( s -> s.values().stream() )
-      .filter( s -> !Disposable.isDisposed( s ) )
+      .filter( Disposable::isNotDisposed )
       .collect( Collectors.toList() );
   }
 
@@ -141,7 +141,7 @@ abstract class SubscriptionService
         map
           .entrySet()
           .stream()
-          .filter( e -> !Disposable.isDisposed( e.getValue() ) )
+          .filter( e -> Disposable.isNotDisposed( e.getValue() ) )
           .map( Map.Entry::getKey )
           .collect( Collectors.toSet() );
       return Arez.areRepositoryResultsModifiable() ? results : Collections.unmodifiableSet( results );

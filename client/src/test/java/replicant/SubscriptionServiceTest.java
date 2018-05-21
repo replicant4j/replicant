@@ -22,7 +22,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findSubscription( address1 );
@@ -33,7 +33,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger findSubscriptionAddress2CallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findSubscription( address2 );
@@ -43,7 +43,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger getInstanceSubscriptionsCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         service.getInstanceSubscriptions();
       }
@@ -52,7 +52,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger getTypeSubscriptionsCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         service.getTypeSubscriptions();
       }
@@ -174,7 +174,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findSubscription( address1 );
@@ -185,7 +185,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger findSubscriptionAddress2CallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findSubscription( address2 );
@@ -195,7 +195,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger getInstanceSubscriptionsCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         service.getInstanceSubscriptions();
       }
@@ -204,7 +204,7 @@ public class SubscriptionServiceTest
 
     final AtomicInteger getTypeSubscriptionsCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         service.getTypeSubscriptions();
       }

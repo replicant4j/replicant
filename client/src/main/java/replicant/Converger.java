@@ -149,7 +149,7 @@ abstract class Converger
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> !Disposable.isDisposed( areaOfInterest ),
+      invariant( () -> Disposable.isNotDisposed( areaOfInterest ),
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();

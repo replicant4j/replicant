@@ -16,7 +16,7 @@ public class EntityServiceTest
 
     final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findAllEntityTypes();
@@ -27,7 +27,7 @@ public class EntityServiceTest
 
     final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findAllEntitiesByType( A.class );
@@ -38,7 +38,7 @@ public class EntityServiceTest
 
     final AtomicInteger findAllEntitiesByTypeBCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findAllEntitiesByType( B.class );
@@ -49,7 +49,7 @@ public class EntityServiceTest
 
     final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findEntityByTypeAndId( A.class, 1 );
@@ -60,7 +60,7 @@ public class EntityServiceTest
 
     final AtomicInteger findEntityByTypeAndId2CallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( service ) )
+      if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
         service.findEntityByTypeAndId( A.class, 2 );

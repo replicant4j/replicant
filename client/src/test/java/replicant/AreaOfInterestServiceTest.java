@@ -36,7 +36,7 @@ public class AreaOfInterestServiceTest
       assertNotNull( areaOfInterest1 );
 
       assertEquals( areaOfInterest1.getAddress(), address1 );
-      assertEquals( !Disposable.isDisposed( areaOfInterest1 ), true );
+      assertEquals( Disposable.isNotDisposed( areaOfInterest1 ), true );
 
       final Collection<AreaOfInterest> subscriptions = service.getAreasOfInterest();
       assertEquals( subscriptions.size(), 1 );

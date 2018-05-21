@@ -47,7 +47,7 @@ public class AreaOfInterestTest
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( areaOfInterest ) )
+      if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
         // Observe state
         areaOfInterest.getStatus();
@@ -57,7 +57,7 @@ public class AreaOfInterestTest
 
     final AtomicInteger getErrorCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( areaOfInterest ) )
+      if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
         // Observe state
         areaOfInterest.getError();
@@ -67,7 +67,7 @@ public class AreaOfInterestTest
 
     final AtomicInteger getSubscriptionCallCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( areaOfInterest ) )
+      if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
         // Observe state
         areaOfInterest.getSubscription();

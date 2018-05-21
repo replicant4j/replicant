@@ -109,7 +109,7 @@ public class EntityTest
 
     final AtomicInteger callCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( entity ) )
+      if ( Disposable.isNotDisposed( entity ) )
       {
         // Access observable next line
         entity.getSubscriptions();
@@ -178,7 +178,7 @@ public class EntityTest
 
     final AtomicInteger callCount = new AtomicInteger();
     autorun( () -> {
-      if ( !Disposable.isDisposed( entity ) )
+      if ( Disposable.isNotDisposed( entity ) )
       {
         // Access observable next line
         entity.getSubscriptions();

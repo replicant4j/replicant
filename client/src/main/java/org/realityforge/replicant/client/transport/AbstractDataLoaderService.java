@@ -554,7 +554,7 @@ public abstract class AbstractDataLoaderService
       {
         for ( final Object entity : getReplicantContext().findAllEntitiesByType( entityType ) )
         {
-          invariant( () -> !Disposable.isDisposed( entity ),
+          invariant( () -> Disposable.isNotDisposed( entity ),
                      () -> "Invalid disposed entity found during validation. Entity: " + entity );
           try
           {
