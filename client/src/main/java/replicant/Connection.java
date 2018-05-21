@@ -2,6 +2,7 @@ package replicant;
 
 import arez.component.RepositoryUtil;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -135,6 +136,19 @@ public final class Connection
   public LinkedList<MessageResponse> getPendingResponses()
   {
     return _pendingResponses;
+  }
+
+  /**
+   * Take the current message and queue it in the pending messages lists.
+   * This is invoked when the message has been parsed and now has enough
+   * information to sequence message.
+   */
+  void queueCurrentResponse()
+  {
+    assert null != _currentMessageResponse;
+    _pendingResponses.add( _currentMessageResponse );
+    Collections.sort( _pendingResponses );
+    _currentMessageResponse = null;
   }
 
   public LinkedList<MessageResponse> getOutOfBandResponses()

@@ -37,6 +37,53 @@ public class ConnectionTest
   }
 
   @Test
+  public void queueCurrentResponse()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    final MessageResponse response1 = new MessageResponse( "" );
+    final MessageResponse response2 = new MessageResponse( "" );
+    final MessageResponse response3 = new MessageResponse( "" );
+
+    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null ), null );
+    response2.recordChangeSet( ChangeSet.create( 2, null, null, null, null ), null );
+    response3.recordChangeSet( ChangeSet.create( 3, null, null, null, null ), null );
+
+    connection.setCurrentMessageResponse( response2 );
+
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    connection.queueCurrentResponse();
+
+    assertEquals( connection.getPendingResponses().size(), 1 );
+    assertEquals( connection.getPendingResponses().get( 0 ), response2 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+
+    // This should be added to end of queue as it has later sequence
+    connection.setCurrentMessageResponse( response3 );
+
+    connection.queueCurrentResponse();
+
+    assertEquals( connection.getPendingResponses().size(), 2 );
+    assertEquals( connection.getPendingResponses().get( 0 ), response2 );
+    assertEquals( connection.getPendingResponses().get( 1 ), response3 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+
+    // This should be added to start of queue as it has earlier sequence
+    connection.setCurrentMessageResponse( response1 );
+
+    connection.queueCurrentResponse();
+
+    assertEquals( connection.getPendingResponses().size(), 3 );
+    assertEquals( connection.getPendingResponses().get( 0 ), response1 );
+    assertEquals( connection.getPendingResponses().get( 1 ), response2 );
+    assertEquals( connection.getPendingResponses().get( 2 ), response3 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+  }
+
+  @Test
   public void requestSubscribe()
   {
     final TestConnector connector = TestConnector.create();
