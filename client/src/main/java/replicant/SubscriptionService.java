@@ -215,11 +215,17 @@ abstract class SubscriptionService
                          Arez.areNamesEnabled() ? getComponentName() + ".SubscriptionWatcher." + arezId : null,
                          true,
                          () -> !ComponentObservable.observe( subscription ),
-                         () -> unlinkSubscription( subscription.getAddress() ),
+                         () -> destroy( subscription ),
                          true,
                          true );
     entry.setMonitor( monitor );
     return entry;
+  }
+
+  private void destroy( @Nonnull final Subscription subscription )
+  {
+    subscription.delinkSubscriptionFromAllEntities();
+    unlinkSubscription( subscription.getAddress() );
   }
 
   /**
