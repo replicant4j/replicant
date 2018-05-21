@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.Verifiable;
 import replicant.AreaOfInterestRequest;
 import replicant.CacheEntry;
 import replicant.CacheService;
@@ -26,6 +25,7 @@ import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 import replicant.SystemSchema;
+import replicant.Verifiable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
