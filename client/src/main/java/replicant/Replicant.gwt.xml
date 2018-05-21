@@ -24,8 +24,8 @@
   <define-property name='replicant.validateChangeSetOnRead' values='true,false'/>
   <set-property name='replicant.validateChangeSetOnRead' value='false'/>
 
-  <define-property name='replicant.validateRepositoryOnLoad' values='true,false'/>
-  <set-property name='replicant.validateRepositoryOnLoad' value='false'/>
+  <define-property name='replicant.validateEntitiesOnLoad' values='true,false'/>
+  <set-property name='replicant.validateEntitiesOnLoad' value='false'/>
 
   <define-property name='replicant.enable_spies' values='true,false'/>
   <set-property name='replicant.enable_spies' value='false'/>

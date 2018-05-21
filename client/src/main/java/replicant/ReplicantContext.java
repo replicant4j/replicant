@@ -19,6 +19,7 @@ public final class ReplicantContext
     SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
   private final ReplicantRuntime _runtime = ReplicantRuntime.create();
   private final Converger _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
+  private final Validator _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
   private final SchemaService _schemaService = SchemaService.create();
   /**
    * Service responsible for caching data to avoid hitting the network during requests.
@@ -429,5 +430,16 @@ public final class ReplicantContext
   final SchemaService getSchemaService()
   {
     return _schemaService;
+  }
+
+  /**
+   * Return the underlying Validator.
+   *
+   * @return the underlying Validator.
+   */
+  @Nonnull
+  final Validator getValidator()
+  {
+    return _validator;
   }
 }

@@ -37,7 +37,7 @@ public final class ReplicantTestUtil
     {
       disableNames();
       noValidateChangeSetOnRead();
-      noValidateRepositoryOnLoad();
+      noValidateEntitiesOnLoad();
       disableSpies();
       noCheckInvariants();
       noCheckApiInvariants();
@@ -46,7 +46,7 @@ public final class ReplicantTestUtil
     {
       enableNames();
       validateChangeSetOnRead();
-      validateRepositoryOnLoad();
+      validateEntitiesOnLoad();
       enableSpies();
       checkInvariants();
       checkApiInvariants();
@@ -119,29 +119,29 @@ public final class ReplicantTestUtil
   }
 
   /**
-   * Set `replicant.validateRepositoryOnLoad` setting to true.
+   * Set `replicant.validateEntitiesOnLoad` setting to true.
    */
-  public static void validateRepositoryOnLoad()
+  public static void validateEntitiesOnLoad()
   {
-    setValidateRepositoryOnLoad( true );
+    setValidateEntitiesOnLoad( true );
   }
 
   /**
-   * Set `replicant.validateRepositoryOnLoad` setting to false.
+   * Set `replicant.validateEntitiesOnLoad` setting to false.
    */
-  public static void noValidateRepositoryOnLoad()
+  public static void noValidateEntitiesOnLoad()
   {
-    setValidateRepositoryOnLoad( false );
+    setValidateEntitiesOnLoad( false );
   }
 
   /**
-   * Configure the `replicant.validateRepositoryOnLoad` setting.
+   * Configure the `replicant.validateEntitiesOnLoad` setting.
    *
    * @param value the setting.
    */
-  private static void setValidateRepositoryOnLoad( final boolean value )
+  private static void setValidateEntitiesOnLoad( final boolean value )
   {
-    setConstant( "VALIDATE_REPOSITORY_ON_LOAD", value );
+    setConstant( "VALIDATE_ENTITIES_ON_LOAD", value );
   }
 
   /**

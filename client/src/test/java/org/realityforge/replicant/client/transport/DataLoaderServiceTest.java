@@ -399,7 +399,7 @@ public class DataLoaderServiceTest
   public void verifyValidateIsNotCalled()
     throws Exception
   {
-    ReplicantTestUtil.noValidateRepositoryOnLoad();
+    ReplicantTestUtil.noValidateEntitiesOnLoad();
     final TestChangeSet changeSet = new TestChangeSet( ChangeSet.create( 1, null, null, new ChannelChange[ 0 ],
                                                                          new EntityChange[]{ new TestChange( true ) } ), null );
 

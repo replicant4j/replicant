@@ -77,13 +77,13 @@ public final class Replicant
   }
 
   /**
-   * Return true if a data load action should result in the local entity state being validated, false otherwise.
+   * Return true if entities should be validated after message has been processed, false otherwise.
    *
-   * @return true if a data load action should result in the local entity state being validated, false otherwise.
+   * @return true if entities should be validated after message has been processed, false otherwise.
    */
-  public static boolean shouldValidateRepositoryOnLoad()
+  public static boolean shouldValidateEntitiesOnLoad()
   {
-    return shouldCheckInvariants() && ReplicantConfig.shouldValidateRepositoryOnLoad();
+    return shouldCheckInvariants() && ReplicantConfig.shouldValidateEntitiesOnLoad();
   }
 
   /**

@@ -20,8 +20,8 @@ final class ReplicantConfig
   private static boolean VALIDATE_CHANGE_SET_ON_READ =
     "true".equals( System.getProperty( "replicant.validateChangeSetOnRead",
                                        PRODUCTION_MODE ? "false" : "true" ) );
-  private static boolean VALIDATE_REPOSITORY_ON_LOAD =
-    "true".equals( System.getProperty( "replicant.validateRepositoryOnLoad",
+  private static boolean VALIDATE_ENTITIES_ON_LOAD =
+    "true".equals( System.getProperty( "replicant.validateEntitiesOnLoad",
                                        PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_SPIES =
     "true".equals( System.getProperty( "replicant.enable_spies", PRODUCTION_MODE ? "false" : "true" ) );
@@ -65,9 +65,9 @@ final class ReplicantConfig
     return ENABLE_ZONES;
   }
 
-  static boolean shouldValidateRepositoryOnLoad()
+  static boolean shouldValidateEntitiesOnLoad()
   {
-    return VALIDATE_REPOSITORY_ON_LOAD;
+    return VALIDATE_ENTITIES_ON_LOAD;
   }
 
   static boolean shouldValidateChangeSetOnRead()

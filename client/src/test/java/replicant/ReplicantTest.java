@@ -31,11 +31,11 @@ public class ReplicantTest
   }
 
   @Test
-  public void setting_shouldValidateRepositoryOnLoad()
+  public void setting_shouldValidateEntitiesOnLoad()
   {
-    assertTrue( Replicant.shouldValidateRepositoryOnLoad() );
-    ReplicantTestUtil.noValidateRepositoryOnLoad();
-    assertFalse( Replicant.shouldValidateRepositoryOnLoad() );
+    assertTrue( Replicant.shouldValidateEntitiesOnLoad() );
+    ReplicantTestUtil.noValidateEntitiesOnLoad();
+    assertFalse( Replicant.shouldValidateEntitiesOnLoad() );
   }
 
   @Test

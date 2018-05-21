@@ -263,7 +263,7 @@ public final class MessageResponse
 
   public void markWorldAsValidated()
   {
-    if ( Replicant.shouldValidateRepositoryOnLoad() )
+    if ( Replicant.shouldValidateEntitiesOnLoad() )
     {
       _worldValidated = true;
     }
@@ -271,7 +271,7 @@ public final class MessageResponse
 
   public boolean hasWorldBeenValidated()
   {
-    return !Replicant.shouldValidateRepositoryOnLoad() || _worldValidated;
+    return !Replicant.shouldValidateEntitiesOnLoad() || _worldValidated;
   }
 
   @Nonnull
