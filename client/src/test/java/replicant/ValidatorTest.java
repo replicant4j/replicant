@@ -19,7 +19,7 @@ public class ValidatorTest
     final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
     safeAction( () -> entity1.setUserObject( new MyEntity( null ) ) );
-    final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "MyEntity/2", MyEntity.class, 2 ) );
+    safeAction( () -> entityService.findOrCreateEntity( "MyEntity/2", MyEntity.class, 2 ) );
 
     // Entities fine
     Validator.create( null ).validateEntities();
