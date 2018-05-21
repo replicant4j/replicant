@@ -68,3 +68,10 @@ RequestEntry.ID should be an integer....
   to build the source code for entities.
 
 * Remove `Connector.SystemType` and replace with reference to schema.
+
+* Strategy for having JVM specific code.
+  - Define class `MyServiceA` that is the gwt compatible variant. Extend this variant as `JvmMyServiceA`
+    and override all the methods that use gwt code but annotate methods with `@GwtIncompatible`. Then just do
+    `new JvmMyServiceA()` in code. GWT will remove all the `@GwtIncompatible` methods leaving actual gwt
+    compatible code. JVM will run jvm code. Win-win but only works if the library can be rewritten to handle
+    this approach.
