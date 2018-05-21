@@ -1,11 +1,20 @@
 package replicant;
 
+import arez.Arez;
+import arez.ArezContext;
+import arez.Component;
+import arez.Observer;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
+import arez.annotations.ComponentNameRef;
+import arez.annotations.ComponentRef;
 import arez.annotations.Computed;
+import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
+import arez.component.ComponentObservable;
+import arez.component.Identifiable;
 import arez.component.RepositoryUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +43,18 @@ abstract class ReplicantRuntime
                        connector.getSchema().getName() + "' but a Connector for specified schema exists." );
     }
     getConnectorsObservable().preReportChanged();
-    _connectors.add( new ConnectorEntry( connector, true ) );
+    final ConnectorEntry entry = new ConnectorEntry( connector, true );
+    _connectors.add( entry );
+    final Object arezId = Identifiable.getArezId( connector );
+    final Observer monitor =
+      getContext().when( Arez.areNativeComponentsEnabled() ? component() : null,
+                         Arez.areNamesEnabled() ? getComponentName() + ".Watcher." + arezId : null,
+                         true,
+                         () -> !ComponentObservable.observe( connector ),
+                         () -> deregisterConnector( connector ),
+                         true,
+                         true );
+    entry.setMonitor( monitor );
     getConnectorsObservable().reportChanged();
   }
 
@@ -241,4 +261,31 @@ abstract class ReplicantRuntime
       }
     }
   }
+
+  /**
+   * Return the context associated with the service.
+   *
+   * @return the context associated with the service.
+   */
+  @ContextRef
+  @Nonnull
+  abstract ArezContext getContext();
+
+  /**
+   * Return the name associated with the service.
+   *
+   * @return the name associated with the service.
+   */
+  @ComponentNameRef
+  @Nonnull
+  abstract String getComponentName();
+
+  /**
+   * Return the component associated with service if native components enabled.
+   *
+   * @return the component associated with service if native components enabled.
+   */
+  @ComponentRef
+  @Nonnull
+  abstract Component component();
 }

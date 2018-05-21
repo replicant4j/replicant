@@ -1,13 +1,17 @@
 package replicant;
 
+import arez.Disposable;
+import arez.Observer;
 import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Container describing the Container and state in client.
  */
 final class ConnectorEntry
+  implements Disposable
 {
   /**
    * The cost to attempt to modify action on DataLoader.
@@ -18,6 +22,11 @@ final class ConnectorEntry
 
   @Nonnull
   private final Connector _connector;
+  /**
+   * The monitor observer that will remove connector from context if it is independent disposed.
+   */
+  @Nullable
+  private Observer _monitor;
   /**
    * Does the system require this DataLoader to be present to be operational.
    */
@@ -44,6 +53,11 @@ final class ConnectorEntry
     return _rateLimiter;
   }
 
+  /**
+   * Return the Connector the entry represents.
+   *
+   * @return the Connector the entry represents.
+   */
   @Nonnull
   Connector getConnector()
   {
@@ -58,5 +72,38 @@ final class ConnectorEntry
   void setRequired( final boolean required )
   {
     _required = required;
+  }
+
+  /**
+   * Set the monitor that will remove Connector from the ReplicantRuntime when the Connector is disposed.
+   *
+   * @param monitor the observer that monitors Connector for dispose.
+   */
+  void setMonitor( @Nonnull final Observer monitor )
+  {
+    _monitor = Objects.requireNonNull( monitor );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void dispose()
+  {
+    if ( null != _monitor )
+    {
+      _monitor.dispose();
+      _monitor = null;
+    }
+    Disposable.dispose( _connector );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isDisposed()
+  {
+    return Disposable.isDisposed( _connector );
   }
 }

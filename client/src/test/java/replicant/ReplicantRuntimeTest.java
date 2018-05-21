@@ -12,6 +12,11 @@ public class ReplicantRuntimeTest
   @Test
   public void registerAndDeregisterLifecycle()
   {
+    // Ignore problems relating to attempting to deregister connector for Schema as we manually
+    // deregister in this method
+    setIgnoreObserverErrors( true );
+    setPrintObserverErrors( false );
+
     final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
     final ReplicantRuntime runtime2 = ReplicantRuntime.create();
 

@@ -5,7 +5,6 @@ import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
-import arez.annotations.PreDispose;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -92,12 +91,6 @@ public abstract class Connector
     {
       schemaService.registerSchema( schema );
     }
-  }
-
-  @PreDispose
-  protected void preDispose()
-  {
-    getReplicantRuntime().deregisterConnector( this );
   }
 
   /**
