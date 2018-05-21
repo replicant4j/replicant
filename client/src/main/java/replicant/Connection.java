@@ -257,7 +257,7 @@ public final class Connection
     return _requests.get( requestID );
   }
 
-  public Map<String, RequestEntry> getRequests()
+  Map<String, RequestEntry> getRequests()
   {
     return _requests;
   }
