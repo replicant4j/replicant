@@ -189,8 +189,7 @@ abstract class EntityService
     final EntityEntry entry = EntityEntry.create( entity );
     final String monitorName =
       Arez.areNamesEnabled() ?
-      getComponentName() +
-      ".EntityWatcher." + ( Replicant.areNamesEnabled() ? entity.getName() : entity.getId() ) :
+      getComponentName() + ".EntityWatcher." + ( Replicant.areNamesEnabled() ? entity.getName() : entity.getId() ) :
       null;
     final Observer monitor =
       getContext().when( Arez.areNativeComponentsEnabled() ? component() : null,
