@@ -215,27 +215,27 @@ abstract class EntityService
   }
 
   /**
-   * Return the component associated with the container if native components enabled.
+   * Return the component associated with the service if native components enabled.
    *
-   * @return the component associated with the container if native components enabled.
+   * @return the component associated with the service if native components enabled.
    */
   @ComponentRef
   @Nonnull
   protected abstract Component component();
 
   /**
-   * Return the context associated with the container.
+   * Return the context associated with the service.
    *
-   * @return the context associated with the container.
+   * @return the context associated with the service.
    */
   @ContextRef
   @Nonnull
   protected abstract ArezContext getContext();
 
   /**
-   * Return the name associated with the container.
+   * Return the name associated with the service.
    *
-   * @return the name associated with the container.
+   * @return the name associated with the service.
    */
   @ComponentNameRef
   @Nonnull
