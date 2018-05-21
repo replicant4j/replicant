@@ -3,6 +3,7 @@ package replicant;
 import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -1755,5 +1756,87 @@ public class ConnectorTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0048: Request to update channel at address 1.1.1 but not subscribed to channel." );
+  }
+
+  @Test
+  public void validateWorld_invalidEntity()
+  {
+    final TestConnector connector = TestConnector.create();
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    assertEquals( response.hasWorldBeenValidated(), false );
+
+    final EntityService entityService = Replicant.context().getEntityService();
+    final Entity entity1 =
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
+    final Exception error = new Exception();
+    safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.validateWorld( response ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0065: Entity failed to verify during validation process. Entity = MyEntity/1" );
+
+    assertEquals( response.hasWorldBeenValidated(), true );
+  }
+
+  @Test
+  public void validateWorld_invalidEntity_ignoredIfCOmpileSettingDisablesValidation()
+  {
+    ReplicantTestUtil.noValidateEntitiesOnLoad();
+    final TestConnector connector = TestConnector.create();
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    assertEquals( response.hasWorldBeenValidated(), true );
+
+    final EntityService entityService = Replicant.context().getEntityService();
+    final Entity entity1 =
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
+    final Exception error = new Exception();
+    safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
+
+    connector.validateWorld( response );
+
+    assertEquals( response.hasWorldBeenValidated(), true );
+  }
+
+  @Test
+  public void validateWorld_validEntity()
+  {
+    final TestConnector connector = TestConnector.create();
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+
+    assertEquals( response.hasWorldBeenValidated(), false );
+
+    final EntityService entityService = Replicant.context().getEntityService();
+    final Entity entity1 =
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
+
+    connector.validateWorld( response );
+
+    assertEquals( response.hasWorldBeenValidated(), true );
+  }
+
+  static class MyEntity
+    implements Verifiable
+  {
+    @Nullable
+    private final Exception _exception;
+
+    MyEntity( @Nullable final Exception exception )
+    {
+      _exception = exception;
+    }
+
+    @Override
+    public void verify()
+      throws Exception
+    {
+      if ( null != _exception )
+      {
+        throw _exception;
+      }
+    }
   }
 }

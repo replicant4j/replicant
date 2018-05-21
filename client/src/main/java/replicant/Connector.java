@@ -595,6 +595,15 @@ public abstract class Connector
   @Nonnull
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
+  protected void validateWorld( @Nonnull final MessageResponse response )
+  {
+    response.markWorldAsValidated();
+    if ( Replicant.shouldValidateEntitiesOnLoad() )
+    {
+      getReplicantContext().getValidator().validateEntities();
+    }
+  }
+
   /**
    * The AreaOfInterestRequest currently being processed can be completed and
    * trigger scheduler to start next step.

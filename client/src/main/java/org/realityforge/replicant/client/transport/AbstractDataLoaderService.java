@@ -1,7 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.Disposable;
-import arez.annotations.Action;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,8 +23,6 @@ import replicant.ReplicantContext;
 import replicant.RequestEntry;
 import replicant.SafeProcedure;
 import replicant.SystemSchema;
-import replicant.Verifiable;
-import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
@@ -473,15 +469,6 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  private void validateWorld( @Nonnull final MessageResponse response )
-  {
-    response.markWorldAsValidated();
-    if ( Replicant.shouldValidateRepositoryOnLoad() )
-    {
-      validateRepository();
-    }
-  }
-
   private void parseMessageResponse( @Nonnull final MessageResponse response )
   {
     final Connection connection = ensureConnection();
@@ -534,40 +521,5 @@ public abstract class AbstractDataLoaderService
     pendingResponses.add( response );
     Collections.sort( pendingResponses );
     connection.setCurrentMessageResponse( null );
-  }
-
-  /**
-   * Check all the entities in the repository and raise an exception if an entity fails to validateRepository.
-   * This method should not need a transaction ... unless an entity is invalid and there is unlinked data so we
-   * wrap in an @Action just in case.
-   *
-   * An entity can fail to validateRepository if it is {@link Disposable} and {@link Disposable#isDisposed()} returns
-   * true. An entity can also fail to validateRepository if it is {@link Verifiable} and {@link Verifiable#verify()}
-   * throws an exception.
-   */
-  @Action
-  protected void validateRepository()
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      for ( final Class<?> entityType : getReplicantContext().findAllEntityTypes() )
-      {
-        for ( final Object entity : getReplicantContext().findAllEntitiesByType( entityType ) )
-        {
-          invariant( () -> Disposable.isNotDisposed( entity ),
-                     () -> "Invalid disposed entity found during validation. Entity: " + entity );
-          try
-          {
-            Verifiable.verify( entity );
-          }
-          catch ( final Exception e )
-          {
-            final String message = "Entity failed to verify. Entity = " + entity;
-            LOG.log( Level.WARNING, message, e );
-            throw new IllegalStateException( message, e );
-          }
-        }
-      }
-    }
   }
 }
