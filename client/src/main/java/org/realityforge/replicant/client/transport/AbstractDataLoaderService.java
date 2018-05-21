@@ -439,6 +439,11 @@ public abstract class AbstractDataLoaderService
     {
       request.markResultsAsArrived();
     }
+    /*
+     * An action will be returned if the message is an OOB message
+     * or it is an answer to a response and the rpc invocation has
+     * already returned.
+     */
     final SafeProcedure action = response.getCompletionAction();
     if ( null != action )
     {
