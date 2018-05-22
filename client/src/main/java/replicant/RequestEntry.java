@@ -8,7 +8,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A record of a request sent to the server that we need to keep track of.
  */
-public class RequestEntry
+public final class RequestEntry
 {
   //TODO: Make this package access after all classes migrated to replicant package
   @Nonnull
