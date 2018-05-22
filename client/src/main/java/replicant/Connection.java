@@ -90,7 +90,7 @@ public final class Connection
     return _connectionId;
   }
 
-  final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
   }
@@ -358,7 +358,7 @@ public final class Connection
   }
 
   @TestOnly
-  final void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest first )
+  void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest request )
   {
     _currentAreaOfInterestRequests.add( first );
   }
