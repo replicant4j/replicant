@@ -49,9 +49,6 @@ Some actions that should occur at some point in the future.
 * Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
   could be lazily created on access via `EntityLocator`.
 
-* Consider extracting out transport layer of replicant. The whole system could be relatively easily tested in
-  isolation with `ChangeMapper` updating this entity and all driven by metadata loaded into system.
-
 * Enhance spy system.
   - Entity create/update/destroy changes should all result in spy events
   - ReplicantSystem state changes should result in spy events
