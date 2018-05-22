@@ -114,13 +114,13 @@ public final class Connection
 
   public void enqueueResponse( @Nonnull final String rawJsonData )
   {
-    getUnparsedResponses().add( new MessageResponse( rawJsonData ) );
+    _unparsedResponses.add( new MessageResponse( rawJsonData ) );
   }
 
   public void enqueueOutOfBandResponse( @Nonnull final String rawJsonData,
                                         @Nonnull final SafeProcedure oobCompletionAction )
   {
-    getOutOfBandResponses().add( new MessageResponse( rawJsonData, oobCompletionAction ) );
+    _outOfBandResponses.add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
 
   List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
