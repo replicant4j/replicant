@@ -34,8 +34,8 @@ public abstract class AbstractReplicantTest
     ArezTestUtil.resetConfig( false );
     ReplicantTestUtil.resetConfig( false );
     getProxyLogger().setLogger( new TestLogger() );
-    _ignoreObserverErrors = false;
-    _printObserverErrors = true;
+    setIgnoreObserverErrors( false );
+    setPrintObserverErrors( true );
     _observerErrors.clear();
     Arez.context().addObserverErrorHandler( this::onObserverError );
     DomGlobal.window = null;
