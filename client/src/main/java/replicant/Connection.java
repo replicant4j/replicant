@@ -141,7 +141,7 @@ public final class Connection
     return _lastRxSequence;
   }
 
-  public void setLastRxSequence( final int lastRxSequence )
+  void setLastRxSequence( final int lastRxSequence )
   {
     _lastRxSequence = lastRxSequence;
   }
@@ -273,7 +273,7 @@ public final class Connection
   }
 
   @Nonnull
-  public MessageResponse ensureCurrentMessageResponse()
+  MessageResponse ensureCurrentMessageResponse()
   {
     assert null != _currentMessageResponse;
     return _currentMessageResponse;
@@ -320,7 +320,7 @@ public final class Connection
     }
   }
 
-  public void setCurrentMessageResponse( @Nullable final MessageResponse currentMessageResponse )
+  void setCurrentMessageResponse( @Nullable final MessageResponse currentMessageResponse )
   {
     _currentMessageResponse = currentMessageResponse;
   }
