@@ -1204,6 +1204,44 @@ public class ConnectorTest
   }
 
   @Test
+  public void processEntityChanges_deleteNonExistingEntity()
+  {
+    final int schemaId = 1;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final SystemSchema schema =
+      new SystemSchema( schemaId,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{ entitySchema } );
+    final TestConnector connector = TestConnector.create( schema );
+    connector.setLinksToProcessPerTick( 1 );
+
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    // Pause scheduler to avoid converge of subscriptions
+    pauseScheduler();
+
+    final EntityChange[] entityChanges = {
+      // Remove change
+      EntityChange.create( 3, 0, new EntityChannel[]{ EntityChannel.create( 1 ) } )
+    };
+    final ChangeSet changeSet = ChangeSet.create( 23, null, null, null, entityChanges );
+    response.recordChangeSet( changeSet, null );
+
+    connector.setChangesToProcessPerTick( 1 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, connector::processEntityChanges );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0068: ChangeSet 23 contained an EntityChange message to delete entity of type 0 and id 3 but no such entity exists locally." );
+  }
+
+  @Test
   public void processEntityLinks()
   {
     final TestConnector connector = TestConnector.create();

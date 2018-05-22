@@ -758,7 +758,12 @@ public abstract class Connector
         }
         else
         {
-          //TODO: Invariant failure?
+          if ( Replicant.shouldCheckInvariants() )
+          {
+            fail( () -> "Replicant-0068: ChangeSet " + response.getChangeSet().getSequence() + " contained an " +
+                        "EntityChange message to delete entity of type " + typeId + " and id " + id +
+                        " but no such entity exists locally." );
+          }
         }
         response.incEntityRemoveCount();
       }
