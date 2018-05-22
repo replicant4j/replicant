@@ -11,10 +11,9 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A simple class encapsulating the process of loading data from a json change set.
  */
-public final class MessageResponse
+final class MessageResponse
   implements Comparable<MessageResponse>
 {
-  //TODO: Make this package access after all classes migrated to replicant package
   /**
    * The raw data string data prior to parsing. Null-ed after parsing.
    */
@@ -148,7 +147,7 @@ public final class MessageResponse
   }
 
   @Nullable
-  public String getRawJsonData()
+  String getRawJsonData()
   {
     return _rawJsonData;
   }
@@ -172,17 +171,17 @@ public final class MessageResponse
     _changeIndex = 0;
   }
 
-  public RequestEntry getRequest()
+  RequestEntry getRequest()
   {
     return _request;
   }
 
-  public boolean areChangesPending()
+  boolean areChangesPending()
   {
     return null != _changeSet && _changeSet.hasEntityChanges() && _changeIndex < _changeSet.getEntityChanges().length;
   }
 
-  public boolean needsChannelChangesProcessed()
+  boolean needsChannelChangesProcessed()
   {
     return null != _changeSet &&
            _changeSet.hasChannelChanges() &&
@@ -218,7 +217,7 @@ public final class MessageResponse
     }
   }
 
-  public boolean areEntityLinksPending()
+  boolean areEntityLinksPending()
   {
     return null != _updatedEntities && !_updatedEntities.isEmpty();
   }
@@ -269,7 +268,7 @@ public final class MessageResponse
     }
   }
 
-  public boolean hasWorldBeenValidated()
+  boolean hasWorldBeenValidated()
   {
     return !Replicant.shouldValidateEntitiesOnLoad() || _worldValidated;
   }
