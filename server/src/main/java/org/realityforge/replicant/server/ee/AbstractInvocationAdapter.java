@@ -16,15 +16,15 @@ public abstract class AbstractInvocationAdapter
   protected <T> T invokeAction( @Nonnull final String key, @Nonnull final Callable<T> action )
     throws Exception
   {
-    final String sessionID = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
-    final String requestID = (String) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
+    final String sessionId = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
+    final Integer requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
 
     return ReplicationRequestUtil.runRequest( getRegistry(),
                                               getEntityManager(),
                                               getEndpoint(),
                                               key,
-                                              sessionID,
-                                              requestID,
+                                              sessionId,
+                                              requestId,
                                               action );
   }
 

@@ -10,11 +10,11 @@ public class PacketTest
   public void basicOperation()
   {
     final ChangeSet changeSet = new ChangeSet();
-    final Packet packet = new Packet( 2, "r1", "e1", changeSet );
+    final Packet packet = new Packet( 2, 1, "e1", changeSet );
     final Packet other = new Packet( 3, null, null, changeSet );
 
     assertEquals( packet.getSequence(), 2 );
-    assertEquals( packet.getRequestID(), "r1" );
+    assertEquals( packet.getRequestId(), (Integer) 1 );
     assertEquals( packet.getETag(), "e1" );
     assertEquals( packet.getChangeSet(), changeSet );
 

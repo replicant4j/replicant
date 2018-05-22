@@ -12,7 +12,7 @@ public final class ReplicantSession
   implements Serializable
 {
   private final String _userID;
-  private final String _sessionID;
+  private final String _sessionId;
   private long _createdAt;
   private long _lastAccessedAt;
   private final PacketQueue _queue = new PacketQueue();
@@ -22,10 +22,10 @@ public final class ReplicantSession
   private final Map<ChannelDescriptor, SubscriptionEntry> _roSubscriptions =
     Collections.unmodifiableMap( _subscriptions );
 
-  public ReplicantSession( @Nullable final String userID, @Nonnull final String sessionID )
+  public ReplicantSession( @Nullable final String userID, @Nonnull final String sessionId )
   {
     _userID = userID;
-    _sessionID = sessionID;
+    _sessionId = sessionId;
     _createdAt = _lastAccessedAt = System.currentTimeMillis();
   }
 
@@ -44,7 +44,7 @@ public final class ReplicantSession
   @Nonnull
   public String getSessionID()
   {
-    return _sessionID;
+    return _sessionId;
   }
 
   /**

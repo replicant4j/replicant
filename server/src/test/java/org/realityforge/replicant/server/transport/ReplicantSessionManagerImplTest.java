@@ -197,7 +197,7 @@ public class ReplicantSessionManagerImplTest
     final ReplicantSession session = sm.createSession();
     session.getQueue().addPacket( null, null, new ChangeSet() );
 
-    assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1,\"request_id\":null,\"etag\":null}" );
+    assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1,\"requestId\":null,\"etag\":null}" );
     assertEquals( sm.pollJsonData( session, 1 ), null );
   }
 
@@ -1361,11 +1361,11 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.createSession();
 
-    sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, "r1" );
+    sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, 1 );
 
     final Packet packet = sm.sendPacket( session, "X", new ChangeSet() );
     assertEquals( packet.getETag(), "X" );
-    assertEquals( packet.getRequestID(), "r1" );
+    assertEquals( packet.getRequestId(), (Integer) 1 );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
     assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }
@@ -1750,7 +1750,7 @@ public class ReplicantSessionManagerImplTest
 
     @Nonnull
     @Override
-    protected RuntimeException newBadSessionException( @Nonnull final String sessionID )
+    protected RuntimeException newBadSessionException( @Nonnull final String sessionId )
     {
       return new IllegalStateException();
     }
@@ -1841,7 +1841,9 @@ public class ReplicantSessionManagerImplTest
       final String key = "java:comp/TransactionSynchronizationRegistry";
       try
       {
-        return (TransactionSynchronizationRegistry) new InitialContext().lookup( key );
+        final InitialContext initialContext = new InitialContext();
+        final Object lookup = initialContext.lookup( "java:comp" );
+        return (TransactionSynchronizationRegistry) initialContext.lookup( key );
       }
       catch ( final NamingException ne )
       {

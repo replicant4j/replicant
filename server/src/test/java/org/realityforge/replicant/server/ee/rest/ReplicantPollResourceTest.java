@@ -207,14 +207,14 @@ public class ReplicantPollResourceTest
 
     @Nullable
     @Override
-    protected String poll( @Nonnull final String sessionID, final int rxSequence )
+    protected String poll( @Nonnull final String sessionId, final int rxSequence )
       throws Exception
     {
-      return _pollSource.poll( sessionID, rxSequence );
+      return _pollSource.poll( sessionId, rxSequence );
     }
 
     @Override
-    protected boolean isSessionConnected( @Nonnull final String sessionID )
+    protected boolean isSessionConnected( @Nonnull final String sessionId )
     {
       return _sessionConnected;
     }

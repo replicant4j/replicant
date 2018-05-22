@@ -36,10 +36,10 @@ import org.realityforge.replicant.shared.SharedConstants;
  * \@Transactional( Transactional.TxType.NOT_SUPPORTED )
  * public class MyAppReplicantPollResource extends AbstractReplicantPollResource
  * {
- * protected String poll( @Nonnull String sessionID, int rxSequence )
+ * protected String poll( @Nonnull String sessionId, int rxSequence )
  * throws Exception { ... }
  *
- * protected boolean isSessionConnected( @Nonnull String sessionID ) { ... }
+ * protected boolean isSessionConnected( @Nonnull String sessionId ) { ... }
  * \@Override
  * \@PostConstruct public void postConstruct()
  * {
@@ -80,7 +80,7 @@ public abstract class AbstractReplicantPollResource
   @GET
   @Produces( "text/plain" )
   public void poll( @Suspended final AsyncResponse response,
-                    @NotNull @HeaderParam( SharedConstants.CONNECTION_ID_HEADER ) final String sessionID,
+                    @NotNull @HeaderParam( SharedConstants.CONNECTION_ID_HEADER ) final String sessionId,
                     @NotNull @QueryParam( SharedConstants.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
   {
     response.setTimeout( getPollTime(), TimeUnit.SECONDS );
@@ -89,19 +89,19 @@ public abstract class AbstractReplicantPollResource
 
     try
     {
-      final String data = poll( sessionID, rxSequence );
+      final String data = poll( sessionId, rxSequence );
       if ( null != data )
       {
         resume( response, data );
       }
       else
       {
-        _requests.put( response, new SuspendedRequest( sessionID, rxSequence, response ) );
+        _requests.put( response, new SuspendedRequest( sessionId, rxSequence, response ) );
       }
     }
     catch ( final Exception e )
     {
-      handleException( sessionID, response, e );
+      handleException( sessionId, response, e );
     }
   }
 
@@ -116,11 +116,11 @@ public abstract class AbstractReplicantPollResource
    * Some exception occur when the session is closed and thus should result
    * in an exception being passed back to the caller.
    */
-  private void handleException( @Nonnull final String sessionID,
+  private void handleException( @Nonnull final String sessionId,
                                 @Nonnull final AsyncResponse response,
                                 @Nonnull final Exception e )
   {
-    if ( !isSessionConnected( sessionID ) )
+    if ( !isSessionConnected( sessionId ) )
     {
       resume( response, "" );
     }
@@ -134,19 +134,19 @@ public abstract class AbstractReplicantPollResource
    * Check if there is any data for specified session and return data if any immediately.
    * This method should not block.
    *
-   * @param sessionID  the session identifier.
+   * @param sessionId  the session identifier.
    * @param rxSequence the sequence of the last message received by the session.
    * @return data for session if any.
    * @throws java.lang.Exception if session is unknown, unavailable or the sequence makes no sense.
    */
   @Nullable
-  protected abstract String poll( @Nonnull String sessionID, int rxSequence )
+  protected abstract String poll( @Nonnull String sessionId, int rxSequence )
     throws Exception;
 
   /**
    * Return true if specified session is still connected.
    */
-  protected abstract boolean isSessionConnected( @Nonnull String sessionID );
+  protected abstract boolean isSessionConnected( @Nonnull String sessionId );
 
   /**
    * Return a map of pending requests.
@@ -203,22 +203,22 @@ public abstract class AbstractReplicantPollResource
    */
   static class SuspendedRequest
   {
-    private final String _sessionID;
+    private final String _sessionId;
     private final int _rxSequence;
     private final AsyncResponse _response;
 
-    SuspendedRequest( @Nonnull final String sessionID,
+    SuspendedRequest( @Nonnull final String sessionId,
                       final int rxSequence,
                       @Nonnull final AsyncResponse response )
     {
-      _sessionID = sessionID;
+      _sessionId = sessionId;
       _rxSequence = rxSequence;
       _response = response;
     }
 
     String getSessionID()
     {
-      return _sessionID;
+      return _sessionId;
     }
 
     int getRxSequence()
@@ -308,7 +308,7 @@ public abstract class AbstractReplicantPollResource
   public interface PollSource
   {
     @Nullable
-    String poll( @Nonnull String sessionID, int rxSequence )
+    String poll( @Nonnull String sessionId, int rxSequence )
       throws Exception;
   }
 
@@ -317,10 +317,10 @@ public abstract class AbstractReplicantPollResource
   {
     @Nullable
     @Override
-    public String poll( @Nonnull final String sessionID, final int rxSequence )
+    public String poll( @Nonnull final String sessionId, final int rxSequence )
       throws Exception
     {
-      return AbstractReplicantPollResource.this.poll( sessionID, rxSequence );
+      return AbstractReplicantPollResource.this.poll( sessionId, rxSequence );
     }
   }
 }

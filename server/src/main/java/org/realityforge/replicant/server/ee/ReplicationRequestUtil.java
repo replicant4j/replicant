@@ -33,12 +33,12 @@ public final class ReplicationRequestUtil
                                   @Nonnull final EntityManager entityManager,
                                   @Nonnull final EntityMessageEndpoint endpoint,
                                   @Nonnull final String invocationKey,
-                                  @Nullable final String sessionID,
-                                  @Nullable final String requestID,
+                                  @Nullable final String sessionId,
+                                  @Nullable final Integer requestId,
                                   @Nonnull final Callable<T> action )
     throws Exception
   {
-    startReplication( registry, invocationKey, sessionID, requestID );
+    startReplication( registry, invocationKey, sessionId, requestId );
     try
     {
       return action.call();
@@ -54,11 +54,11 @@ public final class ReplicationRequestUtil
                                                                 @Nonnull final EntityManager entityManager,
                                                                 @Nonnull final EntityMessageEndpoint endpoint,
                                                                 @Nonnull final String invocationKey,
-                                                                @Nullable final String sessionID,
-                                                                @Nullable final String requestID,
+                                                                @Nullable final String sessionId,
+                                                                @Nullable final Integer requestId,
                                                                 @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
   {
-    startReplication( registry, invocationKey, sessionID, requestID );
+    startReplication( registry, invocationKey, sessionId, requestId );
     try
     {
       return action.get();
@@ -73,11 +73,11 @@ public final class ReplicationRequestUtil
                                  @Nonnull final EntityManager entityManager,
                                  @Nonnull final EntityMessageEndpoint endpoint,
                                  @Nonnull final String invocationKey,
-                                 @Nullable final String sessionID,
-                                 @Nullable final String requestID,
+                                 @Nullable final String sessionId,
+                                 @Nullable final Integer requestId,
                                  @Nonnull final Runnable action )
   {
-    startReplication( registry, invocationKey, sessionID, requestID );
+    startReplication( registry, invocationKey, sessionId, requestId );
     try
     {
       action.run();
@@ -92,13 +92,13 @@ public final class ReplicationRequestUtil
    * Start a replication context.
    *
    * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
-   * @param sessionID     the id of the session that initiated change if any.
-   * @param requestID     the id of the request in the session that initiated change..
+   * @param sessionId     the id of the session that initiated change if any.
+   * @param requestId     the id of the request in the session that initiated change..
    */
   private static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
                                         @Nonnull final String invocationKey,
-                                        @Nullable final String sessionID,
-                                        @Nullable final String requestID )
+                                        @Nullable final String sessionId,
+                                        @Nullable final Integer requestId )
   {
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
     ReplicantContextHolder.clean();
@@ -112,17 +112,17 @@ public final class ReplicationRequestUtil
     }
 
     registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, invocationKey );
-    if ( null != sessionID )
+    if ( null != sessionId )
     {
-      registry.putResource( ServerConstants.SESSION_ID_KEY, sessionID );
+      registry.putResource( ServerConstants.SESSION_ID_KEY, sessionId );
     }
     else
     {
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
     }
-    if ( null != requestID )
+    if ( null != requestId )
     {
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestID );
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
     }
     else
     {
@@ -149,8 +149,8 @@ public final class ReplicationRequestUtil
          entityManager.isOpen() &&
          !registry.getRollbackOnly() )
     {
-      final String sessionID = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
-      final String requestID = (String) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+      final String sessionId = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
+      final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
       boolean requestComplete = true;
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );
@@ -158,10 +158,10 @@ public final class ReplicationRequestUtil
       if ( null != messageSet || null != changeSet )
       {
         final Collection<EntityMessage> messages =
-          null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
+          null == messageSet ? Collections.emptySet() : messageSet.getEntityMessages();
         if ( null != changeSet || messages.size() > 0 )
         {
-          requestComplete = !endpoint.saveEntityMessages( sessionID, requestID, messages, changeSet );
+          requestComplete = !endpoint.saveEntityMessages( sessionId, requestId, messages, changeSet );
         }
       }
       final Boolean complete = (Boolean) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );

@@ -43,9 +43,9 @@ public abstract class AbstractSecuredSessionRestService
 
   @Nonnull
   @Override
-  protected Response doDeleteSession( @Nonnull final String sessionID )
+  protected Response doDeleteSession( @Nonnull final String sessionId )
   {
-    return guard( sessionID, () -> super.doDeleteSession( sessionID ) );
+    return guard( sessionId, () -> super.doDeleteSession( sessionId ) );
   }
 
   @Nonnull
@@ -64,84 +64,84 @@ public abstract class AbstractSecuredSessionRestService
 
   @Nonnull
   @Override
-  protected Response doGetSession( @Nonnull final String sessionID,
+  protected Response doGetSession( @Nonnull final String sessionId,
                                    @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetSession( sessionID, uri ) );
+    return guard( sessionId, () -> super.doGetSession( sessionId, uri ) );
   }
 
   @Nonnull
   @Override
-  protected Response doSubscribeChannel( @Nonnull final String sessionID,
-                                         @Nullable final String requestID,
+  protected Response doSubscribeChannel( @Nonnull final String sessionId,
+                                         @Nullable final Integer requestId,
                                          @Nullable final String eTag,
                                          @Nonnull final ChannelDescriptor descriptor,
                                          @Nonnull final String filterContent )
   {
-    return guard( sessionID, () -> super.doSubscribeChannel( sessionID, requestID, eTag, descriptor, filterContent ) );
+    return guard( sessionId, () -> super.doSubscribeChannel( sessionId, requestId, eTag, descriptor, filterContent ) );
   }
 
   @Nonnull
   @Override
-  protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
-                                           @Nullable final String requestID,
+  protected Response doUnsubscribeChannel( @Nonnull final String sessionId,
+                                           @Nullable final Integer requestId,
                                            @Nonnull final ChannelDescriptor descriptor )
   {
-    return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, requestID, descriptor ) );
+    return guard( sessionId, () -> super.doUnsubscribeChannel( sessionId, requestId, descriptor ) );
   }
 
   @Nonnull
   @Override
-  protected Response doGetChannel( @Nonnull final String sessionID,
+  protected Response doGetChannel( @Nonnull final String sessionId,
                                    @Nonnull final ChannelDescriptor descriptor,
                                    @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetChannel( sessionID, descriptor, uri ) );
+    return guard( sessionId, () -> super.doGetChannel( sessionId, descriptor, uri ) );
   }
 
   @Nonnull
   @Override
-  protected Response doGetChannels( @Nonnull final String sessionID,
+  protected Response doGetChannels( @Nonnull final String sessionId,
                                     @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetChannels( sessionID, uri ) );
+    return guard( sessionId, () -> super.doGetChannels( sessionId, uri ) );
   }
 
   @Nonnull
   @Override
-  protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
-                                             @Nullable final String requestID,
+  protected Response doBulkSubscribeChannel( @Nonnull final String sessionId,
+                                             @Nullable final Integer requestId,
                                              final int channelId,
                                              @Nonnull final Collection<Integer> subChannelIds,
                                              @Nonnull final String filterContent )
   {
-    return guard( sessionID,
-                  () -> super.doBulkSubscribeChannel( sessionID, requestID, channelId, subChannelIds, filterContent ) );
+    return guard( sessionId,
+                  () -> super.doBulkSubscribeChannel( sessionId, requestId, channelId, subChannelIds, filterContent ) );
   }
 
   @Nonnull
   @Override
-  protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
-                                               @Nullable final String requestID,
+  protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionId,
+                                               @Nullable final Integer requestId,
                                                final int channelId,
                                                @Nonnull final Collection<Integer> subChannelIds )
   {
-    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestID, channelId, subChannelIds ) );
+    return guard( sessionId, () -> super.doBulkUnsubscribeChannel( sessionId, requestId, channelId, subChannelIds ) );
   }
 
   @Nonnull
   @Override
-  protected Response doGetInstanceChannels( @Nonnull final String sessionID,
+  protected Response doGetInstanceChannels( @Nonnull final String sessionId,
                                             final int channelId,
                                             @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetInstanceChannels( sessionID, channelId, uri ) );
+    return guard( sessionId, () -> super.doGetInstanceChannels( sessionId, channelId, uri ) );
   }
 
   @Nonnull
-  private Response guard( @Nonnull final String sessionID, @Nonnull final Supplier<Response> action )
+  private Response guard( @Nonnull final String sessionId, @Nonnull final Supplier<Response> action )
   {
-    if ( disableSecurity() || doesCurrentUserMatchSession( sessionID ) )
+    if ( disableSecurity() || doesCurrentUserMatchSession( sessionId ) )
     {
       return action.get();
     }
@@ -151,17 +151,17 @@ public abstract class AbstractSecuredSessionRestService
     }
   }
 
-  private boolean doesCurrentUserMatchSession( @Nonnull final String sessionID )
+  private boolean doesCurrentUserMatchSession( @Nonnull final String sessionId )
   {
     final OidcKeycloakAccount account = getAuthService().findAccount();
-    return null != account && doesUserMatchSession( sessionID, account );
+    return null != account && doesUserMatchSession( sessionId, account );
   }
 
-  private boolean doesUserMatchSession( @Nonnull final String sessionID,
+  private boolean doesUserMatchSession( @Nonnull final String sessionId,
                                         @Nonnull final OidcKeycloakAccount account )
   {
     final String userID = account.getKeycloakSecurityContext().getToken().getPreferredUsername();
-    final ReplicantSession session = getSessionManager().getSession( sessionID );
+    final ReplicantSession session = getSessionManager().getSession( sessionId );
     return null != session && Objects.equals( session.getUserID(), userID );
   }
 

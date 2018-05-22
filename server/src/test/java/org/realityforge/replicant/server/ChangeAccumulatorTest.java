@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import javax.json.Json;
@@ -28,7 +27,7 @@ public class ChangeAccumulatorTest
     final Integer subChannelId = 2;
 
     accumulator.addChange( c, new Change( message, channelId, subChannelId ) );
-    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
 
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
@@ -37,7 +36,7 @@ public class ChangeAccumulatorTest
     assertEquals( change.getKey(), "42#17" );
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getEntityMessage().getTypeId(), typeID );
-    assertEquals( packet.getRequestID(), "j1" );
+    assertEquals( packet.getRequestId(), (Integer) 1 );
     final Map<Integer, Integer> channels = change.getChannels();
     assertEquals( channels.size(), 1 );
     assertEquals( channels.get( channelId ), subChannelId );
@@ -61,7 +60,7 @@ public class ChangeAccumulatorTest
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 0 );
 
@@ -69,7 +68,7 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getId(), id );
-    assertEquals( packet.getRequestID(), "j1" );
+    assertEquals( packet.getRequestId(), (Integer) 1 );
 
     accumulator.complete( null, null );
     assertEquals( c.getQueue().size(), 1 );
@@ -89,7 +88,7 @@ public class ChangeAccumulatorTest
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 0 );
 
@@ -100,7 +99,7 @@ public class ChangeAccumulatorTest
     assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
-    assertEquals( packet.getRequestID(), "j1" );
+    assertEquals( packet.getRequestId(), (Integer) 1 );
 
     assertEquals( c.getQueue().size(), 1 );
     accumulator.complete( null, null );
@@ -116,12 +115,12 @@ public class ChangeAccumulatorTest
     final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChange( c, new Change( message, 1, 0 ) );
-    final boolean impactsInitiator = accumulator.complete( "s2", "j1" );
+    final boolean impactsInitiator = accumulator.complete( "s2", 1 );
 
     assertFalse( impactsInitiator );
 
     assertEquals( c.getQueue().size(), 1 );
-    assertNull( c.getQueue().nextPacketToProcess().getRequestID() );
+    assertNull( c.getQueue().nextPacketToProcess().getRequestId() );
   }
 
   @Test
@@ -131,7 +130,7 @@ public class ChangeAccumulatorTest
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c );
-    final boolean impactsInitiator = accumulator.complete( "s1", "j1" );
+    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
 
     assertFalse( impactsInitiator );
 
