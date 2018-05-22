@@ -83,6 +83,12 @@ public abstract class Connector
    * been processed then return and any remaining change can be processed in a later tick.
    */
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
+  /**
+   * Action invoked after current MessageResponse is processed. This is typically used to update or alter
+   * change Connection on message processing complete.
+   */
+  @Nullable
+  private SafeProcedure _postMessageResponseAction;
 
   protected Connector( @Nullable final ReplicantContext context,
                        @Nonnull final SystemSchema schema )
@@ -471,6 +477,58 @@ public abstract class Connector
           }
         }
       }
+    }
+  }
+
+  protected final void setPostMessageResponseAction( @Nullable final SafeProcedure postMessageResponseAction )
+  {
+    _postMessageResponseAction = postMessageResponseAction;
+  }
+
+  protected void completeMessageResponse()
+  {
+    final Connection connection = ensureConnection();
+    final MessageResponse response = connection.ensureCurrentMessageResponse();
+
+    // OOB messages are not sequenced
+    if ( !response.isOob() )
+    {
+      connection.setLastRxSequence( response.getChangeSet().getSequence() );
+    }
+
+    //Step: Run the post actions
+    final RequestEntry request = response.getRequest();
+    if ( null != request )
+    {
+      request.markResultsAsArrived();
+    }
+    /*
+     * An action will be returned if the message is an OOB message
+     * or it is an answer to a response and the rpc invocation has
+     * already returned.
+     */
+    final SafeProcedure action = response.getCompletionAction();
+    if ( null != action )
+    {
+      action.call();
+      // OOB messages are not in response to requests (at least not request associated with the current connection)
+      if ( !response.isOob() )
+      {
+        // We can remove the request because this side ran second and the RPC channel has already returned.
+        final ChangeSet changeSet = response.getChangeSet();
+        final String requestId = changeSet.getRequestId();
+        if ( null != requestId )
+        {
+          connection.removeRequest( requestId );
+        }
+      }
+    }
+    connection.setCurrentMessageResponse( null );
+    onMessageProcessed( response.toStatus() );
+    if ( null != _postMessageResponseAction )
+    {
+      _postMessageResponseAction.call();
+      _postMessageResponseAction = null;
     }
   }
 

@@ -15,7 +15,6 @@ import replicant.Connection;
 import replicant.Connector;
 import replicant.MessageResponse;
 import replicant.ReplicantContext;
-import replicant.RequestEntry;
 import replicant.SafeProcedure;
 import replicant.SystemSchema;
 
@@ -31,11 +30,6 @@ public abstract class AbstractDataLoaderService
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
 
   private final SessionContext _sessionContext;
-
-  /**
-   * Action invoked after current action completes to reset connection state.
-   */
-  private Runnable _resetAction;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
                                        @Nonnull final SystemSchema schema,
@@ -64,14 +58,13 @@ public abstract class AbstractDataLoaderService
 
   private void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
   {
-    final Runnable runnable = () -> doSetConnection( connection, action );
     if ( null == connection || null == connection.getCurrentMessageResponse() )
     {
-      runnable.run();
+      doSetConnection( connection, action );
     }
     else
     {
-      _resetAction = runnable;
+      setPostMessageResponseAction( () -> doSetConnection( connection, action ) );
     }
   }
 
@@ -383,56 +376,6 @@ public abstract class AbstractDataLoaderService
     {
       completeMessageResponse();
       return true;
-    }
-  }
-
-  private void completeMessageResponse()
-  {
-    final Connection connection = ensureConnection();
-    final MessageResponse response = connection.ensureCurrentMessageResponse();
-
-    // OOB messages are not sequenced
-    if ( !response.isOob() )
-    {
-      connection.setLastRxSequence( response.getChangeSet().getSequence() );
-    }
-
-    //Step: Run the post actions
-    final RequestEntry request = response.getRequest();
-    if ( null != request )
-    {
-      request.markResultsAsArrived();
-    }
-    /*
-     * An action will be returned if the message is an OOB message
-     * or it is an answer to a response and the rpc invocation has
-     * already returned.
-     */
-    final SafeProcedure action = response.getCompletionAction();
-    if ( null != action )
-    {
-      action.call();
-      // OOB messages are not in response to requests as such
-      final String requestId = response.isOob() ? null : response.getChangeSet().getRequestId();
-      if ( null != requestId )
-      {
-        // We can remove the request because this side ran second and the
-        // RPC channel has already returned.
-
-        final boolean removed = connection.removeRequest( requestId );
-        if ( !removed )
-        {
-          LOG.severe( "ChangeSet " + response.getChangeSet().getSequence() + " expected to " +
-                      "complete request '" + requestId + "' but no request was registered with connection." );
-        }
-      }
-    }
-    connection.setCurrentMessageResponse( null );
-    onMessageProcessed( response.toStatus() );
-    if ( null != _resetAction )
-    {
-      _resetAction.run();
-      _resetAction = null;
     }
   }
 }

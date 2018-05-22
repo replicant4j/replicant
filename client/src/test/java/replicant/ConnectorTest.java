@@ -3,6 +3,7 @@ package replicant;
 import arez.Disposable;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import org.intellij.lang.annotations.Language;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -2009,5 +2010,180 @@ public class ConnectorTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0066: Unable to locate request with id 'R1' specified for ChangeSet with sequence 1. Existing Requests: {}" );
+  }
+
+  @Test
+  public void completeMessageResponse()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( "" );
+
+    final ChangeSet changeSet = ChangeSet.create( 23, null, null, null, null );
+    response.recordChangeSet( changeSet, null );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.completeMessageResponse();
+
+    assertEquals( connection.getLastRxSequence(), 23 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
+    } );
+  }
+
+  @Test
+  public void completeMessageResponse_withPostAction()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( "" );
+
+    final ChangeSet changeSet = ChangeSet.create( 23, null, null, null, null );
+    response.recordChangeSet( changeSet, null );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    final AtomicInteger postActionCallCount = new AtomicInteger();
+    connector.setPostMessageResponseAction( postActionCallCount::incrementAndGet );
+
+    assertEquals( postActionCallCount.get(), 0 );
+
+    connector.completeMessageResponse();
+
+    assertEquals( postActionCallCount.get(), 1 );
+  }
+
+  @Test
+  public void completeMessageResponse_OOBMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final AtomicInteger completionCallCount = new AtomicInteger();
+    final MessageResponse response = new MessageResponse( "", completionCallCount::incrementAndGet );
+
+    final ChangeSet changeSet = ChangeSet.create( 23, "1234", null, null, null );
+    response.recordChangeSet( changeSet, null );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( completionCallCount.get(), 0 );
+
+    connector.completeMessageResponse();
+
+    assertEquals( completionCallCount.get(), 1 );
+    assertEquals( connection.getLastRxSequence(), 22 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
+    } );
+  }
+
+  @Test
+  public void completeMessageResponse_MessageWithRequest_RPCComplete()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final RequestEntry request = connection.newRequest( "SomeAction", null );
+
+    final AtomicInteger completionCalled = new AtomicInteger();
+    final String requestId = request.getRequestId();
+    request.setNormalCompletion( true );
+    request.setCompletionAction( completionCalled::incrementAndGet );
+
+    final MessageResponse response = new MessageResponse( "" );
+
+    final ChangeSet changeSet = ChangeSet.create( 23, requestId, null, null, null );
+    response.recordChangeSet( changeSet, request );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( request.haveResultsArrived(), false );
+    assertEquals( completionCalled.get(), 0 );
+    assertEquals( connection.getRequest( requestId ), request );
+
+    connector.completeMessageResponse();
+
+    assertEquals( request.haveResultsArrived(), true );
+    assertEquals( connection.getLastRxSequence(), 23 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertEquals( completionCalled.get(), 1 );
+    assertEquals( connection.getRequest( requestId ), null );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
+    } );
+  }
+
+  @Test
+  public void completeMessageResponse_MessageWithRequest_RPCNotComplete()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final RequestEntry request = connection.newRequest( "SomeAction", null );
+
+    final AtomicInteger completionCalled = new AtomicInteger();
+    final String requestId = request.getRequestId();
+
+    final MessageResponse response = new MessageResponse( "" );
+
+    final ChangeSet changeSet = ChangeSet.create( 23, requestId, null, null, null );
+    response.recordChangeSet( changeSet, request );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( request.haveResultsArrived(), false );
+    assertEquals( completionCalled.get(), 0 );
+    assertEquals( connection.getRequest( requestId ), request );
+
+    connector.completeMessageResponse();
+
+    assertEquals( request.haveResultsArrived(), true );
+    assertEquals( connection.getLastRxSequence(), 23 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertEquals( completionCalled.get(), 0 );
+    assertEquals( connection.getRequest( requestId ), request );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
+    } );
   }
 }
