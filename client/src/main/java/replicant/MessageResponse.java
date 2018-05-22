@@ -142,7 +142,7 @@ public final class MessageResponse
    *
    * @return true if the message is an out-of-band message, false otherwise.
    */
-  public boolean isOob()
+  boolean isOob()
   {
     return null != _oobCompletionAction;
   }
@@ -153,7 +153,7 @@ public final class MessageResponse
     return _rawJsonData;
   }
 
-  public void recordChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
+  void recordChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -238,14 +238,14 @@ public final class MessageResponse
   }
 
   @Nonnull
-  public ChangeSet getChangeSet()
+  ChangeSet getChangeSet()
   {
     assert null != _changeSet;
     return _changeSet;
   }
 
   @Nullable
-  public SafeProcedure getCompletionAction()
+  SafeProcedure getCompletionAction()
   {
     if ( null != _oobCompletionAction )
     {
@@ -261,7 +261,7 @@ public final class MessageResponse
     }
   }
 
-  public void markWorldAsValidated()
+  void markWorldAsValidated()
   {
     if ( Replicant.shouldValidateEntitiesOnLoad() )
     {
@@ -275,7 +275,7 @@ public final class MessageResponse
   }
 
   @Nonnull
-  public DataLoadStatus toStatus()
+  DataLoadStatus toStatus()
   {
     assert Replicant.areSpiesEnabled();
     final ChangeSet changeSet = getChangeSet();
