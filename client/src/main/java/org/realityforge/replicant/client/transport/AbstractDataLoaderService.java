@@ -1,6 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -347,39 +346,7 @@ public abstract class AbstractDataLoaderService
     final MessageResponse response = connection.getCurrentMessageResponse();
     if ( null == response )
     {
-      // Step: Retrieve any out of band actions
-      final LinkedList<MessageResponse> oobResponses = connection.getOutOfBandResponses();
-      if ( !oobResponses.isEmpty() )
-      {
-        connection.setCurrentMessageResponse( oobResponses.removeFirst() );
-        return true;
-      }
-
-      //Step: Retrieve the action from the parsed queue if it is the next in the sequence
-      final LinkedList<MessageResponse> pendingResponses = connection.getPendingResponses();
-      if ( !pendingResponses.isEmpty() )
-      {
-        final MessageResponse action = pendingResponses.get( 0 );
-        if ( action.isOob() || connection.getLastRxSequence() + 1 == action.getChangeSet().getSequence() )
-        {
-          connection.setCurrentMessageResponse( pendingResponses.remove() );
-          return true;
-        }
-      }
-
-      // Abort if there is no pending data load actions to take
-      final LinkedList<MessageResponse> unparsedResponses = connection.getUnparsedResponses();
-      if ( unparsedResponses.isEmpty() )
-      {
-        return false;
-      }
-      else
-      {
-        //Step: Retrieve the action from the un-parsed queue
-        final MessageResponse candidate = unparsedResponses.remove();
-        connection.setCurrentMessageResponse( candidate );
-        return true;
-      }
+      return connection.selectNextMessageResponse();
     }
 
     //Step: Parse the json

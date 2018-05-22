@@ -123,21 +123,6 @@ public final class Connection
     _outOfBandResponses.add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
 
-  List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
-  {
-    return RepositoryUtil.toResults( _pendingAreaOfInterestRequests );
-  }
-
-  public LinkedList<MessageResponse> getUnparsedResponses()
-  {
-    return _unparsedResponses;
-  }
-
-  public LinkedList<MessageResponse> getPendingResponses()
-  {
-    return _pendingResponses;
-  }
-
   /**
    * Take the current message and queue it in the pending messages lists.
    * This is invoked when the message has been parsed and now has enough
@@ -149,11 +134,6 @@ public final class Connection
     _pendingResponses.add( _currentMessageResponse );
     Collections.sort( _pendingResponses );
     _currentMessageResponse = null;
-  }
-
-  public LinkedList<MessageResponse> getOutOfBandResponses()
-  {
-    return _outOfBandResponses;
   }
 
   public int getLastRxSequence()
@@ -299,6 +279,47 @@ public final class Connection
     return _currentMessageResponse;
   }
 
+  /**
+   * This method is invoked when there is no current MessageResponse to process
+   * and we need to select a candidate message to be processed next step. It will
+   * return true if there is another message to process, false otherwise.
+   *
+   * @return true if a message was selected, false otherwise.
+   */
+  public boolean selectNextMessageResponse()
+  {
+    assert null == _currentMessageResponse;
+    // Step: Retrieve any out of band actions
+    if ( !_outOfBandResponses.isEmpty() )
+    {
+      _currentMessageResponse = _outOfBandResponses.removeFirst();
+      return true;
+    }
+
+    //Step: Retrieve the action from the parsed queue if it is the next in the sequence
+    if ( !_pendingResponses.isEmpty() )
+    {
+      final MessageResponse response = _pendingResponses.get( 0 );
+      if ( response.isOob() || _lastRxSequence + 1 == response.getChangeSet().getSequence() )
+      {
+        _currentMessageResponse = _pendingResponses.remove();
+        return true;
+      }
+    }
+
+    // Abort if there is no pending data load actions to take
+    if ( _unparsedResponses.isEmpty() )
+    {
+      return false;
+    }
+    else
+    {
+      //Step: Retrieve the action from the un-parsed queue
+      _currentMessageResponse = _unparsedResponses.remove();
+      return true;
+    }
+  }
+
   public void setCurrentMessageResponse( @Nullable final MessageResponse currentMessageResponse )
   {
     _currentMessageResponse = currentMessageResponse;
@@ -361,5 +382,35 @@ public final class Connection
   void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest request )
   {
     _currentAreaOfInterestRequests.add( request );
+  }
+
+  @TestOnly
+  void injectPendingResponses( @Nonnull final MessageResponse response )
+  {
+    _pendingResponses.add( response );
+  }
+
+  @TestOnly
+  List<MessageResponse> getPendingResponses()
+  {
+    return Collections.unmodifiableList( _pendingResponses );
+  }
+
+  @TestOnly
+  List<MessageResponse> getUnparsedResponses()
+  {
+    return Collections.unmodifiableList( _unparsedResponses );
+  }
+
+  @TestOnly
+  List<MessageResponse> getOutOfBandResponses()
+  {
+    return Collections.unmodifiableList( _outOfBandResponses );
+  }
+
+  @TestOnly
+  List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
+  {
+    return Collections.unmodifiableList( _pendingAreaOfInterestRequests );
   }
 }

@@ -40,6 +40,139 @@ public class ConnectionTest
   }
 
   @Test
+  public void selectNextMessageResponse_noMessages()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    assertNull( connection.getCurrentMessageResponse() );
+
+    final boolean selectedMessage = connection.selectNextMessageResponse();
+
+    assertEquals( selectedMessage, false );
+    assertNull( connection.getCurrentMessageResponse() );
+  }
+
+  @Test
+  public void selectNextMessageResponse_unparsedOobMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    // Add an unparsed message to queue
+    final SafeProcedure oobCompletionAction = () -> {
+    };
+    connection.enqueueOutOfBandResponse( "", oobCompletionAction );
+
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getOutOfBandResponses().size(), 1 );
+
+    final boolean selectedMessage = connection.selectNextMessageResponse();
+
+    assertEquals( selectedMessage, true );
+    assertEquals( connection.getOutOfBandResponses().size(), 0 );
+    assertNotNull( connection.getCurrentMessageResponse() );
+  }
+
+  @Test
+  public void selectNextMessageResponse_unparsedMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    // Add an unparsed message to queue
+    connection.enqueueResponse( "" );
+
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getUnparsedResponses().size(), 1 );
+
+    final boolean selectedMessage = connection.selectNextMessageResponse();
+
+    assertEquals( selectedMessage, true );
+    assertNotNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getUnparsedResponses().size(), 0 );
+  }
+
+  @Test
+  public void selectNextMessageResponse_parsedMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    final MessageResponse response1 = new MessageResponse( "" );
+    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null ), null );
+
+    // Add a "parsed" message with sequence indicating it is next
+    connection.injectPendingResponses( response1 );
+
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getPendingResponses().size(), 1 );
+
+    final boolean selectedMessage = connection.selectNextMessageResponse();
+
+    assertEquals( selectedMessage, true );
+    final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
+    assertNotNull( currentMessageResponse );
+    assertEquals( currentMessageResponse.getChangeSet().getSequence(), 1 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+  }
+
+  @Test
+  public void selectNextMessageResponse_parsedOutOfSequenceMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    final MessageResponse response1 = new MessageResponse( "" );
+    response1.recordChangeSet( ChangeSet.create( 22, null, null, null, null ), null );
+
+    // Add a "parsed" message with sequence indicating it is next
+    connection.injectPendingResponses( response1 );
+
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getPendingResponses().size(), 1 );
+
+    final boolean selectedMessage = connection.selectNextMessageResponse();
+
+    assertEquals( selectedMessage, false );
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getPendingResponses().size(), 1 );
+  }
+
+  @Test
+  public void selectNextMessageResponse_parsedOutOfSequenceOutOfBandMessage()
+  {
+    final TestConnector connector = TestConnector.create();
+    final String connectionId = ValueUtil.randomString();
+    final Connection connection = new Connection( connector, connectionId );
+
+    final SafeProcedure oobCompletionAction = () -> {
+    };
+    final MessageResponse response1 = new MessageResponse( "", oobCompletionAction );
+    response1.recordChangeSet( ChangeSet.create( 324, null, null, null, null ), null );
+
+    // Add a "parsed" message with sequence indicating it is next
+    connection.injectPendingResponses( response1 );
+
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getPendingResponses().size(), 1 );
+
+    final boolean selectedMessage = connection.selectNextMessageResponse();
+
+    assertEquals( selectedMessage, true );
+    final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
+    assertNotNull( currentMessageResponse );
+    assertEquals( currentMessageResponse.isOob(), true );
+    assertEquals( currentMessageResponse.getChangeSet().getSequence(), 324 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+  }
+
+  @Test
   public void queueCurrentResponse()
   {
     final TestConnector connector = TestConnector.create();
