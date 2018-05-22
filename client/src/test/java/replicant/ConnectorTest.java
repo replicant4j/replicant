@@ -1817,8 +1817,7 @@ public class ConnectorTest
     assertEquals( response.hasWorldBeenValidated(), false );
 
     final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 =
-      safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
+    safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
 
     connector.validateWorld();
 
