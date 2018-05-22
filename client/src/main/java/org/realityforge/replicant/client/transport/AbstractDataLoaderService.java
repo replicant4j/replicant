@@ -358,21 +358,21 @@ public abstract class AbstractDataLoaderService
 
     if ( response.needsChannelChangesProcessed() )
     {
-      processChannelChanges( response );
+      processChannelChanges();
       return true;
     }
 
     //Step: Process a chunk of changes
     if ( response.areChangesPending() )
     {
-      processEntityChanges( response );
+      processEntityChanges();
       return true;
     }
 
     //Step: Process a chunk of links
     if ( response.areEntityLinksPending() )
     {
-      processEntityLinks( response );
+      processEntityLinks();
       return true;
     }
 

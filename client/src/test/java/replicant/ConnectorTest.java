@@ -1121,7 +1121,10 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create();
     connector.setLinksToProcessPerTick( 1 );
 
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final Linkable entity1 = mock( Linkable.class );
     final Linkable entity2 = mock( Linkable.class );
@@ -1149,7 +1152,7 @@ public class ConnectorTest
 
     connector.setChangesToProcessPerTick( 1 );
 
-    connector.processEntityChanges( response );
+    connector.processEntityChanges();
 
     verify( connector.getChangeMapper(), times( 1 ) ).applyChange( any( EntityChange.class ) );
 
@@ -1160,7 +1163,7 @@ public class ConnectorTest
 
     connector.setChangesToProcessPerTick( 2 );
 
-    connector.processEntityChanges( response );
+    connector.processEntityChanges();
 
     verify( connector.getChangeMapper(), times( 3 ) ).applyChange( any( EntityChange.class ) );
 
@@ -1177,7 +1180,10 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create();
     connector.setLinksToProcessPerTick( 1 );
 
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final Linkable entity1 = mock( Linkable.class );
     final Linkable entity2 = mock( Linkable.class );
@@ -1198,7 +1204,7 @@ public class ConnectorTest
 
     connector.setLinksToProcessPerTick( 1 );
 
-    connector.processEntityLinks( response );
+    connector.processEntityLinks();
 
     assertEquals( response.getEntityLinkCount(), 1 );
     verify( entity1, times( 1 ) ).link();
@@ -1208,7 +1214,7 @@ public class ConnectorTest
 
     connector.setLinksToProcessPerTick( 2 );
 
-    connector.processEntityLinks( response );
+    connector.processEntityLinks();
 
     assertEquals( response.getEntityLinkCount(), 3 );
     verify( entity1, times( 1 ) ).link();
@@ -1245,6 +1251,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final int channelId = 0;
     final int subChannelId = ValueUtil.randomInt();
@@ -1257,7 +1264,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connector.processChannelChanges( response );
+    connector.processChannelChanges();
 
     assertEquals( response.needsChannelChangesProcessed(), false );
 
@@ -1284,6 +1291,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
     final int channelId = address.getChannelId();
@@ -1303,7 +1311,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connector.processChannelChanges( response );
+    connector.processChannelChanges();
 
     assertEquals( response.needsChannelChangesProcessed(), false );
     assertEquals( response.getChannelAddCount(), 1 );
@@ -1330,6 +1338,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
     final int channelId = address.getChannelId();
@@ -1348,7 +1357,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connector.processChannelChanges( response );
+    connector.processChannelChanges();
 
     assertEquals( response.needsChannelChangesProcessed(), false );
     assertEquals( response.getChannelRemoveCount(), 1 );
@@ -1371,6 +1380,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, 72 );
     final int channelId = address.getChannelId();
@@ -1386,7 +1396,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges( response ) );
+      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges() );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1404,6 +1414,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
     final int channelId = address.getChannelId();
@@ -1423,7 +1434,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connector.processChannelChanges( response );
+    connector.processChannelChanges();
 
     assertEquals( response.needsChannelChangesProcessed(), false );
     assertEquals( response.getChannelUpdateCount(), 1 );
@@ -1444,6 +1455,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, 33 );
     final int channelId = address.getChannelId();
@@ -1463,7 +1475,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges( response ) );
+      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges() );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );
@@ -1482,6 +1494,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, 42 );
     final int channelId = address.getChannelId();
@@ -1498,7 +1511,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges( response ) );
+      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges() );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );

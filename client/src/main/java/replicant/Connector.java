@@ -188,6 +188,12 @@ public abstract class Connector
     return _connection;
   }
 
+  @Nonnull
+  private MessageResponse ensureCurrentMessageResponse()
+  {
+    return ensureConnection().ensureCurrentMessageResponse();
+  }
+
   @Action
   protected void purgeSubscriptions()
   {
@@ -371,8 +377,9 @@ public abstract class Connector
   }
 
   @Action
-  protected void processChannelChanges( @Nonnull final MessageResponse response )
+  protected void processChannelChanges()
   {
+    final MessageResponse response = ensureCurrentMessageResponse();
     final ChangeSet changeSet = response.getChangeSet();
     final ChannelChange[] channelChanges = changeSet.getChannelChanges();
     for ( final ChannelChange channelChange : channelChanges )
@@ -428,14 +435,15 @@ public abstract class Connector
     response.markChannelActionsProcessed();
   }
 
-  @Action( reportParameters = false )
-  protected void processEntityLinks( @Nonnull final MessageResponse currentAction )
+  @Action
+  protected void processEntityLinks()
   {
+    final MessageResponse response = ensureCurrentMessageResponse();
     Linkable linkable;
-    for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = currentAction.nextEntityToLink() ); i++ )
+    for ( int i = 0; i < _linksToProcessPerTick && null != ( linkable = response.nextEntityToLink() ); i++ )
     {
       linkable.link();
-      currentAction.incEntityLinkCount();
+      response.incEntityLinkCount();
     }
   }
 
@@ -629,9 +637,10 @@ public abstract class Connector
     connection.queueCurrentResponse();
   }
 
-  @Action( reportParameters = false )
-  protected void processEntityChanges( @Nonnull final MessageResponse response )
+  @Action
+  protected void processEntityChanges()
   {
+    final MessageResponse response = ensureCurrentMessageResponse();
     EntityChange change;
     for ( int i = 0; i < _changesToProcessPerTick && null != ( change = response.nextChange() ); i++ )
     {
@@ -657,7 +666,7 @@ public abstract class Connector
 
   protected void validateWorld()
   {
-    ensureConnection().ensureCurrentMessageResponse().markWorldAsValidated();
+    ensureCurrentMessageResponse().markWorldAsValidated();
     if ( Replicant.shouldValidateEntitiesOnLoad() )
     {
       getReplicantContext().getValidator().validateEntities();
