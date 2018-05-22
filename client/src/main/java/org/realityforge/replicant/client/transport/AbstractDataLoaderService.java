@@ -346,39 +346,36 @@ public abstract class AbstractDataLoaderService
     final MessageResponse response = connection.getCurrentMessageResponse();
     if ( null == response )
     {
+      // Select the MessageResponse if there is none active
       return connection.selectNextMessageResponse();
     }
-
-    //Step: Parse the json
-    if ( null != response.getRawJsonData() )
+    else if ( null != response.getRawJsonData() )
     {
+      // Parse the json
       parseMessageResponse();
       return true;
     }
-
-    if ( response.needsChannelChangesProcessed() )
+    else if ( response.needsChannelChangesProcessed() )
     {
+      // Process the updates to channels
       processChannelChanges();
       return true;
     }
-
-    //Step: Process a chunk of changes
-    if ( response.areChangesPending() )
+    else if ( response.areChangesPending() )
     {
+      // Process a chunk of entity changes
       processEntityChanges();
       return true;
     }
-
-    //Step: Process a chunk of links
-    if ( response.areEntityLinksPending() )
+    else if ( response.areEntityLinksPending() )
     {
+      // Process a chunk of links
       processEntityLinks();
       return true;
     }
-
-    //Step: Validate the world after the change set has been applied (if feature is enabled)
-    if ( !response.hasWorldBeenValidated() )
+    else if ( !response.hasWorldBeenValidated() )
     {
+      // Validate the world after the change set has been applied (if feature is enabled)
       validateWorld();
       return true;
     }
