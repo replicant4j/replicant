@@ -125,12 +125,12 @@ public abstract class TestConnector
     _progressResponseProcessing = progressResponseProcessing;
   }
 
-  public int getConnectCallCount()
+  int getConnectCallCount()
   {
     return _connectCallCount;
   }
 
-  public int getDisconnectCallCount()
+  int getDisconnectCallCount()
   {
     return _disconnectCallCount;
   }
