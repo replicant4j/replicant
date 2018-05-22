@@ -39,10 +39,10 @@ public class MessageResponseTest
     final MessageResponse action3 = new MessageResponse( "", mock( SafeProcedure.class ) );
     final MessageResponse action4 = new MessageResponse( "", mock( SafeProcedure.class ) );
 
-    final ChangeSet changeSet1 = ChangeSet.create( 1, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSet changeSet2 = ChangeSet.create( 2, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSet changeSet3 = ChangeSet.create( 3, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSet changeSet4 = ChangeSet.create( 4, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet1 = ChangeSet.create( 1, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet2 = ChangeSet.create( 2, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet3 = ChangeSet.create( 3, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet4 = ChangeSet.create( 4, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
     action1.recordChangeSet( changeSet1, null );
     action2.recordChangeSet( changeSet2, null );
@@ -71,7 +71,7 @@ public class MessageResponseTest
   public void toStatus()
   {
     final int sequence = ValueUtil.randomInt();
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
     final ChangeSet changeSet =
       ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
@@ -92,7 +92,7 @@ public class MessageResponseTest
     final DataLoadStatus status = action.toStatus();
 
     assertEquals( status.getSequence(), sequence );
-    assertEquals( status.getRequestId(), requestId );
+    assertEquals( status.getRequestId(), (Integer) requestId );
     assertEquals( status.getChannelAddCount(), 2 );
     assertEquals( status.getChannelUpdateCount(), 1 );
     assertEquals( status.getChannelRemoveCount(), 3 );
@@ -139,7 +139,7 @@ public class MessageResponseTest
                   "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
     final int sequence = 33;
-    final String requestId = "XXX";
+    final Integer requestId = 767576;
     final ChangeSet changeSet =
       ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
     action.recordChangeSet( changeSet, null );
@@ -164,7 +164,7 @@ public class MessageResponseTest
   {
     // ChangeSet details
     final int sequence = 1;
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
 
     // Channel updates
     final ChannelChange[] channelChanges = new ChannelChange[ 0 ];
@@ -287,7 +287,7 @@ public class MessageResponseTest
   {
     // ChangeSet details
     final int sequence = 1;
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
 
     // Channel updates
     final String filter1 = ValueUtil.randomString();
@@ -354,7 +354,7 @@ public class MessageResponseTest
   {
     // ChangeSet details
     final int sequence = 1;
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
 
     // Channel updates
     final ChannelChange[] channelChanges = new ChannelChange[ 0 ];
@@ -403,17 +403,17 @@ public class MessageResponseTest
 
     final ChangeSet changeSet =
       ChangeSet.create( ValueUtil.randomInt(),
-                        "X1234",
+                        1234,
                         null,
                         new ChannelChange[ 0 ],
                         new EntityChange[ 0 ] );
 
-    final RequestEntry request = new RequestEntry( "X1234", "DoMagic", null );
+    final RequestEntry request = new RequestEntry( 1234, "DoMagic", null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0010: Incorrectly associating a request named 'DoMagic' with requestId 'X1234' with an out-of-band message." );
+                  "Replicant-0010: Incorrectly associating a request named 'DoMagic' with requestId '1234' with an out-of-band message." );
   }
 
   @Test
@@ -423,16 +423,16 @@ public class MessageResponseTest
 
     final ChangeSet changeSet =
       ChangeSet.create( ValueUtil.randomInt(),
-                        "X1234",
+                        1234,
                         null,
                         new ChannelChange[ 0 ],
                         new EntityChange[ 0 ] );
 
-    final RequestEntry request = new RequestEntry( "Y5678", ValueUtil.randomString(), null );
+    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0011: ChangeSet specified requestId 'X1234' but request with requestId 'Y5678' has been passed to recordChangeSet." );
+                  "Replicant-0011: ChangeSet specified requestId '1234' but request with requestId '5678' has been passed to recordChangeSet." );
   }
 }

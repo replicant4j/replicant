@@ -559,7 +559,7 @@ public abstract class Connector
       {
         // We can remove the request because this side ran second and the RPC channel has already returned.
         final ChangeSet changeSet = response.getChangeSet();
-        final String requestId = changeSet.getRequestId();
+        final Integer requestId = changeSet.getRequestId();
         if ( null != requestId )
         {
           connection.removeRequest( requestId );
@@ -709,7 +709,7 @@ public abstract class Connector
     }
     else
     {
-      final String requestId = changeSet.getRequestId();
+      final Integer requestId = changeSet.getRequestId();
       final String eTag = changeSet.getETag();
       final int sequence = changeSet.getSequence();
       request = null != requestId ? connection.getRequest( requestId ) : null;

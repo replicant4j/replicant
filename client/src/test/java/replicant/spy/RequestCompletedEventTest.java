@@ -12,7 +12,7 @@ public class RequestCompletedEventTest
   @Test
   public void basicOperation()
   {
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
     final String name = ValueUtil.randomString();
     final boolean normalCompletion = ValueUtil.randomBoolean();
     final boolean expectingResults = ValueUtil.randomBoolean();

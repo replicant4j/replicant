@@ -104,7 +104,7 @@ public class ConnectionTest
     final Connection connection = new Connection( connector, connectionId );
 
     final MessageResponse response1 = new MessageResponse( "" );
-    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 1, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response1 );
@@ -129,7 +129,7 @@ public class ConnectionTest
     final Connection connection = new Connection( connector, connectionId );
 
     final MessageResponse response1 = new MessageResponse( "" );
-    response1.recordChangeSet( ChangeSet.create( 22, null, null, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 22, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response1 );
@@ -154,7 +154,7 @@ public class ConnectionTest
     final SafeProcedure oobCompletionAction = () -> {
     };
     final MessageResponse response1 = new MessageResponse( "", oobCompletionAction );
-    response1.recordChangeSet( ChangeSet.create( 324, null, null, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 324, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response1 );
@@ -183,9 +183,9 @@ public class ConnectionTest
     final MessageResponse response2 = new MessageResponse( "" );
     final MessageResponse response3 = new MessageResponse( "" );
 
-    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null ), null );
-    response2.recordChangeSet( ChangeSet.create( 2, null, null, null, null ), null );
-    response3.recordChangeSet( ChangeSet.create( 3, null, null, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 1, null, null ), null );
+    response2.recordChangeSet( ChangeSet.create( 2, null, null ), null );
+    response3.recordChangeSet( ChangeSet.create( 3, null, null ), null );
 
     connection.setCurrentMessageResponse( response2 );
 
@@ -411,7 +411,7 @@ public class ConnectionTest
 
     assertEquals( connection.getRequest( request.getRequestId() ), request );
     assertEquals( connection.getRequests().get( request.getRequestId() ), request );
-    assertEquals( connection.getRequest( "NotHere" + request.getRequestId() ), null );
+    assertEquals( connection.getRequest( ValueUtil.randomInt() ), null );
 
     connection.removeRequest( request.getRequestId() );
 
@@ -424,7 +424,7 @@ public class ConnectionTest
     final Connection connection = new Connection( TestConnector.create(), "123" );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connection.removeRequest( "789" ) );
+      expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0067: Attempted to remove request with id 789 from connection with id '123' but no such request exists." );
   }

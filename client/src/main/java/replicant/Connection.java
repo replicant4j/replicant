@@ -36,7 +36,7 @@ public final class Connection
   /**
    * A map containing the rpc requests that are in progress.
    */
-  private final Map<String, RequestEntry> _requests = new HashMap<>();
+  private final Map<Integer, RequestEntry> _requests = new HashMap<>();
   /**
    * The id of the last rpc request sent to the server.
    */
@@ -246,17 +246,17 @@ public final class Connection
   }
 
   @Nullable
-  public RequestEntry getRequest( @Nonnull final String requestId )
+  public RequestEntry getRequest( final int requestId )
   {
     return _requests.get( requestId );
   }
 
-  Map<String, RequestEntry> getRequests()
+  Map<Integer, RequestEntry> getRequests()
   {
     return _requests;
   }
 
-  void removeRequest( @Nonnull final String requestId )
+  void removeRequest( final int requestId )
   {
     final boolean removed = null != _requests.remove( requestId );
     if ( Replicant.shouldCheckInvariants() )
@@ -267,9 +267,9 @@ public final class Connection
     }
   }
 
-  private String nextRequestId()
+  private int nextRequestId()
   {
-    return String.valueOf( ++_lastRequestId );
+    return ++_lastRequestId;
   }
 
   @Nullable

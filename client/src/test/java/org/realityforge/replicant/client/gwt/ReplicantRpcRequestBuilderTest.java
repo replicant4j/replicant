@@ -67,7 +67,8 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
     verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( connection.getConnectionId() ) );
-    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ),
+                            refEq( String.valueOf( requestEntry.getRequestId() ) ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
   }
@@ -95,7 +96,8 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
     verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( connection.getConnectionId() ) );
-    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ),
+                            refEq( String.valueOf( requestEntry.getRequestId() ) ) );
 
     assertEquals( requestEntry.isCompletionDataPresent(), false );
     assertEquals( requestEntry.isExpectingResults(), true );
@@ -123,7 +125,8 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onError( request, exception );
     verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( connection.getConnectionId() ) );
-    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestId() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ),
+                            refEq( String.valueOf( requestEntry.getRequestId() ) ) );
 
     assertEquals( requestEntry.isExpectingResults(), false );
   }

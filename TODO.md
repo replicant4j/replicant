@@ -56,8 +56,6 @@ Some actions that should occur at some point in the future.
   - Add ability to dump subscriptions as table?
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
 
-RequestEntry.ID should be an integer....
-
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
 * Remove type from `EntitySchema` and somehow get connector to manage mapping `EntitySchema` -> `Class`.

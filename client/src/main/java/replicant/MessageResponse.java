@@ -165,7 +165,7 @@ final class MessageResponse
                  () -> "Replicant-0010: Incorrectly associating a request named '" +
                        Objects.requireNonNull( request ).getName() + "' with requestId '" +
                        Objects.requireNonNull( request ).getRequestId() + "' with an out-of-band message." );
-      invariant( () -> null == request || request.getRequestId().equals( changeSet.getRequestId() ),
+      invariant( () -> null == request || ( (Integer) request.getRequestId() ).equals( changeSet.getRequestId() ),
                  () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestId() +
                        "' but request with requestId '" + Objects.requireNonNull( request ).getRequestId() +
                        "' has been passed to recordChangeSet." );

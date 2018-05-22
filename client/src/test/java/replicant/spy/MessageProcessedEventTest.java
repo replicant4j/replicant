@@ -13,7 +13,7 @@ public class MessageProcessedEventTest
   public void basicOperation()
   {
     final int sequence = ValueUtil.randomInt();
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
     final int channelAddCount = ValueUtil.getRandom().nextInt( 10 );
     final int channelUpdateCount = ValueUtil.getRandom().nextInt( 10 );
     final int channelRemoveCount = ValueUtil.getRandom().nextInt( 10 );

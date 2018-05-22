@@ -15,12 +15,13 @@ public final class RequestStartedEvent
   @Nonnull
   private final String _schemaName;
   @Nonnull
-  private final String _requestId;
+  private final int _requestId;
   @Nonnull
   private final String _name;
 
-  public RequestStartedEvent( final int schemaId, @Nonnull final String schemaName,
-                              @Nonnull final String requestId,
+  public RequestStartedEvent( final int schemaId,
+                              @Nonnull final String schemaName,
+                              final int requestId,
                               @Nonnull final String name )
   {
     _schemaId = schemaId;
@@ -40,8 +41,7 @@ public final class RequestStartedEvent
     return _schemaName;
   }
 
-  @Nonnull
-  public String getRequestId()
+  public int getRequestId()
   {
     return _requestId;
   }

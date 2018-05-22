@@ -16,7 +16,7 @@ public class ChangeSet
 {
   private int last_id;
   @Nullable
-  private String request_id;
+  private Double requestId;
   @Nullable
   private String etag;
   @Nullable
@@ -26,15 +26,29 @@ public class ChangeSet
 
   @JsOverlay
   public static ChangeSet create( final int sequence,
-                                  @Nullable final String requestId,
+                                  final int requestId,
                                   @Nullable final String eTag,
                                   @Nullable final ChannelChange[] channelChanges,
                                   @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
     changeSet.last_id = sequence;
-    changeSet.request_id = requestId;
+    changeSet.requestId = (double) requestId;
     changeSet.etag = eTag;
+    changeSet.channel_actions = channelChanges;
+    changeSet.changes = entityChanges;
+    return changeSet;
+  }
+
+  @JsOverlay
+  public static ChangeSet create( final int sequence,
+                                  @Nullable final ChannelChange[] channelChanges,
+                                  @Nullable final EntityChange[] entityChanges )
+  {
+    final ChangeSet changeSet = new ChangeSet();
+    changeSet.last_id = sequence;
+    changeSet.requestId = null;
+    changeSet.etag = null;
     changeSet.channel_actions = channelChanges;
     changeSet.changes = entityChanges;
     return changeSet;
@@ -58,9 +72,9 @@ public class ChangeSet
    */
   @Nullable
   @JsOverlay
-  public final String getRequestId()
+  public final Integer getRequestId()
   {
-    return request_id;
+    return null == requestId ? null : requestId.intValue();
   }
 
   /**

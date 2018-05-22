@@ -11,8 +11,7 @@ import static org.realityforge.braincheck.Guards.*;
 public final class RequestEntry
 {
   //TODO: Make this package access after all classes migrated to replicant package
-  @Nonnull
-  private final String _requestId;
+  private final int _requestId;
   @Nullable
   private final String _name;
   @Nullable
@@ -22,7 +21,7 @@ public final class RequestEntry
   private boolean _resultsArrived;
   private SafeProcedure _completionAction;
 
-  public RequestEntry( @Nonnull final String requestId,
+  public RequestEntry( final int requestId,
                        @Nullable final String name,
                        @Nullable final String cacheKey )
   {
@@ -32,13 +31,12 @@ public final class RequestEntry
                  () -> "Replicant-0041: RequestEntry passed a name '" + name +
                        "' but Replicant.areNamesEnabled() is false" );
     }
-    _requestId = Objects.requireNonNull( requestId );
+    _requestId = requestId;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _cacheKey = cacheKey;
   }
 
-  @Nonnull
-  public String getRequestId()
+  public int getRequestId()
   {
     return _requestId;
   }

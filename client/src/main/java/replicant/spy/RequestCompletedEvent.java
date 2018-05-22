@@ -14,8 +14,7 @@ public final class RequestCompletedEvent
   private final int _schemaId;
   @Nonnull
   private final String _schemaName;
-  @Nonnull
-  private final String _requestId;
+  private final int _requestId;
   @Nonnull
   private final String _name;
   private final boolean _normalCompletion;
@@ -24,7 +23,7 @@ public final class RequestCompletedEvent
 
   public RequestCompletedEvent( final int schemaId,
                                 @Nonnull final String schemaName,
-                                @Nonnull final String requestId,
+                                final int requestId,
                                 @Nonnull final String name,
                                 final boolean normalCompletion,
                                 final boolean expectingResults,
@@ -32,7 +31,7 @@ public final class RequestCompletedEvent
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
-    _requestId = Objects.requireNonNull( requestId );
+    _requestId = requestId;
     _name = Objects.requireNonNull( name );
     _normalCompletion = normalCompletion;
     _expectingResults = expectingResults;
@@ -50,8 +49,7 @@ public final class RequestCompletedEvent
     return _schemaName;
   }
 
-  @Nonnull
-  public String getRequestId()
+  public int getRequestId()
   {
     return _requestId;
   }

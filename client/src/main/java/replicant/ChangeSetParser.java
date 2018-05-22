@@ -29,14 +29,21 @@ final class ChangeSetParser
     {
       final JsonObject object = reader.readObject();
       final int sequence = object.getInt( "last_id" );
-      final String requestId =
-        object.containsKey( "request_id" ) ? object.getString( "request_id" ) : null;
+      final Integer requestId =
+        object.containsKey( "requestId" ) ? object.getJsonNumber( "requestId" ).intValue() : null;
       final String etag =
         object.containsKey( "etag" ) ? object.getString( "etag" ) : null;
       final ChannelChange[] channelChanges = parseChannelChanges( object );
       final EntityChange[] entityChanges = parseEntityChanges( object );
 
-      return ChangeSet.create( sequence, requestId, etag, channelChanges, entityChanges );
+      if ( null == requestId )
+      {
+        return ChangeSet.create( sequence, channelChanges, entityChanges );
+      }
+      else
+      {
+        return ChangeSet.create( sequence, requestId, etag, channelChanges, entityChanges );
+      }
     }
   }
 

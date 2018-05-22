@@ -333,7 +333,7 @@ public class ConnectorTest
 
     final DataLoadStatus status =
       new DataLoadStatus( ValueUtil.randomInt(),
-                          ValueUtil.randomString(),
+                          ValueUtil.randomInt(),
                           ValueUtil.getRandom().nextInt( 10 ),
                           ValueUtil.getRandom().nextInt( 10 ),
                           ValueUtil.getRandom().nextInt( 10 ),
@@ -903,7 +903,7 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connection.setCurrentMessageResponse( response );
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, null, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null ), null );
 
     connector.triggerScheduler();
 
@@ -1162,7 +1162,7 @@ public class ConnectorTest
       // Remove change
       EntityChange.create( 3, 0, new EntityChannel[]{ EntityChannel.create( 1 ) } )
     };
-    final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, null, null, entityChanges );
+    final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, entityChanges );
     response.recordChangeSet( changeSet, null );
 
     when( connector.getChangeMapper().createEntity( entitySchema, 1, data1 ) ).thenReturn( userObject1 );
@@ -1232,7 +1232,7 @@ public class ConnectorTest
     final EntityChange[] entityChanges = {
       EntityChange.create( 1, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data1 )
     };
-    final ChangeSet changeSet = ChangeSet.create( 42, null, null, null, entityChanges );
+    final ChangeSet changeSet = ChangeSet.create( 42, null, entityChanges );
     response.recordChangeSet( changeSet, null );
 
     when( connector.getChangeMapper().createEntity( entitySchema, 1, data1 ) ).thenReturn( userObject1 );
@@ -1270,7 +1270,7 @@ public class ConnectorTest
       // Remove change
       EntityChange.create( 3, 0, new EntityChannel[]{ EntityChannel.create( 1 ) } )
     };
-    final ChangeSet changeSet = ChangeSet.create( 23, null, null, null, entityChanges );
+    final ChangeSet changeSet = ChangeSet.create( 23, null, entityChanges );
     response.recordChangeSet( changeSet, null );
 
     connector.setChangesToProcessPerTick( 1 );
@@ -1365,7 +1365,7 @@ public class ConnectorTest
     final String filter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
 
@@ -1407,7 +1407,7 @@ public class ConnectorTest
     final String filter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
     connection.injectCurrentAreaOfInterestRequest( request );
@@ -1454,7 +1454,7 @@ public class ConnectorTest
     final String filter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     final Subscription initialSubscription =
       safeAction( () -> Replicant.context().createSubscription( address, filter, true ) );
@@ -1495,7 +1495,7 @@ public class ConnectorTest
 
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1531,7 +1531,7 @@ public class ConnectorTest
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     final Subscription initialSubscription =
       safeAction( () -> Replicant.context().createSubscription( address, oldFilter, true ) );
@@ -1572,7 +1572,7 @@ public class ConnectorTest
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     safeAction( () -> Replicant.context().createSubscription( address, oldFilter, false ) );
 
@@ -1610,7 +1610,7 @@ public class ConnectorTest
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null ), null );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );
@@ -2001,10 +2001,10 @@ public class ConnectorTest
 
     final RequestEntry request = connection.newRequest( "SomeAction", null );
 
-    final String requestId = request.getRequestId();
+    final int requestId = request.getRequestId();
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1, \"request_id\": \"" + requestId + "\"}";
+    final String rawJsonData = "{\"last_id\": 1, \"requestId\": " + requestId + "}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2032,12 +2032,12 @@ public class ConnectorTest
     final String cacheKey = ValueUtil.randomString();
     final RequestEntry request = connection.newRequest( "SomeAction", cacheKey );
 
-    final String requestId = request.getRequestId();
+    final int requestId = request.getRequestId();
 
     final String etag = ValueUtil.randomString();
 
     final String rawJsonData =
-      "{\"last_id\": 1, \"request_id\": \"" + requestId + "\", \"etag\": \"" + etag + "\"}";
+      "{\"last_id\": 1, \"requestId\": " + requestId + ", \"etag\": \"" + etag + "\"}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2074,10 +2074,10 @@ public class ConnectorTest
 
     final RequestEntry request = connection.newRequest( "SomeAction", null );
 
-    final String requestId = request.getRequestId();
+    final int requestId = request.getRequestId();
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1, \"request_id\": \"" + requestId + "\"}";
+    final String rawJsonData = "{\"last_id\": 1, \"requestId\": " + requestId + "}";
     final SafeProcedure oobCompletionAction = () -> {
     };
     final MessageResponse response = new MessageResponse( rawJsonData, oobCompletionAction );
@@ -2105,7 +2105,7 @@ public class ConnectorTest
     connector.setConnection( connection );
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1, \"request_id\": \"R1\"}";
+    final String rawJsonData = "{\"last_id\": 1, \"requestId\": 22}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2115,7 +2115,7 @@ public class ConnectorTest
       expectThrows( IllegalStateException.class, connector::parseMessageResponse );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0066: Unable to locate request with id 'R1' specified for ChangeSet with sequence 1. Existing Requests: {}" );
+                  "Replicant-0066: Unable to locate request with id '22' specified for ChangeSet with sequence 1. Existing Requests: {}" );
   }
 
   @Test
@@ -2127,7 +2127,7 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( "" );
 
-    final ChangeSet changeSet = ChangeSet.create( 23, null, null, null, null );
+    final ChangeSet changeSet = ChangeSet.create( 23, null, null );
     response.recordChangeSet( changeSet, null );
 
     connection.setLastRxSequence( 22 );
@@ -2157,7 +2157,7 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( "" );
 
-    final ChangeSet changeSet = ChangeSet.create( 23, null, null, null, null );
+    final ChangeSet changeSet = ChangeSet.create( 23, null, null );
     response.recordChangeSet( changeSet, null );
 
     connection.setLastRxSequence( 22 );
@@ -2183,7 +2183,7 @@ public class ConnectorTest
     final AtomicInteger completionCallCount = new AtomicInteger();
     final MessageResponse response = new MessageResponse( "", completionCallCount::incrementAndGet );
 
-    final ChangeSet changeSet = ChangeSet.create( 23, "1234", null, null, null );
+    final ChangeSet changeSet = ChangeSet.create( 23, 1234, null, null, null );
     response.recordChangeSet( changeSet, null );
 
     connection.setLastRxSequence( 22 );
@@ -2217,7 +2217,7 @@ public class ConnectorTest
     final RequestEntry request = connection.newRequest( "SomeAction", null );
 
     final AtomicInteger completionCalled = new AtomicInteger();
-    final String requestId = request.getRequestId();
+    final int requestId = request.getRequestId();
     request.setNormalCompletion( true );
     request.setCompletionAction( completionCalled::incrementAndGet );
 
@@ -2261,7 +2261,7 @@ public class ConnectorTest
     final RequestEntry request = connection.newRequest( "SomeAction", null );
 
     final AtomicInteger completionCalled = new AtomicInteger();
-    final String requestId = request.getRequestId();
+    final int requestId = request.getRequestId();
 
     final MessageResponse response = new MessageResponse( "" );
 

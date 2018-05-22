@@ -12,7 +12,7 @@ public class DataLoadStatusTest
   public void basicOperation()
   {
     final int sequence = 13;
-    final String requestId = "H1";
+    final int requestId = 44;
     final int channelAddCount = 4;
     final int channelUpdateCount = 2;
     final int channelRemoveCount = 1;
@@ -30,7 +30,7 @@ public class DataLoadStatusTest
                           entityLinkCount );
 
     assertEquals( status.getSequence(), sequence );
-    assertEquals( status.getRequestId(), requestId );
+    assertEquals( status.getRequestId(), (Integer) requestId );
     assertEquals( status.getChannelAddCount(), channelAddCount );
     assertEquals( status.getChannelUpdateCount(), channelUpdateCount );
     assertEquals( status.getChannelRemoveCount(), channelRemoveCount );

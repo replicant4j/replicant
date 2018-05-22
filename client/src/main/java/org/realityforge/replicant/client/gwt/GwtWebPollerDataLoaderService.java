@@ -122,11 +122,11 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final ActionCallbackAdapter adapter =
       new ActionCallbackAdapter( onSuccess, onCacheValid, onError, request, connection );
-    final String requestID = null != request ? request.getRequestId() : null;
+    final Integer requestId = null != request ? request.getRequestId() : null;
     final RequestBuilder rb = newRequestBuilder( method, url );
-    if ( null != requestID )
+    if ( null != requestId )
     {
-      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, requestID );
+      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( requestId ) );
     }
     if ( null != eTag )
     {

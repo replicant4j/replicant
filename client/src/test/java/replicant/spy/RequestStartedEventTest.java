@@ -12,12 +12,12 @@ public class RequestStartedEventTest
   @Test
   public void basicOperation()
   {
-    final String requestId = ValueUtil.randomString();
+    final int requestId = ValueUtil.randomInt();
     final String name = ValueUtil.randomString();
     final RequestStartedEvent event =
       new RequestStartedEvent( 23, "Rose", requestId, name );
 
-        assertEquals( event.getSchemaId(), 23 );
+    assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getRequestId(), requestId );
     assertEquals( event.getName(), name );
