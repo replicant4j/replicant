@@ -33,7 +33,7 @@ final class MessageResponse
   /**
    * The current index into changes.
    */
-  private int _changeIndex;
+  private int _entityChangeIndex;
 
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
   private boolean _worldValidated;
@@ -146,6 +146,11 @@ final class MessageResponse
     return null != _oobCompletionAction;
   }
 
+  boolean needsParsing()
+  {
+    return null != _rawJsonData;
+  }
+
   @Nullable
   String getRawJsonData()
   {
@@ -168,7 +173,7 @@ final class MessageResponse
     _changeSet = Objects.requireNonNull( changeSet );
     _request = request;
     _rawJsonData = null;
-    _changeIndex = 0;
+    _entityChangeIndex = 0;
   }
 
   RequestEntry getRequest()
@@ -176,9 +181,11 @@ final class MessageResponse
     return _request;
   }
 
-  boolean areChangesPending()
+  boolean areEntityChangesPending()
   {
-    return null != _changeSet && _changeSet.hasEntityChanges() && _changeIndex < _changeSet.getEntityChanges().length;
+    return null != _changeSet &&
+           _changeSet.hasEntityChanges() &&
+           _entityChangeIndex < _changeSet.getEntityChanges().length;
   }
 
   boolean needsChannelChangesProcessed()
@@ -194,13 +201,13 @@ final class MessageResponse
     _channelActionsProcessed = true;
   }
 
-  EntityChange nextChange()
+  EntityChange nextEntityChange()
   {
-    if ( areChangesPending() )
+    if ( areEntityChangesPending() )
     {
       assert null != _changeSet;
-      final EntityChange change = _changeSet.getEntityChanges()[ _changeIndex ];
-      _changeIndex++;
+      final EntityChange change = _changeSet.getEntityChanges()[ _entityChangeIndex ];
+      _entityChangeIndex++;
       return change;
     }
     else
@@ -296,7 +303,7 @@ final class MessageResponse
       return "DataLoad[" +
              ",RawJson.null?=" + ( null == _rawJsonData ) +
              ",ChangeSet.null?=" + ( null == _changeSet ) +
-             ",ChangeIndex=" + _changeIndex +
+             ",ChangeIndex=" + _entityChangeIndex +
              ",CompletionAction.null?=" + ( null == getCompletionAction() ) +
              ",UpdatedEntities.size=" + ( null == _updatedEntities ? 0 : _updatedEntities.size() ) +
              "]";

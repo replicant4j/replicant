@@ -351,7 +351,51 @@ public abstract class Connector
    *
    * @return true if more work is to be done.
    */
-  protected abstract boolean progressResponseProcessing();
+  boolean progressResponseProcessing()
+  {
+    final Connection connection = ensureConnection();
+    final MessageResponse response = connection.getCurrentMessageResponse();
+    if ( null == response )
+    {
+      // Select the MessageResponse if there is none active
+      return connection.selectNextMessageResponse();
+    }
+    else if ( response.needsParsing() )
+    {
+      // Parse the json
+      parseMessageResponse();
+      return true;
+    }
+    else if ( response.needsChannelChangesProcessed() )
+    {
+      // Process the updates to channels
+      processChannelChanges();
+      return true;
+    }
+    else if ( response.areEntityChangesPending() )
+    {
+      // Process a chunk of entity changes
+      processEntityChanges();
+      return true;
+    }
+    else if ( response.areEntityLinksPending() )
+    {
+      // Process a chunk of links
+      processEntityLinks();
+      return true;
+    }
+    else if ( !response.hasWorldBeenValidated() )
+    {
+      // Validate the world after the change set has been applied (if feature is enabled)
+      validateWorld();
+      return true;
+    }
+    else
+    {
+      completeMessageResponse();
+      return true;
+    }
+  }
 
   /**
    * {@inheritDoc}
@@ -700,7 +744,7 @@ public abstract class Connector
   {
     final MessageResponse response = ensureCurrentMessageResponse();
     EntityChange change;
-    for ( int i = 0; i < _changesToProcessPerTick && null != ( change = response.nextChange() ); i++ )
+    for ( int i = 0; i < _changesToProcessPerTick && null != ( change = response.nextEntityChange() ); i++ )
     {
       //TODO: Inline all or the majority of the ChangeMappers logic here
       final Object entity = getChangeMapper().applyChange( change );

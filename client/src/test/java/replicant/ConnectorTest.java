@@ -898,21 +898,26 @@ public class ConnectorTest
   public void scheduleTick()
   {
     final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, null, null ), null );
 
     connector.triggerScheduler();
 
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 0 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 0 );
     assertNull( connector.getSchedulerLock() );
 
     connector.setProgressAreaOfInterestRequestProcessing( () -> true );
-    connector.setProgressResponseProcessing( () -> true );
+
+    //response needs worldValidated
 
     final boolean result1 = connector.scheduleTick();
 
     assertEquals( result1, true );
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 1 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 1 );
     final Disposable schedulerLock1 = connector.getSchedulerLock();
     assertNotNull( schedulerLock1 );
 
@@ -920,17 +925,16 @@ public class ConnectorTest
 
     assertEquals( result2, true );
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 2 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 2 );
     assertNotNull( connector.getSchedulerLock() );
+    // Current message should be nulled and completed processing now
+    assertNull( connection.getCurrentMessageResponse() );
 
     connector.setProgressAreaOfInterestRequestProcessing( () -> false );
-    connector.setProgressResponseProcessing( () -> false );
 
     final boolean result3 = connector.scheduleTick();
 
     assertEquals( result3, false );
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 3 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 3 );
     assertNull( connector.getSchedulerLock() );
     assertTrue( Disposable.isDisposed( schedulerLock1 ) );
   }
@@ -939,21 +943,19 @@ public class ConnectorTest
   public void scheduleTick_withError()
   {
     final TestConnector connector = TestConnector.create();
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
 
     connector.triggerScheduler();
 
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 0 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 0 );
     assertNull( connector.getSchedulerLock() );
 
     connector.setProgressAreaOfInterestRequestProcessing( () -> true );
-    connector.setProgressResponseProcessing( () -> true );
 
     final boolean result1 = connector.scheduleTick();
 
     assertEquals( result1, true );
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 1 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 1 );
     final Disposable schedulerLock1 = connector.getSchedulerLock();
     assertNotNull( schedulerLock1 );
 
@@ -968,7 +970,6 @@ public class ConnectorTest
 
     assertEquals( result2, false );
     assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 2 );
-    assertEquals( connector.getProgressResponseProcessingCount(), 1 );
 
     assertNull( connector.getSchedulerLock() );
     assertTrue( Disposable.isDisposed( schedulerLock1 ) );
@@ -2186,5 +2187,123 @@ public class ConnectorTest
       assertEquals( e.getSchemaName(), connector.getSchema().getName() );
       assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
     } );
+  }
+
+  @SuppressWarnings( "ResultOfMethodCallIgnored" )
+  @Test
+  public void progressResponseProcessing()
+  {
+    /*
+     * This test steps through each stage of a message processing.
+     */
+
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{ entitySchema } );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+
+    connector.setConnection( connection );
+
+    @Language( "json" )
+    final String rawJsonData =
+      "{" +
+      "\"last_id\": 1, " +
+      // Add Channel 0
+      "\"channel_actions\": [ { \"cid\": 0, \"action\": \"add\"} ], " +
+      // Add Entity 1 of type 0 from channel 0
+      "\"changes\": [{\"id\": 1,\"type\":0,\"channels\":[{\"cid\": 0}], \"data\":{}}] " +
+      "}";
+    connection.enqueueResponse( rawJsonData );
+
+    final MessageResponse response = connection.getUnparsedResponses().get( 0 );
+    {
+      assertEquals( connection.getCurrentMessageResponse(), null );
+      assertEquals( connection.getUnparsedResponses().size(), 1 );
+
+      // Select response
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( connection.getCurrentMessageResponse(), response );
+      assertEquals( connection.getUnparsedResponses().size(), 0 );
+    }
+
+    {
+      assertEquals( response.getRawJsonData(), rawJsonData );
+      assertThrows( response::getChangeSet );
+      assertEquals( response.needsParsing(), true );
+      assertEquals( connection.getPendingResponses().size(), 0 );
+
+      // Parse response
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( response.getRawJsonData(), null );
+      assertNotNull( response.getChangeSet() );
+      assertEquals( response.needsParsing(), false );
+    }
+
+    {
+      assertEquals( connection.getCurrentMessageResponse(), null );
+      assertEquals( connection.getPendingResponses().size(), 1 );
+
+      // Pickup parsed response and set it as current
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( connection.getCurrentMessageResponse(), response );
+      assertEquals( connection.getPendingResponses().size(), 0 );
+    }
+
+    {
+      assertEquals( response.needsChannelChangesProcessed(), true );
+
+      // Process Channel Changes in response
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( response.needsChannelChangesProcessed(), false );
+    }
+
+    {
+      assertEquals( response.areEntityChangesPending(), true );
+
+      when( connector.getChangeMapper().applyChange( any( EntityChange.class ) ) ).thenReturn( mock( Linkable.class ) );
+
+      // Process Entity Changes in response
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( response.areEntityChangesPending(), false );
+    }
+
+    {
+      assertEquals( response.areEntityLinksPending(), true );
+
+      // Process Entity Links in response
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( response.areEntityLinksPending(), false );
+    }
+
+    {
+      assertEquals( response.hasWorldBeenValidated(), false );
+
+      // Validate World
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( response.hasWorldBeenValidated(), true );
+    }
+
+    {
+      assertEquals( connection.getCurrentMessageResponse(), response );
+
+      // Complete message
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertEquals( connection.getCurrentMessageResponse(), null );
+    }
   }
 }

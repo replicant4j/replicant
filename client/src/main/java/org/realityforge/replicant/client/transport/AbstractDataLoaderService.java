@@ -13,7 +13,6 @@ import replicant.CacheService;
 import replicant.ChannelAddress;
 import replicant.Connection;
 import replicant.Connector;
-import replicant.MessageResponse;
 import replicant.ReplicantContext;
 import replicant.SafeProcedure;
 import replicant.SystemSchema;
@@ -328,54 +327,4 @@ public abstract class AbstractDataLoaderService
                                                          @Nonnull Object filter,
                                                          @Nonnull SafeProcedure onSuccess,
                                                          @Nonnull Consumer<Throwable> onError );
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected boolean progressResponseProcessing()
-  {
-    final Connection connection = ensureConnection();
-    final MessageResponse response = connection.getCurrentMessageResponse();
-    if ( null == response )
-    {
-      // Select the MessageResponse if there is none active
-      return connection.selectNextMessageResponse();
-    }
-    else if ( null != response.getRawJsonData() )
-    {
-      // Parse the json
-      parseMessageResponse();
-      return true;
-    }
-    else if ( response.needsChannelChangesProcessed() )
-    {
-      // Process the updates to channels
-      processChannelChanges();
-      return true;
-    }
-    else if ( response.areChangesPending() )
-    {
-      // Process a chunk of entity changes
-      processEntityChanges();
-      return true;
-    }
-    else if ( response.areEntityLinksPending() )
-    {
-      // Process a chunk of links
-      processEntityLinks();
-      return true;
-    }
-    else if ( !response.hasWorldBeenValidated() )
-    {
-      // Validate the world after the change set has been applied (if feature is enabled)
-      validateWorld();
-      return true;
-    }
-    else
-    {
-      completeMessageResponse();
-      return true;
-    }
-  }
 }

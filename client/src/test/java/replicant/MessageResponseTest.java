@@ -19,7 +19,7 @@ public class MessageResponseTest
     assertEquals( action.isOob(), false );
 
     assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
     assertEquals( action.getChannelAddCount(), 0 );
@@ -207,7 +207,7 @@ public class MessageResponseTest
     assertThrows( action::getChangeSet );
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
@@ -225,39 +225,39 @@ public class MessageResponseTest
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), true );
+    assertEquals( action.areEntityChangesPending(), true );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
     // Process entity changes
     {
-      assertEquals( action.nextChange(), entityChanges[ 0 ] );
+      assertEquals( action.nextEntityChange(), entityChanges[ 0 ] );
       action.changeProcessed( entities[ 0 ] );
       action.incEntityUpdateCount();
 
-      assertEquals( action.areChangesPending(), true );
+      assertEquals( action.areEntityChangesPending(), true );
 
-      assertEquals( action.nextChange(), entityChanges[ 1 ] );
+      assertEquals( action.nextEntityChange(), entityChanges[ 1 ] );
       action.incEntityRemoveCount();
 
-      assertEquals( action.areChangesPending(), true );
+      assertEquals( action.areEntityChangesPending(), true );
 
-      assertEquals( action.nextChange(), entityChanges[ 2 ] );
+      assertEquals( action.nextEntityChange(), entityChanges[ 2 ] );
       action.incEntityUpdateCount();
       action.changeProcessed( entities[ 2 ] );
 
-      assertEquals( action.areChangesPending(), false );
+      assertEquals( action.areEntityChangesPending(), false );
 
-      assertEquals( action.nextChange(), null );
+      assertEquals( action.nextEntityChange(), null );
 
-      assertEquals( action.areChangesPending(), false );
+      assertEquals( action.areEntityChangesPending(), false );
 
       assertEquals( action.getEntityUpdateCount(), 2 );
       assertEquals( action.getEntityRemoveCount(), 1 );
     }
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), true );
     assertEquals( action.hasWorldBeenValidated(), false );
 
@@ -271,13 +271,13 @@ public class MessageResponseTest
 
     assertEquals( action.areEntityLinksPending(), false );
 
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
     action.markWorldAsValidated();
 
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), true );
   }
@@ -313,7 +313,7 @@ public class MessageResponseTest
     assertThrows( action::getChangeSet );
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
@@ -329,7 +329,7 @@ public class MessageResponseTest
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.needsChannelChangesProcessed(), true );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
@@ -337,14 +337,14 @@ public class MessageResponseTest
     action.markChannelActionsProcessed();
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
     action.markWorldAsValidated();
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), true );
   }
@@ -373,7 +373,7 @@ public class MessageResponseTest
     assertThrows( action::getChangeSet );
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
@@ -384,14 +384,14 @@ public class MessageResponseTest
     assertEquals( action.getRawJsonData(), null );
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), false );
 
     action.markWorldAsValidated();
 
     assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areChangesPending(), false );
+    assertEquals( action.areEntityChangesPending(), false );
     assertEquals( action.areEntityLinksPending(), false );
     assertEquals( action.hasWorldBeenValidated(), true );
   }
