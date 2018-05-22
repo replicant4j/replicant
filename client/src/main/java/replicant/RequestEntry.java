@@ -107,7 +107,7 @@ public final class RequestEntry
     return _resultsArrived;
   }
 
-  public void markResultsAsArrived()
+  void markResultsAsArrived()
   {
     _resultsArrived = true;
   }
