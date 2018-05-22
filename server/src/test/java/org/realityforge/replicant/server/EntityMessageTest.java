@@ -26,7 +26,7 @@ public class EntityMessageTest
       MessageTestUtil.createMessage( id,
                                      typeID,
                                      2,
-                                     new ChannelLink( new ChannelDescriptor( 1, 2 ), new ChannelDescriptor( 47, 66 ) ),
+                                     new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 47, 66 ) ),
                                      "r3",
                                      null,
                                      "a3",

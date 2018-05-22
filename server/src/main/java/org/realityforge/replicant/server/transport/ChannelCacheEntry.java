@@ -4,18 +4,18 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.ChangeSet;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 
 public final class ChannelCacheEntry
 {
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
-  private final ChannelDescriptor _descriptor;
+  private final ChannelAddress _descriptor;
   private String _cacheKey;
   private ChangeSet _changeSet;
 
-  ChannelCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  ChannelCacheEntry( @Nonnull final ChannelAddress address )
   {
-    _descriptor = descriptor;
+    _descriptor = address;
   }
 
   @Nonnull
@@ -25,7 +25,7 @@ public final class ChannelCacheEntry
   }
 
   @Nonnull
-  public ChannelDescriptor getDescriptor()
+  public ChannelAddress getDescriptor()
   {
     return _descriptor;
   }

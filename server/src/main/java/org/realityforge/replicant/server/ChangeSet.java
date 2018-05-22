@@ -26,11 +26,11 @@ public final class ChangeSet
     _channelActions.add( action );
   }
 
-  public void addAction( @Nonnull final ChannelDescriptor descriptor,
+  public void addAction( @Nonnull final ChannelAddress address,
                          @Nonnull final ChannelAction.Action action,
                          @Nullable final Object filter )
   {
-    addAction( new ChannelAction( descriptor, action, filterToJsonObject( filter ) ) );
+    addAction( new ChannelAction( address, action, filterToJsonObject( filter ) ) );
   }
 
   private JsonObject filterToJsonObject( final @Nullable Object filter )
@@ -86,11 +86,11 @@ public final class ChangeSet
     addActions( changeSet.getChannelActions() );
   }
 
-  public void merge( @Nonnull final ChannelDescriptor descriptor, @Nonnull final EntityMessageSet messages )
+  public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
   {
     mergeAll( ChangeUtil.toChanges( messages.getEntityMessages(),
-                                    descriptor.getChannelId(),
-                                    descriptor.getSubChannelId() ) );
+                                    address.getChannelId(),
+                                    address.getSubChannelId() ) );
   }
 
   @Nonnull

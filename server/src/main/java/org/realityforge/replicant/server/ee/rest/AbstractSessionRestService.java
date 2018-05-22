@@ -28,7 +28,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
@@ -158,7 +158,7 @@ public abstract class AbstractSessionRestService
         standardResponse( Response.Status.BAD_REQUEST, "Supplied subChannelIds to type graph" );
       throw new WebApplicationException( response );
     }
-    return doGetChannel( sessionId, new ChannelDescriptor( channelId, subChannelId ), uri );
+    return doGetChannel( sessionId, new ChannelAddress( channelId, subChannelId ), uri );
   }
 
   @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
@@ -216,7 +216,7 @@ public abstract class AbstractSessionRestService
       throw new WebApplicationException( response );
     }
 
-    return doUnsubscribeChannel( sessionId, requestId, new ChannelDescriptor( channelId, subChannelId ) );
+    return doUnsubscribeChannel( sessionId, requestId, new ChannelAddress( channelId, subChannelId ) );
   }
 
   @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
@@ -279,7 +279,7 @@ public abstract class AbstractSessionRestService
     return doSubscribeChannel( sessionId,
                                requestId,
                                eTag,
-                               new ChannelDescriptor( channelId, subChannelId ),
+                               new ChannelAddress( channelId, subChannelId ),
                                filterContent );
   }
 
@@ -287,22 +287,22 @@ public abstract class AbstractSessionRestService
   protected Response doSubscribeChannel( @Nonnull final String sessionId,
                                          @Nullable final Integer requestId,
                                          @Nullable final String eTag,
-                                         @Nonnull final ChannelDescriptor descriptor,
+                                         @Nonnull final ChannelAddress address,
                                          @Nonnull final String filterContent )
   {
     final Supplier<ReplicantSessionManager.CacheStatus> action = () ->
     {
       final ReplicantSession session = ensureSession( sessionId, requestId );
-      session.setETag( descriptor, eTag );
+      session.setETag( address, eTag );
       return getSessionManager().subscribe( session,
-                                            descriptor,
+                                            address,
                                             true,
-                                            toFilter( getChannelMetaData( descriptor ), filterContent ),
+                                            toFilter( getChannelMetaData( address ), filterContent ),
                                             EntityMessageCacheUtil.getSessionChanges() );
     };
 
     final String invocationKey =
-      getInvocationKey( descriptor.getChannelId(), descriptor.getSubChannelId(), "Subscribe" );
+      getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Subscribe" );
     final ReplicantSessionManager.CacheStatus cacheStatus = runRequest( invocationKey, sessionId, requestId, action );
     final Response.Status status =
       cacheStatus == ReplicantSessionManager.CacheStatus.USE ? Response.Status.NO_CONTENT : Response.Status.OK;
@@ -351,14 +351,14 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doUnsubscribeChannel( @Nonnull final String sessionId,
                                            @Nullable final Integer requestId,
-                                           @Nonnull final ChannelDescriptor descriptor )
+                                           @Nonnull final ChannelAddress address )
   {
     final Runnable action = () ->
       getSessionManager().unsubscribe( ensureSession( sessionId, requestId ),
-                                       descriptor,
+                                       address,
                                        true,
                                        EntityMessageCacheUtil.getSessionChanges() );
-    runRequest( getInvocationKey( descriptor.getChannelId(), descriptor.getSubChannelId(), "Unsubscribe" ),
+    runRequest( getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Unsubscribe" ),
                 sessionId,
                 requestId,
                 action );
@@ -367,11 +367,11 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doGetChannel( @Nonnull final String sessionId,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress address,
                                    @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionId, null );
-    final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
+    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null == entry )
     {
       return standardResponse( Response.Status.NOT_FOUND, "No such channel" );
@@ -452,7 +452,7 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelDescriptor toChannelDescriptor( final int channelId )
+  private ChannelAddress toChannelDescriptor( final int channelId )
   {
     if ( getChannelMetaData( channelId ).isInstanceGraph() )
     {
@@ -460,7 +460,7 @@ public abstract class AbstractSessionRestService
         standardResponse( Response.Status.BAD_REQUEST, "Failed to supply subChannelId to instance graph" );
       throw new WebApplicationException( response );
     }
-    return new ChannelDescriptor( channelId );
+    return new ChannelAddress( channelId );
   }
 
   @Nonnull
@@ -470,9 +470,9 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
+  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress address )
   {
-    return getSystemMetaData().getChannelMetaData( descriptor );
+    return getSystemMetaData().getChannelMetaData( address );
   }
 
   @Nullable

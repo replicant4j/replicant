@@ -8,25 +8,25 @@ import javax.annotation.Nonnull;
 public final class ChannelLink
 {
   @Nonnull
-  private final ChannelDescriptor _sourceChannel;
+  private final ChannelAddress _sourceChannel;
   @Nonnull
-  private final ChannelDescriptor _targetChannel;
+  private final ChannelAddress _targetChannel;
 
-  public ChannelLink( @Nonnull final ChannelDescriptor sourceChannel,
-                      @Nonnull final ChannelDescriptor targetChannel )
+  public ChannelLink( @Nonnull final ChannelAddress sourceChannel,
+                      @Nonnull final ChannelAddress targetChannel )
   {
     _sourceChannel = sourceChannel;
     _targetChannel = targetChannel;
   }
 
   @Nonnull
-  public ChannelDescriptor getSourceChannel()
+  public ChannelAddress getSourceChannel()
   {
     return _sourceChannel;
   }
 
   @Nonnull
-  public ChannelDescriptor getTargetChannel()
+  public ChannelAddress getTargetChannel()
   {
     return _targetChannel;
   }

@@ -13,7 +13,7 @@ import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
@@ -155,13 +155,13 @@ final class Encoder
 
   @Nonnull
   private static String getChannelURL( @Nonnull final ReplicantSession session,
-                                       @Nonnull final ChannelDescriptor descriptor,
+                                       @Nonnull final ChannelAddress address,
                                        @Nonnull final UriInfo uri )
   {
-    final String baseURL = getSubscriptionsURL( session, uri ) + '/' + descriptor.getChannelId();
-    if ( null != descriptor.getSubChannelId() )
+    final String baseURL = getSubscriptionsURL( session, uri ) + '/' + address.getChannelId();
+    if ( null != address.getSubChannelId() )
     {
-      return baseURL + '.' + descriptor.getSubChannelId();
+      return baseURL + '.' + address.getSubChannelId();
     }
     else
     {
@@ -217,12 +217,12 @@ final class Encoder
   }
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
-                                              @Nonnull final Set<ChannelDescriptor> descriptors )
+                                              @Nonnull final Set<ChannelAddress> addresses )
   {
-    for ( final ChannelDescriptor descriptor : descriptors )
+    for ( final ChannelAddress address : addresses )
     {
       g.writeStartObject();
-      emitChannelDescriptor( g, descriptor );
+      emitChannelDescriptor( g, address );
       g.writeEnd();
     }
   }
@@ -258,20 +258,20 @@ final class Encoder
   }
 
   private static void emitChannelDescriptor( @Nonnull final JsonGenerator g,
-                                             @Nonnull final ChannelDescriptor descriptor )
+                                             @Nonnull final ChannelAddress address )
   {
-    emitChannelId( g, descriptor.getChannelId() );
-    emitSubChannelId( g, descriptor.getSubChannelId() );
+    emitChannelId( g, address.getChannelId() );
+    emitSubChannelId( g, address.getSubChannelId() );
   }
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
                                               @Nonnull final String key,
-                                              @Nonnull final Set<ChannelDescriptor> descriptors )
+                                              @Nonnull final Set<ChannelAddress> addresses )
   {
-    if ( !descriptors.isEmpty() )
+    if ( !addresses.isEmpty() )
     {
       g.writeStartArray( key );
-      emitChannelDescriptors( g, descriptors );
+      emitChannelDescriptors( g, addresses );
       g.writeEnd();
     }
   }

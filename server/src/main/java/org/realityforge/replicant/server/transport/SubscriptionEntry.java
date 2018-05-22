@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 
 /**
  * An object defining the state of the subscription to a particular channel and
@@ -15,29 +15,29 @@ import org.realityforge.replicant.server.ChannelDescriptor;
 public final class SubscriptionEntry
   implements Comparable<SubscriptionEntry>
 {
-  private final ChannelDescriptor _descriptor;
+  private final ChannelAddress _descriptor;
   /**
    * This is a list of channels that this auto-subscribed to.
    */
-  private final HashSet<ChannelDescriptor> _outwardSubscriptions = new HashSet<>();
-  private final Set<ChannelDescriptor> _roOutwardSubscriptions = Collections.unmodifiableSet( _outwardSubscriptions );
+  private final HashSet<ChannelAddress> _outwardSubscriptions = new HashSet<>();
+  private final Set<ChannelAddress> _roOutwardSubscriptions = Collections.unmodifiableSet( _outwardSubscriptions );
 
   /**
    * This is a list of channels that auto-subscribed to this channel.
    */
-  private final HashSet<ChannelDescriptor> _inwardSubscriptions = new HashSet<>();
-  private final Set<ChannelDescriptor> _roInwardSubscriptions = Collections.unmodifiableSet( _inwardSubscriptions );
+  private final HashSet<ChannelAddress> _inwardSubscriptions = new HashSet<>();
+  private final Set<ChannelAddress> _roInwardSubscriptions = Collections.unmodifiableSet( _inwardSubscriptions );
 
   private boolean _explicitlySubscribed;
   @Nullable
   private Object _filter;
 
-  public SubscriptionEntry( @Nonnull final ChannelDescriptor descriptor )
+  public SubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    _descriptor = descriptor;
+    _descriptor = address;
   }
 
-  public ChannelDescriptor getDescriptor()
+  public ChannelAddress getDescriptor()
   {
     return _descriptor;
   }
@@ -83,7 +83,7 @@ public final class SubscriptionEntry
   /**
    * Return the channels that were subscribed as a result of subscribing to this channel.
    */
-  public Set<ChannelDescriptor> getOutwardSubscriptions()
+  public Set<ChannelAddress> getOutwardSubscriptions()
   {
     return _roOutwardSubscriptions;
   }
@@ -92,10 +92,10 @@ public final class SubscriptionEntry
    * Register the specified channel as outward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  public ChannelDescriptor[] registerOutwardSubscriptions( @Nonnull final ChannelDescriptor... channels )
+  public ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
-    final ArrayList<ChannelDescriptor> results = new ArrayList<>( channels.length );
-    for ( final ChannelDescriptor channel : channels )
+    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    for ( final ChannelAddress channel : channels )
     {
       if ( !_outwardSubscriptions.contains( channel ) )
       {
@@ -103,17 +103,17 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelDescriptor[ results.size() ] );
+    return results.toArray( new ChannelAddress[ results.size() ] );
   }
 
   /**
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
   @Nonnull
-  public ChannelDescriptor[] deregisterOutwardSubscriptions( final ChannelDescriptor... channels )
+  public ChannelAddress[] deregisterOutwardSubscriptions( final ChannelAddress... channels )
   {
-    final ArrayList<ChannelDescriptor> results = new ArrayList<>( channels.length );
-    for ( final ChannelDescriptor channel : channels )
+    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    for ( final ChannelAddress channel : channels )
     {
       if ( _outwardSubscriptions.contains( channel ) )
       {
@@ -121,13 +121,13 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelDescriptor[ results.size() ] );
+    return results.toArray( new ChannelAddress[ results.size() ] );
   }
 
   /**
    * Return the channels that were auto-subscribed to the current channel.
    */
-  public Set<ChannelDescriptor> getInwardSubscriptions()
+  public Set<ChannelAddress> getInwardSubscriptions()
   {
     return _roInwardSubscriptions;
   }
@@ -136,10 +136,10 @@ public final class SubscriptionEntry
    * Register the specified channel as inward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  public ChannelDescriptor[] registerInwardSubscriptions( @Nonnull final ChannelDescriptor... channels )
+  public ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
-    final ArrayList<ChannelDescriptor> results = new ArrayList<>( channels.length );
-    for ( final ChannelDescriptor channel : channels )
+    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    for ( final ChannelAddress channel : channels )
     {
       if ( !_inwardSubscriptions.contains( channel ) )
       {
@@ -147,17 +147,17 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelDescriptor[ results.size() ] );
+    return results.toArray( new ChannelAddress[ results.size() ] );
   }
 
   /**
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
   @Nonnull
-  public ChannelDescriptor[] deregisterInwardSubscriptions( @Nonnull final ChannelDescriptor... channels )
+  public ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
-    final ArrayList<ChannelDescriptor> results = new ArrayList<>( channels.length );
-    for ( final ChannelDescriptor channel : channels )
+    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    for ( final ChannelAddress channel : channels )
     {
       if ( _inwardSubscriptions.contains( channel ) )
       {
@@ -165,7 +165,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelDescriptor[ results.size() ] );
+    return results.toArray( new ChannelAddress[ results.size() ] );
   }
 
   @Override

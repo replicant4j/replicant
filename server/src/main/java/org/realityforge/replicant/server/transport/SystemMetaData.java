@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 
 public final class SystemMetaData
 {
@@ -43,9 +43,9 @@ public final class SystemMetaData
   }
 
   @Nonnull
-  public ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
+  public ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress address )
   {
-    return getChannelMetaData( descriptor.getChannelId() );
+    return getChannelMetaData( address.getChannelId() );
   }
 
   /**

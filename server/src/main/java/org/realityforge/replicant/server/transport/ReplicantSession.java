@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 
 public final class ReplicantSession
   implements Serializable
@@ -16,10 +16,10 @@ public final class ReplicantSession
   private long _createdAt;
   private long _lastAccessedAt;
   private final PacketQueue _queue = new PacketQueue();
-  private final HashMap<ChannelDescriptor, String> _eTags = new HashMap<>();
-  private final Map<ChannelDescriptor, String> _roETags = Collections.unmodifiableMap( _eTags );
-  private final HashMap<ChannelDescriptor, SubscriptionEntry> _subscriptions = new HashMap<>();
-  private final Map<ChannelDescriptor, SubscriptionEntry> _roSubscriptions =
+  private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
+  private final Map<ChannelAddress, String> _roETags = Collections.unmodifiableMap( _eTags );
+  private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+  private final Map<ChannelAddress, SubscriptionEntry> _roSubscriptions =
     Collections.unmodifiableMap( _subscriptions );
 
   public ReplicantSession( @Nullable final String userID, @Nonnull final String sessionId )
@@ -78,31 +78,31 @@ public final class ReplicantSession
   }
 
   @Nonnull
-  public Map<ChannelDescriptor, String> getETags()
+  public Map<ChannelAddress, String> getETags()
   {
     return _roETags;
   }
 
   @Nullable
-  public String getETag( @Nonnull final ChannelDescriptor descriptor )
+  public String getETag( @Nonnull final ChannelAddress address )
   {
-    return _eTags.get( descriptor );
+    return _eTags.get( address );
   }
 
-  public void setETag( @Nonnull final ChannelDescriptor descriptor, @Nullable final String eTag )
+  public void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
   {
     if ( null == eTag )
     {
-      _eTags.remove( descriptor );
+      _eTags.remove( address );
     }
     else
     {
-      _eTags.put( descriptor, eTag );
+      _eTags.put( address, eTag );
     }
   }
 
   @Nonnull
-  public final Map<ChannelDescriptor, SubscriptionEntry> getSubscriptions()
+  public final Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
   {
     return _roSubscriptions;
   }
@@ -111,12 +111,12 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nonnull
-  public final SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelDescriptor descriptor )
+  public final SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    final SubscriptionEntry entry = findSubscriptionEntry( descriptor );
+    final SubscriptionEntry entry = findSubscriptionEntry( address );
     if ( null == entry )
     {
-      throw new IllegalStateException( "Unable to locate subscription entry for " + descriptor );
+      throw new IllegalStateException( "Unable to locate subscription entry for " + address );
     }
     return entry;
   }
@@ -127,17 +127,17 @@ public final class ReplicantSession
    * @throws IllegalStateException if subscription already exists.
    */
   @Nonnull
-  public final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelDescriptor descriptor )
+  public final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    if ( !_subscriptions.containsKey( descriptor ) )
+    if ( !_subscriptions.containsKey( address ) )
     {
-      final SubscriptionEntry entry = new SubscriptionEntry( descriptor );
-      _subscriptions.put( descriptor, entry );
+      final SubscriptionEntry entry = new SubscriptionEntry( address );
+      _subscriptions.put( address, entry );
       return entry;
     }
     else
     {
-      throw new IllegalStateException( "SubscriptionEntry for channel " + descriptor + " already exists" );
+      throw new IllegalStateException( "SubscriptionEntry for channel " + address + " already exists" );
     }
   }
 
@@ -145,17 +145,17 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nullable
-  public final SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelDescriptor descriptor )
+  public final SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    return _subscriptions.get( descriptor );
+    return _subscriptions.get( address );
   }
 
   /**
    * Return true if specified channel is present.
    */
-  public final boolean isSubscriptionEntryPresent( final ChannelDescriptor descriptor )
+  public final boolean isSubscriptionEntryPresent( final ChannelAddress address )
   {
-    return null != findSubscriptionEntry( descriptor );
+    return null != findSubscriptionEntry( address );
   }
 
   /**

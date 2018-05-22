@@ -63,13 +63,13 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.addAction( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) );
+    changeSet.addAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelId(), (Integer) 2 );
+    assertEquals( action.getAddress().getChannelId(), 1 );
+    assertEquals( action.getAddress().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -82,13 +82,13 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final TestFilter myFilter = new TestFilter( 23 );
-    changeSet.addAction( new ChannelDescriptor( 1, 2 ), Action.ADD, myFilter );
+    changeSet.addAction( new ChannelAddress( 1, 2 ), Action.ADD, myFilter );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelId(), (Integer) 2 );
+    assertEquals( action.getAddress().getChannelId(), 1 );
+    assertEquals( action.getAddress().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
 
     final JsonObject filter =
@@ -131,7 +131,7 @@ public class ChangeSetTest
     changeSet.merge( change1 );
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.addAction( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) );
+    changeSet.addAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
 
     final ChangeSet changeSet2 = new ChangeSet();
     changeSet2.merge( changeSet, true );
@@ -146,8 +146,8 @@ public class ChangeSetTest
     assertEquals( actions.size(), 1 );
 
     final ChannelAction action = actions.get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelId(), (Integer) 2 );
+    assertEquals( action.getAddress().getChannelId(), 1 );
+    assertEquals( action.getAddress().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -164,7 +164,7 @@ public class ChangeSetTest
     final EntityMessageSet messageSet = new EntityMessageSet();
     messageSet.merge( message1 );
 
-    changeSet.merge( new ChannelDescriptor( 1 ), messageSet );
+    changeSet.merge( new ChannelAddress( 1 ), messageSet );
 
     final Collection<Change> changes = changeSet.getChanges();
     assertEquals( changes.size(), 1 );
