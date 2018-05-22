@@ -485,7 +485,7 @@ public abstract class Connector
     _postMessageResponseAction = postMessageResponseAction;
   }
 
-  protected void completeMessageResponse()
+  void completeMessageResponse()
   {
     final Connection connection = ensureConnection();
     final MessageResponse response = connection.ensureCurrentMessageResponse();
@@ -642,7 +642,7 @@ public abstract class Connector
   /**
    * Parse the json data associated with the current response and then enqueue it.
    */
-  protected void parseMessageResponse()
+  void parseMessageResponse()
   {
     final Connection connection = ensureConnection();
     final MessageResponse response = connection.ensureCurrentMessageResponse();
@@ -722,7 +722,7 @@ public abstract class Connector
   @Nonnull
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
-  protected void validateWorld()
+  void validateWorld()
   {
     ensureCurrentMessageResponse().markWorldAsValidated();
     if ( Replicant.shouldValidateEntitiesOnLoad() )
