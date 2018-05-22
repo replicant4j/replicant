@@ -1,5 +1,6 @@
 package replicant;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
@@ -72,5 +73,13 @@ public class EntityChannel
   {
     assert null != scid;
     return scid.intValue();
+  }
+
+  @JsOverlay
+  @Nonnull
+  public ChannelAddress toAddress( final int schemaId )
+  {
+    final Integer scid = hasSubChannelId() ? getSubChannelId() : null;
+    return new ChannelAddress( schemaId, getId(), scid );
   }
 }

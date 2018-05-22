@@ -745,16 +745,55 @@ public abstract class Connector
     EntityChange change;
     for ( int i = 0; i < _changesToProcessPerTick && null != ( change = response.nextEntityChange() ); i++ )
     {
-      //TODO: Inline all or the majority of the ChangeMappers logic here
-      final Object entity = getChangeMapper().applyChange( change );
-      if ( change.isUpdate() )
+      final int id = change.getId();
+      final int typeId = change.getTypeId();
+      final EntitySchema entitySchema = getSchema().getEntity( typeId );
+      final Class<?> type = entitySchema.getType();
+      Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId( type, id );
+      if ( change.isRemove() )
       {
-        response.incEntityUpdateCount();
-        response.changeProcessed( entity );
+        if ( null != entity )
+        {
+          Disposable.dispose( entity );
+        }
+        else
+        {
+          //TODO: Invariant failure?
+        }
+        response.incEntityRemoveCount();
       }
       else
       {
-        response.incEntityRemoveCount();
+        final EntityChangeData data = change.getData();
+        if ( null == entity )
+        {
+          entity = getReplicantContext().findOrCreateEntity( type, id );
+          final Object userObject = getChangeMapper().createEntity( entitySchema, id, data );
+          entity.setUserObject( userObject );
+
+        }
+        else
+        {
+          final Object userObject = entity.getUserObject();
+          assert null != userObject;
+          getChangeMapper().updateEntity( entitySchema, userObject, data );
+        }
+
+        final EntityChannel[] changeCount = change.getChannels();
+        final int schemaId = getSchema().getId();
+        for ( final EntityChannel entityChannel : changeCount )
+        {
+          final ChannelAddress address = entityChannel.toAddress( schemaId );
+          final Subscription subscription = getReplicantContext().findSubscription( address );
+          //TODO: Improve error handling for subscription
+          assert null != subscription;
+          entity.linkToSubscription( subscription );
+        }
+
+        response.incEntityUpdateCount();
+        final Object userObject = entity.getUserObject();
+        assert null != userObject;
+        response.changeProcessed( userObject );
       }
     }
   }

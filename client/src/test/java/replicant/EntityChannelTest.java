@@ -13,6 +13,7 @@ public class EntityChannelTest
 
     assertEquals( entityChannel.getId(), 42 );
     assertEquals( entityChannel.hasSubChannelId(), false );
+    assertEquals( entityChannel.toAddress( 1 ), new ChannelAddress( 1, 42 ) );
   }
 
   @Test
@@ -23,5 +24,6 @@ public class EntityChannelTest
     assertEquals( entityChannel.getId(), 42 );
     assertEquals( entityChannel.hasSubChannelId(), true );
     assertEquals( entityChannel.getSubChannelId(), 31 );
+    assertEquals( entityChannel.toAddress( 1 ), new ChannelAddress( 1, 42, 31 ) );
   }
 }

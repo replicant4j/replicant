@@ -1121,7 +1121,16 @@ public class ConnectorTest
   @Test
   public void processEntityChanges()
   {
-    final TestConnector connector = TestConnector.create();
+    final int schemaId = 1;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final SystemSchema schema =
+      new SystemSchema( schemaId,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{ entitySchema } );
+    final TestConnector connector = TestConnector.create( schema );
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
@@ -1129,25 +1138,34 @@ public class ConnectorTest
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connection.setCurrentMessageResponse( response );
 
-    final Linkable entity1 = mock( Linkable.class );
-    final Linkable entity2 = mock( Linkable.class );
-    final Linkable entity3 = mock( Linkable.class );
+    final Linkable userObject1 = mock( Linkable.class );
+    final Linkable userObject2 = mock( Linkable.class );
 
+    // Pause scheduler to avoid converge of subscriptions
+    pauseScheduler();
+
+    final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 1 );
+    safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+
+    // This entity is to be updated
+    final Entity entity2 = safeAction( () -> Replicant.context().findOrCreateEntity( MyEntity.class, 2 ) );
+    safeAction( () -> entity2.setUserObject( userObject2 ) );
+    // This entity is to be removed
+    final Entity entity3 = safeAction( () -> Replicant.context().findOrCreateEntity( MyEntity.class, 3 ) );
+
+    final EntityChangeData data1 = mock( EntityChangeData.class );
+    final EntityChangeData data2 = mock( EntityChangeData.class );
     final EntityChange[] entityChanges = {
       // Update changes
-      EntityChange.create( 1, 1, new EntityChannel[]{ EntityChannel.create( 1 ) }, mock( EntityChangeData.class ) ),
-      EntityChange.create( 2, 1, new EntityChannel[]{ EntityChannel.create( 1 ) }, mock( EntityChangeData.class ) ),
+      EntityChange.create( 1, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data1 ),
+      EntityChange.create( 2, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data2 ),
       // Remove change
-      EntityChange.create( 3, 1, new EntityChannel[]{ EntityChannel.create( 1 ) } )
+      EntityChange.create( 3, 0, new EntityChannel[]{ EntityChannel.create( 1 ) } )
     };
     final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, null, null, entityChanges );
     response.recordChangeSet( changeSet, null );
 
-    when( connector.getChangeMapper().applyChange( entityChanges[ 0 ] ) ).thenReturn( entity1 );
-    when( connector.getChangeMapper().applyChange( entityChanges[ 1 ] ) ).thenReturn( entity2 );
-    when( connector.getChangeMapper().applyChange( entityChanges[ 2 ] ) ).thenReturn( entity3 );
-
-    verify( connector.getChangeMapper(), never() ).applyChange( any( EntityChange.class ) );
+    when( connector.getChangeMapper().createEntity( entitySchema, 1, data1 ) ).thenReturn( userObject1 );
 
     assertEquals( response.getUpdatedEntities().size(), 0 );
     assertEquals( response.getEntityUpdateCount(), 0 );
@@ -1157,10 +1175,13 @@ public class ConnectorTest
 
     connector.processEntityChanges();
 
-    verify( connector.getChangeMapper(), times( 1 ) ).applyChange( any( EntityChange.class ) );
+    verify( connector.getChangeMapper(), times( 1 ) ).createEntity( entitySchema, 1, data1 );
+    verify( connector.getChangeMapper(), never() ).updateEntity( entitySchema, userObject1, data1 );
+    verify( connector.getChangeMapper(), never() ).createEntity( entitySchema, 2, data2 );
+    verify( connector.getChangeMapper(), never() ).updateEntity( entitySchema, userObject2, data2 );
 
     assertEquals( response.getUpdatedEntities().size(), 1 );
-    assertEquals( response.getUpdatedEntities().contains( entity1 ), true );
+    assertEquals( response.getUpdatedEntities().contains( userObject1 ), true );
     assertEquals( response.getEntityUpdateCount(), 1 );
     assertEquals( response.getEntityRemoveCount(), 0 );
 
@@ -1168,13 +1189,18 @@ public class ConnectorTest
 
     connector.processEntityChanges();
 
-    verify( connector.getChangeMapper(), times( 3 ) ).applyChange( any( EntityChange.class ) );
+    verify( connector.getChangeMapper(), times( 1 ) ).createEntity( entitySchema, 1, data1 );
+    verify( connector.getChangeMapper(), never() ).updateEntity( entitySchema, userObject1, data1 );
+    verify( connector.getChangeMapper(), never() ).createEntity( entitySchema, 2, data2 );
+    verify( connector.getChangeMapper(), times( 1 ) ).updateEntity( entitySchema, userObject2, data2 );
 
     assertEquals( response.getUpdatedEntities().size(), 2 );
-    assertEquals( response.getUpdatedEntities().contains( entity1 ), true );
-    assertEquals( response.getUpdatedEntities().contains( entity2 ), true );
+    assertEquals( response.getUpdatedEntities().contains( userObject1 ), true );
+    assertEquals( response.getUpdatedEntities().contains( userObject2 ), true );
     assertEquals( response.getEntityUpdateCount(), 2 );
     assertEquals( response.getEntityRemoveCount(), 1 );
+    assertEquals( Disposable.isDisposed( entity2 ), false );
+    assertEquals( Disposable.isDisposed( entity3 ), true );
   }
 
   @Test
@@ -2271,7 +2297,10 @@ public class ConnectorTest
     {
       assertEquals( response.areEntityChangesPending(), true );
 
-      when( connector.getChangeMapper().applyChange( any( EntityChange.class ) ) ).thenReturn( mock( Linkable.class ) );
+      when( connector.getChangeMapper().createEntity( any( EntitySchema.class ),
+                                                      anyInt(),
+                                                      any( EntityChangeData.class ) ) )
+        .thenReturn( mock( Linkable.class ) );
 
       // Process Entity Changes in response
       assertTrue( connector.progressResponseProcessing() );
