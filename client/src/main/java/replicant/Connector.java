@@ -790,7 +790,13 @@ public abstract class Connector
         {
           final ChannelAddress address = entityChannel.toAddress( schemaId );
           final Subscription subscription = getReplicantContext().findSubscription( address );
-          //TODO: Improve error handling for subscription
+          if ( Replicant.shouldCheckInvariants() )
+          {
+            invariant( () -> null != subscription,
+                       () -> "Replicant-0069: ChangeSet " + response.getChangeSet().getSequence() + " contained an " +
+                             "EntityChange message referencing channel " + entityChannel.toAddress( schemaId ) +
+                             " but no such subscription exists locally." );
+          }
           assert null != subscription;
           entity.linkToSubscription( subscription );
         }

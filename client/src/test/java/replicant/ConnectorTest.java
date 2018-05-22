@@ -1204,6 +1204,46 @@ public class ConnectorTest
   }
 
   @Test
+  public void processEntityChanges_referenceNonExistentSubscription()
+  {
+    final int schemaId = 1;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final SystemSchema schema =
+      new SystemSchema( schemaId,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{ entitySchema } );
+    final TestConnector connector = TestConnector.create( schema );
+    connector.setLinksToProcessPerTick( 1 );
+
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    final Linkable userObject1 = mock( Linkable.class );
+
+    // Pause scheduler to avoid converge of subscriptions
+    pauseScheduler();
+
+    final EntityChangeData data1 = mock( EntityChangeData.class );
+    final EntityChange[] entityChanges = {
+      EntityChange.create( 1, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data1 )
+    };
+    final ChangeSet changeSet = ChangeSet.create( 42, null, null, null, entityChanges );
+    response.recordChangeSet( changeSet, null );
+
+    when( connector.getChangeMapper().createEntity( entitySchema, 1, data1 ) ).thenReturn( userObject1 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, connector::processEntityChanges );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0069: ChangeSet 42 contained an EntityChange message referencing channel 1.1 but no such subscription exists locally." );
+  }
+
+  @Test
   public void processEntityChanges_deleteNonExistingEntity()
   {
     final int schemaId = 1;
