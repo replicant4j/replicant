@@ -1396,7 +1396,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges() );
+      expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1475,7 +1475,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges() );
+      expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );
@@ -1511,7 +1511,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.processChannelChanges() );
+      expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );
