@@ -4,7 +4,6 @@ import arez.Arez;
 import arez.annotations.ArezComponent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.transport.ChangeMapper;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings( "SameParameterValue" )
