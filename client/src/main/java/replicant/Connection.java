@@ -292,7 +292,7 @@ public final class Connection
    *
    * @return true if a message was selected, false otherwise.
    */
-  public boolean selectNextMessageResponse()
+  boolean selectNextMessageResponse()
   {
     assert null == _currentMessageResponse;
     // Step: Retrieve any out of band actions
