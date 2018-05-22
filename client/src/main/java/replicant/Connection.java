@@ -246,9 +246,9 @@ public final class Connection
   }
 
   @Nullable
-  public RequestEntry getRequest( @Nonnull final String requestID )
+  public RequestEntry getRequest( @Nonnull final String requestId )
   {
-    return _requests.get( requestID );
+    return _requests.get( requestId );
   }
 
   Map<String, RequestEntry> getRequests()
@@ -256,9 +256,9 @@ public final class Connection
     return _requests;
   }
 
-  public boolean removeRequest( @Nonnull final String requestID )
+  boolean removeRequest( @Nonnull final String requestId )
   {
-    return null != _requests.remove( requestID );
+    return null != _requests.remove( requestId );
   }
 
   private String nextRequestId()
