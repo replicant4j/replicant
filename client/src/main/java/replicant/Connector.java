@@ -89,8 +89,7 @@ public abstract class Connector
   @Nullable
   private SafeProcedure _postMessageResponseAction;
 
-  protected Connector( @Nullable final ReplicantContext context,
-                       @Nonnull final SystemSchema schema )
+  protected Connector( @Nullable final ReplicantContext context, @Nonnull final SystemSchema schema )
   {
     super( context );
     _schema = Objects.requireNonNull( schema );
