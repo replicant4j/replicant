@@ -379,7 +379,7 @@ public abstract class AbstractDataLoaderService
     //Step: Validate the world after the change set has been applied (if feature is enabled)
     if ( !response.hasWorldBeenValidated() )
     {
-      validateWorld( response );
+      validateWorld();
       return true;
     }
     else

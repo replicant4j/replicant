@@ -1763,7 +1763,9 @@ public class ConnectorTest
   public void validateWorld_invalidEntity()
   {
     final TestConnector connector = TestConnector.create();
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connector.ensureConnection().setCurrentMessageResponse( response );
 
     assertEquals( response.hasWorldBeenValidated(), false );
 
@@ -1774,7 +1776,7 @@ public class ConnectorTest
     safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.validateWorld( response ) );
+      expectThrows( IllegalStateException.class, connector::validateWorld );
 
     assertEquals( exception.getMessage(),
                   "Replicant-0065: Entity failed to verify during validation process. Entity = MyEntity/1" );
@@ -1787,7 +1789,9 @@ public class ConnectorTest
   {
     ReplicantTestUtil.noValidateEntitiesOnLoad();
     final TestConnector connector = TestConnector.create();
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connector.ensureConnection().setCurrentMessageResponse( response );
 
     assertEquals( response.hasWorldBeenValidated(), true );
 
@@ -1797,7 +1801,7 @@ public class ConnectorTest
     final Exception error = new Exception();
     safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
 
-    connector.validateWorld( response );
+    connector.validateWorld();
 
     assertEquals( response.hasWorldBeenValidated(), true );
   }
@@ -1806,7 +1810,9 @@ public class ConnectorTest
   public void validateWorld_validEntity()
   {
     final TestConnector connector = TestConnector.create();
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connector.ensureConnection().setCurrentMessageResponse( response );
 
     assertEquals( response.hasWorldBeenValidated(), false );
 
@@ -1814,7 +1820,7 @@ public class ConnectorTest
     final Entity entity1 =
       safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
 
-    connector.validateWorld( response );
+    connector.validateWorld();
 
     assertEquals( response.hasWorldBeenValidated(), true );
   }

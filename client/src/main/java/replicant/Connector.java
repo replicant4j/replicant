@@ -655,9 +655,9 @@ public abstract class Connector
   @Nonnull
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
-  protected void validateWorld( @Nonnull final MessageResponse response )
+  protected void validateWorld()
   {
-    response.markWorldAsValidated();
+    ensureConnection().ensureCurrentMessageResponse().markWorldAsValidated();
     if ( Replicant.shouldValidateEntitiesOnLoad() )
     {
       getReplicantContext().getValidator().validateEntities();
