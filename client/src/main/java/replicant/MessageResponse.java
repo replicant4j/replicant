@@ -332,7 +332,7 @@ public final class MessageResponse
   }
 
   @TestOnly
-  final LinkedList<Linkable> getUpdatedEntities()
+  LinkedList<Linkable> getUpdatedEntities()
   {
     return _updatedEntities;
   }
