@@ -360,6 +360,6 @@ public final class Connection
   @TestOnly
   void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest request )
   {
-    _currentAreaOfInterestRequests.add( first );
+    _currentAreaOfInterestRequests.add( request );
   }
 }
