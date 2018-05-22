@@ -256,9 +256,15 @@ public final class Connection
     return _requests;
   }
 
-  boolean removeRequest( @Nonnull final String requestId )
+  void removeRequest( @Nonnull final String requestId )
   {
-    return null != _requests.remove( requestId );
+    final boolean removed = null != _requests.remove( requestId );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> removed,
+                 () -> "Replicant-0067: Attempted to remove request with id " + requestId +
+                       " from connection with id '" + getConnectionId() + "' but no such request exists." );
+    }
   }
 
   private String nextRequestId()

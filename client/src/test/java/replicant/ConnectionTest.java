@@ -413,10 +413,20 @@ public class ConnectionTest
     assertEquals( connection.getRequests().get( request.getRequestId() ), request );
     assertEquals( connection.getRequest( "NotHere" + request.getRequestId() ), null );
 
-    assertTrue( connection.removeRequest( request.getRequestId() ) );
-    assertFalse( connection.removeRequest( request.getRequestId() ) );
+    connection.removeRequest( request.getRequestId() );
 
     assertEquals( connection.getRequest( request.getRequestId() ), null );
+  }
+
+  @Test
+  public void removeRequestWhenNoRequest()
+  {
+    final Connection connection = new Connection( TestConnector.create(), "123" );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connection.removeRequest( "789" ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0067: Attempted to remove request with id 789 from connection with id '123' but no such request exists." );
   }
 
   @Test
