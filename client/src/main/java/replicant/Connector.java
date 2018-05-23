@@ -189,7 +189,7 @@ public abstract class Connector
   }
 
   @Nonnull
-  protected final Connection ensureConnection()
+  final Connection ensureConnection()
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -833,7 +833,7 @@ public abstract class Connector
     }
   }
 
-  protected final void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  final void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededAddRequests( requests );
 
@@ -921,7 +921,7 @@ public abstract class Connector
     getTransport().requestBulkSubscribe( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
   }
 
-  protected final void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  final void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededUpdateRequests( requests );
 
@@ -979,7 +979,7 @@ public abstract class Connector
     getTransport().requestBulkSubscriptionUpdate( addresses, filter, onSuccess, onError );
   }
 
-  protected final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededRemoveRequests( requests );
 
