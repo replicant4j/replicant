@@ -90,8 +90,9 @@ abstract class SchemaService
    */
   final void registerSchema( @Nonnull final SystemSchema schema )
   {
+    final int schemaId = schema.getId();
     getSchemasObservable().preReportChanged();
-    _schemas.put( schema.getId(), schema );
+    _schemas.put( schemaId, schema );
     getSchemasObservable().reportChanged();
   }
 
