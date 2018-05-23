@@ -355,13 +355,6 @@ public abstract class Connector
   protected abstract void activateScheduler();
 
   /**
-   * Perform a single step in sending one (or a batch) or requests to the server.
-   *
-   * @return true if more work is to be done.
-   */
-  protected abstract boolean progressAreaOfInterestRequestProcessing();
-
-  /**
    * Perform a single step processing messages received from the server.
    *
    * @return true if more work is to be done.
@@ -833,6 +826,41 @@ public abstract class Connector
     if ( Replicant.shouldValidateEntitiesOnLoad() )
     {
       getReplicantContext().getValidator().validateEntities();
+    }
+  }
+
+  /**
+   * Perform a single step in sending one (or a batch) or requests to the server.
+   */
+  protected boolean progressAreaOfInterestRequestProcessing()
+  {
+    final List<AreaOfInterestRequest> requests =
+      new ArrayList<>( ensureConnection().getCurrentAreaOfInterestRequests() );
+    if ( requests.isEmpty() )
+    {
+      return false;
+    }
+    else if ( requests.get( 0 ).isInProgress() )
+    {
+      return false;
+    }
+    else
+    {
+      requests.forEach( AreaOfInterestRequest::markAsInProgress );
+      final AreaOfInterestRequest.Type type = requests.get( 0 ).getType();
+      if ( AreaOfInterestRequest.Type.ADD == type )
+      {
+        progressAreaOfInterestAddRequests( requests );
+      }
+      else if ( AreaOfInterestRequest.Type.REMOVE == type )
+      {
+        progressAreaOfInterestRemoveRequests( requests );
+      }
+      else
+      {
+        progressAreaOfInterestUpdateRequests( requests );
+      }
+      return true;
     }
   }
 

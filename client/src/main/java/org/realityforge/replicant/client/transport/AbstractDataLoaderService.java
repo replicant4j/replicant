@@ -1,14 +1,8 @@
 package org.realityforge.replicant.client.transport;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.AreaOfInterestRequest;
-import replicant.CacheEntry;
-import replicant.CacheService;
-import replicant.ChannelAddress;
 import replicant.Connection;
 import replicant.Connector;
 import replicant.ReplicantContext;
@@ -74,40 +68,5 @@ public abstract class AbstractDataLoaderService
       getSessionContext().setConnection( connection );
     }
     action.call();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected boolean progressAreaOfInterestRequestProcessing()
-  {
-    final List<AreaOfInterestRequest> requests = ensureConnection().getCurrentAreaOfInterestRequests();
-    if ( requests.isEmpty() )
-    {
-      return false;
-    }
-    else if ( requests.get( 0 ).isInProgress() )
-    {
-      return false;
-    }
-    else
-    {
-      requests.forEach( AreaOfInterestRequest::markAsInProgress );
-      final AreaOfInterestRequest.Type type = requests.get( 0 ).getType();
-      if ( AreaOfInterestRequest.Type.ADD == type )
-      {
-        progressAreaOfInterestAddRequests( requests );
-      }
-      else if ( AreaOfInterestRequest.Type.REMOVE == type )
-      {
-        progressAreaOfInterestRemoveRequests( requests );
-      }
-      else
-      {
-        progressAreaOfInterestUpdateRequests( requests );
-      }
-      return true;
-    }
   }
 }

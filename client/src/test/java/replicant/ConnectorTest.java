@@ -4260,4 +4260,184 @@ public class ConnectorTest
       assertEquals( e.getError(), error );
     } );
   }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestRequestProcessing_Noop()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    pauseScheduler();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+
+    connector.progressAreaOfInterestRequestProcessing();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestRequestProcessing_InProgress()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    request1.markAsInProgress();
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestRequestProcessing();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestRequestProcessing_Add()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestRequestProcessing();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestRequestProcessing_Update()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
+
+    pauseScheduler();
+
+    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestRequestProcessing();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestRequestProcessing_Remove()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
+
+    pauseScheduler();
+
+    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestRequestProcessing();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
+  }
 }
