@@ -2421,6 +2421,717 @@ public class ConnectorTest
 
   @SuppressWarnings( "unchecked" )
   @Test
+  public void progressAreaOfInterestAddRequest_onSuccess()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request =
+      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<SafeProcedure> onSuccess = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      assertEquals( i.getArguments()[ 0 ], address );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 5 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestSubscribe( eq( address ),
+                         eq( filter ),
+                         any(),
+                         any(),
+                         any(),
+                         any( SafeProcedure.class ),
+                         any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestAddRequest( request );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+
+    onSuccess.get().call();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestAddRequest_onSuccess_CachedValueNotInLocalCache()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, true, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request =
+      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request );
+
+    Replicant.context().setCacheService( new TestCacheService() );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<SafeProcedure> onSuccess = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      assertEquals( i.getArguments()[ 0 ], address );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 5 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestSubscribe( eq( address ),
+                         eq( filter ),
+                         any(),
+                         any(),
+                         any(),
+                         any( SafeProcedure.class ),
+                         any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestAddRequest( request );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+
+    onSuccess.get().call();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCache()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, true, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request =
+      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request );
+
+    final TestCacheService cacheService = new TestCacheService();
+    Replicant.context().setCacheService( cacheService );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final String key = "1.0";
+    final String eTag = "";
+    cacheService.store( key, eTag, ValueUtil.randomString() );
+    final AtomicReference<SafeProcedure> onCacheValid = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      assertEquals( i.getArguments()[ 0 ], address );
+      assertEquals( i.getArguments()[ 2 ], key );
+      assertEquals( i.getArguments()[ 3 ], eTag );
+      assertNotNull( i.getArguments()[ 4 ] );
+      onCacheValid.set( (SafeProcedure) i.getArguments()[ 4 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestSubscribe( eq( address ),
+                         eq( filter ),
+                         any(),
+                         any(),
+                         any( SafeProcedure.class ),
+                         any( SafeProcedure.class ),
+                         any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestAddRequest( request );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+
+    assertEquals( connector.isSchedulerActive(), false );
+    assertEquals( connection.getOutOfBandResponses().size(), 0 );
+
+    onCacheValid.get().call();
+
+    assertEquals( connector.isSchedulerActive(), true );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertEquals( connection.getOutOfBandResponses().size(), 1 );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 1 );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestAddRequest_onFailure()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request =
+      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      assertEquals( i.getArguments()[ 0 ], address );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 6 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestSubscribe( eq( address ),
+                         eq( filter ),
+                         any(),
+                         any(),
+                         any(),
+                         any( SafeProcedure.class ),
+                         any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressAreaOfInterestAddRequest( request );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+
+    final Throwable error = new Throwable();
+    onFailure.get().accept( error );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressBulkAreaOfInterestAddRequests_onSuccess()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
+    final AreaOfInterestRequest request3 =
+      new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    final Subscription subscription1 =
+      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    final Subscription subscription2 =
+      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
+    final Subscription subscription3 =
+      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+    connection.injectCurrentAreaOfInterestRequest( request2 );
+    connection.injectCurrentAreaOfInterestRequest( request3 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<SafeProcedure> onSuccess = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
+      assertEquals( addresses.contains( address1 ), true );
+      assertEquals( addresses.contains( address2 ), true );
+      assertEquals( addresses.contains( address3 ), true );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
+                             eq( filter ),
+                             any( SafeProcedure.class ),
+                             any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressBulkAreaOfInterestAddRequests( Arrays.asList( request1, request2, request3 ) );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+
+    handler.assertEventCount( 3 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+    } );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address2 );
+    } );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address3 );
+    } );
+
+    onSuccess.get().call();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+
+    handler.assertEventCount( 6 );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+    } );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address2 );
+    } );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address3 );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressBulkAreaOfInterestAddRequests_onFailure()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
+    final AreaOfInterestRequest request3 =
+      new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    final Subscription subscription1 =
+      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    final Subscription subscription2 =
+      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
+    final Subscription subscription3 =
+      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+    connection.injectCurrentAreaOfInterestRequest( request2 );
+    connection.injectCurrentAreaOfInterestRequest( request3 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
+      assertEquals( addresses.contains( address1 ), true );
+      assertEquals( addresses.contains( address2 ), true );
+      assertEquals( addresses.contains( address3 ), true );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
+                             eq( filter ),
+                             any( SafeProcedure.class ),
+                             any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    connector.progressBulkAreaOfInterestAddRequests( Arrays.asList( request1, request2, request3 ) );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+
+    handler.assertEventCount( 3 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+    } );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address2 );
+    } );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address3 );
+    } );
+
+    final Throwable error = new Throwable();
+    onFailure.get().accept( error );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+
+    handler.assertEventCount( 6 );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+      assertEquals( e.getError(), error );
+    } );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address2 );
+      assertEquals( e.getError(), error );
+    } );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address3 );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestAddRequests_onFailure_singleRequests()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 6 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestSubscribe( eq( address1 ),
+                         eq( filter ),
+                         any(),
+                         any(),
+                         any(),
+                         any( SafeProcedure.class ),
+                         any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    requests.add( request1 );
+    connector.progressAreaOfInterestAddRequests( requests );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+    } );
+
+    final Throwable error = new Throwable();
+    onFailure.get().accept( error );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestAddRequests_onFailure_zeroRequests()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    // Pass in empty requests list to simulate that they are all filtered out
+    connector.progressAreaOfInterestAddRequests( requests );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+
+    handler.assertEventCount( 0 );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void progressAreaOfInterestAddRequests_onFailure_multipleRequests()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request1 =
+      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
+    final AreaOfInterestRequest request2 =
+      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+    connection.injectCurrentAreaOfInterestRequest( request1 );
+    connection.injectCurrentAreaOfInterestRequest( request2 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
+    final AtomicInteger callCount = new AtomicInteger();
+    doAnswer( i -> {
+      callCount.incrementAndGet();
+      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
+      assertEquals( addresses.contains( address1 ), true );
+      assertEquals( addresses.contains( address2 ), true );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
+      return null;
+    } )
+      .when( connector.getTransport() )
+      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
+                             eq( filter ),
+                             any( SafeProcedure.class ),
+                             any() );
+
+    assertEquals( callCount.get(), 0 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    requests.add( request1 );
+    requests.add( request2 );
+    connector.progressAreaOfInterestAddRequests( requests );
+
+    assertEquals( callCount.get(), 1 );
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+    } );
+    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address2 );
+    } );
+
+    final Throwable error = new Throwable();
+    onFailure.get().accept( error );
+
+    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+
+    handler.assertEventCount( 4 );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address1 );
+      assertEquals( e.getError(), error );
+    } );
+    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address2 );
+      assertEquals( e.getError(), error );
+    } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
   public void progressAreaOfInterestUpdateRequest_onSuccess()
   {
     final ChannelSchema channelSchema =

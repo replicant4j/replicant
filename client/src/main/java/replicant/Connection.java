@@ -112,13 +112,13 @@ public final class Connection
     _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( descriptor, action, filter ) );
   }
 
-  public void enqueueResponse( @Nonnull final String rawJsonData )
+  void enqueueResponse( @Nonnull final String rawJsonData )
   {
     _unparsedResponses.add( new MessageResponse( rawJsonData ) );
   }
 
-  public void enqueueOutOfBandResponse( @Nonnull final String rawJsonData,
-                                        @Nonnull final SafeProcedure oobCompletionAction )
+  void enqueueOutOfBandResponse( @Nonnull final String rawJsonData,
+                                 @Nonnull final SafeProcedure oobCompletionAction )
   {
     _outOfBandResponses.add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
@@ -136,7 +136,7 @@ public final class Connection
     _currentMessageResponse = null;
   }
 
-  public int getLastRxSequence()
+  int getLastRxSequence()
   {
     return _lastRxSequence;
   }

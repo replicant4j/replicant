@@ -21,9 +21,9 @@ public final class AreaOfInterestRequest
   private final Object _filter;
   private boolean _inProgress;
 
-  public AreaOfInterestRequest( @Nonnull final ChannelAddress address,
-                                @Nonnull final Type type,
-                                @Nullable final Object filter )
+  AreaOfInterestRequest( @Nonnull final ChannelAddress address,
+                         @Nonnull final Type type,
+                         @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -37,7 +37,7 @@ public final class AreaOfInterestRequest
   }
 
   @Nonnull
-  public ChannelAddress getAddress()
+  ChannelAddress getAddress()
   {
     return _address;
   }
@@ -49,14 +49,14 @@ public final class AreaOfInterestRequest
   }
 
   @Nonnull
-  public String getCacheKey()
+  String getCacheKey()
   {
     final Integer id = _address.getId();
     return _address.getSystemId() + "." + _address.getChannelId() + ( null != id ? "." + id : "" );
   }
 
   @Nullable
-  public Object getFilter()
+  Object getFilter()
   {
     return _filter;
   }

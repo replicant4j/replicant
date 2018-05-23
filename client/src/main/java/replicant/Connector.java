@@ -833,6 +833,89 @@ public abstract class Connector
     }
   }
 
+  protected final void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    removeUnneededAddRequests( requests );
+
+    if ( requests.isEmpty() )
+    {
+      completeAreaOfInterestRequest();
+    }
+    else if ( 1 == requests.size() )
+    {
+      progressAreaOfInterestAddRequest( requests.get( 0 ) );
+    }
+    else
+    {
+      progressBulkAreaOfInterestAddRequests( requests );
+    }
+  }
+
+  final void progressAreaOfInterestAddRequest( @Nonnull final AreaOfInterestRequest request )
+  {
+    final ChannelAddress address = request.getAddress();
+    onSubscribeStarted( address );
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      onSubscribeCompleted( address );
+    };
+
+    final Consumer<Throwable> onError = error ->
+    {
+      completeAreaOfInterestRequest();
+      onSubscribeFailed( address, error );
+    };
+
+    final String cacheKey = request.getCacheKey();
+    final CacheService cacheService = getReplicantContext().getCacheService();
+    final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
+    final String eTag;
+    final SafeProcedure onCacheValid;
+    if ( null != cacheEntry )
+    {
+      //Found locally cached data
+      eTag = cacheEntry.getETag();
+      onCacheValid = () ->
+      {
+        // Loading cached data
+        completeAreaOfInterestRequest();
+        ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), onSuccess );
+        triggerScheduler();
+      };
+    }
+    else
+    {
+      eTag = null;
+      onCacheValid = null;
+    }
+    getTransport().requestSubscribe( request.getAddress(),
+                                     request.getFilter(),
+                                     cacheKey,
+                                     eTag,
+                                     onCacheValid,
+                                     onSuccess,
+                                     onError );
+  }
+
+  final void progressBulkAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    final List<ChannelAddress> addresses =
+      requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+    addresses.forEach( this::onSubscribeStarted );
+
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( this::onSubscribeCompleted );
+    };
+
+    final Consumer<Throwable> onError = error -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( a -> onSubscribeFailed( a, error ) );
+    };
+
+    getTransport().requestBulkSubscribe( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
+  }
+
   protected final void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededUpdateRequests( requests );
@@ -954,7 +1037,7 @@ public abstract class Connector
    * The AreaOfInterestRequest currently being processed can be completed and
    * trigger scheduler to start next step.
    */
-  protected final void completeAreaOfInterestRequest()
+  final void completeAreaOfInterestRequest()
   {
     ensureConnection().completeAreaOfInterestRequest();
     triggerScheduler();
