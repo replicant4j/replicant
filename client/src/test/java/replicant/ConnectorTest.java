@@ -101,6 +101,29 @@ public class ConnectorTest
   }
 
   @Test
+  public void setConnection_whenConnectionSame()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create();
+
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    pauseScheduler();
+
+    final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0 );
+    final Subscription subscription = safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+
+    connector.setConnection( connection );
+
+    assertEquals( Disposable.isDisposed( subscription ), false );
+
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    assertEquals( Disposable.isDisposed( subscription ), true );
+  }
+
+  @Test
   public void connect()
   {
     pauseScheduler();

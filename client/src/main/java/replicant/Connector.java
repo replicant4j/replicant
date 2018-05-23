@@ -178,8 +178,11 @@ public abstract class Connector
 
   protected final void setConnection( @Nullable final Connection connection )
   {
-    _connection = connection;
-    purgeSubscriptions();
+    if ( !Objects.equals( connection, _connection ) )
+    {
+      _connection = connection;
+      purgeSubscriptions();
+    }
   }
 
   @Nullable
