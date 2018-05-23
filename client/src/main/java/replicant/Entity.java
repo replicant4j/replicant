@@ -88,9 +88,22 @@ public abstract class Entity
     return _id;
   }
 
-  @Observable
-  @Nullable
+  @Nonnull
   public Object getUserObject()
+  {
+    final Object userObject = maybeUserObject();
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> null != userObject,
+                    () -> "Replicant-0071: Entity.getUserObject() invoked when no userObject present" );
+    }
+    assert null != userObject;
+    return userObject;
+  }
+
+  @Observable( name = "userObject" )
+  @Nullable
+  public Object maybeUserObject()
   {
     return _userObject;
   }

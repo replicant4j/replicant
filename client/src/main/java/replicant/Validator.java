@@ -37,7 +37,7 @@ abstract class Validator
         {
           try
           {
-            final Object userObject = entity.getUserObject();
+            final Object userObject = entity.maybeUserObject();
             if ( null != userObject )
             {
               Verifiable.verify( userObject );

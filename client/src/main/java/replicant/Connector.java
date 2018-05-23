@@ -775,9 +775,7 @@ public abstract class Connector
         }
         else
         {
-          final Object userObject = entity.getUserObject();
-          assert null != userObject;
-          getChangeMapper().updateEntity( entitySchema, userObject, data );
+          getChangeMapper().updateEntity( entitySchema, entity.getUserObject(), data );
         }
 
         final EntityChannel[] changeCount = change.getChannels();
@@ -798,9 +796,7 @@ public abstract class Connector
         }
 
         response.incEntityUpdateCount();
-        final Object userObject = entity.getUserObject();
-        assert null != userObject;
-        response.changeProcessed( userObject );
+        response.changeProcessed( entity.getUserObject() );
       }
     }
   }

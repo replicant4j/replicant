@@ -24,7 +24,7 @@ public class EntityTest
     assertEquals( entity.getType(), type );
     assertEquals( entity.getId(), id );
 
-    safeAction( () -> assertEquals( entity.getUserObject(), null ) );
+    safeAction( () -> assertEquals( entity.maybeUserObject(), null ) );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
   }
 
@@ -87,11 +87,29 @@ public class EntityTest
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
 
-    safeAction( () -> assertEquals( entity.getUserObject(), null ) );
+    safeAction( () -> assertEquals( entity.maybeUserObject(), null ) );
 
     final A userObject = new A();
     safeAction( () -> entity.setUserObject( userObject ) );
+    safeAction( () -> assertEquals( entity.maybeUserObject(), userObject ) );
     safeAction( () -> assertEquals( entity.getUserObject(), userObject ) );
+  }
+
+  @Test
+  public void getUserObject_whenNull()
+  {
+    final EntityService entityService = Replicant.context().getEntityService();
+
+    final Entity entity =
+      safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
+                                                          A.class,
+                                                          ValueUtil.randomInt() ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> safeAction( () -> assertEquals( entity.getUserObject(), null ) ) );
+
+    assertEquals( exception.getMessage(), "Replicant-0071: Entity.getUserObject() invoked when no userObject present" );
   }
 
   @Test

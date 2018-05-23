@@ -32,7 +32,7 @@ public class SubscriptionUtil
     final Entity entity = Replicant.context().findEntityByTypeAndId( type, id );
     assert null != entity;
     final T root = (T) entity.getUserObject();
-    return null != root ? rootToStream.apply( root ) : Stream.empty();
+    return rootToStream.apply( root );
   }
 
   /**
