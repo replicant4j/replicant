@@ -27,22 +27,6 @@ public final class TestData
                                                                      PHYSICAL_UNIT
                                                                    } );
 
-  public static final ChannelSchema CALENDAR_METADATA_CHANNEL =
-    new ChannelSchema( 0, "MetaData", true, ChannelSchema.FilterType.NONE, true, true );
-  public static final ChannelSchema CALENDAR_EVENT_CHANNEL =
-    new ChannelSchema( 1, "Event", false, ChannelSchema.FilterType.NONE, false, true );
-  public static final ChannelSchema RESOURCE_CHANNEL =
-    new ChannelSchema( 2, "Resource", false, ChannelSchema.FilterType.DYNAMIC, false, true );
-
-  public static final SystemSchema CALENDAR_SYSTEM =
-    new SystemSchema( 2,
-                      "Calendar",
-                      new ChannelSchema[]{ CALENDAR_METADATA_CHANNEL, CALENDAR_EVENT_CHANNEL, RESOURCE_CHANNEL },
-                      new EntitySchema[ 0 ] );
-
-  public static final SystemSchema ACAL_SYSTEM =
-    new SystemSchema( 3, "Acal", new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
-
   private TestData()
   {
   }
