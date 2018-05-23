@@ -602,7 +602,7 @@ public abstract class Connector
       if ( null != subscription )
       {
         /*
-         * It is unclear whether this code is actually required as should note the response form the server
+         * It is unclear whether this code is actually required as should note the response from the server
          * automatically setExplicitSubscription to false?
          */
         subscription.setExplicitSubscription( false );
