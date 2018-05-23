@@ -6,9 +6,12 @@ import arez.annotations.Action;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -828,6 +831,65 @@ public abstract class Connector
     {
       getReplicantContext().getValidator().validateEntities();
     }
+  }
+
+  protected void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    removeUnneededRemoveRequests( requests );
+
+    if ( requests.isEmpty() )
+    {
+      completeAreaOfInterestRequest();
+    }
+    else if ( requests.size() > 1 )
+    {
+      progressBulkAreaOfInterestRemoveRequests( requests );
+    }
+    else
+    {
+      progressAreaOfInterestRemoveRequest( requests.get( 0 ) );
+    }
+  }
+
+  void progressAreaOfInterestRemoveRequest( @Nonnull final AreaOfInterestRequest request )
+  {
+    final ChannelAddress address = request.getAddress();
+    onUnsubscribeStarted( address );
+    final SafeProcedure onSuccess = () -> {
+      removeExplicitSubscriptions( Collections.singletonList( request ) );
+      completeAreaOfInterestRequest();
+      onUnsubscribeCompleted( address );
+    };
+
+    final Consumer<Throwable> onError = error ->
+    {
+      removeExplicitSubscriptions( Collections.singletonList( request ) );
+      completeAreaOfInterestRequest();
+      onUnsubscribeFailed( address, error );
+    };
+
+    getTransport().requestUnsubscribe( address, onSuccess, onError );
+  }
+
+  void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    final List<ChannelAddress> addresses =
+      requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+    addresses.forEach( this::onUnsubscribeStarted );
+
+    final SafeProcedure onSuccess = () -> {
+      removeExplicitSubscriptions( requests );
+      completeAreaOfInterestRequest();
+      addresses.forEach( this::onUnsubscribeCompleted );
+    };
+
+    final Consumer<Throwable> onError = error -> {
+      removeExplicitSubscriptions( requests );
+      completeAreaOfInterestRequest();
+      addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
+    };
+
+    getTransport().requestBulkUnsubscribe( addresses, onSuccess, onError );
   }
 
   /**
