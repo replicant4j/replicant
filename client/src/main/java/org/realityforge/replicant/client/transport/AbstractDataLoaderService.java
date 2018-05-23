@@ -1,5 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -99,202 +100,222 @@ public abstract class AbstractDataLoaderService
       final AreaOfInterestRequest.Type type = requests.get( 0 ).getType();
       if ( AreaOfInterestRequest.Type.ADD == type )
       {
-        return progressAreaOfInterestAddRequests( requests );
+        progressAreaOfInterestAddRequests( requests );
       }
       else if ( AreaOfInterestRequest.Type.REMOVE == type )
       {
-        return progressAreaOfInterestRemoveRequests( requests );
+        progressAreaOfInterestRemoveRequests( requests );
       }
       else
       {
-        return progressAreaOfInterestUpdateRequests( requests );
+        progressAreaOfInterestUpdateRequests( requests );
       }
+      return true;
     }
   }
 
-  private boolean progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  private void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededUpdateRequests( requests );
 
     if ( requests.isEmpty() )
     {
       completeAreaOfInterestRequest();
-      return true;
     }
     else if ( requests.size() > 1 )
     {
-      final List<ChannelAddress> addresses =
-        requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
-      addresses.forEach( this::onSubscriptionUpdateStarted );
-      final SafeProcedure onSuccess = () -> {
-        completeAreaOfInterestRequest();
-        addresses.forEach( this::onSubscriptionUpdateCompleted );
-      };
-
-      final Consumer<Throwable> onError = error -> {
-        completeAreaOfInterestRequest();
-        addresses.forEach( a -> onSubscriptionUpdateFailed( a, error ) );
-      };
-      // All filters will be the same if they are grouped
-      final Object filter = requests.get( 0 ).getFilter();
-      assert null != filter;
-      requestBulkUpdateSubscription( addresses, filter, onSuccess, onError );
+      progressBulkAreaOfInterestUpdateRequests( requests );
     }
     else
     {
-      final AreaOfInterestRequest request = requests.get( 0 );
-      final ChannelAddress address = request.getAddress();
-      onSubscriptionUpdateStarted( address );
-      final SafeProcedure onSuccess = () -> {
-        completeAreaOfInterestRequest();
-        onSubscriptionUpdateCompleted( address );
-      };
-
-      final Consumer<Throwable> onError = error ->
-      {
-        completeAreaOfInterestRequest();
-        onSubscriptionUpdateFailed( address, error );
-      };
-
-      final Object filter = request.getFilter();
-      assert null != filter;
-      requestUpdateSubscription( address, filter, onSuccess, onError );
+      progressAreaOfInterestUpdateRequest( requests.get( 0 ) );
     }
-    return true;
   }
 
-  private boolean progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  private void progressAreaOfInterestUpdateRequest( @Nonnull final AreaOfInterestRequest request )
+  {
+    final ChannelAddress address = request.getAddress();
+    onSubscriptionUpdateStarted( address );
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      onSubscriptionUpdateCompleted( address );
+    };
+
+    final Consumer<Throwable> onError = error ->
+    {
+      completeAreaOfInterestRequest();
+      onSubscriptionUpdateFailed( address, error );
+    };
+
+    final Object filter = request.getFilter();
+    assert null != filter;
+    requestUpdateSubscription( address, filter, onSuccess, onError );
+  }
+
+  private void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    final List<ChannelAddress> addresses =
+      requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+    addresses.forEach( this::onSubscriptionUpdateStarted );
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( this::onSubscriptionUpdateCompleted );
+    };
+
+    final Consumer<Throwable> onError = error -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( a -> onSubscriptionUpdateFailed( a, error ) );
+    };
+    // All filters will be the same if they are grouped
+    final Object filter = requests.get( 0 ).getFilter();
+    assert null != filter;
+    requestBulkUpdateSubscription( addresses, filter, onSuccess, onError );
+  }
+
+  private void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededRemoveRequests( requests );
 
     if ( requests.isEmpty() )
     {
       completeAreaOfInterestRequest();
-      return true;
     }
-
-    final AreaOfInterestRequest request = requests.get( 0 );
-    if ( requests.size() > 1 )
+    else if ( requests.size() > 1 )
     {
-      final List<ChannelAddress> addresses =
-        requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
-      addresses.forEach( this::onUnsubscribeStarted );
-
-      final SafeProcedure onSuccess = () -> {
-        removeExplicitSubscriptions( requests );
-        completeAreaOfInterestRequest();
-        addresses.forEach( this::onUnsubscribeCompleted );
-      };
-
-      final Consumer<Throwable> onError = error -> {
-        removeExplicitSubscriptions( requests );
-        completeAreaOfInterestRequest();
-        addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
-      };
-
-      requestBulkUnsubscribeFromChannel( addresses, onSuccess, onError );
+      progressBulkAreaOfInterestRemoveRequests( requests );
     }
     else
     {
-      final ChannelAddress address = request.getAddress();
-      onUnsubscribeStarted( address );
-      final SafeProcedure onSuccess = () -> {
-        removeExplicitSubscriptions( requests );
-        completeAreaOfInterestRequest();
-        onUnsubscribeCompleted( address );
-      };
-
-      final Consumer<Throwable> onError = error ->
-      {
-        removeExplicitSubscriptions( requests );
-        completeAreaOfInterestRequest();
-        onUnsubscribeFailed( address, error );
-      };
-
-      requestUnsubscribeFromChannel( address, onSuccess, onError );
+      progressAreaOfInterestRemoveRequest( requests.get( 0 ) );
     }
-    return true;
   }
 
-  private boolean progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  private void progressAreaOfInterestRemoveRequest( @Nonnull final AreaOfInterestRequest request )
+  {
+    final ChannelAddress address = request.getAddress();
+    onUnsubscribeStarted( address );
+    final SafeProcedure onSuccess = () -> {
+      removeExplicitSubscriptions( Collections.singletonList( request ) );
+      completeAreaOfInterestRequest();
+      onUnsubscribeCompleted( address );
+    };
+
+    final Consumer<Throwable> onError = error ->
+    {
+      removeExplicitSubscriptions( Collections.singletonList( request ) );
+      completeAreaOfInterestRequest();
+      onUnsubscribeFailed( address, error );
+    };
+
+    requestUnsubscribeFromChannel( address, onSuccess, onError );
+  }
+
+  private void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    final List<ChannelAddress> addresses =
+      requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+    addresses.forEach( this::onUnsubscribeStarted );
+
+    final SafeProcedure onSuccess = () -> {
+      removeExplicitSubscriptions( requests );
+      completeAreaOfInterestRequest();
+      addresses.forEach( this::onUnsubscribeCompleted );
+    };
+
+    final Consumer<Throwable> onError = error -> {
+      removeExplicitSubscriptions( requests );
+      completeAreaOfInterestRequest();
+      addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
+    };
+
+    requestBulkUnsubscribeFromChannel( addresses, onSuccess, onError );
+  }
+
+  private void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededAddRequests( requests );
 
     if ( requests.isEmpty() )
     {
       completeAreaOfInterestRequest();
-      return true;
     }
     else if ( 1 == requests.size() )
     {
-      final AreaOfInterestRequest request = requests.get( 0 );
-      final ChannelAddress address = request.getAddress();
-      onSubscribeStarted( address );
-      final SafeProcedure onSuccess = () -> {
-        completeAreaOfInterestRequest();
-        onSubscribeCompleted( address );
-      };
-
-      final Consumer<Throwable> onError = error ->
-      {
-        completeAreaOfInterestRequest();
-        onSubscribeFailed( address, error );
-      };
-
-      final String cacheKey = request.getCacheKey();
-      final CacheService cacheService = getReplicantContext().getCacheService();
-      final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
-      final String eTag;
-      final SafeProcedure onCacheValid;
-      if ( null != cacheEntry )
-      {
-        eTag = cacheEntry.getETag();
-        LOG.info( () -> "Found locally cached data for channel " + request + " with etag " + eTag + "." );
-        onCacheValid = () ->
-        {
-          LOG.info( () -> "Loading cached data for channel " + request + " with etag " + eTag );
-          final SafeProcedure completeCachedAction = () ->
-          {
-            LOG.info( () -> "Completed load of cached data for channel " + request + " with etag " + eTag + "." );
-            onSuccess.call();
-          };
-          ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), completeCachedAction );
-          triggerScheduler();
-        };
-      }
-      else
-      {
-        eTag = null;
-        onCacheValid = null;
-      }
-      requestSubscribeToChannel( request.getAddress(),
-                                 request.getFilter(),
-                                 cacheKey,
-                                 eTag,
-                                 onCacheValid,
-                                 onSuccess,
-                                 onError );
+      progressAreaOfInterestAddRequest( requests.get( 0 ) );
     }
     else
     {
-      // don't support bulk loading of anything that is already cached
-      final List<ChannelAddress> addresses =
-        requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
-      addresses.forEach( this::onSubscribeStarted );
-
-      final SafeProcedure onSuccess = () -> {
-        completeAreaOfInterestRequest();
-        addresses.forEach( this::onSubscribeCompleted );
-      };
-
-      final Consumer<Throwable> onError = error -> {
-        completeAreaOfInterestRequest();
-        addresses.forEach( a -> onSubscribeFailed( a, error ) );
-      };
-
-      requestBulkSubscribeToChannel( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
+      progressBulkAreaOfInterestAddRequests( requests );
     }
-    return true;
+  }
+
+  private void progressAreaOfInterestAddRequest( @Nonnull final AreaOfInterestRequest request )
+  {
+    final ChannelAddress address = request.getAddress();
+    onSubscribeStarted( address );
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      onSubscribeCompleted( address );
+    };
+
+    final Consumer<Throwable> onError = error ->
+    {
+      completeAreaOfInterestRequest();
+      onSubscribeFailed( address, error );
+    };
+
+    final String cacheKey = request.getCacheKey();
+    final CacheService cacheService = getReplicantContext().getCacheService();
+    final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
+    final String eTag;
+    final SafeProcedure onCacheValid;
+    if ( null != cacheEntry )
+    {
+      eTag = cacheEntry.getETag();
+      LOG.info( () -> "Found locally cached data for channel " + request + " with etag " + eTag + "." );
+      onCacheValid = () ->
+      {
+        LOG.info( () -> "Loading cached data for channel " + request + " with etag " + eTag );
+        final SafeProcedure completeCachedAction = () ->
+        {
+          LOG.info( () -> "Completed load of cached data for channel " + request + " with etag " + eTag + "." );
+          onSuccess.call();
+        };
+        ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), completeCachedAction );
+        triggerScheduler();
+      };
+    }
+    else
+    {
+      eTag = null;
+      onCacheValid = null;
+    }
+    requestSubscribeToChannel( request.getAddress(),
+                               request.getFilter(),
+                               cacheKey,
+                               eTag,
+                               onCacheValid,
+                               onSuccess,
+                               onError );
+  }
+
+  private void progressBulkAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    final List<ChannelAddress> addresses =
+      requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+    addresses.forEach( this::onSubscribeStarted );
+
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( this::onSubscribeCompleted );
+    };
+
+    final Consumer<Throwable> onError = error -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( a -> onSubscribeFailed( a, error ) );
+    };
+
+    requestBulkSubscribeToChannel( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
   }
 
   protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
