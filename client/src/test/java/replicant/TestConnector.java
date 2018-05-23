@@ -37,7 +37,7 @@ public abstract class TestConnector
 
   TestConnector( @Nullable final ReplicantContext context, @Nonnull final SystemSchema schema )
   {
-    super( context, schema );
+    super( context, schema, mock( Transport.class ) );
   }
 
   void setErrorOnConnect( final boolean errorOnConnect )

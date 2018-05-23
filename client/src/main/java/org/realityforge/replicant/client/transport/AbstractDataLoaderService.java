@@ -17,6 +17,7 @@ import replicant.Connector;
 import replicant.ReplicantContext;
 import replicant.SafeProcedure;
 import replicant.SystemSchema;
+import replicant.Transport;
 
 /**
  * Class from which to extend to implement a service that loads data from a change set.
@@ -33,9 +34,10 @@ public abstract class AbstractDataLoaderService
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
                                        @Nonnull final SystemSchema schema,
+                                       @Nonnull final Transport transport,
                                        @Nonnull final SessionContext sessionContext )
   {
-    super( context, schema );
+    super( context, schema, transport );
     _sessionContext = Objects.requireNonNull( sessionContext );
   }
 
@@ -149,7 +151,7 @@ public abstract class AbstractDataLoaderService
 
     final Object filter = request.getFilter();
     assert null != filter;
-    requestUpdateSubscription( address, filter, onSuccess, onError );
+    getTransport().requestSubscriptionUpdate( address, filter, onSuccess, onError );
   }
 
   private void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -169,7 +171,7 @@ public abstract class AbstractDataLoaderService
     // All filters will be the same if they are grouped
     final Object filter = requests.get( 0 ).getFilter();
     assert null != filter;
-    requestBulkUpdateSubscription( addresses, filter, onSuccess, onError );
+    getTransport().requestBulkSubscriptionUpdate( addresses, filter, onSuccess, onError );
   }
 
   private void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -207,7 +209,7 @@ public abstract class AbstractDataLoaderService
       onUnsubscribeFailed( address, error );
     };
 
-    requestUnsubscribeFromChannel( address, onSuccess, onError );
+    getTransport().requestUnsubscribe( address, onSuccess, onError );
   }
 
   private void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -228,7 +230,7 @@ public abstract class AbstractDataLoaderService
       addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
     };
 
-    requestBulkUnsubscribeFromChannel( addresses, onSuccess, onError );
+    getTransport().requestBulkUnsubscribe( addresses, onSuccess, onError );
   }
 
   private void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -290,13 +292,13 @@ public abstract class AbstractDataLoaderService
       eTag = null;
       onCacheValid = null;
     }
-    requestSubscribeToChannel( request.getAddress(),
-                               request.getFilter(),
-                               cacheKey,
-                               eTag,
-                               onCacheValid,
-                               onSuccess,
-                               onError );
+    getTransport().requestSubscribe( request.getAddress(),
+                                     request.getFilter(),
+                                     cacheKey,
+                                     eTag,
+                                     onCacheValid,
+                                     onSuccess,
+                                     onError );
   }
 
   private void progressBulkAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -315,37 +317,6 @@ public abstract class AbstractDataLoaderService
       addresses.forEach( a -> onSubscribeFailed( a, error ) );
     };
 
-    requestBulkSubscribeToChannel( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
+    getTransport().requestBulkSubscribe( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
   }
-
-  protected abstract void requestSubscribeToChannel( @Nonnull ChannelAddress address,
-                                                     @Nullable Object filter,
-                                                     @Nullable String cacheKey,
-                                                     @Nullable String eTag,
-                                                     @Nullable SafeProcedure onCacheValid,
-                                                     @Nonnull SafeProcedure onSuccess,
-                                                     @Nonnull Consumer<Throwable> onError );
-
-  protected abstract void requestUnsubscribeFromChannel( @Nonnull ChannelAddress address,
-                                                         @Nonnull SafeProcedure onSuccess,
-                                                         @Nonnull Consumer<Throwable> onError );
-
-  protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress address,
-                                                     @Nonnull Object filter,
-                                                     @Nonnull SafeProcedure onSuccess,
-                                                     @Nonnull Consumer<Throwable> onError );
-
-  protected abstract void requestBulkSubscribeToChannel( @Nonnull List<ChannelAddress> addresses,
-                                                         @Nullable Object filter,
-                                                         @Nonnull SafeProcedure onSuccess,
-                                                         @Nonnull Consumer<Throwable> onError );
-
-  protected abstract void requestBulkUnsubscribeFromChannel( @Nonnull List<ChannelAddress> addresses,
-                                                             @Nonnull SafeProcedure onSuccess,
-                                                             @Nonnull Consumer<Throwable> onError );
-
-  protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> addresses,
-                                                         @Nonnull Object filter,
-                                                         @Nonnull SafeProcedure onSuccess,
-                                                         @Nonnull Consumer<Throwable> onError );
 }

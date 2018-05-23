@@ -54,6 +54,11 @@ public abstract class Connector
    */
   @Nonnull
   private final SystemSchema _schema;
+  /**
+   * The transport that connects to the backend system.
+   */
+  @Nonnull
+  private final Transport _transport;
   @Nonnull
   private ConnectorState _state = ConnectorState.DISCONNECTED;
   /**
@@ -89,10 +94,13 @@ public abstract class Connector
   @Nullable
   private SafeProcedure _postMessageResponseAction;
 
-  protected Connector( @Nullable final ReplicantContext context, @Nonnull final SystemSchema schema )
+  protected Connector( @Nullable final ReplicantContext context,
+                       @Nonnull final SystemSchema schema,
+                       @Nonnull final Transport transport )
   {
     super( context );
     _schema = Objects.requireNonNull( schema );
+    _transport = Objects.requireNonNull( transport );
     getReplicantRuntime().registerConnector( this );
     final SchemaService schemaService = getReplicantContext().getSchemaService();
     schemaService.registerSchema( schema );
@@ -193,6 +201,12 @@ public abstract class Connector
   private MessageResponse ensureCurrentMessageResponse()
   {
     return ensureConnection().ensureCurrentMessageResponse();
+  }
+
+  @Nonnull
+  protected final Transport getTransport()
+  {
+    return _transport;
   }
 
   @Action
