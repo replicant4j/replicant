@@ -2647,6 +2647,43 @@ public class ConnectorTest
 
   @SuppressWarnings( "unchecked" )
   @Test
+  public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCacheForNonCacheableGraph()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{} );
+
+    final TestConnector connector = TestConnector.create( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterestRequest request =
+      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
+
+    pauseScheduler();
+
+
+    connection.injectCurrentAreaOfInterestRequest( request );
+
+    final TestCacheService cacheService = new TestCacheService();
+    Replicant.context().setCacheService( cacheService );
+
+    cacheService.store( "1.0", ValueUtil.randomString(), ValueUtil.randomString() );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.progressAreaOfInterestAddRequest( request ) );
+
+    assertEquals( exception.getMessage(), "Replicant-0072: Found cache entry for non-cacheable channel." );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
   public void progressAreaOfInterestAddRequest_onFailure()
   {
     final ChannelSchema channelSchema =

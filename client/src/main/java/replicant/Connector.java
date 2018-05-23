@@ -873,6 +873,11 @@ public abstract class Connector
     final SafeProcedure onCacheValid;
     if ( null != cacheEntry )
     {
+      if ( Replicant.shouldCheckInvariants() )
+      {
+        invariant( () -> getSchema().getChannel( request.getAddress().getChannelId() ).isCacheable(),
+                   () -> "Replicant-0072: Found cache entry for non-cacheable channel." );
+      }
       //Found locally cached data
       eTag = cacheEntry.getETag();
       onCacheValid = () ->
