@@ -134,7 +134,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  public final void linkToSubscription( @Nonnull final Subscription subscription )
+  final void linkToSubscription( @Nonnull final Subscription subscription )
   {
     //TODO: Make this package access once ChangeMapper moves to replicant package
     //TODO: Add additional guards here
@@ -178,8 +178,8 @@ public abstract class Entity
     delinkSubscriptionFromEntity( subscription, true );
   }
 
-  final void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription,
-                                           final boolean disposeEntityIfNoSubscriptions )
+  private void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription,
+                                             final boolean disposeEntityIfNoSubscriptions )
   {
     getSubscriptionsObservable().preReportChanged();
     final ChannelAddress address = subscription.getAddress();
