@@ -58,6 +58,24 @@ public class SchemaServiceTest
   }
 
   @Test
+  public void registerSchema_duplicate()
+  {
+    final SchemaService service = SchemaService.create();
+
+    final int schemaId1 = 100;
+    final SystemSchema schema1 =
+      new SystemSchema( schemaId1, "MySchema1", new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
+    final SystemSchema schema2 =
+      new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
+
+    safeAction( () -> service.registerSchema( schema1 ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> safeAction( () -> service.registerSchema( schema2 ) ) );
+    assertEquals( exception.getMessage(), "Replicant-0070: Attempted to register schema with id 100 when a schema with id already exists: MySchema1" );
+  }
+
+  @Test
   public void getByIdWhenNonePresent()
   {
     final SchemaService service = SchemaService.create();

@@ -91,6 +91,12 @@ abstract class SchemaService
   final void registerSchema( @Nonnull final SystemSchema schema )
   {
     final int schemaId = schema.getId();
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> !_schemas.containsKey( schemaId ),
+                 () -> "Replicant-0070: Attempted to register schema with id " + schemaId +
+                       " when a schema with id already exists: " + _schemas.get( schemaId ) );
+    }
     getSchemasObservable().preReportChanged();
     _schemas.put( schemaId, schema );
     getSchemasObservable().reportChanged();
