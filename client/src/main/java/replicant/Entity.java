@@ -136,7 +136,6 @@ public abstract class Entity
    */
   final void linkToSubscription( @Nonnull final Subscription subscription )
   {
-    //TODO: Make this package access once ChangeMapper moves to replicant package
     //TODO: Add additional guards here
     linkEntityToSubscription( subscription );
     subscription.linkSubscriptionToEntity( this );
