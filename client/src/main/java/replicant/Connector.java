@@ -833,7 +833,7 @@ public abstract class Connector
     }
   }
 
-  protected void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  protected final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededRemoveRequests( requests );
 
@@ -851,7 +851,7 @@ public abstract class Connector
     }
   }
 
-  void progressAreaOfInterestRemoveRequest( @Nonnull final AreaOfInterestRequest request )
+  final void progressAreaOfInterestRemoveRequest( @Nonnull final AreaOfInterestRequest request )
   {
     final ChannelAddress address = request.getAddress();
     onUnsubscribeStarted( address );
@@ -871,7 +871,7 @@ public abstract class Connector
     getTransport().requestUnsubscribe( address, onSuccess, onError );
   }
 
-  void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  final void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     final List<ChannelAddress> addresses =
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
