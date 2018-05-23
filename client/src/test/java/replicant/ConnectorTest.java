@@ -2646,7 +2646,6 @@ public class ConnectorTest
 
     pauseScheduler();
 
-
     connection.injectCurrentAreaOfInterestRequest( request );
 
     final TestCacheService cacheService = new TestCacheService();
