@@ -10,7 +10,6 @@
 
   <source path='' includes='*.java'/>
   <source path='spy'/>
-  <super-source path='super'/>
 
   <define-property name='replicant.check_invariants' values='true,false'/>
   <set-property name='replicant.check_invariants' value='false'/>
