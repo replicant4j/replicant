@@ -2,8 +2,6 @@ package org.realityforge.replicant.client.transport;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,8 +25,6 @@ import replicant.Transport;
 public abstract class AbstractDataLoaderService
   extends Connector
 {
-  protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
-
   private final SessionContext _sessionContext;
 
   protected AbstractDataLoaderService( @Nullable final ReplicantContext context,
