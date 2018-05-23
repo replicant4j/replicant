@@ -127,7 +127,7 @@ public abstract class Entity
   }
 
   @ObservableRef
-  protected abstract arez.Observable getSubscriptionsObservable();
+  abstract arez.Observable getSubscriptionsObservable();
 
   /**
    * Link to subscription if it does not exist.
