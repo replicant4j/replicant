@@ -14,9 +14,7 @@ public abstract class TestConnector
   private final ChangeMapper _changeMapper = mock( ChangeMapper.class );
   private boolean _errorOnConnect;
   private boolean _errorOnDisconnect;
-  private int _progressAreaOfInterestRequestProcessingCount;
   private int _activateSchedulerCount;
-  private SafeFunction<Boolean> _progressAreaOfInterestRequestProcessing;
   private int _connectCallCount;
   private int _disconnectCallCount;
 
@@ -83,26 +81,9 @@ public abstract class TestConnector
     _activateSchedulerCount++;
   }
 
-  @Override
-  protected boolean progressAreaOfInterestRequestProcessing()
-  {
-    _progressAreaOfInterestRequestProcessingCount++;
-    return null == _progressAreaOfInterestRequestProcessing ? false : _progressAreaOfInterestRequestProcessing.call();
-  }
-
-  int getProgressAreaOfInterestRequestProcessingCount()
-  {
-    return _progressAreaOfInterestRequestProcessingCount;
-  }
-
   int getActivateSchedulerCount()
   {
     return _activateSchedulerCount;
-  }
-
-  void setProgressAreaOfInterestRequestProcessing( final SafeFunction<Boolean> progressAreaOfInterestRequestProcessing )
-  {
-    _progressAreaOfInterestRequestProcessing = progressAreaOfInterestRequestProcessing;
   }
 
   int getConnectCallCount()

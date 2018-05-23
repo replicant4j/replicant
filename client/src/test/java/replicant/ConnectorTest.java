@@ -912,34 +912,26 @@ public class ConnectorTest
 
     connector.triggerScheduler();
 
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 0 );
     assertNull( connector.getSchedulerLock() );
-
-    connector.setProgressAreaOfInterestRequestProcessing( () -> true );
 
     //response needs worldValidated
 
     final boolean result1 = connector.scheduleTick();
 
     assertEquals( result1, true );
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 1 );
     final Disposable schedulerLock1 = connector.getSchedulerLock();
     assertNotNull( schedulerLock1 );
 
     final boolean result2 = connector.scheduleTick();
 
     assertEquals( result2, true );
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 2 );
     assertNotNull( connector.getSchedulerLock() );
     // Current message should be nulled and completed processing now
     assertNull( connection.getCurrentMessageResponse() );
 
-    connector.setProgressAreaOfInterestRequestProcessing( () -> false );
-
     final boolean result3 = connector.scheduleTick();
 
     assertEquals( result3, false );
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 3 );
     assertNull( connector.getSchedulerLock() );
     assertTrue( Disposable.isDisposed( schedulerLock1 ) );
   }
@@ -948,41 +940,27 @@ public class ConnectorTest
   public void scheduleTick_withError()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
 
     connector.triggerScheduler();
 
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 0 );
-    assertNull( connector.getSchedulerLock() );
-
-    connector.setProgressAreaOfInterestRequestProcessing( () -> true );
-
-    final boolean result1 = connector.scheduleTick();
-
-    assertEquals( result1, true );
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 1 );
-    final Disposable schedulerLock1 = connector.getSchedulerLock();
-    assertNotNull( schedulerLock1 );
-
-    final IllegalStateException error = new IllegalStateException();
-    connector.setProgressAreaOfInterestRequestProcessing( () -> {
-      throw error;
-    } );
-
+    connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 0, 0 ),
+                                                                              AreaOfInterestRequest.Type.REMOVE,
+                                                                              null ) );
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final boolean result2 = connector.scheduleTick();
 
     assertEquals( result2, false );
-    assertEquals( connector.getProgressAreaOfInterestRequestProcessingCount(), 2 );
 
     assertNull( connector.getSchedulerLock() );
-    assertTrue( Disposable.isDisposed( schedulerLock1 ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getError(), error );
+      assertEquals( e.getError().getMessage(),
+                    "Replicant-0046: Request to unsubscribe from channel at address 0.0 but not subscribed to channel." );
     } );
   }
 
