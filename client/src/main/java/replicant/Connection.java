@@ -337,7 +337,7 @@ public final class Connection
    * requests and set them as current.
    */
   @Nonnull
-  public List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
+  List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
   {
     if ( _currentAreaOfInterestRequests.isEmpty() && !_pendingAreaOfInterestRequests.isEmpty() )
     {
