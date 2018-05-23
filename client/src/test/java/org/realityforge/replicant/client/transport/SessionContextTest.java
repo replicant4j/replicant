@@ -16,7 +16,6 @@ public class SessionContextTest
   @Test
   public void basicOperation()
   {
-    final String key = ValueUtil.randomString();
     final SessionContext sessionContext = new SessionContext();
 
     //connection
@@ -43,7 +42,6 @@ public class SessionContextTest
   @Test
   public void request_noSession()
   {
-    final String key = ValueUtil.randomString();
     final String requestKey = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final RequestAction action = mock( RequestAction.class );
@@ -58,7 +56,6 @@ public class SessionContextTest
   @Test
   public void request_sessionPresent()
   {
-    final String key = ValueUtil.randomString();
     final String name = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
@@ -87,10 +84,5 @@ public class SessionContextTest
       _session = connection;
       _request = request;
     }
-  }
-
-  enum G
-  {
-    G1
   }
 }
