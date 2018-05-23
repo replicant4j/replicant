@@ -833,6 +833,64 @@ public abstract class Connector
     }
   }
 
+  protected final void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    removeUnneededUpdateRequests( requests );
+
+    if ( requests.isEmpty() )
+    {
+      completeAreaOfInterestRequest();
+    }
+    else if ( requests.size() > 1 )
+    {
+      progressBulkAreaOfInterestUpdateRequests( requests );
+    }
+    else
+    {
+      progressAreaOfInterestUpdateRequest( requests.get( 0 ) );
+    }
+  }
+
+  final void progressAreaOfInterestUpdateRequest( @Nonnull final AreaOfInterestRequest request )
+  {
+    final ChannelAddress address = request.getAddress();
+    onSubscriptionUpdateStarted( address );
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      onSubscriptionUpdateCompleted( address );
+    };
+
+    final Consumer<Throwable> onError = error ->
+    {
+      completeAreaOfInterestRequest();
+      onSubscriptionUpdateFailed( address, error );
+    };
+
+    final Object filter = request.getFilter();
+    assert null != filter;
+    getTransport().requestSubscriptionUpdate( address, filter, onSuccess, onError );
+  }
+
+  final void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  {
+    final List<ChannelAddress> addresses =
+      requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
+    addresses.forEach( this::onSubscriptionUpdateStarted );
+    final SafeProcedure onSuccess = () -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( this::onSubscriptionUpdateCompleted );
+    };
+
+    final Consumer<Throwable> onError = error -> {
+      completeAreaOfInterestRequest();
+      addresses.forEach( a -> onSubscriptionUpdateFailed( a, error ) );
+    };
+    // All filters will be the same if they are grouped
+    final Object filter = requests.get( 0 ).getFilter();
+    assert null != filter;
+    getTransport().requestBulkSubscriptionUpdate( addresses, filter, onSuccess, onError );
+  }
+
   protected final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededRemoveRequests( requests );
