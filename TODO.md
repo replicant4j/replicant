@@ -63,6 +63,9 @@ Some actions that should occur at some point in the future.
 * Remove `Connector.SystemType` and replace with reference to schema.
   - Done but we should change the code that registers to ensure uniqueness
   - we should also start using to stop updates of filters that should not be.
+  - Should create EntityMetaData and move EntitySchema.Type to it and also move factory methods for creating
+    and updating userobject to it. This would allow us to eliminate `CHangeMapper`
+  - Add `ChannelMetaData` that has `FilterParameterType` and functions for `doesEntityMatchFilter`
 
 * Strategy for having JVM specific code.
   - Define class `MyServiceA` that is the gwt compatible variant. Extend this variant as `JvmMyServiceA`
