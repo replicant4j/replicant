@@ -3,7 +3,6 @@ package replicant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -35,14 +34,10 @@ final class Scheduler
     @Override
     void schedule( @Nonnull final SafeFunction<Boolean> command )
     {
-      final Runnable action = () -> {
-        if ( !command.call() && null != _future )
-        {
-          _future.cancel( false );
-          _future = null;
-        }
-      };
-      _future = _executorService.scheduleAtFixedRate( action, 0, 1, TimeUnit.MILLISECONDS );
+      //noinspection StatementWithEmptyBody
+      while ( command.call() )
+      {
+      }
     }
   }
 
