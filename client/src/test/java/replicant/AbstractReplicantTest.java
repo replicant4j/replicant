@@ -133,6 +133,7 @@ public abstract class AbstractReplicantTest
     }
   }
 
+  @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
   @Nonnull
   protected final Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
   {
