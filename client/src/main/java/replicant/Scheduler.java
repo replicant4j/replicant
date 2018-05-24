@@ -9,7 +9,7 @@ final class Scheduler
 {
   private static final SchedulerSupport c_support = new SchedulerSupport();
 
-  public static void schedule( @Nonnull final SafeFunction<Boolean> command )
+  static void schedule( @Nonnull final SafeFunction<Boolean> command )
   {
     c_support.schedule( command );
   }
