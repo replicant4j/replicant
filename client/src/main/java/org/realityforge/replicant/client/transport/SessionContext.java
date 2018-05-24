@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.Connection;
+import replicant.Connector;
 import replicant.RequestEntry;
 
 public final class SessionContext
@@ -11,7 +12,7 @@ public final class SessionContext
   private String _authenticationToken;
   private String _baseURL;
   @Nullable
-  private Connection _connection;
+  private Connector _connector;
   @Nullable
   private RequestEntry _request;
 
@@ -47,12 +48,7 @@ public final class SessionContext
   @Nullable
   public Connection getConnection()
   {
-    return _connection;
-  }
-
-  public void setConnection( @Nullable final Connection connection )
-  {
-    _connection = connection;
+    return null == _connector ? null : _connector.getConnection();
   }
 
   @Nullable
@@ -65,11 +61,17 @@ public final class SessionContext
                        @Nullable final String cacheKey,
                        @Nonnull final RequestAction action )
   {
-    if ( null != _connection )
+    final Connection connection = getConnection();
+    if ( null != connection )
     {
-      _request = _connection.newRequest( key, cacheKey );
+      _request = connection.newRequest( key, cacheKey );
     }
-    action.invokeRequest( _connection, _request );
+    action.invokeRequest( connection, _request );
     _request = null;
+  }
+
+  public void setConnector( @Nonnull final Connector connector )
+  {
+    _connector = connector;
   }
 }

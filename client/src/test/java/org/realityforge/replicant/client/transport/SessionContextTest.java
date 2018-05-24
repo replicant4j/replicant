@@ -18,16 +18,6 @@ public class SessionContextTest
   {
     final SessionContext sessionContext = new SessionContext();
 
-    //connection
-    {
-      final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-      assertEquals( sessionContext.getConnection(), null );
-      sessionContext.setConnection( connection );
-      assertEquals( sessionContext.getConnection(), connection );
-      sessionContext.setConnection( null );
-      assertEquals( sessionContext.getConnection(), null );
-    }
-
     //authToken
     {
       final String authToken = ValueUtil.randomString();
@@ -59,10 +49,12 @@ public class SessionContextTest
     final String name = ValueUtil.randomString();
     final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
 
     final SessionContext sessionContext = new SessionContext();
-    sessionContext.setConnection( connection );
+    sessionContext.setConnector( connector );
 
     sessionContext.request( name, cacheKey, action );
 

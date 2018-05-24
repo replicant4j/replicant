@@ -180,7 +180,7 @@ public abstract class Connector
     return _schema;
   }
 
-  protected final void setConnection( @Nullable final Connection connection )
+  public final void setConnection( @Nullable final Connection connection )
   {
     if ( !Objects.equals( connection, _connection ) )
     {
@@ -190,7 +190,7 @@ public abstract class Connector
   }
 
   @Nullable
-  protected final Connection getConnection()
+  public final Connection getConnection()
   {
     return _connection;
   }

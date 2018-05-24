@@ -28,6 +28,7 @@ public abstract class AbstractDataLoaderService
   {
     super( context, schema, transport );
     _sessionContext = Objects.requireNonNull( sessionContext );
+    _sessionContext.setConnector( this );
   }
 
   @Nonnull
@@ -64,8 +65,6 @@ public abstract class AbstractDataLoaderService
     if ( connection != getConnection() )
     {
       setConnection( connection );
-      // This should probably be moved elsewhere ... but where?
-      getSessionContext().setConnection( connection );
     }
     action.call();
   }
