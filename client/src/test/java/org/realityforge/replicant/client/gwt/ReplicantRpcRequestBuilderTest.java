@@ -4,7 +4,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import java.lang.reflect.Field;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.client.transport.SessionContext;
 import org.realityforge.replicant.shared.SharedConstants;
@@ -134,9 +133,7 @@ public class ReplicantRpcRequestBuilderTest
   private void setRequest( final SessionContext sessionContext, final RequestEntry requestEntry )
     throws Exception
   {
-    final Field field = SessionContext.class.getDeclaredField( "_request" );
-    field.setAccessible( true );
-    field.set( sessionContext, requestEntry );
+    toField( SessionContext.class, "_request" ).set( sessionContext, requestEntry );
   }
 
   enum G
