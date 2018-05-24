@@ -105,8 +105,7 @@ public abstract class Connector
     _schema = Objects.requireNonNull( schema );
     _transport = Objects.requireNonNull( transport );
     getReplicantRuntime().registerConnector( this );
-    final SchemaService schemaService = getReplicantContext().getSchemaService();
-    schemaService.registerSchema( schema );
+    getReplicantContext().getSchemaService().registerSchema( schema );
   }
 
   /**
