@@ -10,7 +10,7 @@ import replicant.SafeProcedure;
 
 public abstract class AbstractRequestAdapter
 {
-  protected static final SafeProcedure NOOP = () -> {
+  private static final SafeProcedure NOOP = () -> {
   };
   @Nonnull
   private final SafeProcedure _onSuccess;
