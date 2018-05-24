@@ -122,11 +122,14 @@ public abstract class AbstractReplicantTest
                                 @Nonnull final ObserverError error,
                                 @Nullable final Throwable throwable )
   {
-    final String message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
-    _observerErrors.add( message );
-    if ( _printObserverErrors )
+    if ( !_ignoreObserverErrors )
     {
-      System.out.println( message );
+      final String message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
+      _observerErrors.add( message );
+      if ( _printObserverErrors )
+      {
+        System.out.println( message );
+      }
     }
   }
 
