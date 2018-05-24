@@ -318,7 +318,7 @@ public abstract class Connector
    *
    * @return true if more work is to be done.
    */
-  protected final boolean scheduleTick()
+  final boolean scheduleTick()
   {
     if ( null == _schedulerLock )
     {
@@ -832,7 +832,7 @@ public abstract class Connector
   /**
    * Perform a single step in sending one (or a batch) or requests to the server.
    */
-  protected boolean progressAreaOfInterestRequestProcessing()
+  final boolean progressAreaOfInterestRequestProcessing()
   {
     final List<AreaOfInterestRequest> requests =
       new ArrayList<>( ensureConnection().getCurrentAreaOfInterestRequests() );
