@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.intellij.lang.annotations.Language;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
@@ -67,11 +66,11 @@ public class ConnectorTest
     assertEquals( connector.getReplicantRuntime(), runtime );
     safeAction( () -> assertEquals( connector.getReplicantContext().getSchemaService().contains( schema ), true ) );
 
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     schedulerLock.dispose();
 
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
   }
 
   @Test
@@ -129,11 +128,13 @@ public class ConnectorTest
     pauseScheduler();
 
     final TestConnector connector = TestConnector.create();
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     safeAction( connector::connect );
 
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
+    verify( connector.getTransport() ).connect( any( SafeProcedure.class ) );
+
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
   }
 
   @Test
@@ -142,12 +143,18 @@ public class ConnectorTest
     pauseScheduler();
 
     final TestConnector connector = TestConnector.create();
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
-    connector.setErrorOnConnect( true );
-    assertThrows( () -> safeAction( connector::connect ) );
+    final IllegalStateException exception = new IllegalStateException();
+    doAnswer( i -> {
+      throw exception;
+    } ).when( connector.getTransport() ).connect( any( SafeProcedure.class ) );
 
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    final IllegalStateException actual =
+      expectThrows( IllegalStateException.class, () -> safeAction( connector::connect ) );
+
+    assertEquals( actual, exception );
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
   }
 
   @Test
@@ -160,7 +167,9 @@ public class ConnectorTest
 
     safeAction( connector::disconnect );
 
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    verify( connector.getTransport() ).disconnect( any( SafeProcedure.class ) );
+
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
 
   @Test
@@ -171,10 +180,17 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    connector.setErrorOnDisconnect( true );
-    assertThrows( () -> safeAction( connector::disconnect ) );
+    final IllegalStateException exception = new IllegalStateException();
+    doAnswer( i -> {
+      throw exception;
+    } ).when( connector.getTransport() ).disconnect( any( SafeProcedure.class ) );
 
-    safeAction( () -> Assert.assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    final IllegalStateException actual =
+      expectThrows( IllegalStateException.class, () -> safeAction( connector::disconnect ) );
+
+    assertEquals( actual, exception );
+
+    safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
   }
 
   @Test
@@ -906,6 +922,8 @@ public class ConnectorTest
 
     assertNull( connector.getSchedulerLock() );
 
+    connector.resumeMessageScheduler();
+
     //response needs worldValidated
 
     final boolean result1 = connector.progressMessages();
@@ -939,6 +957,8 @@ public class ConnectorTest
                                                                               AreaOfInterestRequest.Type.REMOVE,
                                                                               null ) );
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.resumeMessageScheduler();
 
     final boolean result2 = connector.progressMessages();
 
@@ -4380,31 +4400,31 @@ public class ConnectorTest
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
   }
 
-  @Test( timeOut = 4000L )
+  @Test
   public void pauseMessageScheduler()
   {
     final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
-    connector.requestSubscribe( address, null );
+    connector.pauseMessageScheduler();
 
-    while ( null == connector.getSchedulerLock() )
-    {
-      Thread.yield();
-    }
+    assertEquals( connector.isSchedulerPaused(), true );
+    assertEquals( connector.isSchedulerActive(), false );
 
-    assertEquals( connector.isSchedulerPaused(), false );
+    connector.requestSubscribe( new ChannelAddress( 1, 0, 1 ), null );
+
     assertEquals( connector.isSchedulerActive(), true );
 
-    final Disposable schedulerLock = connector.getSchedulerLock();
-    assertNotNull( schedulerLock );
+    connector.resumeMessageScheduler();
+
+    assertEquals( connector.isSchedulerPaused(), false );
+    assertEquals( connector.isSchedulerActive(), false );
 
     connector.pauseMessageScheduler();
 
     assertEquals( connector.isSchedulerPaused(), true );
-    assertEquals( connector.isSchedulerActive(), true );
+    assertEquals( connector.isSchedulerActive(), false );
 
     // No progress
     assertEquals( connector.progressMessages(), false );
@@ -4414,49 +4434,6 @@ public class ConnectorTest
     assertEquals( connector.isSchedulerActive(), false );
     assertEquals( connector.isSchedulerPaused(), true );
 
-    assertEquals( Disposable.isDisposed( schedulerLock ), true );
     assertNull( connector.getSchedulerLock() );
-  }
-
-  @Test( timeOut = 4000L )
-  public void pauseMessageScheduler_Then_Resume()
-  {
-    final TestConnector connector = TestConnector.create();
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
-    connector.setConnection( connection );
-
-    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
-    connector.requestSubscribe( address, null );
-
-    while ( null == connector.getSchedulerLock() )
-    {
-      Thread.yield();
-    }
-
-    assertEquals( connector.isSchedulerPaused(), false );
-    assertEquals( connector.isSchedulerActive(), true );
-
-    final Disposable schedulerLock = connector.getSchedulerLock();
-    assertNotNull( schedulerLock );
-
-    connector.pauseMessageScheduler();
-
-    assertEquals( connector.isSchedulerPaused(), true );
-    assertEquals( connector.isSchedulerActive(), true );
-
-    // No progress
-    assertEquals( connector.progressMessages(), false );
-
-    connector.resumeMessageScheduler();
-
-    assertEquals( connector.isSchedulerPaused(), false );
-    assertEquals( connector.isSchedulerActive(), true );
-
-    while ( null != connector.getSchedulerLock() )
-    {
-      Thread.yield();
-    }
-
-    assertEquals( connector.ensureConnection().getCurrentAreaOfInterestRequests().size(), 1 );
   }
 }

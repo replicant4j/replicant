@@ -10,6 +10,20 @@ import javax.annotation.Nullable;
  */
 public interface Transport
 {
+  /**
+   * Perform the connection, invoking the action when connection has completed.
+   *
+   * @param action the action to invoke once connect has completed.
+   */
+  void connect( @Nonnull SafeProcedure action );
+
+  /**
+   * Perform the disconnection, invoking the action when disconnection has completed.
+   *
+   * @param action the action to invoke once disconnect has completed.
+   */
+  void disconnect( @Nonnull SafeProcedure action );
+
   void requestSubscribe( @Nonnull ChannelAddress address,
                          @Nullable Object filter,
                          @Nullable String cacheKey,

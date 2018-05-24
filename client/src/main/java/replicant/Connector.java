@@ -138,7 +138,7 @@ public abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        doConnect( this::onConnected );
+        getTransport().connect( this::onConnected );
         newState = ConnectorState.CONNECTING;
       }
       finally
@@ -147,13 +147,6 @@ public abstract class Connector
       }
     }
   }
-
-  /**
-   * Perform the connection, invoking the action when connection has completed.
-   *
-   * @param action the action to invoke once connect has completed.
-   */
-  protected abstract void doConnect( @Nonnull SafeProcedure action );
 
   /**
    * Disconnect from underlying data source.
@@ -166,7 +159,7 @@ public abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        doDisconnect( this::onDisconnected );
+        getTransport().disconnect( this::onDisconnected );
         newState = ConnectorState.DISCONNECTING;
       }
       finally
@@ -175,13 +168,6 @@ public abstract class Connector
       }
     }
   }
-
-  /**
-   * Perform the disconnection, invoking the action when disconnection has completed.
-   *
-   * @param action the action to invoke once disconnect has completed.
-   */
-  protected abstract void doDisconnect( @Nonnull SafeProcedure action );
 
   /**
    * Return the schema associated with the connector.

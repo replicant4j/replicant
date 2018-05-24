@@ -4,6 +4,7 @@ import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ReplicantRuntimeTest
@@ -135,12 +136,14 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock1 = pauseScheduler();
     runtime.deactivate();
-    final int initialConnectCallCount = service1.getConnectCallCount();
+    reset( service1.getTransport() );
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock1.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
+    verify( service1.getTransport(), times( 1 ) ).connect( any( SafeProcedure.class ) );
+
+    reset( service1.getTransport() );
 
     // set service state to in transition so connect is not called
 
@@ -150,13 +153,13 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock2.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     // set service state to connected so no action required
 
@@ -166,7 +169,7 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock3.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -176,7 +179,8 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().setTokenCount( 0 );
     runtime.activate();
     schedulerLock4.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
+
     // set service state to disconnected but rate limit it
 
     final Disposable schedulerLock5 = pauseScheduler();
@@ -185,7 +189,7 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock5.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount + 2 );
+    verify( service1.getTransport(), times( 1 ) ).connect( any( SafeProcedure.class ) );
   }
 
   @Test
@@ -202,8 +206,8 @@ public class ReplicantRuntimeTest
     final TestConnector service3 = TestConnector.create( schema3 );
     final ConnectorEntry entry3 = runtime.getConnectorEntryBySchemaId( service3.getSchema().getId() );
 
-    final int initialConnectCallCount1 = service1.getConnectCallCount();
-    final int initialConnectCallCount3 = service3.getConnectCallCount();
+    reset( service1.getTransport() );
+    reset( service3.getTransport() );
 
     final Disposable schedulerLock1 = pauseScheduler();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
@@ -213,8 +217,11 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock1.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
-    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
+    verify( service1.getTransport(), times( 1 ) ).connect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), times( 1 ) ).connect( any( SafeProcedure.class ) );
+
+    reset( service1.getTransport() );
+    reset( service3.getTransport() );
 
     // set service state to in transition so connect is not called
 
@@ -226,8 +233,8 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock2.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
-    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     final Disposable schedulerLock3 = pauseScheduler();
     runtime.deactivate();
@@ -237,8 +244,8 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock3.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
-    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     // set service state to connected so no action required
 
@@ -250,8 +257,8 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock4.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
-    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -263,8 +270,8 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().setTokenCount( 0 );
     runtime.activate();
     schedulerLock5.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 1 );
-    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 1 );
+    verify( service1.getTransport(), never() ).connect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), never() ).connect( any( SafeProcedure.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -276,8 +283,8 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock6.dispose();
-    assertEquals( service1.getConnectCallCount(), initialConnectCallCount1 + 2 );
-    assertEquals( service3.getConnectCallCount(), initialConnectCallCount3 + 2 );
+    verify( service1.getTransport(), times( 1 ) ).connect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), times( 1 ) ).connect( any( SafeProcedure.class ) );
   }
 
   @Test
@@ -293,11 +300,13 @@ public class ReplicantRuntimeTest
 
     runtime.activate();
 
-    final int disconnectCallCount1 = service1.getDisconnectCallCount();
+    reset( service1.getTransport() );
 
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ) );
+
+    reset( service1.getTransport() );
 
     // set service state to in transition so connect is not called
 
@@ -305,13 +314,13 @@ public class ReplicantRuntimeTest
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    verify( service1.getTransport(), never() ).disconnect( any( SafeProcedure.class ) );
 
     runtime.activate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    verify( service1.getTransport(), never() ).disconnect( any( SafeProcedure.class ) );
 
     // set service state to DISCONNECTED so no action required
 
@@ -319,7 +328,7 @@ public class ReplicantRuntimeTest
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    verify( service1.getTransport(), never() ).disconnect( any( SafeProcedure.class ) );
 
     // set service state to ERROR so no action required
 
@@ -327,7 +336,7 @@ public class ReplicantRuntimeTest
     safeAction( () -> service1.setState( ConnectorState.ERROR ) );
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    verify( service1.getTransport(), never() ).disconnect( any( SafeProcedure.class ) );
 
     // set service state to connected but rate limit it
 
@@ -335,7 +344,7 @@ public class ReplicantRuntimeTest
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
+    verify( service1.getTransport(), never() ).disconnect( any( SafeProcedure.class ) );
 
     // set service state to connected
 
@@ -343,7 +352,7 @@ public class ReplicantRuntimeTest
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 2 );
+    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ) );
   }
 
   @Test
@@ -365,14 +374,14 @@ public class ReplicantRuntimeTest
 
     runtime.activate();
 
-    final int disconnectCallCount1 = service1.getDisconnectCallCount();
-    final int disconnectCallCount3 = service3.getDisconnectCallCount();
+    reset( service1.getTransport() );
+    reset( service3.getTransport() );
 
     entry1.getRateLimiter().fillBucket();
     entry3.getRateLimiter().fillBucket();
     runtime.deactivate();
-    assertEquals( service1.getDisconnectCallCount(), disconnectCallCount1 + 1 );
-    assertEquals( service3.getDisconnectCallCount(), disconnectCallCount3 + 1 );
+    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ) );
+    verify( service3.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ) );
   }
 
   @Test
