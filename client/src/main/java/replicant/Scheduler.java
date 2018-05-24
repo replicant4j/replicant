@@ -38,4 +38,8 @@ final class Scheduler
       com.google.gwt.core.client.Scheduler.get().scheduleIncremental( command::call );
     }
   }
+
+  private Scheduler()
+  {
+  }
 }
