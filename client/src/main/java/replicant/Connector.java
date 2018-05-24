@@ -108,6 +108,17 @@ public abstract class Connector
     getReplicantContext().getSchemaService().registerSchema( schema );
   }
 
+  @PreDispose
+  final void preDispose()
+  {
+    _schedulerActive = false;
+    if ( null != _schedulerLock )
+    {
+      _schedulerLock.dispose();
+      _schedulerLock = null;
+    }
+  }
+
   /**
    * Connect to the underlying data source.
    */
