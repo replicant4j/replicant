@@ -1841,9 +1841,7 @@ public class ReplicantSessionManagerImplTest
       final String key = "java:comp/TransactionSynchronizationRegistry";
       try
       {
-        final InitialContext initialContext = new InitialContext();
-        final Object lookup = initialContext.lookup( "java:comp" );
-        return (TransactionSynchronizationRegistry) initialContext.lookup( key );
+        return (TransactionSynchronizationRegistry) new InitialContext().lookup( key );
       }
       catch ( final NamingException ne )
       {
