@@ -263,7 +263,7 @@ public abstract class Connector
   final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     ensureConnection().requestSubscribe( address, filter );
-    triggerScheduler();
+    triggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestQueuedEvent( address, filter ) );
@@ -275,7 +275,7 @@ public abstract class Connector
   {
     //TODO: Verify that this address is for an updateable channel
     ensureConnection().requestSubscriptionUpdate( address, filter );
-    triggerScheduler();
+    triggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateRequestQueuedEvent( address, filter ) );
@@ -285,7 +285,7 @@ public abstract class Connector
   final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     ensureConnection().requestUnsubscribe( address );
-    triggerScheduler();
+    triggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeRequestQueuedEvent( address ) );
@@ -301,13 +301,13 @@ public abstract class Connector
    * Schedule request and response processing.
    * This method should be invoked when requests are queued or responses are received.
    */
-  protected final void triggerScheduler()
+  protected final void triggerMessageScheduler()
   {
     if ( !_schedulerActive )
     {
       _schedulerActive = true;
 
-      activateScheduler();
+      activateMessageScheduler();
     }
   }
 
@@ -318,7 +318,7 @@ public abstract class Connector
    *
    * @return true if more work is to be done.
    */
-  final boolean scheduleTick()
+  final boolean progressMessages()
   {
     if ( null == _schedulerLock )
     {
@@ -349,10 +349,10 @@ public abstract class Connector
 
   /**
    * Activate the scheduler.
-   * This involves creating a scheduler that will invoke {@link #scheduleTick()} until
+   * This involves creating a scheduler that will invoke {@link #progressMessages()} until
    * that method returns false.
    */
-  protected abstract void activateScheduler();
+  protected abstract void activateMessageScheduler();
 
   /**
    * Perform a single step processing messages received from the server.
@@ -916,7 +916,7 @@ public abstract class Connector
         // Loading cached data
         completeAreaOfInterestRequest();
         ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), onSuccess );
-        triggerScheduler();
+        triggerMessageScheduler();
       };
     }
     else
@@ -1076,7 +1076,7 @@ public abstract class Connector
   final void completeAreaOfInterestRequest()
   {
     ensureConnection().completeAreaOfInterestRequest();
-    triggerScheduler();
+    triggerMessageScheduler();
   }
 
   /**

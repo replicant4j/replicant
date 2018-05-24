@@ -39,7 +39,7 @@ public abstract class AbstractDataLoaderService
   protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
     setConnection( new Connection( this, connectionId ), action );
-    triggerScheduler();
+    triggerMessageScheduler();
   }
 
   protected void onDisconnection( @Nonnull final SafeProcedure action )

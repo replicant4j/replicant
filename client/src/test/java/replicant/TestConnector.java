@@ -76,7 +76,7 @@ public abstract class TestConnector
   }
 
   @Override
-  protected void activateScheduler()
+  protected void activateMessageScheduler()
   {
     _activateSchedulerCount++;
   }

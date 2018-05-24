@@ -904,26 +904,26 @@ public class ConnectorTest
   }
 
   @Test
-  public void triggerScheduler()
+  public void triggerMessageScheduler()
   {
     final TestConnector connector = TestConnector.create();
 
     assertEquals( connector.isSchedulerActive(), false );
     assertEquals( connector.getActivateSchedulerCount(), 0 );
 
-    connector.triggerScheduler();
+    connector.triggerMessageScheduler();
 
     assertEquals( connector.isSchedulerActive(), true );
     assertEquals( connector.getActivateSchedulerCount(), 1 );
 
-    connector.triggerScheduler();
+    connector.triggerMessageScheduler();
 
     assertEquals( connector.isSchedulerActive(), true );
     assertEquals( connector.getActivateSchedulerCount(), 1 );
   }
 
   @Test
-  public void scheduleTick()
+  public void progressMessages()
   {
     final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
@@ -933,26 +933,26 @@ public class ConnectorTest
     connection.setCurrentMessageResponse( response );
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null ), null );
 
-    connector.triggerScheduler();
+    connector.triggerMessageScheduler();
 
     assertNull( connector.getSchedulerLock() );
 
     //response needs worldValidated
 
-    final boolean result1 = connector.scheduleTick();
+    final boolean result1 = connector.progressMessages();
 
     assertEquals( result1, true );
     final Disposable schedulerLock1 = connector.getSchedulerLock();
     assertNotNull( schedulerLock1 );
 
-    final boolean result2 = connector.scheduleTick();
+    final boolean result2 = connector.progressMessages();
 
     assertEquals( result2, true );
     assertNotNull( connector.getSchedulerLock() );
     // Current message should be nulled and completed processing now
     assertNull( connection.getCurrentMessageResponse() );
 
-    final boolean result3 = connector.scheduleTick();
+    final boolean result3 = connector.progressMessages();
 
     assertEquals( result3, false );
     assertNull( connector.getSchedulerLock() );
@@ -960,20 +960,20 @@ public class ConnectorTest
   }
 
   @Test
-  public void scheduleTick_withError()
+  public void progressMessages_withError()
   {
     final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    connector.triggerScheduler();
+    connector.triggerMessageScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 0, 0 ),
                                                                               AreaOfInterestRequest.Type.REMOVE,
                                                                               null ) );
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final boolean result2 = connector.scheduleTick();
+    final boolean result2 = connector.progressMessages();
 
     assertEquals( result2, false );
 
