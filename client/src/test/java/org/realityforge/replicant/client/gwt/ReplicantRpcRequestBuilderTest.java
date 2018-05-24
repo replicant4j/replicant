@@ -135,9 +135,4 @@ public class ReplicantRpcRequestBuilderTest
   {
     toField( SessionContext.class, "_request" ).set( sessionContext, requestEntry );
   }
-
-  enum G
-  {
-    G1
-  }
 }
