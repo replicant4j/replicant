@@ -324,7 +324,7 @@ public final class ReplicantContext
    * @return the underlying AreaOfInterestService.
    */
   @Nonnull
-  private final AreaOfInterestService getAreaOfInterestService()
+  private AreaOfInterestService getAreaOfInterestService()
   {
     return _areaOfInterestService;
   }
