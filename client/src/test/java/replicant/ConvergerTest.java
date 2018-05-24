@@ -332,21 +332,15 @@ public class ConvergerTest
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
+    createSubscription( address, null, true );
+
     // Enqueue remove request
     connector.requestUnsubscribe( address );
 
-    safeAction( () -> {
-
-      createSubscription( address, null, true );
-
-      connector.setState( ConnectorState.CONNECTED );
-
-      final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-      Replicant.context().getConverger().removeOrphanSubscriptions();
-
-      handler.assertEventCount( 0 );
-    } );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> Replicant.context().getConverger().removeOrphanSubscriptions() );
+    handler.assertEventCount( 0 );
   }
 
   @Test
