@@ -134,12 +134,6 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  final ArrayList<String> getObserverErrors()
-  {
-    return _observerErrors;
-  }
-
-  @Nonnull
   protected final Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
   {
     Class<?> clazz = type;
