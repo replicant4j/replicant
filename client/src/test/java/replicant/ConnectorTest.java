@@ -894,25 +894,6 @@ public class ConnectorTest
   }
 
   @Test
-  public void triggerMessageScheduler()
-  {
-    final TestConnector connector = TestConnector.create();
-
-    assertEquals( connector.isSchedulerActive(), false );
-    assertEquals( connector.getActivateSchedulerCount(), 0 );
-
-    connector.triggerMessageScheduler();
-
-    assertEquals( connector.isSchedulerActive(), true );
-    assertEquals( connector.getActivateSchedulerCount(), 1 );
-
-    connector.triggerMessageScheduler();
-
-    assertEquals( connector.isSchedulerActive(), true );
-    assertEquals( connector.getActivateSchedulerCount(), 1 );
-  }
-
-  @Test
   public void progressMessages()
   {
     final TestConnector connector = TestConnector.create();
@@ -922,8 +903,6 @@ public class ConnectorTest
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connection.setCurrentMessageResponse( response );
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null ), null );
-
-    connector.triggerMessageScheduler();
 
     assertNull( connector.getSchedulerLock() );
 
@@ -956,8 +935,6 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    connector.triggerMessageScheduler();
-
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 0, 0 ),
                                                                               AreaOfInterestRequest.Type.REMOVE,
                                                                               null ) );
@@ -982,17 +959,16 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestSubscribe( address, null );
 
-    assertEquals( connector.getActivateSchedulerCount(), 1 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), true );
 
     handler.assertEventCount( 1 );
@@ -1004,17 +980,16 @@ public class ConnectorTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    assertEquals( connector.getActivateSchedulerCount(), 0 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestSubscriptionUpdate( address, null );
 
-    assertEquals( connector.getActivateSchedulerCount(), 1 );
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), true );
 
     handler.assertEventCount( 1 );
@@ -1024,20 +999,24 @@ public class ConnectorTest
 
   @Test
   public void requestUnsubscribe()
+    throws Exception
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    assertEquals( connector.getActivateSchedulerCount(), 0 );
+    createSubscription( address, null, true );
+
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), false );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestUnsubscribe( address );
 
-    assertEquals( connector.getActivateSchedulerCount(), 1 );
+    Thread.sleep( 100 );
+
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), true );
 
     handler.assertEventCount( 1 );
@@ -1336,12 +1315,10 @@ public class ConnectorTest
                                                                               null ) );
 
     assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    assertEquals( connector.getActivateSchedulerCount(), 0 );
 
     connector.completeAreaOfInterestRequest();
 
     assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    assertEquals( connector.getActivateSchedulerCount(), 1 );
   }
 
   @Test
@@ -2490,14 +2467,13 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create( schema );
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
+    pauseScheduler();
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
     final AreaOfInterestRequest request =
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
-
-    pauseScheduler();
-    connector.pauseMessageScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -2571,6 +2547,7 @@ public class ConnectorTest
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
+    connector.pauseMessageScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -4401,5 +4378,85 @@ public class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
+  }
+
+  @Test( timeOut = 4000L )
+  public void pauseMessageScheduler()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
+    connector.requestSubscribe( address, null );
+
+    while ( null == connector.getSchedulerLock() )
+    {
+      Thread.yield();
+    }
+
+    assertEquals( connector.isSchedulerPaused(), false );
+    assertEquals( connector.isSchedulerActive(), true );
+
+    final Disposable schedulerLock = connector.getSchedulerLock();
+    assertNotNull( schedulerLock );
+
+    connector.pauseMessageScheduler();
+
+    assertEquals( connector.isSchedulerPaused(), true );
+    assertEquals( connector.isSchedulerActive(), true );
+
+    // No progress
+    assertEquals( connector.progressMessages(), false );
+
+    Disposable.dispose( connector );
+
+    assertEquals( connector.isSchedulerActive(), false );
+    assertEquals( connector.isSchedulerPaused(), true );
+
+    assertEquals( Disposable.isDisposed( schedulerLock ), true );
+    assertNull( connector.getSchedulerLock() );
+  }
+
+  @Test( timeOut = 4000L )
+  public void pauseMessageScheduler_Then_Resume()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
+    connector.requestSubscribe( address, null );
+
+    while ( null == connector.getSchedulerLock() )
+    {
+      Thread.yield();
+    }
+
+    assertEquals( connector.isSchedulerPaused(), false );
+    assertEquals( connector.isSchedulerActive(), true );
+
+    final Disposable schedulerLock = connector.getSchedulerLock();
+    assertNotNull( schedulerLock );
+
+    connector.pauseMessageScheduler();
+
+    assertEquals( connector.isSchedulerPaused(), true );
+    assertEquals( connector.isSchedulerActive(), true );
+
+    // No progress
+    assertEquals( connector.progressMessages(), false );
+
+    connector.resumeMessageScheduler();
+
+    assertEquals( connector.isSchedulerPaused(), false );
+    assertEquals( connector.isSchedulerActive(), true );
+
+    while ( null != connector.getSchedulerLock() )
+    {
+      Thread.yield();
+    }
+
+    assertEquals( connector.ensureConnection().getCurrentAreaOfInterestRequests().size(), 1 );
   }
 }

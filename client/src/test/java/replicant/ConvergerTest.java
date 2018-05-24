@@ -197,6 +197,10 @@ public class ConvergerTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    pauseScheduler();
+    connector.pauseMessageScheduler();
+
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
@@ -228,6 +232,10 @@ public class ConvergerTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    pauseScheduler();
+    connector.pauseMessageScheduler();
+
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
@@ -329,6 +337,7 @@ public class ConvergerTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
@@ -348,6 +357,9 @@ public class ConvergerTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    pauseScheduler();
+    connector.pauseMessageScheduler();
+
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -418,6 +430,7 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
+    connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -442,6 +455,7 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
+    connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -468,6 +482,7 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
@@ -517,6 +532,7 @@ public class ConvergerTest
   {
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -542,6 +558,7 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
@@ -642,6 +659,7 @@ public class ConvergerTest
     final TestConnector connector = TestConnector.create();
     connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    connector.pauseMessageScheduler();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );

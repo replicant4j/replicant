@@ -14,7 +14,6 @@ public abstract class TestConnector
   private final ChangeMapper _changeMapper = mock( ChangeMapper.class );
   private boolean _errorOnConnect;
   private boolean _errorOnDisconnect;
-  private int _activateSchedulerCount;
   private int _connectCallCount;
   private int _disconnectCallCount;
 
@@ -75,16 +74,6 @@ public abstract class TestConnector
     }
   }
 
-  @Override
-  protected void activateMessageScheduler()
-  {
-    _activateSchedulerCount++;
-  }
-
-  int getActivateSchedulerCount()
-  {
-    return _activateSchedulerCount;
-  }
 
   int getConnectCallCount()
   {

@@ -5,6 +5,7 @@ import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,6 +76,12 @@ public abstract class Connector
    */
   private boolean _schedulerActive;
   /**
+   * Flag when the scheduler has been explicitly paused.
+   * When this is true, the {@link #progressMessages()} will terminate the next time
+   * it is invoked and the scheduler will not be activated. This is
+   */
+  private boolean _schedulerPaused;
+  /**
    * This lock is acquired by the Connector when it begins processing messages from the network.
    * Once the processor is idle the lock should be released to allow Arez to reflect all the changes.
    */
@@ -111,6 +118,7 @@ public abstract class Connector
   @PreDispose
   final void preDispose()
   {
+    _schedulerPaused = true;
     _schedulerActive = false;
     if ( null != _schedulerLock )
     {
@@ -317,7 +325,32 @@ public abstract class Connector
     {
       _schedulerActive = true;
 
-      activateMessageScheduler();
+      if ( !_schedulerPaused )
+      {
+        activateMessageScheduler();
+      }
+    }
+  }
+
+  final boolean isSchedulerPaused()
+  {
+    return _schedulerPaused;
+  }
+
+  final void pauseMessageScheduler()
+  {
+    _schedulerPaused = true;
+  }
+
+  final void resumeMessageScheduler()
+  {
+    if ( _schedulerPaused )
+    {
+      _schedulerPaused = false;
+      if ( _schedulerActive )
+      {
+        activateMessageScheduler();
+      }
     }
   }
 
@@ -330,6 +363,10 @@ public abstract class Connector
    */
   final boolean progressMessages()
   {
+    if ( _schedulerPaused )
+    {
+      return false;
+    }
     if ( null == _schedulerLock )
     {
       _schedulerLock = context().pauseScheduler();
@@ -362,7 +399,10 @@ public abstract class Connector
    * This involves creating a scheduler that will invoke {@link #progressMessages()} until
    * that method returns false.
    */
-  protected abstract void activateMessageScheduler();
+  private void activateMessageScheduler()
+  {
+    Scheduler.schedule( this::progressMessages );
+  }
 
   /**
    * Perform a single step processing messages received from the server.
