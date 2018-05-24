@@ -47,7 +47,7 @@ public abstract class AbstractReplicantTest
     return Arez.context().pauseScheduler();
   }
 
-  protected final void autorun( @Nonnull final Procedure procedure )
+  final void autorun( @Nonnull final Procedure procedure )
   {
     Arez.context().autorun( procedure );
   }
@@ -63,7 +63,7 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  protected final Entity findOrCreateEntity( @Nonnull final Class<?> type, final int id )
+  final Entity findOrCreateEntity( @Nonnull final Class<?> type, final int id )
   {
     return safeAction( () -> Replicant
       .context()
@@ -108,12 +108,12 @@ public abstract class AbstractReplicantTest
     return (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger();
   }
 
-  protected final void setIgnoreObserverErrors( final boolean ignoreObserverErrors )
+  final void setIgnoreObserverErrors( final boolean ignoreObserverErrors )
   {
     _ignoreObserverErrors = ignoreObserverErrors;
   }
 
-  protected final void setPrintObserverErrors( final boolean printObserverErrors )
+  final void setPrintObserverErrors( final boolean printObserverErrors )
   {
     _printObserverErrors = printObserverErrors;
   }
@@ -155,7 +155,7 @@ public abstract class AbstractReplicantTest
   }
 
   @SuppressWarnings( "SameParameterValue" )
-  protected final Object getFieldValue( @Nonnull final Object object, @Nonnull final String fieldName )
+  final Object getFieldValue( @Nonnull final Object object, @Nonnull final String fieldName )
   {
     try
     {
@@ -168,7 +168,7 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  protected final TestSpyEventHandler registerTestSpyEventHandler()
+  final TestSpyEventHandler registerTestSpyEventHandler()
   {
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -176,13 +176,13 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  protected final SystemSchema newSchema()
+  final SystemSchema newSchema()
   {
     return newSchema( ValueUtil.randomInt() );
   }
 
   @Nonnull
-  protected final SystemSchema newSchema( final int schemaId )
+  final SystemSchema newSchema( final int schemaId )
   {
     final ChannelSchema[] channels = new ChannelSchema[ 0 ];
     final EntitySchema[] entities = new EntitySchema[ 0 ];
