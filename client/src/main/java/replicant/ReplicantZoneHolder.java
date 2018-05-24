@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import java.util.ArrayList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -108,6 +109,14 @@ final class ReplicantZoneHolder
   @TestOnly
   static void reset()
   {
+    if ( null != c_defaultZone )
+    {
+      Disposable.dispose( c_defaultZone );
+    }
+    if ( null != c_zoneStack )
+    {
+      c_zoneStack.forEach( Disposable::dispose );
+    }
     c_defaultZone = new Zone();
     c_zone = c_defaultZone;
     c_zoneStack = new ArrayList<>();

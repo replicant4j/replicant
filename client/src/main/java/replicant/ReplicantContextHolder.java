@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.anodoc.TestOnly;
@@ -37,6 +38,10 @@ final class ReplicantContextHolder
   @TestOnly
   static void reset()
   {
+    if ( null != c_context )
+    {
+      Disposable.dispose( c_context );
+    }
     c_context = new ReplicantContext();
   }
 }
