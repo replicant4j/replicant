@@ -820,7 +820,7 @@ public abstract class Connector
   @Nonnull
   protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
-  void validateWorld()
+  final void validateWorld()
   {
     ensureCurrentMessageResponse().markWorldAsValidated();
     if ( Replicant.shouldValidateEntitiesOnLoad() )
