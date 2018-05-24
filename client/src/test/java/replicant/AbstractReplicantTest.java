@@ -62,6 +62,15 @@ public abstract class AbstractReplicantTest
     return Arez.context().safeAction( action );
   }
 
+  protected final Subscription createSubscription( @Nonnull final ChannelAddress address,
+                                                   @Nullable final Object filter,
+                                                   final boolean explicitSubscription )
+  {
+    return safeAction( () -> Replicant.context()
+      .getSubscriptionService()
+      .createSubscription( address, filter, explicitSubscription ) );
+  }
+
   @AfterMethod
   protected void afterTest()
     throws Exception

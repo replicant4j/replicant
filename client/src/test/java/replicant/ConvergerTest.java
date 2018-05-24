@@ -200,7 +200,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
-      final Subscription subscription = Replicant.context().createSubscription( address, null, true );
+      final Subscription subscription = createSubscription( address, null, true );
 
       connector.setState( ConnectorState.CONNECTED );
 
@@ -238,7 +238,7 @@ public class ConvergerTest
       Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 4 ), null );
       Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 5 ), null );
 
-      final Subscription subscription = Replicant.context().createSubscription( address, null, true );
+      final Subscription subscription = createSubscription( address, null, true );
 
       connector.setState( ConnectorState.CONNECTED );
 
@@ -269,7 +269,7 @@ public class ConvergerTest
 
     safeAction( () -> {
 
-      Replicant.context().createSubscription( address, null, true );
+      createSubscription( address, null, true );
 
       connector.setState( ConnectorState.DISCONNECTED );
 
@@ -289,7 +289,7 @@ public class ConvergerTest
 
     safeAction( () -> {
 
-      Replicant.context().createSubscription( address, null, false );
+      createSubscription( address, null, false );
 
       connector.setState( ConnectorState.CONNECTED );
 
@@ -312,7 +312,7 @@ public class ConvergerTest
       // Add expectation
       Replicant.context().createOrUpdateAreaOfInterest( address, null );
 
-      Replicant.context().createSubscription( address, null, true );
+      createSubscription( address, null, true );
 
       connector.setState( ConnectorState.CONNECTED );
 
@@ -337,7 +337,7 @@ public class ConvergerTest
 
     safeAction( () -> {
 
-      Replicant.context().createSubscription( address, null, true );
+      createSubscription( address, null, true );
 
       connector.setState( ConnectorState.CONNECTED );
 
@@ -381,7 +381,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-    safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    createSubscription( address, null, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -454,7 +454,7 @@ public class ConvergerTest
     final Object filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
-    safeAction( () -> Replicant.context().createSubscription( address, ValueUtil.randomString(), true ) );
+    createSubscription( address, ValueUtil.randomString(), true );
 
     connector.requestSubscriptionUpdate( address, filter );
 
@@ -479,7 +479,7 @@ public class ConvergerTest
     final String filter = ValueUtil.randomString();
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
-    safeAction( () -> Replicant.context().createSubscription( address, ValueUtil.randomString(), true ) );
+    createSubscription( address, ValueUtil.randomString(), true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -528,7 +528,7 @@ public class ConvergerTest
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-    safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    createSubscription( address, null, true );
     connector.requestUnsubscribe( address );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -582,7 +582,7 @@ public class ConvergerTest
     // areaOfInterest2 would actually require an update as already present
     final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, null ) );
-    safeAction( () -> Replicant.context().createSubscription( address2, ValueUtil.randomString(), true ) );
+    createSubscription( address2, ValueUtil.randomString(), true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -657,10 +657,10 @@ public class ConvergerTest
 
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, filterNew ) );
-    safeAction( () -> Replicant.context().createSubscription( address1, filterOld, true ) );
+    createSubscription( address1, filterOld, true );
     final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, filterNew ) );
-    safeAction( () -> Replicant.context().createSubscription( address2, filterOld, true ) );
+    createSubscription( address2, filterOld, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -689,7 +689,7 @@ public class ConvergerTest
 
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, filterNew ) );
-    safeAction( () -> Replicant.context().createSubscription( address1, filterOld, true ) );
+    createSubscription( address1, filterOld, true );
     final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, filterNew ) );
 
@@ -718,10 +718,10 @@ public class ConvergerTest
 
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, filterNew ) );
-    safeAction( () -> Replicant.context().createSubscription( address1, filterOld, true ) );
+    createSubscription( address1, filterOld, true );
     final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, filterNew ) );
-    safeAction( () -> Replicant.context().createSubscription( address2, filterOld, true ) );
+    createSubscription( address2, filterOld, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -747,10 +747,10 @@ public class ConvergerTest
 
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
-    safeAction( () -> Replicant.context().createSubscription( address1, filterOld, true ) );
+    createSubscription( address1, filterOld, true );
     final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
-    safeAction( () -> Replicant.context().createSubscription( address2, filterOld, true ) );
+    createSubscription( address2, filterOld, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 

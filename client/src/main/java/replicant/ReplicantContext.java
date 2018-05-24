@@ -174,23 +174,6 @@ public final class ReplicantContext
   }
 
   /**
-   * Create a subscription.
-   * This method should not be invoked if a subscription with the existing name already exists.
-   *
-   * @param address              the channel address.
-   * @param filter               the filter if subscription is filterable.
-   * @param explicitSubscription if subscription was explicitly requested by the client.
-   * @return the subscription.
-   */
-  @Nonnull
-  public final Subscription createSubscription( @Nonnull final ChannelAddress address,
-                                                @Nullable final Object filter,
-                                                final boolean explicitSubscription )
-  {
-    return getSubscriptionService().createSubscription( address, filter, explicitSubscription );
-  }
-
-  /**
    * Return the subscription for the specified address.
    * This method will observe the <code>typeSubscriptions</code> or <code>instanceSubscriptions</code>
    * property if not found and the result {@link Subscription} if found. This ensures that if an observer

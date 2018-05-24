@@ -454,7 +454,7 @@ public abstract class Connector
             .getCurrentAreaOfInterestRequests()
             .stream()
             .anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) );
-        getReplicantContext().createSubscription( address, filter, explicitSubscribe );
+        getReplicantContext().getSubscriptionService().createSubscription( address, filter, explicitSubscribe );
       }
       else if ( ChannelChange.Action.REMOVE == actionType )
       {

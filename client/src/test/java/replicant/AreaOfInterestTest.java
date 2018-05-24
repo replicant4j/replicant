@@ -163,8 +163,7 @@ public class AreaOfInterestTest
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), error ) );
 
-    final Subscription subscription =
-      safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
+    final Subscription subscription = createSubscription( aoi.getAddress(), null, true );
 
     safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
@@ -261,7 +260,7 @@ public class AreaOfInterestTest
     pauseScheduler();
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
-    safeAction( () -> aoi.getReplicantContext().createSubscription( aoi.getAddress(), null, true ) );
+    createSubscription( aoi.getAddress(), null, true );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,

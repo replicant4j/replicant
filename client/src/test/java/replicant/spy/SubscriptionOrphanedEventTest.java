@@ -5,7 +5,6 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
-import replicant.Replicant;
 import replicant.Subscription;
 import static org.testng.Assert.*;
 
@@ -19,10 +18,7 @@ public class SubscriptionOrphanedEventTest
     pauseScheduler();
 
     final String filter = ValueUtil.randomString();
-    final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 2 ),
-                                                                filter,
-                                                                true ) );
+    final Subscription subscription = createSubscription( new ChannelAddress( 1, 2 ), filter, true );
 
     final SubscriptionOrphanedEvent event = new SubscriptionOrphanedEvent( subscription );
 

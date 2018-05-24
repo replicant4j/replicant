@@ -112,7 +112,7 @@ public class ConnectorTest
     pauseScheduler();
 
     final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0 );
-    final Subscription subscription = safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     connector.setConnection( connection );
 
@@ -555,8 +555,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
-    final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -623,8 +622,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
-    final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -722,8 +720,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
-    final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -756,8 +753,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
-    final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -792,8 +788,7 @@ public class ConnectorTest
 
     final Throwable error = new Throwable();
 
-    final Subscription subscription =
-      safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -850,8 +845,7 @@ public class ConnectorTest
 
     connector.setConnection( connection );
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 0 ), null, true ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0 ), null, true );
 
     assertEquals( connector.getConnection(), connection );
     assertEquals( connector.ensureConnection(), connection );
@@ -880,15 +874,11 @@ public class ConnectorTest
     final TestConnector connector1 = TestConnector.create( newSchema( 1 ) );
     TestConnector.create( newSchema( 2 ) );
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 0 ), null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 1, 1, 2 ), null, true ) );
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0 ), null, true );
+    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 1, 2 ), null, true );
     // The next two are from a different Connector
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 2, 0, 1 ), null, true ) );
-    final Subscription subscription4 =
-      safeAction( () -> Replicant.context().createSubscription( new ChannelAddress( 2, 0, 2 ), null, true ) );
+    final Subscription subscription3 = createSubscription( new ChannelAddress( 2, 0, 1 ), null, true );
+    final Subscription subscription4 = createSubscription( new ChannelAddress( 2, 0, 2 ), null, true );
 
     assertEquals( Disposable.isDisposed( subscription1 ), false );
     assertEquals( Disposable.isDisposed( subscription2 ), false );
@@ -1064,10 +1054,8 @@ public class ConnectorTest
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, ValueUtil.randomString(), true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, ValueUtil.randomString(), true ) );
+    final Subscription subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
+    final Subscription subscription2 = createSubscription( address2, ValueUtil.randomString(), true );
 
     // Use Integer and String as arbitrary types for our entities...
     // Anything with id below 0 will be removed during update ...
@@ -1151,7 +1139,7 @@ public class ConnectorTest
     pauseScheduler();
 
     final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 1 );
-    safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    createSubscription( address, null, true );
 
     // This entity is to be updated
     final Entity entity2 = safeAction( () -> Replicant.context().findOrCreateEntity( MyEntity.class, 2 ) );
@@ -1462,8 +1450,7 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    final Subscription initialSubscription =
-      safeAction( () -> Replicant.context().createSubscription( address, filter, true ) );
+    final Subscription initialSubscription = createSubscription( address, filter, true );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1539,8 +1526,7 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    final Subscription initialSubscription =
-      safeAction( () -> Replicant.context().createSubscription( address, oldFilter, true ) );
+    final Subscription initialSubscription = createSubscription( address, oldFilter, true );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );
@@ -1580,7 +1566,7 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    safeAction( () -> Replicant.context().createSubscription( address, oldFilter, false ) );
+    createSubscription( address, oldFilter, false );
 
     assertEquals( response.needsChannelChangesProcessed(), true );
     assertEquals( response.getChannelUpdateCount(), 0 );
@@ -1652,10 +1638,9 @@ public class ConnectorTest
     requests.add( new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null ) );
     requests.add( new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null ) );
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
     // Address2 is already implicit ...
-    safeAction( () -> Replicant.context().createSubscription( address2, null, false ) );
+    createSubscription( address2, null, false );
     // Address3 has no subscription ... maybe not converged yet
 
     safeAction( () -> connector.removeExplicitSubscriptions( requests ) );
@@ -1676,7 +1661,7 @@ public class ConnectorTest
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null ) );
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    createSubscription( address1, null, true );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -1704,8 +1689,7 @@ public class ConnectorTest
     requests.forEach( AreaOfInterestRequest::markAsInProgress );
 
     // Address1 is implicitly subscribed
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, false ) );
+    final Subscription subscription1 = createSubscription( address1, null, false );
 
     safeAction( () -> connector.removeUnneededAddRequests( requests ) );
 
@@ -1730,7 +1714,7 @@ public class ConnectorTest
 
     requests.forEach( AreaOfInterestRequest::markAsInProgress );
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    createSubscription( address1, null, true );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -1762,9 +1746,9 @@ public class ConnectorTest
 
     requests.forEach( AreaOfInterestRequest::markAsInProgress );
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    createSubscription( address1, null, true );
     // Address2 is already implicit ...
-    safeAction( () -> Replicant.context().createSubscription( address2, null, false ) );
+    createSubscription( address2, null, false );
     // Address3 has no subscription ... maybe not converged yet
 
     ReplicantTestUtil.noCheckInvariants();
@@ -1814,7 +1798,7 @@ public class ConnectorTest
 
     requests.forEach( AreaOfInterestRequest::markAsInProgress );
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, false ) );
+    createSubscription( address1, null, false );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -1846,9 +1830,9 @@ public class ConnectorTest
 
     requests.forEach( AreaOfInterestRequest::markAsInProgress );
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    createSubscription( address1, null, true );
     // Address2 is already implicit ...
-    safeAction( () -> Replicant.context().createSubscription( address2, null, false ) );
+    createSubscription( address2, null, false );
     // Address3 has no subscription ... maybe not converged yet
 
     ReplicantTestUtil.noCheckInvariants();
@@ -2513,6 +2497,7 @@ public class ConnectorTest
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
+    connector.pauseMessageScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -2784,12 +2769,9 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
+    final Subscription subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -2890,12 +2872,9 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
+    final Subscription subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -3106,6 +3085,7 @@ public class ConnectorTest
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
+    connector.pauseMessageScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -3190,7 +3170,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription = safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -3257,7 +3237,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription = safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -3332,12 +3312,9 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
+    final Subscription subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -3438,12 +3415,9 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
+    final Subscription subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -3542,8 +3516,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
@@ -3654,10 +3627,8 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -3744,7 +3715,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription = safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -3809,7 +3780,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription = safeAction( () -> Replicant.context().createSubscription( address, null, true ) );
+    final Subscription subscription = createSubscription( address, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
@@ -3883,12 +3854,9 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
+    final Subscription subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -3985,12 +3953,9 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
-    final Subscription subscription3 =
-      safeAction( () -> Replicant.context().createSubscription( address3, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
+    final Subscription subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -4085,8 +4050,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
@@ -4195,10 +4159,8 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    final Subscription subscription1 =
-      safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
-    final Subscription subscription2 =
-      safeAction( () -> Replicant.context().createSubscription( address2, null, true ) );
+    final Subscription subscription1 = createSubscription( address1, null, true );
+    final Subscription subscription2 = createSubscription( address2, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -4388,7 +4350,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    createSubscription( address1, null, true );
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -4425,7 +4387,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    safeAction( () -> Replicant.context().createSubscription( address1, null, true ) );
+    createSubscription( address1, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
