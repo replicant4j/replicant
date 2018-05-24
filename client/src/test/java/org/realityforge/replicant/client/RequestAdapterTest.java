@@ -58,7 +58,7 @@ public class RequestAdapterTest
   {
     final Object[] results = new Object[ 1 ];
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString() );
     request.setExpectingResults( true );
 
     final TestRequestAdapter adapter =
@@ -79,7 +79,7 @@ public class RequestAdapterTest
   {
     final Object[] results = new Object[ 1 ];
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), null );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString() );
     request.setExpectingResults( true );
 
     final TestRequestAdapter adapter =

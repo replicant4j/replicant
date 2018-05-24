@@ -33,12 +33,11 @@ public class SessionContextTest
   public void request_noSession()
   {
     final String requestKey = ValueUtil.randomString();
-    final String cacheKey = ValueUtil.randomString();
     final RequestAction action = mock( RequestAction.class );
 
     final SessionContext sessionContext = new SessionContext();
 
-    sessionContext.request( requestKey, cacheKey, action );
+    sessionContext.request( requestKey, action );
 
     verify( action ).invokeRequest( null, null );
   }
@@ -47,7 +46,6 @@ public class SessionContextTest
   public void request_sessionPresent()
   {
     final String name = ValueUtil.randomString();
-    final String cacheKey = ValueUtil.randomString();
     final TestRequestAction action = new TestRequestAction();
     final TestConnector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
@@ -56,12 +54,11 @@ public class SessionContextTest
     final SessionContext sessionContext = new SessionContext();
     sessionContext.setConnector( connector );
 
-    sessionContext.request( name, cacheKey, action );
+    sessionContext.request( name, action );
 
     assertEquals( action._session, connection );
     assertNotNull( action._request );
     assertEquals( action._request.getName(), name );
-    assertEquals( action._request.getCacheKey(), cacheKey );
   }
 
   static class TestRequestAction

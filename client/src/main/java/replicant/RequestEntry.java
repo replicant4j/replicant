@@ -14,16 +14,12 @@ public final class RequestEntry
   private final int _requestId;
   @Nullable
   private final String _name;
-  @Nullable
-  private final String _cacheKey;
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
   private SafeProcedure _completionAction;
 
-  public RequestEntry( final int requestId,
-                       @Nullable final String name,
-                       @Nullable final String cacheKey )
+  public RequestEntry( final int requestId, @Nullable final String name )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -33,7 +29,6 @@ public final class RequestEntry
     }
     _requestId = requestId;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
-    _cacheKey = cacheKey;
   }
 
   public int getRequestId()
@@ -51,12 +46,6 @@ public final class RequestEntry
     }
     assert null != _name;
     return _name;
-  }
-
-  @Nullable
-  public String getCacheKey()
-  {
-    return _cacheKey;
   }
 
   @Nullable
@@ -115,8 +104,7 @@ public final class RequestEntry
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return "Request(" + getName() + ")[ID=" + _requestId +
-             ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) ) + "]";
+      return "Request(" + getName() + ")[Id=" + _requestId + "]";
     }
     else
     {

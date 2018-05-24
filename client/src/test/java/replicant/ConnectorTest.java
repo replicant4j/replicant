@@ -1986,7 +1986,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction", null );
+    final RequestEntry request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
@@ -2016,15 +2016,18 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final String cacheKey = ValueUtil.randomString();
-    final RequestEntry request = connection.newRequest( "SomeAction", cacheKey );
+    final RequestEntry request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
     final String etag = ValueUtil.randomString();
 
     final String rawJsonData =
-      "{\"last_id\": 1, \"requestId\": " + requestId + ", \"etag\": \"" + etag + "\"}";
+      "{\"last_id\": 1" +
+      ", \"requestId\": " + requestId +
+      ", \"etag\": \"" + etag + "\"" +
+      ", \"channel_actions\": [ { \"cid\": 0, \"action\": \"add\"} ] }";
+
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2032,7 +2035,7 @@ public class ConnectorTest
 
     final CacheService cacheService = new TestCacheService();
     Replicant.context().setCacheService( cacheService );
-    assertNull( cacheService.lookup( cacheKey ) );
+    assertNull( cacheService.lookup( ValueUtil.randomString() ) );
 
     connector.parseMessageResponse();
 
@@ -2045,11 +2048,47 @@ public class ConnectorTest
     assertEquals( connection.getPendingResponses().size(), 1 );
     assertEquals( connection.getCurrentMessageResponse(), null );
 
+    final String cacheKey = "RC-1.0";
     final CacheEntry entry = cacheService.lookup( cacheKey );
     assertNotNull( entry );
     assertEquals( entry.getKey(), cacheKey );
     assertEquals( entry.getETag(), etag );
     assertEquals( entry.getContent(), rawJsonData );
+  }
+
+  @Test
+  public void parseMessageResponse_eTagWhenNotCacheCandidate()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    connector.setConnection( connection );
+
+    final RequestEntry request = connection.newRequest( "SomeAction" );
+
+    final int requestId = request.getRequestId();
+
+    final String etag = ValueUtil.randomString();
+
+    final String rawJsonData =
+      "{\"last_id\": 1" +
+      ", \"requestId\": " + requestId +
+      ", \"etag\": \"" + etag + "\"" +
+      ", \"channel_actions\": [ { \"cid\": 0, \"action\": \"add\"}, { \"cid\": 1, \"scid\": 1, \"action\": \"add\"} ] }";
+
+    final MessageResponse response = new MessageResponse( rawJsonData );
+
+    connection.setCurrentMessageResponse( response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+
+    final CacheService cacheService = new TestCacheService();
+    Replicant.context().setCacheService( cacheService );
+    assertNull( cacheService.lookup( ValueUtil.randomString() ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, connector::parseMessageResponse );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0072: eTag in reply for ChangeSet 1 but ChangeSet is not a candidate for caching." );
   }
 
   @Test
@@ -2059,7 +2098,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction", null );
+    final RequestEntry request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
@@ -2201,7 +2240,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction", null );
+    final RequestEntry request = connection.newRequest( "SomeAction" );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
@@ -2245,7 +2284,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction", null );
+    final RequestEntry request = connection.newRequest( "SomeAction" );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
@@ -2626,42 +2665,6 @@ public class ConnectorTest
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCacheForNonCacheableGraph()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, false, true );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final TestConnector connector = TestConnector.create( schema );
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
-    connector.setConnection( connection );
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
-      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
-
-    pauseScheduler();
-
-    connection.injectCurrentAreaOfInterestRequest( request );
-
-    final TestCacheService cacheService = new TestCacheService();
-    Replicant.context().setCacheService( cacheService );
-
-    cacheService.store( "1.0", ValueUtil.randomString(), ValueUtil.randomString() );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connector.progressAreaOfInterestAddRequest( request ) );
-
-    assertEquals( exception.getMessage(), "Replicant-0072: Found cache entry for non-cacheable channel." );
   }
 
   @SuppressWarnings( "unchecked" )

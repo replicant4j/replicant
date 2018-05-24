@@ -57,14 +57,12 @@ public final class SessionContext
     return _request;
   }
 
-  public void request( @Nullable final String key,
-                       @Nullable final String cacheKey,
-                       @Nonnull final RequestAction action )
+  public void request( @Nullable final String key, @Nonnull final RequestAction action )
   {
     final Connection connection = getConnection();
     if ( null != connection )
     {
-      _request = connection.newRequest( key, cacheKey );
+      _request = connection.newRequest( key );
     }
     action.invokeRequest( connection, _request );
     _request = null;

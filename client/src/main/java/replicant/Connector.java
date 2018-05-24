@@ -755,7 +755,6 @@ public abstract class Connector
     else
     {
       final Integer requestId = changeSet.getRequestId();
-      final String eTag = changeSet.getETag();
       final int sequence = changeSet.getSequence();
       request = null != requestId ? connection.getRequest( requestId ) : null;
       if ( Replicant.shouldCheckApiInvariants() )
@@ -765,22 +764,48 @@ public abstract class Connector
                             requestId + "' specified for ChangeSet with sequence " +
                             sequence + ". Existing Requests: " + connection.getRequests() );
       }
-      if ( null != request )
-      {
-        final String cacheKey = request.getCacheKey();
-        if ( null != eTag && null != cacheKey )
-        {
-          final CacheService cacheService = getReplicantContext().getCacheService();
-          if ( null != cacheService )
-          {
-            cacheService.store( cacheKey, eTag, rawJsonData );
-          }
-        }
-      }
     }
+
+    cacheMessageIfPossible( rawJsonData, changeSet );
 
     response.recordChangeSet( changeSet, request );
     connection.queueCurrentResponse();
+  }
+
+  private void cacheMessageIfPossible( @Nonnull final String rawJsonData, @Nonnull final ChangeSet changeSet )
+  {
+    final String eTag = changeSet.getETag();
+    final CacheService cacheService = getReplicantContext().getCacheService();
+
+    boolean candidate = false;
+    if ( null != cacheService &&
+         null != eTag &&
+         changeSet.hasChannelChanges() )
+    {
+      final ChannelChange[] channelChanges = changeSet.getChannelChanges();
+
+      if ( 1 == channelChanges.length &&
+           ChannelChange.Action.ADD == channelChanges[ 0 ].getAction() &&
+           getSchema().getChannel( channelChanges[ 0 ].getChannelId() ).isCacheable() )
+      {
+        final ChannelChange channelChange = channelChanges[ 0 ];
+        final String cacheKey =
+          "RC-" +
+          getSchema().getId() +
+          "." +
+          channelChange.getChannelId() +
+          ( channelChange.hasSubChannelId() ? "." + channelChange.getSubChannelId() : "" );
+        cacheService.store( cacheKey, eTag, rawJsonData );
+        candidate = true;
+      }
+    }
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      final boolean c = candidate;
+      apiInvariant( () -> null == eTag || null == cacheService || c,
+                    () -> "Replicant-0072: eTag in reply for ChangeSet " + changeSet.getSequence() +
+                          " but ChangeSet is not a candidate for caching." );
+    }
   }
 
   @Action
@@ -934,18 +959,14 @@ public abstract class Connector
       onSubscribeFailed( address, error );
     };
 
-    final String cacheKey = request.getCacheKey();
     final CacheService cacheService = getReplicantContext().getCacheService();
-    final CacheEntry cacheEntry = null == cacheService ? null : cacheService.lookup( cacheKey );
+    final boolean cacheable =
+      null != cacheService && getSchema().getChannel( request.getAddress().getChannelId() ).isCacheable();
+    final CacheEntry cacheEntry = cacheable ? cacheService.lookup( request.getCacheKey() ) : null;
     final String eTag;
     final SafeProcedure onCacheValid;
     if ( null != cacheEntry )
     {
-      if ( Replicant.shouldCheckInvariants() )
-      {
-        invariant( () -> getSchema().getChannel( request.getAddress().getChannelId() ).isCacheable(),
-                   () -> "Replicant-0072: Found cache entry for non-cacheable channel." );
-      }
       //Found locally cached data
       eTag = cacheEntry.getETag();
       onCacheValid = () ->
@@ -963,7 +984,7 @@ public abstract class Connector
     }
     getTransport().requestSubscribe( request.getAddress(),
                                      request.getFilter(),
-                                     cacheKey,
+                                     request.getCacheKey(),
                                      eTag,
                                      onCacheValid,
                                      onSuccess,

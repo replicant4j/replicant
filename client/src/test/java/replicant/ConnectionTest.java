@@ -393,14 +393,12 @@ public class ConnectionTest
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
     final String requestName = ValueUtil.randomString();
-    final String cacheKey = ValueUtil.randomString();
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final RequestEntry request = connection.newRequest( requestName, cacheKey );
+    final RequestEntry request = connection.newRequest( requestName );
 
     assertEquals( request.getName(), requestName );
-    assertEquals( request.getCacheKey(), cacheKey );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
@@ -476,7 +474,7 @@ public class ConnectionTest
   public void completeRequest()
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -504,7 +502,7 @@ public class ConnectionTest
   public void completeRequest_expectingResults()
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setNormalCompletion( true );
@@ -533,7 +531,7 @@ public class ConnectionTest
   public void completeRequest_resultsArrived()
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString(), ValueUtil.randomString() );
+    final RequestEntry e = connection.newRequest( ValueUtil.randomString() );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     e.setNormalCompletion( true );

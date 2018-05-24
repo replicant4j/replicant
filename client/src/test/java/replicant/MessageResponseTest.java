@@ -200,7 +200,7 @@ public class MessageResponseTest
     final MessageResponse action = new MessageResponse( rawJsonData );
 
     final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey, null );
+    final RequestEntry request = new RequestEntry( requestId, requestKey );
 
     //Ensure the initial state is as expected
     assertEquals( action.getRawJsonData(), rawJsonData );
@@ -306,7 +306,7 @@ public class MessageResponseTest
     final MessageResponse action = new MessageResponse( rawJsonData );
 
     final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey, null );
+    final RequestEntry request = new RequestEntry( requestId, requestKey );
 
     //Ensure the initial state is as expected
     assertEquals( action.getRawJsonData(), rawJsonData );
@@ -408,7 +408,7 @@ public class MessageResponseTest
                         new ChannelChange[ 0 ],
                         new EntityChange[ 0 ] );
 
-    final RequestEntry request = new RequestEntry( 1234, "DoMagic", null );
+    final RequestEntry request = new RequestEntry( 1234, "DoMagic" );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
@@ -428,7 +428,7 @@ public class MessageResponseTest
                         new ChannelChange[ 0 ],
                         new EntityChange[ 0 ] );
 
-    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), null );
+    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString() );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );

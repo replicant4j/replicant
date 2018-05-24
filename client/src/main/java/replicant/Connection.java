@@ -201,9 +201,9 @@ public final class Connection
   }
 
   @Nonnull
-  public final RequestEntry newRequest( @Nullable final String name, @Nullable final String cacheKey )
+  public final RequestEntry newRequest( @Nullable final String name )
   {
-    final RequestEntry request = new RequestEntry( nextRequestId(), name, cacheKey );
+    final RequestEntry request = new RequestEntry( nextRequestId(), name );
     _requests.put( request.getRequestId(), request );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
