@@ -62,6 +62,18 @@ public abstract class AbstractReplicantTest
     return Arez.context().safeAction( action );
   }
 
+  @Nonnull
+  protected final Entity findOrCreateEntity( @Nonnull final Class<?> type, final int id )
+  {
+    return safeAction( () -> Replicant
+      .context()
+      .getEntityService()
+      .findOrCreateEntity( Replicant.areNamesEnabled() ? type.getSimpleName() + "/" + id : null,
+                           type,
+                           id ) );
+  }
+
+  @Nonnull
   protected final Subscription createSubscription( @Nonnull final ChannelAddress address,
                                                    @Nullable final Object filter,
                                                    final boolean explicitSubscription )

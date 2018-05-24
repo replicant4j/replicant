@@ -1059,12 +1059,12 @@ public class ConnectorTest
 
     // Use Integer and String as arbitrary types for our entities...
     // Anything with id below 0 will be removed during update ...
-    final Entity entity1 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -1 ) );
-    final Entity entity2 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -2 ) );
-    final Entity entity3 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -3 ) );
-    final Entity entity4 = safeAction( () -> Replicant.context().findOrCreateEntity( Integer.class, -4 ) );
-    final Entity entity5 = safeAction( () -> Replicant.context().findOrCreateEntity( String.class, 5 ) );
-    final Entity entity6 = safeAction( () -> Replicant.context().findOrCreateEntity( String.class, 6 ) );
+    final Entity entity1 = findOrCreateEntity( Integer.class, -1 );
+    final Entity entity2 = findOrCreateEntity( Integer.class, -2 );
+    final Entity entity3 = findOrCreateEntity( Integer.class, -3 );
+    final Entity entity4 = findOrCreateEntity( Integer.class, -4 );
+    final Entity entity5 = findOrCreateEntity( String.class, 5 );
+    final Entity entity6 = findOrCreateEntity( String.class, 6 );
 
     safeAction( () -> {
       entity1.linkToSubscription( subscription1 );
@@ -1142,10 +1142,10 @@ public class ConnectorTest
     createSubscription( address, null, true );
 
     // This entity is to be updated
-    final Entity entity2 = safeAction( () -> Replicant.context().findOrCreateEntity( MyEntity.class, 2 ) );
+    final Entity entity2 = findOrCreateEntity( MyEntity.class, 2 );
     safeAction( () -> entity2.setUserObject( userObject2 ) );
     // This entity is to be removed
-    final Entity entity3 = safeAction( () -> Replicant.context().findOrCreateEntity( MyEntity.class, 3 ) );
+    final Entity entity3 = findOrCreateEntity( MyEntity.class, 3 );
 
     final EntityChangeData data1 = mock( EntityChangeData.class );
     final EntityChangeData data2 = mock( EntityChangeData.class );

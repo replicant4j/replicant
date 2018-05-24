@@ -69,7 +69,7 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
 
-    final Entity entity1 = safeAction( () -> context.findOrCreateEntity( A.class, 1 ) );
+    final Entity entity1 = findOrCreateEntity( A.class, 1 );
 
     safeAction( () -> assertEquals( entity1.getName(), "A/1" ) );
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
@@ -79,7 +79,8 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
 
-    final Entity entity2 = safeAction( () -> context.findOrCreateEntity( "Super-dee-duper", A.class, 2 ) );
+    final Entity entity2 =
+      safeAction( () -> context.getEntityService().findOrCreateEntity( "Super-dee-duper", A.class, 2 ) );
 
     safeAction( () -> assertEquals( entity2.getName(), "Super-dee-duper" ) );
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
@@ -89,7 +90,7 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
 
-    final Entity entity3 = safeAction( () -> context.findOrCreateEntity( B.class, 47 ) );
+    final Entity entity3 = findOrCreateEntity( B.class, 47 );
 
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 2 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 ) );

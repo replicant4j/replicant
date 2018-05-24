@@ -781,7 +781,8 @@ public abstract class Connector
         final EntityChangeData data = change.getData();
         if ( null == entity )
         {
-          entity = getReplicantContext().findOrCreateEntity( type, id );
+          final String name = Replicant.areNamesEnabled() ? entitySchema.getName() + "/" + id : null;
+          entity = getReplicantContext().getEntityService().findOrCreateEntity( name, type, id );
           final Object userObject = getChangeMapper().createEntity( entitySchema, id, data );
           entity.setUserObject( userObject );
 
