@@ -82,13 +82,13 @@ public class RequestEntryTest
     final RequestEntry e = new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString() );
 
     final SafeProcedure action = mock( SafeProcedure.class );
-    assertEquals( e.isCompletionDataPresent(), false );
+    assertEquals( e.hasCompleted(), false );
     assertEquals( e.getCompletionAction(), null );
 
     e.setNormalCompletion( true );
     e.setCompletionAction( action );
 
-    assertEquals( e.isCompletionDataPresent(), true );
+    assertEquals( e.hasCompleted(), true );
     assertEquals( e.isNormalCompletion(), true );
     assertEquals( e.getCompletionAction(), action );
   }
@@ -99,13 +99,13 @@ public class RequestEntryTest
     final RequestEntry e = new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString() );
 
     final SafeProcedure action = mock( SafeProcedure.class );
-    assertEquals( e.isCompletionDataPresent(), false );
+    assertEquals( e.hasCompleted(), false );
     assertEquals( e.getCompletionAction(), null );
 
     e.setNormalCompletion( false );
     e.setCompletionAction( action );
 
-    assertEquals( e.isCompletionDataPresent(), true );
+    assertEquals( e.hasCompleted(), true );
     assertEquals( e.isNormalCompletion(), false );
     assertEquals( e.getCompletionAction(), action );
   }

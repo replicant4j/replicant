@@ -201,7 +201,7 @@ public final class Connection
   }
 
   @Nonnull
-  public final RequestEntry newRequest( @Nullable final String name )
+  final Request newRequest( @Nullable final String name )
   {
     final RequestEntry request = new RequestEntry( nextRequestId(), name );
     _requests.put( request.getRequestId(), request );
@@ -215,7 +215,7 @@ public final class Connection
                                                   request.getRequestId(),
                                                   request.getName() ) );
     }
-    return request;
+    return new Request( this, request );
   }
 
   final void completeRequest( @Nonnull final RequestEntry request, @Nonnull final SafeProcedure completionAction )

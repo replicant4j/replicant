@@ -1986,7 +1986,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction" );
+    final Request request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
@@ -2003,7 +2003,7 @@ public class ConnectorTest
     final ChangeSet changeSet = response.getChangeSet();
     assertNotNull( changeSet );
     assertEquals( changeSet.getSequence(), 1 );
-    assertEquals( response.getRequest(), request );
+    assertEquals( response.getRequest(), request.getEntry() );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
     assertEquals( connection.getCurrentMessageResponse(), null );
@@ -2016,7 +2016,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction" );
+    final Request request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
@@ -2043,7 +2043,7 @@ public class ConnectorTest
     final ChangeSet changeSet = response.getChangeSet();
     assertNotNull( changeSet );
     assertEquals( changeSet.getSequence(), 1 );
-    assertEquals( response.getRequest(), request );
+    assertEquals( response.getRequest(), request.getEntry() );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
     assertEquals( connection.getCurrentMessageResponse(), null );
@@ -2063,7 +2063,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction" );
+    final Request request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
@@ -2098,7 +2098,7 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction" );
+    final Request request = connection.newRequest( "SomeAction" );
 
     final int requestId = request.getRequestId();
 
@@ -2240,30 +2240,31 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction" );
+    final Request request = connection.newRequest( "SomeAction" );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
-    request.setNormalCompletion( true );
-    request.setCompletionAction( completionCalled::incrementAndGet );
+    final RequestEntry entry = request.getEntry();
+    entry.setNormalCompletion( true );
+    entry.setCompletionAction( completionCalled::incrementAndGet );
 
     final MessageResponse response = new MessageResponse( "" );
 
     final ChangeSet changeSet = ChangeSet.create( 23, requestId, null, null, null );
-    response.recordChangeSet( changeSet, request );
+    response.recordChangeSet( changeSet, entry );
 
     connection.setLastRxSequence( 22 );
     connection.setCurrentMessageResponse( response );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( request.haveResultsArrived(), false );
+    assertEquals( entry.haveResultsArrived(), false );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), request );
+    assertEquals( connection.getRequest( requestId ), entry );
 
     connector.completeMessageResponse();
 
-    assertEquals( request.haveResultsArrived(), true );
+    assertEquals( entry.haveResultsArrived(), true );
     assertEquals( connection.getLastRxSequence(), 23 );
     assertEquals( connection.getCurrentMessageResponse(), null );
     assertEquals( completionCalled.get(), 1 );
@@ -2284,32 +2285,33 @@ public class ConnectorTest
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
     connector.setConnection( connection );
 
-    final RequestEntry request = connection.newRequest( "SomeAction" );
+    final Request request = connection.newRequest( "SomeAction" );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
+    final RequestEntry entry = request.getEntry();
 
     final MessageResponse response = new MessageResponse( "" );
 
     final ChangeSet changeSet = ChangeSet.create( 23, requestId, null, null, null );
-    response.recordChangeSet( changeSet, request );
+    response.recordChangeSet( changeSet, entry );
 
     connection.setLastRxSequence( 22 );
     connection.setCurrentMessageResponse( response );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( request.haveResultsArrived(), false );
+    assertEquals( entry.haveResultsArrived(), false );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), request );
+    assertEquals( connection.getRequest( requestId ), entry );
 
     connector.completeMessageResponse();
 
-    assertEquals( request.haveResultsArrived(), true );
+    assertEquals( entry.haveResultsArrived(), true );
     assertEquals( connection.getLastRxSequence(), 23 );
     assertEquals( connection.getCurrentMessageResponse(), null );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), request );
+    assertEquals( connection.getRequest( requestId ), entry );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {

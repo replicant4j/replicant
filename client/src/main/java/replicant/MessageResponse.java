@@ -257,7 +257,7 @@ final class MessageResponse
     {
       return _oobCompletionAction;
     }
-    else if ( null == _request || !_request.isCompletionDataPresent() )
+    else if ( null == _request || !_request.hasCompleted() )
     {
       return null;
     }

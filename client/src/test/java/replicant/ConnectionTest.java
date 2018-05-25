@@ -396,19 +396,20 @@ public class ConnectionTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final RequestEntry request = connection.newRequest( requestName );
+    final Request request = connection.newRequest( requestName );
+    final RequestEntry entry = request.getEntry();
 
-    assertEquals( request.getName(), requestName );
+    assertEquals( entry.getName(), requestName );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
       assertEquals( e.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
       assertEquals( e.getRequestId(), request.getRequestId() );
-      assertEquals( e.getName(), request.getName() );
+      assertEquals( e.getName(), requestName );
     } );
 
-    assertEquals( connection.getRequest( request.getRequestId() ), request );
-    assertEquals( connection.getRequests().get( request.getRequestId() ), request );
+    assertEquals( connection.getRequest( request.getRequestId() ), entry );
+    assertEquals( connection.getRequests().get( request.getRequestId() ), entry );
     assertEquals( connection.getRequest( ValueUtil.randomInt() ), null );
 
     connection.removeRequest( request.getRequestId() );
@@ -474,24 +475,25 @@ public class ConnectionTest
   public void completeRequest()
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString() );
+    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    e.setNormalCompletion( false );
+    entry.setNormalCompletion( false );
 
-    connection.completeRequest( e, action );
+    connection.completeRequest( entry, action );
 
     verify( action ).call();
-    assertEquals( e.getCompletionAction(), null );
-    assertNull( connection.getRequest( e.getRequestId() ) );
+    assertEquals( entry.getCompletionAction(), null );
+    assertNull( connection.getRequest( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
       assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
-      assertEquals( ev.getRequestId(), e.getRequestId() );
-      assertEquals( ev.getName(), e.getName() );
+      assertEquals( ev.getRequestId(), request.getRequestId() );
+      assertEquals( ev.getName(), entry.getName() );
       assertEquals( ev.isNormalCompletion(), false );
       assertEquals( ev.isExpectingResults(), false );
       assertEquals( ev.haveResultsArrived(), false );
@@ -502,25 +504,26 @@ public class ConnectionTest
   public void completeRequest_expectingResults()
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString() );
+    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    e.setNormalCompletion( true );
-    e.setExpectingResults( true );
+    entry.setNormalCompletion( true );
+    entry.setExpectingResults( true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connection.completeRequest( e, action );
+    connection.completeRequest( entry, action );
 
     verify( action, never() ).call();
-    assertEquals( e.getCompletionAction(), action );
-    assertNotNull( connection.getRequest( e.getRequestId() ) );
+    assertEquals( entry.getCompletionAction(), action );
+    assertNotNull( connection.getRequest( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
       assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
-      assertEquals( ev.getRequestId(), e.getRequestId() );
-      assertEquals( ev.getName(), e.getName() );
+      assertEquals( ev.getRequestId(), request.getRequestId() );
+      assertEquals( ev.getName(), entry.getName() );
       assertEquals( ev.isNormalCompletion(), true );
       assertEquals( ev.isExpectingResults(), true );
       assertEquals( ev.haveResultsArrived(), false );
@@ -531,26 +534,27 @@ public class ConnectionTest
   public void completeRequest_resultsArrived()
   {
     final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
-    final RequestEntry e = connection.newRequest( ValueUtil.randomString() );
+    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    e.setNormalCompletion( true );
-    e.setExpectingResults( true );
-    e.markResultsAsArrived();
+    entry.setNormalCompletion( true );
+    entry.setExpectingResults( true );
+    entry.markResultsAsArrived();
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connection.completeRequest( e, action );
+    connection.completeRequest( entry, action );
 
     verify( action ).call();
-    assertEquals( e.getCompletionAction(), null );
-    assertNull( connection.getRequest( e.getRequestId() ) );
+    assertEquals( entry.getCompletionAction(), null );
+    assertNull( connection.getRequest( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
       assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
-      assertEquals( ev.getRequestId(), e.getRequestId() );
-      assertEquals( ev.getName(), e.getName() );
+      assertEquals( ev.getRequestId(), request.getRequestId() );
+      assertEquals( ev.getName(), entry.getName() );
       assertEquals( ev.isNormalCompletion(), true );
       assertEquals( ev.isExpectingResults(), true );
       assertEquals( ev.haveResultsArrived(), true );

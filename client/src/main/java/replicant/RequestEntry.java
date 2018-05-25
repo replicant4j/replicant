@@ -49,12 +49,12 @@ public final class RequestEntry
   }
 
   @Nullable
-  public SafeProcedure getCompletionAction()
+  SafeProcedure getCompletionAction()
   {
     return _completionAction;
   }
 
-  public void setNormalCompletion( final boolean normalCompletion )
+  void setNormalCompletion( final boolean normalCompletion )
   {
     _normalCompletion = normalCompletion;
   }
@@ -64,27 +64,27 @@ public final class RequestEntry
     _completionAction = completionAction;
   }
 
-  public boolean isCompletionDataPresent()
+  boolean hasCompleted()
   {
     return null != _normalCompletion;
   }
 
-  public boolean isNormalCompletion()
+  boolean isNormalCompletion()
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( this::isCompletionDataPresent,
+      invariant( this::hasCompleted,
                  () -> "Replicant-0008: isNormalCompletion invoked before completion data specified." );
     }
     return _normalCompletion;
   }
 
-  public boolean isExpectingResults()
+  boolean isExpectingResults()
   {
     return _expectingResults;
   }
 
-  public void setExpectingResults( final boolean expectingResults )
+  void setExpectingResults( final boolean expectingResults )
   {
     _expectingResults = expectingResults;
   }
