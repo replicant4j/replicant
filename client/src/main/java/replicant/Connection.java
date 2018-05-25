@@ -85,7 +85,7 @@ public final class Connection
   }
 
   @Nonnull
-  public String getConnectionId()
+  String getConnectionId()
   {
     return _connectionId;
   }
@@ -218,8 +218,7 @@ public final class Connection
     return request;
   }
 
-  public final void completeRequest( @Nonnull final RequestEntry request,
-                                     @Nonnull final SafeProcedure completionAction )
+  final void completeRequest( @Nonnull final RequestEntry request, @Nonnull final SafeProcedure completionAction )
   {
     if ( request.isExpectingResults() && !request.haveResultsArrived() )
     {
@@ -246,7 +245,7 @@ public final class Connection
   }
 
   @Nullable
-  public RequestEntry getRequest( final int requestId )
+  RequestEntry getRequest( final int requestId )
   {
     return _requests.get( requestId );
   }
