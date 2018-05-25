@@ -8,9 +8,8 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A record of a request sent to the server that we need to keep track of.
  */
-public final class RequestEntry
+final class RequestEntry
 {
-  //TODO: Make this package access after all classes migrated to replicant package
   private final int _requestId;
   @Nullable
   private final String _name;
@@ -19,7 +18,7 @@ public final class RequestEntry
   private boolean _resultsArrived;
   private SafeProcedure _completionAction;
 
-  public RequestEntry( final int requestId, @Nullable final String name )
+  RequestEntry( final int requestId, @Nullable final String name )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -31,13 +30,13 @@ public final class RequestEntry
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
   }
 
-  public int getRequestId()
+  int getRequestId()
   {
     return _requestId;
   }
 
   @Nonnull
-  public String getName()
+  String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
