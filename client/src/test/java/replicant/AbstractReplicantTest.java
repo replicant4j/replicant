@@ -177,7 +177,7 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  final TestSpyEventHandler registerTestSpyEventHandler()
+  protected final TestSpyEventHandler registerTestSpyEventHandler()
   {
     final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
@@ -185,7 +185,7 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  final SystemSchema newSchema()
+  protected final SystemSchema newSchema()
   {
     return newSchema( ValueUtil.randomInt() );
   }
