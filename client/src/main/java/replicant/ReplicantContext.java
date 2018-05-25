@@ -289,7 +289,7 @@ public final class ReplicantContext
    * Set the "required" flag for connector for specified type.
    * NOTE: It is expected that the way this is done will change in the future.
    *
-   * @param schemaId the if of the schema handled by connector.
+   * @param schemaId the id of the schema handled by connector.
    * @param required true if connector is required for the context to be active, false otherwise.
    */
   public void setConnectorRequired( final int schemaId, final boolean required )
