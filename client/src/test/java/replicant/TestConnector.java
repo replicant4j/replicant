@@ -35,13 +35,6 @@ public abstract class TestConnector
 
   @Nonnull
   @Override
-  protected SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter()
-  {
-    return ( address, filter, entity ) -> entity.getId() > 0;
-  }
-
-  @Nonnull
-  @Override
   protected ChangeMapper getChangeMapper()
   {
     return _changeMapper;

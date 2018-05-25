@@ -541,6 +541,13 @@ public abstract class Connector
           invariant( subscription::isExplicitSubscription,
                      () -> "Replicant-0029: Received ChannelChange of type UPDATE for address " + address +
                            " but subscription is implicitly subscribed." );
+          if ( Replicant.shouldCheckInvariants() )
+          {
+            invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
+                             getSchema().getChannel( address.getChannelId() ).getFilterType(),
+                       () -> "Replicant-0076: Received ChannelChange of type UPDATE for address " + address +
+                             " but the channel does not have a DYNAMIC filter." );
+          }
         }
         assert null != subscription;
         subscription.setFilter( filter );
@@ -571,17 +578,26 @@ public abstract class Connector
    */
   final void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
   {
+    final ChannelAddress address = subscription.getAddress();
+    final ChannelSchema channel = getSchema().getChannel( address.getChannelId() );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
+                 () -> "Replicant-0077: Connector.updateSubscriptionForFilteredEntities invoked for address " +
+                       subscription.getAddress() + " but the channel does not have a DYNAMIC filter." );
+    }
+
     for ( final Class<?> entityType : new ArrayList<>( subscription.findAllEntityTypes() ) )
     {
       final List<Entity> entities = subscription.findAllEntitiesByType( entityType );
       if ( !entities.isEmpty() )
       {
-        final SubscriptionUpdateEntityFilter entityFilter = getSubscriptionUpdateFilter();
-        final ChannelAddress address = subscription.getAddress();
+        final SubscriptionUpdateEntityFilter updateFilter = channel.getFilter();
+        assert null != updateFilter;
         final Object filter = subscription.getFilter();
         for ( final Entity entity : entities )
         {
-          if ( !entityFilter.doesEntityMatchFilter( address, filter, entity ) )
+          if ( !updateFilter.doesEntityMatchFilter( filter, entity ) )
           {
             entity.delinkFromSubscription( subscription );
           }
@@ -900,9 +916,6 @@ public abstract class Connector
 
   @Nonnull
   protected abstract ChangeMapper getChangeMapper();
-
-  @Nonnull
-  protected abstract SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter();
 
   final void validateWorld()
   {

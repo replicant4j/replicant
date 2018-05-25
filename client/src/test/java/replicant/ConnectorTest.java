@@ -1048,11 +1048,20 @@ public class ConnectorTest
   @Test
   public void updateSubscriptionForFilteredEntities()
   {
-    final TestConnector connector = TestConnector.create();
+    final SubscriptionUpdateEntityFilter filter = ( f, entity ) -> entity.getId() > 0;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, filter, true, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[ 0 ] );
+
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
 
     final Subscription subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
     final Subscription subscription2 = createSubscription( address2, ValueUtil.randomString(), true );
@@ -1100,6 +1109,33 @@ public class ConnectorTest
       assertEquals( subscription2.getEntities().size(), 1 );
       assertEquals( subscription2.findAllEntitiesByType( Integer.class ).size(), 2 );
     } );
+  }
+
+  @Test
+  public void updateSubscriptionForFilteredEntities_badFilterType()
+  {
+    final SubscriptionUpdateEntityFilter filter = ( f, entity ) -> entity.getId() > 0;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, true, true );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[ 0 ] );
+
+    final TestConnector connector = TestConnector.create( schema );
+    newConnection( connector );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+
+    final Subscription subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> safeAction( () -> connector.updateSubscriptionForFilteredEntities( subscription1 ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0077: Connector.updateSubscriptionForFilteredEntities invoked for address 1.0.1 but the channel does not have a DYNAMIC filter." );
   }
 
   @Test
@@ -1498,7 +1534,17 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update()
   {
-    final TestConnector connector = TestConnector.create();
+    final SubscriptionUpdateEntityFilter filter = mock( SubscriptionUpdateEntityFilter.class );
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, filter, true, true );
+    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), String.class );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{ entitySchema } );
+
+    final TestConnector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1532,6 +1578,34 @@ public class ConnectorTest
     assertEquals( Disposable.isDisposed( initialSubscription ), false );
 
     handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void processChannelChanges_update_forNonDYNAMICChannel()
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, 2223 );
+    final int channelId = address.getChannelId();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final String oldFilter = ValueUtil.randomString();
+    final String newFilter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
+
+    createSubscription( address, oldFilter, true );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, connector::processChannelChanges );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0076: Received ChannelChange of type UPDATE for address 1.0.2223 but the channel does not have a DYNAMIC filter." );
   }
 
   @Test
