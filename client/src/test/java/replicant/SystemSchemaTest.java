@@ -19,6 +19,7 @@ public class SystemSchemaTest
                                                       ValueUtil.randomString(),
                                                       ValueUtil.randomBoolean(),
                                                       ChannelSchema.FilterType.NONE,
+                                                      null,
                                                       false,
                                                       true );
     final ChannelSchema[] channels = { channel1 };
@@ -101,6 +102,7 @@ public class SystemSchemaTest
                                                       ValueUtil.randomString(),
                                                       ValueUtil.randomBoolean(),
                                                       ChannelSchema.FilterType.NONE,
+                                                      null,
                                                       false,
                                                       true );
     final IllegalStateException exception =

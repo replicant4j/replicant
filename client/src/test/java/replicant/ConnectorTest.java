@@ -1117,7 +1117,7 @@ public class ConnectorTest
   {
     final int schemaId = 1;
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
     final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
     final SystemSchema schema =
       new SystemSchema( schemaId,
@@ -1201,7 +1201,7 @@ public class ConnectorTest
   {
     final int schemaId = 1;
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
     final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
     final SystemSchema schema =
       new SystemSchema( schemaId,
@@ -1240,7 +1240,7 @@ public class ConnectorTest
   {
     final int schemaId = 1;
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
     final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
     final SystemSchema schema =
       new SystemSchema( schemaId,
@@ -2308,7 +2308,7 @@ public class ConnectorTest
      */
 
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
     final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
     final SystemSchema schema =
       new SystemSchema( 1,
@@ -2423,7 +2423,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequest_onSuccess()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2493,7 +2493,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequest_onSuccess_CachedValueNotInLocalCache()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, true, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, true, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2565,7 +2565,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCache()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, true, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, true, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2647,7 +2647,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequest_onFailure()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2719,7 +2719,7 @@ public class ConnectorTest
   public void progressBulkAreaOfInterestAddRequests_onSuccess()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2821,7 +2821,7 @@ public class ConnectorTest
   public void progressBulkAreaOfInterestAddRequests_onFailure()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2927,7 +2927,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequests_onFailure_singleRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2998,7 +2998,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequests_onFailure_zeroRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3035,7 +3035,7 @@ public class ConnectorTest
   public void progressAreaOfInterestAddRequests_onFailure_multipleRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3121,7 +3121,13 @@ public class ConnectorTest
   public void progressAreaOfInterestUpdateRequest_onSuccess()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3187,7 +3193,13 @@ public class ConnectorTest
   public void progressAreaOfInterestUpdateRequest_onFailure()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3255,7 +3267,13 @@ public class ConnectorTest
   public void progressBulkAreaOfInterestUpdateRequests_onSuccess()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         false,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3357,7 +3375,13 @@ public class ConnectorTest
   public void progressBulkAreaOfInterestUpdateRequests_onFailure()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         false,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3463,7 +3487,13 @@ public class ConnectorTest
   public void progressAreaOfInterestUpdateRequests_onFailure_singleRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         false,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3532,7 +3562,13 @@ public class ConnectorTest
   public void progressAreaOfInterestUpdateRequests_onFailure_zeroRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         false,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3569,7 +3605,13 @@ public class ConnectorTest
   public void progressAreaOfInterestUpdateRequests_onFailure_multipleRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         false,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3661,7 +3703,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRemoveRequest_onSuccess()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3725,7 +3767,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRemoveRequest_onFailure()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3791,7 +3833,7 @@ public class ConnectorTest
   public void progressBulkAreaOfInterestRemoveRequests_onSuccess()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3889,7 +3931,7 @@ public class ConnectorTest
   public void progressBulkAreaOfInterestRemoveRequests_onFailure()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3991,7 +4033,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRemoveRequests_onFailure_singleRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4059,7 +4101,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRemoveRequests_onFailure_zeroRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4095,7 +4137,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRemoveRequests_onFailure_multipleRequests()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4183,7 +4225,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRequestProcessing_Noop()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4211,7 +4253,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRequestProcessing_InProgress()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4248,7 +4290,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRequestProcessing_Add()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4284,7 +4326,13 @@ public class ConnectorTest
   public void progressAreaOfInterestRequestProcessing_Update()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.DYNAMIC, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         false,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         mock( SubscriptionUpdateEntityFilter.class ),
+                         false,
+                         true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4321,7 +4369,7 @@ public class ConnectorTest
   public void progressAreaOfInterestRequestProcessing_Remove()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, false, true );
+      new ChannelSchema( 0, ValueUtil.randomString(), false, ChannelSchema.FilterType.NONE, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),

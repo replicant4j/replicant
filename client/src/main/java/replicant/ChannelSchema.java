@@ -43,6 +43,12 @@ public final class ChannelSchema
   @Nonnull
   private final FilterType _filterType;
   /**
+   * The hook to filter entities when filter changes. This should be null unless {@link #_filterType} is
+   * {@link FilterType#DYNAMIC}.
+   */
+  @Nullable
+  private final SubscriptionUpdateEntityFilter _filter;
+  /**
    * A flag indicating whether the results of the channel can be cached.
    */
   private final boolean _cacheable;
@@ -56,6 +62,7 @@ public final class ChannelSchema
                         @Nullable final String name,
                         final boolean typeChannel,
                         @Nonnull final FilterType filterType,
+                        @Nullable final SubscriptionUpdateEntityFilter filter,
                         final boolean cacheable,
                         final boolean external )
   {
@@ -64,11 +71,18 @@ public final class ChannelSchema
       apiInvariant( () -> Replicant.areNamesEnabled() || null == name,
                     () -> "Replicant-0045: ChannelSchema passed a name '" + name +
                           "' but Replicant.areNamesEnabled() is false" );
+      apiInvariant( () -> FilterType.DYNAMIC != filterType || null != filter,
+                    () -> "Replicant-0076: ChannelSchema " + id + " has a DYNAMIC filterType " +
+                          "but has supplied no filter." );
+      apiInvariant( () -> FilterType.DYNAMIC == filterType || null == filter,
+                    () -> "Replicant-0077: ChannelSchema " + id + " does not have a DYNAMIC filterType " +
+                          "but has supplied a filter." );
     }
     _id = id;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _typeChannel = typeChannel;
     _filterType = Objects.requireNonNull( filterType );
+    _filter = filter;
     _cacheable = cacheable;
     _external = external;
   }
@@ -131,6 +145,18 @@ public final class ChannelSchema
   public FilterType getFilterType()
   {
     return _filterType;
+  }
+
+  /**
+   * Return the hook that filters entities when the filter changes.
+   * This will not be null if and only if {@link #_filterType} is {@link FilterType#DYNAMIC}.
+   *
+   * @return the hook to filter entities.
+   */
+  @Nullable
+  public SubscriptionUpdateEntityFilter getFilter()
+  {
+    return _filter;
   }
 
   /**
