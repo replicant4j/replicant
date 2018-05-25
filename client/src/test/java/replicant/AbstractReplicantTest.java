@@ -62,6 +62,14 @@ public abstract class AbstractReplicantTest
     return Arez.context().safeAction( action );
   }
 
+    @Nonnull
+  protected final Connection newConnection( @Nonnull final Connector connector )
+  {
+    connector.onConnection( ValueUtil.randomString(), () -> {
+    } );
+    return connector.ensureConnection();
+  }
+
   @Nonnull
   final Entity findOrCreateEntity( @Nonnull final Class<?> type, final int id )
   {

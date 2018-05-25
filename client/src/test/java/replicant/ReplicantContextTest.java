@@ -318,7 +318,7 @@ public class ReplicantContextTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
 
     final ReplicantContext context = Replicant.context();
 

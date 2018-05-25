@@ -28,7 +28,6 @@ public abstract class AbstractDataLoaderService
   {
     super( context, schema, transport );
     _sessionContext = Objects.requireNonNull( sessionContext );
-    _sessionContext.setConnector( this );
   }
 
   @Nonnull
@@ -37,35 +36,4 @@ public abstract class AbstractDataLoaderService
     return _sessionContext;
   }
 
-  protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
-  {
-    setConnection( new Connection( this, connectionId ), action );
-    triggerMessageScheduler();
-  }
-
-  protected void onDisconnection( @Nonnull final SafeProcedure action )
-  {
-    setConnection( null, action );
-  }
-
-  private void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
-  {
-    if ( null == connection || null == connection.getCurrentMessageResponse() )
-    {
-      doSetConnection( connection, action );
-    }
-    else
-    {
-      setPostMessageResponseAction( () -> doSetConnection( connection, action ) );
-    }
-  }
-
-  protected void doSetConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
-  {
-    if ( connection != getConnection() )
-    {
-      setConnection( connection );
-    }
-    action.call();
-  }
 }

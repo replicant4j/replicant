@@ -196,7 +196,7 @@ public class ConvergerTest
   public void removeOrphanSubscription()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
@@ -231,7 +231,7 @@ public class ConvergerTest
   public void removeOrphanSubscription_whenManyPresent()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
@@ -336,7 +336,7 @@ public class ConvergerTest
   public void removeOrphanSubscriptions_whenRemoveIsPending()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     connector.pauseMessageScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -356,7 +356,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     pauseScheduler();
     connector.pauseMessageScheduler();
 
@@ -381,7 +381,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_alreadySubscribed()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -403,8 +403,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_subscribing()
   {
     final TestConnector connector = TestConnector.create();
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
-    connector.setConnection( connection );
+    final Connection connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -428,8 +427,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_addPending()
   {
     final TestConnector connector = TestConnector.create();
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
-    connector.setConnection( connection );
+    final Connection connection = newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -453,8 +451,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_updatePending()
   {
     final TestConnector connector = TestConnector.create();
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
-    connector.setConnection( connection );
+    final Connection connection = newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -480,7 +477,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_requestSubscriptionUpdate()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
@@ -508,7 +505,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_disposedAreaOfInterest()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -531,7 +528,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -556,7 +553,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_groupingAdd()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
@@ -582,7 +579,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_typeDiffers()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
@@ -609,7 +606,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_FilterDiffers()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
@@ -633,7 +630,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_ChannelDiffers()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
@@ -657,7 +654,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_groupingUpdate()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
@@ -690,7 +687,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_typeDiffersForUpdate()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
@@ -719,7 +716,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_ChannelDiffersForUpdate()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
@@ -749,7 +746,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_FilterDiffersForUpdate()
   {
     final TestConnector connector = TestConnector.create();
-    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );

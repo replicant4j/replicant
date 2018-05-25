@@ -180,13 +180,35 @@ public abstract class Connector
     return _schema;
   }
 
-  public final void setConnection( @Nullable final Connection connection )
+  protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
   {
-    if ( !Objects.equals( connection, _connection ) )
+    doSetConnection( new Connection( this, connectionId ), action );
+    triggerMessageScheduler();
+  }
+
+  protected void onDisconnection( @Nonnull final SafeProcedure action )
+  {
+    doSetConnection( null, action );
+  }
+
+  private void doSetConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
+  {
+    final Connection existing = getConnection();
+    if ( null == existing || null == existing.getCurrentMessageResponse() )
     {
-      _connection = connection;
-      purgeSubscriptions();
+      setConnection( connection, action );
     }
+    else
+    {
+      setPostMessageResponseAction( () -> setConnection( connection, action ) );
+    }
+  }
+
+  private void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
+  {
+    _connection = connection;
+    purgeSubscriptions();
+    action.call();
   }
 
   @Nullable
@@ -1386,5 +1408,12 @@ public abstract class Connector
   final Disposable getSchedulerLock()
   {
     return _schedulerLock;
+  }
+
+  @TestOnly
+  @Nullable
+  final SafeProcedure getPostMessageResponseAction()
+  {
+    return _postMessageResponseAction;
   }
 }
