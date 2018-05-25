@@ -313,6 +313,21 @@ public class ReplicantContextTest
     assertEquals( context.getCacheService(), null );
   }
 
+  @Test
+  public void newRequest()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create();
+    connector.setConnection( new Connection( connector, ValueUtil.randomString() ) );
+
+    final ReplicantContext context = Replicant.context();
+
+    final Request request = context.newRequest( connector.getSchema().getId(), "MyAction" );
+
+    assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
+    assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
+  }
+
   static class A
   {
   }

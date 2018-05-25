@@ -298,6 +298,21 @@ public final class ReplicantContext
   }
 
   /**
+   * Create a new request abstraction.
+   * This generates a requestId for connection but it is the responsibility of the caller to perform request and
+   * invoke the {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
+   * when the request completes.
+   *
+   * @param schemaId the id of the schema of connector where request created.
+   * @param name     the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
+   */
+  @Nonnull
+  public Request newRequest( final int schemaId, @Nullable final String name )
+  {
+    return getRuntime().getConnector( schemaId ).ensureConnection().newRequest( name );
+  }
+
+  /**
    * Return the CacheService associated with context if any.
    *
    * @return the CacheService associated with context if any.
