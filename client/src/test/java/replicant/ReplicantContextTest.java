@@ -320,9 +320,7 @@ public class ReplicantContextTest
     final TestConnector connector = TestConnector.create();
     newConnection( connector );
 
-    final ReplicantContext context = Replicant.context();
-
-    final Request request = context.newRequest( connector.getSchema().getId(), "MyAction" );
+    final Request request = Replicant.context().newRequest( connector.getSchema().getId(), "MyAction" );
 
     assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
     assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
