@@ -40,7 +40,6 @@ public final class FilterUtil
     {
       return null == filter ? "" : Global.JSON.stringify( filter );
     }
-
   }
 
   /**
