@@ -15,12 +15,18 @@ public interface Transport
     void onConnect( @Nonnull String connectionId );
   }
 
+  interface OnError
+  {
+    void onError( @Nonnull Throwable error );
+  }
+
   /**
    * Perform the connection, invoking the action when connection has completed.
    *
    * @param onConnect the action to invoke once connect has completed.
+   * @param onConnectError the action to invoke if connect errors.
    */
-  void connect( @Nonnull OnConnect onConnect );
+  void connect( @Nonnull OnConnect onConnect, @Nonnull OnError onConnectError );
 
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.

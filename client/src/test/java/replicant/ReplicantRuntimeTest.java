@@ -141,7 +141,8 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock1.dispose();
-    verify( service1.getTransport(), times( 1 ) ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), times( 1 ) )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     reset( service1.getTransport() );
 
@@ -153,13 +154,15 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock2.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ),
+                                                        any( Transport.OnError.class ) );
 
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     // set service state to connected so no action required
 
@@ -169,7 +172,8 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock3.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -179,7 +183,8 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().setTokenCount( 0 );
     runtime.activate();
     schedulerLock4.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -189,7 +194,8 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock5.dispose();
-    verify( service1.getTransport(), times( 1 ) ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), times( 1 ) )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
   }
 
   @Test
@@ -217,8 +223,10 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock1.dispose();
-    verify( service1.getTransport(), times( 1 ) ).connect( any( Transport.OnConnect.class ) );
-    verify( service3.getTransport(), times( 1 ) ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), times( 1 ) )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
+    verify( service3.getTransport(), times( 1 ) )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     reset( service1.getTransport() );
     reset( service3.getTransport() );
@@ -233,8 +241,10 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock2.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
-    verify( service3.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
+    verify( service3.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     final Disposable schedulerLock3 = pauseScheduler();
     runtime.deactivate();
@@ -244,8 +254,10 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock3.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
-    verify( service3.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
+    verify( service3.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     // set service state to connected so no action required
 
@@ -257,8 +269,10 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock4.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
-    verify( service3.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
+    verify( service3.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -270,8 +284,10 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().setTokenCount( 0 );
     runtime.activate();
     schedulerLock5.dispose();
-    verify( service1.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
-    verify( service3.getTransport(), never() ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
+    verify( service3.getTransport(), never() )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
     // set service state to disconnected but rate limit it
 
@@ -283,8 +299,10 @@ public class ReplicantRuntimeTest
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock6.dispose();
-    verify( service1.getTransport(), times( 1 ) ).connect( any( Transport.OnConnect.class ) );
-    verify( service3.getTransport(), times( 1 ) ).connect( any( Transport.OnConnect.class ) );
+    verify( service1.getTransport(), times( 1 ) )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
+    verify( service3.getTransport(), times( 1 ) )
+      .connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
   }
 
   @Test
