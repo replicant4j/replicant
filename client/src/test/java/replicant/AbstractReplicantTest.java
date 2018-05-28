@@ -65,8 +65,7 @@ public abstract class AbstractReplicantTest
     @Nonnull
   protected final Connection newConnection( @Nonnull final Connector connector )
   {
-    connector.onConnection( ValueUtil.randomString(), () -> {
-    } );
+    connector.onConnection( ValueUtil.randomString() );
     return connector.ensureConnection();
   }
 

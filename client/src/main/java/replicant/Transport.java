@@ -10,12 +10,17 @@ import javax.annotation.Nullable;
  */
 public interface Transport
 {
+  interface OnConnect
+  {
+    void onConnect( @Nonnull String connectionId );
+  }
+
   /**
    * Perform the connection, invoking the action when connection has completed.
    *
-   * @param action the action to invoke once connect has completed.
+   * @param onConnect the action to invoke once connect has completed.
    */
-  void connect( @Nonnull SafeProcedure action );
+  void connect( @Nonnull OnConnect onConnect );
 
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.
@@ -26,9 +31,13 @@ public interface Transport
 
   void requestSubscribe( @Nonnull ChannelAddress address,
                          @Nullable Object filter,
-                         @Nullable String cacheKey,
-                         @Nullable String eTag,
-                         @Nullable SafeProcedure onCacheValid,
+                         @Nonnull String eTag,
+                         @Nonnull SafeProcedure onCacheValid,
+                         @Nonnull SafeProcedure onSuccess,
+                         @Nonnull Consumer<Throwable> onError );
+
+  void requestSubscribe( @Nonnull ChannelAddress address,
+                         @Nullable Object filter,
                          @Nonnull SafeProcedure onSuccess,
                          @Nonnull Consumer<Throwable> onError );
 

@@ -116,12 +116,10 @@ public class ConnectorTest
     final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0 );
     final Subscription subscription = createSubscription( address, null, true );
 
-    final AtomicInteger callCount = new AtomicInteger();
-    connector.onConnection( ValueUtil.randomString(), callCount::incrementAndGet );
+    connector.onConnection( ValueUtil.randomString() );
 
     // Connection not swapped yet but will do one MessageProcess completes
     assertEquals( Disposable.isDisposed( subscription ), false );
-    assertEquals( callCount.get(), 0 );
     assertEquals( connector.getConnection(), connection );
     assertNotNull( connector.getPostMessageResponseAction() );
   }
@@ -136,7 +134,7 @@ public class ConnectorTest
 
     safeAction( connector::connect );
 
-    verify( connector.getTransport() ).connect( any( SafeProcedure.class ) );
+    verify( connector.getTransport() ).connect( any( Transport.OnConnect.class ) );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
   }
@@ -152,7 +150,7 @@ public class ConnectorTest
     final IllegalStateException exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
-    } ).when( connector.getTransport() ).connect( any( SafeProcedure.class ) );
+    } ).when( connector.getTransport() ).connect( any( Transport.OnConnect.class ) );
 
     final IllegalStateException actual =
       expectThrows( IllegalStateException.class, () -> safeAction( connector::connect ) );
@@ -868,12 +866,10 @@ public class ConnectorTest
     assertEquals( connector.ensureConnection(), connection );
     assertEquals( Disposable.isDisposed( subscription1 ), false );
 
-    final AtomicInteger callCount = new AtomicInteger();
-    connector.onDisconnection( callCount::incrementAndGet );
+    connector.onDisconnection();
 
     assertEquals( connector.getConnection(), null );
     assertEquals( Disposable.isDisposed( subscription1 ), true );
-    assertEquals( callCount.get(), 1 );
   }
 
   @Test
@@ -967,7 +963,7 @@ public class ConnectorTest
 
     assertNull( connector.getSchedulerLock() );
 
-    handler.assertEventCount( 1 );
+    handler.assertEventCountAtLeast( 1 );
     handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getError().getMessage(),
@@ -1023,8 +1019,9 @@ public class ConnectorTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create();
-    newConnection( connector );
+    pauseScheduler();
     connector.pauseMessageScheduler();
+    newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
@@ -1417,14 +1414,18 @@ public class ConnectorTest
     final TestConnector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
+    connector.pauseMessageScheduler();
+
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
     final int channelId = address.getChannelId();
     final int subChannelId = Objects.requireNonNull( address.getId() );
-
     final String filter = ValueUtil.randomString();
+
+    safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
+
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
@@ -1461,6 +1462,8 @@ public class ConnectorTest
   public void processChannelChanges_remove()
   {
     final TestConnector connector = TestConnector.create();
+    connector.pauseMessageScheduler();
+
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1544,6 +1547,8 @@ public class ConnectorTest
                         new EntitySchema[]{ entitySchema } );
 
     final TestConnector connector = TestConnector.create( schema );
+    connector.pauseMessageScheduler();
+
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -2522,15 +2527,12 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onSuccess.set( (SafeProcedure) i.getArguments()[ 5 ] );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
       return null;
     } )
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         any(),
-                         any(),
-                         any(),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -2594,15 +2596,12 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onSuccess.set( (SafeProcedure) i.getArguments()[ 5 ] );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
       return null;
     } )
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         any(),
-                         any(),
-                         any(),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -2671,16 +2670,14 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      assertEquals( i.getArguments()[ 2 ], key );
-      assertEquals( i.getArguments()[ 3 ], eTag );
-      assertNotNull( i.getArguments()[ 4 ] );
-      onCacheValid.set( (SafeProcedure) i.getArguments()[ 4 ] );
+      assertEquals( i.getArguments()[ 2 ], eTag );
+      assertNotNull( i.getArguments()[ 3 ] );
+      onCacheValid.set( (SafeProcedure) i.getArguments()[ 3 ] );
       return null;
     } )
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         any(),
                          any(),
                          any( SafeProcedure.class ),
                          any( SafeProcedure.class ),
@@ -2746,15 +2743,12 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 6 ] );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
       return null;
     } )
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         any(),
-                         any(),
-                         any(),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -3025,15 +3019,12 @@ public class ConnectorTest
     final AtomicInteger callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 6 ] );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
       return null;
     } )
       .when( connector.getTransport() )
       .requestSubscribe( eq( address1 ),
                          eq( filter ),
-                         any(),
-                         any(),
-                         any(),
                          any( SafeProcedure.class ),
                          any() );
 

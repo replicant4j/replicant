@@ -138,7 +138,7 @@ public abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().connect( this::onConnected );
+        getTransport().connect( this::onConnection );
         newState = ConnectorState.CONNECTING;
       }
       finally
@@ -159,7 +159,7 @@ public abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().disconnect( this::onDisconnected );
+        getTransport().disconnect( this::onDisconnection );
         newState = ConnectorState.DISCONNECTING;
       }
       finally
@@ -180,35 +180,42 @@ public abstract class Connector
     return _schema;
   }
 
-  protected void onConnection( @Nonnull final String connectionId, @Nonnull final SafeProcedure action )
+  void onConnection( @Nonnull final String connectionId )
   {
-    doSetConnection( new Connection( this, connectionId ), action );
+    doSetConnection( new Connection( this, connectionId ) );
     triggerMessageScheduler();
   }
 
-  protected void onDisconnection( @Nonnull final SafeProcedure action )
+  final void onDisconnection()
   {
-    doSetConnection( null, action );
+    doSetConnection( null );
   }
 
-  private void doSetConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
+  private void doSetConnection( @Nullable final Connection connection )
   {
     final Connection existing = getConnection();
     if ( null == existing || null == existing.getCurrentMessageResponse() )
     {
-      setConnection( connection, action );
+      setConnection( connection );
     }
     else
     {
-      setPostMessageResponseAction( () -> setConnection( connection, action ) );
+      setPostMessageResponseAction( () -> setConnection( connection ) );
     }
   }
 
-  private void setConnection( @Nullable final Connection connection, @Nonnull final SafeProcedure action )
+  private void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
     purgeSubscriptions();
-    action.call();
+    if ( null != _connection )
+    {
+      onConnected();
+    }
+    else
+    {
+      onDisconnected();
+    }
   }
 
   @Nullable
@@ -998,32 +1005,24 @@ public abstract class Connector
     final boolean cacheable =
       null != cacheService && getSchema().getChannel( request.getAddress().getChannelId() ).isCacheable();
     final CacheEntry cacheEntry = cacheable ? cacheService.lookup( request.getCacheKey() ) : null;
-    final String eTag;
-    final SafeProcedure onCacheValid;
     if ( null != cacheEntry )
     {
       //Found locally cached data
-      eTag = cacheEntry.getETag();
-      onCacheValid = () ->
+      final String eTag = cacheEntry.getETag();
+      final SafeProcedure onCacheValid = () ->
       {
         // Loading cached data
         completeAreaOfInterestRequest();
         ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), onSuccess );
         triggerMessageScheduler();
       };
+      getTransport()
+        .requestSubscribe( request.getAddress(), request.getFilter(), eTag, onCacheValid, onSuccess, onError );
     }
     else
     {
-      eTag = null;
-      onCacheValid = null;
+      getTransport().requestSubscribe( request.getAddress(), request.getFilter(), onSuccess, onError );
     }
-    getTransport().requestSubscribe( request.getAddress(),
-                                     request.getFilter(),
-                                     request.getCacheKey(),
-                                     eTag,
-                                     onCacheValid,
-                                     onSuccess,
-                                     onError );
   }
 
   final void progressBulkAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
