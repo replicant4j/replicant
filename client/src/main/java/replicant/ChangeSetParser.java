@@ -1,5 +1,6 @@
 package replicant;
 
+import elemental2.core.Global;
 import java.io.StringReader;
 import java.util.ArrayList;
 import javax.annotation.Nonnull;
@@ -9,6 +10,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import jsinterop.base.Js;
 import org.jetbrains.annotations.Nullable;
 import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
@@ -23,137 +25,165 @@ import replicant.messages.EntityChannel;
  * types in entities nor filters. Not suitable outside tests.
  */
 final class ChangeSetParser
-  extends AbstractChangeSetParser
 {
-  @GwtIncompatible
+  /**
+   * The code to parse changesets. Extracted into a separate class so it can be vary by environment.
+   */
+  private static final ChangeSetParserSupport c_support = new ChangeSetParserSupport();
+
   @Nonnull
-  @Override
-  ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+  static ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
   {
-    try ( final JsonReader reader = Json.createReader( new StringReader( rawJsonData ) ) )
-    {
-      final JsonObject object = reader.readObject();
-      final int sequence = object.getInt( "last_id" );
-      final Integer requestId =
-        object.containsKey( "requestId" ) ? object.getJsonNumber( "requestId" ).intValue() : null;
-      final String etag =
-        object.containsKey( "etag" ) ? object.getString( "etag" ) : null;
-      final ChannelChange[] channelChanges = parseChannelChanges( object );
-      final EntityChange[] entityChanges = parseEntityChanges( object );
+    return c_support.parseChangeSet( rawJsonData );
+  }
 
-      if ( null == requestId )
-      {
-        return ChangeSet.create( sequence, channelChanges, entityChanges );
-      }
-      else
-      {
-        return ChangeSet.create( sequence, requestId, etag, channelChanges, entityChanges );
-      }
+  /**
+   * This is the class responsible for parsing change sets.
+   * This is split into two classes so that gwt implementation is in base class and the JVM
+   * implementation is in subclass but marked as GwtIncompatible so they are elided during compile.
+   */
+  static abstract class AbstractChangeSetParserSupport
+  {
+    @Nonnull
+    ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+    {
+      return Js.cast( Global.JSON.parse( rawJsonData ) );
     }
   }
 
-  @GwtIncompatible
-  @Nullable
-  private ChannelChange[] parseChannelChanges( @Nonnull final JsonObject object )
+  static class ChangeSetParserSupport
+    extends AbstractChangeSetParserSupport
   {
-    if ( object.containsKey( "channel_actions" ) )
+    @GwtIncompatible
+    @Nonnull
+    @Override
+    ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
     {
-      final ArrayList<ChannelChange> changes = new ArrayList<>();
-      for ( final JsonValue value : object.getJsonArray( "channel_actions" ) )
+      try ( final JsonReader reader = Json.createReader( new StringReader( rawJsonData ) ) )
       {
-        final JsonObject change = (JsonObject) value;
-        final int cid = change.getInt( "cid" );
-        final Integer scid = change.containsKey( "scid" ) ? change.getInt( "scid" ) : null;
-        final ChannelChange.Action action =
-          ChannelChange.Action.valueOf( change.getString( "action" ).toUpperCase() );
+        final JsonObject object = reader.readObject();
+        final int sequence = object.getInt( "last_id" );
+        final Integer requestId =
+          object.containsKey( "requestId" ) ? object.getJsonNumber( "requestId" ).intValue() : null;
+        final String etag =
+          object.containsKey( "etag" ) ? object.getString( "etag" ) : null;
+        final ChannelChange[] channelChanges = parseChannelChanges( object );
+        final EntityChange[] entityChanges = parseEntityChanges( object );
 
-        // TODO: Filters not yet supported properly
-        final Object filter = change.getOrDefault( "filter", null );
-
-        changes.add( null == scid ?
-                     ChannelChange.create( cid, action, filter ) :
-                     ChannelChange.create( cid, scid, action, filter ) );
-      }
-      return changes.toArray( new ChannelChange[ 0 ] );
-    }
-    else
-    {
-      return null;
-    }
-  }
-
-  @GwtIncompatible
-  @Nullable
-  private EntityChange[] parseEntityChanges( @Nonnull final JsonObject object )
-  {
-    if ( object.containsKey( "changes" ) )
-    {
-      final ArrayList<EntityChange> changes = new ArrayList<>();
-      for ( final JsonValue value : object.getJsonArray( "changes" ) )
-      {
-        final JsonObject change = (JsonObject) value;
-
-        final int id = change.getInt( "id" );
-        final int typeId = change.getInt( "type" );
-
-        final EntityChangeDataImpl changeData;
-        if ( change.containsKey( "data" ) )
+        if ( null == requestId )
         {
-          changeData = new EntityChangeDataImpl();
-          final JsonObject data = change.getJsonObject( "data" );
-          for ( final String key : data.keySet() )
-          {
-            final JsonValue v = data.get( key );
-            final JsonValue.ValueType valueType = v.getValueType();
-            if ( JsonValue.ValueType.NULL == valueType )
-            {
-              changeData.getData().put( key, null );
-            }
-            else if ( JsonValue.ValueType.FALSE == valueType )
-            {
-              changeData.getData().put( key, false );
-            }
-            else if ( JsonValue.ValueType.TRUE == valueType )
-            {
-              changeData.getData().put( key, true );
-            }
-            else if ( JsonValue.ValueType.NUMBER == valueType )
-            {
-              //TODO: Handle real/float values
-              changeData.getData().put( key, ( (JsonNumber) v ).intValue() );
-            }
-            else
-            {
-              //TODO: Handle all the other types valid here
-              assert JsonValue.ValueType.STRING == valueType;
-              changeData.getData().put( key, ( (JsonString) v ).getString() );
-            }
-          }
+          return ChangeSet.create( sequence, channelChanges, entityChanges );
         }
         else
         {
-          changeData = null;
+          return ChangeSet.create( sequence, requestId, etag, channelChanges, entityChanges );
         }
-
-        final ArrayList<EntityChannel> entityChannels = new ArrayList<>();
-        for ( final JsonValue channelReference : change.getJsonArray( "channels" ) )
-        {
-          final JsonObject channel = (JsonObject) channelReference;
-          final int cid = channel.getInt( "cid" );
-          final Integer scid = change.containsKey( "scid" ) ? change.getInt( "scid" ) : null;
-          entityChannels.add( null == scid ? EntityChannel.create( cid ) : EntityChannel.create( cid, scid ) );
-        }
-
-        final EntityChannel[] channels = entityChannels.toArray( new EntityChannel[ 0 ] );
-        changes.add( null == changeData ?
-                     EntityChange.create( id, typeId, channels ) :
-                     EntityChange.create( id, typeId, channels, changeData ) );
       }
-      return changes.toArray( new EntityChange[ 0 ] );
     }
-    else
+
+    @GwtIncompatible
+    @Nullable
+    private ChannelChange[] parseChannelChanges( @Nonnull final JsonObject object )
     {
-      return null;
+      if ( object.containsKey( "channel_actions" ) )
+      {
+        final ArrayList<ChannelChange> changes = new ArrayList<>();
+        for ( final JsonValue value : object.getJsonArray( "channel_actions" ) )
+        {
+          final JsonObject change = (JsonObject) value;
+          final int cid = change.getInt( "cid" );
+          final Integer scid = change.containsKey( "scid" ) ? change.getInt( "scid" ) : null;
+          final ChannelChange.Action action =
+            ChannelChange.Action.valueOf( change.getString( "action" ).toUpperCase() );
+
+          // TODO: Filters not yet supported properly
+          final Object filter = change.getOrDefault( "filter", null );
+
+          changes.add( null == scid ?
+                       ChannelChange.create( cid, action, filter ) :
+                       ChannelChange.create( cid, scid, action, filter ) );
+        }
+        return changes.toArray( new ChannelChange[ 0 ] );
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+    @GwtIncompatible
+    @Nullable
+    private EntityChange[] parseEntityChanges( @Nonnull final JsonObject object )
+    {
+      if ( object.containsKey( "changes" ) )
+      {
+        final ArrayList<EntityChange> changes = new ArrayList<>();
+        for ( final JsonValue value : object.getJsonArray( "changes" ) )
+        {
+          final JsonObject change = (JsonObject) value;
+
+          final int id = change.getInt( "id" );
+          final int typeId = change.getInt( "type" );
+
+          final EntityChangeDataImpl changeData;
+          if ( change.containsKey( "data" ) )
+          {
+            changeData = new EntityChangeDataImpl();
+            final JsonObject data = change.getJsonObject( "data" );
+            for ( final String key : data.keySet() )
+            {
+              final JsonValue v = data.get( key );
+              final JsonValue.ValueType valueType = v.getValueType();
+              if ( JsonValue.ValueType.NULL == valueType )
+              {
+                changeData.getData().put( key, null );
+              }
+              else if ( JsonValue.ValueType.FALSE == valueType )
+              {
+                changeData.getData().put( key, false );
+              }
+              else if ( JsonValue.ValueType.TRUE == valueType )
+              {
+                changeData.getData().put( key, true );
+              }
+              else if ( JsonValue.ValueType.NUMBER == valueType )
+              {
+                //TODO: Handle real/float values
+                changeData.getData().put( key, ( (JsonNumber) v ).intValue() );
+              }
+              else
+              {
+                //TODO: Handle all the other types valid here
+                assert JsonValue.ValueType.STRING == valueType;
+                changeData.getData().put( key, ( (JsonString) v ).getString() );
+              }
+            }
+          }
+          else
+          {
+            changeData = null;
+          }
+
+          final ArrayList<EntityChannel> entityChannels = new ArrayList<>();
+          for ( final JsonValue channelReference : change.getJsonArray( "channels" ) )
+          {
+            final JsonObject channel = (JsonObject) channelReference;
+            final int cid = channel.getInt( "cid" );
+            final Integer scid = change.containsKey( "scid" ) ? change.getInt( "scid" ) : null;
+            entityChannels.add( null == scid ? EntityChannel.create( cid ) : EntityChannel.create( cid, scid ) );
+          }
+
+          final EntityChannel[] channels = entityChannels.toArray( new EntityChannel[ 0 ] );
+          changes.add( null == changeData ?
+                       EntityChange.create( id, typeId, channels ) :
+                       EntityChange.create( id, typeId, channels, changeData ) );
+        }
+        return changes.toArray( new EntityChange[ 0 ] );
+      }
+      else
+      {
+        return null;
+      }
     }
   }
 }

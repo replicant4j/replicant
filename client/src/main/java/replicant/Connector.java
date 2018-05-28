@@ -55,10 +55,6 @@ public abstract class Connector
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
 
   /**
-   * The code to parse changesets. Extracted into a separate class so it can be vary by environment.
-   */
-  private final ChangeSetParser _changeSetParser = new ChangeSetParser();
-  /**
    * The schema that defines data-API used to interact with datasource.
    */
   @Nonnull
@@ -792,7 +788,7 @@ public abstract class Connector
     final MessageResponse response = connection.ensureCurrentMessageResponse();
     final String rawJsonData = response.getRawJsonData();
     assert null != rawJsonData;
-    final ChangeSet changeSet = _changeSetParser.parseChangeSet( rawJsonData );
+    final ChangeSet changeSet = ChangeSetParser.parseChangeSet( rawJsonData );
     if ( Replicant.shouldValidateChangeSetOnRead() )
     {
       changeSet.validate();
