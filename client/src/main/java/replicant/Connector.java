@@ -186,7 +186,7 @@ public abstract class Connector
     triggerMessageScheduler();
   }
 
-  final void onDisconnectionError( @Nonnull final Throwable error )
+  private void onDisconnectionError( @Nonnull final Throwable error )
   {
     onDisconnection();
     onDisconnectFailure( error );
@@ -249,7 +249,7 @@ public abstract class Connector
   }
 
   @Nonnull
-  protected final Transport getTransport()
+  final Transport getTransport()
   {
     return _transport;
   }
@@ -619,7 +619,7 @@ public abstract class Connector
     }
   }
 
-  protected final void setPostMessageResponseAction( @Nullable final SafeProcedure postMessageResponseAction )
+  final void setPostMessageResponseAction( @Nullable final SafeProcedure postMessageResponseAction )
   {
     _postMessageResponseAction = postMessageResponseAction;
   }
