@@ -3,6 +3,7 @@ package replicant;
 import elemental2.core.Global;
 import javax.annotation.Nonnull;
 import jsinterop.base.Js;
+import replicant.messages.ChangeSet;
 
 /**
  * This is the class responsible for parsing change sets.

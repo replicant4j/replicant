@@ -10,6 +10,11 @@ import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import org.jetbrains.annotations.Nullable;
+import replicant.messages.ChangeSet;
+import replicant.messages.ChannelChange;
+import replicant.messages.EntityChange;
+import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.EntityChannel;
 
 /**
  * This is the class responsible for parsing change sets.

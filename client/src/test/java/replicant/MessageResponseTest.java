@@ -2,6 +2,11 @@ package replicant;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.messages.ChangeSet;
+import replicant.messages.ChannelChange;
+import replicant.messages.EntityChange;
+import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.EntityChannel;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;

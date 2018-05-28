@@ -1,6 +1,7 @@
 package replicant;
 
 import javax.annotation.Nonnull;
+import replicant.messages.EntityChangeData;
 
 public interface ChangeMapper
 {

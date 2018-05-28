@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
