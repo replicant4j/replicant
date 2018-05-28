@@ -196,11 +196,17 @@ public abstract class GwtWebPollerDataLoaderService
     //Timeout 2 seconds after maximum poll
     rb.setTimeoutMillis( ( SharedConstants.MAX_POLL_TIME_IN_SECONDS + 2 ) * 1000 );
     rb.setHeader( "Pragma", "no-cache" );
-    final String authenticationToken = getSessionContext().getAuthenticationToken();
+    final String authenticationToken = getAuthenticationToken();
     if ( null != authenticationToken )
     {
       rb.setHeader( "Authorization", "Bearer " + authenticationToken );
     }
     return rb;
+  }
+
+  @Nullable
+  protected String getAuthenticationToken()
+  {
+    return null;
   }
 }
