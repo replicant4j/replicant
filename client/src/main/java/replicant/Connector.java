@@ -341,7 +341,7 @@ public abstract class Connector
    * Schedule request and response processing.
    * This method should be invoked when requests are queued or responses are received.
    */
-  protected final void triggerMessageScheduler()
+  private final void triggerMessageScheduler()
   {
     if ( !_schedulerActive )
     {
@@ -1238,7 +1238,7 @@ public abstract class Connector
    *
    * @param status the status describing the results of data load.
    */
-  protected void onMessageProcessed( @Nonnull final DataLoadStatus status )
+  void onMessageProcessed( @Nonnull final DataLoadStatus status )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
