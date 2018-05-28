@@ -59,6 +59,7 @@ public abstract class GwtWebPollerDataLoaderService
 
   protected void setupCloseHandler()
   {
+    //TODO: This should be bound to ReplicantContext.deactivate and should route throgh Elemental2
     final Window.ClosingHandler handler = event -> disconnect();
     Window.addWindowClosingHandler( handler );
   }
