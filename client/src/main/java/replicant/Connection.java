@@ -1,6 +1,6 @@
 package replicant;
 
-import arez.component.RepositoryUtil;
+import arez.component.CollectionsUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -348,7 +348,7 @@ public final class Connection
         _currentAreaOfInterestRequests.add( _pendingAreaOfInterestRequests.removeFirst() );
       }
     }
-    return RepositoryUtil.toResults( _currentAreaOfInterestRequests );
+    return CollectionsUtil.wrap( _currentAreaOfInterestRequests );
   }
 
   /**

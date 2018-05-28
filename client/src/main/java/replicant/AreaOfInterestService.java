@@ -2,7 +2,7 @@ package replicant;
 
 import arez.annotations.ArezComponent;
 import arez.component.AbstractContainer;
-import arez.component.RepositoryUtil;
+import arez.component.CollectionsUtil;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -58,7 +58,7 @@ abstract class AreaOfInterestService
   @Nonnull
   List<AreaOfInterest> getAreasOfInterest()
   {
-    return RepositoryUtil.asList( entities() );
+    return CollectionsUtil.asList( entities() );
   }
 
   /**

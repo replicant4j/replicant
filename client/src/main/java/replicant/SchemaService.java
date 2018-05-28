@@ -1,11 +1,10 @@
 package replicant;
 
-import arez.Arez;
 import arez.annotations.ArezComponent;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
+import arez.component.CollectionsUtil;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -33,8 +32,7 @@ abstract class SchemaService
   @Nonnull
   Collection<SystemSchema> getSchemas()
   {
-    final Collection<SystemSchema> schemas = schemas().values();
-    return Arez.areRepositoryResultsModifiable() ? schemas : Collections.unmodifiableCollection( schemas );
+    return CollectionsUtil.wrap( schemas().values() );
   }
 
   /**

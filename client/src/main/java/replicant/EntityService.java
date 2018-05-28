@@ -11,8 +11,8 @@ import arez.annotations.ComponentRef;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
+import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
-import arez.component.RepositoryUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,12 +105,12 @@ abstract class EntityService
     final Map<Integer, EntityEntry> typeMap = getEntities().get( type );
     return null == typeMap ?
            Collections.emptyList() :
-           RepositoryUtil.asList( typeMap
-                                    .values()
-                                    .stream()
-                                    .filter( Disposable::isNotDisposed )
-                                    .map( EntityEntry::getEntity )
-                                    .filter( Disposable::isNotDisposed ) );
+           CollectionsUtil.asList( typeMap
+                                     .values()
+                                     .stream()
+                                     .filter( Disposable::isNotDisposed )
+                                     .map( EntityEntry::getEntity )
+                                     .filter( Disposable::isNotDisposed ) );
   }
 
   /**

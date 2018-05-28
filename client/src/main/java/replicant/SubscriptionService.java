@@ -12,6 +12,7 @@ import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
+import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
 import arez.component.Identifiable;
 import java.util.Collection;
@@ -144,7 +145,7 @@ abstract class SubscriptionService
           .filter( e -> Disposable.isNotDisposed( e.getValue() ) )
           .map( Map.Entry::getKey )
           .collect( Collectors.toSet() );
-      return Arez.areRepositoryResultsModifiable() ? results : Collections.unmodifiableSet( results );
+      return CollectionsUtil.wrap( results );
     }
   }
 

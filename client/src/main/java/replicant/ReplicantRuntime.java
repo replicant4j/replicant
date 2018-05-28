@@ -13,9 +13,9 @@ import arez.annotations.Computed;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
+import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
 import arez.component.Identifiable;
-import arez.component.RepositoryUtil;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -75,7 +75,8 @@ abstract class ReplicantRuntime
   @Observable( expectSetter = false )
   List<ConnectorEntry> getConnectors()
   {
-    return RepositoryUtil.toResults( _connectors );
+    // When Arez can wrap @Observable(expectSetter=false) methods correctly, remove this explicit wrap
+    return CollectionsUtil.wrap( _connectors );
   }
 
   @ObservableRef
