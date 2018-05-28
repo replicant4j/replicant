@@ -23,7 +23,7 @@ public interface Transport
   /**
    * Perform the connection, invoking the action when connection has completed.
    *
-   * @param onConnect the action to invoke once connect has completed.
+   * @param onConnect      the action to invoke once connect has completed.
    * @param onConnectError the action to invoke if connect errors.
    */
   void connect( @Nonnull OnConnect onConnect, @Nonnull OnError onConnectError );
