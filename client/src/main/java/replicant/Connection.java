@@ -21,9 +21,8 @@ import static org.realityforge.braincheck.Guards.*;
  * This includes a list of pending requests, pending messages that needs to be applied
  * to the local state etc.
  */
-public final class Connection
+final class Connection
 {
-  //TODO: Make this package access after all classes migrated to replicant package
   /**
    * The containing Connector.
    */
@@ -78,7 +77,7 @@ public final class Connection
   @Nonnull
   private List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
 
-  public Connection( @Nonnull final Connector connector, @Nonnull final String connectionId )
+  Connection( @Nonnull final Connector connector, @Nonnull final String connectionId )
   {
     _connector = Objects.requireNonNull( connector );
     _connectionId = Objects.requireNonNull( connectionId );
@@ -272,7 +271,7 @@ public final class Connection
   }
 
   @Nullable
-  public MessageResponse getCurrentMessageResponse()
+  MessageResponse getCurrentMessageResponse()
   {
     return _currentMessageResponse;
   }
