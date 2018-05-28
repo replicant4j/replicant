@@ -176,16 +176,16 @@ public abstract class GwtWebPollerDataLoaderService
   @Override
   protected RequestFactory newRequestFactory()
   {
-    return new ReplicantRequestFactory();
-  }
-
-  @Nonnull
-  private RequestBuilder newSessionBasedInvocationBuilder( @Nonnull final RequestBuilder.Method method,
-                                                           @Nonnull final String url )
-  {
-    final RequestBuilder rb = newRequestBuilder( method, url );
-    rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, ensureConnection().getConnectionId() );
-    return rb;
+    return new AbstractHttpRequestFactory()
+    {
+      @Override
+      protected RequestBuilder getRequestBuilder()
+      {
+        final RequestBuilder rb = newRequestBuilder( RequestBuilder.GET, getPollURL() );
+        rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, getConnectionId() );
+        return rb;
+      }
+    };
   }
 
   @Nonnull
