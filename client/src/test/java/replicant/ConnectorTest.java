@@ -1114,7 +1114,6 @@ public class ConnectorTest
   @Test
   public void updateSubscriptionForFilteredEntities_badFilterType()
   {
-    final SubscriptionUpdateEntityFilter filter = ( f, entity ) -> entity.getId() > 0;
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, true, true );
     final SystemSchema schema =
