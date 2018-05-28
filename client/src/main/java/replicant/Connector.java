@@ -159,7 +159,7 @@ public abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().disconnect( this::onDisconnection );
+        getTransport().disconnect( this::onDisconnection, this::onDisconnectionError );
         newState = ConnectorState.DISCONNECTING;
       }
       finally
@@ -184,6 +184,12 @@ public abstract class Connector
   {
     doSetConnection( new Connection( this, connectionId ) );
     triggerMessageScheduler();
+  }
+
+  final void onDisconnectionError( @Nonnull final Throwable error )
+  {
+    onDisconnection();
+    onDisconnectFailure( error );
   }
 
   final void onDisconnection()

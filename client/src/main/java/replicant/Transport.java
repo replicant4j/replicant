@@ -31,9 +31,10 @@ public interface Transport
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.
    *
-   * @param action the action to invoke once disconnect has completed.
+   * @param onDisconnect      the action to invoke once disconnect has completed.
+   * @param onDisconnectError the action to invoke if disconnect errors.
    */
-  void disconnect( @Nonnull SafeProcedure action );
+  void disconnect( @Nonnull SafeProcedure onDisconnect, @Nonnull OnError onDisconnectError );
 
   void requestSubscribe( @Nonnull ChannelAddress address,
                          @Nullable Object filter,
