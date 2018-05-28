@@ -5,8 +5,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
-// TODO: This class should become package access once all relevant classes migrated to replicant package
-public final class AreaOfInterestRequest
+final class AreaOfInterestRequest
 {
   public enum Type
   {
@@ -43,7 +42,7 @@ public final class AreaOfInterestRequest
   }
 
   @Nonnull
-  public Type getType()
+  Type getType()
   {
     return _type;
   }
@@ -61,12 +60,12 @@ public final class AreaOfInterestRequest
     return _filter;
   }
 
-  public boolean isInProgress()
+  boolean isInProgress()
   {
     return _inProgress;
   }
 
-  public void markAsInProgress()
+  void markAsInProgress()
   {
     _inProgress = true;
   }
