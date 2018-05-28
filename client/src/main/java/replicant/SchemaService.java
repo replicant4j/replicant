@@ -61,8 +61,7 @@ abstract class SchemaService
     final SystemSchema schema = findById( schemaId );
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> null != schema,
-                 () -> "Replicant-0059: Unable to locate SystemSchema with id " + schemaId );
+      invariant( () -> null != schema, () -> "Replicant-0059: Unable to locate SystemSchema with id " + schemaId );
     }
     assert null != schema;
     return schema;
