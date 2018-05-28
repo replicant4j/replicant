@@ -77,7 +77,7 @@ abstract class Converger
   @Nullable
   abstract SafeProcedure getConvergeCompleteAction();
 
-  @Autorun
+  @Autorun( mutation = true )
   void converge()
   {
     preConverge();
