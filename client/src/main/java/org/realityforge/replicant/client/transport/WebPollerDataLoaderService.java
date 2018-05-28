@@ -25,7 +25,7 @@ import replicant.spy.DataLoadStatus;
 public abstract class WebPollerDataLoaderService
   extends AbstractDataLoaderService
 {
-  protected static final int HTTP_STATUS_CODE_OK = 200;
+  private static final int HTTP_STATUS_CODE_OK = 200;
   private WebPoller _webPoller;
 
   protected WebPollerDataLoaderService( @Nullable final replicant.ReplicantContext context,
