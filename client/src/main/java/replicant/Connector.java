@@ -1234,6 +1234,17 @@ public abstract class Connector
   }
 
   /**
+   * Invoked when a transport received a message.
+   *
+   * @param rawJsonData the message.
+   */
+  void onMessageReceived( @Nonnull String rawJsonData )
+  {
+    ensureConnection().enqueueResponse( rawJsonData );
+    triggerMessageScheduler();
+  }
+
+  /**
    * Invoked when a change set has been completely processed.
    *
    * @param status the status describing the results of data load.

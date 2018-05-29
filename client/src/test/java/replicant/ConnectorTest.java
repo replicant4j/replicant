@@ -373,6 +373,27 @@ public class ConnectorTest
   }
 
   @Test
+  public void onMessageReceived()
+    throws Exception
+  {
+    final TestConnector connector = TestConnector.create();
+    final Connection connection = newConnection( connector );
+    final String rawJsonData = ValueUtil.randomString();
+
+    pauseScheduler();
+    connector.pauseMessageScheduler();
+
+    assertEquals( connection.getUnparsedResponses().size(), 0 );
+    assertEquals( connector.isSchedulerActive(), false );
+
+    connector.onMessageReceived( rawJsonData );
+
+    assertEquals( connection.getUnparsedResponses().size(), 1 );
+    assertEquals( connection.getUnparsedResponses().get( 0 ).getRawJsonData(), rawJsonData );
+    assertEquals( connector.isSchedulerActive(), true );
+  }
+
+  @Test
   public void onMessageProcessed()
     throws Exception
   {
