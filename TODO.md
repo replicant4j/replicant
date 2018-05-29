@@ -55,7 +55,6 @@ Some actions that should occur at some point in the future.
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
 * Remove `Connector.SystemType` and replace with reference to schema.
-  - we should also start using to stop updates of filters that should not be.
   - Should create EntityMetaData and move EntitySchema.Type to it and also move factory methods for creating
     and updating userobject to it. This would allow us to eliminate `CHangeMapper`
   - Enhance `ChannelSchema` with `FilterParameterType`
