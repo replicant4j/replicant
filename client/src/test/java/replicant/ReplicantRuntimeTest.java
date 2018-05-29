@@ -327,7 +327,8 @@ public class ReplicantRuntimeTest
 
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
+    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ),
+                                                              any( Transport.OnError.class ) );
 
     reset( service1.getTransport() );
 
@@ -375,7 +376,8 @@ public class ReplicantRuntimeTest
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     runtime.deactivate();
-    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
+    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ),
+                                                              any( Transport.OnError.class ) );
   }
 
   @Test
@@ -403,8 +405,10 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     entry3.getRateLimiter().fillBucket();
     runtime.deactivate();
-    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
-    verify( service3.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
+    verify( service1.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ),
+                                                              any( Transport.OnError.class ) );
+    verify( service3.getTransport(), times( 1 ) ).disconnect( any( SafeProcedure.class ),
+                                                              any( Transport.OnError.class ) );
   }
 
   @Test
