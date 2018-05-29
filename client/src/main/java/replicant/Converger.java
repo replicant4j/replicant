@@ -20,13 +20,21 @@ abstract class Converger
    */
   enum Action
   {
-    /// The submission has been added to the AOI queue
+    /**
+     * The submission has been added to the AOI queue
+     */
     SUBMITTED_ADD,
-    /// The submission has been added to the AOI queue
+    /**
+     * The submission has been added to the AOI queue
+     */
     SUBMITTED_UPDATE,
-    /// The submission is already in progress, still waiting for a response
+    /**
+     * The submission is already in progress, still waiting for a response
+     */
     IN_PROGRESS,
-    /// Nothing was done, fully converged
+    /**
+     * Nothing was done, fully converged
+     */
     NO_ACTION
   }
 
