@@ -245,18 +245,23 @@ public abstract class WebPollerTransport
     }
   }
 
-  private void handleWebPollerStop()
-  {
-    ensureTransportContext().disconnect();
-  }
-
-  private void onPollMessage( @Nullable final String rawJsonData )
+  private void onWebPollerMessage( @Nullable final String rawJsonData )
   {
     if ( null != rawJsonData )
     {
       ensureTransportContext().onMessageReceived( rawJsonData );
       pauseWebPoller();
     }
+  }
+
+  private void onWebPollerError( @Nonnull final Throwable error )
+  {
+    ensureTransportContext().onMessageReadFailure( error );
+  }
+
+  private void onWebPollerStop()
+  {
+    ensureTransportContext().disconnect();
   }
 
   /**
@@ -427,19 +432,19 @@ public abstract class WebPollerTransport
                            @Nonnull final Map<String, String> context,
                            @Nonnull final String data )
     {
-      onPollMessage( data );
+      onWebPollerMessage( data );
     }
 
     @Override
     public void onError( @Nonnull final WebPoller webPoller, @Nonnull final Throwable error )
     {
-      ensureTransportContext().onMessageReadFailure( error );
+      onWebPollerError( error );
     }
 
     @Override
     public void onStop( @Nonnull final WebPoller webPoller )
     {
-      handleWebPollerStop();
+      onWebPollerStop();
     }
   }
 }
