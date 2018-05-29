@@ -1240,6 +1240,7 @@ public abstract class Connector
    */
   void onMessageProcessed( @Nonnull final DataLoadStatus status )
   {
+    getTransport().onMessageProcessed();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()

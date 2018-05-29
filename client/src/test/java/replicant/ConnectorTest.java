@@ -373,7 +373,7 @@ public class ConnectorTest
   }
 
   @Test
-  public void onMessageProcessed_generatesSpyMessage()
+  public void onMessageProcessed()
     throws Exception
   {
     final TestConnector connector = TestConnector.create();
@@ -393,6 +393,8 @@ public class ConnectorTest
                           ValueUtil.getRandom().nextInt( 10 ) );
 
     safeAction( () -> connector.onMessageProcessed( status ) );
+
+    verify( connector.getTransport() ).onMessageProcessed();
 
     handler.assertEventCount( 1 );
 
