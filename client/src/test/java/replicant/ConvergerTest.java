@@ -427,7 +427,7 @@ public class ConvergerTest
   public void convergeAreaOfInterest_addPending()
   {
     final TestConnector connector = TestConnector.create();
-    final Connection connection = newConnection( connector );
+    newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
