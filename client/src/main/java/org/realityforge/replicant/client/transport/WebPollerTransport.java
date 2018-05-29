@@ -87,6 +87,7 @@ public abstract class WebPollerTransport
   @Nonnull
   protected abstract String getEndpointOffset();
 
+  @Nonnull
   protected abstract String getAppBaseURL();
 
   @Nullable
