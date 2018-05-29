@@ -48,7 +48,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The Connector is responsible for managing a Connection to a backend datasource.
  */
-public abstract class Connector
+abstract class Connector
   extends ReplicantService
 {
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
@@ -131,7 +131,7 @@ public abstract class Connector
   /**
    * Connect to the underlying data source.
    */
-  public void connect()
+  void connect()
   {
     final ConnectorState state = getState();
     if ( ConnectorState.CONNECTING != state && ConnectorState.CONNECTED != state )
@@ -152,7 +152,7 @@ public abstract class Connector
   /**
    * Disconnect from underlying data source.
    */
-  public void disconnect()
+  void disconnect()
   {
     final ConnectorState state = getState();
     if ( ConnectorState.DISCONNECTING != state && ConnectorState.DISCONNECTED != state )
@@ -176,7 +176,7 @@ public abstract class Connector
    * @return the schema associated with the connector.
    */
   @Nonnull
-  public final SystemSchema getSchema()
+  final SystemSchema getSchema()
   {
     return _schema;
   }
@@ -226,7 +226,7 @@ public abstract class Connector
   }
 
   @Nullable
-  public final Connection getConnection()
+  final Connection getConnection()
   {
     return _connection;
   }
@@ -482,7 +482,7 @@ public abstract class Connector
    */
   @Nonnull
   @Observable
-  public ConnectorState getState()
+  ConnectorState getState()
   {
     return _state;
   }
