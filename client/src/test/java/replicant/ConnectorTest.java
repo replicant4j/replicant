@@ -1076,8 +1076,6 @@ public class ConnectorTest
 
     assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscriptionUpdate( address, null ) );
 
