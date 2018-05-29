@@ -67,7 +67,7 @@ public abstract class WebPollerTransport
   }
 
   @Nonnull
-  protected WebPoller createWebPoller()
+  private WebPoller createWebPoller()
   {
     final WebPoller webpoller = newWebPoller();
     webpoller.setLogLevel( Level.FINEST );
