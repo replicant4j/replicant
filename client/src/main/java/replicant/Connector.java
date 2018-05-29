@@ -597,7 +597,7 @@ abstract class Connector
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
-                 () -> "Replicant-0077: Connector.updateSubscriptionForFilteredEntities invoked for address " +
+                 () -> "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address " +
                        subscription.getAddress() + " but the channel does not have a DYNAMIC filter." );
     }
 

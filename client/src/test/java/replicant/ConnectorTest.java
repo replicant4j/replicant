@@ -1168,7 +1168,7 @@ public class ConnectorTest
                     () -> safeAction( () -> connector.updateSubscriptionForFilteredEntities( subscription1 ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0077: Connector.updateSubscriptionForFilteredEntities invoked for address 1.0.1 but the channel does not have a DYNAMIC filter." );
+                  "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address 1.0.1 but the channel does not have a DYNAMIC filter." );
   }
 
   @Test
