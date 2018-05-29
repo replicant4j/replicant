@@ -28,6 +28,7 @@ public class ConnectionTest
     assertEquals( connection.getConnectionId(), connectionId );
     assertEquals( connection.getLastRxSequence(), 0 );
     assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNotNull( connection.getTransportContext() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
     final MessageResponse response = new MessageResponse( "" );

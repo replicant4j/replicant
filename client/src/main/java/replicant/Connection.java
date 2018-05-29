@@ -29,6 +29,11 @@ final class Connection
   @Nonnull
   private final Connector _connector;
   /**
+   * The interface between Transport and Connector infrastructure.
+   */
+  @Nonnull
+  private final TransportContextImpl _transportContext;
+  /**
    * A unique identifier for the connection, typically supplied by the backend.
    */
   private final String _connectionId;
@@ -81,12 +86,19 @@ final class Connection
   {
     _connector = Objects.requireNonNull( connector );
     _connectionId = Objects.requireNonNull( connectionId );
+    _transportContext = new TransportContextImpl( connector );
   }
 
   @Nonnull
   String getConnectionId()
   {
     return _connectionId;
+  }
+
+  @Nonnull
+  Transport.Context getTransportContext()
+  {
+    return _transportContext;
   }
 
   void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
