@@ -321,6 +321,7 @@ public class ConnectorTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create();
+    newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
