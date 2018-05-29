@@ -317,7 +317,7 @@ public class ReplicantContextTest
   public void newRequest()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
 
     final Request request = Replicant.context().newRequest( connector.getSchema().getId(), "MyAction" );

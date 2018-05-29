@@ -63,7 +63,7 @@ public class ConnectorTest
                         ValueUtil.randomString(),
                         new ChannelSchema[ 0 ],
                         new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
 
     assertEquals( connector.getSchema(), schema );
 
@@ -86,7 +86,7 @@ public class ConnectorTest
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
@@ -100,7 +100,7 @@ public class ConnectorTest
     throws Exception
   {
     final SystemSchema schema = newSchema();
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     assertEquals( connector.toString(), "Connector[" + schema.getName() + "]" );
     ReplicantTestUtil.disableNames();
     assertEquals( connector.toString(), "replicant.Arez_TestConnector@" + Integer.toHexString( connector.hashCode() ) );
@@ -110,7 +110,7 @@ public class ConnectorTest
   public void setConnection_whenConnectorProcessingMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final Connection connection = newConnection( connector );
 
@@ -136,7 +136,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     safeAction( connector::connect );
@@ -151,7 +151,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
     final IllegalStateException exception = new IllegalStateException();
@@ -171,7 +171,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     safeAction( connector::disconnect );
@@ -186,7 +186,7 @@ public class ConnectorTest
   {
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final IllegalStateException exception = new IllegalStateException();
@@ -205,7 +205,7 @@ public class ConnectorTest
   @Test
   public void onDisconnected()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -226,7 +226,7 @@ public class ConnectorTest
   public void onDisconnected_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -246,7 +246,7 @@ public class ConnectorTest
   public void onDisconnectFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -269,7 +269,7 @@ public class ConnectorTest
   public void onDisconnectFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -293,7 +293,7 @@ public class ConnectorTest
   public void onConnected()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
@@ -321,7 +321,7 @@ public class ConnectorTest
   public void onConnected_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
@@ -339,7 +339,7 @@ public class ConnectorTest
   public void onConnectFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -362,7 +362,7 @@ public class ConnectorTest
   public void onConnectFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -386,7 +386,7 @@ public class ConnectorTest
   public void onMessageReceived()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
     final String rawJsonData = ValueUtil.randomString();
 
@@ -407,7 +407,7 @@ public class ConnectorTest
   public void onMessageProcessed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -439,7 +439,7 @@ public class ConnectorTest
   public void onMessageProcessFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
@@ -456,7 +456,7 @@ public class ConnectorTest
   public void onMessageProcessFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -477,7 +477,7 @@ public class ConnectorTest
   public void disconnectIfPossible()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -492,7 +492,7 @@ public class ConnectorTest
   public void disconnectIfPossible_noActionAsConnecting()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -511,7 +511,7 @@ public class ConnectorTest
   public void disconnectIfPossible_generatesSpyEvent()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -532,7 +532,7 @@ public class ConnectorTest
   public void onMessageReadFailure()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
@@ -549,7 +549,7 @@ public class ConnectorTest
   public void onMessageReadFailure_generatesSpyMessage()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -570,7 +570,7 @@ public class ConnectorTest
   public void onSubscribeStarted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -601,7 +601,7 @@ public class ConnectorTest
   public void onSubscribeCompleted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -634,7 +634,7 @@ public class ConnectorTest
   public void onSubscribeFailed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -668,7 +668,7 @@ public class ConnectorTest
   public void onUnsubscribeStarted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -701,7 +701,7 @@ public class ConnectorTest
   public void onUnsubscribeCompleted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -732,7 +732,7 @@ public class ConnectorTest
   public void onUnsubscribeFailed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -766,7 +766,7 @@ public class ConnectorTest
   public void onSubscriptionUpdateStarted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -799,7 +799,7 @@ public class ConnectorTest
   public void onSubscriptionUpdateCompleted()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -832,7 +832,7 @@ public class ConnectorTest
   public void onSubscriptionUpdateFailed()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final AreaOfInterest areaOfInterest =
@@ -867,7 +867,7 @@ public class ConnectorTest
   @Test
   public void areaOfInterestRequestPendingQueries()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
@@ -892,7 +892,7 @@ public class ConnectorTest
   @Test
   public void connection()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     assertEquals( connector.getConnection(), null );
 
@@ -913,7 +913,7 @@ public class ConnectorTest
   @Test
   public void ensureConnection_WhenNoConnection()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, connector::ensureConnection );
 
@@ -949,7 +949,7 @@ public class ConnectorTest
   @Test
   public void progressMessages()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -985,7 +985,7 @@ public class ConnectorTest
   @Test
   public void progressMessages_withError()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 0, 0 ),
@@ -1012,7 +1012,7 @@ public class ConnectorTest
   @Test
   public void requestSubscribe()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     connector.pauseMessageScheduler();
 
@@ -1043,7 +1043,7 @@ public class ConnectorTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
@@ -1069,7 +1069,7 @@ public class ConnectorTest
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, false, true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
@@ -1088,7 +1088,7 @@ public class ConnectorTest
   public void requestUnsubscribe()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     pauseScheduler();
     connector.pauseMessageScheduler();
     newConnection( connector );
@@ -1124,7 +1124,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[ 0 ] );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -1189,7 +1189,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[ 0 ] );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -1207,7 +1207,7 @@ public class ConnectorTest
   @Test
   public void toAddress()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     assertEquals( connector.toAddress( ChannelChange.create( 0, ChannelChange.Action.ADD, null ) ),
                   new ChannelAddress( 1, 0 ) );
     assertEquals( connector.toAddress( ChannelChange.create( 1, 2, ChannelChange.Action.ADD, null ) ),
@@ -1230,7 +1230,7 @@ public class ConnectorTest
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
@@ -1318,7 +1318,7 @@ public class ConnectorTest
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
@@ -1358,7 +1358,7 @@ public class ConnectorTest
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
@@ -1386,7 +1386,7 @@ public class ConnectorTest
   @Test
   public void processEntityLinks()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
@@ -1434,7 +1434,7 @@ public class ConnectorTest
   @Test
   public void completeAreaOfInterestRequest()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 1, 0 ),
@@ -1451,7 +1451,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_add()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1490,7 +1490,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_addConvertingImplicitToExplicit()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     connector.pauseMessageScheduler();
@@ -1540,7 +1540,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_remove()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     connector.pauseMessageScheduler();
 
     final Connection connection = newConnection( connector );
@@ -1582,7 +1582,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_remove_WithMissingSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1626,7 +1626,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     connector.pauseMessageScheduler();
 
     final Connection connection = newConnection( connector );
@@ -1671,7 +1671,7 @@ public class ConnectorTest
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, true, true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1699,7 +1699,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update_implicitSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1737,7 +1737,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update_missingSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -1775,7 +1775,7 @@ public class ConnectorTest
     // Pause converger
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
@@ -1802,7 +1802,7 @@ public class ConnectorTest
     // Pause converger
     pauseScheduler();
 
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
@@ -1821,7 +1821,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededAddRequests_upgradeExisting()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
@@ -1851,7 +1851,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededAddRequests_explicitAlreadyPresent()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
@@ -1875,7 +1875,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_whenInvariantsDisabled()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
@@ -1913,7 +1913,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_noSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
@@ -1935,7 +1935,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_implicitSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
@@ -1959,7 +1959,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededUpdateRequests_whenInvariantsDisabled()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
@@ -1998,7 +1998,7 @@ public class ConnectorTest
   @Test
   public void removeUnneededUpdateRequests_noSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
 
@@ -2020,7 +2020,7 @@ public class ConnectorTest
   @Test
   public void validateWorld_invalidEntity()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connector.ensureConnection().setCurrentMessageResponse( response );
@@ -2046,7 +2046,7 @@ public class ConnectorTest
   public void validateWorld_invalidEntity_ignoredIfCOmpileSettingDisablesValidation()
   {
     ReplicantTestUtil.noValidateEntitiesOnLoad();
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connector.ensureConnection().setCurrentMessageResponse( response );
@@ -2067,7 +2067,7 @@ public class ConnectorTest
   @Test
   public void validateWorld_validEntity()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connector.ensureConnection().setCurrentMessageResponse( response );
@@ -2112,7 +2112,7 @@ public class ConnectorTest
   @Test
   public void parseMessageResponse_basicMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     @Language( "json" )
@@ -2137,7 +2137,7 @@ public class ConnectorTest
   @Test
   public void parseMessageResponse_requestPresent()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
@@ -2170,7 +2170,7 @@ public class ConnectorTest
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, true, true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
@@ -2216,7 +2216,7 @@ public class ConnectorTest
   @Test
   public void parseMessageResponse_eTagWhenNotCacheCandidate()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
@@ -2250,7 +2250,7 @@ public class ConnectorTest
   @Test
   public void parseMessageResponse_oob()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
@@ -2281,7 +2281,7 @@ public class ConnectorTest
   @Test
   public void parseMessageResponse_invalidRequestId()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     @Language( "json" )
@@ -2301,7 +2301,7 @@ public class ConnectorTest
   @Test
   public void completeMessageResponse()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( "" );
@@ -2330,7 +2330,7 @@ public class ConnectorTest
   @Test
   public void completeMessageResponse_withPostAction()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( "" );
@@ -2354,7 +2354,7 @@ public class ConnectorTest
   @Test
   public void completeMessageResponse_OOBMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final AtomicInteger completionCallCount = new AtomicInteger();
@@ -2387,7 +2387,7 @@ public class ConnectorTest
   @Test
   public void completeMessageResponse_MessageWithRequest_RPCComplete()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
@@ -2431,7 +2431,7 @@ public class ConnectorTest
   @Test
   public void completeMessageResponse_MessageWithRequest_RPCNotComplete()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
@@ -2490,7 +2490,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     @Language( "json" )
@@ -2601,7 +2601,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -2668,7 +2668,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
     pauseScheduler();
     connector.pauseMessageScheduler();
@@ -2737,7 +2737,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -2817,7 +2817,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -2886,7 +2886,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -2988,7 +2988,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3094,7 +3094,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3162,7 +3162,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3199,7 +3199,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3291,7 +3291,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -3363,7 +3363,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -3437,7 +3437,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3545,7 +3545,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3657,7 +3657,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3732,7 +3732,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3775,7 +3775,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -3867,7 +3867,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -3931,7 +3931,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
@@ -3997,7 +3997,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4095,7 +4095,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4197,7 +4197,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4265,7 +4265,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4301,7 +4301,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4389,7 +4389,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     pauseScheduler();
@@ -4417,7 +4417,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4454,7 +4454,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4496,7 +4496,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4533,7 +4533,7 @@ public class ConnectorTest
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -4561,7 +4561,7 @@ public class ConnectorTest
   @Test
   public void pauseMessageScheduler()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
 
     connector.pauseMessageScheduler();

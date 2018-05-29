@@ -21,7 +21,7 @@ public class ConnectionTest
   @Test
   public void construct()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -44,7 +44,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_noMessages()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -59,7 +59,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_unparsedOobMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -81,7 +81,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_unparsedMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -101,7 +101,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_parsedMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -126,7 +126,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_parsedOutOfSequenceMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -149,7 +149,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_parsedOutOfSequenceOutOfBandMessage()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -177,7 +177,7 @@ public class ConnectionTest
   @Test
   public void queueCurrentResponse()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -224,7 +224,7 @@ public class ConnectionTest
   @Test
   public void requestSubscribe()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -258,7 +258,7 @@ public class ConnectionTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -292,7 +292,7 @@ public class ConnectionTest
   @Test
   public void requestUnsubscribe()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -324,7 +324,7 @@ public class ConnectionTest
   @Test
   public void enqueueResponse()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
@@ -356,7 +356,7 @@ public class ConnectionTest
   @Test
   public void enqueueOutOfBandResponse()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 

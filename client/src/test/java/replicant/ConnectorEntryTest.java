@@ -22,7 +22,7 @@ public class ConnectorEntryTest
   @Test
   public void basicOperation()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     assertEquals( entry.getConnector(), connector );
     assertEquals( entry.isRequired(), true );

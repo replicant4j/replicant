@@ -195,7 +195,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
 
     pauseScheduler();
@@ -230,7 +230,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription_whenManyPresent()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
 
     pauseScheduler();
@@ -272,7 +272,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenConnectorDisconnected()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
@@ -292,7 +292,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenSubscriptionImplicit()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
@@ -312,7 +312,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenSubscriptionExpected()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
@@ -335,7 +335,7 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenRemoveIsPending()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     connector.pauseMessageScheduler();
 
@@ -355,7 +355,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     pauseScheduler();
     connector.pauseMessageScheduler();
@@ -380,7 +380,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_alreadySubscribed()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -402,7 +402,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribing()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -426,7 +426,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_addPending()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -460,7 +460,7 @@ public class ConvergerTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -496,7 +496,7 @@ public class ConvergerTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
@@ -524,7 +524,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_disposedAreaOfInterest()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -547,7 +547,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -584,7 +584,7 @@ public class ConvergerTest
                                                   ValueUtil.randomString(),
                                                   new ChannelSchema[]{ channel0 },
                                                   new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -620,7 +620,7 @@ public class ConvergerTest
                                                   ValueUtil.randomString(),
                                                   new ChannelSchema[]{ channel0 },
                                                   new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -644,7 +644,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingAdd()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
@@ -680,7 +680,7 @@ public class ConvergerTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0 }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -707,7 +707,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffers()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -731,7 +731,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffers()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -765,7 +765,7 @@ public class ConvergerTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
@@ -798,7 +798,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffersForUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -845,7 +845,7 @@ public class ConvergerTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -893,7 +893,7 @@ public class ConvergerTest
                          true );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
-    final TestConnector connector = TestConnector.create( schema );
+    final Connector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 

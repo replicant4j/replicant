@@ -12,7 +12,7 @@ public class TransportContextImplTest
   @Test
   public void getSchemaId()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final TransportContextImpl context = new TransportContextImpl( connector );
 
     assertEquals( context.getSchemaId(), connector.getSchema().getId() );
@@ -21,7 +21,7 @@ public class TransportContextImplTest
   @Test
   public void getLastRxSequence()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     final Connection connection = newConnection( connector );
     final TransportContextImpl context = new TransportContextImpl( connector );
 
@@ -38,7 +38,7 @@ public class TransportContextImplTest
   @Test
   public void onMessageReceived()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
@@ -66,7 +66,7 @@ public class TransportContextImplTest
   @Test
   public void onMessageReadFailure()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
@@ -98,7 +98,7 @@ public class TransportContextImplTest
   @Test
   public void disconnect()
   {
-    final TestConnector connector = TestConnector.create();
+    final Connector connector = TestConnector.create();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
