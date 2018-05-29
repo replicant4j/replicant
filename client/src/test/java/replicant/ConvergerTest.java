@@ -598,12 +598,22 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffers()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channel0 =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         true,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0 }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
     final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
 
@@ -745,7 +755,25 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffersForUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channel0 =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         true,
+                         true );
+    final ChannelSchema channel1 =
+      new ChannelSchema( 1,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         true,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -775,7 +803,25 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffersForUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channel0 =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         true,
+                         true );
+    final ChannelSchema channel1 =
+      new ChannelSchema( 1,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         true,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
