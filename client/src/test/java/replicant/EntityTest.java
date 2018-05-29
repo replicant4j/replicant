@@ -146,14 +146,6 @@ public class EntityTest
       safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
     }
 
-    // Add same subscription so no notification or change
-    {
-      safeAction( () -> entity.linkToSubscription( subscription1 ) );
-
-      assertEquals( callCount.get(), 2 );
-      safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
-    }
-
     // Add second subscription and thus get notified
     {
       safeAction( () -> entity.linkToSubscription( subscription2 ) );
@@ -217,14 +209,6 @@ public class EntityTest
 
     // Add second subscription and thus get notified
     // second subscription is of the same channelType, so should go through second path
-    {
-      safeAction( () -> entity.linkToSubscription( subscription2 ) );
-
-      assertEquals( callCount.get(), 3 );
-      safeAction( () -> assertEquals( entity.getSubscriptions().size(), 2 ) );
-    }
-
-    // Add same subscription again and thus not notified
     {
       safeAction( () -> entity.linkToSubscription( subscription2 ) );
 
