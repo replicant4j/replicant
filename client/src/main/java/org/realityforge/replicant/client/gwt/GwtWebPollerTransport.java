@@ -25,7 +25,6 @@ public abstract class GwtWebPollerTransport
   public GwtWebPollerTransport( @Nonnull final ReplicantContext replicantContext )
   {
     super( replicantContext );
-    createWebPoller();
     setupCloseHandler();
   }
 
