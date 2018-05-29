@@ -201,8 +201,8 @@ public abstract class GwtWebPollerTransport
   }
 
   @Nonnull
-  protected RequestBuilder newRequestBuilder( @Nonnull final RequestBuilder.Method method,
-                                              @Nonnull final String url )
+  private RequestBuilder newRequestBuilder( @Nonnull final RequestBuilder.Method method,
+                                            @Nonnull final String url )
   {
     final RequestBuilder rb = new RequestBuilder( method, url );
     //Timeout 2 seconds after maximum poll
