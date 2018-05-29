@@ -252,6 +252,46 @@ public class EntityTest
   }
 
   @Test
+  public void delinkFromSubscription_whenNotLinked()
+  {
+    final EntityService entityService = Replicant.context().getEntityService();
+
+    final Entity entity =
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity",
+                                                          String.class,
+                                                          ValueUtil.randomInt() ) );
+
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> safeAction( () -> entity.delinkFromSubscription( subscription1 ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0081: Entity.delinkFromSubscription invoked on Entity MyEntity passing subscription 1.0.1 but entity is not linked to subscription." );
+  }
+
+  @Test
+  public void linkToSubscription_whenNotLinked()
+  {
+    final EntityService entityService = Replicant.context().getEntityService();
+
+    final Entity entity =
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity",
+                                                          String.class,
+                                                          ValueUtil.randomInt() ) );
+
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+
+    safeAction( () -> entity.linkToSubscription( subscription1 ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> safeAction( () -> entity.linkToSubscription( subscription1 ) ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0080: Entity.linkToSubscription invoked on Entity MyEntity passing subscription 1.0.1 but entity is already linked to subscription." );
+  }
+
+  @Test
   public void disposeRemovesEntityFromSubscriptions()
   {
     final EntityService entityService = Replicant.context().getEntityService();

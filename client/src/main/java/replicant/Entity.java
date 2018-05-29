@@ -136,7 +136,13 @@ public abstract class Entity
    */
   final void linkToSubscription( @Nonnull final Subscription subscription )
   {
-    //TODO: Add additional guards here
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> null == subscription.findEntityByTypeAndId( getType(), getId() ),
+                 () -> "Replicant-0080: Entity.linkToSubscription invoked on Entity " + this +
+                       " passing subscription " + subscription.getAddress() + " but entity is " +
+                       "already linked to subscription." );
+    }
     linkEntityToSubscription( subscription );
     subscription.linkSubscriptionToEntity( this );
   }
@@ -159,7 +165,13 @@ public abstract class Entity
    */
   final void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
-    // TODO: This next method should have better defensive programming inside
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> null != subscription.findEntityByTypeAndId( getType(), getId() ),
+                 () -> "Replicant-0081: Entity.delinkFromSubscription invoked on Entity " + this +
+                       " passing subscription " + subscription.getAddress() + " but entity is " +
+                       "not linked to subscription." );
+    }
     delinkSubscriptionFromEntity( subscription, false );
     subscription.delinkEntityFromSubscription( this, false );
     disposeIfNoSubscriptions();
