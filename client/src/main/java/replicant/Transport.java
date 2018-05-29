@@ -22,6 +22,31 @@ public interface Transport
 
   interface Context
   {
+    /**
+     * Return the sequence of last PDU received.
+     *
+     * @return the sequence of last PDU received.
+     */
+    int getLastRxSequence();
+
+    /**
+     * Notify the Connector that a message was received.
+     *
+     * @param rawJsonData the message.
+     */
+    void onMessageReceived( @Nonnull String rawJsonData );
+
+    /**
+     * Notify the Connector that there was an error reading a message from the Transport.
+     *
+     * @param error the error.
+     */
+    void onMessageReadFailure( @Nonnull Throwable error );
+
+    /**
+     * Direct the Connector to disconnect the transport.
+     */
+    void disconnect();
   }
 
   /**
