@@ -12,8 +12,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.webpoller.client.AbstractHttpRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
-import org.realityforge.gwt.webpoller.client.TimerBasedWebPoller;
-import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.replicant.client.transport.WebPollerTransport;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.ReplicantContext;
@@ -26,13 +24,6 @@ public abstract class GwtWebPollerTransport
   {
     super( replicantContext );
     setupCloseHandler();
-  }
-
-  @Nonnull
-  @Override
-  protected WebPoller newWebPoller()
-  {
-    return new TimerBasedWebPoller();
   }
 
   private void setupCloseHandler()

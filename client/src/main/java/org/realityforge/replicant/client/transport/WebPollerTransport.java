@@ -24,6 +24,7 @@ import replicant.ReplicantContext;
 import replicant.Request;
 import replicant.SafeProcedure;
 import replicant.Transport;
+import static org.realityforge.braincheck.Guards.*;
 
 public abstract class WebPollerTransport
   implements Transport
@@ -69,16 +70,19 @@ public abstract class WebPollerTransport
   @Nonnull
   private WebPoller createWebPoller()
   {
-    final WebPoller webpoller = newWebPoller();
-    webpoller.setLogLevel( Level.FINEST );
-    webpoller.setRequestFactory( newRequestFactory() );
-    webpoller.setInterRequestDuration( 0 );
-    webpoller.setListener( new ReplicantWebPollerListener() );
-    return webpoller;
+    final WebPoller webPoller = WebPoller.newWebPoller();
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> null != webPoller,
+                 () -> "Replicant-0084: WebPoller.newWebPoller() returned null. A WebPoller.Factory needs to be registered via a call to WebPoller.register() prior to creating a WebPollerTransport." );
+    }
+    assert null != webPoller;
+    webPoller.setLogLevel( Level.FINEST );
+    webPoller.setRequestFactory( newRequestFactory() );
+    webPoller.setInterRequestDuration( 0 );
+    webPoller.setListener( new ReplicantWebPollerListener() );
+    return webPoller;
   }
-
-  @Nonnull
-  protected abstract WebPoller newWebPoller();
 
   @Nonnull
   protected abstract String getEndpointOffset();
