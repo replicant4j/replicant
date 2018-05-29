@@ -10,6 +10,7 @@ import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
+import replicant.SystemSchema;
 import replicant.TestConnector;
 import static org.mockito.Mockito.*;
 
@@ -19,10 +20,11 @@ public class ReplicantRpcRequestBuilderTest
   @Test
   public void onSuccess()
   {
-    final TestConnector connector = TestConnector.create( newSchema() );
+    final SystemSchema schema = newSchema();
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     final replicant.Request r =
-      Replicant.context().newRequest( connector.getSchema().getId(), ValueUtil.randomString() );
+      Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback chainedCallback = mock( RequestCallback.class );

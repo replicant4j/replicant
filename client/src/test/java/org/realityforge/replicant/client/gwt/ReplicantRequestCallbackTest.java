@@ -8,6 +8,7 @@ import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
+import replicant.SystemSchema;
 import replicant.TestConnector;
 import replicant.TestSpyEventHandler;
 import replicant.spy.RequestCompletedEvent;
@@ -20,10 +21,10 @@ public class ReplicantRequestCallbackTest
   @Test
   public void onResponseReceived_OK_Complete()
   {
-    final TestConnector connector = TestConnector.create( newSchema() );
+    final SystemSchema schema = newSchema();
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
-    final replicant.Request r =
-      Replicant.context().newRequest( connector.getSchema().getId(), ValueUtil.randomString() );
+    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 
     final RequestCallback chainedCallback = mock( RequestCallback.class );
 
@@ -51,10 +52,10 @@ public class ReplicantRequestCallbackTest
   @Test
   public void onResponseReceived_OK_InComplete()
   {
-    final TestConnector connector = TestConnector.create( newSchema() );
+    final SystemSchema schema = newSchema();
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
-    final replicant.Request r =
-      Replicant.context().newRequest( connector.getSchema().getId(), ValueUtil.randomString() );
+    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 
     final RequestCallback chainedCallback = mock( RequestCallback.class );
 
@@ -82,10 +83,10 @@ public class ReplicantRequestCallbackTest
   @Test
   public void onResponseReceived_AUTHError()
   {
-    final TestConnector connector = TestConnector.create( newSchema() );
+    final SystemSchema schema = newSchema();
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
-    final replicant.Request r =
-      Replicant.context().newRequest( connector.getSchema().getId(), ValueUtil.randomString() );
+    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 
     final RequestCallback chainedCallback = mock( RequestCallback.class );
 
@@ -111,10 +112,10 @@ public class ReplicantRequestCallbackTest
   @Test
   public void onError()
   {
-    final TestConnector connector = TestConnector.create( newSchema() );
+    final SystemSchema schema = newSchema();
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
-    final replicant.Request r =
-      Replicant.context().newRequest( connector.getSchema().getId(), ValueUtil.randomString() );
+    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 
     final RequestCallback chainedCallback = mock( RequestCallback.class );
 
