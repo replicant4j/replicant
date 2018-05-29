@@ -570,6 +570,78 @@ public class ConvergerTest
   }
 
   @Test
+  public void convergeAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStatic()
+  {
+    final ChannelSchema channel0 =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.STATIC,
+                         null,
+                         true,
+                         true );
+    final SystemSchema schema = new SystemSchema( 1,
+                                                  ValueUtil.randomString(),
+                                                  new ChannelSchema[]{ channel0 },
+                                                  new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
+    newConnection( connector );
+    connector.pauseMessageScheduler();
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, ValueUtil.randomString() ) );
+    createSubscription( address, ValueUtil.randomString(), true );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
+      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+
+    assertEquals( result, Converger.Action.SUBMITTED_REMOVE );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( UnsubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
+  }
+
+  @Test
+  public void convergeAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStaticAndNotExplicitlySubscribed()
+  {
+    final ChannelSchema channel0 =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.STATIC,
+                         null,
+                         true,
+                         true );
+    final SystemSchema schema = new SystemSchema( 1,
+                                                  ValueUtil.randomString(),
+                                                  new ChannelSchema[]{ channel0 },
+                                                  new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
+    newConnection( connector );
+    connector.pauseMessageScheduler();
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, ValueUtil.randomString() ) );
+    createSubscription( address, ValueUtil.randomString(), false );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> safeAction( () -> Replicant.context().getConverger()
+                      .convergeAreaOfInterest( areaOfInterest, null, null ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0083: Attempting to update channel 1.0 but channel does not allow dynamic updates of filter and channel has not been explicitly subscribed." );
+  }
+
+  @Test
   public void convergeAreaOfInterest_groupingAdd()
   {
     final TestConnector connector = TestConnector.create();

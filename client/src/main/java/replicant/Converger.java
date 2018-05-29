@@ -29,6 +29,10 @@ abstract class Converger
      */
     SUBMITTED_UPDATE,
     /**
+     * The request to update subscription with static filter has resulted in a remove request added to the AOI queue.
+     */
+    SUBMITTED_REMOVE,
+    /**
      * The request is already in progress, still waiting for a response.
      */
     IN_PROGRESS,
@@ -131,6 +135,9 @@ abstract class Converger
           groupAction = AreaOfInterestRequest.Type.UPDATE;
           groupTemplate = areaOfInterest;
           break;
+        case SUBMITTED_REMOVE:
+          // A request to update a subscription that has static filter has resulted in remove being submitted.
+          return;
         case IN_PROGRESS:
           if ( null == groupTemplate )
           {
@@ -205,14 +212,28 @@ abstract class Converger
 
         if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
-          /*
-          TODO: If the subscription needs an update but the backend does not support updates
-          and subscription is explicitly subscribed then need to do a remove. Eventually it will
-          fall through the add path once remove goes through. If the subscription is NOT explicitly
-          subscribed then generate an error and fail.
-          */
-          if ( null == groupTemplate ||
-               canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE ) )
+          final SystemSchema schema = getReplicantContext().getSchemaService().findById( address.getSystemId() );
+          assert null != schema;
+          final ChannelSchema.FilterType filterType = schema.getChannel( address.getChannelId() ).getFilterType();
+          if ( null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType )
+          {
+            /*
+            If the subscription needs an update but the backend does not support updates
+            and subscription is explicitly subscribed then need to do a remove. Eventually it will
+            fall through the add path once remove goes through. If the subscription is NOT explicitly
+            subscribed then generate an error and fail.
+            */
+            if ( Replicant.shouldCheckInvariants() )
+            {
+              invariant( subscription::isExplicitSubscription,
+                         () -> "Replicant-0083: Attempting to update channel " + address + " but channel does not " +
+                               "allow dynamic updates of filter and channel has not been explicitly subscribed." );
+            }
+            connector.requestUnsubscribe( address );
+            return Action.SUBMITTED_REMOVE;
+          }
+          else if ( null == groupTemplate ||
+                    canGroup( groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE ) )
           {
             connector.requestSubscriptionUpdate( address, filter );
             return Action.SUBMITTED_UPDATE;
