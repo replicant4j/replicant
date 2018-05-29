@@ -3,6 +3,7 @@ package replicant;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.messages.EntityChangeData;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -10,6 +11,41 @@ import static org.realityforge.braincheck.Guards.*;
  */
 public final class EntitySchema
 {
+  /**
+   * Function used to create entity on receipt of initial message.
+   *
+   * @param <T> the type of the entity.
+   */
+  @FunctionalInterface
+  interface Creator<T>
+  {
+    /**
+     * Create entity from supplied entity data.
+     *
+     * @param id   the entity identifier.
+     * @param data the state to use to create entity.
+     */
+    @Nonnull
+    T createEntity( int id, @Nonnull EntityChangeData data );
+  }
+
+  /**
+   * Function used to update entity on receipt of subsequent messages.
+   *
+   * @param <T> the type of the entity.
+   */
+  @FunctionalInterface
+  public interface Updater<T>
+  {
+    /**
+     * Update specified entity from supplied entity data.
+     *
+     * @param entity the entity.
+     * @param data   the state to use to create entity.
+     */
+    void updateEntity( @Nonnull T entity, @Nonnull EntityChangeData data );
+  }
+
   /**
    * The id of the entity type. This is the value used when transmitting messages across network.
    */
@@ -25,8 +61,23 @@ public final class EntitySchema
    */
   @Nonnull
   private final Class<?> _type;
+  /**
+   * The function to create entity.
+   */
+  @Nonnull
+  private final Creator<?> _creator;
+  /**
+   * The function to update entity.
+   * This may be null if the entity has no fields that can be updated.
+   */
+  @Nullable
+  private final Updater<?> _updater;
 
-  public EntitySchema( final int id, @Nullable final String name, @Nonnull final Class<?> type )
+  public <T> EntitySchema( final int id,
+                           @Nullable final String name,
+                           @Nonnull final Class<T> type,
+                           @Nonnull final Creator<T> creator,
+                           @Nullable final Updater<T> updater )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -37,6 +88,8 @@ public final class EntitySchema
     _id = id;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
     _type = Objects.requireNonNull( type );
+    _creator = Objects.requireNonNull( creator );
+    _updater = updater;
   }
 
   /**
@@ -77,6 +130,28 @@ public final class EntitySchema
   public Class<?> getType()
   {
     return _type;
+  }
+
+  /**
+   * Return the function to create entity.
+   *
+   * @return the function to create entity.
+   */
+  @Nonnull
+  public Creator<?> getCreator()
+  {
+    return _creator;
+  }
+
+  /**
+   * Return the function to update entity.
+   *
+   * @return the function to update entity.
+   */
+  @Nullable
+  public Updater<?> getUpdater()
+  {
+    return _updater;
   }
 
   /**

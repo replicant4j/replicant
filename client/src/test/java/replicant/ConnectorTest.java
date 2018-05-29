@@ -1214,13 +1214,17 @@ public class ConnectorTest
                   new ChannelAddress( 1, 1, 2 ) );
   }
 
+  @SuppressWarnings( "unchecked" )
   @Test
   public void processEntityChanges()
   {
     final int schemaId = 1;
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
-    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
+    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater );
     final SystemSchema schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
@@ -1243,10 +1247,10 @@ public class ConnectorTest
     createSubscription( address, null, true );
 
     // This entity is to be updated
-    final Entity entity2 = findOrCreateEntity( MyEntity.class, 2 );
+    final Entity entity2 = findOrCreateEntity( Linkable.class, 2 );
     safeAction( () -> entity2.setUserObject( userObject2 ) );
     // This entity is to be removed
-    final Entity entity3 = findOrCreateEntity( MyEntity.class, 3 );
+    final Entity entity3 = findOrCreateEntity( Linkable.class, 3 );
 
     final EntityChangeData data1 = mock( EntityChangeData.class );
     final EntityChangeData data2 = mock( EntityChangeData.class );
@@ -1260,7 +1264,7 @@ public class ConnectorTest
     final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, entityChanges );
     response.recordChangeSet( changeSet, null );
 
-    when( connector.getChangeMapper().createEntity( entitySchema, 1, data1 ) ).thenReturn( userObject1 );
+    when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
     assertEquals( response.getUpdatedEntities().size(), 0 );
     assertEquals( response.getEntityUpdateCount(), 0 );
@@ -1270,10 +1274,10 @@ public class ConnectorTest
 
     connector.processEntityChanges();
 
-    verify( connector.getChangeMapper(), times( 1 ) ).createEntity( entitySchema, 1, data1 );
-    verify( connector.getChangeMapper(), never() ).updateEntity( entitySchema, userObject1, data1 );
-    verify( connector.getChangeMapper(), never() ).createEntity( entitySchema, 2, data2 );
-    verify( connector.getChangeMapper(), never() ).updateEntity( entitySchema, userObject2, data2 );
+    verify( creator, times( 1 ) ).createEntity( 1, data1 );
+    verify( updater, never() ).updateEntity( userObject1, data1 );
+    verify( creator, never() ).createEntity( 2, data2 );
+    verify( updater, never() ).updateEntity( userObject2, data2 );
 
     assertEquals( response.getUpdatedEntities().size(), 1 );
     assertEquals( response.getUpdatedEntities().contains( userObject1 ), true );
@@ -1284,10 +1288,10 @@ public class ConnectorTest
 
     connector.processEntityChanges();
 
-    verify( connector.getChangeMapper(), times( 1 ) ).createEntity( entitySchema, 1, data1 );
-    verify( connector.getChangeMapper(), never() ).updateEntity( entitySchema, userObject1, data1 );
-    verify( connector.getChangeMapper(), never() ).createEntity( entitySchema, 2, data2 );
-    verify( connector.getChangeMapper(), times( 1 ) ).updateEntity( entitySchema, userObject2, data2 );
+    verify( creator, times( 1 ) ).createEntity( 1, data1 );
+    verify( updater, never() ).updateEntity( userObject1, data1 );
+    verify( creator, never() ).createEntity( 2, data2 );
+    verify( updater, times( 1 ) ).updateEntity( userObject2, data2 );
 
     assertEquals( response.getUpdatedEntities().size(), 2 );
     assertEquals( response.getUpdatedEntities().contains( userObject1 ), true );
@@ -1298,13 +1302,17 @@ public class ConnectorTest
     assertEquals( Disposable.isDisposed( entity3 ), true );
   }
 
+  @SuppressWarnings( "unchecked" )
   @Test
   public void processEntityChanges_referenceNonExistentSubscription()
   {
     final int schemaId = 1;
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
-    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
+    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater );
     final SystemSchema schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
@@ -1329,7 +1337,7 @@ public class ConnectorTest
     final ChangeSet changeSet = ChangeSet.create( 42, null, entityChanges );
     response.recordChangeSet( changeSet, null );
 
-    when( connector.getChangeMapper().createEntity( entitySchema, 1, data1 ) ).thenReturn( userObject1 );
+    when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, connector::processEntityChanges );
@@ -1343,7 +1351,8 @@ public class ConnectorTest
     final int schemaId = 1;
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
-    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class, ( i, d ) -> new MyEntity(), null );
     final SystemSchema schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
@@ -1609,7 +1618,8 @@ public class ConnectorTest
     final SubscriptionUpdateEntityFilter filter = mock( SubscriptionUpdateEntityFilter.class );
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, filter, true, true );
-    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), String.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( 0, ValueUtil.randomString(), String.class, ( i, d ) -> "", null );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2078,6 +2088,11 @@ public class ConnectorTest
     @Nullable
     private final Exception _exception;
 
+    MyEntity()
+    {
+      this( null );
+    }
+
     MyEntity( @Nullable final Exception exception )
     {
       _exception = exception;
@@ -2455,7 +2470,7 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( "ResultOfMethodCallIgnored" )
+  @SuppressWarnings( { "ResultOfMethodCallIgnored", "unchecked" } )
   @Test
   public void progressResponseProcessing()
   {
@@ -2465,7 +2480,10 @@ public class ConnectorTest
 
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, false, true );
-    final EntitySchema entitySchema = new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class );
+    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
+    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2535,10 +2553,7 @@ public class ConnectorTest
     {
       assertEquals( response.areEntityChangesPending(), true );
 
-      when( connector.getChangeMapper().createEntity( any( EntitySchema.class ),
-                                                      anyInt(),
-                                                      any( EntityChangeData.class ) ) )
-        .thenReturn( mock( Linkable.class ) );
+      when( creator.createEntity( anyInt(), any( EntityChangeData.class ) ) ).thenReturn( mock( Linkable.class ) );
 
       // Process Entity Changes in response
       assertTrue( connector.progressResponseProcessing() );

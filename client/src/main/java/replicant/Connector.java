@@ -866,6 +866,7 @@ abstract class Connector
     }
   }
 
+  @SuppressWarnings( "unchecked" )
   @Action
   protected void processEntityChanges()
   {
@@ -902,13 +903,17 @@ abstract class Connector
         {
           final String name = Replicant.areNamesEnabled() ? entitySchema.getName() + "/" + id : null;
           entity = getReplicantContext().getEntityService().findOrCreateEntity( name, type, id );
-          final Object userObject = getChangeMapper().createEntity( entitySchema, id, data );
+          final Object userObject = entitySchema.getCreator().createEntity( id, data );
           entity.setUserObject( userObject );
 
         }
         else
         {
-          getChangeMapper().updateEntity( entitySchema, entity.getUserObject(), data );
+          final EntitySchema.Updater updater = entitySchema.getUpdater();
+          if ( null != updater )
+          {
+            updater.updateEntity( entity.getUserObject(), data );
+          }
         }
 
         final EntityChannel[] changeCount = change.getChannels();
@@ -933,9 +938,6 @@ abstract class Connector
       }
     }
   }
-
-  @Nonnull
-  protected abstract ChangeMapper getChangeMapper();
 
   final void validateWorld()
   {

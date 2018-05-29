@@ -12,8 +12,8 @@ public class SystemSchemaTest
   {
     final int id = ValueUtil.randomInt();
     final String name = ValueUtil.randomString();
-    final EntitySchema entity1 = new EntitySchema( 0, ValueUtil.randomString(), Integer.class );
-    final EntitySchema entity2 = new EntitySchema( 1, ValueUtil.randomString(), String.class );
+    final EntitySchema entity1 = new EntitySchema( 0, ValueUtil.randomString(), Integer.class, ( i, d ) -> 1, null );
+    final EntitySchema entity2 = new EntitySchema( 1, ValueUtil.randomString(), String.class, ( i, d ) -> "", null );
     final EntitySchema[] entities = new EntitySchema[]{ entity1, entity2 };
     final ChannelSchema channel1 = new ChannelSchema( 0,
                                                       ValueUtil.randomString(),
@@ -85,7 +85,7 @@ public class SystemSchemaTest
   @Test
   public void construct_badEntityIndex()
   {
-    final EntitySchema entity1 = new EntitySchema( 23, ValueUtil.randomString(), Integer.class );
+    final EntitySchema entity1 = new EntitySchema( 23, ValueUtil.randomString(), Integer.class, ( i, d ) -> 1, null );
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(), "X",

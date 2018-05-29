@@ -12,8 +12,6 @@ import static org.mockito.Mockito.*;
 public abstract class TestConnector
   extends Connector
 {
-  private final ChangeMapper _changeMapper = mock( ChangeMapper.class );
-
   public static TestConnector create()
   {
     return create( new SystemSchema( 1,
@@ -35,12 +33,5 @@ public abstract class TestConnector
   TestConnector( @Nullable final ReplicantContext context, @Nonnull final SystemSchema schema )
   {
     super( context, schema, mock( Transport.class ) );
-  }
-
-  @Nonnull
-  @Override
-  protected ChangeMapper getChangeMapper()
-  {
-    return _changeMapper;
   }
 }

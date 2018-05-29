@@ -10,10 +10,14 @@ public class EntitySchemaTest
   @Test
   public void construct()
   {
-    final EntitySchema entitySchema = new EntitySchema( 1, "MyObject", Object.class );
+    final EntitySchema.Creator<Object> creator = ( i, d ) -> 1;
+    final EntitySchema.Updater<Object> updater = ( o, d ) -> d.notify();
+    final EntitySchema entitySchema = new EntitySchema( 1, "MyObject", Object.class, creator, updater );
     assertEquals( entitySchema.getId(), 1 );
     assertEquals( entitySchema.getName(), "MyObject" );
     assertEquals( entitySchema.getType(), Object.class );
+    assertEquals( entitySchema.getCreator(), creator );
+    assertEquals( entitySchema.getUpdater(), updater );
     assertEquals( entitySchema.toString(), "MyObject" );
   }
 
@@ -21,7 +25,8 @@ public class EntitySchemaTest
   public void getNameWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final EntitySchema entitySchema = new EntitySchema( ValueUtil.randomInt(), null, Object.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( ValueUtil.randomInt(), null, Object.class, ( i, d ) -> 1, null );
     final IllegalStateException exception = expectThrows( IllegalStateException.class, entitySchema::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0050: EntitySchema.getName() invoked when Replicant.areNamesEnabled() is false" );
@@ -31,7 +36,8 @@ public class EntitySchemaTest
   public void toStringWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final EntitySchema entitySchema = new EntitySchema( ValueUtil.randomInt(), null, Object.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( ValueUtil.randomInt(), null, Object.class, ( i, d ) -> 1, null );
     assertEquals( entitySchema.toString(), "replicant.EntitySchema@" + Integer.toHexString( entitySchema.hashCode() ) );
   }
 
@@ -41,7 +47,7 @@ public class EntitySchemaTest
     ReplicantTestUtil.disableNames();
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> new EntitySchema( ValueUtil.randomInt(), "MyEntity", Object.class ) );
+                    () -> new EntitySchema( ValueUtil.randomInt(), "MyEntity", Object.class, ( i, d ) -> 1, null ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0049: EntitySchema passed a name 'MyEntity' but Replicant.areNamesEnabled() is false" );
   }
