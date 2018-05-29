@@ -559,7 +559,7 @@ abstract class Connector
           {
             invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
                              getSchema().getChannel( address.getChannelId() ).getFilterType(),
-                       () -> "Replicant-0076: Received ChannelChange of type UPDATE for address " + address +
+                       () -> "Replicant-0078: Received ChannelChange of type UPDATE for address " + address +
                              " but the channel does not have a DYNAMIC filter." );
           }
         }

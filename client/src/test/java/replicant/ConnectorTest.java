@@ -1646,7 +1646,7 @@ public class ConnectorTest
       expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0076: Received ChannelChange of type UPDATE for address 1.0.2223 but the channel does not have a DYNAMIC filter." );
+                  "Replicant-0078: Received ChannelChange of type UPDATE for address 1.0.2223 but the channel does not have a DYNAMIC filter." );
   }
 
   @Test
