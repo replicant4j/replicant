@@ -60,5 +60,5 @@ Some actions that should occur at some point in the future.
   - we should also start using to stop updates of filters that should not be.
   - Should create EntityMetaData and move EntitySchema.Type to it and also move factory methods for creating
     and updating userobject to it. This would allow us to eliminate `CHangeMapper`
-  - Add `ChannelMetaData` that has `FilterParameterType` and functions for `doesEntityMatchFilter`
+  - Enhance `ChannelSchema` with `FilterParameterType`
 
