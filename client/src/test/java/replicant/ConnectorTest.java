@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -292,6 +293,7 @@ public class ConnectorTest
     throws Exception
   {
     final TestConnector connector = TestConnector.create();
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -301,11 +303,17 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
+    final Field field = Connector.class.getDeclaredField( "_connection" );
+    field.setAccessible( true );
+    field.set( connector, connection );
+
     safeAction( connector::onConnected );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTED ) );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.CONNECTED ) );
+
+    verify( connector.getTransport() ).bind( connection.getTransportContext() );
   }
 
   @Test

@@ -20,6 +20,10 @@ public interface Transport
     void onError( @Nonnull Throwable error );
   }
 
+  interface Context
+  {
+  }
+
   /**
    * Perform the connection, invoking the action when connection has completed.
    *
@@ -27,6 +31,16 @@ public interface Transport
    * @param onConnectError the action to invoke if connect errors.
    */
   void connect( @Nonnull OnConnect onConnect, @Nonnull OnError onConnectError );
+
+  /**
+   * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.
+   * This method is responsible for providing the necessary context information for the Transport to
+   * communicate with the back-end. This context is no longer valid after the callbacks of the
+   * {@link #disconnect(SafeProcedure, OnError)} method are invoked.
+   *
+   * @param context the context that provides environmental data to Transport.
+   */
+  void bind( @Nonnull Context context );
 
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.

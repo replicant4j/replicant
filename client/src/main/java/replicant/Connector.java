@@ -1184,6 +1184,7 @@ public abstract class Connector
   @Action
   protected void onConnected()
   {
+    getTransport().bind( ensureConnection().getTransportContext() );
     setState( ConnectorState.CONNECTED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
