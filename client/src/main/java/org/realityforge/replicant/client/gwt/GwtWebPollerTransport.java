@@ -216,10 +216,4 @@ public abstract class GwtWebPollerTransport
     }
     return rb;
   }
-
-  @Nullable
-  protected String getAuthenticationToken()
-  {
-    return null;
-  }
 }

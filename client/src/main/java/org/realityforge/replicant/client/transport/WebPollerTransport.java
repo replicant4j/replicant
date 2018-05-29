@@ -85,6 +85,12 @@ public abstract class WebPollerTransport
 
   protected abstract String getAppBaseURL();
 
+  @Nullable
+  protected String getAuthenticationToken()
+  {
+    return null;
+  }
+
   @Nonnull
   protected final Transport.OnConnect wrapOnConnect( @Nonnull final OnConnect onConnect )
   {
