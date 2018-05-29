@@ -23,9 +23,16 @@ public interface Transport
   interface Context
   {
     /**
-     * Return the sequence of last PDU received.
+     * Return the schemaId that the transport is responsible for transporting.
      *
-     * @return the sequence of last PDU received.
+     * @return the schemaId that the transport is responsible for transporting.
+     */
+    int getSchemaId();
+
+    /**
+     * Return the sequence of the last PDU received.
+     *
+     * @return the sequence of the last PDU received.
      */
     int getLastRxSequence();
 

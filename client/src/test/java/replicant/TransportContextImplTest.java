@@ -10,6 +10,15 @@ public class TransportContextImplTest
   extends AbstractReplicantTest
 {
   @Test
+  public void getSchemaId()
+  {
+    final TestConnector connector = TestConnector.create();
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    assertEquals( context.getSchemaId(), connector.getSchema().getId() );
+  }
+
+  @Test
   public void getLastRxSequence()
   {
     final TestConnector connector = TestConnector.create();

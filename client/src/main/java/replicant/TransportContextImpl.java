@@ -28,6 +28,12 @@ final class TransportContextImpl
   }
 
   @Override
+  public int getSchemaId()
+  {
+    return _connector.getSchema().getId();
+  }
+
+  @Override
   public int getLastRxSequence()
   {
     return isDisposed() ? -1 : _connector.ensureConnection().getLastRxSequence();
