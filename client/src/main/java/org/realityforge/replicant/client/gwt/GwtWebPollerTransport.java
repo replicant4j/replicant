@@ -22,7 +22,7 @@ import replicant.SafeProcedure;
 public abstract class GwtWebPollerTransport
   extends WebPollerTransport
 {
-  public GwtWebPollerTransport( @Nonnull final ReplicantContext replicantContext, final int schemaId )
+  public GwtWebPollerTransport( @Nonnull final ReplicantContext replicantContext )
   {
     super( replicantContext );
     createWebPoller();
