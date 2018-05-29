@@ -4,6 +4,7 @@ import arez.Arez;
 import arez.annotations.ArezComponent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings( "SameParameterValue" )
@@ -15,7 +16,10 @@ public abstract class TestConnector
 
   public static TestConnector create()
   {
-    return create( TestData.ROSE_SYSTEM );
+    return create( new SystemSchema( 1,
+                                     ValueUtil.randomString(),
+                                     new ChannelSchema[ 0 ],
+                                     new EntitySchema[ 0 ] ) );
   }
 
   public static TestConnector create( @Nonnull final SystemSchema schema )

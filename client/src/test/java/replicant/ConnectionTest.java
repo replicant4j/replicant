@@ -393,7 +393,7 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
     final String requestName = ValueUtil.randomString();
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -405,7 +405,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
+      assertEquals( e.getSchemaId(), 1 );
       assertEquals( e.getRequestId(), request.getRequestId() );
       assertEquals( e.getName(), requestName );
     } );
@@ -476,7 +476,7 @@ public class ConnectionTest
   @Test
   public void completeRequest()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
     final Request request = connection.newRequest( ValueUtil.randomString() );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
@@ -493,7 +493,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
+      assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), entry.getName() );
       assertEquals( ev.isNormalCompletion(), false );
@@ -505,7 +505,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_expectingResults()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
     final Request request = connection.newRequest( ValueUtil.randomString() );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
@@ -523,7 +523,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
+      assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), entry.getName() );
       assertEquals( ev.isNormalCompletion(), true );
@@ -535,7 +535,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_resultsArrived()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
     final Request request = connection.newRequest( ValueUtil.randomString() );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
@@ -554,7 +554,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSchemaId(), TestData.ROSE_SYSTEM.getId() );
+      assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), entry.getName() );
       assertEquals( ev.isNormalCompletion(), true );
@@ -566,7 +566,7 @@ public class ConnectionTest
   @Test
   public void canGroupRequests()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress addressA = new ChannelAddress( 1, 0 );
     final ChannelAddress addressB = new ChannelAddress( 1, 1, 1 );
@@ -650,7 +650,7 @@ public class ConnectionTest
   @Test
   public void canGroupRequests_presentInCache()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
@@ -673,7 +673,7 @@ public class ConnectionTest
   @Test
   public void getCurrentAreaOfInterestRequests()
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
@@ -705,7 +705,7 @@ public class ConnectionTest
   public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = "MyFilter";
@@ -723,7 +723,7 @@ public class ConnectionTest
   public void isAreaOfInterestRequestPending_passingNonnullFilterForDelete()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = "MyFilter";
@@ -741,7 +741,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0 );
 
@@ -757,7 +757,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_requestPending()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
@@ -794,7 +794,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_currentPending()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
@@ -829,7 +829,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_jumbledAggregate()
     throws Exception
   {
-    final Connection connection = new Connection( TestConnector.create(), ValueUtil.randomString() );
+    final Connection connection = new Connection( TestConnector.create( newSchema( 1 ) ), ValueUtil.randomString() );
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );

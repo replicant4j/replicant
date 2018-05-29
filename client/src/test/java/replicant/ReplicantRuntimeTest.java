@@ -81,15 +81,18 @@ public class ReplicantRuntimeTest
   {
     final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
 
+    final SystemSchema schema = newSchema();
+
     // This connector will self-register to runtime1
-    final Connector connector1 = TestConnector.create();
+    final Connector connector1 = TestConnector.create( schema );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> runtime1.registerConnector( connector1 ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0015: Invoked registerConnector for system schema named 'Rose' but a Connector for specified schema exists." );
+                  "Replicant-0015: Invoked registerConnector for system schema named '" +
+                  schema.getName() + "' but a Connector for specified schema exists." );
   }
 
   @Test
@@ -97,15 +100,17 @@ public class ReplicantRuntimeTest
   {
     final ReplicantRuntime runtime2 = ReplicantRuntime.create();
 
+    final SystemSchema schema = newSchema();
     // This connector will self-register to runtime1
-    final Connector connector1 = TestConnector.create();
+    final Connector connector1 = TestConnector.create( schema );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> runtime2.deregisterConnector( connector1 ) ) );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0006: Invoked deregisterConnector for schema named 'Rose' but no Connector for specified schema exists." );
+                  "Replicant-0006: Invoked deregisterConnector for schema named '" +
+                  schema.getName() + "' but no Connector for specified schema exists." );
   }
 
   @Test

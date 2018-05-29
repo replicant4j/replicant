@@ -99,8 +99,9 @@ public class ConnectorTest
   public void testToString()
     throws Exception
   {
-    final TestConnector connector = TestConnector.create();
-    assertEquals( connector.toString(), "Connector[Rose]" );
+    final SystemSchema schema = newSchema();
+    final TestConnector connector = TestConnector.create( schema );
+    assertEquals( connector.toString(), "Connector[" + schema.getName() + "]" );
     ReplicantTestUtil.disableNames();
     assertEquals( connector.toString(), "replicant.Arez_TestConnector@" + Integer.toHexString( connector.hashCode() ) );
   }
