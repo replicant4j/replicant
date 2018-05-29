@@ -450,8 +450,18 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_updatePending()
   {
-    final TestConnector connector = TestConnector.create();
-    final Connection connection = newConnection( connector );
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         false,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
+    newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -476,7 +486,17 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_requestSubscriptionUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         false,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
@@ -653,13 +673,23 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         false,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
 
     final String filterOld = ValueUtil.randomString();
     final String filterNew = ValueUtil.randomString();

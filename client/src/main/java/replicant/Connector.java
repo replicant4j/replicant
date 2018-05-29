@@ -313,7 +313,13 @@ abstract class Connector
   final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
                                         @Nullable final Object filter )
   {
-    //TODO: Verify that this address is for an updateable channel
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
+                       getSchema().getChannel( address.getChannelId() ).getFilterType(),
+                 () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel " + address +
+                       " but channel does not have a dynamic filter." );
+    }
     ensureConnection().requestSubscriptionUpdate( address, filter );
     triggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )

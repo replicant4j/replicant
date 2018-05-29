@@ -1032,7 +1032,17 @@ public class ConnectorTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         true,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         false,
+                         true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
@@ -1049,6 +1059,30 @@ public class ConnectorTest
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class,
                              e -> assertEquals( e.getAddress(), address ) );
+  }
+
+  @Test
+  public void requestSubscriptionUpdate_ChannelNot_DYNAMIC_Filter()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.STATIC, null, false, true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
+    newConnection( connector );
+    connector.pauseMessageScheduler();
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+
+    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestSubscriptionUpdate( address, null ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel 1.0 but channel does not have a dynamic filter." );
   }
 
   @Test
