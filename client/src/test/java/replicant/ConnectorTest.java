@@ -1656,7 +1656,11 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update_forNonDYNAMICChannel()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, true, true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
@@ -2146,7 +2150,11 @@ public class ConnectorTest
   @Test
   public void parseMessageResponse_cacheResult()
   {
-    final TestConnector connector = TestConnector.create();
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.NONE, null, true, true );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final TestConnector connector = TestConnector.create( schema );
     final Connection connection = newConnection( connector );
 
     final Request request = connection.newRequest( "SomeAction" );
