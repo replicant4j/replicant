@@ -53,7 +53,3 @@ Some actions that should occur at some point in the future.
   - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
 
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
-
-* Remove `Connector.SystemType` and replace with reference to schema.
-  - Enhance `ChannelSchema` with `FilterParameterType`
-
