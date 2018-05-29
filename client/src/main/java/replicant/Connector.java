@@ -341,7 +341,7 @@ public abstract class Connector
    * Schedule request and response processing.
    * This method should be invoked when requests are queued or responses are received.
    */
-  private final void triggerMessageScheduler()
+  private void triggerMessageScheduler()
   {
     if ( !_schedulerActive )
     {
