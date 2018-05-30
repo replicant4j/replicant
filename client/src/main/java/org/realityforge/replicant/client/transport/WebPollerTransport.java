@@ -20,7 +20,6 @@ import org.realityforge.replicant.client.gwt.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.ChannelAddress;
 import replicant.Replicant;
-import replicant.ReplicantContext;
 import replicant.Request;
 import replicant.SafeProcedure;
 import replicant.Transport;
@@ -32,22 +31,23 @@ public abstract class WebPollerTransport
   private static final int HTTP_STATUS_CODE_OK = 200;
 
   @Nonnull
-  private final ReplicantContext _replicantContext;
+  private final WebPollerConfig _config;
   private WebPoller _webPoller;
   @Nullable
   private String _connectionId;
   @Nullable
   private Context _transportContext;
 
-  public WebPollerTransport( @Nonnull final ReplicantContext replicantContext )
+  public WebPollerTransport( @Nonnull final WebPollerConfig config )
   {
-    _replicantContext = Objects.requireNonNull( replicantContext );
+    _config = Objects.requireNonNull( config );
   }
 
   @Nonnull
-  protected ReplicantContext getReplicantContext()
+  private WebPollerConfig getConfig()
   {
-    return _replicantContext;
+    return _config;
+  }
   }
 
   @ContextRef
@@ -84,16 +84,11 @@ public abstract class WebPollerTransport
     return webPoller;
   }
 
-  @Nonnull
-  protected abstract String getEndpointOffset();
-
-  @Nonnull
-  protected abstract String getAppBaseURL();
-
   @Nullable
-  protected String getAuthenticationToken()
+  protected final String getAuthenticationToken()
   {
-    return null;
+    final Supplier<String> generator = getConfig().getAuthenticationTokenGenerator();
+    return null != generator ? generator.get() : null;
   }
 
   @Nonnull
@@ -144,15 +139,6 @@ public abstract class WebPollerTransport
   }
 
   /**
-   * Return the base url at which the replicant jaxrs resource is anchored.
-   */
-  @Nonnull
-  private String getBaseURL()
-  {
-    return getAppBaseURL() + getEndpointOffset();
-  }
-
-  /**
    * Return the url to poll for replicant data stream.
    *
    * The implementation derives the url from getBaseURL().
@@ -160,7 +146,7 @@ public abstract class WebPollerTransport
   @Nonnull
   protected String getPollURL()
   {
-    return getBaseURL() +
+    return getConfig().getBaseUrl() +
            SharedConstants.REPLICANT_URL_FRAGMENT + "?" +
            SharedConstants.RECEIVE_SEQUENCE_PARAM + "=" + ensureTransportContext().getLastRxSequence();
   }
@@ -173,7 +159,7 @@ public abstract class WebPollerTransport
   @Nonnull
   protected String getBaseConnectionURL()
   {
-    return getBaseURL() + SharedConstants.CONNECTION_URL_FRAGMENT;
+    return getConfig().getBaseUrl() + SharedConstants.CONNECTION_URL_FRAGMENT;
   }
 
   /**
