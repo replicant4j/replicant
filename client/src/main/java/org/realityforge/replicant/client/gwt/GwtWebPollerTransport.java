@@ -29,8 +29,7 @@ public abstract class GwtWebPollerTransport
   private void setupCloseHandler()
   {
     //TODO: This should be bound to ReplicantContext.deactivate and should route throgh Elemental2
-    final Window.ClosingHandler handler = event -> ensureTransportContext().disconnect();
-    Window.addWindowClosingHandler( handler );
+    Window.addWindowClosingHandler( e -> ensureTransportContext().disconnect() );
   }
 
   @Override
