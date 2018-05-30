@@ -66,7 +66,7 @@ public abstract class WebPollerTransport
   }
 
   @Nonnull
-  ReplicantContext getReplicantContext()
+  private ReplicantContext getReplicantContext()
   {
     assert null != _replicantContext;
     return _replicantContext;
