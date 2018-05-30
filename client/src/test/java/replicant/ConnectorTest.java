@@ -106,7 +106,7 @@ public class ConnectorTest
     final Connector connector = createConnector( schema );
     assertEquals( connector.toString(), "Connector[" + schema.getName() + "]" );
     ReplicantTestUtil.disableNames();
-    assertEquals( connector.toString(), "replicant.Arez_TestConnector@" + Integer.toHexString( connector.hashCode() ) );
+    assertEquals( connector.toString(), "replicant.Arez_Connector@" + Integer.toHexString( connector.hashCode() ) );
   }
 
   @Test
