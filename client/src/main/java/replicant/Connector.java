@@ -136,6 +136,7 @@ abstract class Connector
       _schedulerLock.dispose();
       _schedulerLock = null;
     }
+    getReplicantContext().getSchemaService().deregisterSchema( _schema );
   }
 
   /**

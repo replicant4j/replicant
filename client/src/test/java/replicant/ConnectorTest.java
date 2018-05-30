@@ -86,13 +86,16 @@ public class ConnectorTest
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final Connector connector = TestConnector.create();
+    final SystemSchema schema = newSchema();
+    final Connector connector = TestConnector.create( schema );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
+    assertEquals( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ), true );
 
     Disposable.dispose( connector );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
+    assertEquals( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ), false );
   }
 
   @Test
