@@ -26,6 +26,7 @@ public final class FilterUtil
   /**
    * Abstract support class with methods used by GWT.
    */
+  @SuppressWarnings( "unused" )
   private static abstract class AbstractFilterSupport
   {
     boolean filtersEqual( @Nullable final Object filter1, @Nullable final Object filter2 )
