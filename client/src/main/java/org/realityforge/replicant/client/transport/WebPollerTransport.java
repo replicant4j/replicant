@@ -1,8 +1,5 @@
 package org.realityforge.replicant.client.transport;
 
-import arez.ArezContext;
-import arez.Disposable;
-import arez.annotations.ContextRef;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +50,6 @@ public abstract class WebPollerTransport
   {
     getConfig().getRemoteCallWrapper().accept( action );
   }
-
-  @ContextRef
-  @Nonnull
-  protected abstract ArezContext context();
 
   @Override
   public void bind( @Nonnull final Context context )
@@ -204,21 +197,13 @@ public abstract class WebPollerTransport
                                        @Nonnull final SafeProcedure onDisconnect,
                                        @Nonnull final OnError onDisconnectError )
   {
-    final Disposable lock = context().pauseScheduler();
-    try
+    if ( HTTP_STATUS_CODE_OK == statusCode )
     {
-      if ( HTTP_STATUS_CODE_OK == statusCode )
-      {
-        onDisconnect.call();
-      }
-      else
-      {
-        onDisconnectError.onError( new InvalidHttpResponseException( statusCode, statusText ) );
-      }
+      onDisconnect.call();
     }
-    finally
+    else
     {
-      lock.dispose();
+      onDisconnectError.onError( new InvalidHttpResponseException( statusCode, statusText ) );
     }
   }
 
