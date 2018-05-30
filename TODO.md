@@ -54,9 +54,6 @@ Some actions that should occur at some point in the future.
 
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
-* Move the code to disconnect on window close (i.e. `Window.addWindowClosingHandler( e -> ensureTransportContext().disconnect() )`)
-  to the replicant package and make it use elemental2.
-
 * Change context to allow a method like `Disposable registerConnector(Schema, Transport)`.
   - Eliminate `TestConnector`
   - Make the tests use this new API.
