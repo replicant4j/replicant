@@ -115,9 +115,9 @@ abstract class Connector
     return new Arez_Connector( context, schema, transport );
   }
 
-  protected Connector( @Nullable final ReplicantContext context,
-                       @Nonnull final SystemSchema schema,
-                       @Nonnull final Transport transport )
+  Connector( @Nullable final ReplicantContext context,
+             @Nonnull final SystemSchema schema,
+             @Nonnull final Transport transport )
   {
     super( context );
     _schema = Objects.requireNonNull( schema );

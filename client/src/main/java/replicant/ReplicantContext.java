@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,20 @@ public final class ReplicantContext
 
   public ReplicantContext()
   {
+  }
+
+  /**
+   * Register a connector with specified schema and transport. The transport instance must be unique
+   * to this connector but the schema may be shared between multiple connectors.
+   *
+   * @param schema    the schema defining datasource.
+   * @param transport the transport.
+   */
+  @Nonnull
+  public Disposable registerConnector( @Nonnull final SystemSchema schema, @Nonnull final Transport transport )
+  {
+    final Connector connector = Connector.create( Replicant.areZonesEnabled() ? this : null, schema, transport );
+    return Disposable.asDisposable( connector );
   }
 
   /**

@@ -283,7 +283,7 @@ public class ReplicantContextTest
   {
     final SystemSchema schema = newSchema();
 
-    TestConnector.create( schema );
+    createConnector( schema );
 
     final ReplicantContext context = Replicant.context();
 
@@ -297,7 +297,7 @@ public class ReplicantContextTest
   public void setCacheService()
     throws Exception
   {
-    TestConnector.create();
+    createConnector();
 
     final ReplicantContext context = Replicant.context();
     final CacheService cacheService = mock( CacheService.class );
@@ -317,13 +317,32 @@ public class ReplicantContextTest
   public void newRequest()
     throws Exception
   {
-    final Connector connector = TestConnector.create();
+    final Connector connector = createConnector();
     newConnection( connector );
 
     final Request request = Replicant.context().newRequest( connector.getSchema().getId(), "MyAction" );
 
     assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
     assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
+  }
+
+  @Test
+  public void registerConnector()
+    throws Exception
+  {
+    safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );
+    safeAction( () -> assertEquals( Replicant.context().getSchemas().size(), 0 ) );
+
+    final Disposable disposable =
+      safeAction( () -> Replicant.context().registerConnector( newSchema(), mock( Transport.class ) ) );
+
+    safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 1 ) );
+    safeAction( () -> assertEquals( Replicant.context().getSchemas().size(), 1 ) );
+
+    disposable.dispose();
+
+    safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );
+    safeAction( () -> assertEquals( Replicant.context().getSchemas().size(), 0 ) );
   }
 
   static class A

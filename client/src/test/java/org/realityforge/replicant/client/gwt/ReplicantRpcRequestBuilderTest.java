@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
 import replicant.SystemSchema;
-import replicant.TestConnector;
 import static org.mockito.Mockito.*;
 
 public class ReplicantRpcRequestBuilderTest
@@ -21,8 +20,7 @@ public class ReplicantRpcRequestBuilderTest
   public void onSuccess()
   {
     final SystemSchema schema = newSchema();
-    final TestConnector connector = TestConnector.create( schema );
-    newConnection( connector );
+    newConnection( createConnector( schema ) );
     final replicant.Request r =
       Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 

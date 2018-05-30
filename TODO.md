@@ -54,8 +54,4 @@ Some actions that should occur at some point in the future.
 
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
-* Change context to allow a method like `Disposable registerConnector(Schema, Transport)`.
-  - Eliminate `TestConnector`
-  - Make the tests use this new API.
-
 * Introduce TransportFactory and pass that into context.

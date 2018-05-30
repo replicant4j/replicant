@@ -22,7 +22,7 @@ public class ConnectorEntryTest
   @Test
   public void basicOperation()
   {
-    final Connector connector = TestConnector.create();
+    final Connector connector = createConnector();
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     assertEquals( entry.getConnector(), connector );
     assertEquals( entry.isRequired(), true );
@@ -43,7 +43,7 @@ public class ConnectorEntryTest
   @Test
   public void optionalService()
   {
-    final ConnectorEntry entry = new ConnectorEntry( TestConnector.create(), false );
+    final ConnectorEntry entry = new ConnectorEntry( createConnector(), false );
     assertEquals( entry.isRequired(), false );
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_MILLISECOND );
   }
@@ -51,7 +51,7 @@ public class ConnectorEntryTest
   @Test
   public void flipRequiredState()
   {
-    final ConnectorEntry entry = new ConnectorEntry( TestConnector.create(), true );
+    final ConnectorEntry entry = new ConnectorEntry( createConnector(), true );
     assertEquals( entry.isRequired(), true );
     entry.setRequired( false );
     assertEquals( entry.isRequired(), false );
