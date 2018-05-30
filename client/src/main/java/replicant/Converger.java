@@ -212,8 +212,7 @@ abstract class Converger
 
         if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
-          final SystemSchema schema = getReplicantContext().getSchemaService().findById( address.getSystemId() );
-          assert null != schema;
+          final SystemSchema schema = getReplicantContext().getSchemaService().getById( address.getSystemId() );
           final ChannelSchema.FilterType filterType = schema.getChannel( address.getChannelId() ).getFilterType();
           if ( null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType )
           {
