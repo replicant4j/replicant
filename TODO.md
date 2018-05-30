@@ -57,9 +57,6 @@ Some actions that should occur at some point in the future.
 * Move the code to disconnect on window close (i.e. `Window.addWindowClosingHandler( e -> ensureTransportContext().disconnect() )`)
   to the replicant package and make it use elemental2.
 
-* Remove need to subclass `GwtWebPollerTransport` by passing configuration in, including an interceptor for remote
-  communication (i.e. token refresh).
-
 * Change context to allow a method like `Disposable registerConnector(Schema, Transport)`.
   - Eliminate `TestConnector`
   - Make the tests use this new API.
