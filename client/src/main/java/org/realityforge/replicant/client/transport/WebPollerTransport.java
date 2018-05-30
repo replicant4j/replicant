@@ -78,7 +78,9 @@ public abstract class WebPollerTransport
     }
     assert null != webPoller;
     webPoller.setLogLevel( Level.FINEST );
-    webPoller.setRequestFactory( newRequestFactory() );
+    final CancelableRequestFactory requestFactory =
+      new CancelableRequestFactory( newRequestFactory(), getConfig().getRemoteCallWrapper() );
+    webPoller.setRequestFactory( requestFactory );
     webPoller.setInterRequestDuration( 0 );
     webPoller.setListener( new ReplicantWebPollerListener() );
     return webPoller;
