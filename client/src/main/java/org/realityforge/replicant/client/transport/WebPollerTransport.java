@@ -17,6 +17,7 @@ import org.realityforge.replicant.client.gwt.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.ChannelAddress;
 import replicant.Replicant;
+import replicant.ReplicantContext;
 import replicant.Request;
 import replicant.SafeProcedure;
 import replicant.Transport;
@@ -34,6 +35,11 @@ public abstract class WebPollerTransport
   private String _connectionId;
   @Nullable
   private Context _transportContext;
+  /**
+   * The replicant context associated with the WebPoller Transport.
+   */
+  @Nullable
+  private ReplicantContext _replicantContext;
 
   public WebPollerTransport( @Nonnull final WebPollerConfig config )
   {
@@ -52,9 +58,17 @@ public abstract class WebPollerTransport
   }
 
   @Override
-  public void bind( @Nonnull final Context context )
+  public void bind( @Nonnull final Context transportContext, @Nonnull final ReplicantContext replicantContext )
   {
-    _transportContext = context;
+    _transportContext = Objects.requireNonNull( transportContext );
+    _replicantContext = Objects.requireNonNull( replicantContext );
+  }
+
+  @Nonnull
+  ReplicantContext getReplicantContext()
+  {
+    assert null != _replicantContext;
+    return _replicantContext;
   }
 
   @Nonnull
@@ -302,7 +316,7 @@ public abstract class WebPollerTransport
   @Nonnull
   private Request newRequest( @Nullable final String requestKey )
   {
-    return getConfig().getReplicantContext().newRequest( ensureTransportContext().getSchemaId(), requestKey );
+    return getReplicantContext().newRequest( ensureTransportContext().getSchemaId(), requestKey );
   }
 
   @Override

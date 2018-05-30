@@ -72,7 +72,7 @@ public interface Transport
    *
    * @param context the context that provides environmental data to Transport.
    */
-  void bind( @Nonnull Context context );
+  void bind( @Nonnull Context context, @Nonnull ReplicantContext replicantContext );
 
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.
