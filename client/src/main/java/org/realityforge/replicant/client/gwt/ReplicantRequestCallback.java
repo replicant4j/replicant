@@ -7,13 +7,13 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.shared.SharedConstants;
 
-public class ReplicantRequestCallback
+class ReplicantRequestCallback
   implements RequestCallback
 {
   private final replicant.Request _r;
   private final RequestCallback _callback;
 
-  public ReplicantRequestCallback( @Nonnull final replicant.Request r, @Nonnull final RequestCallback callback )
+  ReplicantRequestCallback( @Nonnull final replicant.Request r, @Nonnull final RequestCallback callback )
   {
     _r = Objects.requireNonNull( r );
     _callback = Objects.requireNonNull( callback );
