@@ -28,7 +28,7 @@ final class SchemaService
   @Nonnull
   Collection<SystemSchema> getSchemas()
   {
-    return CollectionsUtil.wrap( schemas().values() );
+    return CollectionsUtil.wrap( _schemas.values() );
   }
 
   /**
@@ -90,16 +90,5 @@ final class SchemaService
                        " but no such schema exists." );
     }
     _schemas.remove( schemaId );
-  }
-
-  /**
-   * Return the schemas.
-   *
-   * @return the underlying entities.
-   */
-  @Nonnull
-  Map<Integer, SystemSchema> schemas()
-  {
-    return _schemas;
   }
 }
