@@ -58,7 +58,7 @@ public abstract class WebPollerTransport
   }
 
   @Nonnull
-  protected final Context ensureTransportContext()
+  private Context ensureTransportContext()
   {
     assert null != _transportContext;
     return _transportContext;
