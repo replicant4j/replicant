@@ -7,10 +7,12 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.shared.SharedConstants;
 
-class ReplicantRequestCallback
+final class ReplicantRequestCallback
   implements RequestCallback
 {
+  @Nonnull
   private final replicant.Request _r;
+  @Nonnull
   private final RequestCallback _callback;
 
   ReplicantRequestCallback( @Nonnull final replicant.Request r, @Nonnull final RequestCallback callback )
@@ -26,32 +28,19 @@ class ReplicantRequestCallback
     if ( Response.SC_OK == statusCode )
     {
       final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
-      _r.onSuccess( messageComplete, () -> {
-        if ( null != _callback )
-        {
-          _callback.onResponseReceived( request, response );
-        }
-      } );
+      _r.onSuccess( messageComplete, () -> _callback.onResponseReceived( request, response ) );
     }
     else
     {
-      _r.onFailure( () -> {
-        if ( null != _callback )
-        {
-          _callback.onError( request, new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
-        }
-      } );
+      final InvalidHttpResponseException error =
+        new InvalidHttpResponseException( statusCode, response.getStatusText() );
+      _r.onFailure( () -> _callback.onError( request, error ) );
     }
   }
 
   @Override
   public void onError( final Request request, final Throwable exception )
   {
-    _r.onFailure( () -> {
-      if ( null != _callback )
-      {
-        _callback.onError( request, exception );
-      }
-    } );
+    _r.onFailure( () -> _callback.onError( request, exception ) );
   }
 }
