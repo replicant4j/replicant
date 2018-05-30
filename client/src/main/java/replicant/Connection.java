@@ -116,11 +116,11 @@ final class Connection
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
   }
 
-  private void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress descriptor,
+  private void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress address,
                                              @Nonnull final AreaOfInterestRequest.Type action,
                                              @Nullable final Object filter )
   {
-    _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( descriptor, action, filter ) );
+    _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( address, action, filter ) );
   }
 
   void enqueueResponse( @Nonnull final String rawJsonData )
