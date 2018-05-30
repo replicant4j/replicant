@@ -4,10 +4,6 @@ require 'buildr/gwt'
 require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
-GUICE_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :javax_inject]
-DAGGER_GWT_DEPS = [:javax_inject, :javax_inject_sources, :dagger_core, :dagger_core_sources, :dagger_gwt]
-DAGGER_COMPILER_DEPS = [:javax_inject, :dagger_core, :dagger_producers, :dagger_spi, :dagger_compiler, :googlejavaformat, :errorprone_javac, :javapoet, :guava]
-
 REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
 
 AREZ_DEPS = [
@@ -75,16 +71,13 @@ define 'replicant' do
 
     project.processorpath << :react4j_processor
     project.processorpath << :arez_processor
-    project.processorpath << [DAGGER_COMPILER_DEPS]
 
     compile.with project('shared').package(:jar),
                  project('shared').compile.dependencies,
                  :gwt_webpoller,
-                 :javax_inject,
                  GWT_DEPS,
                  REACT4J_DEPS,
                  AREZ_DEPS,
-                 DAGGER_GWT_DEPS,
                  # javax_javaee is provided so that JSON parsing can occur for JRE variant.
                  :javax_javaee
 
