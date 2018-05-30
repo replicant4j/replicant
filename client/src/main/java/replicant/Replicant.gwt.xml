@@ -1,6 +1,5 @@
 <module>
   <inherits name='arez.component.Component'/>
-  <inherits name='dagger.Dagger'/>
 
   <!-- This is required while the browser ConsoleSpyEvent is present -->
   <inherits name='elemental2.dom.Dom'/>
