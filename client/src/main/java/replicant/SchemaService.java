@@ -1,8 +1,5 @@
 package replicant;
 
-import arez.annotations.ArezComponent;
-import arez.annotations.Observable;
-import arez.annotations.ObservableRef;
 import arez.component.CollectionsUtil;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,14 +11,13 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The container of all schemas.
  */
-@ArezComponent
-abstract class SchemaService
+final class SchemaService
 {
   private final Map<Integer, SystemSchema> _schemas = new HashMap<>();
 
   static SchemaService create()
   {
-    return new Arez_SchemaService();
+    return new SchemaService();
   }
 
   /**
@@ -44,7 +40,6 @@ abstract class SchemaService
   @Nullable
   SystemSchema findById( final int schemaId )
   {
-    getSchemasObservable().reportObserved();
     return _schemas.get( schemaId );
   }
 
@@ -68,18 +63,6 @@ abstract class SchemaService
   }
 
   /**
-   * Return true if the specified schema is contained in the container.
-   *
-   * @param schema the schema.
-   * @return true if the specified schema is contained in the container, false otherwise.
-   */
-  final boolean contains( @Nonnull final SystemSchema schema )
-  {
-    getSchemasObservable().reportObserved();
-    return _schemas.containsKey( schema.getId() );
-  }
-
-  /**
    * Register specified schema in list of schemas managed by the container.
    * The schema should NOT already be registered in service.
    *
@@ -94,26 +77,26 @@ abstract class SchemaService
                  () -> "Replicant-0070: Attempted to register schema with id " + schemaId +
                        " when a schema with id already exists: " + _schemas.get( schemaId ) );
     }
-    getSchemasObservable().preReportChanged();
     _schemas.put( schemaId, schema );
-    getSchemasObservable().reportChanged();
   }
 
-  /**
-   * Return the observable associated with schemas.
-   *
-   * @return the Arez observable associated with schemas observable property.
-   */
-  @ObservableRef
-  @Nonnull
-  abstract arez.Observable getSchemasObservable();
+  final void deregisterSchema( @Nonnull final SystemSchema schema )
+  {
+    final int schemaId = schema.getId();
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> _schemas.containsKey( schemaId ),
+                 () -> "Replicant-0085: Attempted to deregister schema with id " + schemaId +
+                       " but no such schema exists." );
+    }
+    _schemas.remove( schemaId );
+  }
 
   /**
    * Return the schemas.
    *
    * @return the underlying entities.
    */
-  @Observable( expectSetter = false )
   @Nonnull
   Map<Integer, SystemSchema> schemas()
   {

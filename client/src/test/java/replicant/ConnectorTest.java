@@ -70,7 +70,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
     assertEquals( connector.getReplicantRuntime(), runtime );
-    safeAction( () -> assertEquals( connector.getReplicantContext().getSchemaService().contains( schema ), true ) );
+    assertEquals( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ), true );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 

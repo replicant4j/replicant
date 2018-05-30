@@ -1,6 +1,5 @@
 package replicant;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -17,44 +16,22 @@ public class SchemaServiceTest
     final SystemSchema schema1 =
       new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
 
-    final AtomicInteger findById1CallCount = new AtomicInteger();
-    autorun( () -> {
-      service.findById( schemaId1 );
-      findById1CallCount.incrementAndGet();
-    } );
+    assertNull( service.findById( schemaId1 ) );
+    assertEquals( service.getSchemas().size(), 0 );
+    assertEquals( service.getSchemas().contains( schema1 ), false );
 
-    final AtomicInteger contains1CallCount = new AtomicInteger();
-    autorun( () -> {
-      service.findById( schemaId1 );
-      contains1CallCount.incrementAndGet();
-    } );
+    service.registerSchema( schema1 );
 
-    final AtomicInteger getSchemasCallCount = new AtomicInteger();
-    autorun( () -> {
-      service.getSchemas();
-      getSchemasCallCount.incrementAndGet();
-    } );
+    assertEquals( service.findById( schemaId1 ), schema1 );
+    assertEquals( service.getById( schemaId1 ), schema1 );
+    assertEquals( service.getSchemas().size(), 1 );
+    assertEquals( service.getSchemas().contains( schema1 ), true );
 
-    assertEquals( findById1CallCount.get(), 1 );
-    assertEquals( contains1CallCount.get(), 1 );
-    assertEquals( getSchemasCallCount.get(), 1 );
+    service.deregisterSchema( schema1 );
 
-    safeAction( () -> assertNull( service.findById( schemaId1 ) ) );
-    safeAction( () -> assertEquals( service.getSchemas().size(), 0 ) );
-    safeAction( () -> assertEquals( service.getSchemas().contains( schema1 ), false ) );
-    safeAction( () -> assertEquals( service.contains( schema1 ), false ) );
-
-    safeAction( () -> service.registerSchema( schema1 ) );
-
-    assertEquals( findById1CallCount.get(), 2 );
-    assertEquals( contains1CallCount.get(), 2 );
-    assertEquals( getSchemasCallCount.get(), 2 );
-
-    safeAction( () -> assertEquals( service.findById( schemaId1 ), schema1 ) );
-    safeAction( () -> assertEquals( service.getById( schemaId1 ), schema1 ) );
-    safeAction( () -> assertEquals( service.getSchemas().size(), 1 ) );
-    safeAction( () -> assertEquals( service.getSchemas().contains( schema1 ), true ) );
-    safeAction( () -> assertEquals( service.contains( schema1 ), true ) );
+    assertNull( service.findById( schemaId1 ) );
+    assertEquals( service.getSchemas().size(), 0 );
+    assertEquals( service.getSchemas().contains( schema1 ), false );
   }
 
   @Test
@@ -68,11 +45,27 @@ public class SchemaServiceTest
     final SystemSchema schema2 =
       new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
 
-    safeAction( () -> service.registerSchema( schema1 ) );
+    service.registerSchema( schema1 );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> safeAction( () -> service.registerSchema( schema2 ) ) );
-    assertEquals( exception.getMessage(), "Replicant-0070: Attempted to register schema with id 100 when a schema with id already exists: MySchema1" );
+      expectThrows( IllegalStateException.class, () -> service.registerSchema( schema2 ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0070: Attempted to register schema with id 100 when a schema with id already exists: MySchema1" );
+  }
+
+  @Test
+  public void deregisterSchema_missing()
+  {
+    final SchemaService service = SchemaService.create();
+
+    final int schemaId1 = 100;
+    final SystemSchema schema2 =
+      new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> service.deregisterSchema( schema2 ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0085: Attempted to deregister schema with id 100 but no such schema exists." );
   }
 
   @Test
@@ -81,7 +74,7 @@ public class SchemaServiceTest
     final SchemaService service = SchemaService.create();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> safeAction( () -> service.getById( 23 ) ) );
+      expectThrows( IllegalStateException.class, () -> service.getById( 23 ) );
     assertEquals( exception.getMessage(), "Replicant-0059: Unable to locate SystemSchema with id 23" );
   }
 }
