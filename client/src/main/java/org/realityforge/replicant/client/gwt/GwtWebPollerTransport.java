@@ -16,7 +16,7 @@ import org.realityforge.replicant.client.transport.WebPollerTransport;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.SafeProcedure;
 
-public abstract class GwtWebPollerTransport
+public final class GwtWebPollerTransport
   extends WebPollerTransport
 {
   public GwtWebPollerTransport( @Nonnull final WebPollerConfig config )
