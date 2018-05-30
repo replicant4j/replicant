@@ -3,6 +3,7 @@ package replicant;
 import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
+import arez.annotations.ArezComponent;
 import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
@@ -48,6 +49,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The Connector is responsible for managing a Connection to a backend datasource.
  */
+@ArezComponent
 abstract class Connector
   extends ReplicantService
 {
@@ -104,6 +106,14 @@ abstract class Connector
    */
   @Nullable
   private SafeProcedure _postMessageResponseAction;
+
+  @Nonnull
+  static Connector create( @Nullable final ReplicantContext context,
+                           @Nonnull final SystemSchema schema,
+                           @Nonnull final Transport transport )
+  {
+    return new Arez_Connector( context, schema, transport );
+  }
 
   protected Connector( @Nullable final ReplicantContext context,
                        @Nonnull final SystemSchema schema,
