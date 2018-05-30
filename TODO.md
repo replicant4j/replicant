@@ -3,9 +3,6 @@
 Some actions that should occur at some point in the future.
 
 * Change should take a ChannelDescriptor as a parameter.
-* The Client/Server communication should be over generic interface and avoid generating typed
-  interfaces via domgen. i.e. Eliminate sub-classing of ReplicantSessionManagerImpl by using
-  generic interface. The remaining custom code can be moved to a context class.
 * Consolidate some of the common code across server and client libraries. i.e.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
   - Stop domgen generating XMessageConstants and use generated ChannelMetaData data.
