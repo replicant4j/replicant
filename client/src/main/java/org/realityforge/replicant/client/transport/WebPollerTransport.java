@@ -48,6 +48,10 @@ public abstract class WebPollerTransport
   {
     return _config;
   }
+
+  private void remote( @Nonnull final Runnable action )
+  {
+    getConfig().getRemoteCallWrapper().accept( action );
   }
 
   @ContextRef
@@ -307,13 +311,13 @@ public abstract class WebPollerTransport
                                 @Nonnull final Consumer<Throwable> onError )
   {
     final Request request = newRequest( toRequestKey( "Subscribe", address ) );
-    doSubscribe( request, filter, getChannelURL( address ), null, onSuccess, null, onError );
+    remote( () -> doSubscribe( request, filter, getChannelURL( address ), null, onSuccess, null, onError ) );
   }
 
   @Nonnull
   private Request newRequest( @Nullable final String requestKey )
   {
-    return getReplicantContext().newRequest( ensureTransportContext().getSchemaId(), requestKey );
+    return getConfig().getReplicantContext().newRequest( ensureTransportContext().getSchemaId(), requestKey );
   }
 
   @Override
@@ -325,7 +329,7 @@ public abstract class WebPollerTransport
                                 @Nonnull final Consumer<Throwable> onError )
   {
     final Request request = newRequest( toRequestKey( "Subscribe", address ) );
-    doSubscribe( request, filter, getChannelURL( address ), eTag, onSuccess, onCacheValid, onError );
+    remote( () -> doSubscribe( request, filter, getChannelURL( address ), eTag, onSuccess, onCacheValid, onError ) );
   }
 
   @Override
@@ -335,7 +339,7 @@ public abstract class WebPollerTransport
                                     @Nonnull final Consumer<Throwable> onError )
   {
     final Request request = newRequest( toRequestKey( "BulkSubscribe", addresses ) );
-    doSubscribe( request, filter, getChannelURL( addresses ), null, onSuccess, null, onError );
+    remote( () -> doSubscribe( request, filter, getChannelURL( addresses ), null, onSuccess, null, onError ) );
   }
 
   @Override
@@ -346,7 +350,7 @@ public abstract class WebPollerTransport
   {
     final Request request =
       newRequest( toRequestKey( "SubscriptionUpdate", address ) );
-    doSubscribe( request, filter, getChannelURL( address ), null, onSuccess, null, onError );
+    remote( () -> doSubscribe( request, filter, getChannelURL( address ), null, onSuccess, null, onError ) );
   }
 
   @Override
@@ -357,7 +361,7 @@ public abstract class WebPollerTransport
   {
     final Request request =
       newRequest( toRequestKey( "BulkSubscriptionUpdate", addresses ) );
-    doSubscribe( request, filter, getChannelURL( addresses ), null, onSuccess, null, onError );
+    remote( () -> doSubscribe( request, filter, getChannelURL( addresses ), null, onSuccess, null, onError ) );
   }
 
   @Override
@@ -366,7 +370,7 @@ public abstract class WebPollerTransport
                                   @Nonnull final Consumer<Throwable> onError )
   {
     final Request request = newRequest( toRequestKey( "Unsubscribe", address ) );
-    doUnsubscribe( request, getChannelURL( address ), onSuccess, onError );
+    remote( () -> doUnsubscribe( request, getChannelURL( address ), onSuccess, onError ) );
   }
 
   @Override
@@ -375,7 +379,7 @@ public abstract class WebPollerTransport
                                       @Nonnull final Consumer<Throwable> onError )
   {
     final Request request = newRequest( toRequestKey( "BulkUnsubscribe", addresses ) );
-    doUnsubscribe( request, getChannelURL( addresses ), onSuccess, onError );
+    remote( () -> doUnsubscribe( request, getChannelURL( addresses ), onSuccess, onError ) );
   }
 
   protected abstract void doSubscribe( @Nonnull Request request,
