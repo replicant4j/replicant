@@ -108,7 +108,7 @@ public abstract class Entity
     return _userObject;
   }
 
-  public void setUserObject( @Nullable final Object userObject )
+  void setUserObject( @Nullable final Object userObject )
   {
     _userObject = userObject;
   }
