@@ -44,6 +44,7 @@ final class ChangeSetParser
    */
   static abstract class AbstractChangeSetParserSupport
   {
+    @SuppressWarnings( "unused" )
     @Nonnull
     ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
     {
