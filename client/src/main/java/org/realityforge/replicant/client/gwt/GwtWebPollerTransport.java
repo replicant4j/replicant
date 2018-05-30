@@ -5,7 +5,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import elemental2.core.Global;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -23,13 +22,6 @@ public abstract class GwtWebPollerTransport
   public GwtWebPollerTransport( @Nonnull final WebPollerConfig config )
   {
     super( config );
-    setupCloseHandler();
-  }
-
-  private void setupCloseHandler()
-  {
-    //TODO: This should be bound to ReplicantContext.deactivate and should route throgh Elemental2
-    Window.addWindowClosingHandler( e -> ensureTransportContext().disconnect() );
   }
 
   @Override
