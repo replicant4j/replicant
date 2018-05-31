@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client;
 
 import arez.component.NoSuchEntityException;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -14,7 +13,7 @@ public interface EntityLocator
   @Nonnull
   default <T> T getByID( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
-    final T entity = findByID( type, id );
+    final T entity = findById( type, id );
     if ( null == entity )
     {
       throw new NoSuchEntityException( id );
@@ -31,5 +30,5 @@ public interface EntityLocator
    * @return the entity or null if no such entity.
    */
   @Nullable
-  <T> T findByID( @Nonnull Class<T> type, @Nonnull Object id );
+  <T> T findById( @Nonnull Class<T> type, @Nonnull Object id );
 }
