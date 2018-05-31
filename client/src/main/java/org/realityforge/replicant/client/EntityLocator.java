@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 public interface EntityLocator
 {
   @Nonnull
-  default <T> T getByID( @Nonnull final Class<T> type, @Nonnull final Object id )
+  default <T> T getById( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     final T entity = findById( type, id );
     if ( null == entity )
