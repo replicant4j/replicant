@@ -1118,7 +1118,7 @@ public class ConnectorTest
   @Test
   public void updateSubscriptionForFilteredEntities()
   {
-    final SubscriptionUpdateEntityFilter filter = ( f, entity ) -> entity.getId() > 0;
+    final SubscriptionUpdateEntityFilter<?> filter = ( f, entity ) -> entity.getId() > 0;
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, filter, true, true );
     final SystemSchema schema =
@@ -1618,7 +1618,7 @@ public class ConnectorTest
   @Test
   public void processChannelChanges_update()
   {
-    final SubscriptionUpdateEntityFilter filter = mock( SubscriptionUpdateEntityFilter.class );
+    final SubscriptionUpdateEntityFilter<?> filter = mock( SubscriptionUpdateEntityFilter.class );
     final ChannelSchema channelSchema =
       new ChannelSchema( 0, ValueUtil.randomString(), true, ChannelSchema.FilterType.DYNAMIC, filter, true, true );
     final EntitySchema entitySchema =

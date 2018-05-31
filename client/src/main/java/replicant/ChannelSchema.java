@@ -47,7 +47,7 @@ public final class ChannelSchema
    * {@link FilterType#DYNAMIC}.
    */
   @Nullable
-  private final SubscriptionUpdateEntityFilter _filter;
+  private final SubscriptionUpdateEntityFilter<?> _filter;
   /**
    * A flag indicating whether the results of the channel can be cached.
    */
@@ -62,7 +62,7 @@ public final class ChannelSchema
                         @Nullable final String name,
                         final boolean typeChannel,
                         @Nonnull final FilterType filterType,
-                        @Nullable final SubscriptionUpdateEntityFilter filter,
+                        @Nullable final SubscriptionUpdateEntityFilter<?> filter,
                         final boolean cacheable,
                         final boolean external )
   {
@@ -154,7 +154,7 @@ public final class ChannelSchema
    * @return the hook to filter entities.
    */
   @Nullable
-  public SubscriptionUpdateEntityFilter getFilter()
+  public SubscriptionUpdateEntityFilter<?> getFilter()
   {
     return _filter;
   }

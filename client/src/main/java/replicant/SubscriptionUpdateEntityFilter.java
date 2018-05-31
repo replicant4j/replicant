@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
  * as a result of a filter change. Each channel with a {@link replicant.ChannelSchema.FilterType#DYNAMIC}
  * filter type must be associated with a filter of this type.
  */
-public interface SubscriptionUpdateEntityFilter
+public interface SubscriptionUpdateEntityFilter<T>
 {
   /**
    * Return true if specified entity is matched by the channel designated filter.
@@ -18,5 +18,5 @@ public interface SubscriptionUpdateEntityFilter
    * @param filter the filter.
    * @param entity the entity to match.
    */
-  boolean doesEntityMatchFilter( @Nullable Object filter, @Nonnull Entity entity );
+  boolean doesEntityMatchFilter( @Nullable T filter, @Nonnull Entity entity );
 }

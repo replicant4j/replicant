@@ -607,6 +607,7 @@ abstract class Connector
    *
    * @param subscription the subscription that was updated.
    */
+  @SuppressWarnings( "unchecked" )
   final void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
   {
     final ChannelAddress address = subscription.getAddress();
