@@ -17,7 +17,7 @@ public final class EntitySchema
    * @param <T> the type of the entity.
    */
   @FunctionalInterface
-  interface Creator<T>
+  public interface Creator<T>
   {
     /**
      * Create entity from supplied entity data.
