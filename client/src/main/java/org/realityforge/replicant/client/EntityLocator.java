@@ -32,14 +32,4 @@ public interface EntityLocator
    */
   @Nullable
   <T> T findByID( @Nonnull Class<T> type, @Nonnull Object id );
-
-  /**
-   * Return all entities of a specific type.
-   *
-   * @param type the type of the entity.
-   * @param <T>  the entity type.
-   * @return the entities.
-   */
-  @Nonnull
-  <T> List<T> findAll( @Nonnull Class<T> type );
 }

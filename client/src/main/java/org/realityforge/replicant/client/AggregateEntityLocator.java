@@ -1,7 +1,6 @@
 package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
@@ -45,20 +44,5 @@ public class AggregateEntityLocator
       }
     }
     return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  @Override
-  public <T> List<T> findAll( @Nonnull final Class<T> type )
-  {
-    final ArrayList<T> results = new ArrayList<>();
-    for ( final EntityLocator entityLocator : _entityLocators )
-    {
-      results.addAll( entityLocator.findAll( type ) );
-    }
-    return results;
   }
 }
