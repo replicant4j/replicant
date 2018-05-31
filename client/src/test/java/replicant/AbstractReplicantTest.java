@@ -143,7 +143,7 @@ public abstract class AbstractReplicantTest
 
   @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
   @Nonnull
-  protected final Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
+  private Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
   {
     Class<?> clazz = type;
     while ( null != clazz && Object.class != clazz )
