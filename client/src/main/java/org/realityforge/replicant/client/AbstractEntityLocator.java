@@ -30,7 +30,7 @@ public abstract class AbstractEntityLocator
    */
   @Nullable
   @Override
-  public final <T> T findByID( @Nonnull final Class<T> type, @Nonnull final Object id )
+  public final <T> T findById( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     final Function<Object, ?> function = _findByIdFunctions.get( type );
     if ( null != function )

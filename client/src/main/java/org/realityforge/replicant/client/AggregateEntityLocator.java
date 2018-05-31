@@ -33,11 +33,11 @@ public class AggregateEntityLocator
    */
   @Nullable
   @Override
-  public final <T> T findByID( @Nonnull final Class<T> type, @Nonnull final Object id )
+  public final <T> T findById( @Nonnull final Class<T> type, @Nonnull final Object id )
   {
     for ( final EntityLocator entityLocator : _entityLocators )
     {
-      final T entity = entityLocator.findByID( type, id );
+      final T entity = entityLocator.findById( type, id );
       if ( null != entity )
       {
         return entity;

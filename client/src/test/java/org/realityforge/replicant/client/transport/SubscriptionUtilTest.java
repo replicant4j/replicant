@@ -13,7 +13,7 @@ public class SubscriptionUtilTest
 
     {
       reset( r.getEntityLocator() );
-      when( r.getEntityLocator().findByID( String.class, 1 ) ).thenReturn( null );
+      when( r.getEntityLocator().findById( String.class, 1 ) ).thenReturn( null );
 
       final List<Object> list =
         r.instanceSubscriptionToValues( String.class, 1, Stream::of ).
@@ -25,7 +25,7 @@ public class SubscriptionUtilTest
       final String entity2 = ValueUtil.randomString();
 
       reset( r.getEntityLocator() );
-      when( r.getEntityLocator().findByID( String.class, 2 ) ).thenReturn( entity2 );
+      when( r.getEntityLocator().findById( String.class, 2 ) ).thenReturn( entity2 );
 
       final List<Object> list =
         r.instanceSubscriptionToValues( String.class, 2, Stream::of ).
