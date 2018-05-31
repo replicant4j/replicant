@@ -195,7 +195,10 @@ public abstract class AbstractReplicantTest
   {
     final ChannelSchema[] channels = new ChannelSchema[ 0 ];
     final EntitySchema[] entities = new EntitySchema[ 0 ];
-    return new SystemSchema( schemaId, ValueUtil.randomString(), channels, entities );
+    return new SystemSchema( schemaId,
+                             replicant.Replicant.areNamesEnabled() ? ValueUtil.randomString() : null,
+                             channels,
+                             entities );
   }
 
   protected final Connector createConnector()
