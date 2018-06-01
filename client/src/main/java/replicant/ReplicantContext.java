@@ -13,14 +13,21 @@ import static org.realityforge.braincheck.Guards.*;
  */
 public final class ReplicantContext
 {
+  @Nonnull
   private final AreaOfInterestService _areaOfInterestService =
     AreaOfInterestService.create( Replicant.areZonesEnabled() ? this : null );
+  @Nonnull
   private final EntityService _entityService = EntityService.create( Replicant.areZonesEnabled() ? this : null );
+  @Nonnull
   private final SubscriptionService _subscriptionService =
     SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
+  @Nonnull
   private final ReplicantRuntime _runtime = ReplicantRuntime.create();
+  @Nonnull
   private final Converger _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
+  @Nonnull
   private final Validator _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
+  @Nonnull
   private final SchemaService _schemaService = SchemaService.create();
   /**
    * Service responsible for caching data to avoid hitting the network during requests.
