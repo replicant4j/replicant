@@ -78,7 +78,7 @@ public class EntityChannel
 
   @JsOverlay
   @Nonnull
-  public ChannelAddress toAddress( final int schemaId )
+  public final ChannelAddress toAddress( final int schemaId )
   {
     final Integer scid = hasSubChannelId() ? getSubChannelId() : null;
     return new ChannelAddress( schemaId, getId(), scid );
