@@ -28,6 +28,7 @@ abstract class ReplicantRuntime
   private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();
   private boolean _active = true;
 
+  @Nonnull
   static ReplicantRuntime create()
   {
     return new Arez_ReplicantRuntime();
