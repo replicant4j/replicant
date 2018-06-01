@@ -34,7 +34,8 @@ abstract class ReplicantRuntime
     return new Arez_ReplicantRuntime();
   }
 
-  final void registerConnector( @Nonnull final Connector connector )
+  @Action
+  void registerConnector( @Nonnull final Connector connector )
   {
     if ( Replicant.shouldCheckInvariants() )
     {

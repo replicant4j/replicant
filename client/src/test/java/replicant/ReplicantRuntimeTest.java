@@ -53,7 +53,7 @@ public class ReplicantRuntimeTest
     assertEquals( callCount2.get(), 1 );
 
     // Manually register to runtime2  - never happens in app but useful during testing
-    safeAction( () -> runtime2.registerConnector( connector1 ) );
+    runtime2.registerConnector( connector1 );
 
     safeAction( () -> assertEquals( runtime1.getConnectors().size(), 1 ) );
     safeAction( () -> assertEquals( runtime2.getConnectors().size(), 1 ) );
@@ -88,7 +88,7 @@ public class ReplicantRuntimeTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> runtime1.registerConnector( connector1 ) ) );
+                    () -> runtime1.registerConnector( connector1 ) );
 
     assertEquals( exception.getMessage(),
                   "Replicant-0015: Invoked registerConnector for system schema named '" +
