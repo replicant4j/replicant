@@ -208,10 +208,9 @@ public class ReplicantContextTest
     throws Exception
   {
     ReplicantTestUtil.disableSpies();
+    ReplicantTestUtil.resetState();
 
-    final ReplicantContext context = new ReplicantContext();
-
-    assertEquals( expectThrows( IllegalStateException.class, context::getSpy ).getMessage(),
+    assertEquals( expectThrows( IllegalStateException.class, Replicant.context()::getSpy ).getMessage(),
                   "Replicant-0021: Attempting to get Spy but spies are not enabled." );
   }
 
@@ -219,7 +218,7 @@ public class ReplicantContextTest
   public void getSpy()
     throws Exception
   {
-    final ReplicantContext context = new ReplicantContext();
+    final ReplicantContext context = Replicant.context();
 
     assertFalse( context.willPropagateSpyEvents() );
 
