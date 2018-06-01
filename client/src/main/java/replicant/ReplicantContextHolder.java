@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Arez;
 import arez.Disposable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,7 +14,25 @@ import org.realityforge.anodoc.TestOnly;
 final class ReplicantContextHolder
 {
   @Nullable
-  private static ReplicantContext c_context = Replicant.areZonesEnabled() ? null : new ReplicantContext();
+  private static ReplicantContext c_context;
+
+  static
+  {
+    // Instantiating the replicant context as part of the <clinit>
+    // can result in scheduler being activated and in a GWT context
+    // this may result in the converger executing and trying to reference
+    // c_context before it has been initialized. Pausing the scheduler
+    // works around this problem
+    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    try
+    {
+      c_context = Replicant.areZonesEnabled() ? null : new ReplicantContext();
+    }
+    finally
+    {
+      schedulerLock.dispose();
+    }
+  }
 
   private ReplicantContextHolder()
   {
