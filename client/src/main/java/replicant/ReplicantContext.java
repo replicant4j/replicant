@@ -33,7 +33,7 @@ public final class ReplicantContext
   @Nullable
   private final SpyImpl _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
 
-  public ReplicantContext()
+  ReplicantContext()
   {
   }
 
