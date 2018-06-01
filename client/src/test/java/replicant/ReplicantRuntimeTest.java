@@ -98,11 +98,13 @@ public class ReplicantRuntimeTest
   @Test
   public void deregisterWhenNoRegistered()
   {
-    final ReplicantRuntime runtime2 = ReplicantRuntime.create();
+    final ReplicantRuntime runtime2 = Replicant.context().getRuntime();
 
     final SystemSchema schema = newSchema();
     // This connector will self-register to runtime1
     final Connector connector1 = createConnector( schema );
+
+    safeAction( () -> runtime2.deregisterConnector( connector1 ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
