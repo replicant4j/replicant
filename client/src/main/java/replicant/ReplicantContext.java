@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Arez;
 import arez.Disposable;
 import java.util.Collection;
 import java.util.List;
@@ -54,8 +55,11 @@ public final class ReplicantContext
   @Nonnull
   public Disposable registerConnector( @Nonnull final SystemSchema schema, @Nonnull final Transport transport )
   {
-    final Connector connector = Connector.create( Replicant.areZonesEnabled() ? this : null, schema, transport );
-    return Disposable.asDisposable( connector );
+    final String name = Arez.areNamesEnabled() ? "ReplicantContext.registerConnector" : null;
+    return Arez.context().safeAction( name, true, () -> {
+      final Connector connector = Connector.create( Replicant.areZonesEnabled() ? this : null, schema, transport );
+      return Disposable.asDisposable( connector );
+    } );
   }
 
   /**
