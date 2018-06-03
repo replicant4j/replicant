@@ -164,6 +164,7 @@ public abstract class AbstractReplicantTest
   }
 
   @SuppressWarnings( "SameParameterValue" )
+  @Nullable
   final Object getFieldValue( @Nonnull final Object object, @Nonnull final String fieldName )
   {
     try
@@ -201,6 +202,7 @@ public abstract class AbstractReplicantTest
                              entities );
   }
 
+  @Nonnull
   protected final Connector createConnector()
   {
     return createConnector( newSchema( 1 ) );
