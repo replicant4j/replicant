@@ -43,6 +43,7 @@ public class AreaOfInterestTest
   @Test
   public void notifications()
   {
+    createConnector( newSchema( 1 ) );
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
@@ -99,12 +100,8 @@ public class AreaOfInterestTest
     safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
-    safeAction( () -> {
-      final SubscriptionService subscriptionService = SubscriptionService.create( null );
-      final Subscription subscription =
-        subscriptionService.createSubscription( areaOfInterest.getAddress(), areaOfInterest.getFilter(), true );
-      areaOfInterest.setSubscription( subscription );
-    } );
+    safeAction( () -> Replicant.context().getSubscriptionService()
+      .createSubscription( areaOfInterest.getAddress(), areaOfInterest.getFilter(), true ) );
 
     assertEquals( getStatusCallCount.get(), 2 );
     assertEquals( getErrorCallCount.get(), 2 );

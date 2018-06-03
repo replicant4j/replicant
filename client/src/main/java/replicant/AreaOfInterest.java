@@ -2,6 +2,7 @@ package replicant;
 
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
+import arez.annotations.Computed;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import java.util.Objects;
@@ -101,11 +102,13 @@ public abstract class AreaOfInterest
 
   abstract void setError( @Nullable Throwable error );
 
-  @Observable
+  @Computed
   @Nullable
-  public abstract Subscription getSubscription();
-
-  abstract void setSubscription( @Nullable Subscription subscription );
+  public Subscription getSubscription()
+  {
+    final boolean expectSubscription = shouldExpectSubscription( getStatus() );
+    return expectSubscription ? getReplicantContext().findSubscription( getAddress() ) : null;
+  }
 
   /**
    * Update the status of the AreaOfInterest.
@@ -113,12 +116,7 @@ public abstract class AreaOfInterest
   @Action
   void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
   {
-    final boolean expectSubscription =
-      Status.LOADED == status ||
-      Status.UPDATED == status ||
-      Status.UPDATING == status ||
-      Status.UPDATE_FAILED == status ||
-      Status.UNLOADING == status;
+    final boolean expectSubscription = shouldExpectSubscription( status );
     if ( Replicant.shouldCheckApiInvariants() )
     {
       final boolean expectError = Status.LOAD_FAILED == status || Status.UPDATE_FAILED == status;
@@ -142,12 +140,20 @@ public abstract class AreaOfInterest
     }
 
     setStatus( status );
-    setSubscription( expectSubscription ? getReplicantContext().findSubscription( getAddress() ) : null );
     setError( error );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new AreaOfInterestStatusUpdatedEvent( this ) );
     }
+  }
+
+  private boolean shouldExpectSubscription( @Nonnull final Status status )
+  {
+    return Status.LOADED == status ||
+           Status.UPDATED == status ||
+           Status.UPDATING == status ||
+           Status.UPDATE_FAILED == status ||
+           Status.UNLOADING == status;
   }
 
   @Override
