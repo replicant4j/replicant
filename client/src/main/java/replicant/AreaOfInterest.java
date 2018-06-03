@@ -130,10 +130,6 @@ public abstract class AreaOfInterest
       apiInvariant( () -> expectError || null == error,
                     () -> "Replicant-0017: Invoked updateAreaOfInterest for channel at address " +
                           address + " with status " + status + " and supplied an unexpected error." );
-
-      apiInvariant( () -> !expectSubscription || null != subscription,
-                    () -> "Replicant-0018: Invoked updateAreaOfInterest for channel at address " +
-                          address + " with status " + status + " and the context is missing expected subscription." );
       apiInvariant( () -> expectSubscription || null == subscription,
                     () -> "Replicant-0019: Invoked updateAreaOfInterest for channel at address " +
                           address + " with status " + status + " and found unexpected subscription in the context." );

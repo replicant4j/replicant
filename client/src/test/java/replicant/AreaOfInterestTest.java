@@ -239,19 +239,6 @@ public class AreaOfInterestTest
   }
 
   @Test
-  public void updateAreaOfInterest_missingSubscriptionWhenExpected()
-  {
-    pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) ) );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0018: Invoked updateAreaOfInterest for channel at address 1.0 with status LOADED and the context is missing expected subscription." );
-  }
-
-  @Test
   public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
     pauseScheduler();
