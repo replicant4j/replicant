@@ -260,9 +260,7 @@ public class EntityTest
     final EntityService entityService = Replicant.context().getEntityService();
 
     final Entity entity =
-      safeAction( () -> entityService.findOrCreateEntity( "MyEntity",
-                                                          String.class,
-                                                          ValueUtil.randomInt() ) );
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity", String.class, ValueUtil.randomInt() ) );
 
     final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
