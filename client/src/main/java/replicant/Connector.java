@@ -944,6 +944,12 @@ abstract class Connector
           assert null != subscription;
           entity.linkToSubscription( subscription );
         }
+        /*
+         We could get the existing subscriptions for an entity, and any that are not present
+         in the EntityChannel could be removed here. However we assume the code generated in
+         subscription change will handle subscription changes and remove subscriptions no longer
+         relevant.
+         */
 
         response.incEntityUpdateCount();
         response.changeProcessed( entity.getUserObject() );
