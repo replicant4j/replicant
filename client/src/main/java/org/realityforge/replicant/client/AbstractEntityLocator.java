@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.Replicant;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -19,9 +20,12 @@ public abstract class AbstractEntityLocator
   protected final <T> void registerLookup( @Nonnull final Class<T> type,
                                            @Nonnull final Function<Object, T> findByIdFunction )
   {
-    apiInvariant( () -> !_findByIdFunctions.containsKey( type ),
-                  () -> "Attempting to register findById function for type " + type + " when a " +
-                        "function already exists." );
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> !_findByIdFunctions.containsKey( type ),
+                    () -> "Replicant-0086: Attempting to register findById function for type " + type + " when a " +
+                          "function already exists." );
+    }
     _findByIdFunctions.put( type, findByIdFunction );
   }
 
