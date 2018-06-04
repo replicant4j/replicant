@@ -1247,11 +1247,13 @@ public class ConnectorTest
     pauseScheduler();
 
     final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 1 );
-    createSubscription( address, null, true );
+    final Subscription subscription = createSubscription( address, null, true );
 
     // This entity is to be updated
     final Entity entity2 = findOrCreateEntity( Linkable.class, 2 );
     safeAction( () -> entity2.setUserObject( userObject2 ) );
+    // It is already subscribed to channel and that should be fine
+    safeAction( () -> entity2.linkToSubscription( subscription ) );
     // This entity is to be removed
     final Entity entity3 = findOrCreateEntity( Linkable.class, 3 );
 

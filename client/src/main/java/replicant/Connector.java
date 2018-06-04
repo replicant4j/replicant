@@ -942,7 +942,7 @@ abstract class Connector
                              " but no such subscription exists locally." );
           }
           assert null != subscription;
-          entity.linkToSubscription( subscription );
+          entity.tryLinkToSubscription( subscription );
         }
         /*
          We could get the existing subscriptions for an entity, and any that are not present
