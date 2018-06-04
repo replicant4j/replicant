@@ -130,6 +130,17 @@ public abstract class Entity
   abstract arez.Observable getSubscriptionsObservable();
 
   /**
+   * Link to subscription if not already subscribed, ignore otherwise.
+   */
+  final void tryLinkToSubscription( @Nonnull final Subscription subscription )
+  {
+    if ( !_subscriptions.containsKey( subscription.getAddress() ) )
+    {
+      linkToSubscription( subscription );
+    }
+  }
+
+  /**
    * Link to subscription if it does not exist.
    *
    * @param subscription the subscription.

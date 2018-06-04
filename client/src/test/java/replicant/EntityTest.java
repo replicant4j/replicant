@@ -274,6 +274,26 @@ public class EntityTest
   }
 
   @Test
+  public void tryLinkToSubscription()
+  {
+    final EntityService entityService = Replicant.context().getEntityService();
+
+    final Entity entity =
+      safeAction( () -> entityService.findOrCreateEntity( "MyEntity", String.class, ValueUtil.randomInt() ) );
+
+    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+
+    safeAction( () -> entity.tryLinkToSubscription( subscription1 ) );
+
+    safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+
+    // Should perform no action
+    safeAction( () -> entity.tryLinkToSubscription( subscription1 ) );
+
+    safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
+  }
+
+  @Test
   public void disposeRemovesEntityFromSubscriptions()
   {
     final EntityService entityService = Replicant.context().getEntityService();
