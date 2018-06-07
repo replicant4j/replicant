@@ -24,6 +24,15 @@ abstract class AreaOfInterestService
   extends AbstractContainer<Integer, AreaOfInterest>
 {
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected final boolean shouldDisposeEntryOnDispose()
+  {
+    return true;
+  }
+
+  /**
    * Reference to the context to which this service belongs.
    */
   @Nullable
