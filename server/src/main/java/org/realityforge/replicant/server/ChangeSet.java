@@ -44,12 +44,12 @@ public final class ChangeSet
     return _channelActions;
   }
 
-  public void mergeAll( @Nonnull final Collection<Change> changes )
+  void mergeAll( @Nonnull final Collection<Change> changes )
   {
     mergeAll( changes, false );
   }
 
-  public void mergeAll( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
+  private void mergeAll( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
   {
     for ( final Change change : changes )
     {
