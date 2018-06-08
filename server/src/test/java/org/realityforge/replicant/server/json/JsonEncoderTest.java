@@ -59,7 +59,7 @@ public final class JsonEncoderTest
     change.getChannels().put( 3, 73 );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
-    cs.addAction( new ChannelAction( new ChannelAddress( 45, 77 ), Action.UPDATE, filter ) );
+    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, 77 ), Action.UPDATE, filter ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestId, etag, cs );
     final JsonObject changeSet = toJsonObject( encoded );
 
@@ -142,7 +142,7 @@ public final class JsonEncoderTest
     throws Exception
   {
     final ChangeSet cs = new ChangeSet();
-    cs.addAction( new ChannelAction( new ChannelAddress( 45, null ), Action.ADD, null ) );
+    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.ADD, null ) );
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
     assertNotNull( changeSet );
 

@@ -657,14 +657,14 @@ public abstract class ReplicantSessionManagerImpl
       {
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
-        cacheChangeSet.addAction( address, ChannelAction.Action.ADD, filter );
+        cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
         sendPacket( session, eTag, cacheChangeSet );
         return CacheStatus.REFRESH;
       }
     }
 
     collectDataForSubscribe( session, address, changeSet, filter );
-    changeSet.addAction( address, ChannelAction.Action.ADD, filter );
+    changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
     return CacheStatus.REFRESH;
   }
 
@@ -773,7 +773,7 @@ public abstract class ReplicantSessionManagerImpl
     entry.setFilter( filter );
     final ChannelAddress address = entry.getDescriptor();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
-    changeSet.addAction( address, ChannelAction.Action.UPDATE, filter );
+    changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
   }
 
   /**
@@ -863,7 +863,7 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( entry.canUnsubscribe() )
     {
-      changeSet.addAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
+      changeSet.mergeAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
       for ( final ChannelAddress downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         delinkDownstreamSubscription( session, entry, downstream, changeSet );

@@ -20,7 +20,7 @@ public final class ChangeAccumulator
     final ChangeSet changeSet = getChangeSet( session );
     for ( final ChannelAction action : actions )
     {
-      changeSet.addAction( action );
+      changeSet.mergeAction( action );
     }
   }
 

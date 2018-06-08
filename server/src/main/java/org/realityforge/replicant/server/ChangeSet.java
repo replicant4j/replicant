@@ -13,24 +13,48 @@ public final class ChangeSet
   private final LinkedList<ChannelAction> _channelActions = new LinkedList<>();
   private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<>();
 
-  public void addActions( @Nonnull final Collection<ChannelAction> actions )
+  private void mergeActions( @Nonnull final Collection<ChannelAction> actions )
   {
     for ( final ChannelAction action : actions )
     {
-      addAction( action );
+      mergeAction( action );
     }
   }
 
-  public void addAction( @Nonnull final ChannelAction action )
+  public void mergeAction( @Nonnull final ChannelAddress address,
+                           @Nonnull final ChannelAction.Action action,
+                           @Nullable final Object filter )
   {
-    _channelActions.add( action );
+    mergeAction( new ChannelAction( address, action, filterToJsonObject( filter ) ) );
   }
 
-  public void addAction( @Nonnull final ChannelAddress address,
-                         @Nonnull final ChannelAction.Action action,
-                         @Nullable final Object filter )
+  public void mergeAction( @Nonnull final ChannelAction action )
   {
-    addAction( new ChannelAction( address, action, filterToJsonObject( filter ) ) );
+    /*
+     * If we have an unfiltered inverse action in actions list then we can remove
+     * that action and avoid adding this action. This avoids scenario where there
+     * are multiple actions for the same address in ChangeSet.
+     */
+    if ( ChannelAction.Action.ADD == action.getAction() )
+    {
+      if ( _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.getAction() &&
+                                          a.getAddress().equals( action.getAddress() ) &&
+                                          null == action.getFilter() ) )
+      {
+        return;
+      }
+    }
+    else if ( ChannelAction.Action.REMOVE == action.getAction() )
+    {
+      if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.getAction() &&
+                                          a.getAddress().equals( action.getAddress() ) &&
+                                          null == a.getFilter() ) )
+      {
+        return;
+      }
+    }
+
+    _channelActions.add( action );
   }
 
   private JsonObject filterToJsonObject( @Nullable final Object filter )
@@ -83,7 +107,7 @@ public final class ChangeSet
   public void merge( @Nonnull final ChangeSet changeSet, final boolean copyOnMerge )
   {
     mergeAll( changeSet.getChanges(), copyOnMerge );
-    addActions( changeSet.getChannelActions() );
+    mergeActions( changeSet.getChannelActions() );
   }
 
   public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )

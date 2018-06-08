@@ -21,13 +21,13 @@ public abstract class AbstractSessionContextImpl
     SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null == entry )
     {
-      changeSet.addAction( address, ChannelAction.Action.ADD, filter );
+      changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
       entry = session.createSubscriptionEntry( address );
       entry.setFilter( filter );
     }
     else
     {
-      changeSet.addAction( address, ChannelAction.Action.UPDATE, filter );
+      changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
       entry.setFilter( filter );
     }
     if ( explicitSubscribe )
