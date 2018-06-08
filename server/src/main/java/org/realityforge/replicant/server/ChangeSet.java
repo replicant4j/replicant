@@ -33,7 +33,7 @@ public final class ChangeSet
     addAction( new ChannelAction( address, action, filterToJsonObject( filter ) ) );
   }
 
-  private JsonObject filterToJsonObject( final @Nullable Object filter )
+  private JsonObject filterToJsonObject( @Nullable final Object filter )
   {
     return null == filter ? null : JsonUtil.toJsonObject( filter );
   }
