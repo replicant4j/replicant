@@ -586,9 +586,6 @@ abstract class Connector
                      () -> "Replicant-0033: Received ChannelChange of type UPDATE for address " + address +
                            " but no such subscription exists." );
           assert null != subscription;
-          invariant( subscription::isExplicitSubscription,
-                     () -> "Replicant-0029: Received ChannelChange of type UPDATE for address " + address +
-                           " but subscription is implicitly subscribed." );
           if ( Replicant.shouldCheckInvariants() )
           {
             invariant( () -> ChannelSchema.FilterType.DYNAMIC ==

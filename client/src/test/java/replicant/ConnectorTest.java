@@ -1724,44 +1724,6 @@ public class ConnectorTest
   }
 
   @Test
-  public void processChannelChanges_update_implicitSubscription()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
-    final ChannelAddress address = new ChannelAddress( 1, 0, 33 );
-    final int channelId = address.getChannelId();
-    final int subChannelId = Objects.requireNonNull( address.getId() );
-
-    final String oldFilter = ValueUtil.randomString();
-    final String newFilter = ValueUtil.randomString();
-    final ChannelChange[] channelChanges =
-      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
-
-    createSubscription( address, oldFilter, false );
-
-    assertEquals( response.needsChannelChangesProcessed(), true );
-    assertEquals( response.getChannelUpdateCount(), 0 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, connector::processChannelChanges );
-
-    assertEquals( response.needsChannelChangesProcessed(), true );
-    assertEquals( response.getChannelUpdateCount(), 0 );
-
-    assertEquals( exception.getMessage(),
-                  "Replicant-0029: Received ChannelChange of type UPDATE for address 1.0.33 but subscription is implicitly subscribed." );
-
-    handler.assertEventCount( 0 );
-  }
-
-  @Test
   public void processChannelChanges_update_missingSubscription()
   {
     final Connector connector = createConnector();
