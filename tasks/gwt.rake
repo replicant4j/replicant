@@ -76,6 +76,7 @@ CONTENT
       j.include("#{dep}/*")
     end
     j.include(project._(:generated, 'processors/main/java/org')) if project.enable_annotation_processor?
+    j.include(project._(:generated, 'processors/main/java/replicant')) if project.enable_annotation_processor?
     assets.each do |path|
       j.include("#{path}/*")
     end
