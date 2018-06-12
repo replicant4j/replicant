@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent
+@ArezComponent( deferSchedule = true )
 abstract class Converger
   extends ReplicantService
 {

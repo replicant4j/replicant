@@ -31,6 +31,7 @@ public abstract class AbstractReplicantTest
   protected void beforeTest()
     throws Exception
   {
+    final Disposable schedulerLock = pauseScheduler();
     BrainCheckTestUtil.resetConfig( false );
     ArezTestUtil.resetConfig( false );
     ReplicantTestUtil.resetConfig( false );
@@ -40,6 +41,7 @@ public abstract class AbstractReplicantTest
     _observerErrors.clear();
     Arez.context().addObserverErrorHandler( this::onObserverError );
     DomGlobal.window = null;
+    schedulerLock.dispose();
   }
 
   @Nonnull

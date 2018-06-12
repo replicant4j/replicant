@@ -43,6 +43,7 @@ public final class ReplicantContext
 
   ReplicantContext()
   {
+    Arez.context().triggerScheduler();
   }
 
   /**
