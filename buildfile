@@ -81,7 +81,7 @@ define 'replicant' do
                  # javax_javaee is provided so that JSON parsing can occur for JRE variant.
                  :javax_javaee
 
-    gwt_enhance(project, :extra_deps => [_('src/main/super')])
+    gwt_enhance(project)
 
     package(:jar)
     package(:sources)
