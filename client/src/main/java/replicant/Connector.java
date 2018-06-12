@@ -131,11 +131,7 @@ abstract class Connector
   {
     _schedulerPaused = true;
     _schedulerActive = false;
-    if ( null != _schedulerLock )
-    {
-      _schedulerLock.dispose();
-      _schedulerLock = null;
-    }
+    releaseSchedulerLock();
     getReplicantContext().getSchemaService().deregisterSchema( _schema );
   }
 
@@ -436,11 +432,19 @@ abstract class Connector
     {
       if ( !_schedulerActive )
       {
-        _schedulerLock.dispose();
-        _schedulerLock = null;
+        releaseSchedulerLock();
       }
     }
     return _schedulerActive;
+  }
+
+  private void releaseSchedulerLock()
+  {
+    if ( null != _schedulerLock )
+    {
+      _schedulerLock.dispose();
+      _schedulerLock = null;
+    }
   }
 
   /**
