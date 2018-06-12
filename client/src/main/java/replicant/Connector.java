@@ -55,7 +55,6 @@ abstract class Connector
 {
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
-
   /**
    * The schema that defines data-API used to interact with datasource.
    */
