@@ -62,7 +62,7 @@ final class TransportContextImpl
   {
     if ( !isDisposed() )
     {
-      _connector.disconnect();
+      _connector.transportDisconnect();
     }
   }
 }
