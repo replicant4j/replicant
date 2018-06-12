@@ -75,8 +75,10 @@ CONTENT
       j.enhance([dep])
       j.include("#{dep}/*")
     end
-    j.include(project._(:generated, 'processors/main/java/org')) if project.enable_annotation_processor?
-    j.include(project._(:generated, 'processors/main/java/replicant')) if project.enable_annotation_processor?
+    if project.enable_annotation_processor?
+      j.include(project._(:generated, 'processors/main/java/org'))
+      j.include(project._(:generated, 'processors/main/java/replicant'))
+    end
     assets.each do |path|
       j.include("#{path}/*")
     end
