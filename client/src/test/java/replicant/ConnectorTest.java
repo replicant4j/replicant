@@ -972,24 +972,32 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connection.setCurrentMessageResponse( response );
-    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null ), null );
+    final ChannelChange[] channelChanges = { ChannelChange.create( 0, ChannelChange.Action.ADD, null ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
     assertNull( connector.getSchedulerLock() );
 
     connector.resumeMessageScheduler();
+
+    //response needs processing of channel messages
+
+    final boolean result0 = connector.progressMessages();
+
+    assertEquals( result0, true );
+    final Disposable schedulerLock0 = connector.getSchedulerLock();
+    assertNotNull( schedulerLock0 );
 
     //response needs worldValidated
 
     final boolean result1 = connector.progressMessages();
 
     assertEquals( result1, true );
-    final Disposable schedulerLock1 = connector.getSchedulerLock();
-    assertNotNull( schedulerLock1 );
+    assertNull( connector.getSchedulerLock() );
+    assertTrue( Disposable.isDisposed( schedulerLock0 ) );
 
     final boolean result2 = connector.progressMessages();
 
     assertEquals( result2, true );
-    assertNotNull( connector.getSchedulerLock() );
     // Current message should be nulled and completed processing now
     assertNull( connection.getCurrentMessageResponse() );
 
@@ -997,7 +1005,6 @@ public class ConnectorTest
 
     assertEquals( result3, false );
     assertNull( connector.getSchedulerLock() );
-    assertTrue( Disposable.isDisposed( schedulerLock1 ) );
   }
 
   @Test

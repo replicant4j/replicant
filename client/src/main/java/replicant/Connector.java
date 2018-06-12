@@ -425,6 +425,7 @@ abstract class Connector
     {
       onMessageProcessFailure( e );
       _schedulerActive = false;
+      releaseSchedulerLock();
       return false;
     }
     finally
@@ -496,12 +497,15 @@ abstract class Connector
     }
     else if ( !response.hasWorldBeenValidated() )
     {
+      releaseSchedulerLock();
       // Validate the world after the change set has been applied (if feature is enabled)
       validateWorld();
       return true;
     }
     else
     {
+      // We have to also release scheduler lock here in scenario where system not configured to validate world
+      releaseSchedulerLock();
       completeMessageResponse();
       return true;
     }
