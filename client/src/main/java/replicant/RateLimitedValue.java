@@ -30,52 +30,52 @@ class RateLimitedValue
     _lastRegenTime = currentTimeMillis();
   }
 
-  synchronized void setTokensPerSecond( @Nonnegative final double tokensPerSecond )
+  final void setTokensPerSecond( @Nonnegative final double tokensPerSecond )
   {
     assert tokensPerSecond >= 0;
     _tokensPerSecond = Math.min( tokensPerSecond, MAX_POSSIBLE_TOKENS );
   }
 
-  double getTokensPerSecond()
+  final double getTokensPerSecond()
   {
     return _tokensPerSecond;
   }
 
-  double getMaxTokenCount()
+  final double getMaxTokenCount()
   {
     return _maxTokenCount;
   }
 
-  synchronized void fillBucket()
+  final void fillBucket()
   {
     _tokenCount = _maxTokenCount;
   }
 
-  synchronized double getTokenCount()
+  final double getTokenCount()
   {
     return _tokenCount;
   }
 
-  synchronized boolean isBucketFull()
+  final boolean isBucketFull()
   {
     regenerateTokens();
     return _tokenCount == _maxTokenCount;
   }
 
-  void setMaxTokenCount( @Nonnegative final double maxTokenCount )
+  final void setMaxTokenCount( @Nonnegative final double maxTokenCount )
   {
     assert maxTokenCount >= 0;
     _maxTokenCount = maxTokenCount;
     _tokenCount = Math.min( _tokenCount, _maxTokenCount );
   }
 
-  void setTokenCount( @Nonnegative final double tokenCount )
+  final void setTokenCount( @Nonnegative final double tokenCount )
   {
     assert tokenCount >= 0;
     _tokenCount = Math.min( tokenCount, _maxTokenCount );
   }
 
-  synchronized boolean consume( @Nonnegative final double costInTokens )
+  final boolean consume( @Nonnegative final double costInTokens )
   {
     regenerateTokens();
     if ( _tokenCount >= costInTokens )
@@ -89,7 +89,7 @@ class RateLimitedValue
     }
   }
 
-  boolean attempt( @Nonnegative final double costInTokens, @Nonnull final Runnable action )
+  final boolean attempt( @Nonnegative final double costInTokens, @Nonnull final Runnable action )
   {
     if ( consume( costInTokens ) )
     {
