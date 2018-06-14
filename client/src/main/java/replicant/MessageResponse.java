@@ -13,6 +13,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A simple class encapsulating the process of loading data from a json change set.
  */
+@SuppressFBWarnings( value = { "EQ_COMPARETO_USE_OBJECT_EQUALS" }, justification = "Equals is not used and implementing it would add code that GWT2.x could not optimize away" )
 final class MessageResponse
   implements Comparable<MessageResponse>
 {
