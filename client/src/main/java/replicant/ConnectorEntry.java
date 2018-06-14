@@ -48,7 +48,7 @@ final class ConnectorEntry
   }
 
   @Nonnull
-  final RateLimitedValue getRateLimiter()
+  RateLimitedValue getRateLimiter()
   {
     return _rateLimiter;
   }
