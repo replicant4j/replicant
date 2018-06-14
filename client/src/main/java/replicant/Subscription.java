@@ -127,6 +127,20 @@ public abstract class Subscription
     }
   }
 
+  /**
+   * Return the channel schema for subscription.
+   *
+   * @return the channel schema for subscription.
+   */
+  @Nonnull
+  public ChannelSchema getChannelSchema()
+  {
+    return getReplicantContext()
+      .getSchemaService()
+      .getById( _address.getSystemId() )
+      .getChannel( _address.getChannelId() );
+  }
+
   @ObservableRef
   protected abstract arez.Observable getEntitiesObservable();
 

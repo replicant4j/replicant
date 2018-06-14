@@ -188,6 +188,22 @@ public class SubscriptionTest
     assertEquals( subscription2.compareTo( subscription2 ), 0 );
   }
 
+  @Test
+  public void getChannelSchema()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), null, ChannelSchema.FilterType.NONE, null, false, true );
+    createConnector( new SystemSchema( 1,
+                                       ValueUtil.randomString(),
+                                       new ChannelSchema[]{ channelSchema },
+                                       new EntitySchema[ 0 ] ) );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+
+    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+
+    assertEquals( subscription1.getChannelSchema(), channelSchema );
+  }
+
   static class A
   {
   }
