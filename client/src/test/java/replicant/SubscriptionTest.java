@@ -34,7 +34,6 @@ public class SubscriptionTest
     safeAction( () -> assertEquals( subscription.getFilter(), filter1 ) );
     safeAction( () -> subscription.setFilter( filter2 ) );
     safeAction( () -> assertEquals( subscription.getFilter(), filter2 ) );
-
   }
 
   @Test
