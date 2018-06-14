@@ -27,9 +27,16 @@ public final class ReplicantContextHolder
    * @param key  the key.
    * @param data the data.
    */
-  public static void put( @Nonnull final String key, @Nonnull final Serializable data )
+  public static void put( @Nonnull final String key, @Nullable final Serializable data )
   {
-    getRawContext().put( key, data );
+    if ( null == data )
+    {
+      getRawContext().remove( key );
+    }
+    else
+    {
+      getRawContext().put( key, data );
+    }
   }
 
   /**
