@@ -39,12 +39,12 @@ final class ConnectorEntry
     _required = required;
 
     final int regenRate = required ? REQUIRED_REGEN_PER_MILLISECOND : OPTIONAL_REGEN_PER_MILLISECOND;
-    _rateLimiter = new RateLimitedValue( regenRate, ACTION_COST * 2 );
+    _rateLimiter = new RateLimitedValue( System.currentTimeMillis(), regenRate, ACTION_COST * 2 );
   }
 
   boolean attemptAction( @Nonnull final Consumer<Connector> action )
   {
-    return getRateLimiter().attempt( ACTION_COST, () -> action.accept( getConnector() ) );
+    return getRateLimiter().attempt( System.currentTimeMillis(), ACTION_COST, () -> action.accept( getConnector() ) );
   }
 
   @Nonnull

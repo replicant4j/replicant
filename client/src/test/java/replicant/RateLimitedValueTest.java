@@ -7,39 +7,11 @@ import static org.testng.Assert.*;
 public class RateLimitedValueTest
   extends AbstractReplicantTest
 {
-  static class TestRateLimitedValue
-    extends RateLimitedValue
-  {
-    static long _currentTimeMillis;
-
-    TestRateLimitedValue( final double tokensPerSecond )
-    {
-      super( tokensPerSecond );
-    }
-
-    TestRateLimitedValue( final double tokensPerSecond, final double maxTokenAmount )
-    {
-      super( tokensPerSecond, maxTokenAmount );
-    }
-
-    static void setCurrentTimeMillis( final long currentTimeMillis )
-    {
-      _currentTimeMillis = currentTimeMillis;
-    }
-
-    @Override
-    long currentTimeMillis()
-    {
-      return _currentTimeMillis;
-    }
-  }
-
   @Test
   public void basicOperation()
     throws Exception
   {
-    TestRateLimitedValue.setCurrentTimeMillis( 100L );
-    final TestRateLimitedValue value = new TestRateLimitedValue( 10D, 30D );
+    final RateLimitedValue value = new RateLimitedValue( 100L, 10D, 30D );
 
     assertEquals( getLastRegenTime( value ), 100L );
 
@@ -72,27 +44,18 @@ public class RateLimitedValueTest
     value.setTokenCount( 400000D );
     assertEquals( value.getTokenCount(), 200D );
 
-    assertFalse( value.consume( 1000D ) );
+    assertFalse( value.consume( 100L, 1000D ) );
     assertEquals( value.getTokenCount(), 200D );
 
-    assertTrue( value.consume( 10D ) );
+    assertTrue( value.consume( 100L, 10D ) );
     assertEquals( value.getTokenCount(), 190D );
 
     final CountDownLatch latch = new CountDownLatch( 1 );
-    assertFalse( value.attempt( 1000D, latch::countDown ) );
+    assertFalse( value.attempt( 100L, 1000D, latch::countDown ) );
     assertEquals( value.getTokenCount(), 190D );
     assertEquals( latch.getCount(), 1 );
 
-    //noinspection Convert2Lambda
-    assertTrue( value.attempt( 10D, new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        //Can not be converted to lambda as it confuses Powermock
-        latch.countDown();
-      }
-    } ) );
+    assertTrue( value.attempt( 100L, 10D, latch::countDown ) );
     assertEquals( value.getTokenCount(), 180D );
     assertEquals( latch.getCount(), 0 );
   }
@@ -101,21 +64,18 @@ public class RateLimitedValueTest
   public void regenerateTokens()
     throws Exception
   {
-    TestRateLimitedValue.setCurrentTimeMillis( 0L );
-    final TestRateLimitedValue value = new TestRateLimitedValue( 2000D );
+    final RateLimitedValue value = new RateLimitedValue( 0L, 2000D, 2000D );
     value.setTokenCount( 0D );
 
     assertEquals( value.getTokenCount(), 0D );
     assertEquals( getLastRegenTime( value ), 0L );
 
-    value.regenerateTokens();
+    value.regenerateTokens( 0L );
 
     assertEquals( value.getTokenCount(), 0D );
     assertEquals( getLastRegenTime( value ), 0L );
 
-    TestRateLimitedValue.setCurrentTimeMillis( 50L );
-
-    value.regenerateTokens();
+    value.regenerateTokens( 50L );
 
     assertEquals( value.getTokenCount(), 100D, 0.1 );
     assertEquals( getLastRegenTime( value ), 50L );
