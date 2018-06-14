@@ -56,12 +56,6 @@ class RateLimitedValue
     return _tokenCount;
   }
 
-  final boolean isBucketFull()
-  {
-    regenerateTokens();
-    return _tokenCount == _maxTokenCount;
-  }
-
   final void setMaxTokenCount( @Nonnegative final double maxTokenCount )
   {
     assert maxTokenCount >= 0;
