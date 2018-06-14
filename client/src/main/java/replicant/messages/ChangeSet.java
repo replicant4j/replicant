@@ -12,6 +12,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
  */
+@SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class ChangeSet
 {
