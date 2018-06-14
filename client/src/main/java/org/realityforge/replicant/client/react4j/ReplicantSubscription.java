@@ -13,7 +13,6 @@ import react4j.arez.ReactArezComponent;
 import react4j.core.ReactNode;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
-import replicant.Entity;
 import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
@@ -266,22 +265,10 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   private SubscriptionResult<T> asResult( @Nonnull final AreaOfInterest areaOfInterest )
   {
-    final ChannelAddress address = areaOfInterest.getAddress();
     final Subscription subscription = areaOfInterest.getSubscription();
     assert null != subscription;
-    final Integer id = address.getId();
-    final T instanceRoot;
-    if ( null != id )
-    {
-      final Class type = Objects.requireNonNull( getInstanceType() );
-      final Entity entity = subscription.findEntityByTypeAndId( type, id );
-      assert null != entity;
-      instanceRoot = (T) entity.getUserObject();
-    }
-    else
-    {
-      instanceRoot = null;
-    }
+    final T instanceRoot =
+      subscription.getChannelSchema().isInstanceChannel() ? (T) subscription.getInstanceRoot() : null;
     return new SubscriptionResult<>( subscription, instanceRoot );
   }
 }

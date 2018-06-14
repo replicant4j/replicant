@@ -128,6 +128,38 @@ public abstract class Subscription
   }
 
   /**
+   * Return the instance root for this subscription.
+   * This method should NOT be invoked on subscriptions for type graphs
+   *
+   * @return the instance root.
+   */
+  @Nonnull
+  public Object getInstanceRoot()
+  {
+    final ChannelSchema channel = getChannelSchema();
+    final Integer id = _address.getId();
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      invariant( channel::isInstanceChannel,
+                 () -> "Replicant-0029: Subscription.getInstanceRoot() invoked on subscription for channel " +
+                       _address + " but channel is not instance based." );
+      invariant( () -> null != id,
+                 () -> "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel " +
+                       _address + " but channel has not supplied expected id." );
+    }
+    assert null != id;
+    final Entity entity = findEntityByTypeAndId( Objects.requireNonNull( channel.getInstanceType() ), id );
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      invariant( () -> null != entity,
+                 () -> "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel " +
+                       _address + " but entity is not present." );
+    }
+    assert null != entity;
+    return entity.getUserObject();
+  }
+
+  /**
    * Return the channel schema for subscription.
    *
    * @return the channel schema for subscription.

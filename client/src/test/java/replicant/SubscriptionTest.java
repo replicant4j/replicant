@@ -204,6 +204,86 @@ public class SubscriptionTest
     assertEquals( subscription1.getChannelSchema(), channelSchema );
   }
 
+  @Test
+  public void getInstanceRoot()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), A.class, ChannelSchema.FilterType.NONE, null, false, true );
+    createConnector( new SystemSchema( 1,
+                                       ValueUtil.randomString(),
+                                       new ChannelSchema[]{ channelSchema },
+                                       new EntitySchema[ 0 ] ) );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 33 );
+
+    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+
+    final EntityService entityService = Replicant.context().getEntityService();
+    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/33", A.class, 33 ) );
+    final A entity = new A();
+    safeAction( () -> entity1.setUserObject( entity ) );
+
+    safeAction( () -> subscription1.linkSubscriptionToEntity( entity1 ) );
+
+    safeAction( () -> assertEquals( subscription1.getInstanceRoot(), entity ) );
+  }
+
+  @Test
+  public void getInstanceRoot_butEntityNotPresent()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), A.class, ChannelSchema.FilterType.NONE, null, false, true );
+    createConnector( new SystemSchema( 1,
+                                       ValueUtil.randomString(),
+                                       new ChannelSchema[]{ channelSchema },
+                                       new EntitySchema[ 0 ] ) );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 33 );
+
+    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> safeAction( subscription1::getInstanceRoot ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but entity is not present." );
+  }
+
+  @Test
+  public void getInstanceRoot_butChannelHasNoId()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), A.class, ChannelSchema.FilterType.NONE, null, false, true );
+    createConnector( new SystemSchema( 1,
+                                       ValueUtil.randomString(),
+                                       new ChannelSchema[]{ channelSchema },
+                                       new EntitySchema[ 0 ] ) );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+
+    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> safeAction( subscription1::getInstanceRoot ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel 1.0 but channel has not supplied expected id." );
+  }
+
+  @Test
+  public void getInstanceRoot_butChannelIsTypeBased()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0, ValueUtil.randomString(), null, ChannelSchema.FilterType.NONE, null, false, true );
+    createConnector( new SystemSchema( 1,
+                                       ValueUtil.randomString(),
+                                       new ChannelSchema[]{ channelSchema },
+                                       new EntitySchema[ 0 ] ) );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 44 );
+
+    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> safeAction( subscription1::getInstanceRoot ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0029: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.44 but channel is not instance based." );
+  }
+
   static class A
   {
   }
