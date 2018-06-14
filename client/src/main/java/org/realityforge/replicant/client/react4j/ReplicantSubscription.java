@@ -205,6 +205,11 @@ public abstract class ReplicantSubscription<T>
     else
     {
       final AreaOfInterest.Status status = areaOfInterest.getStatus();
+      final Subscription subscription = areaOfInterest.getSubscription();
+      /*
+       * TODO: Need to figure out how we handle subscriptions that not present
+       * when AOI updates.
+       */
       if ( AreaOfInterest.Status.NOT_ASKED == status )
       {
         final BasicCallback callback = onNotAsked();
@@ -215,7 +220,7 @@ public abstract class ReplicantSubscription<T>
         final BasicCallback callback = onLoading();
         return null != callback ? callback.render() : null;
       }
-      else if ( AreaOfInterest.Status.LOADED == status )
+      else if ( AreaOfInterest.Status.LOADED == status && null != subscription )
       {
         final EntryCallback<T> callback = onLoaded();
         return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
@@ -225,12 +230,12 @@ public abstract class ReplicantSubscription<T>
         final ErrorCallback callback = onLoadFailed();
         return null != callback ? callback.render( Objects.requireNonNull( areaOfInterest.getError() ) ) : null;
       }
-      else if ( AreaOfInterest.Status.UPDATING == status )
+      else if ( AreaOfInterest.Status.UPDATING == status && null != subscription )
       {
         final EntryCallback<T> callback = onUpdating();
         return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
       }
-      else if ( AreaOfInterest.Status.UPDATED == status )
+      else if ( AreaOfInterest.Status.UPDATED == status && null != subscription )
       {
         final EntryCallback<T> callback = onUpdated();
         return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
@@ -243,14 +248,14 @@ public abstract class ReplicantSubscription<T>
                                 Objects.requireNonNull( areaOfInterest.getError() ) ) :
                null;
       }
-      else if ( AreaOfInterest.Status.UNLOADING == status )
+      else if ( AreaOfInterest.Status.UNLOADING == status && null != subscription )
       {
         final EntryCallback<T> callback = onUnloading();
         return null != callback ? callback.render( asResult( areaOfInterest ) ) : null;
       }
       else
       {
-        assert AreaOfInterest.Status.UNLOADED == status;
+        //TODO: assert AreaOfInterest.Status.UNLOADED == status;
         final BasicCallback callback = onUnloaded();
         return null != callback ? callback.render() : null;
       }
@@ -277,6 +282,6 @@ public abstract class ReplicantSubscription<T>
     {
       instanceRoot = null;
     }
-    return new SubscriptionResult<>( Objects.requireNonNull( subscription ), instanceRoot );
+    return new SubscriptionResult<>( subscription, instanceRoot );
   }
 }
