@@ -3,6 +3,7 @@ package replicant;
 import elemental2.core.Global;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonNumber;
@@ -131,9 +132,10 @@ final class ChangeSetParser
           {
             changeData = new EntityChangeDataImpl();
             final JsonObject data = change.getJsonObject( "data" );
-            for ( final String key : data.keySet() )
+            for ( final Map.Entry<String, JsonValue> entry : data.entrySet() )
             {
-              final JsonValue v = data.get( key );
+              final String key = entry.getKey();
+              final JsonValue v = entry.getValue();
               final JsonValue.ValueType valueType = v.getValueType();
               if ( JsonValue.ValueType.NULL == valueType )
               {
