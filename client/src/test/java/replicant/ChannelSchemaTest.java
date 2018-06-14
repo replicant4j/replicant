@@ -12,12 +12,13 @@ public class ChannelSchemaTest
   public void typeGraph()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 1, "MetaData", true, ChannelSchema.FilterType.NONE, null, false, false );
+      new ChannelSchema( 1, "MetaData", null, ChannelSchema.FilterType.NONE, null, false, false );
     assertEquals( channelSchema.getId(), 1 );
     assertEquals( channelSchema.getName(), "MetaData" );
     assertEquals( channelSchema.toString(), "MetaData" );
     assertEquals( channelSchema.isTypeChannel(), true );
     assertEquals( channelSchema.isInstanceChannel(), false );
+    assertEquals( channelSchema.getInstanceType(), null );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.NONE );
     assertEquals( channelSchema.isCacheable(), false );
     assertEquals( channelSchema.isExternal(), false );
@@ -27,12 +28,13 @@ public class ChannelSchemaTest
   public void instanceGraph()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 1, "MetaData", false, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 1, "MetaData", String.class, ChannelSchema.FilterType.NONE, null, false, true );
     assertEquals( channelSchema.getId(), 1 );
     assertEquals( channelSchema.getName(), "MetaData" );
     assertEquals( channelSchema.toString(), "MetaData" );
     assertEquals( channelSchema.isTypeChannel(), false );
     assertEquals( channelSchema.isInstanceChannel(), true );
+    assertEquals( channelSchema.getInstanceType(), String.class );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.NONE );
     assertEquals( channelSchema.isCacheable(), false );
     assertEquals( channelSchema.isExternal(), true );
@@ -47,12 +49,19 @@ public class ChannelSchemaTest
     final boolean cacheable = false;
     final boolean external = true;
     final ChannelSchema channelSchema =
-      new ChannelSchema( id, name, typeChannel, ChannelSchema.FilterType.STATIC, null, cacheable, external );
+      new ChannelSchema( id,
+                         name,
+                         String.class,
+                         ChannelSchema.FilterType.STATIC,
+                         null,
+                         cacheable,
+                         external );
     assertEquals( channelSchema.getId(), id );
     assertEquals( channelSchema.getName(), name );
     assertEquals( channelSchema.toString(), name );
     assertEquals( channelSchema.isTypeChannel(), typeChannel );
     assertEquals( channelSchema.isInstanceChannel(), true );
+    assertEquals( channelSchema.getInstanceType(), String.class );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC );
     assertEquals( channelSchema.isCacheable(), cacheable );
     assertEquals( channelSchema.isExternal(), external );
@@ -67,12 +76,19 @@ public class ChannelSchemaTest
     final boolean external = true;
     final SubscriptionUpdateEntityFilter filter = mock( SubscriptionUpdateEntityFilter.class );
     final ChannelSchema channelSchema =
-      new ChannelSchema( id, name, true, ChannelSchema.FilterType.DYNAMIC, filter, cacheable, external );
+      new ChannelSchema( id,
+                         name,
+                         null,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         filter,
+                         cacheable,
+                         external );
     assertEquals( channelSchema.getId(), id );
     assertEquals( channelSchema.getName(), name );
     assertEquals( channelSchema.toString(), name );
     assertEquals( channelSchema.isTypeChannel(), true );
     assertEquals( channelSchema.isInstanceChannel(), false );
+    assertEquals( channelSchema.getInstanceType(), null );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.DYNAMIC );
     assertEquals( channelSchema.getFilter(), filter );
     assertEquals( channelSchema.isCacheable(), cacheable );
@@ -86,7 +102,7 @@ public class ChannelSchemaTest
     final ChannelSchema channelSchema =
       new ChannelSchema( ValueUtil.randomInt(),
                          null,
-                         ValueUtil.randomBoolean(),
+                         null,
                          ChannelSchema.FilterType.NONE,
                          null,
                          ValueUtil.randomBoolean(),
@@ -106,7 +122,7 @@ public class ChannelSchemaTest
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( ValueUtil.randomInt(),
                                              "MyChannel",
-                                             ValueUtil.randomBoolean(),
+                                             null,
                                              ChannelSchema.FilterType.NONE,
                                              null,
                                              ValueUtil.randomBoolean(),
@@ -122,7 +138,7 @@ public class ChannelSchemaTest
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( 222,
                                              "MyChannel",
-                                             ValueUtil.randomBoolean(),
+                                             null,
                                              ChannelSchema.FilterType.DYNAMIC,
                                              null,
                                              ValueUtil.randomBoolean(),
@@ -138,7 +154,7 @@ public class ChannelSchemaTest
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( 222,
                                              "MyChannel",
-                                             ValueUtil.randomBoolean(),
+                                             null,
                                              ChannelSchema.FilterType.STATIC,
                                              mock( SubscriptionUpdateEntityFilter.class ),
                                              ValueUtil.randomBoolean(),

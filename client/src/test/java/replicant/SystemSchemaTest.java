@@ -17,7 +17,7 @@ public class SystemSchemaTest
     final EntitySchema[] entities = new EntitySchema[]{ entity1, entity2 };
     final ChannelSchema channel1 = new ChannelSchema( 0,
                                                       ValueUtil.randomString(),
-                                                      ValueUtil.randomBoolean(),
+                                                      null,
                                                       ChannelSchema.FilterType.NONE,
                                                       null,
                                                       false,
@@ -100,7 +100,7 @@ public class SystemSchemaTest
   {
     final ChannelSchema channel1 = new ChannelSchema( 234,
                                                       ValueUtil.randomString(),
-                                                      ValueUtil.randomBoolean(),
+                                                      null,
                                                       ChannelSchema.FilterType.NONE,
                                                       null,
                                                       false,

@@ -34,9 +34,10 @@ public final class ChannelSchema
   @Nullable
   private final String _name;
   /**
-   * A flag indicating whether the channel is instance based or type based.
+   * The type of the root entity if the graph is an instance graph.
    */
-  private final boolean _typeChannel;
+  @Nullable
+  private final Class<?> _instanceType;
   /**
    * The filtering applied to the channel.
    */
@@ -60,7 +61,7 @@ public final class ChannelSchema
 
   public ChannelSchema( final int id,
                         @Nullable final String name,
-                        final boolean typeChannel,
+                        @Nullable final Class<?> instanceType,
                         @Nonnull final FilterType filterType,
                         @Nullable final SubscriptionUpdateEntityFilter<?> filter,
                         final boolean cacheable,
@@ -80,7 +81,7 @@ public final class ChannelSchema
     }
     _id = id;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
-    _typeChannel = typeChannel;
+    _instanceType = instanceType;
     _filterType = Objects.requireNonNull( filterType );
     _filter = filter;
     _cacheable = cacheable;
@@ -123,7 +124,7 @@ public final class ChannelSchema
    */
   public boolean isTypeChannel()
   {
-    return _typeChannel;
+    return null == _instanceType;
   }
 
   /**
@@ -134,6 +135,17 @@ public final class ChannelSchema
   public boolean isInstanceChannel()
   {
     return !isTypeChannel();
+  }
+
+  /**
+   * Return the type of the entity that is the root of an instance graph if channel is an instance channel.
+   *
+   * @return the type of the entity that is the root of an instance graph if channel is an instance channel.
+   */
+  @Nullable
+  public Class<?> getInstanceType()
+  {
+    return _instanceType;
   }
 
   /**

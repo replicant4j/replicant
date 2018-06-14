@@ -454,7 +454,7 @@ public class ConvergerTest
     final ChannelSchema channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          false,
@@ -490,7 +490,7 @@ public class ConvergerTest
     final ChannelSchema channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          false,
@@ -576,7 +576,7 @@ public class ConvergerTest
     final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.STATIC,
                          null,
                          true,
@@ -612,7 +612,7 @@ public class ConvergerTest
     final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.STATIC,
                          null,
                          true,
@@ -674,7 +674,7 @@ public class ConvergerTest
     final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
@@ -759,7 +759,7 @@ public class ConvergerTest
     final ChannelSchema channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          false,
@@ -831,7 +831,7 @@ public class ConvergerTest
     final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
@@ -839,7 +839,7 @@ public class ConvergerTest
     final ChannelSchema channel1 =
       new ChannelSchema( 1,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
@@ -880,7 +880,7 @@ public class ConvergerTest
     final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
@@ -888,7 +888,7 @@ public class ConvergerTest
     final ChannelSchema channel1 =
       new ChannelSchema( 1,
                          ValueUtil.randomString(),
-                         true,
+                         null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
