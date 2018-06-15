@@ -1,5 +1,6 @@
 package replicant;
 
+import elemental2.dom.DomGlobal;
 import javax.annotation.Nonnull;
 
 /**
@@ -35,7 +36,15 @@ final class Scheduler
   {
     void schedule( @Nonnull final SafeFunction<Boolean> command )
     {
-      com.google.gwt.core.client.Scheduler.get().scheduleIncremental( command::call );
+      final long end = System.currentTimeMillis() + 14;
+      while ( System.currentTimeMillis() < end )
+      {
+        if ( !command.call() )
+        {
+          return;
+        }
+      }
+      DomGlobal.setTimeout( v -> schedule( command ), 0 );
     }
   }
 
