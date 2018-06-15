@@ -12,10 +12,18 @@ public class ReplicantContextTest
   @Test
   public void schemas()
   {
+    final int schemaId = 22;
+
     final ReplicantContext context = Replicant.context();
     safeAction( () -> assertEquals( context.getSchemas().size(), 0 ) );
+    safeAction( () -> assertEquals( context.findSchemaById( schemaId ), null ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> safeAction( () -> context.getSchemaById( schemaId ) ) );
+    assertEquals( exception.getMessage(), "Replicant-0059: Unable to locate SystemSchema with id 22" );
+
     final SystemSchema schema1 =
-      new SystemSchema( ValueUtil.randomInt(),
+      new SystemSchema( schemaId,
                         ValueUtil.randomString(),
                         new ChannelSchema[ 0 ],
                         new EntitySchema[ 0 ] );
@@ -24,6 +32,9 @@ public class ReplicantContextTest
 
     safeAction( () -> assertEquals( context.getSchemas().size(), 1 ) );
     safeAction( () -> assertEquals( context.getSchemas().contains( schema1 ), true ) );
+
+    safeAction( () -> assertEquals( context.findSchemaById( schemaId ), schema1 ) );
+    safeAction( () -> assertEquals( context.getSchemaById( schemaId ), schema1 ) );
   }
 
   @Test

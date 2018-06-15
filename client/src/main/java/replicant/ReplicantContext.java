@@ -196,6 +196,31 @@ public final class ReplicantContext
   }
 
   /**
+   * Return the schema with the specified schemaId or null if no such schema.
+   *
+   * @param schemaId the id of the schema.
+   * @return the schema or null if no such schema.
+   */
+  @Nullable
+  public SystemSchema findSchemaById( final int schemaId )
+  {
+    return getSchemaService().findById( schemaId );
+  }
+
+  /**
+   * Return the schema with the specified schemaId.
+   * This should not be invoked unless the schema with specified id exists.
+   *
+   * @param schemaId the id of the schema.
+   * @return the schema.
+   */
+  @Nonnull
+  public SystemSchema getSchemaById( final int schemaId )
+  {
+    return getSchemaService().getById( schemaId );
+  }
+
+  /**
    * Return true if spy events will be propagated.
    * This means spies are enabled and there is at least one spy event handler present.
    *
