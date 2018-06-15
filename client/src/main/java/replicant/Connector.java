@@ -53,8 +53,8 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class Connector
   extends ReplicantService
 {
-  private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
-  private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
+  private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 20;
+  private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 20;
   /**
    * The schema that defines data-API used to interact with datasource.
    */
