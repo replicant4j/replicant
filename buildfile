@@ -9,7 +9,7 @@ REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
 AREZ_DEPS = [:arez_annotations, :arez_core, :arez_processor, :arez_component, :braincheck, :jetbrains_annotations]
 
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
-PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
+PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
@@ -38,7 +38,7 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
-    compile.with :javax_jsr305
+    compile.with :javax_annotation
 
     gwt_enhance(project)
 
