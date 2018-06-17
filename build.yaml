@@ -45,8 +45,6 @@ artifacts:
 
   braincheck: org.realityforge.braincheck:braincheck:jar:1.9.0
 
-  anodoc: org.realityforge.anodoc:anodoc:jar:1.0.0
-
   jetbrains_annotations: org.jetbrains:annotations:jar:15.0
 
   #
