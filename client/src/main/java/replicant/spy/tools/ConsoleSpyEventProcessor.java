@@ -2,7 +2,6 @@ package replicant.spy.tools;
 
 import elemental2.dom.DomGlobal;
 import javax.annotation.Nonnull;
-import org.realityforge.anodoc.Unsupported;
 import replicant.AreaOfInterest;
 import replicant.FilterUtil;
 import replicant.Subscription;
@@ -41,7 +40,6 @@ import replicant.spy.UnsubscribeStartedEvent;
  * The events are colored to make them easy to digest. This class is designed to be easy to sub-class.
  */
 @SuppressWarnings( "WeakerAccess" )
-@Unsupported( "This class relies on unstable spy API and will likely evolve as the api evolves" )
 public class ConsoleSpyEventProcessor
   extends AbstractSpyEventProcessor
 {

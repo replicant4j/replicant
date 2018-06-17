@@ -1,12 +1,10 @@
 package replicant;
 
 import javax.annotation.Nonnull;
-import org.realityforge.anodoc.Unsupported;
 
 /**
  * Interface for interacting with spy system.
  */
-@Unsupported( "This services is primary here to support DevTools and will evolve as requirements dictate" )
 public interface Spy
 {
   /**
