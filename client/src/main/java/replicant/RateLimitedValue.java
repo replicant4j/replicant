@@ -1,6 +1,5 @@
 package replicant;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 final class RateLimitedValue
@@ -17,9 +16,7 @@ final class RateLimitedValue
   // The number of tokens left in the bucket
   private double _tokenCount;
 
-  RateLimitedValue( final long now,
-                    @Nonnegative final double tokensPerSecond,
-                    @Nonnegative final double maxTokenAmount )
+  RateLimitedValue( final long now, final double tokensPerSecond, final double maxTokenAmount )
   {
     setTokensPerSecond( tokensPerSecond );
     setMaxTokenCount( maxTokenAmount );
@@ -27,7 +24,7 @@ final class RateLimitedValue
     _lastRegenTime = now;
   }
 
-  void setTokensPerSecond( @Nonnegative final double tokensPerSecond )
+  void setTokensPerSecond( final double tokensPerSecond )
   {
     assert tokensPerSecond >= 0;
     _tokensPerSecond = Math.min( tokensPerSecond, MAX_POSSIBLE_TOKENS );
@@ -53,20 +50,20 @@ final class RateLimitedValue
     return _tokenCount;
   }
 
-  void setMaxTokenCount( @Nonnegative final double maxTokenCount )
+  void setMaxTokenCount( final double maxTokenCount )
   {
     assert maxTokenCount >= 0;
     _maxTokenCount = maxTokenCount;
     _tokenCount = Math.min( _tokenCount, _maxTokenCount );
   }
 
-  void setTokenCount( @Nonnegative final double tokenCount )
+  void setTokenCount( final double tokenCount )
   {
     assert tokenCount >= 0;
     _tokenCount = Math.min( tokenCount, _maxTokenCount );
   }
 
-  boolean consume( final long now, @Nonnegative final double costInTokens )
+  boolean consume( final long now, final double costInTokens )
   {
     regenerateTokens( now );
     if ( _tokenCount >= costInTokens )
@@ -80,7 +77,7 @@ final class RateLimitedValue
     }
   }
 
-  boolean attempt( final long now, @Nonnegative final double costInTokens, @Nonnull final Runnable action )
+  boolean attempt( final long now, final double costInTokens, @Nonnull final Runnable action )
   {
     if ( consume( now, costInTokens ) )
     {

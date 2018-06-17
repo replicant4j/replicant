@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.ChannelAddress;
 
@@ -52,7 +51,7 @@ public final class SystemMetaData
    * @return the channel metadata.
    */
   @Nonnull
-  public ChannelMetaData getChannelMetaData( @Nonnegative final int channelId )
+  public ChannelMetaData getChannelMetaData( final int channelId )
   {
     if ( channelId >= _channels.size() || channelId < 0 )
     {

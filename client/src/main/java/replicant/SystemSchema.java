@@ -2,7 +2,6 @@ package replicant;
 
 import java.util.Arrays;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
@@ -106,7 +105,6 @@ public final class SystemSchema
    *
    * @return the number of entities in system.
    */
-  @Nonnegative
   public int getEntityCount()
   {
     return _entities.length;
@@ -120,7 +118,7 @@ public final class SystemSchema
    * @return the entity matching typeId.
    */
   @Nonnull
-  public EntitySchema getEntity( @Nonnegative final int typeId )
+  public EntitySchema getEntity( final int typeId )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -135,7 +133,6 @@ public final class SystemSchema
    *
    * @return the number of channels in system.
    */
-  @Nonnegative
   public int getChannelCount()
   {
     return _channels.length;
@@ -149,7 +146,7 @@ public final class SystemSchema
    * @return the Channel matching channelId.
    */
   @Nonnull
-  public ChannelSchema getChannel( @Nonnegative final int channelId )
+  public ChannelSchema getChannel( final int channelId )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
