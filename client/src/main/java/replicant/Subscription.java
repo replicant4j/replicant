@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import replicant.spy.SubscriptionDisposedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -178,7 +177,7 @@ public abstract class Subscription
 
   @SuppressWarnings( "unchecked" )
   @Override
-  public int compareTo( @NotNull final Subscription o )
+  public int compareTo( @Nonnull final Subscription o )
   {
     return getAddress().compareTo( o.getAddress() );
   }
