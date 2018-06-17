@@ -6,7 +6,7 @@ require 'buildr/single_intermediate_layout'
 
 REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
 
-AREZ_DEPS = [:arez_annotations, :arez_core, :arez_processor, :arez_component, :braincheck, :jetbrains_annotations]
+AREZ_DEPS = [:arez_annotations, :arez_core, :arez_processor, :arez_component, :braincheck]
 
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
@@ -73,6 +73,7 @@ define 'replicant' do
     compile.with project('shared').package(:jar),
                  project('shared').compile.dependencies,
                  :gwt_webpoller,
+                 :jetbrains_annotations,
                  GWT_DEPS,
                  REACT4J_DEPS,
                  AREZ_DEPS,
