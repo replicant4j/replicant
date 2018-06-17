@@ -49,3 +49,8 @@ Some actions that should occur at some point in the future.
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
 * Introduce TransportFactory and pass that into context.
+
+* Add https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API to find out where time
+  is and time each phase in message processing occurs
+
+* Rather than DEFAULT_LINKS_TO_PROCESS_PER_TICK and DEFAULT_CHANGES_TO_PROCESS_PER_TICK try to use time based feedback
