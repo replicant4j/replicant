@@ -14,7 +14,7 @@ KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_ada
 COMPILE_DEPS = KEYCLOAK_DEPS
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
-TEST_DEPS = TEST_INFRA_DEPS + [:jndikit]
+TEST_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng] + [:jndikit]
 
 # JDK options passed to test environment. Essentially turns assertions on.
 TEST_OPTIONS =
@@ -61,7 +61,10 @@ define 'replicant' do
     test.options[:java_args] = ['-ea']
 
     test.using :testng
-    test.compile.with TEST_DEPS
+    test.compile.with :mockito,
+                      :guiceyloops,
+                      :glassfish_embedded,
+                      :jndikit
   end
 
   define 'client' do
@@ -90,7 +93,10 @@ define 'replicant' do
     test.options[:java_args] = ['-ea']
 
     test.using :testng
-    test.compile.with TEST_DEPS
+    test.compile.with :mockito,
+                      :guiceyloops,
+                      # javax_javaee is provided so that JSON parsing can occur for JRE variant.
+                      :glassfish_embedded
   end
 
   ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development')
