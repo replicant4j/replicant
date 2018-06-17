@@ -18,7 +18,9 @@ public final class SubscribeStartedEvent
   @Nonnull
   private final ChannelAddress _address;
 
-  public SubscribeStartedEvent( final int schemaId, @Nonnull final String schemaName, @Nonnull final ChannelAddress address )
+  public SubscribeStartedEvent( final int schemaId,
+                                @Nonnull final String schemaName,
+                                @Nonnull final ChannelAddress address )
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );

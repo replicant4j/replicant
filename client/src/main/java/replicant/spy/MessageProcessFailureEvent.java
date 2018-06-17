@@ -17,7 +17,9 @@ public final class MessageProcessFailureEvent
   @Nonnull
   private final Throwable _error;
 
-  public MessageProcessFailureEvent( final int schemaId, @Nonnull final String schemaName, @Nonnull final Throwable error )
+  public MessageProcessFailureEvent( final int schemaId,
+                                     @Nonnull final String schemaName,
+                                     @Nonnull final Throwable error )
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
