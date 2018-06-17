@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.anodoc.TestOnly;
 import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
@@ -1475,14 +1474,12 @@ abstract class Connector
     return Replicant.areNamesEnabled() ? "Connector[" + getSchema().getName() + "]" : super.toString();
   }
 
-  @TestOnly
   @Nullable
   final Disposable getSchedulerLock()
   {
     return _schedulerLock;
   }
 
-  @TestOnly
   @Nullable
   final SafeProcedure getPostMessageResponseAction()
   {

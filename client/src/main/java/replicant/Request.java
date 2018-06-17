@@ -2,7 +2,6 @@ package replicant;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.anodoc.TestOnly;
 import static org.realityforge.braincheck.Guards.*;
 
 public final class Request
@@ -58,7 +57,6 @@ public final class Request
     return _entry.hasCompleted();
   }
 
-  @TestOnly
   @Nonnull
   final RequestEntry getEntry()
   {

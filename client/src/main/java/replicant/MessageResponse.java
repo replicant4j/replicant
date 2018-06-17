@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.anodoc.TestOnly;
 import replicant.messages.ChangeSet;
 import replicant.messages.EntityChange;
 import replicant.spy.DataLoadStatus;
@@ -340,7 +339,6 @@ final class MessageResponse
     }
   }
 
-  @TestOnly
   LinkedList<Linkable> getUpdatedEntities()
   {
     return _updatedEntities;

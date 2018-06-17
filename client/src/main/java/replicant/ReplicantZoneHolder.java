@@ -4,7 +4,6 @@ import arez.Disposable;
 import java.util.ArrayList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.anodoc.TestOnly;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -106,7 +105,6 @@ final class ReplicantZoneHolder
    * Clear the state to cleanup .
    * This is dangerous as it may leave dangling references and should only be done in tests.
    */
-  @TestOnly
   static void reset()
   {
     if ( null != c_defaultZone )
@@ -122,7 +120,6 @@ final class ReplicantZoneHolder
     c_zoneStack = new ArrayList<>();
   }
 
-  @TestOnly
   @Nonnull
   static Zone getDefaultZone()
   {
@@ -130,7 +127,6 @@ final class ReplicantZoneHolder
     return c_defaultZone;
   }
 
-  @TestOnly
   @Nonnull
   static ArrayList<Zone> getZoneStack()
   {

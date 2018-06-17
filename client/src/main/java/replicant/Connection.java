@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.anodoc.TestOnly;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -394,37 +393,31 @@ final class Connection
     _currentAreaOfInterestRequests.clear();
   }
 
-  @TestOnly
   void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest request )
   {
     _currentAreaOfInterestRequests.add( request );
   }
 
-  @TestOnly
   void injectPendingResponses( @Nonnull final MessageResponse response )
   {
     _pendingResponses.add( response );
   }
 
-  @TestOnly
   List<MessageResponse> getPendingResponses()
   {
     return Collections.unmodifiableList( _pendingResponses );
   }
 
-  @TestOnly
   List<MessageResponse> getUnparsedResponses()
   {
     return Collections.unmodifiableList( _unparsedResponses );
   }
 
-  @TestOnly
   List<MessageResponse> getOutOfBandResponses()
   {
     return Collections.unmodifiableList( _outOfBandResponses );
   }
 
-  @TestOnly
   List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
   {
     return Collections.unmodifiableList( _pendingAreaOfInterestRequests );
