@@ -11,7 +11,6 @@ AREZ_DEPS = [:arez_annotations, :arez_core, :arez_processor, :arez_component, :b
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
-COMPILE_DEPS = KEYCLOAK_DEPS
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
 TEST_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng] + [:jndikit]
@@ -51,7 +50,9 @@ define 'replicant' do
     pom.provided_dependencies.concat PROVIDED_DEPS
     pom.optional_dependencies.concat OPTIONAL_DEPS
 
-    compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar)
+    compile.with PROVIDED_DEPS,
+                 KEYCLOAK_DEPS,
+                 project('shared').package(:jar)
 
     package(:jar)
     package(:sources)
