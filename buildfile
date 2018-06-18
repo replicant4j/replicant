@@ -36,8 +36,6 @@ define 'replicant' do
   define 'shared' do
     compile.with :javax_annotation
 
-    gwt_enhance(project)
-
     package(:jar)
     package(:sources)
   end
