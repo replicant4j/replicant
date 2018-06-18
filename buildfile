@@ -36,7 +36,9 @@ define 'replicant' do
   define 'shared' do
     compile.with :javax_annotation
 
-    package(:jar)
+    package(:jar).tap do |j|
+      j.include("#{project._(:source, :main, :java)}/*")
+    end
     package(:sources)
   end
 
