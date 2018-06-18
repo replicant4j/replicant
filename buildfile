@@ -51,6 +51,9 @@ define 'replicant' do
   define 'server' do
     pom.provided_dependencies.concat PROVIDED_DEPS
     pom.optional_dependencies.concat OPTIONAL_DEPS
+    pom.dependency_filter = Proc.new do |dep|
+      dep[:scope].to_s != 'test'
+    end
 
     compile.with PROVIDED_DEPS,
                  KEYCLOAK_DEPS,
