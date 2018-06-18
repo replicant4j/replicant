@@ -70,7 +70,26 @@ define 'replicant' do
   end
 
   define 'client' do
+    pom.include_transitive_dependencies << project('shared').package(:jar)
+    pom.include_transitive_dependencies << artifact(:jetbrains_annotations)
+    pom.include_transitive_dependencies << artifact(:elemental2_dom)
+    pom.include_transitive_dependencies << artifact(:elemental2_webstorage)
+    pom.include_transitive_dependencies << artifact(:react4j_arez)
+    pom.include_transitive_dependencies << artifact(:arez_component)
+    pom.include_transitive_dependencies << artifact(:gwt_webpoller)
+    pom.include_transitive_dependencies << artifact(:gwt_user)
+    pom.include_transitive_dependencies << artifact(:javax_javaee)
+
     pom.provided_dependencies.concat [:javax_javaee, :gwt_user]
+    pom.dependency_filter = Proc.new do |dep|
+      dep[:scope].to_s != 'test' &&
+        !project('shared').compile.dependencies.include?(dep[:artifact]) &&
+        (dep[:group].to_s != 'com.google.elemental2' || %w(elemental2-dom elemental2-webstorage).include?(dep[:id].to_s)) &&
+        (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-arez).include?(dep[:id].to_s)) &&
+        (dep[:group].to_s != 'org.realityforge.arez' || %w(arez-component).include?(dep[:id].to_s)) &&
+        dep[:group].to_s != 'com.google.jsinterop' &&
+        dep[:group].to_s != 'org.realityforge.braincheck'
+    end
 
     project.processorpath << :react4j_processor
     project.processorpath << :arez_processor
