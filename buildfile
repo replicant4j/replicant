@@ -13,7 +13,6 @@ PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
-TEST_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng] + [:jndikit]
 
 # JDK options passed to test environment. Essentially turns assertions on.
 TEST_OPTIONS =
