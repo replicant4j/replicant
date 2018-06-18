@@ -34,29 +34,31 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
-    pom.include_transitive_dependencies << artifact(:javax_annotation)
-
     compile.with :javax_annotation
 
     gwt_enhance(project)
 
     package(:jar)
     package(:sources)
-    package(:javadoc)
   end
 
   define 'server' do
     pom.provided_dependencies.concat PROVIDED_DEPS
     pom.dependency_filter = Proc.new do |dep|
-      dep[:scope].to_s != 'test'
+      dep[:scope].to_s != 'test' &&
+      project('shared').package(:jar) != dep[:artifact]
     end
 
     compile.with PROVIDED_DEPS,
                  KEYCLOAK_DEPS,
                  project('shared').package(:jar)
 
-    package(:jar)
-    package(:sources)
+    package(:jar).enhance do |jar|
+      jar.merge(project('shared').package(:jar))
+    end
+    package(:sources).enhance do |jar|
+      jar.merge(project('shared').package(:jar, :classifier => :sources))
+    end
     package(:javadoc)
 
     test.options[:properties] = TEST_OPTIONS
@@ -70,7 +72,6 @@ define 'replicant' do
   end
 
   define 'client' do
-    pom.include_transitive_dependencies << project('shared').package(:jar)
     pom.include_transitive_dependencies << artifact(:jetbrains_annotations)
     pom.include_transitive_dependencies << artifact(:elemental2_dom)
     pom.include_transitive_dependencies << artifact(:elemental2_webstorage)
@@ -84,6 +85,7 @@ define 'replicant' do
     pom.dependency_filter = Proc.new do |dep|
       dep[:scope].to_s != 'test' &&
         !project('shared').compile.dependencies.include?(dep[:artifact]) &&
+        project('shared').package(:jar) != dep[:artifact] &&
         (dep[:group].to_s != 'com.google.elemental2' || %w(elemental2-dom elemental2-webstorage).include?(dep[:id].to_s)) &&
         (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-arez).include?(dep[:id].to_s)) &&
         (dep[:group].to_s != 'org.realityforge.arez' || %w(arez-component).include?(dep[:id].to_s)) &&
@@ -106,8 +108,12 @@ define 'replicant' do
 
     gwt_enhance(project)
 
-    package(:jar)
-    package(:sources)
+    package(:jar).enhance do |jar|
+      jar.merge(project('shared').package(:jar))
+    end
+    package(:sources).enhance do |jar|
+      jar.merge(project('shared').package(:jar, :classifier => :sources))
+    end
     package(:javadoc)
 
     test.options[:properties] = TEST_OPTIONS
@@ -128,4 +134,5 @@ define 'replicant' do
   ([project] + projects).each do |p|
     p.enable_annotation_processor = false if p.processorpath.empty?
   end
+  project('shared').task('upload').actions.clear
 end
