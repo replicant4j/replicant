@@ -37,6 +37,8 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
+    pom.include_transitive_dependencies << artifact(:javax_annotation)
+
     compile.with :javax_annotation
 
     gwt_enhance(project)
