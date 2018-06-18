@@ -11,8 +11,6 @@ AREZ_DEPS = [:arez_annotations, :arez_core, :arez_component, :braincheck]
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
-TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
-OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
 
 # JDK options passed to test environment. Essentially turns assertions on.
 TEST_OPTIONS =
@@ -49,7 +47,6 @@ define 'replicant' do
 
   define 'server' do
     pom.provided_dependencies.concat PROVIDED_DEPS
-    pom.optional_dependencies.concat OPTIONAL_DEPS
     pom.dependency_filter = Proc.new do |dep|
       dep[:scope].to_s != 'test'
     end
