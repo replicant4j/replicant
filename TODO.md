@@ -34,9 +34,10 @@ Some actions that should occur at some point in the future.
     is invoked (for all non-lazy relationships). `link()` is typically after a message/transaction has updated
     all the required entities within the system.
 
-* Move to CBOR for serialization.
+* Move to CBOR or protobuf for serialization.
   - https://www.ietf.org/about/participate/tutorials/technical/cbor/
   - http://cbor.io/impls.html
+  - https://github.com/dcodeIO/protobuf.js
 
 * Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
   could be lazily created on access via `EntityLocator`.
