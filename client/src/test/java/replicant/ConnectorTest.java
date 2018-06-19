@@ -1551,6 +1551,49 @@ public class ConnectorTest
   }
 
   @Test
+  public void processChannelChanges_add_withCorrespondingAreaOfInterest()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    final int channelId = 0;
+    final int subChannelId = ValueUtil.randomInt();
+    final String filter = ValueUtil.randomString();
+
+    final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
+
+    safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
+
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
+
+    assertEquals( response.needsChannelChangesProcessed(), true );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges();
+
+    assertEquals( response.needsChannelChangesProcessed(), false );
+
+    final Subscription subscription =
+      safeAction( () -> Replicant.context().findSubscription( address ) );
+    assertNotNull( subscription );
+    assertEquals( subscription.getAddress(), address );
+    safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
+    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
+      assertEquals( e.getSubscription().getAddress(), address );
+      safeAction( () -> assertEquals( e.getSubscription().getFilter(), filter ) );
+    } );
+  }
+
+  @Test
   public void processChannelChanges_addConvertingImplicitToExplicit()
   {
     final Connector connector = createConnector();

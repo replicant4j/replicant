@@ -555,10 +555,10 @@ abstract class Connector
       {
         response.incChannelAddCount();
         final boolean explicitSubscribe =
-          ensureConnection()
-            .getCurrentAreaOfInterestRequests()
+          getReplicantContext()
+            .getAreasOfInterest()
             .stream()
-            .anyMatch( a -> a.isInProgress() && a.getAddress().equals( address ) );
+            .anyMatch( a -> a.getAddress().equals( address ) );
         getReplicantContext().getSubscriptionService().createSubscription( address, filter, explicitSubscribe );
       }
       else if ( ChannelChange.Action.REMOVE == actionType )
