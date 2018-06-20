@@ -4,6 +4,7 @@ import arez.Arez;
 import arez.ArezContext;
 import arez.Component;
 import arez.Observer;
+import arez.Priority;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
@@ -53,7 +54,7 @@ abstract class ReplicantRuntime
                          true,
                          () -> !ComponentObservable.observe( connector ),
                          () -> deregisterConnector( connector ),
-                         true,
+                         Priority.HIGH,
                          true );
     entry.setMonitor( monitor );
     getConnectorsObservable().reportChanged();

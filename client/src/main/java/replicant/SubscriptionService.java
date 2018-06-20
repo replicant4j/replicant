@@ -5,6 +5,7 @@ import arez.ArezContext;
 import arez.Component;
 import arez.Disposable;
 import arez.Observer;
+import arez.Priority;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
@@ -217,7 +218,7 @@ abstract class SubscriptionService
                          true,
                          () -> !ComponentObservable.observe( subscription ),
                          () -> destroy( subscription ),
-                         true,
+                         Priority.HIGH,
                          true );
     entry.setMonitor( monitor );
     return entry;

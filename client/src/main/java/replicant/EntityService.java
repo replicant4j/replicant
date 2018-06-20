@@ -5,6 +5,7 @@ import arez.ArezContext;
 import arez.Component;
 import arez.Disposable;
 import arez.Observer;
+import arez.Priority;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
@@ -197,7 +198,7 @@ abstract class EntityService
                          true,
                          () -> !ComponentObservable.observe( entity ),
                          () -> destroy( entity ),
-                         true,
+                         Priority.HIGH,
                          true );
     entry.setMonitor( monitor );
 
