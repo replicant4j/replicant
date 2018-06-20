@@ -6,7 +6,7 @@ require 'buildr/single_intermediate_layout'
 
 REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
 
-AREZ_DEPS = [:arez_annotations, :arez_core, :arez_component, :braincheck]
+AREZ_DEPS = [:arez_annotations, :arez_core, :arez_component, :arez_entity, :braincheck]
 
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
@@ -76,7 +76,7 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:elemental2_dom)
     pom.include_transitive_dependencies << artifact(:elemental2_webstorage)
     pom.include_transitive_dependencies << artifact(:react4j_arez)
-    pom.include_transitive_dependencies << artifact(:arez_component)
+    pom.include_transitive_dependencies << artifact(:arez_entity)
     pom.include_transitive_dependencies << artifact(:gwt_webpoller)
     pom.include_transitive_dependencies << artifact(:gwt_user)
     pom.include_transitive_dependencies << artifact(:javax_javaee)
@@ -88,7 +88,7 @@ define 'replicant' do
         project('shared').package(:jar) != dep[:artifact] &&
         (dep[:group].to_s != 'com.google.elemental2' || %w(elemental2-dom elemental2-webstorage).include?(dep[:id].to_s)) &&
         (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-arez).include?(dep[:id].to_s)) &&
-        (dep[:group].to_s != 'org.realityforge.arez' || %w(arez-component).include?(dep[:id].to_s)) &&
+        (dep[:group].to_s != 'org.realityforge.arez' || %w(arez-entity).include?(dep[:id].to_s)) &&
         dep[:group].to_s != 'com.google.jsinterop' &&
         dep[:group].to_s != 'org.realityforge.braincheck'
     end

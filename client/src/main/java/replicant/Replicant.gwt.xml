@@ -1,5 +1,5 @@
 <module>
-  <inherits name='arez.component.Component'/>
+  <inherits name='arez.entity.Entity'/>
 
   <!-- This is required while the browser ConsoleSpyEvent is present -->
   <inherits name='elemental2.dom.Dom'/>
