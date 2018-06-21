@@ -1,7 +1,6 @@
 <module>
   <inherits name='replicant.Replicant'/>
   <inherits name='org.realityforge.gwt.webpoller.WebPoller'/>
-  <inherits name='com.google.gwt.http.HTTP'/>
   <inherits name='com.google.gwt.user.RemoteService'/>
 
   <source path='client' includes='*.java'/>
