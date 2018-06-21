@@ -193,10 +193,6 @@ public abstract class ReplicantSubscription<T>
         {
           Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
         }
-        else
-        {
-          clearAreaOfInterest();
-        }
       }
     }
     updateAreaOfInterest();
