@@ -14,7 +14,6 @@ import org.realityforge.gwt.webpoller.client.CancelableRequestFactory;
 import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
-import org.realityforge.replicant.client.gwt.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.ChannelAddress;
 import replicant.Replicant;

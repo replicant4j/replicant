@@ -4,6 +4,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
