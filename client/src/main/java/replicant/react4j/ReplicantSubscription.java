@@ -169,7 +169,7 @@ public abstract class ReplicantSubscription<T>
     updateAreaOfInterest();
   }
 
-  @Action
+  @Action( reportParameters = false )
   @Override
   protected void componentDidUpdate( @Nullable final JsPropertyMap<Object> prevProps,
                                      @Nullable final JsPropertyMap<Object> prevState )
