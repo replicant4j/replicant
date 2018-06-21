@@ -185,10 +185,11 @@ public abstract class ReplicantSubscription<T>
     {
       final Object filter = null != prevProps ? prevProps.get( "filter" ) : null;
       final Object newFilter = getFilter();
-      if ( !FilterUtil.filtersEqual( newFilter, filter ) )
+      if ( ChannelSchema.FilterType.DYNAMIC == channelSchema.getFilterType() &&
+           !FilterUtil.filtersEqual( newFilter, filter ) )
       {
         final AreaOfInterest areaOfInterest = getAreaOfInterest();
-        if ( null != areaOfInterest && ChannelSchema.FilterType.DYNAMIC == channelSchema.getFilterType() )
+        if ( null != areaOfInterest )
         {
           Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
         }
