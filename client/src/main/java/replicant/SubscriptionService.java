@@ -90,7 +90,7 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
-      .filter( Disposable::isNotDisposed )
+      .filter( s -> s.isNotDisposed() )
       .map( SubscriptionEntry::getSubscription )
       .collect( Collectors.toList() );
   }
