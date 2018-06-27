@@ -37,7 +37,6 @@ abstract class SubscriptionService
 {
   //SystemId -> ChannelId => Id => Entry
   private final Map<Integer, Map<Integer, Map<Integer, Subscription>>> _instanceSubscriptions = new HashMap<>();
-
   //SystemId -> ChannelId => Entry
   private final Map<Integer, Map<Integer, SubscriptionEntry>> _typeSubscriptions = new HashMap<>();
 
