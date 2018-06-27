@@ -1,11 +1,8 @@
 package replicant;
 
-import arez.Arez;
 import arez.ArezContext;
 import arez.Component;
 import arez.Disposable;
-import arez.Observer;
-import arez.Priority;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
@@ -15,7 +12,7 @@ import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
-import arez.component.Identifiable;
+import arez.component.DisposeTrackable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +35,7 @@ abstract class SubscriptionService
   //SystemId -> ChannelId => Id => Entry
   private final Map<Integer, Map<Integer, Map<Integer, Subscription>>> _instanceSubscriptions = new HashMap<>();
   //SystemId -> ChannelId => Entry
-  private final Map<Integer, Map<Integer, SubscriptionEntry>> _typeSubscriptions = new HashMap<>();
+  private final Map<Integer, Map<Integer, Subscription>> _typeSubscriptions = new HashMap<>();
 
   static SubscriptionService create( @Nullable final ReplicantContext context )
   {
@@ -90,8 +87,6 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
-      .filter( s -> s.isNotDisposed() )
-      .map( SubscriptionEntry::getSubscription )
       .collect( Collectors.toList() );
   }
 
@@ -112,7 +107,6 @@ abstract class SubscriptionService
       .stream()
       .flatMap( s -> s.values().stream() )
       .flatMap( s -> s.values().stream() )
-      .filter( Disposable::isNotDisposed )
       .collect( Collectors.toList() );
   }
 
@@ -138,14 +132,7 @@ abstract class SubscriptionService
     }
     else
     {
-      final Set<Object> results =
-        map
-          .entrySet()
-          .stream()
-          .filter( e -> Disposable.isNotDisposed( e.getValue() ) )
-          .map( Map.Entry::getKey )
-          .collect( Collectors.toSet() );
-      return CollectionsUtil.wrap( results );
+      return CollectionsUtil.asSet( map.entrySet().stream().map( Map.Entry::getKey ) );
     }
   }
 
@@ -183,12 +170,15 @@ abstract class SubscriptionService
                            address,
                            filter,
                            explicitSubscription );
-    final SubscriptionEntry entry = createSubscriptionEntry( subscription );
+    DisposeTrackable
+      .asDisposeTrackable( subscription )
+      .getNotifier()
+      .addOnDisposeListener( this, () -> destroy( subscription ) );
     if ( null == id )
     {
       _typeSubscriptions
         .computeIfAbsent( address.getSystemId(), HashMap::new )
-        .put( address.getChannelId(), entry );
+        .put( address.getChannelId(), subscription );
       getTypeSubscriptionsObservable().reportChanged();
     }
     else
@@ -206,27 +196,18 @@ abstract class SubscriptionService
     return subscription;
   }
 
-  @Nonnull
-  private SubscriptionEntry createSubscriptionEntry( @Nonnull final Subscription subscription )
-  {
-    final SubscriptionEntry entry = new SubscriptionEntry( subscription );
-    final Object arezId = Identifiable.getArezId( subscription );
-    final Observer monitor =
-      getContext().when( Arez.areNativeComponentsEnabled() ? component() : null,
-                         Arez.areNamesEnabled() ? getComponentName() + ".SubscriptionWatcher." + arezId : null,
-                         true,
-                         () -> !ComponentObservable.observe( subscription ),
-                         () -> destroy( subscription ),
-                         Priority.HIGH,
-                         true );
-    entry.setMonitor( monitor );
-    return entry;
-  }
-
   private void destroy( @Nonnull final Subscription subscription )
   {
-    subscription.delinkSubscriptionFromAllEntities();
+    detachSubscription( subscription );
     unlinkSubscription( subscription.getAddress() );
+  }
+
+  private void detachSubscription( @Nonnull final Subscription subscription )
+  {
+    DisposeTrackable
+      .asDisposeTrackable( subscription )
+      .getNotifier()
+      .removeOnDisposeListener( this );
   }
 
   /**
@@ -262,16 +243,15 @@ abstract class SubscriptionService
   @Nullable
   private Subscription findTypeSubscription( final int systemId, final int channelId )
   {
-    final Map<Integer, SubscriptionEntry> channelMap = _typeSubscriptions.get( systemId );
-    final SubscriptionEntry entry = null == channelMap ? null : channelMap.get( channelId );
-    if ( null == entry || Disposable.isDisposed( entry.getSubscription() ) )
+    final Map<Integer, Subscription> channelMap = _typeSubscriptions.get( systemId );
+    final Subscription subscription = null == channelMap ? null : channelMap.get( channelId );
+    if ( null == subscription )
     {
       getTypeSubscriptionsObservable().reportObserved();
       return null;
     }
     else
     {
-      final Subscription subscription = entry.getSubscription();
       ComponentObservable.observe( subscription );
       return subscription;
     }
@@ -322,25 +302,25 @@ abstract class SubscriptionService
     if ( null == id )
     {
       getTypeSubscriptionsObservable().preReportChanged();
-      final Map<Integer, SubscriptionEntry> entryMap = _typeSubscriptions.get( systemId );
-      final SubscriptionEntry entry = null == entryMap ? null : entryMap.remove( channelId );
-      if ( null != entry && entryMap.isEmpty() )
+      final Map<Integer, Subscription> map = _typeSubscriptions.get( systemId );
+      final Subscription subscription = null == map ? null : map.remove( channelId );
+      if ( null != subscription && map.isEmpty() )
       {
         _typeSubscriptions.remove( systemId );
       }
       if ( Replicant.shouldCheckInvariants() )
       {
-        invariant( () -> null != entry,
+        invariant( () -> null != subscription,
                    () -> "Replicant-0062: unlinkSubscription invoked with address " + address +
                          " but no subscription with that address exists." );
-        assert null != entry;
-        invariant( () -> Disposable.isDisposed( entry ),
+        assert null != subscription;
+        invariant( () -> Disposable.isDisposed( subscription ),
                    () -> "Replicant-0063: unlinkSubscription invoked with address " + address +
                          " but subscription has not already been disposed." );
       }
-      assert null != entry;
+      assert null != subscription;
       getTypeSubscriptionsObservable().reportChanged();
-      return entry.getSubscription();
+      return subscription;
     }
     else
     {
@@ -379,12 +359,14 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
-      .forEach( s -> Disposable.dispose( s ) );
+      .peek( this::detachSubscription )
+      .forEach( Disposable::dispose );
     _instanceSubscriptions
       .values()
       .stream()
       .flatMap( t -> t.values().stream() )
       .flatMap( t -> t.values().stream() )
+      .peek( this::detachSubscription )
       .forEach( Disposable::dispose );
   }
 }

@@ -106,7 +106,7 @@ public class SubscriptionTest
     safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
 
     // Removing entity 1, finder will react
-    safeAction( () -> subscription.delinkEntityFromSubscription( entity1 ) );
+    safeAction( () -> subscription.delinkEntityFromSubscription( entity1, true ) );
 
     assertEquals( callCount.get(), 4 );
     assertEquals( findCallCount.get(), 3 );
@@ -117,7 +117,7 @@ public class SubscriptionTest
     safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
 
     // Removing entity 2, state is reset
-    safeAction( () -> subscription.delinkEntityFromSubscription( entity2 ) );
+    safeAction( () -> subscription.delinkEntityFromSubscription( entity2, true ) );
 
     assertEquals( callCount.get(), 5 );
     assertEquals( findCallCount.get(), 4 );
@@ -143,7 +143,7 @@ public class SubscriptionTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
+                    () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity, true ) ) );
     assertEquals( exception.getMessage(), "Entity type A not present in subscription to channel 1.0.1" );
   }
 
@@ -168,7 +168,7 @@ public class SubscriptionTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity ) ) );
+                    () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity, true ) ) );
     assertEquals( exception.getMessage(), "Entity instance A/123 not present in subscription to channel 1.0.1" );
   }
 

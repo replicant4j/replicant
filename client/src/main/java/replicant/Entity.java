@@ -191,7 +191,7 @@ public abstract class Entity
   /**
    * Delink the specified subscription from this entity.
    * This method does not delink entity from subscription and it is assumed this is achieved through
-   * other means such as {@link Subscription#delinkEntityFromSubscription(Entity)}.
+   * other means such as {@link Subscription#delinkEntityFromSubscription(Entity, boolean)}.
    *
    * @param subscription the subscription.
    */
@@ -237,7 +237,7 @@ public abstract class Entity
 
   void delinkEntityFromAllSubscriptions()
   {
-    _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this ) );
+    _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this, true ) );
     _subscriptions.clear();
   }
 

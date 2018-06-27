@@ -1,11 +1,11 @@
 package replicant;
 
-import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
+import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.SubscriptionDisposedEvent;
@@ -23,12 +22,12 @@ import static org.realityforge.braincheck.Guards.*;
  * Representation of a subscription to a channel.
  */
 @SuppressWarnings( "Duplicates" )
-@ArezComponent
+@ArezComponent( observable = Feature.ENABLE )
 public abstract class Subscription
   extends ReplicantService
   implements Comparable<Subscription>
 {
-  private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
+  private final Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
   @Nonnull
   private final ChannelAddress _address;
   @Nullable
@@ -75,7 +74,7 @@ public abstract class Subscription
   public abstract void setExplicitSubscription( boolean explicitSubscription );
 
   @Observable( expectSetter = false )
-  Map<Class<?>, Map<Integer, EntityEntry>> getEntities()
+  Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> getEntities()
   {
     return _entities;
   }
@@ -89,21 +88,16 @@ public abstract class Subscription
   @Nonnull
   public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    final Map<Integer, EntityEntry> typeMap = getEntities().get( type );
+    final Map<Integer, EntitySubscriptionEntry> typeMap = getEntities().get( type );
     return null == typeMap ?
            Collections.emptyList() :
-           typeMap.values()
-             .stream()
-             .filter( Disposable::isNotDisposed )
-             .map( EntityEntry::getEntity )
-             .filter( Disposable::isNotDisposed )
-             .collect( Collectors.toList() );
+           CollectionsUtil.asList( typeMap.values().stream().map( EntitySubscriptionEntry::getEntity ) );
   }
 
   @Nullable
   public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
   {
-    final Map<Integer, EntityEntry> typeMap = _entities.get( type );
+    final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       getEntitiesObservable().reportObserved();
@@ -111,8 +105,8 @@ public abstract class Subscription
     }
     else
     {
-      final EntityEntry entry = typeMap.get( id );
-      if ( null == entry || Disposable.isDisposed( entry ) || Disposable.isDisposed( entry.getEntity() ) )
+      final EntitySubscriptionEntry entry = typeMap.get( id );
+      if ( null == entry )
       {
         getEntitiesObservable().reportObserved();
         return null;
@@ -187,11 +181,11 @@ public abstract class Subscription
     getEntitiesObservable().preReportChanged();
     final Class<?> type = entity.getType();
     final int id = entity.getId();
-    Map<Integer, EntityEntry> typeMap = _entities.get( type );
+    Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       typeMap = new HashMap<>();
-      typeMap.put( id, EntityEntry.create( entity ) );
+      typeMap.put( id, EntitySubscriptionEntry.create( entity ) );
       _entities.put( type, typeMap );
       getEntitiesObservable().reportChanged();
     }
@@ -199,22 +193,10 @@ public abstract class Subscription
     {
       if ( !typeMap.containsKey( id ) )
       {
-        typeMap.put( id, EntityEntry.create( entity ) );
+        typeMap.put( id, EntitySubscriptionEntry.create( entity ) );
         getEntitiesObservable().reportChanged();
       }
     }
-  }
-
-  /**
-   * Unlink the specified entity from this subscription.
-   * This method does not delink channel from entity and it is assumed this is achieved through
-   * other means such as {@link Entity#delinkSubscriptionFromEntity(Subscription)}.
-   *
-   * @param entity the entity.
-   */
-  final void delinkEntityFromSubscription( @Nonnull final Entity entity )
-  {
-    delinkEntityFromSubscription( entity, true );
   }
 
   final void delinkEntityFromSubscription( @Nonnull final Entity entity,
@@ -222,7 +204,7 @@ public abstract class Subscription
   {
     getEntitiesObservable().preReportChanged();
     final Class<?> entityType = entity.getType();
-    final Map<Integer, EntityEntry> typeMap = _entities.get( entityType );
+    final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( entityType );
     final ChannelAddress address = getAddress();
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -231,7 +213,7 @@ public abstract class Subscription
                        "to channel " + address );
     }
     assert null != typeMap;
-    final EntityEntry removed = typeMap.remove( entity.getId() );
+    final EntitySubscriptionEntry removed = typeMap.remove( entity.getId() );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed,
@@ -255,9 +237,10 @@ public abstract class Subscription
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionDisposedEvent( this ) );
     }
+    delinkSubscriptionFromAllEntities();
   }
 
-  void delinkSubscriptionFromAllEntities()
+  private void delinkSubscriptionFromAllEntities()
   {
     _entities.values()
       .stream()
