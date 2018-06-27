@@ -1,10 +1,7 @@
 package replicant;
 
-import arez.Arez;
 import arez.ArezContext;
 import arez.Component;
-import arez.Observer;
-import arez.Priority;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
@@ -15,8 +12,7 @@ import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.component.CollectionsUtil;
-import arez.component.ComponentObservable;
-import arez.component.Identifiable;
+import arez.component.DisposeTrackable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -47,20 +43,21 @@ abstract class ReplicantRuntime
     getConnectorsObservable().preReportChanged();
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     _connectors.add( entry );
-    final Object arezId = Identifiable.getArezId( connector );
-    final Observer monitor =
-      getContext().when( Arez.areNativeComponentsEnabled() ? component() : null,
-                         Arez.areNamesEnabled() ? getComponentName() + ".Watcher." + arezId : null,
-                         true,
-                         () -> !ComponentObservable.observe( connector ),
-                         () -> deregisterConnector( connector ),
-                         Priority.HIGH,
-                         true );
-    entry.setMonitor( monitor );
+    DisposeTrackable
+      .asDisposeTrackable( connector )
+      .getNotifier()
+      .addOnDisposeListener( this, () -> deregisterConnector( connector ) );
     getConnectorsObservable().reportChanged();
   }
 
   final void deregisterConnector( @Nonnull final Connector connector )
+  {
+    getConnectorsObservable().preReportChanged();
+    detachConnector( connector );
+    getConnectorsObservable().reportChanged();
+  }
+
+  private void detachConnector( @Nonnull final Connector connector )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -69,9 +66,11 @@ abstract class ReplicantRuntime
                  () -> "Replicant-0006: Invoked deregisterConnector for schema named '" +
                        connector.getSchema().getName() + "' but no Connector for specified schema exists." );
     }
-    getConnectorsObservable().preReportChanged();
     _connectors.removeIf( e -> e.getConnector().getSchema().getId() == connector.getSchema().getId() );
-    getConnectorsObservable().reportChanged();
+    DisposeTrackable
+      .asDisposeTrackable( connector )
+      .getNotifier()
+      .removeOnDisposeListener( this );
   }
 
   @Observable( expectSetter = false )
