@@ -273,8 +273,9 @@ abstract class Connector
   @Action
   protected void purgeSubscriptions()
   {
-    Stream.concat( getReplicantContext().getTypeSubscriptions().stream(),
-                   getReplicantContext().getInstanceSubscriptions().stream() )
+    final SubscriptionService subscriptionService = getReplicantContext().getSubscriptionService();
+    Stream.concat( subscriptionService.getTypeSubscriptions().stream(),
+                   subscriptionService.getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
       .filter( s -> s.getAddress().getSystemId() == getSchema().getId() )
       // Purge in reverse order. First instance subscriptions then type subscriptions
