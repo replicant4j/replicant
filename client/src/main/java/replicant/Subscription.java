@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
@@ -7,6 +8,8 @@ import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
+import arez.component.DisposeTrackable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -181,28 +184,34 @@ public abstract class Subscription
     getEntitiesObservable().preReportChanged();
     final Class<?> type = entity.getType();
     final int id = entity.getId();
-    Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( type );
-    if ( null == typeMap )
+    final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.computeIfAbsent( type, t -> new HashMap<>() );
+    if ( !typeMap.containsKey( id ) )
     {
-      typeMap = new HashMap<>();
-      typeMap.put( id, EntitySubscriptionEntry.create( entity ) );
-      _entities.put( type, typeMap );
-      getEntitiesObservable().reportChanged();
+      createSubscriptionEntry( typeMap, entity );
     }
-    else
-    {
-      if ( !typeMap.containsKey( id ) )
-      {
-        typeMap.put( id, EntitySubscriptionEntry.create( entity ) );
-        getEntitiesObservable().reportChanged();
-      }
-    }
+  }
+
+  private void createSubscriptionEntry( @Nonnull final Map<Integer, EntitySubscriptionEntry> typeMap,
+                                        @Nonnull final Entity entity )
+  {
+    typeMap.put( entity.getId(), EntitySubscriptionEntry.create( entity ) );
+    DisposeTrackable
+      .asDisposeTrackable( entity )
+      .getNotifier()
+      .addOnDisposeListener( this, () -> detachEntity( entity, false ) );
+    getEntitiesObservable().reportChanged();
   }
 
   final void delinkEntityFromSubscription( @Nonnull final Entity entity,
                                            final boolean disposeEntityIfNoSubscriptions )
   {
     getEntitiesObservable().preReportChanged();
+    detachEntity( entity, disposeEntityIfNoSubscriptions );
+    getEntitiesObservable().reportChanged();
+  }
+
+  private void detachEntity( @Nonnull final Entity entity, final boolean disposeEntityIfNoSubscriptions )
+  {
     final Class<?> entityType = entity.getType();
     final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( entityType );
     final ChannelAddress address = getAddress();
@@ -219,6 +228,8 @@ public abstract class Subscription
       invariant( () -> null != removed,
                  () -> "Entity instance " + entity + " not present in subscription to channel " + address );
     }
+    DisposeTrackable.asDisposeTrackable( entity ).getNotifier().removeOnDisposeListener( this );
+    Disposable.dispose( removed );
     if ( disposeEntityIfNoSubscriptions )
     {
       entity.disposeIfNoSubscriptions();
@@ -227,7 +238,6 @@ public abstract class Subscription
     {
       _entities.remove( entityType );
     }
-    getEntitiesObservable().reportChanged();
   }
 
   @PreDispose
