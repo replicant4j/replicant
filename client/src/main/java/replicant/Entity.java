@@ -233,12 +233,12 @@ public abstract class Entity
     {
       Disposable.dispose( _userObject );
     }
-  }
-
-  void delinkEntityFromAllSubscriptions()
-  {
-    _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this, true ) );
-    _subscriptions.clear();
+    _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this, false ) );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      // This is not needed but we do it to make it easier to understand behaviour during debugging
+      _subscriptions.clear();
+    }
   }
 
   @Override

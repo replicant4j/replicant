@@ -184,7 +184,6 @@ abstract class EntityService
 
   private void destroy( @Nonnull final Entity entity )
   {
-    entity.delinkEntityFromAllSubscriptions();
     unlinkEntity( entity );
   }
 
