@@ -5,7 +5,9 @@ import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.ContextRef;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
+import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +50,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The Connector is responsible for managing a Connection to a backend datasource.
  */
-@ArezComponent
+@ArezComponent( observable = Feature.ENABLE )
 abstract class Connector
   extends ReplicantService
 {
@@ -120,8 +122,13 @@ abstract class Connector
     super( context );
     _schema = Objects.requireNonNull( schema );
     _transport = Objects.requireNonNull( transport );
+  }
+
+  @PostConstruct
+  final void postConstruct()
+  {
     getReplicantRuntime().registerConnector( this );
-    getReplicantContext().getSchemaService().registerSchema( schema );
+    getReplicantContext().getSchemaService().registerSchema( _schema );
   }
 
   @PreDispose
