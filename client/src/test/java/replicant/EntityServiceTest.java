@@ -293,9 +293,9 @@ public class EntityServiceTest
       assertEquals( findAllEntitiesByTypeACallCount.get(), 2 );
       assertEquals( findEntityByTypeAndId1CallCount.get(), 2 );
 
-      safeAction( () -> assertEquals( service.getEntities().get( A.class ).size(), 1 ) );
+      safeAction( () -> assertNull( service.getEntities().get( A.class ) ) );
       // Oddity - we have a type with 0 members. Can happen during deletion
-      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
+      safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 0 ) );
       safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 0 ) );
       safeAction( () -> assertNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
 

@@ -1,19 +1,12 @@
 package replicant;
 
-import arez.Arez;
-import arez.ArezContext;
-import arez.Component;
 import arez.Disposable;
-import arez.Observer;
-import arez.Priority;
 import arez.annotations.ArezComponent;
-import arez.annotations.ComponentNameRef;
-import arez.annotations.ComponentRef;
-import arez.annotations.ContextRef;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
+import arez.component.DisposeTrackable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +24,7 @@ abstract class EntityService
   extends ReplicantService
 {
   // Entity map: Type => ID
-  private final Map<Class<?>, Map<Integer, EntityEntry>> _entities = new HashMap<>();
+  private final Map<Class<?>, Map<Integer, Entity>> _entities = new HashMap<>();
 
   @Nonnull
   static EntityService create( @Nullable final ReplicantContext context )
@@ -48,7 +41,7 @@ abstract class EntityService
   protected abstract arez.Observable getEntitiesObservable();
 
   @Observable( expectSetter = false )
-  Map<Class<?>, Map<Integer, EntityEntry>> getEntities()
+  Map<Class<?>, Map<Integer, Entity>> getEntities()
   {
     return _entities;
   }
@@ -77,7 +70,7 @@ abstract class EntityService
   @Nullable
   Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
   {
-    final Map<Integer, EntityEntry> typeMap = _entities.get( type );
+    final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
       getEntitiesObservable().reportObserved();
@@ -85,15 +78,14 @@ abstract class EntityService
     }
     else
     {
-      final EntityEntry entry = typeMap.get( id );
-      if ( null == entry || Disposable.isDisposed( entry ) || Disposable.isDisposed( entry.getEntity() ) )
+      final Entity entity = typeMap.get( id );
+      if ( null == entity )
       {
         getEntitiesObservable().reportObserved();
         return null;
       }
       else
       {
-        final Entity entity = entry.getEntity();
         ComponentObservable.observe( entity );
         return entity;
       }
@@ -103,15 +95,8 @@ abstract class EntityService
   @Nonnull
   List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
   {
-    final Map<Integer, EntityEntry> typeMap = getEntities().get( type );
-    return null == typeMap ?
-           Collections.emptyList() :
-           CollectionsUtil.asList( typeMap
-                                     .values()
-                                     .stream()
-                                     .filter( Disposable::isNotDisposed )
-                                     .map( EntityEntry::getEntity )
-                                     .filter( Disposable::isNotDisposed ) );
+    final Map<Integer, Entity> typeMap = getEntities().get( type );
+    return null == typeMap ? Collections.emptyList() : CollectionsUtil.asList( typeMap.values().stream() );
   }
 
   /**
@@ -125,18 +110,19 @@ abstract class EntityService
 
     final Class<?> entityType = entity.getType();
     final int id = entity.getId();
-    final Map<Integer, EntityEntry> typeMap = _entities.get( entityType );
+    final Map<Integer, Entity> typeMap = _entities.get( entityType );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,
                  () -> "Entity type " + entityType.getSimpleName() + " not present in EntityService" );
     }
     assert null != typeMap;
-    final EntityEntry removed = typeMap.remove( id );
+    final Entity removed = typeMap.remove( id );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed, () -> "Entity instance " + entity + " not present in EntityService" );
     }
+    detachEntity( entity );
     Disposable.dispose( removed );
     if ( typeMap.isEmpty() )
     {
@@ -156,23 +142,22 @@ abstract class EntityService
   @Nonnull
   Entity findOrCreateEntity( @Nullable final String name, @Nonnull final Class<?> type, final int id )
   {
-    final Map<Integer, EntityEntry> typeMap = _entities.get( type );
+    final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
-      final HashMap<Integer, EntityEntry> newTypeMap = new HashMap<>();
+      final HashMap<Integer, Entity> newTypeMap = new HashMap<>();
       _entities.put( type, newTypeMap );
       return createEntity( newTypeMap, name, type, id );
     }
     else
     {
-      final EntityEntry entry = typeMap.get( id );
-      if ( null == entry || Disposable.isDisposed( entry ) || Disposable.isDisposed( entry.getEntity() ) )
+      final Entity entity = typeMap.get( id );
+      if ( null == entity )
       {
         return createEntity( typeMap, name, type, id );
       }
       else
       {
-        final Entity entity = entry.getEntity();
         ComponentObservable.observe( entity );
         return entity;
       }
@@ -180,29 +165,18 @@ abstract class EntityService
   }
 
   @Nonnull
-  private Entity createEntity( @Nonnull final Map<Integer, EntityEntry> typeMap,
+  private Entity createEntity( @Nonnull final Map<Integer, Entity> typeMap,
                                @Nullable final String name,
                                @Nonnull final Class<?> type,
                                final int id )
   {
     getEntitiesObservable().preReportChanged();
     final Entity entity = Entity.create( Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id );
-    final EntityEntry entry = EntityEntry.create( entity );
-    final String monitorName =
-      Arez.areNamesEnabled() ?
-      getComponentName() + ".EntityWatcher." + ( Replicant.areNamesEnabled() ? entity.getName() : entity.getId() ) :
-      null;
-    final Observer monitor =
-      getContext().when( Arez.areNativeComponentsEnabled() ? component() : null,
-                         monitorName,
-                         true,
-                         () -> !ComponentObservable.observe( entity ),
-                         () -> destroy( entity ),
-                         Priority.HIGH,
-                         true );
-    entry.setMonitor( monitor );
-
-    typeMap.put( id, entry );
+    DisposeTrackable
+      .asDisposeTrackable( entity )
+      .getNotifier()
+      .addOnDisposeListener( this, () -> destroy( entity ) );
+    typeMap.put( id, entity );
     getEntitiesObservable().reportChanged();
     ComponentObservable.observe( entity );
     return entity;
@@ -214,30 +188,11 @@ abstract class EntityService
     unlinkEntity( entity );
   }
 
-  /**
-   * Return the component associated with the service if native components enabled.
-   *
-   * @return the component associated with the service if native components enabled.
-   */
-  @ComponentRef
-  @Nonnull
-  abstract Component component();
-
-  /**
-   * Return the context associated with the service.
-   *
-   * @return the context associated with the service.
-   */
-  @ContextRef
-  @Nonnull
-  abstract ArezContext getContext();
-
-  /**
-   * Return the name associated with the service.
-   *
-   * @return the name associated with the service.
-   */
-  @ComponentNameRef
-  @Nonnull
-  abstract String getComponentName();
+  private void detachEntity( @Nonnull final Entity entity )
+  {
+    DisposeTrackable
+      .asDisposeTrackable( entity )
+      .getNotifier()
+      .removeOnDisposeListener( this );
+  }
 }
