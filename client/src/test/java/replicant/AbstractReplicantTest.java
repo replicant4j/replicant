@@ -44,6 +44,11 @@ public abstract class AbstractReplicantTest
     schedulerLock.dispose();
   }
 
+  protected static void observeADependency()
+  {
+    Arez.context().createObservable().reportObserved();
+  }
+
   @Nonnull
   protected final Disposable pauseScheduler()
   {
@@ -52,7 +57,10 @@ public abstract class AbstractReplicantTest
 
   final void autorun( @Nonnull final Procedure procedure )
   {
-    Arez.context().autorun( procedure );
+    Arez.context().autorun( () -> {
+      observeADependency();
+      procedure.call();
+    } );
   }
 
   protected final void safeAction( @Nonnull final SafeProcedure action )
