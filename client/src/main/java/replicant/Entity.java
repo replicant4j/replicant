@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Disposable;
 import arez.annotations.ArezComponent;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
@@ -16,7 +17,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A representation of an entity within the replicant system.
  */
-@ArezComponent
+@ArezComponent( observable = Feature.ENABLE )
 public abstract class Entity
   extends ReplicantService
 {
