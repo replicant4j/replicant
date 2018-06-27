@@ -242,9 +242,9 @@ public abstract class Subscription
 
   private void delinkSubscriptionFromAllEntities()
   {
-    _entities.values()
+    new ArrayList<>( _entities.values() )
       .stream()
-      .flatMap( entitySet -> entitySet.values().stream() )
+      .flatMap( entitySet -> new ArrayList<>( entitySet.values() ).stream() )
       .forEachOrdered( entity -> entity.getEntity().delinkSubscriptionFromEntity( this ) );
   }
 }
