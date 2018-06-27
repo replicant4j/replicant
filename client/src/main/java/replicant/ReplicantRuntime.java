@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent( deferSchedule = true )
+@ArezComponent( deferSchedule = true, disposeTrackable = false )
 abstract class ReplicantRuntime
 {
   private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();

@@ -19,7 +19,7 @@ import static org.realityforge.braincheck.Guards.*;
  * and the {@link Converger} converges
  * the actual state towards the desired state.
  */
-@ArezComponent
+@ArezComponent( disposeTrackable = false )
 abstract class AreaOfInterestService
   extends AbstractContainer<Integer, AreaOfInterest>
 {

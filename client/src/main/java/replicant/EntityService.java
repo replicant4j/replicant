@@ -19,7 +19,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The container of Entity instances within replicant system.
  */
-@ArezComponent
+@ArezComponent( disposeTrackable = false )
 abstract class EntityService
   extends ReplicantService
 {
