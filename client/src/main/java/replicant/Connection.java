@@ -44,7 +44,6 @@ final class Connection
    * The id of the last rpc request sent to the server.
    */
   private int _lastRequestId;
-
   /**
    * Pending actions that will change the area of interest.
    */
@@ -66,9 +65,7 @@ final class Connection
    * really used in responding to requests with cached value.
    */
   private final LinkedList<MessageResponse> _outOfBandResponses = new LinkedList<>();
-
   private int _lastRxSequence;
-
   /**
    * The current message being processed.
    */

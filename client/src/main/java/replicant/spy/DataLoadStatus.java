@@ -11,7 +11,6 @@ public final class DataLoadStatus
   private final int _sequence;
   @Nullable
   private final Integer _requestId;
-
   /// The number of channels added as a result of the Message
   private final int _channelAddCount;
   /// The number of channels updated as a result of the Message

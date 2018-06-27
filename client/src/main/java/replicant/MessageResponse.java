@@ -31,17 +31,14 @@ final class MessageResponse
    */
   @Nullable
   private final SafeProcedure _oobCompletionAction;
-
   /**
    * The current index into changes.
    */
   private int _entityChangeIndex;
-
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
   private RequestEntry _request;
-
   private int _channelAddCount;
   private int _channelUpdateCount;
   private int _channelRemoveCount;

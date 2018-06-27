@@ -27,7 +27,6 @@ public abstract class WebPollerTransport
   implements Transport
 {
   private static final int HTTP_STATUS_CODE_OK = 200;
-
   @Nonnull
   private final WebPollerConfig _config;
   private WebPoller _webPoller;

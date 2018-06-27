@@ -6,7 +6,6 @@ final class RateLimitedValue
 {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final double MAX_POSSIBLE_TOKENS = Double.MAX_VALUE / 4;
-
   //Target rate in messages/sec
   private double _tokensPerSecond;
   // Last time the token count was regenerated
