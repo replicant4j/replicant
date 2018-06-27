@@ -3,6 +3,7 @@ package replicant;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Computed;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import static org.realityforge.braincheck.Guards.*;
  * The channel description declares a desired channel subscription and also
  * includes data on the current status of the subscription.
  */
-@ArezComponent
+@ArezComponent( observable = Feature.ENABLE )
 public abstract class AreaOfInterest
   extends ReplicantService
 {
