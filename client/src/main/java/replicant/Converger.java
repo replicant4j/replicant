@@ -3,6 +3,7 @@ package replicant;
 import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ import javax.annotation.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent( deferSchedule = true )
+@ArezComponent( deferSchedule = true, disposeTrackable = Feature.DISABLE )
 abstract class Converger
   extends ReplicantService
 {

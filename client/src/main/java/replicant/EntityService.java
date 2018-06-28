@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Disposable;
 import arez.annotations.ArezComponent;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.component.CollectionsUtil;
@@ -19,7 +20,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The container of Entity instances within replicant system.
  */
-@ArezComponent( disposeTrackable = false )
+@ArezComponent( disposeTrackable = Feature.DISABLE )
 abstract class EntityService
   extends ReplicantService
 {

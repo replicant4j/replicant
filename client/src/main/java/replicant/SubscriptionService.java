@@ -7,6 +7,7 @@ import arez.annotations.ArezComponent;
 import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
 import arez.annotations.ContextRef;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.annotations.PreDispose;
@@ -28,7 +29,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A class that records the subscriptions within the system.
  */
-@ArezComponent( disposeTrackable = false )
+@ArezComponent( disposeTrackable = Feature.DISABLE )
 abstract class SubscriptionService
   extends ReplicantService
 {

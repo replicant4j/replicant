@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.annotations.ArezComponent;
+import arez.annotations.Feature;
 import arez.component.AbstractContainer;
 import arez.component.CollectionsUtil;
 import java.util.List;
@@ -19,7 +20,7 @@ import static org.realityforge.braincheck.Guards.*;
  * and the {@link Converger} converges
  * the actual state towards the desired state.
  */
-@ArezComponent( disposeTrackable = false )
+@ArezComponent( disposeTrackable = Feature.DISABLE )
 abstract class AreaOfInterestService
   extends AbstractContainer<Integer, AreaOfInterest>
 {

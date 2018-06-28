@@ -9,6 +9,7 @@ import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
 import arez.annotations.Computed;
 import arez.annotations.ContextRef;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableRef;
 import arez.component.CollectionsUtil;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent( deferSchedule = true, disposeTrackable = false )
+@ArezComponent( deferSchedule = true, disposeTrackable = Feature.DISABLE )
 abstract class ReplicantRuntime
 {
   private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();
