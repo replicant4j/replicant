@@ -2,13 +2,14 @@ package replicant;
 
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
+import arez.annotations.Feature;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A utility class that is used to validate state within the replicant context is consistent.
  */
-@ArezComponent
+@ArezComponent( disposeTrackable = Feature.DISABLE )
 abstract class Validator
   extends ReplicantService
 {
