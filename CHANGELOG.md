@@ -2,8 +2,9 @@
 
 ### Unreleased
 
-Stop using replicant specific mechanisms for managing state and instead start to move to Arez. This is
-a major rewrite of the library and involved large scale changes. See the git history for full details.
+* Stop using replicant specific mechanisms for managing state and move to Arez for state management.
+  This is a major rewrite of the library and involved large scale changes. See the git history for
+  full details.
 
 ### [v5.99](https://github.com/realityforge/replicant/tree/v5.99) (2018-04-26)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v5.98...v5.99)
