@@ -5,8 +5,6 @@ Some actions that should occur at some point in the future.
 * Change should take a ChannelDescriptor as a parameter.
 * Consolidate some of the common code across server and client libraries. i.e.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
-  - Stop domgen generating XMessageConstants and use generated ChannelMetaData data.
-  - Stop domgen generating XReplicantGraph and use generated ChannelMetaData data.
 * Rework the request system so that all the inputs/outputs are explicit.
     Inputs include:
       * SessionID
