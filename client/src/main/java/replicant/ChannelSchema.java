@@ -1,5 +1,7 @@
 package replicant;
 
+import arez.component.CollectionsUtil;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,6 +60,10 @@ public final class ChannelSchema
    * i.e. Can this be explicitly subscribed.
    */
   private final boolean _external;
+  /**
+   * The entities that are included within the graph
+   */
+  private final List<EntitySchema> _entities;
 
   public ChannelSchema( final int id,
                         @Nullable final String name,
@@ -65,7 +71,8 @@ public final class ChannelSchema
                         @Nonnull final FilterType filterType,
                         @Nullable final SubscriptionUpdateEntityFilter<?> filter,
                         final boolean cacheable,
-                        final boolean external )
+                        final boolean external,
+                        @Nonnull final List<EntitySchema> entities )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -86,6 +93,7 @@ public final class ChannelSchema
     _filter = filter;
     _cacheable = cacheable;
     _external = external;
+    _entities = entities;
   }
 
   /**
@@ -189,6 +197,29 @@ public final class ChannelSchema
   public boolean isExternal()
   {
     return _external;
+  }
+
+  /**
+   * Return the entities transmitted over the channel.
+   *
+   * @return the entities transmitted over the channel.
+   */
+  @Nonnull
+  public List<EntitySchema> getEntities()
+  {
+    return CollectionsUtil.wrap( _entities );
+  }
+
+  /**
+   * Return the entity with specified id, if any.
+   *
+   * @param entityId the id of the entity to find.
+   * @return the entity with specified id, if any.
+   */
+  @Nullable
+  public EntitySchema findEntityById( final int entityId )
+  {
+    return _entities.stream().filter( e -> e.getId() == entityId ).findAny().orElse( null );
   }
 
   /**

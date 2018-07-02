@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -458,7 +459,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          false,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -494,7 +495,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          false,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -580,7 +581,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.STATIC,
                          null,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema = new SystemSchema( 1,
                                                   ValueUtil.randomString(),
                                                   new ChannelSchema[]{ channel0 },
@@ -616,7 +617,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.STATIC,
                          null,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema = new SystemSchema( 1,
                                                   ValueUtil.randomString(),
                                                   new ChannelSchema[]{ channel0 },
@@ -630,8 +631,6 @@ public class ConvergerTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, ValueUtil.randomString() ) );
     createSubscription( address, ValueUtil.randomString(), false );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -678,7 +677,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0 }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -763,7 +762,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          false,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -835,7 +834,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final ChannelSchema channel1 =
       new ChannelSchema( 1,
                          ValueUtil.randomString(),
@@ -843,7 +842,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
     final Connector connector =
@@ -884,7 +883,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final ChannelSchema channel1 =
       new ChannelSchema( 1,
                          ValueUtil.randomString(),
@@ -892,7 +891,7 @@ public class ConvergerTest
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
                          true,
-                         true );
+                         true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );

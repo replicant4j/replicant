@@ -4,6 +4,7 @@ import arez.Disposable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1064,8 +1065,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC,
                          ( f, e ) -> true,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -1096,8 +1097,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -1153,8 +1154,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC,
                          filter,
-                         true,
-                         true );
+                         true, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -1224,8 +1225,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         true,
-                         true );
+                         true, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -1268,8 +1269,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
     final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
     final EntitySchema entitySchema =
@@ -1364,8 +1365,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
     final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
     final EntitySchema entitySchema =
@@ -1412,8 +1413,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final EntitySchema entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class, ( i, d ) -> new MyEntity(), null );
     final SystemSchema schema =
@@ -1728,8 +1729,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC,
                          filter,
-                         true,
-                         true );
+                         true, true,
+                         Collections.emptyList() );
     final EntitySchema entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), String.class, ( i, d ) -> "", null );
     final SystemSchema schema =
@@ -1786,7 +1787,8 @@ public class ConnectorTest
                          ChannelSchema.FilterType.NONE,
                          null,
                          true,
-                         true );
+                         true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -2253,7 +2255,8 @@ public class ConnectorTest
                          ChannelSchema.FilterType.NONE,
                          null,
                          true,
-                         true );
+                         true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
     final Connector connector = createConnector( schema );
@@ -2570,8 +2573,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
     final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
     final EntitySchema entitySchema =
@@ -2691,8 +2694,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2764,8 +2767,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         true,
-                         true );
+                         true, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2839,8 +2842,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         true,
-                         true );
+                         true, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2925,8 +2928,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3000,8 +3003,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3108,8 +3111,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3220,8 +3223,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3294,8 +3297,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3337,8 +3340,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3429,8 +3432,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3501,8 +3504,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3575,8 +3578,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3683,8 +3686,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3795,8 +3798,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3870,8 +3873,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -3913,8 +3916,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4011,8 +4014,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4081,8 +4084,8 @@ public class ConnectorTest
                          null,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4153,8 +4156,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4257,8 +4260,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4365,8 +4368,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4439,8 +4442,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4481,8 +4484,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4575,8 +4578,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4609,8 +4612,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4652,8 +4655,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.STATIC,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4694,8 +4697,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.DYNAMIC,
                          mock( SubscriptionUpdateEntityFilter.class ),
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -4737,8 +4740,8 @@ public class ConnectorTest
                          String.class,
                          ChannelSchema.FilterType.NONE,
                          null,
-                         false,
-                         true );
+                         false, true,
+                         Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),

@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -192,7 +193,13 @@ public class SubscriptionTest
   public void getChannelSchema()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), null, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false, true,
+                         Collections.emptyList() );
     createConnector( new SystemSchema( 1,
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
@@ -208,7 +215,13 @@ public class SubscriptionTest
   public void getInstanceRoot()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), A.class, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         A.class,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false, true,
+                         Collections.emptyList() );
     createConnector( new SystemSchema( 1,
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
@@ -231,7 +244,13 @@ public class SubscriptionTest
   public void getInstanceRoot_butEntityNotPresent()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), A.class, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         A.class,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false, true,
+                         Collections.emptyList() );
     createConnector( new SystemSchema( 1,
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
@@ -250,7 +269,13 @@ public class SubscriptionTest
   public void getInstanceRoot_butChannelHasNoId()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), A.class, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         A.class,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false, true,
+                         Collections.emptyList() );
     createConnector( new SystemSchema( 1,
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
@@ -269,7 +294,13 @@ public class SubscriptionTest
   public void getInstanceRoot_butChannelIsTypeBased()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 0, ValueUtil.randomString(), null, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false, true,
+                         Collections.emptyList() );
     createConnector( new SystemSchema( 1,
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },

@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.Collections;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -21,7 +22,8 @@ public class SystemSchemaTest
                                                       ChannelSchema.FilterType.NONE,
                                                       null,
                                                       false,
-                                                      true );
+                                                      true,
+                                                      Collections.emptyList() );
     final ChannelSchema[] channels = { channel1 };
     final SystemSchema systemSchema = new SystemSchema( id, name, channels, entities );
     assertEquals( systemSchema.getId(), id );
@@ -104,7 +106,8 @@ public class SystemSchemaTest
                                                       ChannelSchema.FilterType.NONE,
                                                       null,
                                                       false,
-                                                      true );
+                                                      true,
+                                                      Collections.emptyList() );
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(),

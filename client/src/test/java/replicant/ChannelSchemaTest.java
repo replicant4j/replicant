@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.Collections;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -9,10 +10,39 @@ public class ChannelSchemaTest
   extends AbstractReplicantTest
 {
   @Test
+  public void findEntityById()
+  {
+    final EntitySchema entity =
+      new EntitySchema( 1, "MyObject", Object.class, ( i, d ) -> 1, ( o, d ) -> d.notify() );
+    final ChannelSchema channelSchema =
+      new ChannelSchema( ValueUtil.randomInt(),
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false,
+                         false,
+                         Collections.singletonList( entity ) );
+    assertEquals( channelSchema.getEntities().size(), 1 );
+    assertEquals( channelSchema.getEntities().size(), 1 );
+    assertEquals( channelSchema.findEntityById( 1 ), entity );
+    assertEquals( channelSchema.findEntityById( 0 ), null );
+  }
+
+  @Test
   public void typeGraph()
   {
+    final EntitySchema entity =
+      new EntitySchema( 1, "MyObject", Object.class, ( i, d ) -> 1, ( o, d ) -> d.notify() );
     final ChannelSchema channelSchema =
-      new ChannelSchema( 1, "MetaData", null, ChannelSchema.FilterType.NONE, null, false, false );
+      new ChannelSchema( 1,
+                         "MetaData",
+                         null,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false,
+                         false,
+                         Collections.singletonList( entity ) );
     assertEquals( channelSchema.getId(), 1 );
     assertEquals( channelSchema.getName(), "MetaData" );
     assertEquals( channelSchema.toString(), "MetaData" );
@@ -22,13 +52,22 @@ public class ChannelSchemaTest
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.NONE );
     assertEquals( channelSchema.isCacheable(), false );
     assertEquals( channelSchema.isExternal(), false );
+    assertEquals( channelSchema.getEntities().size(), 1 );
+    assertEquals( channelSchema.getEntities().contains( entity ), true );
   }
 
   @Test
   public void instanceGraph()
   {
     final ChannelSchema channelSchema =
-      new ChannelSchema( 1, "MetaData", String.class, ChannelSchema.FilterType.NONE, null, false, true );
+      new ChannelSchema( 1,
+                         "MetaData",
+                         String.class,
+                         ChannelSchema.FilterType.NONE,
+                         null,
+                         false,
+                         true,
+                         Collections.emptyList() );
     assertEquals( channelSchema.getId(), 1 );
     assertEquals( channelSchema.getName(), "MetaData" );
     assertEquals( channelSchema.toString(), "MetaData" );
@@ -55,7 +94,8 @@ public class ChannelSchemaTest
                          ChannelSchema.FilterType.STATIC,
                          null,
                          cacheable,
-                         external );
+                         external,
+                         Collections.emptyList() );
     assertEquals( channelSchema.getId(), id );
     assertEquals( channelSchema.getName(), name );
     assertEquals( channelSchema.toString(), name );
@@ -82,7 +122,8 @@ public class ChannelSchemaTest
                          ChannelSchema.FilterType.DYNAMIC,
                          filter,
                          cacheable,
-                         external );
+                         external,
+                         Collections.emptyList() );
     assertEquals( channelSchema.getId(), id );
     assertEquals( channelSchema.getName(), name );
     assertEquals( channelSchema.toString(), name );
@@ -106,7 +147,8 @@ public class ChannelSchemaTest
                          ChannelSchema.FilterType.NONE,
                          null,
                          ValueUtil.randomBoolean(),
-                         ValueUtil.randomBoolean() );
+                         ValueUtil.randomBoolean(),
+                         Collections.emptyList() );
     final IllegalStateException exception = expectThrows( IllegalStateException.class, channelSchema::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0044: ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false" );
@@ -126,7 +168,8 @@ public class ChannelSchemaTest
                                              ChannelSchema.FilterType.NONE,
                                              null,
                                              ValueUtil.randomBoolean(),
-                                             ValueUtil.randomBoolean() ) );
+                                             ValueUtil.randomBoolean(),
+                                             Collections.emptyList() ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0045: ChannelSchema passed a name 'MyChannel' but Replicant.areNamesEnabled() is false" );
   }
@@ -142,7 +185,8 @@ public class ChannelSchemaTest
                                              ChannelSchema.FilterType.DYNAMIC,
                                              null,
                                              ValueUtil.randomBoolean(),
-                                             ValueUtil.randomBoolean() ) );
+                                             ValueUtil.randomBoolean(),
+                                             Collections.emptyList() ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0076: ChannelSchema 222 has a DYNAMIC filterType but has supplied no filter." );
   }
@@ -158,7 +202,8 @@ public class ChannelSchemaTest
                                              ChannelSchema.FilterType.STATIC,
                                              mock( SubscriptionUpdateEntityFilter.class ),
                                              ValueUtil.randomBoolean(),
-                                             ValueUtil.randomBoolean() ) );
+                                             ValueUtil.randomBoolean(),
+                                             Collections.emptyList() ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0077: ChannelSchema 222 does not have a DYNAMIC filterType but has supplied a filter." );
   }
