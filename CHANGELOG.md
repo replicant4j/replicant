@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.00](https://github.com/realityforge/replicant/tree/v6.00) (2018-07-02)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v5.99...v6.00)
 
 * Stop using replicant specific mechanisms for managing state and move to Arez for state management.
   This is a major rewrite of the library and involved large scale changes. See the git history for
