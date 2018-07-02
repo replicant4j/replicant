@@ -45,7 +45,7 @@ Some actions that should occur at some point in the future.
 * Enhance spy system.
   - Entity create/update/destroy changes should all result in spy events
   - ReplicantSystem state changes should result in spy events
-  - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that ehy can be filtered out in common case.
+  - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that they can be filtered out in common case.
 
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
