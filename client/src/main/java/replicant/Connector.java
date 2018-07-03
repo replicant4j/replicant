@@ -1221,7 +1221,15 @@ abstract class Connector
    */
   final void completeAreaOfInterestRequest()
   {
-    ensureConnection().completeAreaOfInterestRequest();
+    /*
+     * Sometimes an AreaOfInterestRequest completes during a disconnection or network failure.
+     * i.e. This could be called in response to an error as a result of network failure or it could
+     * overlap a disconnect request.
+     */
+    if ( null != _connection )
+    {
+      _connection.completeAreaOfInterestRequest();
+    }
     triggerMessageScheduler();
   }
 

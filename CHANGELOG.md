@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Fix `Connector.completeAreaOfInterestRequest()` to handle scenario where the area of interest
+  request completes after a connection disconnects. This can happen as a result of errors during
+  area of interest request or during normal overlapping requests.
+
 ### [v6.01](https://github.com/realityforge/replicant/tree/v6.01) (2018-07-02)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.00...v6.01)
 
