@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
 
 * Fix `Connector.completeAreaOfInterestRequest()` to handle scenario where the area of interest
   request completes after a connection disconnects. This can happen as a result of errors during
