@@ -1441,10 +1441,9 @@ public class ConnectorTest
 
     connector.setChangesToProcessPerTick( 1 );
 
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, connector::processEntityChanges );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0068: ChangeSet 23 contained an EntityChange message to delete entity of type 0 and id 3 but no such entity exists locally." );
+    connector.processEntityChanges();
+
+    assertEquals( response.getEntityRemoveCount(), 0 );
   }
 
   @Test

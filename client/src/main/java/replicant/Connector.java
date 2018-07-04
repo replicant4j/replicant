@@ -916,20 +916,18 @@ abstract class Connector
       Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId( type, id );
       if ( change.isRemove() )
       {
+        /*
+         * Sometimes a remove can occur for an entity that is no longer present on the client. The most
+         * common cause of this is initiating an action that deletes an entity and then un-subscribing
+         * from the channel that contains entity. This can result in an entity that has been removed
+         * locally but has a remove message in the queue. Other interleaved async operations can also
+         * trigger this scenario.
+         */
         if ( null != entity )
         {
           Disposable.dispose( entity );
+          response.incEntityRemoveCount();
         }
-        else
-        {
-          if ( Replicant.shouldCheckInvariants() )
-          {
-            fail( () -> "Replicant-0068: ChangeSet " + response.getChangeSet().getSequence() + " contained an " +
-                        "EntityChange message to delete entity of type " + typeId + " and id " + id +
-                        " but no such entity exists locally." );
-          }
-        }
-        response.incEntityRemoveCount();
       }
       else
       {
