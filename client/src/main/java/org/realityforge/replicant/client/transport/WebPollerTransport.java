@@ -53,7 +53,16 @@ public abstract class WebPollerTransport
 
   private void remote( @Nonnull final Runnable action )
   {
-    getConfig().getRemoteCallWrapper().accept( action );
+    getConfig().getRemoteCallWrapper().accept( () -> {
+      /*
+       * Attempts to perform a remote request can occur when there is no connection.
+       * This typically happens when a previous request fails.
+       */
+      if ( hasConnection() )
+      {
+        action.run();
+      }
+    } );
   }
 
   @Override

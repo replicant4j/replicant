@@ -12,6 +12,8 @@
 * If the underlying connection has been disconnected or is in error then do not attempt
   to perform a poll action. Instead skip the request assuming that it will come good or
   that the poller will be stopped.
+* Avoid initiating `subscribe` or `unsubscribe` requests if the connection has been
+  disconnected. This can occur if a subscribe or unsubscribe action completes with an error.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
