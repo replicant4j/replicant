@@ -181,9 +181,16 @@ public final class GwtWebPollerTransport
       @Override
       protected RequestBuilder getRequestBuilder()
       {
-        final RequestBuilder rb = newRequestBuilder( RequestBuilder.GET, getPollURL() );
-        rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, getConnectionId() );
-        return rb;
+        if ( hasConnection() )
+        {
+          final RequestBuilder rb = newRequestBuilder( RequestBuilder.GET, getPollURL() );
+          rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, getConnectionId() );
+          return rb;
+        }
+        else
+        {
+          return null;
+        }
       }
     };
   }

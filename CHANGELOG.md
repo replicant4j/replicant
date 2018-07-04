@@ -9,6 +9,9 @@
 * Upgrade the `org.realityforge.gwt.webpoller:gwt-webpoller:jar` artifact to version `0.9.7`.
 * If the `connectionId` changes between when the `WebPollerTransport` starts and completes
   a subscribe or unsubscribe request then skip handling the response as it is no longer relevant.
+* If the underlying connection has been disconnected or is in error then do not attempt
+  to perform a poll action. Instead skip the request assuming that it will come good or
+  that the poller will be stopped.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
