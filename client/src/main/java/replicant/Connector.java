@@ -572,16 +572,18 @@ abstract class Connector
       else if ( ChannelChange.Action.REMOVE == actionType )
       {
         final Subscription subscription = getReplicantContext().findSubscription( address );
-        if ( Replicant.shouldCheckInvariants() )
+        /*
+         * It is possible for a subscription to no longer be present and still receive a remove action
+         * for the subscription. This can occur due to interleaving of messages - i.e. The application
+         * initiates an action that deletes a root entity of an instance channel and then removes
+         * subscription from the channel. Depending on the order in which the operations complete
+         * could result in a channel remove action when not needed.
+         */
+        if( null != subscription )
         {
-          invariant( () -> null != subscription,
-                     () -> "Replicant-0028: Received ChannelChange of type REMOVE for address " + address +
-                           " but no such subscription exists." );
-          assert null != subscription;
+          Disposable.dispose( subscription );
+          response.incChannelRemoveCount();
         }
-        assert null != subscription;
-        Disposable.dispose( subscription );
-        response.incChannelRemoveCount();
       }
       else
       {

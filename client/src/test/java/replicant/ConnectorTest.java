@@ -1708,13 +1708,10 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, connector::processChannelChanges );
+    connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertEquals( response.needsChannelChangesProcessed(), false );
     assertEquals( response.getChannelRemoveCount(), 0 );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0028: Received ChannelChange of type REMOVE for address 1.0.72 but no such subscription exists." );
 
     handler.assertEventCount( 0 );
   }
