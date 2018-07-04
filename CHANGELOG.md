@@ -7,6 +7,8 @@
 * Fix a bug in `Connector` related to processing the removal of an entity after the
   subscription that contained the entity has been removed.
 * Upgrade the `org.realityforge.gwt.webpoller:gwt-webpoller:jar` artifact to version `0.9.7`.
+* If the `connectionId` changes between when the `WebPollerTransport` starts and completes
+  a subscribe or unsubscribe request then skip handling the response as it is no longer relevant.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

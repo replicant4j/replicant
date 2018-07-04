@@ -57,6 +57,7 @@ public final class GwtWebPollerTransport
                               @Nullable final SafeProcedure onCacheValid,
                               @Nonnull final Consumer<Throwable> onError )
   {
+    final String connectionId = getConnectionId();
     final RequestBuilder rb = newRequestBuilder( RequestBuilder.PUT, channelURL );
     rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( request.getRequestId() ) );
     if ( null != eTag )
@@ -65,7 +66,7 @@ public final class GwtWebPollerTransport
     }
     try
     {
-      rb.sendRequest( null == filter ? "" : Global.JSON.stringify( filter ), new RequestCallback()
+      final RequestCallback callback = new RequestCallback()
       {
         @Override
         public void onResponseReceived( final Request request11, final Response response )
@@ -91,7 +92,9 @@ public final class GwtWebPollerTransport
         {
           onError.accept( exception );
         }
-      } );
+      };
+      rb.sendRequest( null == filter ? "" : Global.JSON.stringify( filter ),
+                      new SessionLockednewRequestCallback( connectionId, callback, this::maybeGetConnectionId ) );
     }
     catch ( final RequestException e )
     {
@@ -105,14 +108,15 @@ public final class GwtWebPollerTransport
                                 @Nonnull final SafeProcedure onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
+    final String connectionId = getConnectionId();
     final RequestBuilder rb = newRequestBuilder( RequestBuilder.DELETE, channelURL );
     rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( (Integer) request.getRequestId() ) );
     try
     {
-      rb.sendRequest( null, new RequestCallback()
+      final RequestCallback callback = new RequestCallback()
       {
         @Override
-        public void onResponseReceived( final Request request11, final Response response )
+        public void onResponseReceived( final Request ignored, final Response response )
         {
           final int statusCode = response.getStatusCode();
           if ( Response.SC_OK == statusCode )
@@ -126,11 +130,12 @@ public final class GwtWebPollerTransport
         }
 
         @Override
-        public void onError( final Request request11, final Throwable exception )
+        public void onError( final Request ignored, final Throwable exception )
         {
           onError.accept( exception );
         }
-      } );
+      };
+      rb.sendRequest( null, new SessionLockednewRequestCallback( connectionId, callback, this::maybeGetConnectionId ) );
     }
     catch ( final RequestException e )
     {

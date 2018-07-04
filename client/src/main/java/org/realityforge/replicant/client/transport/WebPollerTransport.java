@@ -150,6 +150,17 @@ public abstract class WebPollerTransport
     return _connectionId;
   }
 
+  @Nullable
+  protected final String maybeGetConnectionId()
+  {
+    return null != _transportContext ? _transportContext.getConnectionId() : null;
+  }
+
+  protected final boolean hasConnection()
+  {
+    return null != _connectionId && null != _transportContext;
+  }
+
   /**
    * Return the url to poll for replicant data stream.
    *
