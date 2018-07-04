@@ -260,19 +260,31 @@ public abstract class WebPollerTransport
   {
     if ( null != rawJsonData )
     {
-      ensureTransportContext().onMessageReceived( rawJsonData );
+      // if connection has been disconnected whilst poller request was in flight then ignore response
+      if ( null != _transportContext )
+      {
+        _transportContext.onMessageReceived( rawJsonData );
+      }
       pauseWebPoller();
     }
   }
 
   private void onWebPollerError( @Nonnull final Throwable error )
   {
-    ensureTransportContext().onMessageReadFailure( error );
+      // if connection has been disconnected whilst poller request was in flight then ignore response
+    if ( null != _transportContext )
+    {
+      _transportContext.onMessageReadFailure( error );
+    }
   }
 
   private void onWebPollerStop()
   {
-    ensureTransportContext().disconnect();
+      // if connection has been disconnected whilst poller request was in flight then ignore response
+    if ( null != _transportContext )
+    {
+      _transportContext.disconnect();
+    }
   }
 
   /**
