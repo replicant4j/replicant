@@ -16,6 +16,7 @@
   disconnected. This can occur if a subscribe or unsubscribe action completes with an error.
 * Avoid passing messages back to `Connector` via the  `TransportContext` if it has been
   disconnected. This can happen after an error occurs.
+* Update the `org.realityforge.arez` dependencies to version `0.96`.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

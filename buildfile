@@ -6,7 +6,7 @@ require 'buildr/single_intermediate_layout'
 
 REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
 
-AREZ_DEPS = [:arez_annotations, :arez_core, :arez_component, :arez_entity, :braincheck]
+AREZ_DEPS = [:arez_core, :arez_entity, :braincheck]
 
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
