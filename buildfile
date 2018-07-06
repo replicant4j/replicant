@@ -4,7 +4,7 @@ require 'buildr/gwt'
 require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
-REACT4J_DEPS = [:react4j_annotation, :react4j_core, :react4j_dom, :react4j_arez]
+REACT4J_DEPS = [:react4j_core, :react4j_dom, :react4j_arez]
 
 AREZ_DEPS = [:arez_core, :arez_entity, :braincheck]
 
