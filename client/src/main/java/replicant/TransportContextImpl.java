@@ -3,6 +3,7 @@ package replicant;
 import arez.Disposable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 final class TransportContextImpl
   implements Transport.Context, Disposable
@@ -31,6 +32,13 @@ final class TransportContextImpl
   public int getSchemaId()
   {
     return _connector.getSchema().getId();
+  }
+
+  @Nullable
+  @Override
+  public String getConnectionId()
+  {
+    return isDisposed() ? null : _connector.ensureConnection().getConnectionId();
   }
 
   @Override

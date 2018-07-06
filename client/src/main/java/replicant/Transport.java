@@ -23,6 +23,14 @@ public interface Transport
   interface Context
   {
     /**
+     * Return the id of current connection.
+     *
+     * @return the id of current connection.
+     */
+    @Nullable
+    String getConnectionId();
+
+    /**
      * Return the schemaId that the transport is responsible for transporting.
      *
      * @return the schemaId that the transport is responsible for transporting.

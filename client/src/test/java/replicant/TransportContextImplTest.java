@@ -36,6 +36,23 @@ public class TransportContextImplTest
   }
 
   @Test
+  public void getConnectionId()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    assertFalse( context.isDisposed() );
+    assertEquals( context.getConnectionId(), connection.getConnectionId() );
+
+    context.dispose();
+
+    assertTrue( context.isDisposed() );
+
+    assertEquals( context.getConnectionId(), null );
+  }
+
+  @Test
   public void onMessageReceived()
   {
     final Connector connector = createConnector();
