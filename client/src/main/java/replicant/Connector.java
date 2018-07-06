@@ -579,7 +579,7 @@ abstract class Connector
          * subscription from the channel. Depending on the order in which the operations complete
          * could result in a channel remove action when not needed.
          */
-        if( null != subscription )
+        if ( null != subscription )
         {
           Disposable.dispose( subscription );
           response.incChannelRemoveCount();
