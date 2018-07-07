@@ -203,7 +203,7 @@ abstract class Connector
     return _schema;
   }
 
-  void onConnection( @Nonnull final String connectionId )
+  final void onConnection( @Nonnull final String connectionId )
   {
     doSetConnection( new Connection( this, connectionId ) );
     triggerMessageScheduler();
