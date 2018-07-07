@@ -237,7 +237,7 @@ abstract class Connector
     }
   }
 
-  private void setConnection( @Nullable final Connection connection )
+  final void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
     purgeSubscriptions();
@@ -428,9 +428,23 @@ abstract class Connector
     }
     try
     {
-      final boolean step1 = progressAreaOfInterestRequestProcessing();
-      final boolean step2 = progressResponseProcessing();
-      _schedulerActive = step1 || step2;
+      final Connection connection = getConnection();
+      if ( null != connection )
+      {
+        final boolean step1 = progressAreaOfInterestRequestProcessing();
+        final boolean step2 = progressResponseProcessing();
+        _schedulerActive = step1 || step2;
+      }
+      else
+      {
+        /*
+         * This can happen when a connection has been disconnected before the timer triggers
+         * that invokes progressMessages() - this can happen in a few scenarios but most of
+         * them are the result of errors occurring and connection being removed on error
+         */
+        _schedulerActive = false;
+        callPostMessageResponseActionIfPresent();
+      }
     }
     catch ( final Throwable e )
     {

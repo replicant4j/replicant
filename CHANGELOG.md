@@ -21,6 +21,9 @@
 * Implement `Transport.unbind()` so that `Connector` instances that disconnect or result in an error
   can disassociated with prior transport and successfully re-connect without the failure of the prior
   transport either disconnecting new connection or blocking the establishment of the new connection.
+* Handle scenario where the `Connector.progressMessages()` method is called back by the timer but
+  the underlying connection has already been disconnected. Infrequent occurrence in practice but this
+  avoids inconsistent state when and error messages in the console when it does occur.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

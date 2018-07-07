@@ -1056,6 +1056,45 @@ public class ConnectorTest
   }
 
   @Test
+  public void progressMessages_whenConnectionHasBeenDisconnectedInMeantime()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+    final ChannelChange[] channelChanges = { ChannelChange.create( 0, ChannelChange.Action.ADD, null ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
+
+    final AtomicInteger callCount = new AtomicInteger();
+    connector.setPostMessageResponseAction( callCount::incrementAndGet );
+
+    assertNull( connector.getSchedulerLock() );
+    assertEquals( callCount.get(), 0 );
+
+    connector.resumeMessageScheduler();
+
+    assertNull( connector.getSchedulerLock() );
+    assertEquals( callCount.get(), 0 );
+
+    assertEquals( connector.progressMessages(), true );
+
+    assertEquals( callCount.get(), 0 );
+    assertNotNull( connector.getSchedulerLock() );
+
+    safeAction( () -> {
+      connector.setState( ConnectorState.ERROR );
+      connector.setConnection( null );
+    } );
+
+    // The rest of the message has been skipped as no connection left
+    assertEquals( connector.progressMessages(), false );
+
+    assertNull( connector.getSchedulerLock() );
+    assertEquals( callCount.get(), 1 );
+  }
+
+  @Test
   public void progressMessages_withError()
   {
     final Connector connector = createConnector();
