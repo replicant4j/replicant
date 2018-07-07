@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import arez.component.CollectionsUtil;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import static org.realityforge.braincheck.Guards.*;
  * to the local state etc.
  */
 final class Connection
+  implements Disposable
 {
   /**
    * The containing Connector.
@@ -83,6 +85,18 @@ final class Connection
     _connector = Objects.requireNonNull( connector );
     _connectionId = Objects.requireNonNull( connectionId );
     _transportContext = new TransportContextImpl( connector );
+  }
+
+  @Override
+  public void dispose()
+  {
+    _transportContext.dispose();
+  }
+
+  @Override
+  public boolean isDisposed()
+  {
+    return _transportContext.isDisposed();
   }
 
   @Nonnull
