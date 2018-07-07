@@ -136,6 +136,27 @@ public class ConnectorTest
   }
 
   @Test
+  public void setConnection_whenExistingConnection()
+    throws Exception
+  {
+    final Connector connector = createConnector();
+
+    final Connection connection = newConnection( connector );
+
+    pauseScheduler();
+    connector.pauseMessageScheduler();
+
+    assertEquals( Disposable.isDisposed( connection ), false );
+    assertEquals( connector.getConnection(), connection );
+
+    final String newConnectionId = ValueUtil.randomString();
+    connector.onConnection( newConnectionId );
+
+    assertEquals( Disposable.isDisposed( connection ), true );
+    assertEquals( connector.ensureConnection().getConnectionId(), newConnectionId );
+  }
+
+  @Test
   public void connect()
   {
     pauseScheduler();

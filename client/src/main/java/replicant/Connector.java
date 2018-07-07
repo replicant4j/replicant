@@ -223,6 +223,10 @@ abstract class Connector
   private void doSetConnection( @Nullable final Connection connection )
   {
     final Connection existing = getConnection();
+    if ( null != existing )
+    {
+      Disposable.dispose( existing );
+    }
     if ( null == existing || null == existing.getCurrentMessageResponse() )
     {
       setConnection( connection );
