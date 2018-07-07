@@ -170,6 +170,7 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock3 = pauseScheduler();
     runtime.deactivate();
+    newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
@@ -265,8 +266,10 @@ public class ReplicantRuntimeTest
 
     final Disposable schedulerLock4 = pauseScheduler();
     runtime.deactivate();
+    newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
     entry1.getRateLimiter().fillBucket();
+    newConnection( service3 );
     safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
     entry3.getRateLimiter().fillBucket();
     runtime.activate();
@@ -314,6 +317,7 @@ public class ReplicantRuntimeTest
 
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     final Connector service1 = createConnector( schema1 );
+    newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
@@ -385,9 +389,11 @@ public class ReplicantRuntimeTest
 
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     final Connector service1 = createConnector( schema1 );
+    newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
     final Connector service3 = createConnector( schema2 );
+    newConnection( service3 );
     safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
 
     final ConnectorEntry entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
@@ -541,19 +547,29 @@ public class ReplicantRuntimeTest
   }
 
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final ConnectorState service1State )
+                                  @Nonnull final ConnectorState state )
   {
     ReplicantTestUtil.resetState();
-    final SystemSchema schema1 = newSchema();
 
     final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
-    safeAction( () -> service1.setState( service1State ) );
+    createConnectorInState( state );
 
     safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
 
     schedulerLock.dispose();
+  }
+
+  @Nonnull
+  private Connector createConnectorInState( @Nonnull final ConnectorState state )
+  {
+    final Connector connector = createConnector( newSchema() );
+    if ( ConnectorState.CONNECTED == state )
+    {
+      newConnection( connector );
+    }
+    safeAction( () -> connector.setState( state ) );
+    return connector;
   }
 
   private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
@@ -561,15 +577,11 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service2State )
   {
     ReplicantTestUtil.resetState();
-    final SystemSchema schema1 = newSchema();
-    final SystemSchema schema2 = newSchema();
 
     final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
-    safeAction( () -> service1.setState( service1State ) );
-    final Connector service2 = createConnector( schema2 );
-    safeAction( () -> service2.setState( service2State ) );
+    createConnectorInState( service1State );
+    createConnectorInState( service2State );
 
     safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
 
@@ -582,23 +594,16 @@ public class ReplicantRuntimeTest
                                   @Nonnull final ConnectorState service3State )
   {
     ReplicantTestUtil.resetState();
-    final SystemSchema schema1 = newSchema();
-    final SystemSchema schema2 = newSchema();
-    final SystemSchema schema3 = newSchema();
 
     final Disposable schedulerLock = pauseScheduler();
 
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
-    safeAction( () -> service1.setState( service1State ) );
+    createConnectorInState( service1State );
+    createConnectorInState( service2State );
 
-    final Connector service2 = createConnector( schema2 );
-    safeAction( () -> service2.setState( service2State ) );
+    final Connector connector3 = createConnectorInState( service3State );
 
-    final Connector service3 = createConnector( schema3 );
-    safeAction( () -> service3.setState( service3State ) );
-
-    runtime.setConnectorRequired( service3.getSchema().getId(), false );
+    runtime.setConnectorRequired( connector3.getSchema().getId(), false );
 
     safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
 

@@ -18,6 +18,9 @@
   disconnected. This can happen after an error occurs.
 * Update the `org.realityforge.arez` dependencies to version `0.96`.
 * Update the `org.realityforge.react4j` dependencies to version `0.82`.
+* Implement `Transport.unbind()` so that `Connector` instances that disconnect or result in an error
+  can disassociated with prior transport and successfully re-connect without the failure of the prior
+  transport either disconnecting new connection or blocking the establishment of the new connection.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

@@ -83,6 +83,13 @@ public interface Transport
   void bind( @Nonnull Context context, @Nonnull ReplicantContext replicantContext );
 
   /**
+   * This method is invoked by the Connector when the connection
+   * disconnects or there is a fatal error. This method disassociates the connection context bound to the transport
+   * via the {@link #bind(Context, ReplicantContext)} method.
+   */
+  void unbind();
+
+  /**
    * Perform the disconnection, invoking the action when disconnection has completed.
    *
    * @param onDisconnect      the action to invoke once disconnect has completed.

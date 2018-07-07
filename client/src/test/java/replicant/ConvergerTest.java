@@ -295,6 +295,7 @@ public class ConvergerTest
   public void removeOrphanSubscriptions_whenSubscriptionImplicit()
   {
     final Connector connector = createConnector();
+    newConnection( connector );
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
@@ -315,6 +316,7 @@ public class ConvergerTest
   public void removeOrphanSubscriptions_whenSubscriptionExpected()
   {
     final Connector connector = createConnector();
+    newConnection( connector );
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {

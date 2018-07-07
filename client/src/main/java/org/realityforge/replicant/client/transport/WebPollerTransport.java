@@ -72,6 +72,15 @@ public abstract class WebPollerTransport
     _replicantContext = Objects.requireNonNull( replicantContext );
   }
 
+  @Override
+  public void unbind()
+  {
+    stopPolling();
+    resetConnectionId();
+    _transportContext = null;
+    _replicantContext = null;
+  }
+
   @Nonnull
   private ReplicantContext getReplicantContext()
   {

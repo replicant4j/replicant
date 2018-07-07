@@ -531,6 +531,14 @@ abstract class Connector
   protected void setState( @Nonnull final ConnectorState state )
   {
     _state = Objects.requireNonNull( state );
+    if ( ConnectorState.ERROR == _state || ConnectorState.DISCONNECTED == _state )
+    {
+      getTransport().unbind();
+    }
+    else if ( ConnectorState.CONNECTED == _state )
+    {
+      getTransport().bind( ensureConnection().getTransportContext(), getReplicantContext() );
+    }
   }
 
   /**
@@ -1239,7 +1247,6 @@ abstract class Connector
   @Action
   protected void onConnected()
   {
-    getTransport().bind( ensureConnection().getTransportContext(), getReplicantContext() );
     setState( ConnectorState.CONNECTED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {

@@ -158,6 +158,8 @@ public class ConnectorTest
     final Connector connector = createConnector();
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
+    reset( connector.getTransport() );
+
     final IllegalStateException exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
@@ -168,6 +170,8 @@ public class ConnectorTest
 
     assertEquals( actual, exception );
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
+
+    verify( connector.getTransport() ).unbind();
   }
 
   @Test
@@ -176,6 +180,8 @@ public class ConnectorTest
     pauseScheduler();
 
     final Connector connector = createConnector();
+    newConnection( connector );
+
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     connector.transportDisconnect();
@@ -191,6 +197,8 @@ public class ConnectorTest
     pauseScheduler();
 
     final Connector connector = createConnector();
+    newConnection( connector );
+
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     safeAction( connector::disconnect );
@@ -198,6 +206,8 @@ public class ConnectorTest
     verify( connector.getTransport() ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+
+    verify( connector.getTransport(), never() ).unbind();
   }
 
   @Test
@@ -206,7 +216,10 @@ public class ConnectorTest
     pauseScheduler();
 
     final Connector connector = createConnector();
+    newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    reset( connector.getTransport() );
 
     final IllegalStateException exception = new IllegalStateException();
     doAnswer( i -> {
@@ -219,12 +232,15 @@ public class ConnectorTest
     assertEquals( actual, exception );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    verify( connector.getTransport() ).unbind();
   }
 
   @Test
   public void onDisconnected()
   {
     final Connector connector = createConnector();
+
+    newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -234,11 +250,15 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
+    reset( connector.getTransport() );
+
     safeAction( connector::onDisconnected );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.DISCONNECTED ) );
+
+    verify( connector.getTransport() ).unbind();
   }
 
   @Test
@@ -459,6 +479,8 @@ public class ConnectorTest
     throws Exception
   {
     final Connector connector = createConnector();
+    newConnection( connector );
+
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
@@ -497,6 +519,7 @@ public class ConnectorTest
     throws Exception
   {
     final Connector connector = createConnector();
+    newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -531,6 +554,7 @@ public class ConnectorTest
     throws Exception
   {
     final Connector connector = createConnector();
+    newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -552,6 +576,8 @@ public class ConnectorTest
     throws Exception
   {
     final Connector connector = createConnector();
+    newConnection( connector );
+
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     final Throwable error = new Throwable();
