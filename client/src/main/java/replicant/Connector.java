@@ -718,6 +718,11 @@ abstract class Connector
     }
     connection.setCurrentMessageResponse( null );
     onMessageProcessed( response.toStatus() );
+    callPostMessageResponseActionIfPresent();
+  }
+
+  private void callPostMessageResponseActionIfPresent()
+  {
     if ( null != _postMessageResponseAction )
     {
       _postMessageResponseAction.call();
