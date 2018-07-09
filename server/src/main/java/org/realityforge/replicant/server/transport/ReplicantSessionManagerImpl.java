@@ -663,7 +663,7 @@ public abstract class ReplicantSessionManagerImpl
       }
     }
 
-    collectDataForSubscribe( session, address, changeSet, filter );
+    collectDataForSubscribe( address, changeSet, filter );
     changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
     return CacheStatus.REFRESH;
   }
@@ -712,7 +712,7 @@ public abstract class ReplicantSessionManagerImpl
         return entry;
       }
       final ChangeSet changeSet = new ChangeSet();
-      final String cacheKey = collectDataForSubscribe( null, address, changeSet, null );
+      final String cacheKey = collectDataForSubscribe( address, changeSet, null );
       assert null != cacheKey;
       entry.init( cacheKey, changeSet );
       return entry;
@@ -772,17 +772,15 @@ public abstract class ReplicantSessionManagerImpl
            ChannelMetaData.FilterType.NONE;
     entry.setFilter( filter );
     final ChannelAddress address = entry.getDescriptor();
-    collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
+    collectDataForSubscriptionUpdate( entry.getDescriptor(), changeSet, originalFilter, filter );
     changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
   }
 
   /**
-   * @param session the client session performing subscribe or null if loading as part of cache
    * @return the cacheKey if any. The return value is ignored for non-cacheable channels.
    */
   @Nullable
-  protected abstract String collectDataForSubscribe( @Nullable final ReplicantSession session,
-                                                     @Nonnull final ChannelAddress address,
+  protected abstract String collectDataForSubscribe( @Nonnull final ChannelAddress address,
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object filter );
 
@@ -799,8 +797,7 @@ public abstract class ReplicantSessionManagerImpl
                                                           @Nullable Object filter,
                                                           boolean explicitSubscribe );
 
-  protected abstract void collectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                                            @Nonnull ChannelAddress address,
+  protected abstract void collectDataForSubscriptionUpdate( @Nonnull ChannelAddress address,
                                                             @Nonnull ChangeSet changeSet,
                                                             @Nullable Object originalFilter,
                                                             @Nullable Object filter );

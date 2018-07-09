@@ -1791,8 +1791,7 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected String collectDataForSubscribe( @Nullable final ReplicantSession session,
-                                              @Nonnull final ChannelAddress descriptor,
+    protected String collectDataForSubscribe( @Nonnull final ChannelAddress descriptor,
                                               @Nonnull final ChangeSet changeSet,
                                               @Nullable final Object filter )
     {
@@ -1805,8 +1804,7 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                     @Nonnull final ChannelAddress descriptor,
+    protected void collectDataForSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object originalFilter,
                                                      @Nullable final Object filter )

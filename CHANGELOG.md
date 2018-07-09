@@ -24,6 +24,9 @@
 * Handle scenario where the `Connector.progressMessages()` method is called back by the timer but
   the underlying connection has already been disconnected. Infrequent occurrence in practice but this
   avoids inconsistent state when and error messages in the console when it does occur.
+* Remove some unused `session` parameter from `ReplicantSessionManager.collectDataForSubscribe(...)`
+  and `ReplicantSessionManager.collectDataForSubscriptionUpdate(...)` as not used and should never be
+  used as methods accept parameters to describe the data required.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
