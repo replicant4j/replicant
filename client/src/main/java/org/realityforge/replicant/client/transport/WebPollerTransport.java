@@ -280,7 +280,7 @@ public abstract class WebPollerTransport
 
   private void onWebPollerError( @Nonnull final Throwable error )
   {
-      // if connection has been disconnected whilst poller request was in flight then ignore response
+    // if connection has been disconnected whilst poller request was in flight then ignore response
     if ( null != _transportContext )
     {
       _transportContext.onMessageReadFailure( error );
@@ -289,7 +289,7 @@ public abstract class WebPollerTransport
 
   private void onWebPollerStop()
   {
-      // if connection has been disconnected whilst poller request was in flight then ignore response
+    // if connection has been disconnected whilst poller request was in flight then ignore response
     if ( null != _transportContext )
     {
       _transportContext.disconnect();
