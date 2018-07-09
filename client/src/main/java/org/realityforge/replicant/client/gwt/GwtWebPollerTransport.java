@@ -69,7 +69,7 @@ public final class GwtWebPollerTransport
       final RequestCallback callback = new RequestCallback()
       {
         @Override
-        public void onResponseReceived( final Request request11, final Response response )
+        public void onResponseReceived( final Request ignored, final Response response )
         {
           final int statusCode = response.getStatusCode();
           if ( Response.SC_OK == statusCode )
@@ -88,7 +88,7 @@ public final class GwtWebPollerTransport
         }
 
         @Override
-        public void onError( final Request request11, final Throwable exception )
+        public void onError( final Request ignored, final Throwable exception )
         {
           onError.accept( exception );
         }
