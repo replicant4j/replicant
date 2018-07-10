@@ -360,6 +360,34 @@ public abstract class WebPollerTransport
   }
 
   @Override
+  public void requestSync( @Nonnull final SafeProcedure onInSync,
+                           @Nonnull final SafeProcedure onOutOfSync,
+                           @Nonnull final Consumer<Throwable> onError )
+  {
+    assert null != _transportContext;
+    final int lastRxSequence = _transportContext.getLastRxSequence();
+    final String pingUrl = getPingUrl();
+    final SafeProcedure onSuccess = () -> {
+      if ( _transportContext.getLastRxSequence() == lastRxSequence + 1 )
+      {
+        onInSync.call();
+      }
+      else
+      {
+        onOutOfSync.call();
+      }
+    };
+    final Request request = newRequest( "Sync" + lastRxSequence );
+    remote( () -> doSync( request, pingUrl, onSuccess, onError ) );
+  }
+
+  @Nonnull
+  private String getPingUrl()
+  {
+    return getConnectionURL() + SharedConstants.PING_URL_FRAGMENT;
+  }
+
+  @Override
   public void requestSubscribe( @Nonnull final ChannelAddress address,
                                 @Nullable final Object filter,
                                 @Nonnull final String eTag,
@@ -420,6 +448,11 @@ public abstract class WebPollerTransport
     final Request request = newRequest( toRequestKey( "BulkUnsubscribe", addresses ) );
     remote( () -> doUnsubscribe( request, getChannelURL( addresses ), onSuccess, onError ) );
   }
+
+  protected abstract void doSync( @Nonnull Request request,
+                                  @Nonnull String pingUrl,
+                                  @Nonnull SafeProcedure onSuccess,
+                                  @Nonnull Consumer<Throwable> onError );
 
   protected abstract void doSubscribe( @Nonnull Request request,
                                        @Nullable Object filter,

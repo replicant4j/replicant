@@ -29,6 +29,11 @@
   used as methods accept parameters to describe the data required.
 * Introduce `replicant.spy.InSyncEvent`, `replicant.spy.OutOfSyncEvent` and `replicant.spy.SyncFailureEvent`
   events to notify using spy system when synchronization events occur.
+* Add the ability to "ping" the backend from the client replicant application to check whether the
+  backend has any requests in progress to thus perform a poor-mans network synchronization. This is
+  still somewhat error prone if another party sends a message that is added to the servers message
+  queue for pinging session and that message relies on existing implicit subscription already present
+  that would be removed as an orphan subscription.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

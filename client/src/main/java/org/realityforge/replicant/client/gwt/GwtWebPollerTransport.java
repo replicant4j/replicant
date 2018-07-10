@@ -49,6 +49,48 @@ public final class GwtWebPollerTransport
   }
 
   @Override
+  protected void doSync( @Nonnull final replicant.Request request,
+                         @Nonnull final String pingUrl,
+                         @Nonnull final SafeProcedure onSuccess,
+                         @Nonnull final Consumer<Throwable> onError )
+  {
+    final String connectionId = getConnectionId();
+    final RequestBuilder rb = newRequestBuilder( RequestBuilder.GET, pingUrl );
+    rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( request.getRequestId() ) );
+    try
+    {
+      final RequestCallback callback = new RequestCallback()
+      {
+        @Override
+        public void onResponseReceived( final Request ignored, final Response response )
+        {
+          final int statusCode = response.getStatusCode();
+          if ( Response.SC_OK == statusCode )
+          {
+            request.onSuccess( true, onSuccess );
+          }
+          else
+          {
+            onError.accept( new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
+          }
+        }
+
+        @Override
+        public void onError( final Request ignored, final Throwable exception )
+        {
+          onError.accept( exception );
+        }
+      };
+      rb.sendRequest( null,
+                      new SessionLockednewRequestCallback( connectionId, callback, this::maybeGetConnectionId ) );
+    }
+    catch ( final RequestException e )
+    {
+      onError.accept( e );
+    }
+  }
+
+  @Override
   protected void doSubscribe( @Nonnull final replicant.Request request,
                               @Nullable final Object filter,
                               @Nonnull final String channelURL,

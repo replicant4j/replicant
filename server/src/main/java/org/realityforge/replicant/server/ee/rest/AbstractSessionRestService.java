@@ -119,6 +119,16 @@ public abstract class AbstractSessionRestService
     return doGetSession( sessionId, uri );
   }
 
+  @Path( "{sessionId}" + SharedConstants.PING_URL_FRAGMENT )
+  @GET
+  public Response ping( @PathParam( "sessionId" ) @NotNull final String sessionId,
+                        @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId,
+                        @Context @Nonnull final UriInfo uri )
+  {
+    runRequest( "Ping", sessionId, requestId, () -> ensureSession( sessionId, requestId ) );
+    return standardResponse( Response.Status.OK, "Pong" );
+  }
+
   @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT )
   @GET
   public Response getChannels( @PathParam( "sessionId" ) @NotNull final String sessionId,
