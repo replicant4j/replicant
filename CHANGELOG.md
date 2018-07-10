@@ -27,6 +27,8 @@
 * Remove some unused `session` parameter from `ReplicantSessionManager.collectDataForSubscribe(...)`
   and `ReplicantSessionManager.collectDataForSubscriptionUpdate(...)` as not used and should never be
   used as methods accept parameters to describe the data required.
+* Introduce `replicant.spy.InSyncEvent`, `replicant.spy.OutOfSyncEvent` and `replicant.spy.SyncFailureEvent`
+  events to notify using spy system when synchronization events occur.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

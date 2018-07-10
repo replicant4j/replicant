@@ -13,9 +13,11 @@ import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import replicant.spy.RestartEvent;
@@ -30,6 +32,7 @@ import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
+import replicant.spy.SyncFailureEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
@@ -89,6 +92,40 @@ public class ConsoleSpyEventProcessor
 
     on( RequestStartedEvent.class, this::onRequestStarted );
     on( RequestCompletedEvent.class, this::onRequestCompleted );
+
+    on( InSyncEvent.class, this::onInSync );
+    on( OutOfSyncEvent.class, this::onOutOfSync );
+    on( SyncFailureEvent.class, this::onSyncFailure );
+  }
+
+  /**
+   * Handle the InSyncEvent.
+   *
+   * @param e the event.
+   */
+  protected void onInSync( @Nonnull final InSyncEvent e )
+  {
+    log( "%Sync completed. Backend synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the OutOfSyncEvent.
+   *
+   * @param e the event.
+   */
+  protected void onOutOfSync( @Nonnull final OutOfSyncEvent e )
+  {
+    log( "%Sync completed. Backend not synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
+  }
+
+  /**
+   * Handle the ConnectFailureEvent.
+   *
+   * @param e the event.
+   */
+  protected void onSyncFailure( @Nonnull final SyncFailureEvent e )
+  {
+    log( "%cSync Failed. SchemaId: " + e.getSchemaId() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
