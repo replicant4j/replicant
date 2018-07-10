@@ -33,6 +33,7 @@ import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.SyncFailureEvent;
+import replicant.spy.SyncRequestEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
@@ -93,9 +94,20 @@ public class ConsoleSpyEventProcessor
     on( RequestStartedEvent.class, this::onRequestStarted );
     on( RequestCompletedEvent.class, this::onRequestCompleted );
 
+    on( SyncRequestEvent.class, this::onSyncRequest );
     on( InSyncEvent.class, this::onInSync );
     on( OutOfSyncEvent.class, this::onOutOfSync );
     on( SyncFailureEvent.class, this::onSyncFailure );
+  }
+
+  /**
+   * Handle the SyncRequestEvent.
+   *
+   * @param e the event.
+   */
+  protected void onSyncRequest( @Nonnull final SyncRequestEvent e )
+  {
+    log( "%Sync requested. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
 
   /**

@@ -27,8 +27,8 @@
 * Remove some unused `session` parameter from `ReplicantSessionManager.collectDataForSubscribe(...)`
   and `ReplicantSessionManager.collectDataForSubscriptionUpdate(...)` as not used and should never be
   used as methods accept parameters to describe the data required.
-* Introduce `replicant.spy.InSyncEvent`, `replicant.spy.OutOfSyncEvent` and `replicant.spy.SyncFailureEvent`
-  events to notify using spy system when synchronization events occur.
+* Introduce `SyncRequest`, `InSyncEvent`, `OutOfSyncEvent` and `SyncFailureEvent` spy events to notify
+  listeners when synchronization events occur.
 * Add the ability to "ping" the backend from the client replicant application to check whether the
   backend has any requests in progress to thus perform a poor-mans network synchronization. This is
   still somewhat error prone if another party sends a message that is added to the servers message
