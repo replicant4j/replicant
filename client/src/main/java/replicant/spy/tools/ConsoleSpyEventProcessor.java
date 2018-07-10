@@ -44,8 +44,6 @@ public class ConsoleSpyEventProcessor
   extends AbstractSpyEventProcessor
 {
   @CssRules
-  private static final String ENTITY_COLOR = "color: #CF8A3B; font-weight: normal;";
-  @CssRules
   private static final String CONNECTOR_COLOR = "color: #F5A402; font-weight: normal;";
   @CssRules
   private static final String SUBSCRIPTION_COLOR = "color: #0FA13B; font-weight: normal;";
