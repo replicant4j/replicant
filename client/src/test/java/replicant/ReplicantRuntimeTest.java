@@ -48,7 +48,7 @@ public class ReplicantRuntimeTest
     assertEquals( callCount2.get(), 1 );
 
     // Manually register to runtime2  - never happens in app but useful during testing
-    safeAction( () -> runtime2.registerConnector( connector1 ) );
+    runtime2.registerConnector( connector1 );
 
     safeAction( () -> assertEquals( runtime1.getConnectors().size(), 1 ) );
     safeAction( () -> assertEquals( runtime2.getConnectors().size(), 1 ) );

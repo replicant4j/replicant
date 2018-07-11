@@ -11,7 +11,6 @@ import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ConvergerTest
@@ -847,8 +846,7 @@ public class ConvergerTest
                          true, Collections.emptyList() );
     final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
-    final Connector connector =
-      safeAction( () -> (Connector) Replicant.context().registerConnector( schema, mock( Transport.class ) ) );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 

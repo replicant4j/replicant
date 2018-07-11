@@ -344,7 +344,7 @@ public class ReplicantContextTest
     assertEquals( Replicant.context().getSchemas().size(), 0 );
 
     final Disposable disposable =
-      safeAction( () -> Replicant.context().registerConnector( newSchema(), mock( Transport.class ) ) );
+      Replicant.context().registerConnector( newSchema(), mock( Transport.class ) );
 
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 1 ) );
     assertEquals( Replicant.context().getSchemas().size(), 1 );

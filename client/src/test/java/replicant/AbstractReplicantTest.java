@@ -219,6 +219,6 @@ public abstract class AbstractReplicantTest
   @Nonnull
   protected final Connector createConnector( @Nonnull final SystemSchema schema )
   {
-    return safeAction( () -> (Connector) Replicant.context().registerConnector( schema, mock( Transport.class ) ) );
+    return (Connector) Replicant.context().registerConnector( schema, mock( Transport.class ) );
   }
 }
