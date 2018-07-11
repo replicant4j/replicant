@@ -44,7 +44,7 @@ public abstract class AbstractReplicantTest
 
   protected static void observeADependency()
   {
-    Arez.context().createObservable().reportObserved();
+    Arez.context().observable().reportObserved();
   }
 
   @Nonnull
