@@ -15,8 +15,8 @@ public class ReplicantContextTest
     final int schemaId = 22;
 
     final ReplicantContext context = Replicant.context();
-    safeAction( () -> assertEquals( context.getSchemas().size(), 0 ) );
-    safeAction( () -> assertEquals( context.findSchemaById( schemaId ), null ) );
+    assertEquals( context.getSchemas().size(), 0 );
+    assertEquals( context.findSchemaById( schemaId ), null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> safeAction( () -> context.getSchemaById( schemaId ) ) );
@@ -28,13 +28,13 @@ public class ReplicantContextTest
                         new ChannelSchema[ 0 ],
                         new EntitySchema[ 0 ] );
 
-    safeAction( () -> context.getSchemaService().registerSchema( schema1 ) );
+    context.getSchemaService().registerSchema( schema1 );
 
-    safeAction( () -> assertEquals( context.getSchemas().size(), 1 ) );
-    safeAction( () -> assertEquals( context.getSchemas().contains( schema1 ), true ) );
+    assertEquals( context.getSchemas().size(), 1 );
+    assertEquals( context.getSchemas().contains( schema1 ), true );
 
-    safeAction( () -> assertEquals( context.findSchemaById( schemaId ), schema1 ) );
-    safeAction( () -> assertEquals( context.getSchemaById( schemaId ), schema1 ) );
+    assertEquals( context.findSchemaById( schemaId ), schema1 );
+    assertEquals( context.getSchemaById( schemaId ), schema1 );
   }
 
   @Test
@@ -82,7 +82,7 @@ public class ReplicantContextTest
 
     final Entity entity1 = findOrCreateEntity( A.class, 1 );
 
-    safeAction( () -> assertEquals( entity1.getName(), "A/1" ) );
+    assertEquals( entity1.getName(), "A/1" );
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
@@ -93,7 +93,7 @@ public class ReplicantContextTest
     final Entity entity2 =
       safeAction( () -> context.getEntityService().findOrCreateEntity( "Super-dee-duper", A.class, 2 ) );
 
-    safeAction( () -> assertEquals( entity2.getName(), "Super-dee-duper" ) );
+    assertEquals( entity2.getName(), "Super-dee-duper" );
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
@@ -341,18 +341,18 @@ public class ReplicantContextTest
     throws Exception
   {
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );
-    safeAction( () -> assertEquals( Replicant.context().getSchemas().size(), 0 ) );
+    assertEquals( Replicant.context().getSchemas().size(), 0 );
 
     final Disposable disposable =
       safeAction( () -> Replicant.context().registerConnector( newSchema(), mock( Transport.class ) ) );
 
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 1 ) );
-    safeAction( () -> assertEquals( Replicant.context().getSchemas().size(), 1 ) );
+    assertEquals( Replicant.context().getSchemas().size(), 1 );
 
     disposable.dispose();
 
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );
-    safeAction( () -> assertEquals( Replicant.context().getSchemas().size(), 0 ) );
+    assertEquals( Replicant.context().getSchemas().size(), 0 );
   }
 
   static class A

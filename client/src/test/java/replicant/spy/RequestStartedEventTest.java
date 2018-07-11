@@ -23,7 +23,7 @@ public class RequestStartedEventTest
     assertEquals( event.getName(), name );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.RequestStarted" );
     assertEquals( data.get( "schema.id" ), 23 );

@@ -19,7 +19,7 @@ public class UnsubscribeRequestQueuedEventTest
     assertEquals( event.getAddress(), address );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestQueued" );
     assertEquals( data.get( "channel.systemId" ), 1 );

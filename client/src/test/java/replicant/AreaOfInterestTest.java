@@ -32,7 +32,7 @@ public class AreaOfInterestTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> Disposable.dispose( areaOfInterest ) );
+    Disposable.dispose( areaOfInterest );
     handler.assertEventCount( 1 );
 
     final AreaOfInterestDisposedEvent event = handler.assertNextEvent( AreaOfInterestDisposedEvent.class );
@@ -145,51 +145,51 @@ public class AreaOfInterestTest
     final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
     final Throwable error = new Throwable();
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, error ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, error );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), error ) );
 
     final Subscription subscription = createSubscription( aoi.getAddress(), null, true );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATE_FAILED, error ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATE_FAILED, error );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), error ) );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     Disposable.dispose( subscription );
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null );
     safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
@@ -203,7 +203,7 @@ public class AreaOfInterestTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null ) );
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null );
 
     handler.assertEventCount( 1 );
     final AreaOfInterestStatusUpdatedEvent event = handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class );
@@ -218,7 +218,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) ) );
+                    () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0016: Invoked updateAreaOfInterest for channel at address 1.0 with status LOAD_FAILED but failed to supply the expected error." );
   }
@@ -233,7 +233,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) ) );
+                    () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0017: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and supplied an unexpected error." );
   }
@@ -248,7 +248,7 @@ public class AreaOfInterestTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) ) );
+                    () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0019: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and found unexpected subscription in the context." );
   }

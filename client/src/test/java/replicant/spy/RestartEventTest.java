@@ -19,7 +19,7 @@ public class RestartEventTest
     assertEquals( event.getError(), error );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.Restart" );
     assertEquals( data.get( "schema.id" ), 23 );
@@ -39,7 +39,7 @@ public class RestartEventTest
     assertEquals( event.getError(), error );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.Restart" );
     assertEquals( data.get( "schema.id" ), 23 );

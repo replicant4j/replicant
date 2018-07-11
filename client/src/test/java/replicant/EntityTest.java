@@ -288,7 +288,7 @@ public class EntityTest
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
     // Should perform no action
-    safeAction( () -> entity.tryLinkToSubscription( subscription1 ) );
+    entity.tryLinkToSubscription( subscription1 );
 
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
   }

@@ -20,7 +20,7 @@ public class SubscribeStartedEventTest
     assertEquals( event.getAddress(), address );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.SubscribeStarted" );
     assertEquals( data.get( "schema.id" ), 23 );

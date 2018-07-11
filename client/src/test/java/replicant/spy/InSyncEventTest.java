@@ -16,7 +16,7 @@ public class InSyncEventTest
     assertEquals( event.getSchemaId(), 23 );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.InSync" );
     assertEquals( data.get( "schema.id" ), 23 );

@@ -124,7 +124,7 @@ public class TransportContextImplTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    safeAction( context::disconnect );
+    context.disconnect();
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
 
@@ -137,7 +137,7 @@ public class TransportContextImplTest
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     // This should be ignored
-    safeAction( context::disconnect );
+    context.disconnect();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
   }

@@ -56,11 +56,7 @@ public final class ReplicantContext
   @Nonnull
   public Disposable registerConnector( @Nonnull final SystemSchema schema, @Nonnull final Transport transport )
   {
-    final String name = Arez.areNamesEnabled() ? "ReplicantContext.registerConnector" : null;
-    return Arez.context().safeAction( name, true, () -> {
-      final Connector connector = Connector.create( Replicant.areZonesEnabled() ? this : null, schema, transport );
-      return Disposable.asDisposable( connector );
-    } );
+    return Disposable.asDisposable( Connector.create( Replicant.areZonesEnabled() ? this : null, schema, transport ) );
   }
 
   /**

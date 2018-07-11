@@ -105,7 +105,7 @@ public class AreaOfInterestServiceTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> Disposable.dispose( areaOfInterest ) );
+    Disposable.dispose( areaOfInterest );
     handler.assertEventCount( 1 );
 
     handler.assertNextEvent( AreaOfInterestDisposedEvent.class,

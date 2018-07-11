@@ -273,7 +273,7 @@ public class ConnectorTest
 
     reset( connector.getTransport() );
 
-    safeAction( connector::onDisconnected );
+    connector.onDisconnected();
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
@@ -295,7 +295,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( connector::onDisconnected );
+    connector.onDisconnected();
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DisconnectedEvent.class,
@@ -318,7 +318,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( () -> connector.onDisconnectFailure( error ) );
+    connector.onDisconnectFailure( error );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
@@ -340,7 +340,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( () -> connector.onDisconnectFailure( error ) );
+    connector.onDisconnectFailure( error );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( DisconnectFailureEvent.class, e -> {
@@ -368,7 +368,7 @@ public class ConnectorTest
     field.setAccessible( true );
     field.set( connector, connection );
 
-    safeAction( connector::onConnected );
+    connector.onConnected();
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTED ) );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
@@ -388,7 +388,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( connector::onConnected );
+    connector.onConnected();
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ConnectedEvent.class,
@@ -411,7 +411,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( () -> connector.onConnectFailure( error ) );
+    connector.onConnectFailure( error );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
@@ -433,7 +433,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( () -> connector.onConnectFailure( error ) );
+    connector.onConnectFailure( error );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ConnectFailureEvent.class, e -> {
@@ -483,7 +483,7 @@ public class ConnectorTest
                           ValueUtil.getRandom().nextInt( 100 ),
                           ValueUtil.getRandom().nextInt( 10 ) );
 
-    safeAction( () -> connector.onMessageProcessed( status ) );
+    connector.onMessageProcessed( status );
 
     verify( connector.getTransport() ).onMessageProcessed();
 
@@ -509,7 +509,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( () -> connector.onMessageProcessFailure( error ) );
+    connector.onMessageProcessFailure( error );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
@@ -526,7 +526,7 @@ public class ConnectorTest
 
     final Throwable error = new Throwable();
 
-    safeAction( () -> connector.onMessageProcessFailure( error ) );
+    connector.onMessageProcessFailure( error );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessFailureEvent.class, e -> {
@@ -606,7 +606,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    safeAction( () -> connector.onMessageReadFailure( error ) );
+    connector.onMessageReadFailure( error );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
   }
@@ -623,7 +623,7 @@ public class ConnectorTest
 
     final Throwable error = new Throwable();
 
-    safeAction( () -> connector.onMessageReadFailure( error ) );
+    connector.onMessageReadFailure( error );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageReadFailureEvent.class, e -> {
@@ -648,7 +648,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onSubscribeStarted( address ) );
+    connector.onSubscribeStarted( address );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
@@ -681,7 +681,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onSubscribeCompleted( address ) );
+    connector.onSubscribeCompleted( address );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
@@ -714,7 +714,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onSubscribeFailed( address, error ) );
+    connector.onSubscribeFailed( address, error );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
@@ -748,7 +748,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onUnsubscribeStarted( address ) );
+    connector.onUnsubscribeStarted( address );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADING ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
@@ -779,7 +779,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onUnsubscribeCompleted( address ) );
+    connector.onUnsubscribeCompleted( address );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
@@ -812,7 +812,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onUnsubscribeFailed( address, error ) );
+    connector.onUnsubscribeFailed( address, error );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
@@ -846,7 +846,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onSubscriptionUpdateStarted( address ) );
+    connector.onSubscriptionUpdateStarted( address );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
@@ -879,7 +879,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onSubscriptionUpdateCompleted( address ) );
+    connector.onSubscriptionUpdateCompleted( address );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
@@ -914,7 +914,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.onSubscriptionUpdateFailed( address, error ) );
+    connector.onSubscriptionUpdateFailed( address, error );
 
     safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
@@ -1955,7 +1955,7 @@ public class ConnectorTest
     createSubscription( address2, null, false );
     // Address3 has no subscription ... maybe not converged yet
 
-    safeAction( () -> connector.removeExplicitSubscriptions( requests ) );
+    connector.removeExplicitSubscriptions( requests );
 
     safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
   }
@@ -2003,7 +2003,7 @@ public class ConnectorTest
     // Address1 is implicitly subscribed
     final Subscription subscription1 = createSubscription( address1, null, false );
 
-    safeAction( () -> connector.removeUnneededAddRequests( requests ) );
+    connector.removeUnneededAddRequests( requests );
 
     assertEquals( requests.size(), 1 );
     assertEquals( requests.contains( request2 ), true );
@@ -2065,7 +2065,7 @@ public class ConnectorTest
 
     ReplicantTestUtil.noCheckInvariants();
 
-    safeAction( () -> connector.removeUnneededRemoveRequests( requests ) );
+    connector.removeUnneededRemoveRequests( requests );
 
     assertEquals( requests.size(), 1 );
     assertEquals( requests.contains( request1 ), true );
@@ -2149,7 +2149,7 @@ public class ConnectorTest
 
     ReplicantTestUtil.noCheckInvariants();
 
-    safeAction( () -> connector.removeUnneededUpdateRequests( requests ) );
+    connector.removeUnneededUpdateRequests( requests );
 
     assertEquals( requests.size(), 2 );
     assertEquals( requests.contains( request1 ), true );

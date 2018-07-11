@@ -17,7 +17,7 @@ public class DisconnectedEventTest
     assertEquals( event.getSchemaName(), "Rose" );
 
     final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+    event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.Disconnect" );
     assertEquals( data.get( "schema.id" ), 23 );

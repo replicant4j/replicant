@@ -154,7 +154,7 @@ public class SubscriptionServiceTest
 
     // Dispose service
     {
-      safeAction( () -> Disposable.dispose( service ) );
+      Disposable.dispose( service );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 3 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 5 );
@@ -320,7 +320,7 @@ public class SubscriptionServiceTest
 
     // Dispose service
     {
-      safeAction( () -> Disposable.dispose( service ) );
+      Disposable.dispose( service );
 
       assertEquals( findSubscriptionAddress1CallCount.get(), 3 );
       assertEquals( findSubscriptionAddress2CallCount.get(), 5 );
