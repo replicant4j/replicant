@@ -34,6 +34,7 @@
   still somewhat error prone if another party sends a message that is added to the servers message
   queue for pinging session and that message relies on existing implicit subscription already present
   that would be removed as an orphan subscription.
+* Fix bug in the `AbstractSessionRestService` so that the `synchronized` flag is correct. 
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

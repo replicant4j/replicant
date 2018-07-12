@@ -64,7 +64,7 @@ final class Encoder
     g.write( "url", getSessionURL( session, uri ) );
     g.write( "createdAt", asDateTimeString( session.getCreatedAt() ) );
     g.write( "lastAccessedAt", asDateTimeString( session.getLastAccessedAt() ) );
-    g.write( "synchronized", queue.getLastSequenceAcked() == queue.size() );
+    g.write( "synchronized", 0 == queue.size() );
 
     if ( emitNetworkData )
     {
