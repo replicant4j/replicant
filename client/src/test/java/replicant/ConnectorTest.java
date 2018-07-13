@@ -146,6 +146,13 @@ public class ConnectorTest
     pauseScheduler();
     connector.pauseMessageScheduler();
 
+    connector.recordLastRxRequestId( ValueUtil.randomInt() );
+    connector.recordLastTxRequestId( ValueUtil.randomInt() );
+    connector.recordLastSyncRxRequestId( ValueUtil.randomInt() );
+    connector.recordLastSyncTxRequestId( ValueUtil.randomInt() );
+    connector.recordSyncInFlight( true );
+    connector.recordPendingResponseQueueEmpty( false );
+
     assertEquals( Disposable.isDisposed( connection ), false );
     assertEquals( connector.getConnection(), connection );
 
@@ -154,6 +161,13 @@ public class ConnectorTest
 
     assertEquals( Disposable.isDisposed( connection ), true );
     assertEquals( connector.ensureConnection().getConnectionId(), newConnectionId );
+
+    safeAction( () -> assertEquals( connector.getLastRxRequestId(), 0 ) );
+    safeAction( () -> assertEquals( connector.getLastTxRequestId(), 0 ) );
+    safeAction( () -> assertEquals( connector.getLastSyncRxRequestId(), 0 ) );
+    safeAction( () -> assertEquals( connector.getLastSyncTxRequestId(), 0 ) );
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), true ) );
   }
 
   @Test

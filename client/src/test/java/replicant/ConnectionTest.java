@@ -419,12 +419,17 @@ public class ConnectionTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final int lastTxRequestId = connection.getLastTxRequestId();
+
+    safeAction( () -> assertEquals( connector.getLastRxRequestId(), 0 ) );
+
     final Request request = connection.newRequest( requestName );
     final RequestEntry entry = request.getEntry();
 
     assertEquals( entry.getName(), requestName );
     assertEquals( entry.getRequestId(), lastTxRequestId + 1 );
     assertEquals( connection.getLastTxRequestId(), lastTxRequestId + 1 );
+
+    safeAction( () -> assertEquals( connector.getLastTxRequestId(), lastTxRequestId + 1 ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
@@ -437,7 +442,11 @@ public class ConnectionTest
     assertEquals( connection.getRequests().get( request.getRequestId() ), entry );
     assertEquals( connection.getRequest( ValueUtil.randomInt() ), null );
 
+    safeAction( () -> assertNotEquals( connector.getLastRxRequestId(), lastTxRequestId + 1 ) );
+
     connection.removeRequest( request.getRequestId() );
+
+    safeAction( () -> assertEquals( connector.getLastRxRequestId(), lastTxRequestId + 1 ) );
 
     assertEquals( connection.getRequest( request.getRequestId() ), null );
   }

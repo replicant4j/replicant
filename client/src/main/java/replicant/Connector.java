@@ -240,6 +240,12 @@ abstract class Connector
   final void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
+    recordLastTxRequestId( 0 );
+    recordLastRxRequestId( 0 );
+    recordLastSyncTxRequestId( 0 );
+    recordLastSyncRxRequestId( 0 );
+    recordSyncInFlight( false );
+    recordPendingResponseQueueEmpty( true );
     purgeSubscriptions();
     if ( null != _connection )
     {
@@ -534,6 +540,78 @@ abstract class Connector
       completeMessageResponse();
       return true;
     }
+  }
+
+  /*
+   * The following are Arez observable properties used to expose state from non-arez enabled
+   * elements. The other elements explicitly set state into variables which is picked up by
+   * interested observers.
+   */
+
+  @Observable
+  abstract int getLastSyncRxRequestId();
+
+  abstract void setLastSyncRxRequestId( int requestId );
+
+  @Action
+  void recordLastSyncRxRequestId( final int requestId )
+  {
+    setLastSyncRxRequestId( requestId );
+  }
+
+  @Observable
+  abstract int getLastSyncTxRequestId();
+
+  abstract void setLastSyncTxRequestId( int requestId );
+
+  @Action
+  void recordLastSyncTxRequestId( final int requestId )
+  {
+    setLastSyncTxRequestId( requestId );
+  }
+
+  @Observable
+  abstract int getLastTxRequestId();
+
+  abstract void setLastTxRequestId( int lastTxRequestId );
+
+  @Action
+  void recordLastTxRequestId( final int lastTxRequestId )
+  {
+    setLastTxRequestId( lastTxRequestId );
+  }
+
+  @Observable
+  abstract int getLastRxRequestId();
+
+  abstract void setLastRxRequestId( int lastRxRequestId );
+
+  @Action
+  void recordLastRxRequestId( final int lastRxRequestId )
+  {
+    setLastRxRequestId( lastRxRequestId );
+  }
+
+  @Observable
+  abstract boolean isSyncInFlight();
+
+  abstract void setSyncInFlight( boolean syncInFlight );
+
+  @Action
+  void recordSyncInFlight( final boolean syncInFlight )
+  {
+    setSyncInFlight( syncInFlight );
+  }
+
+  @Observable
+  abstract boolean isPendingResponseQueueEmpty();
+
+  abstract void setPendingResponseQueueEmpty( boolean isEmpty );
+
+  @Action
+  void recordPendingResponseQueueEmpty( final boolean isEmpty )
+  {
+    setPendingResponseQueueEmpty( isEmpty );
   }
 
   /**

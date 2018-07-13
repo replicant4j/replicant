@@ -227,6 +227,7 @@ final class Connection
     final int requestId = nextRequestId();
     final RequestEntry request = new RequestEntry( requestId, name );
     _requests.put( requestId, request );
+    _connector.recordLastTxRequestId( requestId );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       _connector
@@ -281,6 +282,7 @@ final class Connection
   void removeRequest( final int requestId )
   {
     final boolean removed = null != _requests.remove( requestId );
+    _connector.recordLastRxRequestId( requestId );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> removed,
