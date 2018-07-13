@@ -67,7 +67,7 @@ public final class GwtWebPollerTransport
           final int statusCode = response.getStatusCode();
           if ( Response.SC_OK == statusCode )
           {
-            request.onSuccess( true, onSuccess );
+            request.onSuccess( false, onSuccess );
           }
           else
           {
