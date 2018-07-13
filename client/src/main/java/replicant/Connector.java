@@ -638,7 +638,7 @@ abstract class Connector
     response.markChannelActionsProcessed();
   }
 
-  @Action
+  @Action( verifyRequired = false )
   protected void processEntityLinks()
   {
     final MessageResponse response = ensureCurrentMessageResponse();
@@ -766,7 +766,7 @@ abstract class Connector
     } );
   }
 
-  @Action
+  @Action( verifyRequired = false )
   protected void removeUnneededAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( request -> {
@@ -792,7 +792,7 @@ abstract class Connector
     } );
   }
 
-  @Action
+  @Action( verifyRequired = false )
   protected void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( a -> {
@@ -820,7 +820,7 @@ abstract class Connector
     } );
   }
 
-  @Action
+  @Action( verifyRequired = false )
   protected void removeUnneededRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( request -> {
