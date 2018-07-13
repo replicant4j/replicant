@@ -32,6 +32,7 @@ public class ChangeAccumulatorTest
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
+    assertNotNull( packet );
     final Change change = packet.getChangeSet().getChanges().iterator().next();
     assertEquals( change.getKey(), "42#17" );
     assertEquals( change.getEntityMessage().getId(), id );
@@ -67,6 +68,7 @@ public class ChangeAccumulatorTest
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
+    assertNotNull( packet );
     assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getId(), id );
     assertEquals( packet.getRequestId(), (Integer) 1 );
 
@@ -95,6 +97,7 @@ public class ChangeAccumulatorTest
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
+    assertNotNull( packet );
     final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
     assertEquals( action.getAddress().getChannelId(), 1 );
     assertEquals( action.getAction(), Action.ADD );
@@ -120,7 +123,9 @@ public class ChangeAccumulatorTest
     assertFalse( impactsInitiator );
 
     assertEquals( c.getQueue().size(), 1 );
-    assertNull( c.getQueue().nextPacketToProcess().getRequestId() );
+    final Packet packet = c.getQueue().nextPacketToProcess();
+    assertNotNull( packet );
+    assertNull( packet.getRequestId() );
   }
 
   @Test
