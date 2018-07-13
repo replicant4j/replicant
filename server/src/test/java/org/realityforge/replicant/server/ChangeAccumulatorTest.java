@@ -4,8 +4,10 @@ import java.util.Collections;
 import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonObject;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.transport.Packet;
+import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -140,5 +142,24 @@ public class ChangeAccumulatorTest
     assertFalse( impactsInitiator );
 
     assertEquals( c.getQueue().size(), 0 );
+  }
+
+  @Test
+  public void complete_pingMessage()
+  {
+    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ChangeAccumulator accumulator = new ChangeAccumulator();
+
+    accumulator.getChangeSet( c ).setPingResponse( true );
+    final Integer requestId = ValueUtil.randomInt();
+    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), requestId );
+
+    assertTrue( impactsInitiator );
+
+    final PacketQueue queue = c.getQueue();
+    assertEquals( queue.size(), 1 );
+    final Packet packet = c.getQueue().nextPacketToProcess();
+    assertNotNull( packet );
+    assertEquals( packet.getRequestId(), requestId );
   }
 }
