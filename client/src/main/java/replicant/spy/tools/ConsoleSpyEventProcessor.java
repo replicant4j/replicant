@@ -107,7 +107,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSyncRequest( @Nonnull final SyncRequestEvent e )
   {
-    log( "%Sync requested. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
+    log( "%cSync requested. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
 
   /**
@@ -117,7 +117,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onInSync( @Nonnull final InSyncEvent e )
   {
-    log( "%Sync completed. Backend synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
+    log( "%cSync completed. Backend synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
 
   /**
@@ -127,7 +127,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onOutOfSync( @Nonnull final OutOfSyncEvent e )
   {
-    log( "%Sync completed. Backend not synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
+    log( "%cSync completed. Backend not synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
 
   /**
