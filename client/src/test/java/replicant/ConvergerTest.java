@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
@@ -399,7 +400,11 @@ public class ConvergerTest
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
-    handler.assertEventCount( 0 );
+    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
   }
 
   @Test

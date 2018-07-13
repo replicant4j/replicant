@@ -243,6 +243,17 @@ abstract class Converger
             return Action.NO_ACTION;
           }
         }
+        else
+        {
+          /*
+           * The AreaOfInterest was added but an existing subscription matched it exactly.
+           * All we have to do us update the status of AreaOfInterest
+           */
+          if ( AreaOfInterest.Status.NOT_ASKED == areaOfInterest.getStatus() )
+          {
+            areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
+          }
+        }
       }
     }
     return Action.NO_ACTION;
