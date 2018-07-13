@@ -416,21 +416,21 @@ final class Connection
 
   List<MessageResponse> getPendingResponses()
   {
-    return Collections.unmodifiableList( _pendingResponses );
+    return CollectionsUtil.wrap( _pendingResponses );
   }
 
   List<MessageResponse> getUnparsedResponses()
   {
-    return Collections.unmodifiableList( _unparsedResponses );
+    return CollectionsUtil.wrap( _unparsedResponses );
   }
 
   List<MessageResponse> getOutOfBandResponses()
   {
-    return Collections.unmodifiableList( _outOfBandResponses );
+    return CollectionsUtil.wrap( _outOfBandResponses );
   }
 
   List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()
   {
-    return Collections.unmodifiableList( _pendingAreaOfInterestRequests );
+    return CollectionsUtil.wrap( _pendingAreaOfInterestRequests );
   }
 }
