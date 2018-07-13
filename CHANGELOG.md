@@ -34,7 +34,7 @@
   still somewhat error prone if another party sends a message that is added to the servers message
   queue for pinging session and that message relies on existing implicit subscription already present
   that would be removed as an orphan subscription.
-* Fix bug in the `AbstractSessionRestService` so that the `synchronized` flag is correct. 
+* Fix bug in the `AbstractSessionRestService` so that the `synchronized` flag is correct.
 * Fix bug in `Converger.convergeAreaOfInterest(...)` so that if an `AreaOfInterest` is added when an
   existing `Subscription` already exists, the `AreaOfInterest` is marked as `LOADED` rather than getting
   stuck in the `NOT_ASKED` state.
