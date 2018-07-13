@@ -29,6 +29,7 @@ public class ConnectionTest
     assertEquals( connection.isDisposed(), false );
     assertEquals( connection.getConnectionId(), connectionId );
     assertEquals( connection.getLastRxSequence(), 0 );
+    assertEquals( connection.getLastTxRequestId(), 0 );
     assertEquals( connection.getCurrentMessageResponse(), null );
     assertNotNull( connection.getTransportContext() );
     assertThrows( connection::ensureCurrentMessageResponse );
@@ -415,10 +416,13 @@ public class ConnectionTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
+    final int lastTxRequestId = connection.getLastTxRequestId();
     final Request request = connection.newRequest( requestName );
     final RequestEntry entry = request.getEntry();
 
     assertEquals( entry.getName(), requestName );
+    assertEquals( entry.getRequestId(), lastTxRequestId + 1 );
+    assertEquals( connection.getLastTxRequestId(), lastTxRequestId + 1 );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {

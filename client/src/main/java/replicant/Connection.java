@@ -289,6 +289,11 @@ final class Connection
     }
   }
 
+  int getLastTxRequestId()
+  {
+    return _lastTxRequestId;
+  }
+
   private int nextRequestId()
   {
     return ++_lastTxRequestId;
