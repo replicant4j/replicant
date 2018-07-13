@@ -41,6 +41,8 @@
 * Enhance the `replicant.Transport.Context` interface to allow access to underlying request ids received
   and transmitted. Also support the recording of "sync" request ids so that synchronization attempts can
   be verified.
+* Rename `replicant.Connection._lastRequestId` to `_lastTxRequestId` so that it is clear that the request
+  id is the last id transmitted.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

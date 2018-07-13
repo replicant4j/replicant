@@ -43,9 +43,9 @@ final class Connection
    */
   private final Map<Integer, RequestEntry> _requests = new HashMap<>();
   /**
-   * The id of the last rpc request sent to the server.
+   * The id of the last rpc request transmitted to the server.
    */
-  private int _lastRequestId;
+  private int _lastTxRequestId;
   /**
    * Pending actions that will change the area of interest.
    */
@@ -224,8 +224,9 @@ final class Connection
   @Nonnull
   final Request newRequest( @Nullable final String name )
   {
-    final RequestEntry request = new RequestEntry( nextRequestId(), name );
-    _requests.put( request.getRequestId(), request );
+    final int requestId = nextRequestId();
+    final RequestEntry request = new RequestEntry( requestId, name );
+    _requests.put( requestId, request );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       _connector
@@ -289,7 +290,7 @@ final class Connection
 
   private int nextRequestId()
   {
-    return ++_lastRequestId;
+    return ++_lastTxRequestId;
   }
 
   @Nullable
