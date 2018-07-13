@@ -45,13 +45,6 @@ public interface Transport
     int getLastRxSequence();
 
     /**
-     * Return the id of the last request received.
-     *
-     * @return the id of the last request received.
-     */
-    int getLastRxRequestId();
-
-    /**
      * Return the id of the last request transmitted.
      *
      * @return the id of the last request transmitted.

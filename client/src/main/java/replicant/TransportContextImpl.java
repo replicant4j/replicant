@@ -48,12 +48,6 @@ final class TransportContextImpl
   }
 
   @Override
-  public int getLastRxRequestId()
-  {
-    return isDisposed() ? -1 : _connector.ensureConnection().getLastRxRequestId();
-  }
-
-  @Override
   public int getLastTxRequestId()
   {
     return isDisposed() ? -1 : _connector.ensureConnection().getLastTxRequestId();

@@ -36,25 +36,6 @@ public class TransportContextImplTest
   }
 
   @Test
-  public void getLastRxRequestId()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-    final TransportContextImpl context = new TransportContextImpl( connector );
-
-    connector.recordLastRxRequestId( ValueUtil.randomInt() );
-
-    assertFalse( context.isDisposed() );
-    assertEquals( context.getLastRxRequestId(), connection.getLastRxRequestId() );
-
-    context.dispose();
-
-    assertTrue( context.isDisposed() );
-
-    assertEquals( context.getLastRxRequestId(), -1 );
-  }
-
-  @Test
   public void getLastTxRequestId()
   {
     final Connector connector = createConnector();
