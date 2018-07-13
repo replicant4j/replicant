@@ -411,7 +411,9 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final SystemSchema schema = newSchema( 1 );
+    final Connector connector = createConnector( schema );
+    final Connection connection = new Connection( connector, ValueUtil.randomString() );
     final String requestName = ValueUtil.randomString();
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -426,7 +428,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), 1 );
+      assertEquals( e.getSchemaId(), schema.getId() );
       assertEquals( e.getRequestId(), request.getRequestId() );
       assertEquals( e.getName(), requestName );
     } );
