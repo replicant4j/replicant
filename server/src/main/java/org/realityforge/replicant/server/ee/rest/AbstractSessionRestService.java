@@ -28,6 +28,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ServerConstants;
@@ -125,7 +126,11 @@ public abstract class AbstractSessionRestService
                         @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId,
                         @Context @Nonnull final UriInfo uri )
   {
-    runRequest( "Ping", sessionId, requestId, () -> ensureSession( sessionId, requestId ) );
+    runRequest( "Ping", sessionId, requestId, () -> {
+      ensureSession( sessionId, requestId );
+      // The next line forces the creation of per session changes which means a message will return to the client?
+      EntityMessageCacheUtil.getSessionChanges().setPingResponse( true );
+    } );
     return standardResponse( Response.Status.OK, "Pong" );
   }
 

@@ -292,6 +292,7 @@ public abstract class ReplicantSessionManagerImpl
       final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
       if ( null != initiatorSession && null != sessionChanges )
       {
+        accumulator.getChangeSet( initiatorSession ).setPingResponse( sessionChanges.isPingResponse() );
         accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
         accumulator.addActions( initiatorSession, sessionChanges.getChannelActions() );
       }
