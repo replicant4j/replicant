@@ -248,8 +248,9 @@ final class Connection
     }
     else
     {
+      final int requestId = request.getRequestId();
+      removeRequest( requestId );
       completionAction.call();
-      removeRequest( request.getRequestId() );
     }
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {

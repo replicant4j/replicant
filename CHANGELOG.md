@@ -43,6 +43,9 @@
   be verified.
 * Rename `replicant.Connection._lastRequestId` to `_lastTxRequestId` so that it is clear that the request
   id is the last id transmitted.
+* Change the way request callbacks are invoked so that they are invoked _after_ the request has been
+  removed from the connection. This allows the callback to inspect the connection to get the current
+  connection state.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
