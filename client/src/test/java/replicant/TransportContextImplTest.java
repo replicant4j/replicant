@@ -36,6 +36,100 @@ public class TransportContextImplTest
   }
 
   @Test
+  public void getLastRxRequestId()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    connector.recordLastRxRequestId( ValueUtil.randomInt() );
+
+    assertFalse( context.isDisposed() );
+    assertEquals( context.getLastRxRequestId(), connection.getLastRxRequestId() );
+
+    context.dispose();
+
+    assertTrue( context.isDisposed() );
+
+    assertEquals( context.getLastRxRequestId(), -1 );
+  }
+
+  @Test
+  public void getLastTxRequestId()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    connector.recordLastTxRequestId( ValueUtil.randomInt() );
+
+    assertFalse( context.isDisposed() );
+    assertEquals( context.getLastTxRequestId(), connection.getLastTxRequestId() );
+
+    context.dispose();
+
+    assertTrue( context.isDisposed() );
+
+    assertEquals( context.getLastTxRequestId(), -1 );
+  }
+
+  @Test
+  public void recordLastSyncRxRequestId()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    final int requestId1 = ValueUtil.randomInt();
+    final int requestId2 = ValueUtil.randomInt();
+    final int requestId3 = ValueUtil.randomInt();
+
+    connector.recordLastSyncRxRequestId( requestId1 );
+
+    safeAction( () -> assertEquals( connector.getLastSyncRxRequestId(), requestId1 ) );
+
+    context.recordLastSyncRxRequestId( requestId2 );
+
+    safeAction( () -> assertEquals( connector.getLastSyncRxRequestId(), requestId2 ) );
+
+    context.dispose();
+
+    assertTrue( context.isDisposed() );
+
+    context.recordLastSyncRxRequestId( requestId3 );
+
+    safeAction( () -> assertEquals( connector.getLastSyncRxRequestId(), requestId2 ) );
+  }
+
+  @Test
+  public void recordLastSyncTxRequestId()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    final int requestId1 = ValueUtil.randomInt();
+    final int requestId2 = ValueUtil.randomInt();
+    final int requestId3 = ValueUtil.randomInt();
+
+    connector.recordLastSyncTxRequestId( requestId1 );
+
+    safeAction( () -> assertEquals( connector.getLastSyncTxRequestId(), requestId1 ) );
+
+    context.recordLastSyncTxRequestId( requestId2 );
+
+    safeAction( () -> assertEquals( connector.getLastSyncTxRequestId(), requestId2 ) );
+
+    context.dispose();
+
+    assertTrue( context.isDisposed() );
+
+    context.recordLastSyncTxRequestId( requestId3 );
+
+    safeAction( () -> assertEquals( connector.getLastSyncTxRequestId(), requestId2 ) );
+  }
+
+  @Test
   public void getConnectionId()
   {
     final Connector connector = createConnector();

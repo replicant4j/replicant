@@ -45,6 +45,34 @@ public interface Transport
     int getLastRxSequence();
 
     /**
+     * Return the id of the last request received.
+     *
+     * @return the id of the last request received.
+     */
+    int getLastRxRequestId();
+
+    /**
+     * Return the id of the last request transmitted.
+     *
+     * @return the id of the last request transmitted.
+     */
+    int getLastTxRequestId();
+
+    /**
+     * Record the id of the last sync request transmitted.
+     *
+     * @param requestId the id of the last sync request transmitted.
+     */
+    void recordLastSyncTxRequestId( int requestId );
+
+    /**
+     * Record the id of the last sync request received.
+     *
+     * @param requestId the id of the last sync request received.
+     */
+    void recordLastSyncRxRequestId( int requestId );
+
+    /**
      * Notify the Connector that a message was received.
      *
      * @param rawJsonData the message.

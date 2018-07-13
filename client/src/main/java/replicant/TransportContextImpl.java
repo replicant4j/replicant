@@ -48,6 +48,36 @@ final class TransportContextImpl
   }
 
   @Override
+  public int getLastRxRequestId()
+  {
+    return isDisposed() ? -1 : _connector.ensureConnection().getLastRxRequestId();
+  }
+
+  @Override
+  public int getLastTxRequestId()
+  {
+    return isDisposed() ? -1 : _connector.ensureConnection().getLastTxRequestId();
+  }
+
+  @Override
+  public void recordLastSyncRxRequestId( final int requestId )
+  {
+    if ( !isDisposed() )
+    {
+      _connector.recordLastSyncRxRequestId( requestId );
+    }
+  }
+
+  @Override
+  public void recordLastSyncTxRequestId( final int requestId )
+  {
+    if ( !isDisposed() )
+    {
+      _connector.recordLastSyncTxRequestId( requestId );
+    }
+  }
+
+  @Override
   public void onMessageReceived( @Nonnull final String rawJsonData )
   {
     if ( !isDisposed() )

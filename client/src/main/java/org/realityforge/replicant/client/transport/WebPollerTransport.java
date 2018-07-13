@@ -365,10 +365,11 @@ public abstract class WebPollerTransport
                            @Nonnull final Consumer<Throwable> onError )
   {
     assert null != _transportContext;
-    final int lastRxSequence = _transportContext.getLastRxSequence();
+    final int lastTxRequestId = _transportContext.getLastTxRequestId() + 1;
     final String pingUrl = getPingUrl();
     final SafeProcedure onSuccess = () -> {
-      if ( _transportContext.getLastRxSequence() == lastRxSequence + 1 )
+      _transportContext.recordLastSyncRxRequestId( lastTxRequestId );
+      if ( _transportContext.getLastTxRequestId() == lastTxRequestId )
       {
         onInSync.call();
       }
@@ -377,7 +378,8 @@ public abstract class WebPollerTransport
         onOutOfSync.call();
       }
     };
-    final Request request = newRequest( "Sync" + lastRxSequence );
+    _transportContext.recordLastSyncTxRequestId( lastTxRequestId );
+    final Request request = newRequest( "Sync" + lastTxRequestId );
     remote( () -> doSync( request, pingUrl, onSuccess, onError ) );
   }
 
