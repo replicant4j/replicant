@@ -47,6 +47,7 @@
   removed from the connection. This allows the callback to inspect the connection to get the current
   connection state.
 * Move to a J2CL compatible version of the jetbrains annotations libraries.
+* Update the `org.realityforge.guiceyloops:guiceyloops:jar` dependency to version `0.92`.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
