@@ -4904,4 +4904,81 @@ public class ConnectorTest
 
     assertNull( connector.getSchedulerLock() );
   }
+
+  @Test
+  public void isSynchronized_notConnected()
+  {
+    final Connector connector = createConnector();
+    safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
+    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+  }
+
+  @Test
+  public void isSynchronized_connected()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> assertTrue( connector.isSynchronized() ) );
+  }
+
+  @Test
+  public void isSynchronized_sentRequest_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+  }
+
+  @Test
+  public void isSynchronized_receivedRequestResponse_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+  }
+
+  @Test
+  public void isSynchronized_sentSyncRequest_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+  }
+
+  @Test
+  public void isSynchronized_receivedSyncRequestResponse_Synced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
+    safeAction( () -> assertTrue( connector.isSynchronized() ) );
+  }
+
+  @Test
+  public void isSynchronized_receivedSyncRequestResponseButResponsesQueued_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
+    safeAction( () -> connector.setPendingResponseQueueEmpty( false ) );
+    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+  }
 }
