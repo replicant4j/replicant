@@ -17,7 +17,7 @@
 * Avoid passing messages back to `Connector` via the  `TransportContext` if it has been
   disconnected. This can happen after an error occurs.
 * Update the `org.realityforge.arez` dependencies to version `0.97`.
-* Update the `org.realityforge.react4j` dependencies to version `0.82`.
+* Update the `org.realityforge.react4j` dependencies to version `0.83`.
 * Implement `Transport.unbind()` so that `Connector` instances that disconnect or result in an error
   can disassociated with prior transport and successfully re-connect without the failure of the prior
   transport either disconnecting new connection or blocking the establishment of the new connection.
