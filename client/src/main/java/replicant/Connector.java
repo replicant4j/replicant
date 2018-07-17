@@ -44,6 +44,7 @@ import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.SyncFailureEvent;
+import replicant.spy.SyncRequestEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
@@ -334,6 +335,16 @@ abstract class Connector
   {
     final Connection connection = getConnection();
     return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
+  }
+
+  final void requestSync()
+  {
+    recordSyncInFlight( true );
+    getTransport().requestSync( this::onInSync, this::onOutOfSync, this::onSyncError );
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
+    }
   }
 
   final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )

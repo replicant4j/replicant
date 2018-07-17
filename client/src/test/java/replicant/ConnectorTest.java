@@ -42,6 +42,7 @@ import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
 import replicant.spy.SyncFailureEvent;
+import replicant.spy.SyncRequestEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
@@ -5146,5 +5147,26 @@ public class ConnectorTest
                                assertEquals( e.getSchemaId(), connector.getSchema().getId() );
                                assertEquals( e.getError(), error );
                              } );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void requestSync()
+  {
+    final Connector connector = createConnector();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    connector.requestSync();
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), true ) );
+
+    verify( connector.getTransport() ).requestSync( any( SafeProcedure.class ),
+                                                    any( SafeProcedure.class ),
+                                                    (Consumer<Throwable>) any( Consumer.class ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SyncRequestEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 }
