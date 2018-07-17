@@ -924,4 +924,71 @@ public class ConvergerTest
 
     handler.assertEventCount( 0 );
   }
+
+  @Test
+  public void allConnectorsSynchronized_noConnectors()
+  {
+    final Converger converger = Replicant.context().getConverger();
+
+    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), true ) );
+  }
+
+  @Test
+  public void allConnectorsSynchronized_singleConnector_Synchronized()
+  {
+    final Converger converger = Replicant.context().getConverger();
+
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), true ) );
+  }
+
+  @Test
+  public void allConnectorsSynchronized_singleConnector_NotSynchronized()
+  {
+    final Converger converger = Replicant.context().getConverger();
+
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 1 ) );
+
+    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), false ) );
+  }
+
+
+  @Test
+  public void allConnectorsSynchronized_multipleConnector_Synchronized()
+  {
+    final Converger converger = Replicant.context().getConverger();
+
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final Connector connector2 = createConnector();
+    newConnection( connector2 );
+    safeAction( () -> connector2.setState( ConnectorState.CONNECTED ) );
+
+    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), true ) );
+  }
+
+  @Test
+  public void allConnectorsSynchronized_multipleConnector_NotSynchronized()
+  {
+    final Converger converger = Replicant.context().getConverger();
+
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 1 ) );
+
+    final Connector connector2 = createConnector();
+    newConnection( connector2 );
+    safeAction( () -> connector2.setState( ConnectorState.CONNECTED ) );
+
+    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), false ) );
+  }
 }

@@ -101,6 +101,21 @@ abstract class Converger
     }
   }
 
+
+  /**
+   * Return true if all connectors connected are synchronized.
+   *
+   * @return true if all connectors connected are synchronized.
+   */
+  boolean allConnectorsSynchronized()
+  {
+    return getReplicantRuntime()
+      .getConnectors()
+      .stream()
+      .map( ConnectorEntry::getConnector )
+      .allMatch( Connector::isSynchronized );
+  }
+
   void preConverge()
   {
     final SafeProcedure preConvergeAction = getPreConvergeAction();
