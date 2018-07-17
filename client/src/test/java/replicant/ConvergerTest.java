@@ -958,7 +958,6 @@ public class ConvergerTest
     safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), false ) );
   }
 
-
   @Test
   public void allConnectorsSynchronized_multipleConnector_Synchronized()
   {
@@ -968,7 +967,7 @@ public class ConvergerTest
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final Connector connector2 = createConnector();
+    final Connector connector2 = createConnector( newSchema( 2 ) );
     newConnection( connector2 );
     safeAction( () -> connector2.setState( ConnectorState.CONNECTED ) );
 
@@ -985,7 +984,7 @@ public class ConvergerTest
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     safeAction( () -> connector.setLastTxRequestId( 1 ) );
 
-    final Connector connector2 = createConnector();
+    final Connector connector2 = createConnector( newSchema( 2 ) );
     newConnection( connector2 );
     safeAction( () -> connector2.setState( ConnectorState.CONNECTED ) );
 
