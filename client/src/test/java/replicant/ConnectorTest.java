@@ -5169,4 +5169,26 @@ public class ConnectorTest
     handler.assertNextEvent( SyncRequestEvent.class,
                              e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
+
+  @Test
+  public void maybeRequestSync()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    connector.maybeRequestSync();
+
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
+
+
+    connector.maybeRequestSync();
+
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), true ) );
+  }
 }

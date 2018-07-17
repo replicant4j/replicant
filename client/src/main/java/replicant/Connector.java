@@ -855,6 +855,15 @@ abstract class Connector
     callPostMessageResponseActionIfPresent();
   }
 
+  @Action
+  void maybeRequestSync()
+  {
+    if ( shouldRequestSync() )
+    {
+      requestSync();
+    }
+  }
+
   private void callPostMessageResponseActionIfPresent()
   {
     if ( null != _postMessageResponseAction )
