@@ -27,10 +27,10 @@ artifacts:
   arez_processor: org.realityforge.arez:arez-processor:jar:0.98
   arez_entity: org.realityforge.arez:arez-entity:jar:0.98
 
-  react4j_core: org.realityforge.react4j:react4j-core:jar:0.83
-  react4j_dom: org.realityforge.react4j:react4j-dom:jar:0.83
-  react4j_arez: org.realityforge.react4j:react4j-arez:jar:0.83
-  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.83
+  react4j_core: org.realityforge.react4j:react4j-core:jar:0.84
+  react4j_dom: org.realityforge.react4j:react4j-dom:jar:0.84
+  react4j_arez: org.realityforge.react4j:react4j-arez:jar:0.84
+  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.84
 
   jsinterop_annotations: com.google.jsinterop:jsinterop-annotations:jar:1.0.2
 
