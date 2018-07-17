@@ -2507,6 +2507,7 @@ public class ConnectorTest
 
     assertEquals( connection.getLastRxSequence(), 23 );
     assertEquals( connection.getCurrentMessageResponse(), null );
+    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), true ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2514,6 +2515,26 @@ public class ConnectorTest
       assertEquals( e.getSchemaName(), connector.getSchema().getName() );
       assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
     } );
+  }
+
+  @Test
+  public void completeMessageResponse_stillMessagesPending()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( "" );
+
+    response.recordChangeSet( ChangeSet.create( 23, null, null ), null );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    connection.enqueueResponse( ValueUtil.randomString() );
+
+    connector.completeMessageResponse();
+
+    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), false ) );
   }
 
   @Test

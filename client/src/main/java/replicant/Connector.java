@@ -853,6 +853,9 @@ abstract class Connector
     connection.setCurrentMessageResponse( null );
     onMessageProcessed( response.toStatus() );
     callPostMessageResponseActionIfPresent();
+
+    recordPendingResponseQueueEmpty( connection.getPendingResponses().isEmpty() &&
+                                     connection.getUnparsedResponses().isEmpty() );
   }
 
   @Action
