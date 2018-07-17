@@ -2518,6 +2518,41 @@ public class ConnectorTest
   }
 
   @Test
+  public void completeMessageResponse_hasContent()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+
+    final MessageResponse response = new MessageResponse( "" );
+
+    final ChangeSet changeSet =
+      ChangeSet.create( 23, new ChannelChange[]{ ChannelChange.create( 1, ChannelChange.Action.ADD, null ) }, null );
+    response.recordChangeSet( changeSet, null );
+
+    connection.setLastRxSequence( 22 );
+    connection.setCurrentMessageResponse( response );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.completeMessageResponse();
+
+    assertEquals( connection.getLastRxSequence(), 23 );
+    assertEquals( connection.getCurrentMessageResponse(), null );
+    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), true ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
+    } );
+    handler.assertNextEvent( SyncRequestEvent.class, e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+  }
+
+  @Test
   public void completeMessageResponse_stillMessagesPending()
   {
     final Connector connector = createConnector();

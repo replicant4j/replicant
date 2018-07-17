@@ -856,6 +856,13 @@ abstract class Connector
 
     recordPendingResponseQueueEmpty( connection.getPendingResponses().isEmpty() &&
                                      connection.getUnparsedResponses().isEmpty() );
+
+    final ChangeSet changeSet = response.getChangeSet();
+    if ( changeSet.hasChannelChanges() || changeSet.hasEntityChanges() )
+    {
+      // If message is not a ping response then try to perform sync
+      maybeRequestSync();
+    }
   }
 
   @Action
