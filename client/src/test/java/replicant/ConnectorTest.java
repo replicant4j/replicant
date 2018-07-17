@@ -5207,7 +5207,6 @@ public class ConnectorTest
     safeAction( () -> connector.setLastRxRequestId( 2 ) );
     safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
 
-
     connector.maybeRequestSync();
 
     safeAction( () -> assertEquals( connector.isSyncInFlight(), true ) );
