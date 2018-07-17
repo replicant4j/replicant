@@ -25,9 +25,11 @@ import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
@@ -39,6 +41,7 @@ import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
+import replicant.spy.SyncFailureEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
@@ -5091,5 +5094,57 @@ public class ConnectorTest
     safeAction( () -> connector.setSyncInFlight( false ) );
     safeAction( () -> connector.setPendingResponseQueueEmpty( true ) );
     safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void onInSync()
+  {
+    final Connector connector = createConnector();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    safeAction( () -> connector.setSyncInFlight( true ) );
+    connector.onInSync();
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( InSyncEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+  }
+
+  @Test
+  public void onOutOfSync()
+  {
+    final Connector connector = createConnector();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    safeAction( () -> connector.setSyncInFlight( true ) );
+    connector.onOutOfSync();
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( OutOfSyncEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+  }
+
+  @Test
+  public void onSyncError()
+  {
+    final Connector connector = createConnector();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    safeAction( () -> connector.setSyncInFlight( true ) );
+    final Throwable error = new Throwable();
+    connector.onSyncError( error );
+    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SyncFailureEvent.class,
+                             e -> {
+                               assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+                               assertEquals( e.getError(), error );
+                             } );
   }
 }

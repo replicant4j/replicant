@@ -29,9 +29,11 @@ import replicant.spy.ConnectedEvent;
 import replicant.spy.DataLoadStatus;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeFailedEvent;
@@ -41,6 +43,7 @@ import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
+import replicant.spy.SyncFailureEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
@@ -1489,6 +1492,33 @@ abstract class Connector
           .reportSpyEvent( new RestartEvent( getSchema().getId(), getSchema().getName(), cause ) );
       }
       disconnect();
+    }
+  }
+
+  void onInSync()
+  {
+    recordSyncInFlight( false );
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new InSyncEvent( getSchema().getId() ) );
+    }
+  }
+
+  void onOutOfSync()
+  {
+    recordSyncInFlight( false );
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new OutOfSyncEvent( getSchema().getId() ) );
+    }
+  }
+
+  void onSyncError( @Nonnull final Throwable error )
+  {
+    recordSyncInFlight( false );
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy().reportSpyEvent( new SyncFailureEvent( getSchema().getId(), error ) );
     }
   }
 
