@@ -4998,4 +4998,98 @@ public class ConnectorTest
     safeAction( () -> connector.setPendingResponseQueueEmpty( true ) );
     safeAction( () -> assertFalse( connector.isSynchronized() ) );
   }
+
+  @Test
+  public void shouldRequestSync_notConnected()
+  {
+    final Connector connector = createConnector();
+    safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
+    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_connected()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_sentRequest_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_receivedRequestResponse_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_sentSyncRequest_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> connector.setSyncInFlight( true ) );
+    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_receivedSyncRequestResponse_Synced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
+    safeAction( () -> connector.setSyncInFlight( false ) );
+    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_receivedSyncRequestResponseButResponsesQueued_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
+    safeAction( () -> connector.setSyncInFlight( false ) );
+    safeAction( () -> connector.setPendingResponseQueueEmpty( false ) );
+    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+  }
+
+  @Test
+  public void shouldRequestSync_receivedSyncRequestResponseErrored_NotSynced()
+  {
+    final Connector connector = createConnector();
+    newConnection( connector );
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    safeAction( () -> connector.setLastTxRequestId( 2 ) );
+    safeAction( () -> connector.setLastRxRequestId( 2 ) );
+    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
+    safeAction( () -> connector.setSyncInFlight( false ) );
+    safeAction( () -> connector.setPendingResponseQueueEmpty( true ) );
+    safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
+  }
 }

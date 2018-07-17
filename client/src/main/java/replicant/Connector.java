@@ -625,6 +625,23 @@ abstract class Connector
            isPendingResponseQueueEmpty();
   }
 
+  boolean shouldRequestSync()
+  {
+    return getState() == ConnectorState.CONNECTED &&
+           !(
+             // Last request acknowledged is last request responded to
+             getLastSyncRxRequestId() == getLastRxRequestId() &&
+             // No requests outwards bound
+             getLastSyncRxRequestId() == getLastTxRequestId()
+           ) &&
+           // No requests in flight
+           getLastRxRequestId() == getLastTxRequestId() &&
+           // No sync requests are in flight
+           !isSyncInFlight() &&
+           // No messages pending processing, otherwise can pick up later
+           isPendingResponseQueueEmpty();
+  }
+
   /**
    * {@inheritDoc}
    */
