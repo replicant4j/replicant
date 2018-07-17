@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.03](https://github.com/realityforge/replicant/tree/v6.03) (2018-07-17)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.02...v6.03)
 
 * Fix a bug in `Connector` related to interleaving of subscription removal and removal
   of the instance root that would result in invariant failure in normal scenario.
