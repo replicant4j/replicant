@@ -824,16 +824,16 @@ abstract class Connector
     if ( null != action )
     {
       action.call();
-      // OOB messages are not in response to requests (at least not request associated with the current connection)
-      if ( !response.isOob() )
+    }
+    // OOB messages are not in response to requests (at least not request associated with the current connection)
+    if ( !response.isOob() )
+    {
+      // We can remove the request because this side ran second and the RPC channel has already returned.
+      final ChangeSet changeSet = response.getChangeSet();
+      final Integer requestId = changeSet.getRequestId();
+      if ( null != requestId )
       {
-        // We can remove the request because this side ran second and the RPC channel has already returned.
-        final ChangeSet changeSet = response.getChangeSet();
-        final Integer requestId = changeSet.getRequestId();
-        if ( null != requestId )
-        {
-          connection.removeRequest( requestId );
-        }
+        connection.removeRequest( requestId );
       }
     }
     connection.setCurrentMessageResponse( null );

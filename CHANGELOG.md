@@ -48,6 +48,7 @@
   connection state.
 * Move to a J2CL compatible version of the jetbrains annotations libraries.
 * Update the `org.realityforge.guiceyloops:guiceyloops:jar` dependency to version `0.95`.
+* Make sure that `RequestEntry` instances are removed from the connection after they have been handled.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)

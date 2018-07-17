@@ -2645,7 +2645,7 @@ public class ConnectorTest
     assertEquals( connection.getLastRxSequence(), 23 );
     assertEquals( connection.getCurrentMessageResponse(), null );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), entry );
+    assertEquals( connection.getRequest( requestId ), null );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
