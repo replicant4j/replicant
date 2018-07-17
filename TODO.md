@@ -48,10 +48,3 @@ Some actions that should occur at some point in the future.
   is and time each phase in message processing occurs
 
 * Rather than DEFAULT_LINKS_TO_PROCESS_PER_TICK and DEFAULT_CHANGES_TO_PROCESS_PER_TICK try to use time based feedback
-
-* Problem - implicit graphs. When a graph (i.e. a Unit) is implicitly subscribed to GraphA and then GraphA is
-  un-subscribed then it will be removed from client-side. However if GraphB replaces graphA and it also has an implicit
-  subscription on Unit - then it will not be sent to user as still marked as implicitly subscribed? But when GraphB is
-  walked then it no longer has Unit data. SHould we add extra validation to ensure that this is not possible?
-  Maybe when delay pruning of orphaned graphs to some later point? Perhaps until no outstanding requests???
-  Perhaps should send down all implicit graphs again - everytime??? Or maybe based onfiguration?
