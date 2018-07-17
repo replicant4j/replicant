@@ -94,13 +94,20 @@ abstract class Converger
   void converge()
   {
     preConverge();
-    removeOrphanSubscriptions();
     if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() )
     {
       convergeStep();
     }
   }
 
+  @Autorun( mutation = true )
+  void removeOrphanSubscriptionsIfInSync()
+  {
+    if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() && allConnectorsSynchronized() )
+    {
+      removeOrphanSubscriptions();
+    }
+  }
 
   /**
    * Return true if all connectors connected are synchronized.

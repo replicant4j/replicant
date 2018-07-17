@@ -49,6 +49,10 @@
 * Move to a J2CL compatible version of the jetbrains annotations libraries.
 * Update the `org.realityforge.guiceyloops:guiceyloops:jar` dependency to version `0.95`.
 * Make sure that `RequestEntry` instances are removed from the connection after they have been handled.
+* Change the time at which orphan subscriptions are removed. Rather than on receipt of each message,
+  the removal will only occur when a synchronization has happened on all data sources. This limits the
+  window during which the server skips a subscription as the client is implicitly subscribed but the
+  client is in the process of removing the subscription that it believes is an orphan.
 
 ### [v6.02](https://github.com/realityforge/replicant/tree/v6.02) (2018-07-03)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.01...v6.02)
