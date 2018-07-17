@@ -40,11 +40,6 @@ Some actions that should occur at some point in the future.
 * Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
   could be lazily created on access via `EntityLocator`.
 
-* Enhance spy system.
-  - Entity create/update/destroy changes should all result in spy events
-  - ReplicantSystem state changes should result in spy events
-  - Should add `Replicant.shouldEntityChangesProduceSpyEvent()` so that they can be filtered out in common case.
-
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
 * Introduce TransportFactory and pass that into context.
