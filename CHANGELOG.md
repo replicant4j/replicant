@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* In the `ConsoleSpyEventProcessor` class, correct the log message when a `SubscriptionUpdateCompleted`
+  event is generated.
+
 ### [v6.03](https://github.com/realityforge/replicant/tree/v6.03) (2018-07-17)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.02...v6.03)
 

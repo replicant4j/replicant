@@ -293,7 +293,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionUpdateCompleted( @Nonnull final SubscriptionUpdateCompletedEvent e )
   {
-    log( "%cConnector completed subscribe. System: " + e.getSchemaName() +
+    log( "%cConnector completed subscription update. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
   }
 
