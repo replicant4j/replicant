@@ -44,6 +44,10 @@ task 'perform_release' do
       raise 'Uncommitted changes in git repository. Please commit them prior to release.' if 0 != status_output.size
     end
 
+    stage('StagingCleanup', 'Remove artifacts from staging repository') do
+      task('staging:cleanup').invoke
+    end
+
     stage('Build', 'Build the project to ensure that the tests pass') do
       task('package').invoke
     end
