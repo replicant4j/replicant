@@ -1,3 +1,3 @@
 require 'mcrt'
 
-MavenCentralReleaseTool.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge', :branches => %w(master ArezIntegration))
+MavenCentralReleaseTool.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
