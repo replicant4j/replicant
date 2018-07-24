@@ -25,4 +25,3 @@ def cleanup_staging_repository(include_all_artifacts = false)
     exit 42
   end
 end
-
