@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.04](https://github.com/realityforge/replicant/tree/v6.04) (2018-07-24)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.03...v6.04)
 
