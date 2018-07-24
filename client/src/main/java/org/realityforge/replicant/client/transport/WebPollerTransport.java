@@ -269,12 +269,18 @@ public abstract class WebPollerTransport
   {
     if ( null != rawJsonData )
     {
+      /*
+       * Pause the poller. This will be re-enabled the message has completed processing. This needs
+       * to occur prior to the message processing by the context otherwise the pause can occur after
+       * the re-enable actually occurs. This only occurs for "ping" messages that are received when
+       * when there is no outgoing messages queued up.
+       */
+      pauseWebPoller();
       // if connection has been disconnected whilst poller request was in flight then ignore response
       if ( null != _transportContext )
       {
         _transportContext.onMessageReceived( rawJsonData );
       }
-      pauseWebPoller();
     }
   }
 
