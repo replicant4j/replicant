@@ -10,6 +10,7 @@
   `Replicant.areNamesEnabled()` returns false.
 * Fix concurrency bug where an invariant failure was triggered if a request was removed by the polling code
   prior to the rpc request returning.
+* Update the `org.realityforge.arez` dependencies to version `0.100`.
 
 ### [v6.04](https://github.com/realityforge/replicant/tree/v6.04) (2018-07-24)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.03...v6.04)

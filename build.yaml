@@ -23,9 +23,9 @@ artifacts:
 
   testng: org.testng:testng:jar:6.11
 
-  arez_core: org.realityforge.arez:arez-core:jar:0.98
-  arez_processor: org.realityforge.arez:arez-processor:jar:0.98
-  arez_entity: org.realityforge.arez:arez-entity:jar:0.98
+  arez_core: org.realityforge.arez:arez-core:jar:0.100
+  arez_processor: org.realityforge.arez:arez-processor:jar:0.100
+  arez_entity: org.realityforge.arez:arez-entity:jar:0.100
 
   react4j_core: org.realityforge.react4j:react4j-core:jar:0.84
   react4j_dom: org.realityforge.react4j:react4j-dom:jar:0.84
