@@ -22,7 +22,6 @@ import replicant.messages.EntityChannel;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
-import replicant.spy.DataLoadStatus;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.InSyncEvent;
@@ -491,17 +490,9 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final DataLoadStatus status =
-      new DataLoadStatus( ValueUtil.randomInt(),
-                          ValueUtil.randomInt(),
-                          ValueUtil.getRandom().nextInt( 10 ),
-                          ValueUtil.getRandom().nextInt( 10 ),
-                          ValueUtil.getRandom().nextInt( 10 ),
-                          ValueUtil.getRandom().nextInt( 100 ),
-                          ValueUtil.getRandom().nextInt( 100 ),
-                          ValueUtil.getRandom().nextInt( 10 ) );
-
-    connector.onMessageProcessed( status );
+    final MessageResponse response = new MessageResponse( "" );
+    response.recordChangeSet( ChangeSet.create( 47, null, null ), null );
+    connector.onMessageProcessed( response );
 
     verify( connector.getTransport() ).onMessageProcessed();
 
@@ -509,7 +500,7 @@ public class ConnectorTest
 
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getDataLoadStatus(), status );
+      assertEquals( e.getDataLoadStatus().getSequence(), 47 );
     } );
   }
 
@@ -2549,7 +2540,8 @@ public class ConnectorTest
       assertEquals( e.getSchemaName(), connector.getSchema().getName() );
       assertEquals( e.getDataLoadStatus().getSequence(), changeSet.getSequence() );
     } );
-    handler.assertNextEvent( SyncRequestEvent.class, e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+    handler.assertNextEvent( SyncRequestEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
