@@ -249,8 +249,10 @@ final class Connection
     }
     else
     {
-      final int requestId = request.getRequestId();
-      removeRequest( requestId );
+      if ( !request.isExpectingResults() )
+      {
+        removeRequest( request.getRequestId() );
+      }
       completionAction.call();
     }
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )

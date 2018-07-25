@@ -569,6 +569,9 @@ public class ConnectionTest
   {
     final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
     final Request request = connection.newRequest( ValueUtil.randomString() );
+
+    // Remove request as it will be removed when the response arrived and was processed
+    connection.removeRequest( request.getRequestId() );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
 

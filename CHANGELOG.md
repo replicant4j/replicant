@@ -8,6 +8,8 @@
   but invariant checking was enabled.
 * Avoid an invariant failure by passing null for request name when performing "Sync" action if
   `Replicant.areNamesEnabled()` returns false.
+* Fix concurrency bug where an invariant failure was triggered if a request was removed by the polling code
+  prior to the rpc request returning.
 
 ### [v6.04](https://github.com/realityforge/replicant/tree/v6.04) (2018-07-24)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.03...v6.04)
