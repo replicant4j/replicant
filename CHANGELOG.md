@@ -14,6 +14,7 @@
 * Fix bug where the `Subscription` and `AreaOfInterest` enhanced arez subclasses failed to supply a valid
   id in production compiles. This resulted in the objects being incorrectly stored within containers and
   thus applications failing at runtime.
+* Update the `org.realityforge.react4j` dependencies to version `0.87`.
 
 ### [v6.04](https://github.com/realityforge/replicant/tree/v6.04) (2018-07-24)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.03...v6.04)
