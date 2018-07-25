@@ -385,7 +385,7 @@ public abstract class WebPollerTransport
       }
     };
     _transportContext.recordLastSyncTxRequestId( lastTxRequestId );
-    final Request request = newRequest( "Sync" + lastTxRequestId );
+    final Request request = newRequest( Replicant.areNamesEnabled() ? "Sync" + lastTxRequestId : null );
     remote( () -> doSync( request, pingUrl, onSuccess, onError ) );
   }
 

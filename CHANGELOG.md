@@ -6,6 +6,8 @@
   resulted in a shorter and more consistent delay between successive invocations.
 * Fix bug in `Connector.onMessageProcessed()` that resulted in an invariant failure when spies were disabled
   but invariant checking was enabled.
+* Avoid an invariant failure by passing null for request name when performing "Sync" action if
+  `Replicant.areNamesEnabled()` returns false.
 
 ### [v6.04](https://github.com/realityforge/replicant/tree/v6.04) (2018-07-24)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.03...v6.04)
