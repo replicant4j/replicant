@@ -26,7 +26,6 @@ import replicant.messages.EntityChangeData;
 import replicant.messages.EntityChannel;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
-import replicant.spy.DataLoadStatus;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.InSyncEvent;
@@ -851,7 +850,7 @@ abstract class Connector
       }
     }
     connection.setCurrentMessageResponse( null );
-    onMessageProcessed( response.toStatus() );
+    onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
 
     recordPendingResponseQueueEmpty( connection.getPendingResponses().isEmpty() &&
@@ -1472,15 +1471,15 @@ abstract class Connector
   /**
    * Invoked when a change set has been completely processed.
    *
-   * @param status the status describing the results of data load.
+   * @param response the message response.
    */
-  void onMessageProcessed( @Nonnull final DataLoadStatus status )
+  void onMessageProcessed( @Nonnull final MessageResponse response )
   {
     getTransport().onMessageProcessed();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
-        .reportSpyEvent( new MessageProcessedEvent( getSchema().getId(), getSchema().getName(), status ) );
+        .reportSpyEvent( new MessageProcessedEvent( getSchema().getId(), getSchema().getName(), response.toStatus() ) );
     }
   }
 
