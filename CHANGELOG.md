@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Change the scheduler used by the browser from using `setTimeout` to using `requestAnimationFrame`. This
+  resulted in a shorter and more consistent delay between successive invocations.
+
 ### [v6.04](https://github.com/realityforge/replicant/tree/v6.04) (2018-07-24)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.03...v6.04)
 

@@ -44,7 +44,7 @@ final class Scheduler
           return;
         }
       }
-      DomGlobal.setTimeout( v -> schedule( command ), 0 );
+      DomGlobal.requestAnimationFrame( v -> schedule( command ) );
     }
   }
 
