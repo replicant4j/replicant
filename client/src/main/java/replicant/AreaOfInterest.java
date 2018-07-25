@@ -17,7 +17,7 @@ import static org.realityforge.braincheck.Guards.*;
  * The channel description declares a desired channel subscription and also
  * includes data on the current status of the subscription.
  */
-@ArezComponent( observable = Feature.ENABLE )
+@ArezComponent( observable = Feature.ENABLE, requireId = Feature.ENABLE )
 public abstract class AreaOfInterest
   extends ReplicantService
 {

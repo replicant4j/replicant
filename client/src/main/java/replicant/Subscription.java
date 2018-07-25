@@ -25,7 +25,7 @@ import static org.realityforge.braincheck.Guards.*;
  * Representation of a subscription to a channel.
  */
 @SuppressWarnings( "Duplicates" )
-@ArezComponent( observable = Feature.ENABLE )
+@ArezComponent( observable = Feature.ENABLE, requireId = Feature.ENABLE )
 public abstract class Subscription
   extends ReplicantService
   implements Comparable<Subscription>
