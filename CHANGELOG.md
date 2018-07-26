@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.06](https://github.com/realityforge/replicant/tree/v6.06) (2018-07-27)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.05...v6.06)
 
 * Update the `org.realityforge.arez` dependencies to version `0.102`.
 * Explicitly limit the scope of the dependencies enlisted in the `@Autorun` actions on the `Converger`
