@@ -90,7 +90,7 @@ abstract class Converger
   @Nullable
   abstract SafeProcedure getConvergeCompleteAction();
 
-  @Autorun( mutation = true )
+  @Autorun( mutation = true, canNestActions = true )
   void converge()
   {
     preConverge();
@@ -100,7 +100,7 @@ abstract class Converger
     }
   }
 
-  @Autorun( mutation = true )
+  @Autorun( mutation = true, canNestActions = true )
   void removeOrphanSubscriptionsIfInSync()
   {
     if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() && allConnectorsSynchronized() )
@@ -141,7 +141,8 @@ abstract class Converger
     }
   }
 
-  private void convergeStep()
+  @arez.annotations.Action( requireNewTransaction = true )
+  void convergeStep()
   {
     AreaOfInterest groupTemplate = null;
     AreaOfInterestRequest.Type groupAction = null;
@@ -302,6 +303,7 @@ abstract class Converger
     }
   }
 
+  @arez.annotations.Action( requireNewTransaction = true )
   void removeOrphanSubscriptions()
   {
     final HashSet<ChannelAddress> expected = new HashSet<>();

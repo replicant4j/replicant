@@ -3,6 +3,8 @@
 ### Unreleased
 
 * Update the `org.realityforge.arez` dependencies to version `0.102`.
+* Explicitly limit the scope of the dependencies enlisted in the `@Autorun` actions on the `Converger`
+  so that only the data required to trigger changes are monitored.
 
 ### [v6.05](https://github.com/realityforge/replicant/tree/v6.05) (2018-07-26)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.04...v6.05)

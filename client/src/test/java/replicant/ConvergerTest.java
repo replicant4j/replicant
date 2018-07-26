@@ -352,7 +352,7 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> Replicant.context().getConverger().removeOrphanSubscriptions() );
+    Replicant.context().getConverger().removeOrphanSubscriptions();
     handler.assertEventCount( 0 );
   }
 
