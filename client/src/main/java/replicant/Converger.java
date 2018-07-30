@@ -123,6 +123,7 @@ abstract class Converger
       .allMatch( Connector::isSynchronized );
   }
 
+  @arez.annotations.Action( requireNewTransaction = true, verifyRequired = false )
   void preConverge()
   {
     final SafeProcedure preConvergeAction = getPreConvergeAction();
@@ -141,8 +142,7 @@ abstract class Converger
     }
   }
 
-  @arez.annotations.Action( requireNewTransaction = true )
-  void convergeStep()
+  private void convergeStep()
   {
     AreaOfInterest groupTemplate = null;
     AreaOfInterestRequest.Type groupAction = null;
@@ -181,10 +181,11 @@ abstract class Converger
     convergeComplete();
   }
 
+  @arez.annotations.Action( requireNewTransaction = true, verifyRequired = false )
   @Nonnull
-  final Action convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
-                                       @Nullable final AreaOfInterest groupTemplate,
-                                       @Nullable final AreaOfInterestRequest.Type groupAction )
+  Action convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
+                                 @Nullable final AreaOfInterest groupTemplate,
+                                 @Nullable final AreaOfInterestRequest.Type groupAction )
   {
     if ( Replicant.shouldCheckInvariants() )
     {

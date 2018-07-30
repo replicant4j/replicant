@@ -64,23 +64,23 @@ public class ConvergerTest
     final Converger c = Replicant.context().getConverger();
 
     // should do nothing ...
-    safeAction( c::preConverge );
+    c.preConverge();
 
     final AtomicInteger callCount = new AtomicInteger();
 
     safeAction( () -> c.setPreConvergeAction( callCount::incrementAndGet ) );
 
-    safeAction( c::preConverge );
+    c.preConverge();
 
     assertEquals( callCount.get(), 1 );
 
-    safeAction( c::preConverge );
+    c.preConverge();
 
     assertEquals( callCount.get(), 2 );
 
     safeAction( () -> c.setPreConvergeAction( null ) );
 
-    safeAction( c::preConverge );
+    c.preConverge();
 
     assertEquals( callCount.get(), 2 );
   }
@@ -372,8 +372,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
 
@@ -395,8 +395,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
@@ -423,8 +423,8 @@ public class ConvergerTest
                                                                               null ) );
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
 
@@ -447,8 +447,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
 
@@ -483,8 +483,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
 
@@ -517,8 +517,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
 
@@ -568,8 +568,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
 
@@ -604,8 +604,8 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest, null, null ) );
+    final Converger.Action result =
+      Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_REMOVE );
 
@@ -664,8 +664,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
 
@@ -702,8 +704,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
@@ -726,8 +730,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
@@ -750,8 +756,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
@@ -791,8 +799,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
 
     assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
 
@@ -822,8 +832,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
@@ -870,8 +882,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
@@ -917,8 +931,10 @@ public class ConvergerTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Converger.Action result = safeAction( () -> Replicant.context().getConverger()
-      .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE ) );
+    final Converger.Action result =
+      Replicant.context()
+        .getConverger()
+        .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
