@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.07](https://github.com/realityforge/replicant/tree/v6.07) (2018-07-30)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.06...v6.07)
 
 * Change the scope of the dependencies enlisted in the `@Autorun` actions on the `Converger`
   to eliminate monitoring of entities in `preConverge()` and to re-add dependencies on
