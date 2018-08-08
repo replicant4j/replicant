@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.component.Linkable;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nonnull;

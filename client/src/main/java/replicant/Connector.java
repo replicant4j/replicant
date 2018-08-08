@@ -9,6 +9,7 @@ import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
+import arez.component.Linkable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
