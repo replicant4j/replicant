@@ -6,6 +6,8 @@
 * Update the `org.realityforge.react4j` dependencies to version `0.90`.
 * Remove the interface `org.realityforge.replicant.client.EntityRegistry` and related infrastructure.
   The code is currently unused and unlikely to be adopted in the near future.
+* Remove the interface `org.realityforge.replicant.client.EntityLocator` and related infrastructure.
+  This has been replaced by `arez.Locator` interface.
 
 ### [v6.07](https://github.com/realityforge/replicant/tree/v6.07) (2018-07-30)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.06...v6.07)
