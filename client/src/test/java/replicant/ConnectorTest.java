@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Disposable;
 import arez.component.Linkable;
+import arez.component.Verifiable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;

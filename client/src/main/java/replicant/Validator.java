@@ -3,6 +3,7 @@ package replicant;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
+import arez.component.Verifiable;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
