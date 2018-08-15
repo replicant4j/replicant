@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
  * <p>This is used so we can observe it in finder and thus finder will be rescheduled once the entry
  * is removed from subscription, even if entity is not removed altogether.</p>
  */
-@ArezComponent( allowEmpty = true )
+@ArezComponent
 abstract class EntitySubscriptionEntry
 {
   /**
