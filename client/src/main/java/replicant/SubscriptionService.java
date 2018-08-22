@@ -3,6 +3,7 @@ package replicant;
 import arez.ArezContext;
 import arez.Component;
 import arez.Disposable;
+import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
@@ -92,7 +93,7 @@ abstract class SubscriptionService
   }
 
   @ObservableRef
-  protected abstract arez.Observable getTypeSubscriptionsObservable();
+  protected abstract ObservableValue getTypeSubscriptionsObservable();
 
   /**
    * Return the collection of instance subscriptions.
@@ -112,7 +113,7 @@ abstract class SubscriptionService
   }
 
   @ObservableRef
-  protected abstract arez.Observable getInstanceSubscriptionsObservable();
+  protected abstract ObservableValue getInstanceSubscriptionsObservable();
 
   /**
    * Return the collection of instance subscriptions for channel.

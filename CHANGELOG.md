@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Update the `org.realityforge.arez` dependencies to version `0.103`.
+* Update the `org.realityforge.arez` dependencies to version `0.105`.
 * Update the `org.realityforge.react4j` dependencies to version `0.90`.
 * Remove the interface `org.realityforge.replicant.client.EntityRegistry` and related infrastructure.
   The code is currently unused and unlikely to be adopted in the near future.

@@ -2,6 +2,7 @@ package replicant;
 
 import arez.ArezContext;
 import arez.Component;
+import arez.ObservableValue;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Autorun;
@@ -83,7 +84,7 @@ abstract class ReplicantRuntime
   }
 
   @ObservableRef
-  protected abstract arez.Observable getConnectorsObservable();
+  protected abstract ObservableValue getConnectorsObservable();
 
   /**
    * Set the "required" flag for connector for specified type.

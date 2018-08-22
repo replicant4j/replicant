@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
@@ -39,7 +40,7 @@ abstract class EntityService
   }
 
   @ObservableRef
-  protected abstract arez.Observable getEntitiesObservable();
+  protected abstract ObservableValue getEntitiesObservable();
 
   @Observable( expectSetter = false )
   Map<Class<?>, Map<Integer, Entity>> getEntities()

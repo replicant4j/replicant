@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
@@ -127,7 +128,7 @@ public abstract class Entity
   }
 
   @ObservableRef
-  abstract arez.Observable getSubscriptionsObservable();
+  abstract ObservableValue getSubscriptionsObservable();
 
   /**
    * Link to subscription if not already subscribed, ignore otherwise.
