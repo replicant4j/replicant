@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* During code-optimization the `Converger.converge()` method stopped observing filters when converging
+  filters which mean that if the filter changed it would no longer re-converge the state of the world.
+  This bug has been fixed by an explicit observe of the filter field on `AreaOfInterest`.
+
 ### [v6.08](https://github.com/realityforge/replicant/tree/v6.08) (2018-08-23)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.07...v6.08)
 

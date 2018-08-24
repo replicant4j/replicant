@@ -148,6 +148,10 @@ abstract class Converger
     AreaOfInterestRequest.Type groupAction = null;
     for ( final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest() )
     {
+      // Make sure we observe the filter so that if it is changed, a re-converge will happen
+      //noinspection ResultOfMethodCallIgnored
+      areaOfInterest.getFilter();
+
       final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction );
       switch ( action )
       {
