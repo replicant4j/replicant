@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.09](https://github.com/realityforge/replicant/tree/v6.09) (2018-08-24)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.08...v6.09)
 
 * During code-optimization the `Converger.converge()` method stopped observing filters when converging
   filters which mean that if the filter changed it would no longer re-converge the state of the world.
