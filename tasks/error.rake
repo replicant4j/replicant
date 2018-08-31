@@ -9,11 +9,11 @@ def load_error_codes
     select {|f| !(f =~ /[\/\\]src[\/\\]test[\/\\]/)}.
     each do |f|
     content = IO.read(f)
-    matches = content.scan(/"Replicant\-(\d\d\d\d): /)
+    matches = content.scan(/"Arez\-(\d\d\d\d): /)
     matches.each do |match|
       match = match.first
       if error_map[match]
-        raise "Duplicate error code used - Replicant-#{match}.\n First use: #{error_map[match]}\nSecond use: #{f}"
+        raise "Duplicate error code used - Arez-#{match}.\n First use: #{error_map[match]}\nSecond use: #{f}"
       else
         error_map[match] = f
       end
@@ -45,7 +45,20 @@ task 'error_codes:print_unused' do
   end
 end
 
-desc 'Print out next error_code'
-task 'error_codes:print_next' do
+desc 'Print out new error_code that has not yet been used'
+task 'error_codes:print_new_error_code' do
   puts "Replicant-#{sprintf('%04d',load_error_codes.keys.sort.last.to_i + 1)}"
+end
+
+desc 'Print out next error code. Reusing any that have been retired.'
+task 'error_codes:next' do
+  keys = load_error_codes.keys.sort
+  max_value = keys.last.to_i
+  1.upto(max_value).collect{|v| '%04d' % v }.each do |v|
+    unless keys.delete(v.to_s)
+      puts "Replicant-#{v} (previously used)"
+      break
+    end
+  end
+  puts "Replicant-#{sprintf('%04d',max_value + 1)} (new)"
 end
