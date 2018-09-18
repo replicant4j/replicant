@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.react4j` dependencies to version `0.96`.
 * Update the `org.realityforge.braincheck` dependencies to version `1.12.0`.
 
 ### [v6.09](https://github.com/realityforge/replicant/tree/v6.09) (2018-08-24)
