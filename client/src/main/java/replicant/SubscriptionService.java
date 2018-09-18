@@ -10,7 +10,7 @@ import arez.annotations.ComponentRef;
 import arez.annotations.ContextRef;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.ObservableRef;
+import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
@@ -92,8 +92,8 @@ abstract class SubscriptionService
       .collect( Collectors.toList() );
   }
 
-  @ObservableRef
-  protected abstract ObservableValue getTypeSubscriptionsObservable();
+  @ObservableValueRef
+  protected abstract ObservableValue getTypeSubscriptionsObservableValue();
 
   /**
    * Return the collection of instance subscriptions.
@@ -112,8 +112,8 @@ abstract class SubscriptionService
       .collect( Collectors.toList() );
   }
 
-  @ObservableRef
-  protected abstract ObservableValue getInstanceSubscriptionsObservable();
+  @ObservableValueRef
+  protected abstract ObservableValue getInstanceSubscriptionsObservableValue();
 
   /**
    * Return the collection of instance subscriptions for channel.
@@ -125,7 +125,7 @@ abstract class SubscriptionService
   @Nonnull
   Set<Object> getInstanceSubscriptionIds( final int systemId, final int channelId )
   {
-    getInstanceSubscriptionsObservable().reportObserved();
+    getInstanceSubscriptionsObservableValue().reportObserved();
     final Map<Integer, Map<Integer, Subscription>> channelMaps = _instanceSubscriptions.get( systemId );
     final Map<Integer, Subscription> map = null == channelMaps ? null : channelMaps.get( channelId );
     if ( null == map )
@@ -161,11 +161,11 @@ abstract class SubscriptionService
     final Integer id = address.getId();
     if ( null == id )
     {
-      getTypeSubscriptionsObservable().preReportChanged();
+      getTypeSubscriptionsObservableValue().preReportChanged();
     }
     else
     {
-      getInstanceSubscriptionsObservable().preReportChanged();
+      getInstanceSubscriptionsObservableValue().preReportChanged();
     }
     final Subscription subscription =
       Subscription.create( Replicant.areZonesEnabled() ? getReplicantContext() : null,
@@ -181,7 +181,7 @@ abstract class SubscriptionService
       _typeSubscriptions
         .computeIfAbsent( address.getSystemId(), HashMap::new )
         .put( address.getChannelId(), subscription );
-      getTypeSubscriptionsObservable().reportChanged();
+      getTypeSubscriptionsObservableValue().reportChanged();
     }
     else
     {
@@ -189,7 +189,7 @@ abstract class SubscriptionService
         .computeIfAbsent( address.getSystemId(), HashMap::new )
         .computeIfAbsent( address.getChannelId(), HashMap::new )
         .put( id, subscription );
-      getInstanceSubscriptionsObservable().reportChanged();
+      getInstanceSubscriptionsObservableValue().reportChanged();
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -249,7 +249,7 @@ abstract class SubscriptionService
     final Subscription subscription = null == channelMap ? null : channelMap.get( channelId );
     if ( null == subscription )
     {
-      getTypeSubscriptionsObservable().reportObserved();
+      getTypeSubscriptionsObservableValue().reportObserved();
       return null;
     }
     else
@@ -278,7 +278,7 @@ abstract class SubscriptionService
     final Subscription subscription = null == instanceMap ? null : instanceMap.get( id );
     if ( null == subscription || Disposable.isDisposed( subscription ) )
     {
-      getInstanceSubscriptionsObservable().reportObserved();
+      getInstanceSubscriptionsObservableValue().reportObserved();
       return null;
     }
     else
@@ -303,7 +303,7 @@ abstract class SubscriptionService
     final Integer id = address.getId();
     if ( null == id )
     {
-      getTypeSubscriptionsObservable().preReportChanged();
+      getTypeSubscriptionsObservableValue().preReportChanged();
       final Map<Integer, Subscription> map = _typeSubscriptions.get( systemId );
       final Subscription subscription = null == map ? null : map.remove( channelId );
       if ( null != subscription && map.isEmpty() )
@@ -321,12 +321,12 @@ abstract class SubscriptionService
                          " but subscription has not already been disposed." );
       }
       assert null != subscription;
-      getTypeSubscriptionsObservable().reportChanged();
+      getTypeSubscriptionsObservableValue().reportChanged();
       return subscription;
     }
     else
     {
-      getInstanceSubscriptionsObservable().preReportChanged();
+      getInstanceSubscriptionsObservableValue().preReportChanged();
       final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( systemId );
       final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
       final Subscription subscription = null == instanceMap ? null : instanceMap.remove( id );
@@ -349,7 +349,7 @@ abstract class SubscriptionService
                          " but subscription has not already been disposed." );
       }
       assert null != subscription;
-      getInstanceSubscriptionsObservable().reportChanged();
+      getInstanceSubscriptionsObservableValue().reportChanged();
       return subscription;
     }
   }

@@ -15,7 +15,7 @@ public class EntityServiceTest
     final EntityService service = Replicant.context().getEntityService();
 
     final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -26,7 +26,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -37,7 +37,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findAllEntitiesByTypeBCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -48,7 +48,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -59,7 +59,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findEntityByTypeAndId2CallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -227,7 +227,7 @@ public class EntityServiceTest
     final EntityService service = Replicant.context().getEntityService();
 
     final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -238,7 +238,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line
@@ -249,7 +249,7 @@ public class EntityServiceTest
     } );
 
     final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
         // Access observable next line

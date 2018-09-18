@@ -5,7 +5,7 @@ import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.ObservableRef;
+import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
 import java.util.Collection;
 import java.util.HashMap;
@@ -127,8 +127,8 @@ public abstract class Entity
     return _subscriptions.values();
   }
 
-  @ObservableRef
-  abstract ObservableValue getSubscriptionsObservable();
+  @ObservableValueRef
+  abstract ObservableValue getSubscriptionsObservableValue();
 
   /**
    * Link to subscription if not already subscribed, ignore otherwise.
@@ -161,12 +161,12 @@ public abstract class Entity
 
   private void linkEntityToSubscription( @Nonnull final Subscription subscription )
   {
-    getSubscriptionsObservable().preReportChanged();
+    getSubscriptionsObservableValue().preReportChanged();
     final ChannelAddress address = subscription.getAddress();
     if ( !_subscriptions.containsKey( address ) )
     {
       _subscriptions.put( address, subscription );
-      getSubscriptionsObservable().reportChanged();
+      getSubscriptionsObservableValue().reportChanged();
     }
   }
 
@@ -204,10 +204,10 @@ public abstract class Entity
   private void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription,
                                              final boolean disposeEntityIfNoSubscriptions )
   {
-    getSubscriptionsObservable().preReportChanged();
+    getSubscriptionsObservableValue().preReportChanged();
     final ChannelAddress address = subscription.getAddress();
     final Subscription candidate = _subscriptions.remove( address );
-    getSubscriptionsObservable().reportChanged();
+    getSubscriptionsObservableValue().reportChanged();
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> null != candidate,

@@ -5,7 +5,7 @@ import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.ObservableRef;
+import arez.annotations.ObservableValueRef;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
 import arez.component.DisposeTrackable;
@@ -39,8 +39,8 @@ abstract class EntityService
     super( context );
   }
 
-  @ObservableRef
-  protected abstract ObservableValue getEntitiesObservable();
+  @ObservableValueRef
+  protected abstract ObservableValue getEntitiesObservableValue();
 
   @Observable( expectSetter = false )
   Map<Class<?>, Map<Integer, Entity>> getEntities()
@@ -75,7 +75,7 @@ abstract class EntityService
     final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
-      getEntitiesObservable().reportObserved();
+      getEntitiesObservableValue().reportObserved();
       return null;
     }
     else
@@ -83,7 +83,7 @@ abstract class EntityService
       final Entity entity = typeMap.get( id );
       if ( null == entity )
       {
-        getEntitiesObservable().reportObserved();
+        getEntitiesObservableValue().reportObserved();
         return null;
       }
       else
@@ -108,7 +108,7 @@ abstract class EntityService
    */
   void unlinkEntity( @Nonnull final Entity entity )
   {
-    getEntitiesObservable().preReportChanged();
+    getEntitiesObservableValue().preReportChanged();
 
     final Class<?> entityType = entity.getType();
     final int id = entity.getId();
@@ -130,7 +130,7 @@ abstract class EntityService
     {
       _entities.remove( entityType );
     }
-    getEntitiesObservable().reportChanged();
+    getEntitiesObservableValue().reportChanged();
   }
 
   /**
@@ -172,14 +172,14 @@ abstract class EntityService
                                @Nonnull final Class<?> type,
                                final int id )
   {
-    getEntitiesObservable().preReportChanged();
+    getEntitiesObservableValue().preReportChanged();
     final Entity entity = Entity.create( Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id );
     DisposeTrackable
       .asDisposeTrackable( entity )
       .getNotifier()
       .addOnDisposeListener( this, () -> destroy( entity ) );
     typeMap.put( id, entity );
-    getEntitiesObservable().reportChanged();
+    getEntitiesObservableValue().reportChanged();
     ComponentObservable.observe( entity );
     return entity;
   }

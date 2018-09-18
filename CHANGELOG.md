@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.arez` dependencies to version `0.107`.
 * Update the `org.realityforge.react4j` dependencies to version `0.96`.
 * Update the `org.realityforge.braincheck` dependencies to version `1.12.0`.
 

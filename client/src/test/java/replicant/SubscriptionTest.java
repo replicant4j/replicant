@@ -49,7 +49,7 @@ public class SubscriptionTest
       Subscription.create( null, address, null, true );
 
     final AtomicInteger callCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       // Just invoke method to get observing
       //noinspection ResultOfMethodCallIgnored
       subscription.getEntities();
@@ -57,7 +57,7 @@ public class SubscriptionTest
     } );
 
     final AtomicInteger findCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       // Just invoke method to get observing
       subscription.findEntityByTypeAndId( A.class, 1 );
       findCallCount.incrementAndGet();

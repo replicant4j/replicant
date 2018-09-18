@@ -53,9 +53,9 @@ public abstract class AbstractReplicantTest
     return Arez.context().pauseScheduler();
   }
 
-  final void autorun( @Nonnull final Procedure procedure )
+  final void observer( @Nonnull final Procedure procedure )
   {
-    Arez.context().autorun( () -> {
+    Arez.context().observer( () -> {
       observeADependency();
       procedure.call();
     } );

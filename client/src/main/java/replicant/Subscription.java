@@ -5,7 +5,7 @@ import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.ObservableRef;
+import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
@@ -104,7 +104,7 @@ public abstract class Subscription
     final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
     {
-      getEntitiesObservable().reportObserved();
+      getEntitiesObservableValue().reportObserved();
       return null;
     }
     else
@@ -112,7 +112,7 @@ public abstract class Subscription
       final EntitySubscriptionEntry entry = typeMap.get( id );
       if ( null == entry )
       {
-        getEntitiesObservable().reportObserved();
+        getEntitiesObservableValue().reportObserved();
         return null;
       }
       else
@@ -170,8 +170,8 @@ public abstract class Subscription
       .getChannel( _address.getChannelId() );
   }
 
-  @ObservableRef
-  protected abstract ObservableValue getEntitiesObservable();
+  @ObservableValueRef
+  protected abstract ObservableValue getEntitiesObservableValue();
 
   @SuppressWarnings( "unchecked" )
   @Override
@@ -182,7 +182,7 @@ public abstract class Subscription
 
   final void linkSubscriptionToEntity( @Nonnull final Entity entity )
   {
-    getEntitiesObservable().preReportChanged();
+    getEntitiesObservableValue().preReportChanged();
     final Class<?> type = entity.getType();
     final int id = entity.getId();
     final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.computeIfAbsent( type, t -> new HashMap<>() );
@@ -200,15 +200,15 @@ public abstract class Subscription
       .asDisposeTrackable( entity )
       .getNotifier()
       .addOnDisposeListener( this, () -> detachEntity( entity, false ) );
-    getEntitiesObservable().reportChanged();
+    getEntitiesObservableValue().reportChanged();
   }
 
   final void delinkEntityFromSubscription( @Nonnull final Entity entity,
                                            final boolean disposeEntityIfNoSubscriptions )
   {
-    getEntitiesObservable().preReportChanged();
+    getEntitiesObservableValue().preReportChanged();
     detachEntity( entity, disposeEntityIfNoSubscriptions );
-    getEntitiesObservable().reportChanged();
+    getEntitiesObservableValue().reportChanged();
   }
 
   private void detachEntity( @Nonnull final Entity entity, final boolean disposeEntityIfNoSubscriptions )

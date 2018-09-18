@@ -5,14 +5,14 @@ import arez.Component;
 import arez.ObservableValue;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
-import arez.annotations.Autorun;
 import arez.annotations.ComponentNameRef;
 import arez.annotations.ComponentRef;
 import arez.annotations.Computed;
 import arez.annotations.ContextRef;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.ObservableRef;
+import arez.annotations.ObservableValueRef;
+import arez.annotations.Observed;
 import arez.component.CollectionsUtil;
 import arez.component.DisposeTrackable;
 import java.util.ArrayList;
@@ -43,21 +43,21 @@ abstract class ReplicantRuntime
                  () -> "Replicant-0015: Invoked registerConnector for system schema named '" +
                        connector.getSchema().getName() + "' but a Connector for specified schema exists." );
     }
-    getConnectorsObservable().preReportChanged();
+    getConnectorsObservableValue().preReportChanged();
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     _connectors.add( entry );
     DisposeTrackable
       .asDisposeTrackable( connector )
       .getNotifier()
       .addOnDisposeListener( this, () -> deregisterConnector( connector ) );
-    getConnectorsObservable().reportChanged();
+    getConnectorsObservableValue().reportChanged();
   }
 
   final void deregisterConnector( @Nonnull final Connector connector )
   {
-    getConnectorsObservable().preReportChanged();
+    getConnectorsObservableValue().preReportChanged();
     detachConnector( connector );
-    getConnectorsObservable().reportChanged();
+    getConnectorsObservableValue().reportChanged();
   }
 
   private void detachConnector( @Nonnull final Connector connector )
@@ -83,8 +83,8 @@ abstract class ReplicantRuntime
     return CollectionsUtil.wrap( _connectors );
   }
 
-  @ObservableRef
-  protected abstract ObservableValue getConnectorsObservable();
+  @ObservableValueRef
+  protected abstract ObservableValue getConnectorsObservableValue();
 
   /**
    * Set the "required" flag for connector for specified type.
@@ -246,7 +246,7 @@ abstract class ReplicantRuntime
     return null;
   }
 
-  @Autorun( mutation = true )
+  @Observed( mutation = true )
   void reflectActiveState()
   {
     final boolean active = isActive();

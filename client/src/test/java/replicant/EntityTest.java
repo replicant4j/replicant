@@ -126,7 +126,7 @@ public class EntityTest
     final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 1 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( entity ) )
       {
         // Access observable next line
@@ -187,7 +187,7 @@ public class EntityTest
     final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
 
     final AtomicInteger callCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( entity ) )
       {
         // Access observable next line

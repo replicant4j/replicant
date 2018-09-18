@@ -47,7 +47,7 @@ public class AreaOfInterestTest
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
         // Observe state
@@ -57,7 +57,7 @@ public class AreaOfInterestTest
     } );
 
     final AtomicInteger getErrorCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
         // Observe state
@@ -67,7 +67,7 @@ public class AreaOfInterestTest
     } );
 
     final AtomicInteger getSubscriptionCallCount = new AtomicInteger();
-    autorun( () -> {
+    observer( () -> {
       if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
         // Observe state

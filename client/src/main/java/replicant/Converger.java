@@ -2,9 +2,9 @@ package replicant;
 
 import arez.Disposable;
 import arez.annotations.ArezComponent;
-import arez.annotations.Autorun;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
+import arez.annotations.Observed;
 import java.util.Collection;
 import java.util.HashSet;
 import javax.annotation.Nonnull;
@@ -90,7 +90,7 @@ abstract class Converger
   @Nullable
   abstract SafeProcedure getConvergeCompleteAction();
 
-  @Autorun( mutation = true, canNestActions = true )
+  @Observed( mutation = true, nestedActionsAllowed = true )
   void converge()
   {
     preConverge();
@@ -100,7 +100,7 @@ abstract class Converger
     }
   }
 
-  @Autorun( mutation = true, canNestActions = true )
+  @Observed( mutation = true, nestedActionsAllowed = true )
   void removeOrphanSubscriptionsIfInSync()
   {
     if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() && allConnectorsSynchronized() )
