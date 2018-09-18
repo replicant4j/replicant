@@ -2,7 +2,6 @@ package replicant.spy;
 
 import arez.spy.SerializableEvent;
 import java.util.Map;
-import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
