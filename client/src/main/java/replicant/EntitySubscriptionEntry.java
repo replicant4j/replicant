@@ -1,7 +1,7 @@
 package replicant;
 
 import arez.annotations.ArezComponent;
-import arez.annotations.Dependency;
+import arez.annotations.ComponentDependency;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -41,7 +41,7 @@ abstract class EntitySubscriptionEntry
    * @return the entity the entry represents.
    */
   @Nonnull
-  @Dependency
+  @ComponentDependency
   final Entity getEntity()
   {
     return _entity;
