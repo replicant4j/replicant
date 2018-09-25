@@ -142,6 +142,7 @@ abstract class Converger
     }
   }
 
+  @SuppressWarnings( "ResultOfMethodCallIgnored" )
   private void convergeStep()
   {
     AreaOfInterest groupTemplate = null;
@@ -149,8 +150,12 @@ abstract class Converger
     for ( final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest() )
     {
       // Make sure we observe the filter so that if it is changed, a re-converge will happen
-      //noinspection ResultOfMethodCallIgnored
       areaOfInterest.getFilter();
+
+      // Make sure we observe the status so that converger will re-run when status updates. Usually not needed
+      // except when multiple areaOfInterest are queued up simultaneously and the the later can not be grouped
+      // into first AreaOfInterest. If this is not here then the converger will not re-run.
+      areaOfInterest.getStatus();
 
       final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction );
       switch ( action )
