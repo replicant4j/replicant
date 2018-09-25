@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.11](https://github.com/realityforge/replicant/tree/v6.11) (2018-09-25)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.10...v6.11)
 
 * Remove `super.componentDidMount()` and `super.componentDidUpdate( prevProps, prevState )` calls from
   the `ReplicantSubscription` react component as not needed as parent methods are empty as of react4j
