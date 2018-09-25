@@ -165,7 +165,6 @@ public abstract class ReplicantSubscription<T>
   @Override
   protected void componentDidMount()
   {
-    super.componentDidMount();
     updateAreaOfInterest();
   }
 
@@ -174,7 +173,6 @@ public abstract class ReplicantSubscription<T>
   protected void componentDidUpdate( @Nullable final JsPropertyMap<Object> prevProps,
                                      @Nullable final JsPropertyMap<Object> prevState )
   {
-    super.componentDidUpdate( prevProps, prevState );
     final ChannelSchema channelSchema = getChannelSchema();
     if ( channelSchema.isInstanceChannel() &&
          !Objects.equals( getId(), null != prevProps ? prevProps.get( "id" ) : null ) )
