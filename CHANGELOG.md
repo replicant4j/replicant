@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.gwt.webpoller:gwt-webpoller:jar` artifact to version `0.9.8`.
+
 ### [v6.11](https://github.com/realityforge/replicant/tree/v6.11) (2018-09-25)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.10...v6.11)
 

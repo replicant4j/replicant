@@ -55,4 +55,4 @@ artifacts:
 
   simple_keycloak_service: org.realityforge.keycloak.sks:simple-keycloak-service:jar:0.1
 
-  gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.9.7
+  gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.9.8
