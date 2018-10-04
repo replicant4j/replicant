@@ -70,10 +70,9 @@ public abstract class ReplicantSubscription<T>
 
   protected abstract int getChannelId();
 
-  @Nullable
-  protected Integer getId()
+  protected int getId()
   {
-    return null;
+    return 0;
   }
 
   @Nullable
