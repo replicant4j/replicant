@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.13](https://github.com/realityforge/replicant/tree/v6.13) (2018-10-04)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.12...v6.13)
 
 * Change `ReplicantSubscription.getId()` to return a primitive integer rather than a boxed `Integer`.
 
