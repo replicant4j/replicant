@@ -75,6 +75,11 @@ public abstract class ReplicantSubscription<T>
     return 0;
   }
 
+  protected boolean hasId()
+  {
+    return false;
+  }
+
   @Nullable
   protected Object getFilter()
   {
@@ -213,7 +218,7 @@ public abstract class ReplicantSubscription<T>
 
   private void updateAreaOfInterest()
   {
-    final ChannelAddress address = new ChannelAddress( getSystemId(), getChannelId(), getId() );
+    final ChannelAddress address = new ChannelAddress( getSystemId(), getChannelId(), hasId() ? getId() : null );
     final AreaOfInterest newAreaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, getFilter() );
     if ( getAreaOfInterest() != newAreaOfInterest )
     {
