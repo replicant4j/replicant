@@ -23,6 +23,7 @@ Some actions that should occur at some point in the future.
   - https://www.ietf.org/about/participate/tutorials/technical/cbor/
   - http://cbor.io/impls.html
   - https://github.com/dcodeIO/protobuf.js
+  - Or event better and faster - Capt Proto - https://capnproto.org/language.html
 
 * Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
   could be lazily created on access via `EntityLocator`.
