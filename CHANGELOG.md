@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.react4j` dependencies to version `0.100`.
+
 ### [v6.13](https://github.com/realityforge/replicant/tree/v6.13) (2018-10-04)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.12...v6.13)
 
