@@ -4,7 +4,7 @@ import arez.Disposable;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.annotations.Observed;
+import arez.annotations.Observe;
 import java.util.Collection;
 import java.util.HashSet;
 import javax.annotation.Nonnull;
@@ -90,7 +90,7 @@ abstract class Converger
   @Nullable
   abstract SafeProcedure getConvergeCompleteAction();
 
-  @Observed( mutation = true, nestedActionsAllowed = true )
+  @Observe( mutation = true, nestedActionsAllowed = true )
   void converge()
   {
     preConverge();
@@ -100,7 +100,7 @@ abstract class Converger
     }
   }
 
-  @Observed( mutation = true, nestedActionsAllowed = true )
+  @Observe( mutation = true, nestedActionsAllowed = true )
   void removeOrphanSubscriptionsIfInSync()
   {
     if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() && allConnectorsSynchronized() )

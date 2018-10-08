@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.arez` dependencies to version `0.109`.
 * Update the `org.realityforge.react4j` dependencies to version `0.100`.
 
 ### [v6.13](https://github.com/realityforge/replicant/tree/v6.13) (2018-10-04)

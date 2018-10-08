@@ -12,7 +12,7 @@ import arez.annotations.ContextRef;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
-import arez.annotations.Observed;
+import arez.annotations.Observe;
 import arez.component.CollectionsUtil;
 import arez.component.DisposeTrackable;
 import java.util.ArrayList;
@@ -246,7 +246,7 @@ abstract class ReplicantRuntime
     return null;
   }
 
-  @Observed( mutation = true )
+  @Observe( mutation = true )
   void reflectActiveState()
   {
     final boolean active = isActive();
