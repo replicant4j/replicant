@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.15](https://github.com/realityforge/replicant/tree/v6.15) (2018-10-09)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.14...v6.15)
 
 * Correct bug where id was set as `0` for type graphs.
 
