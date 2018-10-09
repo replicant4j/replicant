@@ -8,6 +8,7 @@ import arez.annotations.Observable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
 import react4j.ReactNode;
 import react4j.arez.ReactArezComponent;
@@ -179,7 +180,9 @@ public abstract class ReplicantSubscription<T>
   {
     final ChannelSchema channelSchema = getChannelSchema();
     if ( channelSchema.isInstanceChannel() &&
-         !Objects.equals( getId(), null != prevProps ? prevProps.get( "id" ) : null ) )
+         ( null == prevProps ||
+           !prevProps.has( "id" ) ||
+           !Js.isTripleEqual( getId(), prevProps.getAny( "id" ).asInt() ) ) )
     {
       clearAreaOfInterest();
     }
