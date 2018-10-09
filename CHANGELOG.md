@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.16](https://github.com/realityforge/replicant/tree/v6.16) (2018-10-09)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.15...v6.16)
 
 * Fix bug in `ReplicantSubscription` react4j component was incorrectly comparing a primitive id
   and a boxed id in `componentDidUpdate()` lifecycle method.
