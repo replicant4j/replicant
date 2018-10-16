@@ -8,14 +8,11 @@ import arez.annotations.Observable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jsinterop.base.Js;
-import jsinterop.base.JsPropertyMap;
 import react4j.ReactNode;
 import react4j.arez.ReactArezComponent;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.ChannelSchema;
-import replicant.FilterUtil;
 import replicant.Replicant;
 import replicant.Subscription;
 
@@ -173,34 +170,26 @@ public abstract class ReplicantSubscription<T>
     updateAreaOfInterest();
   }
 
-  @Action( reportParameters = false )
   @Override
-  protected void componentDidUpdate( @Nullable final JsPropertyMap<Object> prevProps,
-                                     @Nullable final JsPropertyMap<Object> prevState )
+  protected void componentDidUpdate()
   {
-    final ChannelSchema channelSchema = getChannelSchema();
-    if ( channelSchema.isInstanceChannel() &&
-         ( null == prevProps ||
-           !prevProps.has( "id" ) ||
-           !Js.isTripleEqual( getId(), prevProps.getAny( "id" ).asInt() ) ) )
-    {
-      clearAreaOfInterest();
-    }
-    else if ( ChannelSchema.FilterType.NONE != channelSchema.getFilterType() )
-    {
-      final Object filter = null != prevProps ? prevProps.get( "filter" ) : null;
-      final Object newFilter = getFilter();
-      if ( ChannelSchema.FilterType.DYNAMIC == channelSchema.getFilterType() &&
-           !FilterUtil.filtersEqual( newFilter, filter ) )
-      {
-        final AreaOfInterest areaOfInterest = getAreaOfInterest();
-        if ( null != areaOfInterest )
-        {
-          Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
-        }
-      }
-    }
     updateAreaOfInterest();
+  }
+
+  @Action
+  protected void updateAreaOfInterestOnIdChange()
+  {
+    clearAreaOfInterest();
+  }
+
+  @Action( reportParameters = false )
+  protected void updateAreaOfInterestOnFilterChange( final Object newFilter )
+  {
+    final AreaOfInterest areaOfInterest = getAreaOfInterest();
+    if ( null != areaOfInterest )
+    {
+      Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
+    }
   }
 
   @Action
@@ -219,7 +208,8 @@ public abstract class ReplicantSubscription<T>
     }
   }
 
-  private void updateAreaOfInterest()
+  @Action
+  protected void updateAreaOfInterest()
   {
     final ChannelAddress address = new ChannelAddress( getSystemId(), getChannelId(), hasId() ? getId() : null );
     final AreaOfInterest newAreaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, getFilter() );
