@@ -24,6 +24,7 @@ Some actions that should occur at some point in the future.
   - http://cbor.io/impls.html
   - https://github.com/dcodeIO/protobuf.js
   - Or event better and faster - Capt Proto - https://capnproto.org/language.html
+  - Or Protobuf+gRPC = https://www.cncf.io/blog/2018/10/24/grpc-web-is-going-ga/  
 
 * Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
   could be lazily created on access via `EntityLocator`.
