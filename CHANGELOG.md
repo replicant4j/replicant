@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Enhance the console message for the spy event `AreaOfInterestStatusUpdatedEvent` to include the
+  status that the `AreaOfInterest`  was changed to.
+
 ### [v6.17](https://github.com/realityforge/replicant/tree/v6.17) (2018-10-16)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.16...v6.17)
 

@@ -85,7 +85,7 @@ public abstract class AreaOfInterest
     _filter = filter;
   }
 
-  @Observable
+  @Observable( readOutsideTransaction = true )
   @Nonnull
   public Status getStatus()
   {
