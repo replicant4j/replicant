@@ -58,7 +58,7 @@ public final class Request
   }
 
   @Nonnull
-  final RequestEntry getEntry()
+  RequestEntry getEntry()
   {
     return _entry;
   }
