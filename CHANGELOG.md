@@ -11,6 +11,7 @@
   to timing changes in other parts of the application this became a frequent occurrence. The fix was
   to treat subscribe/unsubscribe like any other request to ensure that they are sequenced appropriately.
 * Update the `org.realityforge.arez` dependencies to version `0.111`.
+* Update the `org.realityforge.react4j` dependencies to version `0.103`.
 
 ### [v6.17](https://github.com/realityforge/replicant/tree/v6.17) (2018-10-16)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.16...v6.17)
