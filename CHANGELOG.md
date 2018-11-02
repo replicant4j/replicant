@@ -4,6 +4,12 @@
 
 * Enhance the console message for the spy event `AreaOfInterestStatusUpdatedEvent` to include the
   status that the `AreaOfInterest`  was changed to.
+* Fix the subscribe and unsubscribe to ensure they responded appropriately to the
+  `X-Replicant-RequestComplete` header. Previously an `AreaOfInterest` request (i.e. a subscribe or
+  unsubscribe) could occur multiple times if the response to the AOI request has not been received
+  by the time the RPC call has returned. Historically this happened infrequently (if at all) but due
+  to timing changes in other parts of the application this became a frequent occurrence. The fix was
+  to treat subscribe/unsubscribe like any other request to ensure that they are sequenced appropriately.
 
 ### [v6.17](https://github.com/realityforge/replicant/tree/v6.17) (2018-10-16)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.16...v6.17)

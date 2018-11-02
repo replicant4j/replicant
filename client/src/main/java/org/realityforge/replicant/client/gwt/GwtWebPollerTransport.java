@@ -116,7 +116,7 @@ public final class GwtWebPollerTransport
           final int statusCode = response.getStatusCode();
           if ( Response.SC_OK == statusCode )
           {
-            onSuccess.call();
+            request.onSuccess( isMessageComplete( response ), onSuccess );
           }
           else if ( Response.SC_NO_CONTENT == statusCode )
           {
@@ -163,7 +163,7 @@ public final class GwtWebPollerTransport
           final int statusCode = response.getStatusCode();
           if ( Response.SC_OK == statusCode )
           {
-            onSuccess.call();
+            request.onSuccess( isMessageComplete( response ), onSuccess );
           }
           else
           {
@@ -251,5 +251,10 @@ public final class GwtWebPollerTransport
       rb.setHeader( "Authorization", "Bearer " + authenticationToken );
     }
     return rb;
+  }
+
+  private boolean isMessageComplete( @Nonnull final Response response )
+  {
+    return "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
   }
 }
