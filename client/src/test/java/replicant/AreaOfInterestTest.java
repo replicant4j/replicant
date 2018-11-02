@@ -86,7 +86,7 @@ public class AreaOfInterestTest
     assertEquals( getErrorCallCount.get(), 1 );
     assertEquals( getSubscriptionCallCount.get(), 1 );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
@@ -96,7 +96,7 @@ public class AreaOfInterestTest
     assertEquals( getErrorCallCount.get(), 2 );
     assertEquals( getSubscriptionCallCount.get(), 1 );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
     safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
 
@@ -107,7 +107,7 @@ public class AreaOfInterestTest
     assertEquals( getErrorCallCount.get(), 2 );
     assertEquals( getSubscriptionCallCount.get(), 2 );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
     safeAction( () -> assertNotNull( areaOfInterest.getError() ) );
     safeAction( () -> assertNotNull( areaOfInterest.getSubscription() ) );
   }
@@ -146,51 +146,51 @@ public class AreaOfInterestTest
     final Throwable error = new Throwable();
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADING );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, error );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), error ) );
 
     final Subscription subscription = createSubscription( aoi.getAddress(), null, true );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATING, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATING );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATED, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATED );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.UPDATE_FAILED, error );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), error ) );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADING, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADING );
     safeAction( () -> assertEquals( aoi.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
 
     Disposable.dispose( subscription );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null );
-    safeAction( () -> assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED ) );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.UNLOADED );
     safeAction( () -> assertEquals( aoi.getSubscription(), null ) );
     safeAction( () -> assertEquals( aoi.getError(), null ) );
   }

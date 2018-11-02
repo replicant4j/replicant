@@ -653,7 +653,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -661,7 +661,7 @@ public class ConnectorTest
 
     connector.onSubscribeStarted( address );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -684,7 +684,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -694,7 +694,7 @@ public class ConnectorTest
 
     connector.onSubscribeCompleted( address );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -717,7 +717,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -727,7 +727,7 @@ public class ConnectorTest
 
     connector.onSubscribeFailed( address, error );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOAD_FAILED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOAD_FAILED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), error ) );
 
@@ -751,7 +751,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -761,7 +761,7 @@ public class ConnectorTest
 
     connector.onUnsubscribeStarted( address );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADING ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADING );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -784,7 +784,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -792,7 +792,7 @@ public class ConnectorTest
 
     connector.onUnsubscribeCompleted( address );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -815,7 +815,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -825,7 +825,7 @@ public class ConnectorTest
 
     connector.onUnsubscribeFailed( address, error );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -849,7 +849,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -859,7 +859,7 @@ public class ConnectorTest
 
     connector.onSubscriptionUpdateStarted( address );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -882,7 +882,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -892,7 +892,7 @@ public class ConnectorTest
 
     connector.onSubscriptionUpdateCompleted( address );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -915,7 +915,7 @@ public class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
 
@@ -927,7 +927,7 @@ public class ConnectorTest
 
     connector.onSubscriptionUpdateFailed( address, error );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATE_FAILED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATE_FAILED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), error ) );
 

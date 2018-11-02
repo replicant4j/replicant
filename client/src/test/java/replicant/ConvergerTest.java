@@ -400,7 +400,7 @@ public class ConvergerTest
 
     assertEquals( result, Converger.Action.NO_ACTION );
 
-    safeAction( () -> assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
