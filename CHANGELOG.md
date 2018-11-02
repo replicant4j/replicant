@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.18](https://github.com/realityforge/replicant/tree/v6.18) (2018-11-02)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.17...v6.18)
 
 * Enhance the console message for the spy event `AreaOfInterestStatusUpdatedEvent` to include the
   status that the `AreaOfInterest`  was changed to.
