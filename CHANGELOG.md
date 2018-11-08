@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.19](https://github.com/realityforge/replicant/tree/v6.19) (2018-11-08)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.18...v6.19)
 
 * Update the `org.realityforge.arez` dependencies to version `0.114`.
 * Update the `org.realityforge.react4j` dependencies to version `0.106`.
