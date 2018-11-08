@@ -2,8 +2,8 @@ package replicant;
 
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
-import arez.annotations.Computed;
 import arez.annotations.Feature;
+import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import java.util.Objects;
@@ -103,7 +103,7 @@ public abstract class AreaOfInterest
 
   abstract void setError( @Nullable Throwable error );
 
-  @Computed
+  @Memoize
   @Nullable
   public Subscription getSubscription()
   {

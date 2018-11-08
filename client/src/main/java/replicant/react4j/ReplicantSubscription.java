@@ -3,7 +3,7 @@ package replicant.react4j;
 import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ComponentDependency;
-import arez.annotations.Computed;
+import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -294,7 +294,7 @@ public abstract class ReplicantSubscription<T>
     }
   }
 
-  @Computed
+  @Memoize
   @Nullable
   protected AreaOfInterest.Status getStatus()
   {
