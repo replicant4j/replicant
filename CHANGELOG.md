@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Rename some react lifecycle methods in `ReplicantSubscription` so that they align with the names of
+  the annotations rather than the names of the methods that needed to be overridden in the past.
+
 ### [v6.21](https://github.com/realityforge/replicant/tree/v6.21) (2019-01-17)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.20...v6.21)
 

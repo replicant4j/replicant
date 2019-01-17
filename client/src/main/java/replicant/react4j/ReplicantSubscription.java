@@ -9,7 +9,6 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import react4j.ReactNode;
-import react4j.annotations.PostMount;
 import react4j.annotations.PostRender;
 import react4j.annotations.PreUnmount;
 import react4j.arez.ReactArezComponent;
@@ -167,7 +166,7 @@ public abstract class ReplicantSubscription<T>
   protected abstract void setAreaOfInterest( @Nullable AreaOfInterest areaOfInterest );
 
   @PostRender
-  protected void componentDidMount()
+  final void postRender()
   {
     updateAreaOfInterest();
   }
@@ -190,7 +189,7 @@ public abstract class ReplicantSubscription<T>
 
   @Action
   @PreUnmount
-  protected void componentWillUnmount()
+  protected void preUnmount()
   {
     clearAreaOfInterest();
   }
