@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix the release process to push release to staging repository and Maven Central.
+
 ### [v6.22](https://github.com/realityforge/replicant/tree/v6.22) (2019-01-18)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.21...v6.22)
 
