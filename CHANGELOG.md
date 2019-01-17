@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.22](https://github.com/realityforge/replicant/tree/v6.22) (2019-01-18)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.21...v6.22)
 
 * Rename some react lifecycle methods in `ReplicantSubscription` so that they align with the names of
   the annotations rather than the names of the methods that needed to be overridden in the past.
