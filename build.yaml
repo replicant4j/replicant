@@ -23,8 +23,8 @@ artifacts:
 
   testng: org.testng:testng:jar:6.11
 
-  arez_core: org.realityforge.arez:arez-core:jar:0.115
-  arez_processor: org.realityforge.arez:arez-processor:jar:0.115
+  arez_core: org.realityforge.arez:arez-core:jar:0.122
+  arez_processor: org.realityforge.arez:arez-processor:jar:0.122
 
   react4j_core: org.realityforge.react4j:react4j-core:jar:0.107
   react4j_dom: org.realityforge.react4j:react4j-dom:jar:0.107

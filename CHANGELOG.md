@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Remove deployment from TravisCI infrastructure as it is no longer feasible.
+* Update the `org.realityforge.arez` dependencies to version `0.122`.
 
 ### [v6.20](https://github.com/realityforge/replicant/tree/v6.20) (2018-11-20)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.19...v6.20)
