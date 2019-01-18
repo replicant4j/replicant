@@ -166,7 +166,7 @@ public abstract class ReplicantSubscription<T>
   protected abstract void setAreaOfInterest( @Nullable AreaOfInterest areaOfInterest );
 
   @PostRender
-  final void postRender()
+  protected final void postRender()
   {
     updateAreaOfInterest();
   }
