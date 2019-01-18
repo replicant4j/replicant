@@ -2,8 +2,6 @@
 
 Some actions that should occur at some point in the future.
 
-* Release process should push to staging as well
-
 * Change should take a ChannelDescriptor as a parameter.
 * Consolidate some of the common code across server and client libraries. i.e.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
