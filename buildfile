@@ -4,8 +4,6 @@ require 'buildr/gwt'
 require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
-REACT4J_DEPS = [:react4j_core, :react4j_dom, :react4j_arez]
-
 AREZ_DEPS = [:arez_core, :braincheck]
 
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
@@ -75,7 +73,7 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:jetbrains_annotations)
     pom.include_transitive_dependencies << artifact(:elemental2_dom)
     pom.include_transitive_dependencies << artifact(:elemental2_webstorage)
-    pom.include_transitive_dependencies << artifact(:react4j_arez)
+    pom.include_transitive_dependencies << artifact(:react4j_core)
     pom.include_transitive_dependencies << artifact(:arez_core)
     pom.include_transitive_dependencies << artifact(:gwt_webpoller)
     pom.include_transitive_dependencies << artifact(:gwt_user)
@@ -101,7 +99,7 @@ define 'replicant' do
                  :gwt_webpoller,
                  :jetbrains_annotations,
                  GWT_DEPS,
-                 REACT4J_DEPS,
+                 :react4j_core,
                  AREZ_DEPS,
                  # javax_javaee is provided so that JSON parsing can occur for JRE variant.
                  :javax_javaee

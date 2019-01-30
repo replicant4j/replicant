@@ -1,6 +1,6 @@
 <module>
   <inherits name='replicant.Replicant'/>
-  <inherits name='react4j.arez.Arez'/>
+  <inherits name='react4j.React'/>
 
   <source path=''/>
 </module>

@@ -5,13 +5,13 @@ import arez.annotations.Action;
 import arez.annotations.ComponentDependency;
 import arez.annotations.Memoize;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import react4j.Component;
 import react4j.ReactNode;
 import react4j.annotations.PostRender;
-import react4j.annotations.PreUnmount;
-import react4j.arez.ReactArezComponent;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.ChannelSchema;
@@ -22,7 +22,7 @@ import replicant.Subscription;
  * An abstract React4j component that manages subscription to channels.
  */
 public abstract class ReplicantSubscription<T>
-  extends ReactArezComponent
+  extends Component
 {
   @FunctionalInterface
   public interface NoResultCallback
@@ -171,7 +171,6 @@ public abstract class ReplicantSubscription<T>
     updateAreaOfInterest();
   }
 
-  @Action
   protected void updateAreaOfInterestOnIdChange()
   {
     clearAreaOfInterest();
@@ -187,14 +186,14 @@ public abstract class ReplicantSubscription<T>
     }
   }
 
-  @Action
-  @PreUnmount
-  protected void preUnmount()
+  @PreDispose
+  protected void preDispose()
   {
     clearAreaOfInterest();
   }
 
-  private void clearAreaOfInterest()
+  @Action
+  protected void clearAreaOfInterest()
   {
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
     if ( null != areaOfInterest )
