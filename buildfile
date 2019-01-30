@@ -4,8 +4,6 @@ require 'buildr/gwt'
 require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
-AREZ_DEPS = [:arez_core, :braincheck]
-
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
@@ -100,7 +98,8 @@ define 'replicant' do
                  :jetbrains_annotations,
                  GWT_DEPS,
                  :react4j_core,
-                 AREZ_DEPS,
+                 :braincheck,
+                 :arez_core,
                  # javax_javaee is provided so that JSON parsing can occur for JRE variant.
                  :javax_javaee
 
