@@ -90,9 +90,6 @@ public abstract class ReplicantSubscription<T>
     return null;
   }
 
-  @Nullable
-  protected abstract NoResultCallback getOnNotAsked();
-
   @Nonnull
   protected abstract NoResultCallback getOnLoading();
 
@@ -235,12 +232,7 @@ public abstract class ReplicantSubscription<T>
       final AreaOfInterest.Status status = getStatus();
       final boolean isInstanceChannel = isInstanceChannel();
 
-      if ( AreaOfInterest.Status.NOT_ASKED == status )
-      {
-        final NoResultCallback callback = getOnNotAsked();
-        return null != callback ? callback.render() : null;
-      }
-      else if ( AreaOfInterest.Status.LOADING == status )
+      if ( AreaOfInterest.Status.NOT_ASKED == status || AreaOfInterest.Status.LOADING == status )
       {
         return getOnLoading().render();
       }

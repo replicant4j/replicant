@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Remove the prop `onNotAsked` from the `ReplicantSubscription` component as it represents
+  a state that is never presented to the user and is followed in quick succession by the
+  `OnLoading` state and can thus be replaced by the `onLoading` prop.
+
 ### [v6.26](https://github.com/realityforge/replicant/tree/v6.26) (2019-02-04)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.25...v6.26)
 
