@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.26](https://github.com/realityforge/replicant/tree/v6.26) (2019-02-04)
+[Full Changelog](https://github.com/realityforge/replicant/compare/v6.25...v6.26)
 
 * Work around bug resulting from react4j upgrade that merged the `componentWillUnmount` and
   dispose steps for react4j components. Previously we were able to invoke `@Action` annotated
