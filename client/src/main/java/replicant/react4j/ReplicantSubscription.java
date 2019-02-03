@@ -2,10 +2,10 @@ package replicant.react4j;
 
 import arez.Disposable;
 import arez.annotations.Action;
+import arez.annotations.CascadeDispose;
 import arez.annotations.ComponentDependency;
 import arez.annotations.Memoize;
 import arez.annotations.Observable;
-import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +24,10 @@ import replicant.Subscription;
 public abstract class ReplicantSubscription<T>
   extends Component
 {
+  @CascadeDispose
+  @Nullable
+  protected AreaOfInterest _areaOfInterest;
+
   @FunctionalInterface
   public interface NoResultCallback
   {
@@ -158,12 +162,20 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   protected abstract NoResultCallback getOnUnloaded();
 
+  //TODO: Once Arez has been fixed (post 0.127), this method should be converted back into an
+  // abstract method and @CascadeDispose added to it.
   @ComponentDependency( action = ComponentDependency.Action.SET_NULL )
   @Observable
   @Nullable
-  protected abstract AreaOfInterest getAreaOfInterest();
+  protected AreaOfInterest getAreaOfInterest()
+  {
+    return _areaOfInterest;
+  }
 
-  protected abstract void setAreaOfInterest( @Nullable AreaOfInterest areaOfInterest );
+  protected void setAreaOfInterest( @Nullable final AreaOfInterest areaOfInterest )
+  {
+    _areaOfInterest = areaOfInterest;
+  }
 
   @PostRender
   protected final void postRender()
@@ -184,12 +196,6 @@ public abstract class ReplicantSubscription<T>
     {
       Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
     }
-  }
-
-  @PreDispose
-  protected void preDispose()
-  {
-    clearAreaOfInterest();
   }
 
   @Action

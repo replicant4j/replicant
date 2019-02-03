@@ -2,6 +2,12 @@
 
 ### Unreleased
 
+* Work around bug resulting from react4j upgrade that merged the `componentWillUnmount` and
+  dispose steps for react4j components. Previously we were able to invoke `@Action` annotated
+  methods in `componentWillUnmount()` to release resources but this is no longer possible. Arez
+  should allow the use of `@CascadeDispose` in this context but due to current limitations in
+  Arez this is not possible. A workaround until this limitation has been addressed, has been
+  added to the `ReplicantSubscription` class.
 * Upgrade Elemental2 artifacts to groupId `org.realityforge.com.google.elemental2`
   and version `1.0.0-b14-2f97dbe`. This makes it possible to use a newer version of the
   Elemental2 library in downstream products.
