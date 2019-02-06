@@ -24,7 +24,7 @@ public class EntityTest
     assertEquals( entity.getType(), type );
     assertEquals( entity.getId(), id );
 
-    safeAction( () -> assertEquals( entity.maybeUserObject(), null ) );
+    safeAction( () -> assertNull( entity.maybeUserObject() ) );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
   }
 
@@ -87,7 +87,7 @@ public class EntityTest
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
 
-    safeAction( () -> assertEquals( entity.maybeUserObject(), null ) );
+    safeAction( () -> assertNull( entity.maybeUserObject() ) );
 
     final A userObject = new A();
     safeAction( () -> entity.setUserObject( userObject ) );
@@ -107,7 +107,7 @@ public class EntityTest
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> assertEquals( entity.getUserObject(), null ) ) );
+                    () -> safeAction( () -> assertNull( entity.getUserObject() ) ) );
 
     assertEquals( exception.getMessage(), "Replicant-0071: Entity.getUserObject() invoked when no userObject present" );
   }
@@ -167,7 +167,7 @@ public class EntityTest
       safeAction( () -> entity.delinkFromSubscription( subscription1 ) );
 
       assertEquals( callCount.get(), 5 );
-      assertEquals( Disposable.isDisposed( entity ), true );
+      assertTrue( Disposable.isDisposed( entity ) );
       // Have to access test-only method as entity is disposed
       assertEquals( entity.subscriptions().size(), 0 );
     }
@@ -229,7 +229,7 @@ public class EntityTest
       safeAction( () -> entity.delinkFromSubscription( subscription1 ) );
 
       assertEquals( callCount.get(), 5 );
-      assertEquals( Disposable.isDisposed( entity ), true );
+      assertTrue( Disposable.isDisposed( entity ) );
       // Have to access test-only method as entity is disposed
       assertEquals( entity.subscriptions().size(), 0 );
     }

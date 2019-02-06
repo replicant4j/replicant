@@ -340,8 +340,8 @@ public class SubscriptionServiceTest
     safeAction( () -> {
       final Subscription subscription = service.createSubscription( address, null, true );
       assertEquals( subscription.getAddress(), address );
-      assertEquals( subscription.getFilter(), null );
-      assertEquals( subscription.isExplicitSubscription(), true );
+      assertNull( subscription.getFilter() );
+      assertTrue( subscription.isExplicitSubscription() );
     } );
   }
 

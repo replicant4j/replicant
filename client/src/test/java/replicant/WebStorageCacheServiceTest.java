@@ -20,7 +20,7 @@ public class WebStorageCacheServiceTest
     window.localStorage = storage;
     DomGlobal.window = window;
 
-    assertEquals( Replicant.context().getCacheService(), null );
+    assertNull( Replicant.context().getCacheService() );
 
     WebStorageCacheService.install();
 
@@ -33,7 +33,7 @@ public class WebStorageCacheServiceTest
   @Test
   public void install_withSpecificStorage()
   {
-    assertEquals( Replicant.context().getCacheService(), null );
+    assertNull( Replicant.context().getCacheService() );
 
     final Storage storage = mock( Storage.class );
 
@@ -52,7 +52,7 @@ public class WebStorageCacheServiceTest
     final Storage storage = mock( Storage.class );
     window.localStorage = storage;
 
-    assertEquals( Replicant.context().getCacheService(), null );
+    assertNull( Replicant.context().getCacheService() );
 
     WebStorageCacheService.install( window );
 
@@ -66,7 +66,7 @@ public class WebStorageCacheServiceTest
   public void lookupStorageWhenNotSupported()
   {
     DomGlobal.window = new WebStorageWindow();
-    assertEquals( WebStorageCacheService.isSupported(), false );
+    assertFalse( WebStorageCacheService.isSupported() );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> WebStorageCacheService.lookupStorage( DomGlobal.window ) );
@@ -82,7 +82,7 @@ public class WebStorageCacheServiceTest
     window.localStorage = mock( Storage.class );
     DomGlobal.window = window;
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
+    assertTrue( WebStorageCacheService.isSupported() );
 
     assertEquals( WebStorageCacheService.lookupStorage( DomGlobal.window ), window.localStorage );
   }
@@ -94,7 +94,7 @@ public class WebStorageCacheServiceTest
     window.sessionStorage = mock( Storage.class );
     DomGlobal.window = window;
 
-    assertEquals( WebStorageCacheService.isSupported(), true );
+    assertTrue( WebStorageCacheService.isSupported() );
 
     assertEquals( WebStorageCacheService.lookupStorage( DomGlobal.window ), window.sessionStorage );
   }
@@ -112,7 +112,7 @@ public class WebStorageCacheServiceTest
 
     final boolean removed = service.invalidate( key );
 
-    assertEquals( removed, false );
+    assertFalse( removed );
 
     verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
   }
@@ -131,7 +131,7 @@ public class WebStorageCacheServiceTest
 
     final boolean removed = service.invalidate( key );
 
-    assertEquals( removed, true );
+    assertTrue( removed );
 
     verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
     verify( storage ).removeItem( key + WebStorageCacheService.ETAG_SUFFIX );
@@ -151,7 +151,7 @@ public class WebStorageCacheServiceTest
 
     final boolean stored = service.store( key, eTag, content );
 
-    assertEquals( stored, true );
+    assertTrue( stored );
 
     verify( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
     verify( storage ).setItem( key, content );
@@ -177,7 +177,7 @@ public class WebStorageCacheServiceTest
 
     final boolean stored = service.store( key, eTag, content );
 
-    assertEquals( stored, false );
+    assertFalse( stored );
 
     verify( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
     verify( storage, never() ).setItem( key, content );

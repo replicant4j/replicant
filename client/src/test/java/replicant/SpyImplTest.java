@@ -30,7 +30,7 @@ public class SpyImplTest
     assertTrue( spy.willPropagateSpyEvents() );
 
     assertEquals( spy.getSpyEventHandlers().size(), 1 );
-    assertEquals( spy.getSpyEventHandlers().contains( handler ), true );
+    assertTrue( spy.getSpyEventHandlers().contains( handler ) );
 
     assertEquals( callCount.get(), 0 );
 

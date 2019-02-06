@@ -52,7 +52,7 @@ public class EntityMessageSetTest
     final EntityMessageSet set = new EntityMessageSet();
     set.merge( message, true );
     final EntityMessage inserted = set.getEntityMessages().iterator().next();
-    assertFalse( inserted == message );
+    assertNotSame( inserted, message );
 
     assertEquals( inserted.getTimestamp(), 0 );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a1" );
@@ -75,7 +75,7 @@ public class EntityMessageSetTest
     set.mergeAll( Arrays.asList( message, message2, message3 ) );
     assertEquals( set.getEntityMessages().size(), 1 );
     final EntityMessage inserted = set.getEntityMessages().iterator().next();
-    assertTrue( inserted == message );
+    assertSame( inserted, message );
 
     assertEquals( inserted.getTimestamp(), 2, "Timestamp merge rule is to take the latest value" );
     MessageTestUtil.assertAttributeValue( inserted, MessageTestUtil.ATTR_KEY1, "a3" );
@@ -99,7 +99,7 @@ public class EntityMessageSetTest
     assertEquals( set.getEntityMessages().size(), 1 );
 
     final EntityMessage inserted = set.getEntityMessages().iterator().next();
-    assertFalse( inserted == message );
+    assertNotSame( inserted, message );
 
     assertEquals( inserted.getTimestamp(), 2, "Timestamp merge rule is to take the latest value" );
     MessageTestUtil.assertAttributeValue( inserted, MessageTestUtil.ATTR_KEY1, "a3" );

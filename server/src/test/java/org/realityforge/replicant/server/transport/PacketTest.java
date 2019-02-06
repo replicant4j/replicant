@@ -18,9 +18,9 @@ public class PacketTest
     assertEquals( packet.getETag(), "e1" );
     assertEquals( packet.getChangeSet(), changeSet );
 
-    assertTrue( packet.equals( packet ) );
-    assertFalse( packet.equals( other ) );
-    assertFalse( other.equals( packet ) );
+    assertEquals( packet, packet );
+    assertNotEquals( other, packet );
+    assertNotEquals( packet, other );
 
     assertEquals( packet.compareTo( packet ), 0 );
     assertEquals( packet.compareTo( other ), -1 );

@@ -30,7 +30,7 @@ public class RequestTest
 
     request.onSuccess( false, () -> result.set( true ) );
 
-    assertEquals( result.get(), null );
+    assertNull( result.get() );
     assertTrue( request.getEntry().hasCompleted() );
     assertNotNull( request.getEntry().getCompletionAction() );
     assertTrue( request.getEntry().isNormalCompletion() );

@@ -23,18 +23,18 @@ public class ChannelAddressTest
     assertEquals( cd1.getChannelId(), 1 );
     assertEquals( cd1.getSubChannelId(), (Integer) 22 );
     assertEquals( cd1.toString(), "#1.22#" );
-    assertTrue( cd1.equals( cd1 ) );
-    assertTrue( cd1.equals( cd2 ) );
-    assertFalse( cd1.equals( cd3 ) );
-    assertFalse( cd1.equals( cd4 ) );
+    assertEquals( cd1, cd1 );
+    assertEquals( cd2, cd1 );
+    assertNotEquals( cd3, cd1 );
+    assertNotEquals( cd4, cd1 );
 
     assertEquals( cd4.getChannelId(), 2 );
-    assertEquals( cd4.getSubChannelId(), null );
+    assertNull( cd4.getSubChannelId() );
     assertEquals( cd4.toString(), "#2#" );
-    assertTrue( cd4.equals( cd4 ) );
-    assertTrue( cd4.equals( cd6 ) );
-    assertFalse( cd4.equals( cd3 ) );
-    assertFalse( cd4.equals( cd5 ) );
+    assertEquals( cd4, cd4 );
+    assertEquals( cd6, cd4 );
+    assertNotEquals( cd3, cd4 );
+    assertNotEquals( cd5, cd4 );
 
     final List<ChannelAddress> list = new ArrayList<>( Arrays.asList( cd6, cd5, cd4, cd3, cd2, cd1, cd6 ) );
 

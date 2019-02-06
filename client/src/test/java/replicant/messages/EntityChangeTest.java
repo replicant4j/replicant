@@ -20,8 +20,8 @@ public class EntityChangeTest
     assertEquals( change.getId(), 1 );
     assertEquals( change.getTypeId(), 2 );
     assertEquals( change.getChannels(), channels );
-    assertEquals( change.isRemove(), true );
-    assertEquals( change.isUpdate(), false );
+    assertTrue( change.isRemove() );
+    assertFalse( change.isUpdate() );
     assertThrows( change::getData );
   }
 
@@ -37,8 +37,8 @@ public class EntityChangeTest
     assertEquals( change.getId(), 1 );
     assertEquals( change.getTypeId(), 2 );
     assertEquals( change.getChannels(), channels );
-    assertEquals( change.isRemove(), false );
-    assertEquals( change.isUpdate(), true );
+    assertFalse( change.isRemove() );
+    assertTrue( change.isUpdate() );
     assertEquals( change.getData(), data );
   }
 }

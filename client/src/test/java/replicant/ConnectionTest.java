@@ -26,11 +26,11 @@ public class ConnectionTest
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
-    assertEquals( connection.isDisposed(), false );
+    assertFalse( connection.isDisposed() );
     assertEquals( connection.getConnectionId(), connectionId );
     assertEquals( connection.getLastRxSequence(), 0 );
     assertEquals( connection.getLastTxRequestId(), 0 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
     assertNotNull( connection.getTransportContext() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
@@ -50,13 +50,13 @@ public class ConnectionTest
     final Connector connector = createConnector();
     final Connection connection = new Connection( connector, ValueUtil.randomString() );
 
-    assertEquals( connection.isDisposed(), false );
-    assertEquals( Disposable.isDisposed( connection.getTransportContext() ), false );
+    assertFalse( connection.isDisposed() );
+    assertFalse( Disposable.isDisposed( connection.getTransportContext() ) );
 
     connection.dispose();
 
-    assertEquals( connection.isDisposed(), true );
-    assertEquals( Disposable.isDisposed( connection.getTransportContext() ), true );
+    assertTrue( connection.isDisposed() );
+    assertTrue( Disposable.isDisposed( connection.getTransportContext() ) );
   }
 
   @Test
@@ -70,7 +70,7 @@ public class ConnectionTest
 
     final boolean selectedMessage = connection.selectNextMessageResponse();
 
-    assertEquals( selectedMessage, false );
+    assertFalse( selectedMessage );
     assertNull( connection.getCurrentMessageResponse() );
   }
 
@@ -91,7 +91,7 @@ public class ConnectionTest
 
     final boolean selectedMessage = connection.selectNextMessageResponse();
 
-    assertEquals( selectedMessage, true );
+    assertTrue( selectedMessage );
     assertEquals( connection.getOutOfBandResponses().size(), 0 );
     assertNotNull( connection.getCurrentMessageResponse() );
   }
@@ -111,7 +111,7 @@ public class ConnectionTest
 
     final boolean selectedMessage = connection.selectNextMessageResponse();
 
-    assertEquals( selectedMessage, true );
+    assertTrue( selectedMessage );
     assertNotNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getUnparsedResponses().size(), 0 );
   }
@@ -134,7 +134,7 @@ public class ConnectionTest
 
     final boolean selectedMessage = connection.selectNextMessageResponse();
 
-    assertEquals( selectedMessage, true );
+    assertTrue( selectedMessage );
     final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
     assertNotNull( currentMessageResponse );
     assertEquals( currentMessageResponse.getChangeSet().getSequence(), 1 );
@@ -159,7 +159,7 @@ public class ConnectionTest
 
     final boolean selectedMessage = connection.selectNextMessageResponse();
 
-    assertEquals( selectedMessage, false );
+    assertFalse( selectedMessage );
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
   }
@@ -184,10 +184,10 @@ public class ConnectionTest
 
     final boolean selectedMessage = connection.selectNextMessageResponse();
 
-    assertEquals( selectedMessage, true );
+    assertTrue( selectedMessage );
     final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
     assertNotNull( currentMessageResponse );
-    assertEquals( currentMessageResponse.isOob(), true );
+    assertTrue( currentMessageResponse.isOob() );
     assertEquals( currentMessageResponse.getChangeSet().getSequence(), 324 );
     assertEquals( connection.getPendingResponses().size(), 0 );
   }
@@ -215,7 +215,7 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingResponses().size(), 1 );
     assertEquals( connection.getPendingResponses().get( 0 ), response2 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
 
     // This should be added to end of queue as it has later sequence
     connection.setCurrentMessageResponse( response3 );
@@ -225,7 +225,7 @@ public class ConnectionTest
     assertEquals( connection.getPendingResponses().size(), 2 );
     assertEquals( connection.getPendingResponses().get( 0 ), response2 );
     assertEquals( connection.getPendingResponses().get( 1 ), response3 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
 
     // This should be added to start of queue as it has earlier sequence
     connection.setCurrentMessageResponse( response1 );
@@ -236,7 +236,7 @@ public class ConnectionTest
     assertEquals( connection.getPendingResponses().get( 0 ), response1 );
     assertEquals( connection.getPendingResponses().get( 1 ), response2 );
     assertEquals( connection.getPendingResponses().get( 2 ), response3 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
   }
 
   @Test
@@ -331,11 +331,11 @@ public class ConnectionTest
     final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
 
     assertEquals( request1.getAddress(), address1 );
-    assertEquals( request1.getFilter(), null );
+    assertNull( request1.getFilter() );
     assertEquals( request1.getType(), AreaOfInterestRequest.Type.REMOVE );
 
     assertEquals( request2.getAddress(), address2 );
-    assertEquals( request2.getFilter(), null );
+    assertNull( request2.getFilter() );
     assertEquals( request2.getType(), AreaOfInterestRequest.Type.REMOVE );
   }
 
@@ -440,7 +440,7 @@ public class ConnectionTest
 
     assertEquals( connection.getRequest( request.getRequestId() ), entry );
     assertEquals( connection.getRequests().get( request.getRequestId() ), entry );
-    assertEquals( connection.getRequest( ValueUtil.randomInt() ), null );
+    assertNull( connection.getRequest( ValueUtil.randomInt() ) );
 
     safeAction( () -> assertNotEquals( connector.getLastRxRequestId(), lastTxRequestId + 1 ) );
 
@@ -448,7 +448,7 @@ public class ConnectionTest
 
     safeAction( () -> assertEquals( connector.getLastRxRequestId(), lastTxRequestId + 1 ) );
 
-    assertEquals( connection.getRequest( request.getRequestId() ), null );
+    assertNull( connection.getRequest( request.getRequestId() ) );
   }
 
   @Test
@@ -483,14 +483,14 @@ public class ConnectionTest
     request1.markAsInProgress();
     request2.markAsInProgress();
 
-    assertEquals( request1.isInProgress(), true );
-    assertEquals( request1.isInProgress(), true );
+    assertTrue( request1.isInProgress() );
+    assertTrue( request1.isInProgress() );
     assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 2 );
 
     connection.completeAreaOfInterestRequest();
 
-    assertEquals( request1.isInProgress(), false );
-    assertEquals( request1.isInProgress(), false );
+    assertFalse( request1.isInProgress() );
+    assertFalse( request1.isInProgress() );
     assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
   }
 
@@ -520,7 +520,7 @@ public class ConnectionTest
     connection.completeRequest( entry, action );
 
     verify( action ).call();
-    assertEquals( entry.getCompletionAction(), null );
+    assertNull( entry.getCompletionAction() );
     assertNull( connection.getRequest( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
@@ -528,9 +528,9 @@ public class ConnectionTest
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), entry.getName() );
-      assertEquals( ev.isNormalCompletion(), false );
-      assertEquals( ev.isExpectingResults(), false );
-      assertEquals( ev.haveResultsArrived(), false );
+      assertFalse( ev.isNormalCompletion() );
+      assertFalse( ev.isExpectingResults() );
+      assertFalse( ev.haveResultsArrived() );
     } );
   }
 
@@ -558,9 +558,9 @@ public class ConnectionTest
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), entry.getName() );
-      assertEquals( ev.isNormalCompletion(), true );
-      assertEquals( ev.isExpectingResults(), true );
-      assertEquals( ev.haveResultsArrived(), false );
+      assertTrue( ev.isNormalCompletion() );
+      assertTrue( ev.isExpectingResults() );
+      assertFalse( ev.haveResultsArrived() );
     } );
   }
 
@@ -584,7 +584,7 @@ public class ConnectionTest
     connection.completeRequest( entry, action );
 
     verify( action ).call();
-    assertEquals( entry.getCompletionAction(), null );
+    assertNull( entry.getCompletionAction() );
     assertNull( connection.getRequest( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
@@ -592,9 +592,9 @@ public class ConnectionTest
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), entry.getName() );
-      assertEquals( ev.isNormalCompletion(), true );
-      assertEquals( ev.isExpectingResults(), true );
-      assertEquals( ev.haveResultsArrived(), true );
+      assertTrue( ev.isNormalCompletion() );
+      assertTrue( ev.isExpectingResults() );
+      assertTrue( ev.haveResultsArrived() );
     } );
   }
 
@@ -693,16 +693,16 @@ public class ConnectionTest
     final AreaOfInterestRequest requestA = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, null );
     final AreaOfInterestRequest requestB = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, null );
 
-    assertEquals( connection.canGroupRequests( requestA, requestB ), true );
-    assertEquals( connection.canGroupRequests( requestB, requestA ), true );
+    assertTrue( connection.canGroupRequests( requestA, requestB ) );
+    assertTrue( connection.canGroupRequests( requestB, requestA ) );
 
     final TestCacheService cacheService = new TestCacheService();
     Replicant.context().setCacheService( cacheService );
 
     cacheService.store( requestA.getCacheKey(), ValueUtil.randomString(), ValueUtil.randomString() );
 
-    assertEquals( connection.canGroupRequests( requestA, requestB ), false );
-    assertEquals( connection.canGroupRequests( requestB, requestA ), false );
+    assertFalse( connection.canGroupRequests( requestA, requestB ) );
+    assertFalse( connection.canGroupRequests( requestB, requestA ) );
   }
 
   @Test

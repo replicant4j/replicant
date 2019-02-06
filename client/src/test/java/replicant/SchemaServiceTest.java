@@ -18,20 +18,20 @@ public class SchemaServiceTest
 
     assertNull( service.findById( schemaId1 ) );
     assertEquals( service.getSchemas().size(), 0 );
-    assertEquals( service.getSchemas().contains( schema1 ), false );
+    assertFalse( service.getSchemas().contains( schema1 ) );
 
     service.registerSchema( schema1 );
 
     assertEquals( service.findById( schemaId1 ), schema1 );
     assertEquals( service.getById( schemaId1 ), schema1 );
     assertEquals( service.getSchemas().size(), 1 );
-    assertEquals( service.getSchemas().contains( schema1 ), true );
+    assertTrue( service.getSchemas().contains( schema1 ) );
 
     service.deregisterSchema( schema1 );
 
     assertNull( service.findById( schemaId1 ) );
     assertEquals( service.getSchemas().size(), 0 );
-    assertEquals( service.getSchemas().contains( schema1 ), false );
+    assertFalse( service.getSchemas().contains( schema1 ) );
   }
 
   @Test

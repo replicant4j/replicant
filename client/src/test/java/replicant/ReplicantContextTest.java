@@ -16,7 +16,7 @@ public class ReplicantContextTest
 
     final ReplicantContext context = Replicant.context();
     assertEquals( context.getSchemas().size(), 0 );
-    assertEquals( context.findSchemaById( schemaId ), null );
+    assertNull( context.findSchemaById( schemaId ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> safeAction( () -> context.getSchemaById( schemaId ) ) );
@@ -31,7 +31,7 @@ public class ReplicantContextTest
     context.getSchemaService().registerSchema( schema1 );
 
     assertEquals( context.getSchemas().size(), 1 );
-    assertEquals( context.getSchemas().contains( schema1 ), true );
+    assertTrue( context.getSchemas().contains( schema1 ) );
 
     assertEquals( context.findSchemaById( schemaId ), schema1 );
     assertEquals( context.getSchemaById( schemaId ), schema1 );
@@ -50,7 +50,7 @@ public class ReplicantContextTest
 
     safeAction( () -> {
       assertEquals( context.getAreasOfInterest().size(), 0 );
-      assertEquals( context.findAreaOfInterestByAddress( address ), null );
+      assertNull( context.findAreaOfInterestByAddress( address ) );
 
       final AreaOfInterest areaOfInterest = context.createOrUpdateAreaOfInterest( address, filter );
 
@@ -76,9 +76,9 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 0 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 1 ) ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 2 ) ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
 
     final Entity entity1 = findOrCreateEntity( A.class, 1 );
 
@@ -87,8 +87,8 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 2 ) ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
 
     final Entity entity2 =
       safeAction( () -> context.getEntityService().findOrCreateEntity( "Super-dee-duper", A.class, 2 ) );
@@ -99,7 +99,7 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
 
     final Entity entity3 = findOrCreateEntity( B.class, 47 );
 
@@ -115,7 +115,7 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 2 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 1 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 1 ) ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 ) );
 
@@ -124,8 +124,8 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 1 ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 1 ) ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 2 ) ) );
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), entity3 ) );
 
     Disposable.dispose( entity3 );
@@ -133,9 +133,9 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 0 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( B.class ).size(), 0 ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 1 ), null ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), null ) );
-    safeAction( () -> assertEquals( context.findEntityByTypeAndId( B.class, 47 ), null ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 1 ) ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 2 ) ) );
+    safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
   }
 
   @Test
@@ -159,9 +159,9 @@ public class ReplicantContextTest
       assertEquals( context.getTypeSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 0 );
-      assertEquals( context.findSubscription( address1 ), null );
-      assertEquals( context.findSubscription( address2 ), null );
-      assertEquals( context.findSubscription( address3 ), null );
+      assertNull( context.findSubscription( address1 ) );
+      assertNull( context.findSubscription( address2 ) );
+      assertNull( context.findSubscription( address3 ) );
 
       final Subscription subscription1 = createSubscription( address1, filter1, explicitSubscription1 );
 
@@ -173,8 +173,8 @@ public class ReplicantContextTest
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 0 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
-      assertEquals( context.findSubscription( address2 ), null );
-      assertEquals( context.findSubscription( address3 ), null );
+      assertNull( context.findSubscription( address2 ) );
+      assertNull( context.findSubscription( address3 ) );
 
       final Subscription subscription2 = createSubscription( address2, filter2, explicitSubscription2 );
 
@@ -187,7 +187,7 @@ public class ReplicantContextTest
       assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 1 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
       assertEquals( context.findSubscription( address2 ), subscription2 );
-      assertEquals( context.findSubscription( address3 ), null );
+      assertNull( context.findSubscription( address3 ) );
 
       final Subscription subscription3 = createSubscription( address3, filter3, explicitSubscription3 );
 
@@ -209,8 +209,8 @@ public class ReplicantContextTest
       assertEquals( context.getInstanceSubscriptions().size(), 0 );
       assertEquals( context.getInstanceSubscriptionIds( 1, 1 ).size(), 0 );
       assertEquals( context.findSubscription( address1 ), subscription1 );
-      assertEquals( context.findSubscription( address2 ), null );
-      assertEquals( context.findSubscription( address3 ), null );
+      assertNull( context.findSubscription( address2 ) );
+      assertNull( context.findSubscription( address3 ) );
     } );
   }
 
@@ -253,7 +253,7 @@ public class ReplicantContextTest
     safeAction( () -> {
       final SafeProcedure action = () -> {
       };
-      assertEquals( Replicant.context().getPreConvergeAction(), null );
+      assertNull( Replicant.context().getPreConvergeAction() );
       Replicant.context().setPreConvergeAction( action );
       assertEquals( Replicant.context().getPreConvergeAction(), action );
     } );
@@ -266,7 +266,7 @@ public class ReplicantContextTest
     safeAction( () -> {
       final SafeProcedure action = () -> {
       };
-      assertEquals( Replicant.context().getConvergeCompleteAction(), null );
+      assertNull( Replicant.context().getConvergeCompleteAction() );
       Replicant.context().setConvergeCompleteAction( action );
       assertEquals( Replicant.context().getConvergeCompleteAction(), action );
     } );
@@ -278,13 +278,13 @@ public class ReplicantContextTest
   {
     final ReplicantContext context = Replicant.context();
     safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
-    safeAction( () -> assertEquals( context.isActive(), true ) );
+    safeAction( () -> assertTrue( context.isActive() ) );
     context.deactivate();
     safeAction( () -> assertEquals( context.getState(), RuntimeState.DISCONNECTED ) );
-    safeAction( () -> assertEquals( context.isActive(), false ) );
+    safeAction( () -> assertFalse( context.isActive() ) );
     context.activate();
     safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
-    safeAction( () -> assertEquals( context.isActive(), true ) );
+    safeAction( () -> assertTrue( context.isActive() ) );
   }
 
   @Test
@@ -312,7 +312,7 @@ public class ReplicantContextTest
     final ReplicantContext context = Replicant.context();
     final CacheService cacheService = mock( CacheService.class );
 
-    assertEquals( context.getCacheService(), null );
+    assertNull( context.getCacheService() );
 
     context.setCacheService( cacheService );
 
@@ -320,7 +320,7 @@ public class ReplicantContextTest
 
     context.setCacheService( null );
 
-    assertEquals( context.getCacheService(), null );
+    assertNull( context.getCacheService() );
   }
 
   @Test

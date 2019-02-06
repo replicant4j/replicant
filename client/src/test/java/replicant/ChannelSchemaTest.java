@@ -26,7 +26,7 @@ public class ChannelSchemaTest
     assertEquals( channelSchema.getEntities().size(), 1 );
     assertEquals( channelSchema.getEntities().size(), 1 );
     assertEquals( channelSchema.findEntityById( 1 ), entity );
-    assertEquals( channelSchema.findEntityById( 0 ), null );
+    assertNull( channelSchema.findEntityById( 0 ) );
   }
 
   @Test
@@ -46,14 +46,14 @@ public class ChannelSchemaTest
     assertEquals( channelSchema.getId(), 1 );
     assertEquals( channelSchema.getName(), "MetaData" );
     assertEquals( channelSchema.toString(), "MetaData" );
-    assertEquals( channelSchema.isTypeChannel(), true );
-    assertEquals( channelSchema.isInstanceChannel(), false );
-    assertEquals( channelSchema.getInstanceType(), null );
+    assertTrue( channelSchema.isTypeChannel() );
+    assertFalse( channelSchema.isInstanceChannel() );
+    assertNull( channelSchema.getInstanceType() );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.NONE );
-    assertEquals( channelSchema.isCacheable(), false );
-    assertEquals( channelSchema.isExternal(), false );
+    assertFalse( channelSchema.isCacheable() );
+    assertFalse( channelSchema.isExternal() );
     assertEquals( channelSchema.getEntities().size(), 1 );
-    assertEquals( channelSchema.getEntities().contains( entity ), true );
+    assertTrue( channelSchema.getEntities().contains( entity ) );
   }
 
   @Test
@@ -71,12 +71,12 @@ public class ChannelSchemaTest
     assertEquals( channelSchema.getId(), 1 );
     assertEquals( channelSchema.getName(), "MetaData" );
     assertEquals( channelSchema.toString(), "MetaData" );
-    assertEquals( channelSchema.isTypeChannel(), false );
-    assertEquals( channelSchema.isInstanceChannel(), true );
+    assertFalse( channelSchema.isTypeChannel() );
+    assertTrue( channelSchema.isInstanceChannel() );
     assertEquals( channelSchema.getInstanceType(), String.class );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.NONE );
-    assertEquals( channelSchema.isCacheable(), false );
-    assertEquals( channelSchema.isExternal(), true );
+    assertFalse( channelSchema.isCacheable() );
+    assertTrue( channelSchema.isExternal() );
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ChannelSchemaTest
     assertEquals( channelSchema.getName(), name );
     assertEquals( channelSchema.toString(), name );
     assertEquals( channelSchema.isTypeChannel(), typeChannel );
-    assertEquals( channelSchema.isInstanceChannel(), true );
+    assertTrue( channelSchema.isInstanceChannel() );
     assertEquals( channelSchema.getInstanceType(), String.class );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC );
     assertEquals( channelSchema.isCacheable(), cacheable );
@@ -127,9 +127,9 @@ public class ChannelSchemaTest
     assertEquals( channelSchema.getId(), id );
     assertEquals( channelSchema.getName(), name );
     assertEquals( channelSchema.toString(), name );
-    assertEquals( channelSchema.isTypeChannel(), true );
-    assertEquals( channelSchema.isInstanceChannel(), false );
-    assertEquals( channelSchema.getInstanceType(), null );
+    assertTrue( channelSchema.isTypeChannel() );
+    assertFalse( channelSchema.isInstanceChannel() );
+    assertNull( channelSchema.getInstanceType() );
     assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.DYNAMIC );
     assertEquals( channelSchema.getFilter(), filter );
     assertEquals( channelSchema.isCacheable(), cacheable );

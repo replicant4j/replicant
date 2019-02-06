@@ -14,10 +14,10 @@ public class ChannelChangeTest
     final ChannelChange action = ChannelChange.create( 1, 2, ChannelChange.Action.ADD, null );
 
     assertEquals( action.getChannelId(), 1 );
-    assertEquals( action.hasSubChannelId(), true );
+    assertTrue( action.hasSubChannelId() );
     assertEquals( action.getSubChannelId(), 2 );
     assertEquals( action.getAction(), ChannelChange.Action.ADD );
-    assertEquals( action.getChannelFilter(), null );
+    assertNull( action.getChannelFilter() );
   }
 
   @SuppressWarnings( "ResultOfMethodCallIgnored" )
@@ -28,7 +28,7 @@ public class ChannelChangeTest
     final ChannelChange action = ChannelChange.create( 1, ChannelChange.Action.REMOVE, filter );
 
     assertEquals( action.getChannelId(), 1 );
-    assertEquals( action.hasSubChannelId(), false );
+    assertFalse( action.hasSubChannelId() );
     assertThrows( action::getSubChannelId );
     assertEquals( action.getAction(), ChannelChange.Action.REMOVE );
     assertEquals( action.getChannelFilter(), filter );

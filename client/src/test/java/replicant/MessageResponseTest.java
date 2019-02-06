@@ -22,11 +22,11 @@ public class MessageResponseTest
     final String rawJsonData = "";
     final MessageResponse action = new MessageResponse( rawJsonData );
     assertEquals( action.getRawJsonData(), rawJsonData );
-    assertEquals( action.isOob(), false );
+    assertFalse( action.isOob() );
 
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     assertEquals( action.getChannelAddCount(), 0 );
     assertEquals( action.getChannelUpdateCount(), 0 );
@@ -212,10 +212,10 @@ public class MessageResponseTest
     assertEquals( action.getRawJsonData(), rawJsonData );
     assertThrows( action::getChangeSet );
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     assertNull( action.getCompletionAction() );
 
@@ -228,12 +228,12 @@ public class MessageResponseTest
     assertEquals( request.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
-    assertEquals( action.getRawJsonData(), null );
+    assertNull( action.getRawJsonData() );
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), true );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertTrue( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     // Process entity changes
     {
@@ -241,51 +241,51 @@ public class MessageResponseTest
       action.changeProcessed( entities[ 0 ] );
       action.incEntityUpdateCount();
 
-      assertEquals( action.areEntityChangesPending(), true );
+      assertTrue( action.areEntityChangesPending() );
 
       assertEquals( action.nextEntityChange(), entityChanges[ 1 ] );
       action.incEntityRemoveCount();
 
-      assertEquals( action.areEntityChangesPending(), true );
+      assertTrue( action.areEntityChangesPending() );
 
       assertEquals( action.nextEntityChange(), entityChanges[ 2 ] );
       action.incEntityUpdateCount();
       action.changeProcessed( entities[ 2 ] );
 
-      assertEquals( action.areEntityChangesPending(), false );
+      assertFalse( action.areEntityChangesPending() );
 
-      assertEquals( action.nextEntityChange(), null );
+      assertNull( action.nextEntityChange() );
 
-      assertEquals( action.areEntityChangesPending(), false );
+      assertFalse( action.areEntityChangesPending() );
 
       assertEquals( action.getEntityUpdateCount(), 2 );
       assertEquals( action.getEntityRemoveCount(), 1 );
     }
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), true );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertTrue( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     // process links
     {
       assertEquals( action.nextEntityToLink(), entities[ 0 ] );
       action.incEntityLinkCount();
-      assertEquals( action.nextEntityToLink(), null );
+      assertNull( action.nextEntityToLink() );
       assertEquals( action.getEntityLinkCount(), 1 );
     }
 
-    assertEquals( action.areEntityLinksPending(), false );
+    assertFalse( action.areEntityLinksPending() );
 
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     action.markWorldAsValidated();
 
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), true );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertTrue( action.hasWorldBeenValidated() );
   }
 
   @Test
@@ -318,10 +318,10 @@ public class MessageResponseTest
     assertEquals( action.getRawJsonData(), rawJsonData );
     assertThrows( action::getChangeSet );
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     assertNull( action.getCompletionAction() );
 
@@ -332,27 +332,27 @@ public class MessageResponseTest
     assertEquals( request.getCompletionAction(), completionAction );
     assertEquals( action.getChangeSet(), changeSet );
     assertEquals( action.getRequest(), request );
-    assertEquals( action.getRawJsonData(), null );
+    assertNull( action.getRawJsonData() );
 
-    assertEquals( action.needsChannelChangesProcessed(), true );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertTrue( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     // processed as single block in caller
     action.markChannelActionsProcessed();
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     action.markWorldAsValidated();
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), true );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertTrue( action.hasWorldBeenValidated() );
   }
 
   @Test
@@ -378,28 +378,28 @@ public class MessageResponseTest
     assertEquals( action.getRawJsonData(), rawJsonData );
     assertThrows( action::getChangeSet );
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     action.recordChangeSet( changeSet, null );
 
     assertEquals( action.getChangeSet(), changeSet );
-    assertEquals( action.getRequest(), null );
-    assertEquals( action.getRawJsonData(), null );
+    assertNull( action.getRequest() );
+    assertNull( action.getRawJsonData() );
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), false );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.hasWorldBeenValidated() );
 
     action.markWorldAsValidated();
 
-    assertEquals( action.needsChannelChangesProcessed(), false );
-    assertEquals( action.areEntityChangesPending(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.hasWorldBeenValidated(), true );
+    assertFalse( action.needsChannelChangesProcessed() );
+    assertFalse( action.areEntityChangesPending() );
+    assertFalse( action.areEntityLinksPending() );
+    assertTrue( action.hasWorldBeenValidated() );
   }
 
   @Test

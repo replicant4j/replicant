@@ -25,9 +25,9 @@ public class ChangeSetTest
     assertEquals( changeSet.getRequestId(), (Integer) requestId );
     assertEquals( changeSet.getETag(), eTag );
     assertEquals( changeSet.getEntityChanges(), entityChanges );
-    assertEquals( changeSet.hasEntityChanges(), true );
+    assertTrue( changeSet.hasEntityChanges() );
     assertEquals( changeSet.getChannelChanges(), channelChanges );
-    assertEquals( changeSet.hasChannelChanges(), true );
+    assertTrue( changeSet.hasChannelChanges() );
 
     changeSet.validate();
   }
@@ -41,10 +41,10 @@ public class ChangeSetTest
       ChangeSet.create( sequence, null, null );
 
     assertEquals( changeSet.getSequence(), sequence );
-    assertEquals( changeSet.getRequestId(), null );
-    assertEquals( changeSet.getETag(), null );
-    assertEquals( changeSet.hasEntityChanges(), false );
-    assertEquals( changeSet.hasChannelChanges(), false );
+    assertNull( changeSet.getRequestId() );
+    assertNull( changeSet.getETag() );
+    assertFalse( changeSet.hasEntityChanges() );
+    assertFalse( changeSet.hasChannelChanges() );
 
     changeSet.validate();
   }

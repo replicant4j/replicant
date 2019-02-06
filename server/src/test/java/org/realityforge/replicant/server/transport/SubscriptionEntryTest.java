@@ -25,25 +25,25 @@ public class SubscriptionEntryTest
     final SubscriptionEntry entry = new SubscriptionEntry( cd1 );
 
     assertEquals( entry.getDescriptor(), cd1 );
-    assertEquals( entry.isExplicitlySubscribed(), false );
+    assertFalse( entry.isExplicitlySubscribed() );
     assertEquals( entry.getInwardSubscriptions().size(), 0 );
     assertEquals( entry.getOutwardSubscriptions().size(), 0 );
-    assertEquals( entry.canUnsubscribe(), true );
-    assertEquals( entry.getFilter(), null );
+    assertTrue( entry.canUnsubscribe() );
+    assertNull( entry.getFilter() );
 
     entry.setExplicitlySubscribed( true );
-    assertEquals( entry.isExplicitlySubscribed(), true );
-    assertEquals( entry.canUnsubscribe(), false );
+    assertTrue( entry.isExplicitlySubscribed() );
+    assertFalse( entry.canUnsubscribe() );
     entry.setExplicitlySubscribed( false );
-    assertEquals( entry.isExplicitlySubscribed(), false );
-    assertEquals( entry.canUnsubscribe(), true );
+    assertFalse( entry.isExplicitlySubscribed() );
+    assertTrue( entry.canUnsubscribe() );
 
     final JsonObject filter = Json.createObjectBuilder().build();
 
     entry.setFilter( filter );
     assertEquals( entry.getFilter(), filter );
     entry.setFilter( null );
-    assertEquals( entry.getFilter(), null );
+    assertNull( entry.getFilter() );
 
     // Deregister when there is none subscribed
     assertEquals( entry.deregisterOutwardSubscriptions( cd2 ), new ChannelAddress[ 0 ] );
@@ -51,53 +51,53 @@ public class SubscriptionEntryTest
 
     // Register incoming channels
     assertEquals( entry.registerInwardSubscriptions( cd2, cd3, cd4 ), new ChannelAddress[]{ cd2, cd3, cd4 } );
-    assertEquals( entry.canUnsubscribe(), false );
+    assertFalse( entry.canUnsubscribe() );
     assertEquals( entry.getInwardSubscriptions().size(), 3 );
-    assertEquals( entry.getInwardSubscriptions().contains( cd2 ), true );
-    assertEquals( entry.getInwardSubscriptions().contains( cd3 ), true );
-    assertEquals( entry.getInwardSubscriptions().contains( cd4 ), true );
-    assertEquals( entry.getInwardSubscriptions().contains( cd5 ), false );
+    assertTrue( entry.getInwardSubscriptions().contains( cd2 ) );
+    assertTrue( entry.getInwardSubscriptions().contains( cd3 ) );
+    assertTrue( entry.getInwardSubscriptions().contains( cd4 ) );
+    assertFalse( entry.getInwardSubscriptions().contains( cd5 ) );
     assertEquals( entry.getOutwardSubscriptions().size(), 0 );
 
     assertEquals( entry.registerInwardSubscriptions( cd2, cd3, cd4 ), new ChannelAddress[ 0 ] );
 
     //Deregister some of those incoming
     assertEquals( entry.deregisterInwardSubscriptions( cd2, cd3 ), new ChannelAddress[]{ cd2, cd3 } );
-    assertEquals( entry.canUnsubscribe(), false );
+    assertFalse( entry.canUnsubscribe() );
     assertEquals( entry.getInwardSubscriptions().size(), 1 );
-    assertEquals( entry.getInwardSubscriptions().contains( cd2 ), false );
-    assertEquals( entry.getInwardSubscriptions().contains( cd3 ), false );
-    assertEquals( entry.getInwardSubscriptions().contains( cd4 ), true );
-    assertEquals( entry.getInwardSubscriptions().contains( cd5 ), false );
+    assertFalse( entry.getInwardSubscriptions().contains( cd2 ) );
+    assertFalse( entry.getInwardSubscriptions().contains( cd3 ) );
+    assertTrue( entry.getInwardSubscriptions().contains( cd4 ) );
+    assertFalse( entry.getInwardSubscriptions().contains( cd5 ) );
     assertEquals( entry.getOutwardSubscriptions().size(), 0 );
 
     //Deregister the remaining
     assertEquals( entry.deregisterInwardSubscriptions( cd2, cd3, cd4 ), new ChannelAddress[]{ cd4 } );
-    assertEquals( entry.canUnsubscribe(), true );
+    assertTrue( entry.canUnsubscribe() );
     assertEquals( entry.getInwardSubscriptions().size(), 0 );
     assertEquals( entry.getOutwardSubscriptions().size(), 0 );
 
     //Register outgoing channels
     assertEquals( entry.registerOutwardSubscriptions( cd2, cd3, cd3, cd4 ), new ChannelAddress[]{ cd2, cd3, cd4 } );
-    assertEquals( entry.canUnsubscribe(), true );
+    assertTrue( entry.canUnsubscribe() );
     assertEquals( entry.getInwardSubscriptions().size(), 0 );
     assertEquals( entry.getOutwardSubscriptions().size(), 3 );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd2 ), true );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd3 ), true );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd4 ), true );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd5 ), false );
+    assertTrue( entry.getOutwardSubscriptions().contains( cd2 ) );
+    assertTrue( entry.getOutwardSubscriptions().contains( cd3 ) );
+    assertTrue( entry.getOutwardSubscriptions().contains( cd4 ) );
+    assertFalse( entry.getOutwardSubscriptions().contains( cd5 ) );
 
     assertEquals( entry.registerOutwardSubscriptions( cd2, cd3, cd3, cd4 ), new ChannelAddress[ 0 ] );
 
     //Deregister some outgoing
     assertEquals( entry.deregisterOutwardSubscriptions( cd2, cd3, cd3 ), new ChannelAddress[]{ cd2, cd3 } );
-    assertEquals( entry.canUnsubscribe(), true );
+    assertTrue( entry.canUnsubscribe() );
     assertEquals( entry.getInwardSubscriptions().size(), 0 );
     assertEquals( entry.getOutwardSubscriptions().size(), 1 );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd2 ), false );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd3 ), false );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd4 ), true );
-    assertEquals( entry.getOutwardSubscriptions().contains( cd5 ), false );
+    assertFalse( entry.getOutwardSubscriptions().contains( cd2 ) );
+    assertFalse( entry.getOutwardSubscriptions().contains( cd3 ) );
+    assertTrue( entry.getOutwardSubscriptions().contains( cd4 ) );
+    assertFalse( entry.getOutwardSubscriptions().contains( cd5 ) );
   }
 
   @Test

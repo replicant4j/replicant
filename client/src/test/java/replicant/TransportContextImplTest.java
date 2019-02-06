@@ -124,7 +124,7 @@ public class TransportContextImplTest
 
     assertTrue( context.isDisposed() );
 
-    assertEquals( context.getConnectionId(), null );
+    assertNull( context.getConnectionId() );
   }
 
   @Test

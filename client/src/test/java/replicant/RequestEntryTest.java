@@ -17,7 +17,7 @@ public class RequestEntryTest
 
     assertEquals( e.getRequestId(), requestId );
     assertEquals( e.getName(), requestKey );
-    assertEquals( e.isExpectingResults(), false );
+    assertFalse( e.isExpectingResults() );
     assertEquals( e.toString(), "Request(ABC.go)[Id=321]" );
   }
 
@@ -71,9 +71,9 @@ public class RequestEntryTest
   public void isExpectingResults()
   {
     final RequestEntry e = new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString() );
-    assertEquals( e.isExpectingResults(), false );
+    assertFalse( e.isExpectingResults() );
     e.setExpectingResults( true );
-    assertEquals( e.isExpectingResults(), true );
+    assertTrue( e.isExpectingResults() );
   }
 
   @Test
@@ -82,14 +82,14 @@ public class RequestEntryTest
     final RequestEntry e = new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString() );
 
     final SafeProcedure action = mock( SafeProcedure.class );
-    assertEquals( e.hasCompleted(), false );
-    assertEquals( e.getCompletionAction(), null );
+    assertFalse( e.hasCompleted() );
+    assertNull( e.getCompletionAction() );
 
     e.setNormalCompletion( true );
     e.setCompletionAction( action );
 
-    assertEquals( e.hasCompleted(), true );
-    assertEquals( e.isNormalCompletion(), true );
+    assertTrue( e.hasCompleted() );
+    assertTrue( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
   }
 
@@ -99,14 +99,14 @@ public class RequestEntryTest
     final RequestEntry e = new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString() );
 
     final SafeProcedure action = mock( SafeProcedure.class );
-    assertEquals( e.hasCompleted(), false );
-    assertEquals( e.getCompletionAction(), null );
+    assertFalse( e.hasCompleted() );
+    assertNull( e.getCompletionAction() );
 
     e.setNormalCompletion( false );
     e.setCompletionAction( action );
 
-    assertEquals( e.hasCompleted(), true );
-    assertEquals( e.isNormalCompletion(), false );
+    assertTrue( e.hasCompleted() );
+    assertFalse( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
   }
 
@@ -115,9 +115,9 @@ public class RequestEntryTest
   {
     final RequestEntry e = new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString() );
 
-    assertEquals( e.haveResultsArrived(), false );
+    assertFalse( e.haveResultsArrived() );
     e.markResultsAsArrived();
-    assertEquals( e.haveResultsArrived(), true );
+    assertTrue( e.haveResultsArrived() );
   }
 
   @Test

@@ -70,7 +70,7 @@ public class ReplicantSessionTest
 
     final ChannelAddress cd1 = new ChannelAddress( 1, null );
 
-    assertEquals( session.getETag( cd1 ), null );
+    assertNull( session.getETag( cd1 ) );
 
     session.setETag( cd1, "X" );
 

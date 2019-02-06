@@ -21,17 +21,16 @@ public class AreaOfInterestRequestTest
     assertEquals( entry.getCacheKey(), "1.2" );
     assertEquals( entry.toString(), "AreaOfInterestRequest[Type=ADD Address=1.2]" );
     assertEquals( entry.getFilter(), filter );
-    assertEquals( entry.match( action, address, filter ), true );
-    assertEquals( entry.match( action, address, "OtherFilter" ), false );
-    assertEquals( entry.match( AreaOfInterestRequest.Type.REMOVE, address, filter ), false );
-    assertEquals( entry.match( action, new ChannelAddress( 1, 3, ValueUtil.randomInt() ), filter ),
-                  false );
+    assertTrue( entry.match( action, address, filter ) );
+    assertFalse( entry.match( action, address, "OtherFilter" ) );
+    assertFalse( entry.match( AreaOfInterestRequest.Type.REMOVE, address, filter ) );
+    assertFalse( entry.match( action, new ChannelAddress( 1, 3, ValueUtil.randomInt() ), filter ) );
 
-    assertEquals( entry.isInProgress(), false );
+    assertFalse( entry.isInProgress() );
     entry.markAsInProgress();
-    assertEquals( entry.isInProgress(), true );
+    assertTrue( entry.isInProgress() );
     entry.markAsComplete();
-    assertEquals( entry.isInProgress(), false );
+    assertFalse( entry.isInProgress() );
   }
 
   @Test
@@ -75,8 +74,8 @@ public class AreaOfInterestRequestTest
 
     final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, null );
 
-    assertEquals( entry.match( action, address, null ), true );
-    assertEquals( entry.match( action, address, "OtherFilter" ), true );
-    assertEquals( entry.match( AreaOfInterestRequest.Type.ADD, address, null ), false );
+    assertTrue( entry.match( action, address, null ) );
+    assertTrue( entry.match( action, address, "OtherFilter" ) );
+    assertFalse( entry.match( AreaOfInterestRequest.Type.ADD, address, null ) );
   }
 }

@@ -18,7 +18,7 @@ public class SubscriptionTest
 
     assertEquals( subscription.getAddress(), address );
 
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
     safeAction( () -> assertEquals( subscription.getEntities().size(), 0 ) );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
   }
@@ -66,22 +66,22 @@ public class SubscriptionTest
     assertEquals( callCount.get(), 1 );
     assertEquals( findCallCount.get(), 1 );
     safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 0 ) );
-    safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), false ) );
+    safeAction( () -> assertFalse( subscription.findAllEntityTypes().contains( A.class ) ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 0 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
-    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertNull( subscription.findEntityByTypeAndId( A.class, 1 ) ) );
+    safeAction( () -> assertNull( subscription.findEntityByTypeAndId( A.class, 2 ) ) );
 
     safeAction( () -> subscription.linkSubscriptionToEntity( entity1 ) );
 
     assertEquals( callCount.get(), 2 );
     assertEquals( findCallCount.get(), 2 );
     safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
-    safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), true ) );
+    safeAction( () -> assertTrue( subscription.findAllEntityTypes().contains( A.class ) ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 1 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
     safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
-    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertNull( subscription.findEntityByTypeAndId( A.class, 2 ) ) );
 
     // Add second entity, finder no need to re-find
     safeAction( () -> subscription.linkSubscriptionToEntity( entity2 ) );
@@ -89,7 +89,7 @@ public class SubscriptionTest
     assertEquals( callCount.get(), 3 );
     assertEquals( findCallCount.get(), 2 );
     safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
-    safeAction( () -> assertEquals( subscription.findAllEntityTypes().contains( A.class ), true ) );
+    safeAction( () -> assertTrue( subscription.findAllEntityTypes().contains( A.class ) ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 2 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
     safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), entity1 ) );
@@ -114,7 +114,7 @@ public class SubscriptionTest
     safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 1 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 1 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
+    safeAction( () -> assertNull( subscription.findEntityByTypeAndId( A.class, 1 ) ) );
     safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
 
     // Removing entity 2, state is reset
@@ -125,8 +125,8 @@ public class SubscriptionTest
     safeAction( () -> assertEquals( subscription.findAllEntityTypes().size(), 0 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( A.class ).size(), 0 ) );
     safeAction( () -> assertEquals( subscription.findAllEntitiesByType( String.class ).size(), 0 ) );
-    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 1 ), null ) );
-    safeAction( () -> assertEquals( subscription.findEntityByTypeAndId( A.class, 2 ), null ) );
+    safeAction( () -> assertNull( subscription.findEntityByTypeAndId( A.class, 1 ) ) );
+    safeAction( () -> assertNull( subscription.findEntityByTypeAndId( A.class, 2 ) ) );
   }
 
   @Test

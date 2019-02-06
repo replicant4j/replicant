@@ -25,10 +25,10 @@ public class ChannelAddressTest
     final ChannelAddress address2 = new ChannelAddress( 1, 2, 2 );
     final ChannelAddress address3 = new ChannelAddress( 1, 1 );
 
-    assertEquals( address.equals( address ), true );
-    assertEquals( address.equals( new Object() ), false );
-    assertEquals( address.equals( address2 ), false );
-    assertEquals( address.equals( address3 ), false );
+    assertTrue( address.equals( address ) );
+    assertFalse( address.equals( new Object() ) );
+    assertFalse( address.equals( address2 ) );
+    assertFalse( address.equals( address3 ) );
   }
 
   @Test

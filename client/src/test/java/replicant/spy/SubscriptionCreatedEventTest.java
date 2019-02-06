@@ -30,7 +30,7 @@ public class SubscriptionCreatedEventTest
     assertEquals( data.get( "type" ), "Subscription.Created" );
     assertEquals( data.get( "channel.systemId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertEquals( data.get( "channel.id" ), null );
+    assertNull( data.get( "channel.id" ) );
     assertEquals( data.get( "channel.filter" ), filter );
     assertEquals( data.get( "explicitSubscription" ), true );
     assertEquals( data.size(), 6 );

@@ -76,7 +76,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
 
     assertEquals( connector.getReplicantRuntime(), runtime );
-    assertEquals( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ), true );
+    assertTrue( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ) );
 
     safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
 
@@ -96,12 +96,12 @@ public class ConnectorTest
     final Connector connector = createConnector( schema );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
-    assertEquals( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ), true );
+    assertTrue( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ) );
 
     Disposable.dispose( connector );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
-    assertEquals( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ), false );
+    assertFalse( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ) );
   }
 
   @Test
@@ -135,7 +135,7 @@ public class ConnectorTest
     connector.onConnection( ValueUtil.randomString() );
 
     // Connection not swapped yet but will do one MessageProcess completes
-    assertEquals( Disposable.isDisposed( subscription ), false );
+    assertFalse( Disposable.isDisposed( subscription ) );
     assertEquals( connector.getConnection(), connection );
     assertNotNull( connector.getPostMessageResponseAction() );
   }
@@ -158,21 +158,21 @@ public class ConnectorTest
     connector.recordSyncInFlight( true );
     connector.recordPendingResponseQueueEmpty( false );
 
-    assertEquals( Disposable.isDisposed( connection ), false );
+    assertFalse( Disposable.isDisposed( connection ) );
     assertEquals( connector.getConnection(), connection );
 
     final String newConnectionId = ValueUtil.randomString();
     connector.onConnection( newConnectionId );
 
-    assertEquals( Disposable.isDisposed( connection ), true );
+    assertTrue( Disposable.isDisposed( connection ) );
     assertEquals( connector.ensureConnection().getConnectionId(), newConnectionId );
 
     safeAction( () -> assertEquals( connector.getLastRxRequestId(), 0 ) );
     safeAction( () -> assertEquals( connector.getLastTxRequestId(), 0 ) );
     safeAction( () -> assertEquals( connector.getLastSyncRxRequestId(), 0 ) );
     safeAction( () -> assertEquals( connector.getLastSyncTxRequestId(), 0 ) );
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
-    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), true ) );
+    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
+    safeAction( () -> assertTrue( connector.isPendingResponseQueueEmpty() ) );
   }
 
   @Test
@@ -473,13 +473,13 @@ public class ConnectorTest
     connector.pauseMessageScheduler();
 
     assertEquals( connection.getUnparsedResponses().size(), 0 );
-    assertEquals( connector.isSchedulerActive(), false );
+    assertFalse( connector.isSchedulerActive() );
 
     connector.onMessageReceived( rawJsonData );
 
     assertEquals( connection.getUnparsedResponses().size(), 1 );
     assertEquals( connection.getUnparsedResponses().get( 0 ).getRawJsonData(), rawJsonData );
-    assertEquals( connector.isSchedulerActive(), true );
+    assertTrue( connector.isSchedulerActive() );
   }
 
   @Test
@@ -654,16 +654,16 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.onSubscribeStarted( address );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -685,8 +685,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Subscription subscription = createSubscription( address, null, true );
 
@@ -696,7 +696,7 @@ public class ConnectorTest
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -718,8 +718,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Throwable error = new Throwable();
 
@@ -728,7 +728,7 @@ public class ConnectorTest
     connector.onSubscribeFailed( address, error );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOAD_FAILED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertEquals( areaOfInterest.getError(), error ) );
 
     handler.assertEventCount( 2 );
@@ -752,8 +752,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Subscription subscription = createSubscription( address, null, true );
 
@@ -763,7 +763,7 @@ public class ConnectorTest
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADING );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -785,16 +785,16 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.onUnsubscribeCompleted( address );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -816,8 +816,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Throwable error = new Throwable();
 
@@ -826,8 +826,8 @@ public class ConnectorTest
     connector.onUnsubscribeFailed( address, error );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -850,8 +850,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Subscription subscription = createSubscription( address, null, true );
 
@@ -861,7 +861,7 @@ public class ConnectorTest
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -883,8 +883,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Subscription subscription = createSubscription( address, null, true );
 
@@ -894,7 +894,7 @@ public class ConnectorTest
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED );
     safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
@@ -916,8 +916,8 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), null ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), null ) );
+    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
+    safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
     final Throwable error = new Throwable();
 
@@ -949,19 +949,19 @@ public class ConnectorTest
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = ValueUtil.randomString();
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ), false );
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ) );
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, filter ),
                   -1 );
 
     final Connection connection = newConnection( connector );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ), false );
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ) );
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, filter ),
                   -1 );
 
     connection.requestSubscribe( address, filter );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ), true );
+    assertTrue( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ) );
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, filter ),
                   1 );
   }
@@ -971,7 +971,7 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
 
-    assertEquals( connector.getConnection(), null );
+    assertNull( connector.getConnection() );
 
     final Connection connection = newConnection( connector );
 
@@ -979,12 +979,12 @@ public class ConnectorTest
 
     assertEquals( connector.getConnection(), connection );
     assertEquals( connector.ensureConnection(), connection );
-    assertEquals( Disposable.isDisposed( subscription1 ), false );
+    assertFalse( Disposable.isDisposed( subscription1 ) );
 
     connector.onDisconnection();
 
-    assertEquals( connector.getConnection(), null );
-    assertEquals( Disposable.isDisposed( subscription1 ), true );
+    assertNull( connector.getConnection() );
+    assertTrue( Disposable.isDisposed( subscription1 ) );
   }
 
   @Test
@@ -1010,17 +1010,17 @@ public class ConnectorTest
     final Subscription subscription3 = createSubscription( new ChannelAddress( 2, 0, 1 ), null, true );
     final Subscription subscription4 = createSubscription( new ChannelAddress( 2, 0, 2 ), null, true );
 
-    assertEquals( Disposable.isDisposed( subscription1 ), false );
-    assertEquals( Disposable.isDisposed( subscription2 ), false );
-    assertEquals( Disposable.isDisposed( subscription3 ), false );
-    assertEquals( Disposable.isDisposed( subscription4 ), false );
+    assertFalse( Disposable.isDisposed( subscription1 ) );
+    assertFalse( Disposable.isDisposed( subscription2 ) );
+    assertFalse( Disposable.isDisposed( subscription3 ) );
+    assertFalse( Disposable.isDisposed( subscription4 ) );
 
     connector1.purgeSubscriptions();
 
-    assertEquals( Disposable.isDisposed( subscription1 ), true );
-    assertEquals( Disposable.isDisposed( subscription2 ), true );
-    assertEquals( Disposable.isDisposed( subscription3 ), false );
-    assertEquals( Disposable.isDisposed( subscription4 ), false );
+    assertTrue( Disposable.isDisposed( subscription1 ) );
+    assertTrue( Disposable.isDisposed( subscription2 ) );
+    assertFalse( Disposable.isDisposed( subscription3 ) );
+    assertFalse( Disposable.isDisposed( subscription4 ) );
   }
 
   @Test
@@ -1042,7 +1042,7 @@ public class ConnectorTest
 
     final boolean result0 = connector.progressMessages();
 
-    assertEquals( result0, true );
+    assertTrue( result0 );
     final Disposable schedulerLock0 = connector.getSchedulerLock();
     assertNotNull( schedulerLock0 );
 
@@ -1050,19 +1050,19 @@ public class ConnectorTest
 
     final boolean result1 = connector.progressMessages();
 
-    assertEquals( result1, true );
+    assertTrue( result1 );
     assertNull( connector.getSchedulerLock() );
     assertTrue( Disposable.isDisposed( schedulerLock0 ) );
 
     final boolean result2 = connector.progressMessages();
 
-    assertEquals( result2, true );
+    assertTrue( result2 );
     // Current message should be nulled and completed processing now
     assertNull( connection.getCurrentMessageResponse() );
 
     final boolean result3 = connector.progressMessages();
 
-    assertEquals( result3, false );
+    assertFalse( result3 );
     assertNull( connector.getSchedulerLock() );
   }
 
@@ -1088,7 +1088,7 @@ public class ConnectorTest
     assertNull( connector.getSchedulerLock() );
     assertEquals( callCount.get(), 0 );
 
-    assertEquals( connector.progressMessages(), true );
+    assertTrue( connector.progressMessages() );
 
     assertEquals( callCount.get(), 0 );
     assertNotNull( connector.getSchedulerLock() );
@@ -1099,7 +1099,7 @@ public class ConnectorTest
     } );
 
     // The rest of the message has been skipped as no connection left
-    assertEquals( connector.progressMessages(), false );
+    assertFalse( connector.progressMessages() );
 
     assertNull( connector.getSchedulerLock() );
     assertEquals( callCount.get(), 1 );
@@ -1120,7 +1120,7 @@ public class ConnectorTest
 
     final boolean result2 = connector.progressMessages();
 
-    assertEquals( result2, false );
+    assertFalse( result2 );
 
     assertNull( connector.getSchedulerLock() );
 
@@ -1141,13 +1141,13 @@ public class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), false );
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestSubscribe( address, null );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ), true );
+    assertTrue( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeRequestQueuedEvent.class, e -> assertEquals( e.getAddress(), address ) );
@@ -1172,13 +1172,13 @@ public class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.requestSubscriptionUpdate( address, null );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), true );
+    assertTrue( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateRequestQueuedEvent.class,
@@ -1204,7 +1204,7 @@ public class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ), false );
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscriptionUpdate( address, null ) );
@@ -1226,7 +1226,7 @@ public class ConnectorTest
 
     createSubscription( address, null, true );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), false );
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -1234,7 +1234,7 @@ public class ConnectorTest
 
     Thread.sleep( 100 );
 
-    assertEquals( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ), true );
+    assertTrue( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeRequestQueuedEvent.class,
@@ -1298,12 +1298,12 @@ public class ConnectorTest
     safeAction( () -> connector.updateSubscriptionForFilteredEntities( subscription1 ) );
 
     safeAction( () -> {
-      assertEquals( Disposable.isDisposed( entity1 ), true );
-      assertEquals( Disposable.isDisposed( entity2 ), true );
-      assertEquals( Disposable.isDisposed( entity3 ), false );
-      assertEquals( Disposable.isDisposed( entity4 ), false );
-      assertEquals( Disposable.isDisposed( entity5 ), false );
-      assertEquals( Disposable.isDisposed( entity6 ), false );
+      assertTrue( Disposable.isDisposed( entity1 ) );
+      assertTrue( Disposable.isDisposed( entity2 ) );
+      assertFalse( Disposable.isDisposed( entity3 ) );
+      assertFalse( Disposable.isDisposed( entity4 ) );
+      assertFalse( Disposable.isDisposed( entity5 ) );
+      assertFalse( Disposable.isDisposed( entity6 ) );
 
       assertEquals( subscription1.getEntities().size(), 1 );
       assertEquals( subscription1.findAllEntitiesByType( Integer.class ).size(), 0 );
@@ -1429,7 +1429,7 @@ public class ConnectorTest
     verify( updater, never() ).updateEntity( userObject2, data2 );
 
     assertEquals( response.getUpdatedEntities().size(), 1 );
-    assertEquals( response.getUpdatedEntities().contains( userObject1 ), true );
+    assertTrue( response.getUpdatedEntities().contains( userObject1 ) );
     assertEquals( response.getEntityUpdateCount(), 1 );
     assertEquals( response.getEntityRemoveCount(), 0 );
 
@@ -1443,12 +1443,12 @@ public class ConnectorTest
     verify( updater, times( 1 ) ).updateEntity( userObject2, data2 );
 
     assertEquals( response.getUpdatedEntities().size(), 2 );
-    assertEquals( response.getUpdatedEntities().contains( userObject1 ), true );
-    assertEquals( response.getUpdatedEntities().contains( userObject2 ), true );
+    assertTrue( response.getUpdatedEntities().contains( userObject1 ) );
+    assertTrue( response.getUpdatedEntities().contains( userObject2 ) );
     assertEquals( response.getEntityUpdateCount(), 2 );
     assertEquals( response.getEntityRemoveCount(), 1 );
-    assertEquals( Disposable.isDisposed( entity2 ), false );
-    assertEquals( Disposable.isDisposed( entity3 ), true );
+    assertFalse( Disposable.isDisposed( entity2 ) );
+    assertTrue( Disposable.isDisposed( entity3 ) );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -1601,11 +1601,11 @@ public class ConnectorTest
                                                                               AreaOfInterestRequest.Type.ADD,
                                                                               null ) );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.completeAreaOfInterestRequest();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
   }
 
   @Test
@@ -1624,13 +1624,13 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertFalse( response.needsChannelChangesProcessed() );
 
     final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
     final Subscription subscription =
@@ -1638,7 +1638,7 @@ public class ConnectorTest
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), false ) );
+    safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
@@ -1668,20 +1668,20 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.ADD, filter ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertFalse( response.needsChannelChangesProcessed() );
 
     final Subscription subscription =
       safeAction( () -> Replicant.context().findSubscription( address ) );
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
@@ -1716,14 +1716,14 @@ public class ConnectorTest
     connection.injectCurrentAreaOfInterestRequest( request );
     request.markAsInProgress();
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelAddCount(), 0 );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelAddCount(), 1 );
 
     final Subscription subscription =
@@ -1731,7 +1731,7 @@ public class ConnectorTest
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
@@ -1762,20 +1762,20 @@ public class ConnectorTest
 
     final Subscription initialSubscription = createSubscription( address, filter, true );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 1 );
 
     final Subscription subscription =
       safeAction( () -> Replicant.context().findSubscription( address ) );
     assertNull( subscription );
-    assertEquals( Disposable.isDisposed( initialSubscription ), true );
+    assertTrue( Disposable.isDisposed( initialSubscription ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionDisposedEvent.class,
@@ -1799,14 +1799,14 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
     handler.assertEventCount( 0 );
@@ -1852,20 +1852,20 @@ public class ConnectorTest
 
     final Subscription initialSubscription = createSubscription( address, oldFilter, true );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 0 );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
-    assertEquals( response.needsChannelChangesProcessed(), false );
+    assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 1 );
 
     final Subscription subscription =
       safeAction( () -> Replicant.context().findSubscription( address ) );
     assertNotNull( subscription );
-    assertEquals( Disposable.isDisposed( initialSubscription ), false );
+    assertFalse( Disposable.isDisposed( initialSubscription ) );
 
     handler.assertEventCount( 0 );
   }
@@ -1927,7 +1927,7 @@ public class ConnectorTest
       new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.UPDATE, newFilter ) };
     response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 0 );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -1935,7 +1935,7 @@ public class ConnectorTest
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
-    assertEquals( response.needsChannelChangesProcessed(), true );
+    assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 0 );
 
     assertEquals( exception.getMessage(),
@@ -1968,7 +1968,7 @@ public class ConnectorTest
 
     connector.removeExplicitSubscriptions( requests );
 
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
+    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
   }
 
   @Test
@@ -2017,10 +2017,10 @@ public class ConnectorTest
     connector.removeUnneededAddRequests( requests );
 
     assertEquals( requests.size(), 1 );
-    assertEquals( requests.contains( request2 ), true );
-    assertEquals( request1.isInProgress(), false );
-    assertEquals( request2.isInProgress(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    assertTrue( requests.contains( request2 ) );
+    assertFalse( request1.isInProgress() );
+    assertTrue( request2.isInProgress() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
   }
 
   @Test
@@ -2079,10 +2079,10 @@ public class ConnectorTest
     connector.removeUnneededRemoveRequests( requests );
 
     assertEquals( requests.size(), 1 );
-    assertEquals( requests.contains( request1 ), true );
-    assertEquals( request1.isInProgress(), true );
-    assertEquals( request2.isInProgress(), false );
-    assertEquals( request3.isInProgress(), false );
+    assertTrue( requests.contains( request1 ) );
+    assertTrue( request1.isInProgress() );
+    assertFalse( request2.isInProgress() );
+    assertFalse( request3.isInProgress() );
   }
 
   @Test
@@ -2163,11 +2163,11 @@ public class ConnectorTest
     connector.removeUnneededUpdateRequests( requests );
 
     assertEquals( requests.size(), 2 );
-    assertEquals( requests.contains( request1 ), true );
-    assertEquals( requests.contains( request2 ), true );
-    assertEquals( request1.isInProgress(), true );
-    assertEquals( request2.isInProgress(), true );
-    assertEquals( request3.isInProgress(), false );
+    assertTrue( requests.contains( request1 ) );
+    assertTrue( requests.contains( request2 ) );
+    assertTrue( request1.isInProgress() );
+    assertTrue( request2.isInProgress() );
+    assertFalse( request3.isInProgress() );
   }
 
   @Test
@@ -2200,7 +2200,7 @@ public class ConnectorTest
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connector.ensureConnection().setCurrentMessageResponse( response );
 
-    assertEquals( response.hasWorldBeenValidated(), false );
+    assertFalse( response.hasWorldBeenValidated() );
 
     final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity1 =
@@ -2214,7 +2214,7 @@ public class ConnectorTest
     assertEquals( exception.getMessage(),
                   "Replicant-0065: Entity failed to verify during validation process. Entity = MyEntity/1" );
 
-    assertEquals( response.hasWorldBeenValidated(), true );
+    assertTrue( response.hasWorldBeenValidated() );
   }
 
   @Test
@@ -2226,7 +2226,7 @@ public class ConnectorTest
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connector.ensureConnection().setCurrentMessageResponse( response );
 
-    assertEquals( response.hasWorldBeenValidated(), true );
+    assertTrue( response.hasWorldBeenValidated() );
 
     final EntityService entityService = Replicant.context().getEntityService();
     final Entity entity1 =
@@ -2236,7 +2236,7 @@ public class ConnectorTest
 
     connector.validateWorld();
 
-    assertEquals( response.hasWorldBeenValidated(), true );
+    assertTrue( response.hasWorldBeenValidated() );
   }
 
   @Test
@@ -2247,14 +2247,14 @@ public class ConnectorTest
     final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
     connector.ensureConnection().setCurrentMessageResponse( response );
 
-    assertEquals( response.hasWorldBeenValidated(), false );
+    assertFalse( response.hasWorldBeenValidated() );
 
     final EntityService entityService = Replicant.context().getEntityService();
     safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
 
     connector.validateWorld();
 
-    assertEquals( response.hasWorldBeenValidated(), true );
+    assertTrue( response.hasWorldBeenValidated() );
   }
 
   static class MyEntity
@@ -2299,14 +2299,14 @@ public class ConnectorTest
 
     connector.parseMessageResponse();
 
-    assertEquals( response.getRawJsonData(), null );
+    assertNull( response.getRawJsonData() );
     final ChangeSet changeSet = response.getChangeSet();
     assertNotNull( changeSet );
     assertEquals( changeSet.getSequence(), 1 );
     assertNull( response.getRequest() );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
   }
 
   @Test
@@ -2328,14 +2328,14 @@ public class ConnectorTest
 
     connector.parseMessageResponse();
 
-    assertEquals( response.getRawJsonData(), null );
+    assertNull( response.getRawJsonData() );
     final ChangeSet changeSet = response.getChangeSet();
     assertNotNull( changeSet );
     assertEquals( changeSet.getSequence(), 1 );
     assertEquals( response.getRequest(), request.getEntry() );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
   }
 
   @Test
@@ -2378,14 +2378,14 @@ public class ConnectorTest
 
     connector.parseMessageResponse();
 
-    assertEquals( response.getRawJsonData(), null );
+    assertNull( response.getRawJsonData() );
     final ChangeSet changeSet = response.getChangeSet();
     assertNotNull( changeSet );
     assertEquals( changeSet.getSequence(), 1 );
     assertEquals( response.getRequest(), request.getEntry() );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
 
     final String cacheKey = "RC-1.0";
     final CacheEntry entry = cacheService.lookup( cacheKey );
@@ -2450,14 +2450,14 @@ public class ConnectorTest
 
     connector.parseMessageResponse();
 
-    assertEquals( response.getRawJsonData(), null );
+    assertNull( response.getRawJsonData() );
     final ChangeSet changeSet = response.getChangeSet();
     assertNotNull( changeSet );
     assertEquals( changeSet.getSequence(), 1 );
     assertNull( response.getRequest() );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
   }
 
   @Test
@@ -2499,8 +2499,8 @@ public class ConnectorTest
     connector.completeMessageResponse();
 
     assertEquals( connection.getLastRxSequence(), 23 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
-    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), true ) );
+    assertNull( connection.getCurrentMessageResponse() );
+    safeAction( () -> assertTrue( connector.isPendingResponseQueueEmpty() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2533,8 +2533,8 @@ public class ConnectorTest
     connector.completeMessageResponse();
 
     assertEquals( connection.getLastRxSequence(), 23 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
-    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), true ) );
+    assertNull( connection.getCurrentMessageResponse() );
+    safeAction( () -> assertTrue( connector.isPendingResponseQueueEmpty() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2563,7 +2563,7 @@ public class ConnectorTest
 
     connector.completeMessageResponse();
 
-    safeAction( () -> assertEquals( connector.isPendingResponseQueueEmpty(), false ) );
+    safeAction( () -> assertFalse( connector.isPendingResponseQueueEmpty() ) );
   }
 
   @Test
@@ -2613,7 +2613,7 @@ public class ConnectorTest
 
     assertEquals( completionCallCount.get(), 1 );
     assertEquals( connection.getLastRxSequence(), 22 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2647,17 +2647,17 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( entry.haveResultsArrived(), false );
+    assertFalse( entry.haveResultsArrived() );
     assertEquals( completionCalled.get(), 0 );
     assertEquals( connection.getRequest( requestId ), entry );
 
     connector.completeMessageResponse();
 
-    assertEquals( entry.haveResultsArrived(), true );
+    assertTrue( entry.haveResultsArrived() );
     assertEquals( connection.getLastRxSequence(), 23 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
     assertEquals( completionCalled.get(), 1 );
-    assertEquals( connection.getRequest( requestId ), null );
+    assertNull( connection.getRequest( requestId ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2689,17 +2689,17 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( entry.haveResultsArrived(), false );
+    assertFalse( entry.haveResultsArrived() );
     assertEquals( completionCalled.get(), 0 );
     assertEquals( connection.getRequest( requestId ), entry );
 
     connector.completeMessageResponse();
 
-    assertEquals( entry.haveResultsArrived(), true );
+    assertTrue( entry.haveResultsArrived() );
     assertEquals( connection.getLastRxSequence(), 23 );
-    assertEquals( connection.getCurrentMessageResponse(), null );
+    assertNull( connection.getCurrentMessageResponse() );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), null );
+    assertNull( connection.getRequest( requestId ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2751,7 +2751,7 @@ public class ConnectorTest
 
     final MessageResponse response = connection.getUnparsedResponses().get( 0 );
     {
-      assertEquals( connection.getCurrentMessageResponse(), null );
+      assertNull( connection.getCurrentMessageResponse() );
       assertEquals( connection.getUnparsedResponses().size(), 1 );
 
       // Select response
@@ -2764,19 +2764,19 @@ public class ConnectorTest
     {
       assertEquals( response.getRawJsonData(), rawJsonData );
       assertThrows( response::getChangeSet );
-      assertEquals( response.needsParsing(), true );
+      assertTrue( response.needsParsing() );
       assertEquals( connection.getPendingResponses().size(), 0 );
 
       // Parse response
       assertTrue( connector.progressResponseProcessing() );
 
-      assertEquals( response.getRawJsonData(), null );
+      assertNull( response.getRawJsonData() );
       assertNotNull( response.getChangeSet() );
-      assertEquals( response.needsParsing(), false );
+      assertFalse( response.needsParsing() );
     }
 
     {
-      assertEquals( connection.getCurrentMessageResponse(), null );
+      assertNull( connection.getCurrentMessageResponse() );
       assertEquals( connection.getPendingResponses().size(), 1 );
 
       // Pickup parsed response and set it as current
@@ -2787,41 +2787,41 @@ public class ConnectorTest
     }
 
     {
-      assertEquals( response.needsChannelChangesProcessed(), true );
+      assertTrue( response.needsChannelChangesProcessed() );
 
       // Process Channel Changes in response
       assertTrue( connector.progressResponseProcessing() );
 
-      assertEquals( response.needsChannelChangesProcessed(), false );
+      assertFalse( response.needsChannelChangesProcessed() );
     }
 
     {
-      assertEquals( response.areEntityChangesPending(), true );
+      assertTrue( response.areEntityChangesPending() );
 
       when( creator.createEntity( anyInt(), any( EntityChangeData.class ) ) ).thenReturn( mock( Linkable.class ) );
 
       // Process Entity Changes in response
       assertTrue( connector.progressResponseProcessing() );
 
-      assertEquals( response.areEntityChangesPending(), false );
+      assertFalse( response.areEntityChangesPending() );
     }
 
     {
-      assertEquals( response.areEntityLinksPending(), true );
+      assertTrue( response.areEntityLinksPending() );
 
       // Process Entity Links in response
       assertTrue( connector.progressResponseProcessing() );
 
-      assertEquals( response.areEntityLinksPending(), false );
+      assertFalse( response.areEntityLinksPending() );
     }
 
     {
-      assertEquals( response.hasWorldBeenValidated(), false );
+      assertFalse( response.hasWorldBeenValidated() );
 
       // Validate World
       assertTrue( connector.progressResponseProcessing() );
 
-      assertEquals( response.hasWorldBeenValidated(), true );
+      assertTrue( response.hasWorldBeenValidated() );
     }
 
     {
@@ -2830,7 +2830,7 @@ public class ConnectorTest
       // Complete message
       assertTrue( connector.progressResponseProcessing() );
 
-      assertEquals( connection.getCurrentMessageResponse(), null );
+      assertNull( connection.getCurrentMessageResponse() );
     }
   }
 
@@ -2881,12 +2881,12 @@ public class ConnectorTest
                          any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestAddRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );
@@ -2897,7 +2897,7 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 2 );
@@ -2956,12 +2956,12 @@ public class ConnectorTest
                          any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestAddRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );
@@ -2972,7 +2972,7 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 2 );
@@ -3040,12 +3040,12 @@ public class ConnectorTest
                          any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestAddRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );
@@ -3054,14 +3054,14 @@ public class ConnectorTest
       assertEquals( e.getAddress(), address );
     } );
 
-    assertEquals( connector.isSchedulerActive(), false );
+    assertFalse( connector.isSchedulerActive() );
     assertEquals( connection.getOutOfBandResponses().size(), 0 );
 
     onCacheValid.get().call();
 
-    assertEquals( connector.isSchedulerActive(), true );
+    assertTrue( connector.isSchedulerActive() );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertEquals( connection.getOutOfBandResponses().size(), 1 );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
@@ -3115,12 +3115,12 @@ public class ConnectorTest
                          any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestAddRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );
@@ -3132,7 +3132,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 2 );
@@ -3192,9 +3192,9 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
-      assertEquals( addresses.contains( address3 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
+      assertTrue( addresses.contains( address3 ) );
       onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
       return null;
     } )
@@ -3205,15 +3205,15 @@ public class ConnectorTest
                              any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressBulkAreaOfInterestAddRequests( Arrays.asList( request1, request2, request3 ) );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 3 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
@@ -3231,10 +3231,10 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 6 );
     handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
@@ -3300,9 +3300,9 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
-      assertEquals( addresses.contains( address3 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
+      assertTrue( addresses.contains( address3 ) );
       onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
       return null;
     } )
@@ -3313,15 +3313,15 @@ public class ConnectorTest
                              any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressBulkAreaOfInterestAddRequests( Arrays.asList( request1, request2, request3 ) );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 3 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
@@ -3340,10 +3340,10 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 6 );
     handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
@@ -3409,14 +3409,14 @@ public class ConnectorTest
                          any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( request1 );
     connector.progressAreaOfInterestAddRequests( requests );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
@@ -3427,7 +3427,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
@@ -3469,13 +3469,13 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     // Pass in empty requests list to simulate that they are all filtered out
     connector.progressAreaOfInterestAddRequests( requests );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 0 );
   }
@@ -3522,8 +3522,8 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
       onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
       return null;
     } )
@@ -3534,7 +3534,7 @@ public class ConnectorTest
                              any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( request1 );
@@ -3542,7 +3542,7 @@ public class ConnectorTest
     connector.progressAreaOfInterestAddRequests( requests );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
@@ -3557,7 +3557,7 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 4 );
     handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
@@ -3618,13 +3618,13 @@ public class ConnectorTest
       .requestSubscriptionUpdate( eq( address ), eq( filter ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestUpdateRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
@@ -3634,8 +3634,8 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
@@ -3690,13 +3690,13 @@ public class ConnectorTest
       .requestSubscriptionUpdate( eq( address ), eq( filter ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestUpdateRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
@@ -3707,8 +3707,8 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
@@ -3767,9 +3767,9 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
-      assertEquals( addresses.contains( address3 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
+      assertTrue( addresses.contains( address3 ) );
       onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
       return null;
     } )
@@ -3780,15 +3780,15 @@ public class ConnectorTest
                                       any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressBulkAreaOfInterestUpdateRequests( Arrays.asList( request1, request2, request3 ) );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 3 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
@@ -3806,10 +3806,10 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 6 );
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
@@ -3875,9 +3875,9 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
-      assertEquals( addresses.contains( address3 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
+      assertTrue( addresses.contains( address3 ) );
       onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
       return null;
     } )
@@ -3888,15 +3888,15 @@ public class ConnectorTest
                                       any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressBulkAreaOfInterestUpdateRequests( Arrays.asList( request1, request2, request3 ) );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 3 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
@@ -3915,10 +3915,10 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 6 );
     handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
@@ -3983,15 +3983,15 @@ public class ConnectorTest
       .requestSubscriptionUpdate( eq( address1 ), eq( filter ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( request1 );
     connector.progressAreaOfInterestUpdateRequests( requests );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
@@ -4002,8 +4002,8 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
@@ -4045,13 +4045,13 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     // Pass in empty requests list to simulate that they are all filtered out
     connector.progressAreaOfInterestUpdateRequests( requests );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 0 );
   }
@@ -4100,8 +4100,8 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
       onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
       return null;
     } )
@@ -4112,7 +4112,7 @@ public class ConnectorTest
                                       any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( request1 );
@@ -4120,9 +4120,9 @@ public class ConnectorTest
     connector.progressAreaOfInterestUpdateRequests( requests );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
@@ -4137,9 +4137,9 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
 
     handler.assertEventCount( 4 );
     handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
@@ -4198,13 +4198,13 @@ public class ConnectorTest
       .requestUnsubscribe( eq( address ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRemoveRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
@@ -4214,8 +4214,8 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), false ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( UnsubscribeCompletedEvent.class, e -> {
@@ -4268,13 +4268,13 @@ public class ConnectorTest
       .requestUnsubscribe( eq( address ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRemoveRequest( request );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
@@ -4285,8 +4285,8 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription.isExplicitSubscription(), false ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
@@ -4344,9 +4344,9 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
-      assertEquals( addresses.contains( address3 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
+      assertTrue( addresses.contains( address3 ) );
       onSuccess.set( (SafeProcedure) i.getArguments()[ 1 ] );
       return null;
     } )
@@ -4354,15 +4354,15 @@ public class ConnectorTest
       .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressBulkAreaOfInterestRemoveRequests( Arrays.asList( request1, request2, request3 ) );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 3 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
@@ -4380,10 +4380,10 @@ public class ConnectorTest
 
     onSuccess.get().call();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), false ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), false ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertFalse( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertFalse( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 6 );
     handler.assertNextEvent( UnsubscribeCompletedEvent.class, e -> {
@@ -4448,9 +4448,9 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
-      assertEquals( addresses.contains( address3 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
+      assertTrue( addresses.contains( address3 ) );
       onFailure.set( (Consumer<Throwable>) i.getArguments()[ 2 ] );
       return null;
     } )
@@ -4458,15 +4458,15 @@ public class ConnectorTest
       .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressBulkAreaOfInterestRemoveRequests( Arrays.asList( request1, request2, request3 ) );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 3 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
@@ -4485,10 +4485,10 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), false ) );
-    safeAction( () -> assertEquals( subscription3.isExplicitSubscription(), false ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertFalse( subscription2.isExplicitSubscription() ) );
+    safeAction( () -> assertFalse( subscription3.isExplicitSubscription() ) );
 
     handler.assertEventCount( 6 );
     handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
@@ -4552,15 +4552,15 @@ public class ConnectorTest
       .requestUnsubscribe( eq( address1 ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( request1 );
     connector.progressAreaOfInterestRemoveRequests( requests );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
@@ -4571,8 +4571,8 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
@@ -4613,13 +4613,13 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     // Pass in empty requests list to simulate that they are all filtered out
     connector.progressAreaOfInterestRemoveRequests( requests );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 0 );
   }
@@ -4667,8 +4667,8 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertEquals( addresses.contains( address1 ), true );
-      assertEquals( addresses.contains( address2 ), true );
+      assertTrue( addresses.contains( address1 ) );
+      assertTrue( addresses.contains( address2 ) );
       onFailure.set( (Consumer<Throwable>) i.getArguments()[ 2 ] );
       return null;
     } )
@@ -4676,7 +4676,7 @@ public class ConnectorTest
       .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
     requests.add( request1 );
@@ -4684,9 +4684,9 @@ public class ConnectorTest
     connector.progressAreaOfInterestRemoveRequests( requests );
 
     assertEquals( callCount.get(), 1 );
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), true ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), true ) );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
@@ -4701,9 +4701,9 @@ public class ConnectorTest
     final Throwable error = new Throwable();
     onFailure.get().accept( error );
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
-    safeAction( () -> assertEquals( subscription1.isExplicitSubscription(), false ) );
-    safeAction( () -> assertEquals( subscription2.isExplicitSubscription(), false ) );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
+    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
+    safeAction( () -> assertFalse( subscription2.isExplicitSubscription() ) );
 
     handler.assertEventCount( 4 );
     handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
@@ -4743,11 +4743,11 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRequestProcessing();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), true );
+    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 0 );
   }
@@ -4786,11 +4786,11 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRequestProcessing();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 0 );
   }
@@ -4827,11 +4827,11 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRequestProcessing();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
@@ -4870,11 +4870,11 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRequestProcessing();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
@@ -4913,11 +4913,11 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     connector.progressAreaOfInterestRequestProcessing();
 
-    assertEquals( connection.getCurrentAreaOfInterestRequests().isEmpty(), false );
+    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
@@ -4931,30 +4931,30 @@ public class ConnectorTest
 
     connector.pauseMessageScheduler();
 
-    assertEquals( connector.isSchedulerPaused(), true );
-    assertEquals( connector.isSchedulerActive(), false );
+    assertTrue( connector.isSchedulerPaused() );
+    assertFalse( connector.isSchedulerActive() );
 
     connector.requestSubscribe( new ChannelAddress( 1, 0, 1 ), null );
 
-    assertEquals( connector.isSchedulerActive(), true );
+    assertTrue( connector.isSchedulerActive() );
 
     connector.resumeMessageScheduler();
 
-    assertEquals( connector.isSchedulerPaused(), false );
-    assertEquals( connector.isSchedulerActive(), false );
+    assertFalse( connector.isSchedulerPaused() );
+    assertFalse( connector.isSchedulerActive() );
 
     connector.pauseMessageScheduler();
 
-    assertEquals( connector.isSchedulerPaused(), true );
-    assertEquals( connector.isSchedulerActive(), false );
+    assertTrue( connector.isSchedulerPaused() );
+    assertFalse( connector.isSchedulerActive() );
 
     // No progress
-    assertEquals( connector.progressMessages(), false );
+    assertFalse( connector.progressMessages() );
 
     Disposable.dispose( connector );
 
-    assertEquals( connector.isSchedulerActive(), false );
-    assertEquals( connector.isSchedulerPaused(), true );
+    assertFalse( connector.isSchedulerActive() );
+    assertTrue( connector.isSchedulerPaused() );
 
     assertNull( connector.getSchedulerLock() );
   }
@@ -5156,7 +5156,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setSyncInFlight( true ) );
     connector.onInSync();
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( InSyncEvent.class,
@@ -5172,7 +5172,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setSyncInFlight( true ) );
     connector.onOutOfSync();
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( OutOfSyncEvent.class,
@@ -5189,7 +5189,7 @@ public class ConnectorTest
     safeAction( () -> connector.setSyncInFlight( true ) );
     final Throwable error = new Throwable();
     connector.onSyncError( error );
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SyncFailureEvent.class,
@@ -5207,9 +5207,9 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
     connector.requestSync();
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), true ) );
+    safeAction( () -> assertTrue( connector.isSyncInFlight() ) );
 
     verify( connector.getTransport() ).requestSync( any( SafeProcedure.class ),
                                                     any( SafeProcedure.class ),
@@ -5230,7 +5230,7 @@ public class ConnectorTest
 
     connector.maybeRequestSync();
 
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), false ) );
+    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     safeAction( () -> connector.setLastTxRequestId( 2 ) );
     safeAction( () -> connector.setLastRxRequestId( 2 ) );
@@ -5238,6 +5238,6 @@ public class ConnectorTest
 
     connector.maybeRequestSync();
 
-    safeAction( () -> assertEquals( connector.isSyncInFlight(), true ) );
+    safeAction( () -> assertTrue( connector.isSyncInFlight() ) );
   }
 }

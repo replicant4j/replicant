@@ -43,7 +43,7 @@ public class ConvergerTest
     final ReplicantContext context = Replicant.context();
     final Converger converger = context.getConverger();
     assertEquals( converger.getReplicantContext(), context );
-    assertEquals( getFieldValue( converger, "_context" ), null );
+    assertNull( getFieldValue( converger, "_context" ) );
   }
 
   @Test
@@ -946,7 +946,7 @@ public class ConvergerTest
   {
     final Converger converger = Replicant.context().getConverger();
 
-    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), true ) );
+    safeAction( () -> assertTrue( converger.allConnectorsSynchronized() ) );
   }
 
   @Test
@@ -958,7 +958,7 @@ public class ConvergerTest
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), true ) );
+    safeAction( () -> assertTrue( converger.allConnectorsSynchronized() ) );
   }
 
   @Test
@@ -971,7 +971,7 @@ public class ConvergerTest
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     safeAction( () -> connector.setLastTxRequestId( 1 ) );
 
-    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), false ) );
+    safeAction( () -> assertFalse( converger.allConnectorsSynchronized() ) );
   }
 
   @Test
@@ -987,7 +987,7 @@ public class ConvergerTest
     newConnection( connector2 );
     safeAction( () -> connector2.setState( ConnectorState.CONNECTED ) );
 
-    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), true ) );
+    safeAction( () -> assertTrue( converger.allConnectorsSynchronized() ) );
   }
 
   @Test
@@ -1004,6 +1004,6 @@ public class ConvergerTest
     newConnection( connector2 );
     safeAction( () -> connector2.setState( ConnectorState.CONNECTED ) );
 
-    safeAction( () -> assertEquals( converger.allConnectorsSynchronized(), false ) );
+    safeAction( () -> assertFalse( converger.allConnectorsSynchronized() ) );
   }
 }

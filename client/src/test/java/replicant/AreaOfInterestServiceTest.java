@@ -36,13 +36,13 @@ public class AreaOfInterestServiceTest
       assertNotNull( areaOfInterest1 );
 
       assertEquals( areaOfInterest1.getAddress(), address1 );
-      assertEquals( Disposable.isNotDisposed( areaOfInterest1 ), true );
+      assertTrue( Disposable.isNotDisposed( areaOfInterest1 ) );
 
       final Collection<AreaOfInterest> subscriptions = service.getAreasOfInterest();
       assertEquals( subscriptions.size(), 1 );
-      assertEquals( subscriptions.stream().anyMatch( n -> n.getAddress().equals( address1 ) ), true );
-      assertEquals( subscriptions.stream().anyMatch( n -> n.getAddress().equals( address2 ) ), false );
-      assertEquals( subscriptions.stream().anyMatch( n -> n.getAddress().equals( address3 ) ), false );
+      assertTrue( subscriptions.stream().anyMatch( n -> n.getAddress().equals( address1 ) ) );
+      assertFalse( subscriptions.stream().anyMatch( n -> n.getAddress().equals( address2 ) ) );
+      assertFalse( subscriptions.stream().anyMatch( n -> n.getAddress().equals( address3 ) ) );
 
       final Object newFilter = new Object();
       areaOfInterest1.setFilter( newFilter );
@@ -50,7 +50,7 @@ public class AreaOfInterestServiceTest
       assertEquals( areaOfInterest1.getFilter(), newFilter );
 
       Disposable.dispose( areaOfInterest1 );
-      assertEquals( Disposable.isDisposed( areaOfInterest1 ), true );
+      assertTrue( Disposable.isDisposed( areaOfInterest1 ) );
 
       assertEquals( service.getAreasOfInterest().size(), 0 );
     } );
