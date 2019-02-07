@@ -83,7 +83,7 @@ define 'replicant' do
         !project('shared').compile.dependencies.include?(dep[:artifact]) &&
         project('shared').package(:jar) != dep[:artifact] &&
         (dep[:group].to_s != 'com.google.elemental2' || %w(elemental2-dom elemental2-webstorage).include?(dep[:id].to_s)) &&
-        (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-arez).include?(dep[:id].to_s)) &&
+        (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-core).include?(dep[:id].to_s)) &&
         (dep[:group].to_s != 'org.realityforge.arez' || %w(arez-entity).include?(dep[:id].to_s)) &&
         dep[:group].to_s != 'com.google.jsinterop' &&
         dep[:group].to_s != 'org.realityforge.braincheck'
