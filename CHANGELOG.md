@@ -9,6 +9,9 @@
   in `NOT_ASKED` or `LOADING` state.
 * Avoid dropping subscription requests in the `Connector` when the request is upgrading an
   implicit subscription to an explicit subscription.
+* Fix `Converger` so that `AreaOfInterest` instances that match an existing subscription will only
+  have their status updated if the existing subscription is explicit, otherwise the normal
+  "request subscription" process will be initiated.
 
 ### [v6.27](https://github.com/realityforge/replicant/tree/v6.27) (2019-02-04)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.26...v6.27)

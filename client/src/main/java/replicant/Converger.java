@@ -280,11 +280,21 @@ abstract class Converger
         {
           /*
            * The AreaOfInterest was added but an existing subscription matched it exactly.
-           * All we have to do us update the status of AreaOfInterest
+           * If the subscription is explicitly subscribed then just update the status of
+           * the AreaOfInterest, otherwise request subscription so that the server is aware
+           * of the explicit subscription.
            */
           if ( AreaOfInterest.Status.NOT_ASKED == areaOfInterest.getStatus() )
           {
-            areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
+            if ( subscription.isExplicitSubscription() )
+            {
+              areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
+            }
+            else
+            {
+              connector.requestSubscribe( address, filter );
+              return Action.SUBMITTED_ADD;
+            }
           }
         }
       }
