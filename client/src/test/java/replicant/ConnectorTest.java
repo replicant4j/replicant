@@ -1994,60 +1994,6 @@ public class ConnectorTest
   }
 
   @Test
-  public void removeUnneededAddRequests_upgradeExisting()
-  {
-    final Connector connector = createConnector();
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, null );
-    requests.add( request1 );
-    requests.add( request2 );
-
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
-
-    // Address1 is implicitly subscribed
-    final Subscription subscription1 = createSubscription( address1, null, false );
-
-    connector.removeUnneededAddRequests( requests );
-
-    assertEquals( requests.size(), 1 );
-    assertTrue( requests.contains( request2 ) );
-    assertFalse( request1.isInProgress() );
-    assertTrue( request2.isInProgress() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-  }
-
-  @Test
-  public void removeUnneededAddRequests_explicitAlreadyPresent()
-  {
-    final Connector connector = createConnector();
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null );
-    requests.add( request1 );
-
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
-
-    createSubscription( address1, null, true );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> safeAction( () -> connector.removeUnneededAddRequests( requests ) ) );
-
-    assertEquals( exception.getMessage(),
-                  "Replicant-0030: Request to add channel at address 1.1.1 but already explicitly subscribed to channel." );
-  }
-
-  @Test
   public void removeUnneededRemoveRequests_whenInvariantsDisabled()
   {
     final Connector connector = createConnector();

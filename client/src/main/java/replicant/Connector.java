@@ -906,32 +906,6 @@ abstract class Connector
   }
 
   @Action( verifyRequired = false )
-  protected void removeUnneededAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
-  {
-    requests.removeIf( request -> {
-      final ChannelAddress address = request.getAddress();
-      final Subscription subscription = getReplicantContext().findSubscription( address );
-      if ( Replicant.shouldCheckInvariants() )
-      {
-        invariant( () -> null == subscription || !subscription.isExplicitSubscription(),
-                   () -> "Replicant-0030: Request to add channel at address " + address +
-                         " but already explicitly subscribed to channel." );
-      }
-      if ( null != subscription && !subscription.isExplicitSubscription() )
-      {
-        // Existing subscription converted to an explicit subscription
-        subscription.setExplicitSubscription( true );
-        request.markAsComplete();
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    } );
-  }
-
-  @Action( verifyRequired = false )
   protected void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( a -> {
@@ -1194,8 +1168,11 @@ abstract class Connector
 
   final void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
-    removeUnneededAddRequests( requests );
-
+    // We very deliberately do not strip out requests even if there is a local subscription.
+    // If the local subscription matched exactly the request would not make it to here and
+    // if we are converting an implicit subscription to an explicit subscription then we need
+    // to let it flow through to backend so that the backend knows that the subscription has
+    // been upgraded to explicit.
     if ( requests.isEmpty() )
     {
       completeAreaOfInterestRequest();
