@@ -117,11 +117,9 @@ public abstract class AreaOfInterest
   @Action
   void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
   {
-    final boolean expectSubscription = shouldExpectSubscription( status );
     if ( Replicant.shouldCheckApiInvariants() )
     {
       final boolean expectError = Status.LOAD_FAILED == status || Status.UPDATE_FAILED == status;
-      final Subscription subscription = getReplicantContext().findSubscription( getAddress() );
 
       final ChannelAddress address = getAddress();
       apiInvariant( () -> !expectError || null != error,
@@ -131,7 +129,11 @@ public abstract class AreaOfInterest
       apiInvariant( () -> expectError || null == error,
                     () -> "Replicant-0017: Invoked updateAreaOfInterest for channel at address " +
                           address + " with status " + status + " and supplied an unexpected error." );
-      apiInvariant( () -> expectSubscription || null == subscription,
+      // It is fine to get here where status == LOADING or NOT_ASKED but a subscription is already present.
+      // as this is part of the process that notifies back-end of upgrade of implicit subscription to explicit
+      // subscription
+      apiInvariant( () -> !shouldExpectNoSubscription( status ) ||
+                          null == getReplicantContext().findSubscription( getAddress() ),
                     () -> "Replicant-0019: Invoked updateAreaOfInterest for channel at address " +
                           address + " with status " + status + " and found unexpected subscription in the context." );
     }
@@ -144,6 +146,9 @@ public abstract class AreaOfInterest
     }
   }
 
+  /**
+   * @see #shouldExpectNoSubscription(Status)
+   */
   private boolean shouldExpectSubscription( @Nonnull final Status status )
   {
     return Status.LOADED == status ||
@@ -151,6 +156,17 @@ public abstract class AreaOfInterest
            Status.UPDATING == status ||
            Status.UPDATE_FAILED == status ||
            Status.UNLOADING == status;
+  }
+
+  /**
+   * Return true when status indicates that there should defiantly not be a subscription present.
+   * Note that {@link #shouldExpectSubscription(Status)} combined with this method does not cover all
+   * statuses. In particular NOT_ASKED and LOADING can potentially have a subscription when we are working
+   * through the process of notifyin server of explicit subscription when there is a local implicit subscription.
+   */
+  private boolean shouldExpectNoSubscription( @Nonnull final Status status )
+  {
+    return Status.UNLOADED == status;
   }
 
   @Override

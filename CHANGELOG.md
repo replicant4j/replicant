@@ -4,6 +4,9 @@
 
 * Update the `org.realityforge.arez` dependencies to version `0.128`.
 * Update the `org.realityforge.react4j` dependencies to version `0.117`.
+* Avoid invariant failure when updating the status of a `AreaOfInterest` for a subscription that
+  is implicitly subscribed and is in the process of being explicitly subscribed but is currently
+  in `NOT_ASKED` or `LOADING` state.
 
 ### [v6.27](https://github.com/realityforge/replicant/tree/v6.27) (2019-02-04)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v6.26...v6.27)

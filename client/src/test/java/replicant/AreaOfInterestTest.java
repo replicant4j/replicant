@@ -239,6 +239,20 @@ public class AreaOfInterestTest
   }
 
   @Test
+  public void updateAreaOfInterest_subscription_when_NOT_ASKED()
+  {
+    pauseScheduler();
+    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+
+    createSubscription( aoi.getAddress(), null, true );
+
+    aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null );
+    assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED );
+    safeAction( () -> assertNull( aoi.getSubscription() ) );
+    safeAction( () -> assertNull( aoi.getError() ) );
+  }
+
+  @Test
   public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
     pauseScheduler();
