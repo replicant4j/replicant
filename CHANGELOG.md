@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Fix pom for `replicant-client` so that it includes `react4j` dependency.
+* Update project to reflect migration to `replicant4j/replicant` project.
 
 ### [v6.28](https://github.com/replicant4j/replicant/tree/v6.28) (2019-02-07)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.27...v6.28)
