@@ -152,8 +152,8 @@ public abstract class AreaOfInterest
   private boolean shouldExpectSubscription( @Nonnull final Status status )
   {
     return Status.LOADED == status ||
-           Status.UPDATED == status ||
            Status.UPDATING == status ||
+           Status.UPDATED == status ||
            Status.UPDATE_FAILED == status ||
            Status.UNLOADING == status;
   }
