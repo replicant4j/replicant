@@ -1,8 +1,8 @@
 # Replicant
 
-[![Build Status](https://secure.travis-ci.org/realityforge/replicant.svg?branch=master)](http://travis-ci.org/realityforge/replicant)
+[![Build Status](https://secure.travis-ci.org/replicant4j/replicant.svg?branch=master)](http://travis-ci.org/replicant4j/replicant)
 [<img src="https://img.shields.io/maven-central/v/org.realityforge.replicant/replicant-client.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.replicant%22%20a%3A%22replicant-client%22)
-[![codecov](https://codecov.io/gh/realityforge/replicant/branch/master/graph/badge.svg)](https://codecov.io/gh/realityforge/replicant)
+[![codecov](https://codecov.io/gh/replicant4j/replicant/branch/master/graph/badge.svg)](https://codecov.io/gh/replicant4j/replicant)
 
 The replicant library aims to provide infrastructure for replicating a portion of a complex server-side
 domain model to zero or more clients who have subscribed to the replication engine. When changes are
