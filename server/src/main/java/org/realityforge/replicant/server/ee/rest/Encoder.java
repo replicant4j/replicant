@@ -216,13 +216,14 @@ final class Encoder
     }
   }
 
-  private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
+  private static void emitChannelDescriptors( @Nonnull final SystemMetaData systemMetaData,
+                                              @Nonnull final JsonGenerator g,
                                               @Nonnull final Set<ChannelAddress> addresses )
   {
     for ( final ChannelAddress address : addresses )
     {
       g.writeStartObject();
-      emitChannelDescriptor( g, address );
+      emitChannelDescriptor( systemMetaData, g, address );
       g.writeEnd();
     }
   }
@@ -235,9 +236,8 @@ final class Encoder
   {
     g.writeStartObject();
     final ChannelMetaData channelMetaData = systemMetaData.getChannelMetaData( entry.getDescriptor() );
-    g.write( "name", channelMetaData.getName() );
     g.write( "url", getChannelURL( session, entry.getDescriptor(), uri ) );
-    emitChannelDescriptor( g, entry.getDescriptor() );
+    emitChannelDescriptor( systemMetaData, g, entry.getDescriptor() );
     g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
     if ( channelMetaData.getFilterType() != ChannelMetaData.FilterType.NONE )
     {
@@ -252,26 +252,29 @@ final class Encoder
       }
     }
 
-    emitChannelDescriptors( g, "inwardSubscriptions", entry.getInwardSubscriptions() );
-    emitChannelDescriptors( g, "outwardSubscriptions", entry.getOutwardSubscriptions() );
+    emitChannelDescriptors( systemMetaData, g, "inwardSubscriptions", entry.getInwardSubscriptions() );
+    emitChannelDescriptors( systemMetaData, g, "outwardSubscriptions", entry.getOutwardSubscriptions() );
     g.writeEnd();
   }
 
-  private static void emitChannelDescriptor( @Nonnull final JsonGenerator g,
+  private static void emitChannelDescriptor( @Nonnull final SystemMetaData systemMetaData,
+                                             @Nonnull final JsonGenerator g,
                                              @Nonnull final ChannelAddress address )
   {
+    g.write( "name", systemMetaData.getChannelMetaData( address.getChannelId() ).getName() );
     emitChannelId( g, address.getChannelId() );
     emitSubChannelId( g, address.getSubChannelId() );
   }
 
-  private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
+  private static void emitChannelDescriptors( @Nonnull final SystemMetaData systemMetaData,
+                                              @Nonnull final JsonGenerator g,
                                               @Nonnull final String key,
                                               @Nonnull final Set<ChannelAddress> addresses )
   {
     if ( !addresses.isEmpty() )
     {
       g.writeStartArray( key );
-      emitChannelDescriptors( g, addresses );
+      emitChannelDescriptors( systemMetaData, g, addresses );
       g.writeEnd();
     }
   }
