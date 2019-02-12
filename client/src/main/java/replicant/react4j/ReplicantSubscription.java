@@ -201,6 +201,9 @@ public abstract class ReplicantSubscription<T>
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
     if ( null != areaOfInterest )
     {
+      // Need to null out AreaOfInterest so that when we cascade dispose (which is SET_NULL)
+      // we wont try to invoke an action during dispose of AreaOfInterest which generates an error
+      setAreaOfInterest( null );
       Disposable.dispose( areaOfInterest );
     }
   }
