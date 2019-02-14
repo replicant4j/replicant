@@ -1,13 +1,8 @@
 package replicant;
 
-import arez.ArezContext;
-import arez.Component;
 import arez.Disposable;
 import arez.ObservableValue;
 import arez.annotations.ArezComponent;
-import arez.annotations.ComponentNameRef;
-import arez.annotations.ComponentRef;
-import arez.annotations.ContextRef;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
@@ -48,33 +43,6 @@ abstract class SubscriptionService
   {
     super( context );
   }
-
-  /**
-   * Return the context associated with the service.
-   *
-   * @return the context associated with the service.
-   */
-  @ContextRef
-  @Nonnull
-  abstract ArezContext getContext();
-
-  /**
-   * Return the name associated with the service.
-   *
-   * @return the name associated with the service.
-   */
-  @ComponentNameRef
-  @Nonnull
-  abstract String getComponentName();
-
-  /**
-   * Return the component associated with service if native components enabled.
-   *
-   * @return the component associated with service if native components enabled.
-   */
-  @ComponentRef
-  @Nonnull
-  abstract Component component();
 
   /**
    * Return the collection of type subscriptions.

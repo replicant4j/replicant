@@ -4,6 +4,8 @@
 
 * Update the `org.realityforge.arez` dependencies to version `0.130`.
 * Update the `org.realityforge.react4j` dependencies to version `0.119`.
+* Remove the unused `@*Ref` annotated methods `getContext()`, `getComponentName()`
+  and `component()` from `SubscriptionService` and `ReplicantRuntime`.
 
 ### [v6.29](https://github.com/replicant4j/replicant/tree/v6.29) (2019-02-12)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.28...v6.29)
