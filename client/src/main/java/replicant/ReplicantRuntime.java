@@ -14,14 +14,14 @@ import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
 import arez.annotations.Observe;
 import arez.component.CollectionsUtil;
-import arez.component.DisposeTrackable;
+import arez.component.DisposeNotifier;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent( deferSchedule = true, disposeTrackable = Feature.DISABLE )
+@ArezComponent( deferSchedule = true, disposeNotifier = Feature.DISABLE )
 abstract class ReplicantRuntime
 {
   private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();
@@ -46,9 +46,8 @@ abstract class ReplicantRuntime
     getConnectorsObservableValue().preReportChanged();
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     _connectors.add( entry );
-    DisposeTrackable
-      .asDisposeTrackable( connector )
-      .getNotifier()
+    DisposeNotifier
+      .asDisposeNotifier( connector )
       .addOnDisposeListener( this, () -> deregisterConnector( connector ) );
     getConnectorsObservableValue().reportChanged();
   }
@@ -70,9 +69,8 @@ abstract class ReplicantRuntime
                        connector.getSchema().getName() + "' but no Connector for specified schema exists." );
     }
     _connectors.removeIf( e -> e.getConnector().getSchema().getId() == connector.getSchema().getId() );
-    DisposeTrackable
-      .asDisposeTrackable( connector )
-      .getNotifier()
+    DisposeNotifier
+      .asDisposeNotifier( connector )
       .removeOnDisposeListener( this );
   }
 

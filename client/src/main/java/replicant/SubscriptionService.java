@@ -14,7 +14,7 @@ import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
-import arez.component.DisposeTrackable;
+import arez.component.DisposeNotifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A class that records the subscriptions within the system.
  */
-@ArezComponent( disposeTrackable = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE )
 abstract class SubscriptionService
   extends ReplicantService
 {
@@ -172,9 +172,8 @@ abstract class SubscriptionService
                            address,
                            filter,
                            explicitSubscription );
-    DisposeTrackable
-      .asDisposeTrackable( subscription )
-      .getNotifier()
+    DisposeNotifier
+      .asDisposeNotifier( subscription )
       .addOnDisposeListener( this, () -> destroy( subscription ) );
     if ( null == id )
     {
@@ -206,10 +205,7 @@ abstract class SubscriptionService
 
   private void detachSubscription( @Nonnull final Subscription subscription )
   {
-    DisposeTrackable
-      .asDisposeTrackable( subscription )
-      .getNotifier()
-      .removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( subscription ).removeOnDisposeListener( this );
   }
 
   /**

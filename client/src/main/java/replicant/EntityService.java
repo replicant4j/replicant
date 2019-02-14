@@ -8,7 +8,7 @@ import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
-import arez.component.DisposeTrackable;
+import arez.component.DisposeNotifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The container of Entity instances within replicant system.
  */
-@ArezComponent( disposeTrackable = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE )
 abstract class EntityService
   extends ReplicantService
 {
@@ -174,9 +174,8 @@ abstract class EntityService
   {
     getEntitiesObservableValue().preReportChanged();
     final Entity entity = Entity.create( Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id );
-    DisposeTrackable
-      .asDisposeTrackable( entity )
-      .getNotifier()
+    DisposeNotifier
+      .asDisposeNotifier( entity )
       .addOnDisposeListener( this, () -> destroy( entity ) );
     typeMap.put( id, entity );
     getEntitiesObservableValue().reportChanged();
@@ -191,9 +190,6 @@ abstract class EntityService
 
   private void detachEntity( @Nonnull final Entity entity )
   {
-    DisposeTrackable
-      .asDisposeTrackable( entity )
-      .getNotifier()
-      .removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this );
   }
 }

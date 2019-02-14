@@ -9,7 +9,7 @@ import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
-import arez.component.DisposeTrackable;
+import arez.component.DisposeNotifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -196,9 +196,8 @@ public abstract class Subscription
                                         @Nonnull final Entity entity )
   {
     typeMap.put( entity.getId(), EntitySubscriptionEntry.create( entity ) );
-    DisposeTrackable
-      .asDisposeTrackable( entity )
-      .getNotifier()
+    DisposeNotifier
+      .asDisposeNotifier( entity )
       .addOnDisposeListener( this, () -> detachEntity( entity, false ) );
     getEntitiesObservableValue().reportChanged();
   }
@@ -229,7 +228,7 @@ public abstract class Subscription
       invariant( () -> null != removed,
                  () -> "Entity instance " + entity + " not present in subscription to channel " + address );
     }
-    DisposeTrackable.asDisposeTrackable( entity ).getNotifier().removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this );
     Disposable.dispose( removed );
     if ( disposeEntityIfNoSubscriptions )
     {

@@ -10,7 +10,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A utility class that is used to validate state within the replicant context is consistent.
  */
-@ArezComponent( disposeTrackable = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE )
 abstract class Validator
   extends ReplicantService
 {
