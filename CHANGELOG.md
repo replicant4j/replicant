@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.com.google.elemental2` dependency to version `1.0.0-b17-6897368`.
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b16-6897368`.
 
 ### [v6.30](https://github.com/replicant4j/replicant/tree/v6.30) (2019-02-14)
