@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.31](https://github.com/replicant4j/replicant/tree/v6.31) (2019-02-18)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.30...v6.31)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b17-6897368`.
 * Add explicit reference counting to `AreaOfInterest` to ensure that object is disposed only if there
