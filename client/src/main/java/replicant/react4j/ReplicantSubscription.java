@@ -1,11 +1,10 @@
 package replicant.react4j;
 
-import arez.Disposable;
 import arez.annotations.Action;
-import arez.annotations.CascadeDispose;
 import arez.annotations.ComponentDependency;
 import arez.annotations.Memoize;
 import arez.annotations.Observable;
+import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,9 +24,8 @@ import replicant.Subscription;
 public abstract class ReplicantSubscription<T>
   extends Component
 {
-  @CascadeDispose
   @Nullable
-  protected AreaOfInterest _areaOfInterest;
+  private AreaOfInterest _areaOfInterest;
 
   @FunctionalInterface
   public interface NoResultCallback
@@ -160,8 +158,6 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   protected abstract NoResultCallback getOnUnloaded();
 
-  //TODO: Once Arez has been fixed (post 0.127), this method should be converted back into an
-  // abstract method and @CascadeDispose added to it.
   @ComponentDependency( action = ComponentDependency.Action.SET_NULL )
   @Observable
   @Nullable
@@ -175,24 +171,32 @@ public abstract class ReplicantSubscription<T>
     _areaOfInterest = areaOfInterest;
   }
 
+  @PreDispose
+  protected final void preDispose()
+  {
+    if ( null != _areaOfInterest )
+    {
+      _areaOfInterest.decRefCount();
+      _areaOfInterest = null;
+    }
+  }
+
   @PostRender
   protected final void postRender()
   {
     updateAreaOfInterest();
   }
 
-  protected void updateAreaOfInterestOnIdChange()
+  protected final void updateAreaOfInterestOnIdChange()
   {
     clearAreaOfInterest();
   }
 
-  @Action( reportParameters = false )
-  protected void updateAreaOfInterestOnFilterChange( final Object newFilter )
+  protected final void updateAreaOfInterestOnFilterChange( @Nullable final Object newFilter )
   {
-    final AreaOfInterest areaOfInterest = getAreaOfInterest();
-    if ( null != areaOfInterest )
+    if ( null != _areaOfInterest )
     {
-      Replicant.context().createOrUpdateAreaOfInterest( areaOfInterest.getAddress(), newFilter );
+      Replicant.context().createOrUpdateAreaOfInterest( _areaOfInterest.getAddress(), newFilter );
     }
   }
 
@@ -202,10 +206,8 @@ public abstract class ReplicantSubscription<T>
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
     if ( null != areaOfInterest )
     {
-      // Need to null out AreaOfInterest so that when we cascade dispose (which is SET_NULL)
-      // we wont try to invoke an action during dispose of AreaOfInterest which generates an error
       setAreaOfInterest( null );
-      Disposable.dispose( areaOfInterest );
+      areaOfInterest.decRefCount();
     }
   }
 
@@ -214,9 +216,9 @@ public abstract class ReplicantSubscription<T>
   {
     final AreaOfInterest newAreaOfInterest =
       Replicant.context().createOrUpdateAreaOfInterest( getAddress(), getFilter() );
-    if ( getAreaOfInterest() != newAreaOfInterest )
+    if ( null == _areaOfInterest )
     {
-      clearAreaOfInterest();
+      newAreaOfInterest.incRefCount();
       setAreaOfInterest( newAreaOfInterest );
     }
   }

@@ -7,6 +7,8 @@
   is no explicitly interested parties. Also added in a small delay for `AreaOfInterest` so that
   a dangling `AreaOfInterest` can persist for a short period of time without unloading such as when
   changing pages.
+* Update `ReplicantSubscription` to use explicit reference counting so that AreaOfInterests are correctly
+  released when no longer used.
 
 ### [v6.30](https://github.com/replicant4j/replicant/tree/v6.30) (2019-02-14)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.29...v6.30)
