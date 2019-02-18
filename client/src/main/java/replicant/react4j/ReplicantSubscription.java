@@ -21,6 +21,7 @@ import replicant.Subscription;
 /**
  * An abstract React4j component that manages subscription to channels.
  */
+@SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class ReplicantSubscription<T>
   extends Component
 {
