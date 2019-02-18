@@ -162,7 +162,7 @@ public abstract class AreaOfInterest
    * Return true when status indicates that there should defiantly not be a subscription present.
    * Note that {@link #shouldExpectSubscription(Status)} combined with this method does not cover all
    * statuses. In particular NOT_ASKED and LOADING can potentially have a subscription when we are working
-   * through the process of notifyin server of explicit subscription when there is a local implicit subscription.
+   * through the process of notifying server of explicit subscription when there is a local implicit subscription.
    */
   private boolean shouldExpectNoSubscription( @Nonnull final Status status )
   {
