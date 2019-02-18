@@ -54,11 +54,13 @@ desc 'Print out next error code. Reusing any that have been retired.'
 task 'error_codes:next' do
   keys = load_error_codes.keys.sort
   max_value = keys.last.to_i
+  found = false
   1.upto(max_value).collect{|v| '%04d' % v }.each do |v|
     unless keys.delete(v.to_s)
       puts "Replicant-#{v} (previously used)"
+      found = true
       break
     end
   end
-  puts "Replicant-#{sprintf('%04d',max_value + 1)} (new)"
+  puts "Replicant-#{sprintf('%04d',max_value + 1)} (new)" unless found
 end
