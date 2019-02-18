@@ -9,11 +9,11 @@ def load_error_codes
     select {|f| !(f =~ /[\/\\]src[\/\\]test[\/\\]/)}.
     each do |f|
     content = IO.read(f)
-    matches = content.scan(/"Arez\-(\d\d\d\d): /)
+    matches = content.scan(/"Replicant\-(\d\d\d\d): /)
     matches.each do |match|
       match = match.first
       if error_map[match]
-        raise "Duplicate error code used - Arez-#{match}.\n First use: #{error_map[match]}\nSecond use: #{f}"
+        raise "Duplicate error code used - Replicant-#{match}.\n First use: #{error_map[match]}\nSecond use: #{f}"
       else
         error_map[match] = f
       end
