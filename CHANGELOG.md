@@ -3,6 +3,10 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b17-6897368`.
+* Add explicit reference counting to `AreaOfInterest` to ensure that object is disposed only if there
+  is no explicitly interested parties. Also added in a small delay for `AreaOfInterest` so that
+  a dangling `AreaOfInterest` can persist for a short period of time without unloading such as when
+  changing pages.
 
 ### [v6.30](https://github.com/replicant4j/replicant/tree/v6.30) (2019-02-14)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.29...v6.30)

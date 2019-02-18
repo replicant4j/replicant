@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
@@ -9,6 +10,7 @@ import arez.annotations.PreDispose;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.react4j.ReplicantSubscription;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -40,6 +42,12 @@ public abstract class AreaOfInterest
   private Object _filter;
   @Nonnull
   private Status _status = Status.NOT_ASKED;
+  /**
+   * The {@link ReplicantSubscription} class uses reference counting to determine whether an AreaOfInterest
+   * is still of interest. The assumption is that after the refCount reaches 0 then it is likely that there
+   * is no longer any interest and it can be disposed.
+   */
+  private int _refCount;
 
   @Nonnull
   static AreaOfInterest create( @Nullable final ReplicantContext context,
@@ -56,6 +64,34 @@ public abstract class AreaOfInterest
     super( context );
     _address = Objects.requireNonNull( address );
     _filter = filter;
+  }
+
+  public void incRefCount()
+  {
+    _refCount++;
+  }
+
+  int getRefCount()
+  {
+    return _refCount;
+  }
+
+  public void decRefCount()
+  {
+    assert _refCount > 0;
+    _refCount--;
+    if ( 0 >= _refCount )
+    {
+      TemporalScheduler.schedule( this::tryDispose, 5 );
+    }
+  }
+
+  private synchronized void tryDispose()
+  {
+    if ( 0 >= _refCount )
+    {
+      Disposable.dispose( this );
+    }
   }
 
   @PreDispose

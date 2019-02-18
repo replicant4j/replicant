@@ -3,6 +3,7 @@ package replicant;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
@@ -265,6 +266,47 @@ public class AreaOfInterestTest
                     () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0019: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and found unexpected subscription in the context." );
+  }
+
+  @Test( timeOut = 4000L )
+  public void refCounting()
+    throws Exception
+  {
+    final AreaOfInterest areaOfInterest =
+      createAreaOfInterest( new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() ) );
+
+    assertEquals( areaOfInterest.getRefCount(), 0 );
+
+    areaOfInterest.incRefCount();
+    areaOfInterest.incRefCount();
+
+    assertEquals( areaOfInterest.getRefCount(), 2 );
+
+    areaOfInterest.decRefCount();
+
+    assertEquals( areaOfInterest.getRefCount(), 1 );
+
+    // Synchronize to ensure test sequencing occurs as expected
+    //noinspection SynchronizationOnLocalVariableOrMethodParameter
+    synchronized ( areaOfInterest )
+    {
+      areaOfInterest.decRefCount();
+      assertEquals( areaOfInterest.getRefCount(), 0 );
+      areaOfInterest.incRefCount();
+      assertEquals( areaOfInterest.getRefCount(), 1 );
+    }
+
+    Thread.sleep( 10 );
+
+    assertEquals( areaOfInterest.getRefCount(), 1 );
+    assertTrue( Disposable.isNotDisposed( areaOfInterest ) );
+
+    areaOfInterest.decRefCount();
+    assertEquals( areaOfInterest.getRefCount(), 0 );
+
+    Thread.sleep( 10 );
+
+    assertTrue( Disposable.isDisposed( areaOfInterest ) );
   }
 
   @Nonnull
