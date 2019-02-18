@@ -9,6 +9,9 @@
   changing pages.
 * Update `ReplicantSubscription` to use explicit reference counting so that AreaOfInterests are correctly
   released when no longer used.
+* If the server removes a subscription from the client then remove the associated `AreaOfInterest` if any.
+  This typically occurs when the root entity in an instance graph is removed and the instance graph is
+  subsequently removed.
 
 ### [v6.30](https://github.com/replicant4j/replicant/tree/v6.30) (2019-02-14)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.29...v6.30)

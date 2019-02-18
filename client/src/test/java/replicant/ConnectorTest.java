@@ -21,6 +21,7 @@ import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.EntityChannel;
+import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -1778,6 +1779,55 @@ public class ConnectorTest
     assertTrue( Disposable.isDisposed( initialSubscription ) );
 
     handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscriptionDisposedEvent.class,
+                             e -> assertEquals( e.getSubscription().getAddress(), address ) );
+  }
+
+  @Test
+  public void processChannelChanges_remove_withAreaOfInterest()
+  {
+    final Connector connector = createConnector();
+    connector.pauseMessageScheduler();
+
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final int channelId = address.getChannelId();
+    final int subChannelId = Objects.requireNonNull( address.getId() );
+
+    final AreaOfInterest areaOfInterest =
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    final String filter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( channelId, subChannelId, ChannelChange.Action.REMOVE, null ) };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), channelChanges, null ), null );
+
+    final Subscription initialSubscription = createSubscription( address, filter, true );
+
+    assertTrue( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelRemoveCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges();
+
+    assertFalse( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelRemoveCount(), 1 );
+
+    final Subscription subscription =
+      safeAction( () -> Replicant.context().findSubscription( address ) );
+    assertNull( subscription );
+    assertTrue( Disposable.isDisposed( initialSubscription ) );
+
+    assertTrue( Disposable.isDisposed( areaOfInterest ) );
+
+    handler.assertEventCount( 2 );
+    handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest().getAddress(), address ) );
     handler.assertNextEvent( SubscriptionDisposedEvent.class,
                              e -> assertEquals( e.getSubscription().getAddress(), address ) );
   }
