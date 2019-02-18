@@ -212,13 +212,19 @@ public abstract class ReplicantSubscription<T>
   @Action
   protected void updateAreaOfInterest()
   {
-    final ChannelAddress address = new ChannelAddress( getSystemId(), getChannelId(), hasId() ? getId() : null );
-    final AreaOfInterest newAreaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, getFilter() );
+    final AreaOfInterest newAreaOfInterest =
+      Replicant.context().createOrUpdateAreaOfInterest( getAddress(), getFilter() );
     if ( getAreaOfInterest() != newAreaOfInterest )
     {
       clearAreaOfInterest();
       setAreaOfInterest( newAreaOfInterest );
     }
+  }
+
+  @Nonnull
+  private ChannelAddress getAddress()
+  {
+    return new ChannelAddress( getSystemId(), getChannelId(), hasId() ? getId() : null );
   }
 
   @SuppressWarnings( "unchecked" )
