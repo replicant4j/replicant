@@ -33,7 +33,7 @@ public interface EntityChangeData
   @JsOverlay
   default boolean isNull( @Nonnull final String key )
   {
-    return null == Js.asPropertyMap( this ).getAny( key );
+    return null == Js.asPropertyMap( this ).getAsAny( key );
   }
 
   /**
@@ -45,19 +45,19 @@ public interface EntityChangeData
   @JsOverlay
   default int getIntegerValue( @Nonnull final String key )
   {
-    return Js.asPropertyMap( this ).getAny( key ).asInt();
+    return Js.asPropertyMap( this ).getAsAny( key ).asInt();
   }
 
   @Nonnull
   @JsOverlay
   default String getStringValue( @Nonnull final String key )
   {
-    return Js.asPropertyMap( this ).getAny( key ).asString();
+    return Js.asPropertyMap( this ).getAsAny( key ).asString();
   }
 
   @JsOverlay
   default boolean getBooleanValue( @Nonnull final String key )
   {
-    return Js.asPropertyMap( this ).getAny( key ).asBoolean();
+    return Js.asPropertyMap( this ).getAsAny( key ).asBoolean();
   }
 }
