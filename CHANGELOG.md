@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.31...v6.32)
 
 * Upgrade the `org.realityforge.com.google.jsinterop` artifact to version `1.0.0-b2-e6d791f`.
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b18-f3472e7`.
