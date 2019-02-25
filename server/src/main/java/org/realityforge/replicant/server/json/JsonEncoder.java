@@ -55,19 +55,11 @@ public final class JsonEncoder
     generator.
       writeStartObject().
       write( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID );
-    if ( null == requestId )
-    {
-      generator.writeNull( TransportConstants.REQUEST_ID );
-    }
-    else
+    if ( null != requestId )
     {
       generator.write( TransportConstants.REQUEST_ID, requestId );
     }
-    if ( null == etag )
-    {
-      generator.writeNull( TransportConstants.ETAG );
-    }
-    else
+    if ( null != etag )
     {
       generator.write( TransportConstants.ETAG, etag );
     }
