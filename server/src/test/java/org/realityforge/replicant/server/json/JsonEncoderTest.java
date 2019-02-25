@@ -89,20 +89,16 @@ public final class JsonEncoderTest
     final JsonArray channels = object.getJsonArray( TransportConstants.CHANNELS );
     assertNotNull( channels );
     assertEquals( channels.size(), 3 );
-    final JsonObject channel1 = channels.getJsonObject( 0 );
+    final String channel1 = channels.getString( 0 );
     assertNotNull( channel1 );
-    final JsonObject channel2 = channels.getJsonObject( 1 );
+    final String channel2 = channels.getString( 1 );
     assertNotNull( channel2 );
-    final JsonObject channel3 = channels.getJsonObject( 2 );
+    final String channel3 = channels.getString( 2 );
     assertNotNull( channel3 );
 
-    assertEquals( channel1.getInt( TransportConstants.CHANNEL_ID ), 1 );
-    assertEquals( channel2.getInt( TransportConstants.CHANNEL_ID ), 2 );
-    assertEquals( channel3.getInt( TransportConstants.CHANNEL_ID ), 3 );
-
-    assertFalse( channel1.containsKey( TransportConstants.SUBCHANNEL_ID ) );
-    assertEquals( channel2.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
-    assertEquals( channel3.getInt( TransportConstants.SUBCHANNEL_ID ), 73 );
+    assertEquals( channel1, "1" );
+    assertEquals( channel2, "2.42" );
+    assertEquals( channel3, "3.73" );
   }
 
   @Test

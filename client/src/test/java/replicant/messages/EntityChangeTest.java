@@ -14,7 +14,7 @@ public class EntityChangeTest
   {
     final int id = 1;
     final int type = 2;
-    final EntityChannel[] channels = { EntityChannel.create( 0 ), EntityChannel.create( 3, 4 ) };
+    final String[] channels = { "0", "3.4" };
     final EntityChange change = EntityChange.create( id, type, channels );
 
     assertEquals( change.getId(), 1 );
@@ -30,7 +30,7 @@ public class EntityChangeTest
   {
     final int id = 1;
     final int type = 2;
-    final EntityChannel[] channels = { EntityChannel.create( 0 ), EntityChannel.create( 3, 4 ) };
+    final String[] channels = { "0", "3.4" };
     final EntityChangeData data = mock( EntityChangeData.class );
     final EntityChange change = EntityChange.create( id, type, channels, data );
 

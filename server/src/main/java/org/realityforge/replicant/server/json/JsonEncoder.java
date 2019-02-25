@@ -115,10 +115,9 @@ public final class JsonEncoder
           generator.writeStartArray( TransportConstants.CHANNELS );
           for ( final Entry<Integer, Integer> entry : channels.entrySet() )
           {
-            generator.writeStartObject();
-            generator.write( TransportConstants.CHANNEL_ID, entry.getKey() );
-            writeSubChannel( generator, entry.getValue() );
-            generator.writeEnd();
+            final Integer cid = entry.getKey();
+            final Integer scid = entry.getValue();
+            generator.write( cid + ( null == scid ? "" : "." + scid ) );
           }
           generator.writeEnd();
         }

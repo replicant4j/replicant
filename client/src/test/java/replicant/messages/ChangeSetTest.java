@@ -62,13 +62,13 @@ public class ChangeSetTest
       ChannelChange.create( 5, 1, ChannelChange.Action.ADD, null )
     };
     final EntityChange[] entityChanges = new EntityChange[]{
-      EntityChange.create( 1, 1, new EntityChannel[ 0 ] ),
-      EntityChange.create( 2, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 3, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 4, 1, new EntityChannel[ 0 ] ),
-      EntityChange.create( 33, 2, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 34, 3, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 1, 4, new EntityChannel[ 0 ] )
+      EntityChange.create( 1, 1, new String[ 0 ] ),
+      EntityChange.create( 2, 1, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 3, 1, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 4, 1, new String[ 0 ] ),
+      EntityChange.create( 33, 2, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 34, 3, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 1, 4, new String[ 0 ] )
     };
 
     final ChangeSet changeSet =
@@ -120,13 +120,13 @@ public class ChangeSetTest
   public void validate_duplicateEntityChanges()
   {
     final EntityChange[] entityChanges = new EntityChange[]{
-      EntityChange.create( 1, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 2, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 3, 1, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 4, 1, new EntityChannel[ 0 ] ),
-      EntityChange.create( 33, 2, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 34, 3, new EntityChannel[ 0 ], new EntityChangeDataImpl() ),
-      EntityChange.create( 1, 1, new EntityChannel[ 0 ] )
+      EntityChange.create( 1, 1, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 2, 1, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 3, 1, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 4, 1, new String[ 0 ] ),
+      EntityChange.create( 33, 2, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 34, 3, new String[ 0 ], new EntityChangeDataImpl() ),
+      EntityChange.create( 1, 1, new String[ 0 ] )
     };
 
     final ChangeSet changeSet =

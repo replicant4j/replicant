@@ -24,7 +24,6 @@ import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
-import replicant.messages.EntityChannel;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -1099,11 +1098,15 @@ abstract class Connector
           }
         }
 
-        final EntityChannel[] changeCount = change.getChannels();
+        final String[] channels = change.getChannels();
         final int schemaId = getSchema().getId();
-        for ( final EntityChannel entityChannel : changeCount )
+        for ( final String channel : channels )
         {
-          final ChannelAddress address = entityChannel.toAddress( schemaId );
+          final int separator = channel.indexOf( "." );
+          final ChannelAddress address =
+            new ChannelAddress( schemaId,
+                                Integer.parseInt( -1 == separator ? channel : channel.substring( 0, separator ) ),
+                                -1 == separator ? null : Integer.parseInt( channel.substring( separator + 1 ) ) );
           final Subscription subscription = getReplicantContext().findSubscription( address );
           if ( Replicant.shouldCheckInvariants() )
           {

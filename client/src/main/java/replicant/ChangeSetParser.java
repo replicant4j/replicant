@@ -3,6 +3,7 @@ package replicant;
 import elemental2.core.Global;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,7 +18,6 @@ import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeDataImpl;
-import replicant.messages.EntityChannel;
 
 /**
  * This is the class responsible for parsing change sets.
@@ -167,16 +167,14 @@ final class ChangeSetParser
             changeData = null;
           }
 
-          final ArrayList<EntityChannel> entityChannels = new ArrayList<>();
+          final List<String> entityChannels = new ArrayList<>();
           for ( final JsonValue channelReference : change.getJsonArray( "channels" ) )
           {
-            final JsonObject channel = (JsonObject) channelReference;
-            final int cid = channel.getInt( "cid" );
-            final Integer scid = change.containsKey( "scid" ) ? change.getInt( "scid" ) : null;
-            entityChannels.add( null == scid ? EntityChannel.create( cid ) : EntityChannel.create( cid, scid ) );
+            final JsonString channel = (JsonString) channelReference;
+            entityChannels.add( channel.getString() );
           }
 
-          final EntityChannel[] channels = entityChannels.toArray( new EntityChannel[ 0 ] );
+          final String[] channels = entityChannels.toArray( new String[ 0 ] );
           changes.add( null == changeData ?
                        EntityChange.create( id, typeId, channels ) :
                        EntityChange.create( id, typeId, channels, changeData ) );

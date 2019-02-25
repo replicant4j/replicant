@@ -2,6 +2,12 @@
 
 ### Unreleased
 
+* Change the serialized representation of links from an entity to a channel from an array
+  of json objects of the form `[{"cid": 20, "scid": 1},{"cid": 20, "scid": 2},{"cid": 1}]`
+  to a more succinct representation as an array of strings of the form `["20.1","20.2","1"]`.
+  This involved several internal changes as well as removal of the `replicant.messages.EntityChannel`
+  data transport class.
+
 ### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.31...v6.32)
 

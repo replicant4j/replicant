@@ -15,7 +15,7 @@ public class EntityChange
 {
   private int id;
   private int type;
-  private EntityChannel[] channels;
+  private String[] channels;
   private EntityChangeData data;
 
   /**
@@ -24,7 +24,7 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
-  public static EntityChange create( final int id, final int type, @Nonnull final EntityChannel[] channels )
+  public static EntityChange create( final int id, final int type, @Nonnull final String[] channels )
   {
     final EntityChange change = new EntityChange();
     change.id = id;
@@ -41,7 +41,7 @@ public class EntityChange
   @JsOverlay
   public static EntityChange create( final int id,
                                      final int type,
-                                     @Nonnull final EntityChannel[] channels,
+                                     @Nonnull final String[] channels,
                                      @Nullable final EntityChangeData data )
   {
     final EntityChange change = new EntityChange();
@@ -80,7 +80,7 @@ public class EntityChange
    * @return the channels that the entity is associated with.
    */
   @JsOverlay
-  public final EntityChannel[] getChannels()
+  public final String[] getChannels()
   {
     return channels;
   }

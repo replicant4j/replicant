@@ -7,7 +7,6 @@ import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeDataImpl;
-import replicant.messages.EntityChannel;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -182,18 +181,18 @@ public class MessageResponseTest
     final EntityChange change1 =
       EntityChange.create( 50,
                            100,
-                           new EntityChannel[]{ EntityChannel.create( channelId ) },
+                           new String[]{ String.valueOf( channelId ) },
                            new EntityChangeDataImpl() );
     // Entity Remove
     final EntityChange change2 =
       EntityChange.create( 51,
                            100,
-                           new EntityChannel[]{ EntityChannel.create( channelId ) } );
+                           new String[]{ String.valueOf( channelId ) } );
     // Entity update - non linkable
     final EntityChange change3 =
       EntityChange.create( 52,
                            100,
-                           new EntityChannel[]{ EntityChannel.create( channelId ) },
+                           new String[]{ String.valueOf( channelId ) },
                            new EntityChangeDataImpl() );
     final EntityChange[] entityChanges = new EntityChange[]{ change1, change2, change3 };
 

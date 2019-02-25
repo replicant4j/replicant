@@ -20,7 +20,6 @@ import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
-import replicant.messages.EntityChannel;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
@@ -1406,10 +1405,10 @@ public class ConnectorTest
     final EntityChangeData data2 = mock( EntityChangeData.class );
     final EntityChange[] entityChanges = {
       // Update changes
-      EntityChange.create( 1, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data1 ),
-      EntityChange.create( 2, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data2 ),
+      EntityChange.create( 1, 0, new String[]{ "1" }, data1 ),
+      EntityChange.create( 2, 0, new String[]{ "1" }, data2 ),
       // Remove change
-      EntityChange.create( 3, 0, new EntityChannel[]{ EntityChannel.create( 1 ) } )
+      EntityChange.create( 3, 0, new String[]{ "1" } )
     };
     final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, entityChanges );
     response.recordChangeSet( changeSet, null );
@@ -1488,7 +1487,7 @@ public class ConnectorTest
 
     final EntityChangeData data1 = mock( EntityChangeData.class );
     final EntityChange[] entityChanges = {
-      EntityChange.create( 1, 0, new EntityChannel[]{ EntityChannel.create( 1 ) }, data1 )
+      EntityChange.create( 1, 0, new String[]{ "1" }, data1 )
     };
     final ChangeSet changeSet = ChangeSet.create( 42, null, entityChanges );
     response.recordChangeSet( changeSet, null );
@@ -1532,7 +1531,7 @@ public class ConnectorTest
 
     final EntityChange[] entityChanges = {
       // Remove change
-      EntityChange.create( 3, 0, new EntityChannel[]{ EntityChannel.create( 1 ) } )
+      EntityChange.create( 3, 0, new String[]{ "1" } )
     };
     final ChangeSet changeSet = ChangeSet.create( 23, null, entityChanges );
     response.recordChangeSet( changeSet, null );
@@ -2741,7 +2740,7 @@ public class ConnectorTest
       // Add Channel 0
       "\"channel_actions\": [ { \"cid\": 0, \"action\": \"add\"} ], " +
       // Add Entity 1 of type 0 from channel 0
-      "\"changes\": [{\"id\": 1,\"type\":0,\"channels\":[{\"cid\": 0}], \"data\":{}}] " +
+      "\"changes\": [{\"id\": 1,\"type\":0,\"channels\":[\"0\"], \"data\":{}}] " +
       "}";
     connection.enqueueResponse( rawJsonData );
 
