@@ -7,6 +7,7 @@
   to a more succinct representation as an array of strings of the form `["20.1","20.2","1"]`.
   This involved several internal changes as well as removal of the `replicant.messages.EntityChannel`
   data transport class.
+* Upgrade the `org.realityforge.braincheck` artifact to version `1.13.0`.
 
 ### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.31...v6.32)
