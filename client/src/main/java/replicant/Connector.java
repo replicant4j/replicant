@@ -1058,11 +1058,13 @@ abstract class Connector
     EntityChange change;
     for ( int i = 0; i < _changesToProcessPerTick && null != ( change = response.nextEntityChange() ); i++ )
     {
-      final int id = change.getId();
-      final int typeId = change.getTypeId();
+      final String id = change.getId();
+      final int idSeparator = id.indexOf( "." );
+      final int typeId = Integer.parseInt( id.substring( 0, idSeparator ) );
+      final int entityId = Integer.parseInt( id.substring( idSeparator + 1 ) );
       final EntitySchema entitySchema = getSchema().getEntity( typeId );
       final Class<?> type = entitySchema.getType();
-      Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId( type, id );
+      Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId( type, entityId );
       if ( change.isRemove() )
       {
         /*
@@ -1083,9 +1085,9 @@ abstract class Connector
         final EntityChangeData data = change.getData();
         if ( null == entity )
         {
-          final String name = Replicant.areNamesEnabled() ? entitySchema.getName() + "/" + id : null;
-          entity = getReplicantContext().getEntityService().findOrCreateEntity( name, type, id );
-          final Object userObject = entitySchema.getCreator().createEntity( id, data );
+          final String name = Replicant.areNamesEnabled() ? entitySchema.getName() + "/" + entityId : null;
+          entity = getReplicantContext().getEntityService().findOrCreateEntity( name, type, entityId );
+          final Object userObject = entitySchema.getCreator().createEntity( entityId, data );
           entity.setUserObject( userObject );
 
         }

@@ -164,12 +164,10 @@ public class ChangeSet
         final HashSet<String> existing = new HashSet<>();
         for ( final EntityChange change : changes )
         {
-          final int typeId = change.getTypeId();
-          final int id = change.getId();
-          final String key = typeId + "-" + id;
-          apiInvariant( () -> existing.add( key ),
+          final String id = change.getId();
+          apiInvariant( () -> existing.add( id ),
                         () -> "Replicant-0014: ChangeSet " + last_id + " contains multiple EntityChange " +
-                              "messages for the entity of type " + typeId + " and id " + id + "." );
+                              "messages with the id '" + id + "'." );
         }
       }
       if ( null != channel_actions )

@@ -13,8 +13,7 @@ import jsinterop.annotations.JsType;
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class EntityChange
 {
-  private int id;
-  private int type;
+  private String id;
   private String[] channels;
   private EntityChangeData data;
 
@@ -24,11 +23,10 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
-  public static EntityChange create( final int id, final int type, @Nonnull final String[] channels )
+  public static EntityChange create( final int type, final int id, @Nonnull final String[] channels )
   {
     final EntityChange change = new EntityChange();
-    change.id = id;
-    change.type = type;
+    change.id = type + "." + id;
     change.channels = channels;
     return change;
   }
@@ -39,14 +37,13 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
-  public static EntityChange create( final int id,
-                                     final int type,
+  public static EntityChange create( final int type,
+                                     final int id,
                                      @Nonnull final String[] channels,
                                      @Nullable final EntityChangeData data )
   {
     final EntityChange change = new EntityChange();
-    change.id = id;
-    change.type = type;
+    change.id = type + "." + id;
     change.channels = channels;
     change.data = data;
     return change;
@@ -60,18 +57,9 @@ public class EntityChange
    * @return the id of the entity.
    */
   @JsOverlay
-  public final int getId()
+  public final String getId()
   {
     return id;
-  }
-
-  /**
-   * @return a code indicating the type of the entity changed.
-   */
-  @JsOverlay
-  public final int getTypeId()
-  {
-    return type;
   }
 
   /**

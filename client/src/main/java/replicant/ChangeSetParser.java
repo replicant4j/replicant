@@ -176,8 +176,8 @@ final class ChangeSetParser
 
           final String[] channels = entityChannels.toArray( new String[ 0 ] );
           changes.add( null == changeData ?
-                       EntityChange.create( id, typeId, channels ) :
-                       EntityChange.create( id, typeId, channels, changeData ) );
+                       EntityChange.create( typeId, id, channels ) :
+                       EntityChange.create( typeId, id, channels, changeData ) );
         }
         return changes.toArray( new EntityChange[ 0 ] );
       }

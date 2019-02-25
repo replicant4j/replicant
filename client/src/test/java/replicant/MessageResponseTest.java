@@ -179,19 +179,16 @@ public class MessageResponseTest
 
     // Entity update
     final EntityChange change1 =
-      EntityChange.create( 50,
-                           100,
+      EntityChange.create( 100, 50,
                            new String[]{ String.valueOf( channelId ) },
                            new EntityChangeDataImpl() );
     // Entity Remove
     final EntityChange change2 =
-      EntityChange.create( 51,
-                           100,
+      EntityChange.create( 100, 51,
                            new String[]{ String.valueOf( channelId ) } );
     // Entity update - non linkable
     final EntityChange change3 =
-      EntityChange.create( 52,
-                           100,
+      EntityChange.create( 100, 52,
                            new String[]{ String.valueOf( channelId ) },
                            new EntityChangeDataImpl() );
     final EntityChange[] entityChanges = new EntityChange[]{ change1, change2, change3 };

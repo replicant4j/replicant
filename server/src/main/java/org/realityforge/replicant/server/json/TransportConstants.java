@@ -10,7 +10,6 @@ interface TransportConstants
   String ETAG = "etag";
   String CHANGES = "changes";
   String ENTITY_ID = "id";
-  String TYPE_ID = "type";
   String DATA = "data";
   String CHANNEL_ACTIONS = "channel_actions";
   String ACTION = "action";

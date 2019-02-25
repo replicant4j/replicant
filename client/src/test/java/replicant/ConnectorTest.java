@@ -1405,10 +1405,10 @@ public class ConnectorTest
     final EntityChangeData data2 = mock( EntityChangeData.class );
     final EntityChange[] entityChanges = {
       // Update changes
-      EntityChange.create( 1, 0, new String[]{ "1" }, data1 ),
-      EntityChange.create( 2, 0, new String[]{ "1" }, data2 ),
+      EntityChange.create( 0, 1, new String[]{ "1" }, data1 ),
+      EntityChange.create( 0, 2, new String[]{ "1" }, data2 ),
       // Remove change
-      EntityChange.create( 3, 0, new String[]{ "1" } )
+      EntityChange.create( 0, 3, new String[]{ "1" } )
     };
     final ChangeSet changeSet = ChangeSet.create( ValueUtil.randomInt(), null, entityChanges );
     response.recordChangeSet( changeSet, null );
@@ -1487,7 +1487,7 @@ public class ConnectorTest
 
     final EntityChangeData data1 = mock( EntityChangeData.class );
     final EntityChange[] entityChanges = {
-      EntityChange.create( 1, 0, new String[]{ "1" }, data1 )
+      EntityChange.create( 0, 1, new String[]{ "1" }, data1 )
     };
     final ChangeSet changeSet = ChangeSet.create( 42, null, entityChanges );
     response.recordChangeSet( changeSet, null );
@@ -1531,7 +1531,7 @@ public class ConnectorTest
 
     final EntityChange[] entityChanges = {
       // Remove change
-      EntityChange.create( 3, 0, new String[]{ "1" } )
+      EntityChange.create( 0, 3, new String[]{ "1" } )
     };
     final ChangeSet changeSet = ChangeSet.create( 23, null, entityChanges );
     response.recordChangeSet( changeSet, null );

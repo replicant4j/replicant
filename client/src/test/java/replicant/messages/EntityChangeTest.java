@@ -12,13 +12,10 @@ public class EntityChangeTest
   @Test
   public void construct_removeMessage()
   {
-    final int id = 1;
-    final int type = 2;
     final String[] channels = { "0", "3.4" };
-    final EntityChange change = EntityChange.create( id, type, channels );
+    final EntityChange change = EntityChange.create( 2, 1, channels );
 
-    assertEquals( change.getId(), 1 );
-    assertEquals( change.getTypeId(), 2 );
+    assertEquals( change.getId(), "2.1" );
     assertEquals( change.getChannels(), channels );
     assertTrue( change.isRemove() );
     assertFalse( change.isUpdate() );
@@ -28,14 +25,11 @@ public class EntityChangeTest
   @Test
   public void construct_updateMessage()
   {
-    final int id = 1;
-    final int type = 2;
     final String[] channels = { "0", "3.4" };
     final EntityChangeData data = mock( EntityChangeData.class );
-    final EntityChange change = EntityChange.create( id, type, channels, data );
+    final EntityChange change = EntityChange.create( 2, 1, channels, data );
 
-    assertEquals( change.getId(), 1 );
-    assertEquals( change.getTypeId(), 2 );
+    assertEquals( change.getId(), "2.1" );
     assertEquals( change.getChannels(), channels );
     assertFalse( change.isRemove() );
     assertTrue( change.isUpdate() );

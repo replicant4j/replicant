@@ -7,6 +7,8 @@
   to a more succinct representation as an array of strings of the form `["20.1","20.2","1"]`.
   This involved several internal changes as well as removal of the `replicant.messages.EntityChannel`
   data transport class.
+* Change the serialized representation of entity references from `{"typeId":42,"id":23,...}` to
+  a more compact `{"id":"42.23",,...}`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.13.0`.
 
 ### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24)

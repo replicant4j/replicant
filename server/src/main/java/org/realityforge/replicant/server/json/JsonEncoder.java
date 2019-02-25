@@ -106,8 +106,7 @@ public final class JsonEncoder
         final EntityMessage entityMessage = change.getEntityMessage();
 
         generator.writeStartObject();
-        writeField( generator, TransportConstants.ENTITY_ID, entityMessage.getId(), dateFormat );
-        generator.write( TransportConstants.TYPE_ID, entityMessage.getTypeId() );
+        generator.write( TransportConstants.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
 
         final Map<Integer, Integer> channels = change.getChannels();
         if ( channels.size() > 0 )
