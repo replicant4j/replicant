@@ -1109,7 +1109,7 @@ abstract class Connector
           {
             invariant( () -> null != subscription,
                        () -> "Replicant-0069: ChangeSet " + response.getChangeSet().getSequence() + " contained an " +
-                             "EntityChange message referencing channel " + entityChannel.toAddress( schemaId ) +
+                             "EntityChange message referencing channel " + address +
                              " but no such subscription exists locally." );
           }
           assert null != subscription;
