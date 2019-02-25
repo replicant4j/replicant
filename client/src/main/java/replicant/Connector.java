@@ -728,7 +728,7 @@ abstract class Connector
         if ( null != subscription )
         {
           final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
-          if( null != areaOfInterest )
+          if ( null != areaOfInterest )
           {
             // This means it has been deleted on the server side
             Disposable.dispose( areaOfInterest );
