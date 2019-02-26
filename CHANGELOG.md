@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b19-fb227e3`.
 * Change the serialized representation of links from an entity to a channel from an array
   of json objects of the form `[{"cid": 20, "scid": 1},{"cid": 20, "scid": 2},{"cid": 1}]`
   to a more succinct representation as an array of strings of the form `["20.1","20.2","1"]`.
