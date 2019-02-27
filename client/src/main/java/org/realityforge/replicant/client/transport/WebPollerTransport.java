@@ -481,7 +481,7 @@ public abstract class WebPollerTransport
     if ( Replicant.areNamesEnabled() )
     {
       final ChannelAddress address = addresses.iterator().next();
-      return requestType + ":" + address.getSystemId() + "." + address.getChannelId();
+      return requestType + ":" + address.getName();
     }
     else
     {
