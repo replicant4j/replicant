@@ -51,11 +51,7 @@ public class ChannelAddressTest
   public void getName_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final ChannelAddress address =
-      new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, address::getName );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0042: ChannelAddress.getName() invoked when Replicant.areNamesEnabled() is false" );
+    assertEquals( new ChannelAddress( 1, 3, 5 ).getName(), "1.3.5" );
   }
 
   @SuppressWarnings( "EqualsWithItself" )

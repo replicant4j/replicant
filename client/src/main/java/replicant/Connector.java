@@ -1030,14 +1030,8 @@ abstract class Connector
            ChannelChange.Action.ADD == channelChanges[ 0 ].getAction() &&
            getSchema().getChannel( channelChanges[ 0 ].getChannelId() ).isCacheable() )
       {
-        final ChannelChange channelChange = channelChanges[ 0 ];
-        final String cacheKey =
-          "RC-" +
-          getSchema().getId() +
-          "." +
-          channelChange.getChannelId() +
-          ( channelChange.hasSubChannelId() ? "." + channelChange.getSubChannelId() : "" );
-        cacheService.store( cacheKey, eTag, rawJsonData );
+        final ChannelAddress address = channelChanges.get( 0 ).getAddress();
+        cacheService.store( "RC-" + address.getName(), eTag, rawJsonData );
         candidate = true;
       }
     }
