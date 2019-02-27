@@ -2,6 +2,7 @@ package replicant;
 
 import arez.component.Linkable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,6 +38,7 @@ final class MessageResponse
    */
   private int _entityChangeIndex;
   private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
+  private List<ChannelChangeDescriptor> _parsedChannelChanges;
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
   private RequestEntry _request;
@@ -191,9 +193,21 @@ final class MessageResponse
   boolean needsChannelChangesProcessed()
   {
     return null != _changeSet &&
-           _changeSet.hasChannelChanges() &&
-           0 != _changeSet.getChannelChanges().length &&
+           (
+             ( _changeSet.hasChannels() && 0 != _changeSet.getChannels().length ) ||
+             ( _changeSet.hasFilteredChannels() && 0 != _changeSet.getFilteredChannels().length )
+           ) &&
            !_channelActionsProcessed;
+  }
+
+  void setParsedChannelChanges( @Nonnull final List<ChannelChangeDescriptor> parsedChannelChanges )
+  {
+    _parsedChannelChanges = Objects.requireNonNull( parsedChannelChanges );
+  }
+
+  List<ChannelChangeDescriptor> getChannelChanges()
+  {
+    return _parsedChannelChanges;
   }
 
   void markChannelActionsProcessed()

@@ -14,6 +14,8 @@
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.13.0`.
 * Support `ChannelAddress.getName()` even when `Replicant.areNamesEnabled()` returns false as that behaviour
   is required and was implemented in other places.
+* Change the serialized representation of channels from `"channel_types":[{"cid": 20, "scid": 1, "action":"add"}]`
+  to a more compact `"channels":["+20.1"]`. Filtered channels actions were optimized in a similar fashion.
 
 ### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.31...v6.32)

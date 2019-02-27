@@ -69,10 +69,8 @@ public final class JsonEncoderTest
     assertEquals( changeSet.getInt( TransportConstants.REQUEST_ID ), requestId );
     assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
 
-    final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );
-    assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
-    assertEquals( action.getInt( TransportConstants.SUBCHANNEL_ID ), 77 );
-    assertEquals( action.getString( TransportConstants.ACTION ), "update" );
+    final JsonObject action = changeSet.getJsonArray( TransportConstants.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
+    assertEquals( action.getString( TransportConstants.CHANNEL ), "=45.77" );
     assertEquals( action.getJsonObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
@@ -132,7 +130,7 @@ public final class JsonEncoderTest
   }
 
   @Test
-  public void action_WithNull()
+  public void action_WithNoFilter()
     throws Exception
   {
     final ChangeSet cs = new ChangeSet();
@@ -140,11 +138,7 @@ public final class JsonEncoderTest
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
     assertNotNull( changeSet );
 
-    final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );
-    assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
-    assertFalse( action.containsKey( TransportConstants.SUBCHANNEL_ID ) );
-    assertEquals( action.getString( TransportConstants.ACTION ), "add" );
-    assertFalse( action.containsKey( TransportConstants.CHANNEL_FILTER ) );
+    assertEquals( changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getString( 0 ), "+45" );
   }
 
   @Test

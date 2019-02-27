@@ -124,7 +124,7 @@ public class ConnectionTest
     final Connection connection = new Connection( connector, connectionId );
 
     final MessageResponse response1 = new MessageResponse( "" );
-    response1.recordChangeSet( ChangeSet.create( 1, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response1 );
@@ -149,7 +149,7 @@ public class ConnectionTest
     final Connection connection = new Connection( connector, connectionId );
 
     final MessageResponse response1 = new MessageResponse( "" );
-    response1.recordChangeSet( ChangeSet.create( 22, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 22, null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response1 );
@@ -174,7 +174,7 @@ public class ConnectionTest
     final SafeProcedure oobCompletionAction = () -> {
     };
     final MessageResponse response1 = new MessageResponse( "", oobCompletionAction );
-    response1.recordChangeSet( ChangeSet.create( 324, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 324, null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response1 );
@@ -203,9 +203,9 @@ public class ConnectionTest
     final MessageResponse response2 = new MessageResponse( "" );
     final MessageResponse response3 = new MessageResponse( "" );
 
-    response1.recordChangeSet( ChangeSet.create( 1, null, null ), null );
-    response2.recordChangeSet( ChangeSet.create( 2, null, null ), null );
-    response3.recordChangeSet( ChangeSet.create( 3, null, null ), null );
+    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null, null ), null );
+    response2.recordChangeSet( ChangeSet.create( 2, null, null, null, null, null ), null );
+    response3.recordChangeSet( ChangeSet.create( 3, null, null, null, null, null ), null );
 
     connection.setCurrentMessageResponse( response2 );
 

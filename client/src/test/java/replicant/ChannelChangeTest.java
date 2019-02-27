@@ -11,26 +11,19 @@ public class ChannelChangeTest
   @Test
   public void construct()
   {
-    final ChannelChange action = ChannelChange.create( 1, 2, ChannelChange.Action.ADD, null );
+    final ChannelChange action = ChannelChange.create( "+1.2", null );
 
-    assertEquals( action.getChannelId(), 1 );
-    assertTrue( action.hasSubChannelId() );
-    assertEquals( action.getSubChannelId(), 2 );
-    assertEquals( action.getAction(), ChannelChange.Action.ADD );
-    assertNull( action.getChannelFilter() );
+    assertEquals( action.getChannel(), "+1.2" );
+    assertNull( action.getFilter() );
   }
 
-  @SuppressWarnings( "ResultOfMethodCallIgnored" )
   @Test
   public void construct_withoutSubchannelId()
   {
     final Object filter = ValueUtil.randomString();
-    final ChannelChange action = ChannelChange.create( 1, ChannelChange.Action.REMOVE, filter );
+    final ChannelChange action = ChannelChange.create( "-1", filter );
 
-    assertEquals( action.getChannelId(), 1 );
-    assertFalse( action.hasSubChannelId() );
-    assertThrows( action::getSubChannelId );
-    assertEquals( action.getAction(), ChannelChange.Action.REMOVE );
-    assertEquals( action.getChannelFilter(), filter );
+    assertEquals( action.getChannel(), "-1" );
+    assertEquals( action.getFilter(), filter );
   }
 }

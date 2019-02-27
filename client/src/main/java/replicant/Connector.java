@@ -678,33 +678,20 @@ abstract class Connector
     }
   }
 
-  /**
-   * Build a ChannelAddress from a ChannelChange value.
-   *
-   * @param channelChange the change.
-   * @return the address.
-   */
-  @Nonnull
-  final ChannelAddress toAddress( @Nonnull final ChannelChange channelChange )
-  {
-    final int channelId = channelChange.getChannelId();
-    final Integer subChannelId = channelChange.hasSubChannelId() ? channelChange.getSubChannelId() : null;
-    return new ChannelAddress( getSchema().getId(), channelId, subChannelId );
-  }
-
   @Action
   protected void processChannelChanges()
   {
     final MessageResponse response = ensureCurrentMessageResponse();
-    final ChangeSet changeSet = response.getChangeSet();
-    final ChannelChange[] channelChanges = changeSet.getChannelChanges();
-    for ( final ChannelChange channelChange : channelChanges )
-    {
-      final ChannelAddress address = toAddress( channelChange );
-      final Object filter = channelChange.getChannelFilter();
-      final ChannelChange.Action actionType = channelChange.getAction();
 
-      if ( ChannelChange.Action.ADD == actionType )
+    final List<ChannelChangeDescriptor> changes = response.getChannelChanges();
+
+    for ( final ChannelChangeDescriptor channelChange : changes )
+    {
+      final ChannelAddress address = channelChange.getAddress();
+      final Object filter = channelChange.getFilter();
+      final ChannelChangeDescriptor.Type actionType = channelChange.getType();
+
+      if ( ChannelChangeDescriptor.Type.ADD == actionType )
       {
         response.incChannelAddCount();
         final boolean explicitSubscribe =
@@ -714,7 +701,7 @@ abstract class Connector
             .anyMatch( a -> a.getAddress().equals( address ) );
         getReplicantContext().getSubscriptionService().createSubscription( address, filter, explicitSubscribe );
       }
-      else if ( ChannelChange.Action.REMOVE == actionType )
+      else if ( ChannelChangeDescriptor.Type.REMOVE == actionType )
       {
         final Subscription subscription = getReplicantContext().findSubscription( address );
         /*
@@ -738,7 +725,7 @@ abstract class Connector
       }
       else
       {
-        assert ChannelChange.Action.UPDATE == actionType;
+        assert ChannelChangeDescriptor.Type.UPDATE == actionType;
         final Subscription subscription = getReplicantContext().findSubscription( address );
         if ( Replicant.shouldCheckInvariants() )
         {
@@ -761,6 +748,28 @@ abstract class Connector
       }
     }
     response.markChannelActionsProcessed();
+  }
+
+  @Nonnull
+  private List<ChannelChangeDescriptor> toChannelChanges( final ChangeSet changeSet )
+  {
+    final List<ChannelChangeDescriptor> changes = new ArrayList<>();
+
+    if ( changeSet.hasChannels() )
+    {
+      for ( final String channelChange : changeSet.getChannels() )
+      {
+        changes.add( ChannelChangeDescriptor.from( getSchema().getId(), channelChange ) );
+      }
+    }
+    if ( changeSet.hasFilteredChannels() )
+    {
+      for ( final ChannelChange channelChange : changeSet.getFilteredChannels() )
+      {
+        changes.add( ChannelChangeDescriptor.from( getSchema().getId(), channelChange ) );
+      }
+    }
+    return changes;
   }
 
   @Action( verifyRequired = false )
@@ -863,7 +872,7 @@ abstract class Connector
                                      connection.getUnparsedResponses().isEmpty() );
 
     final ChangeSet changeSet = response.getChangeSet();
-    if ( changeSet.hasChannelChanges() || changeSet.hasEntityChanges() )
+    if ( changeSet.hasChannels() || changeSet.hasFilteredChannels() || changeSet.hasEntityChanges() )
     {
       // If message is not a ping response then try to perform sync
       maybeRequestSync();
@@ -1008,27 +1017,32 @@ abstract class Connector
       }
     }
 
-    cacheMessageIfPossible( rawJsonData, changeSet );
+    cacheMessageIfPossible( rawJsonData, response, changeSet );
 
     response.recordChangeSet( changeSet, request );
     connection.queueCurrentResponse();
   }
 
-  private void cacheMessageIfPossible( @Nonnull final String rawJsonData, @Nonnull final ChangeSet changeSet )
+  private void cacheMessageIfPossible( @Nonnull final String rawJsonData,
+                                       @Nonnull final MessageResponse response,
+                                       @Nonnull final ChangeSet changeSet )
   {
     final String eTag = changeSet.getETag();
     final CacheService cacheService = getReplicantContext().getCacheService();
 
-    boolean candidate = false;
-    if ( null != cacheService &&
-         null != eTag &&
-         changeSet.hasChannelChanges() )
+    final boolean hasChannelChanges = changeSet.hasChannels() || changeSet.hasFilteredChannels();
+    if ( hasChannelChanges )
     {
-      final ChannelChange[] channelChanges = changeSet.getChannelChanges();
+      response.setParsedChannelChanges( toChannelChanges( changeSet ) );
+    }
+    boolean candidate = false;
+    if ( null != cacheService && null != eTag && hasChannelChanges )
+    {
+      final List<ChannelChangeDescriptor> channelChanges = response.getChannelChanges();
 
-      if ( 1 == channelChanges.length &&
-           ChannelChange.Action.ADD == channelChanges[ 0 ].getAction() &&
-           getSchema().getChannel( channelChanges[ 0 ].getChannelId() ).isCacheable() )
+      if ( 1 == channelChanges.size() &&
+           ChannelChangeDescriptor.Type.ADD == channelChanges.get( 0 ).getType() &&
+           getSchema().getChannel( channelChanges.get( 0 ).getAddress().getChannelId() ).isCacheable() )
       {
         final ChannelAddress address = channelChanges.get( 0 ).getAddress();
         cacheService.store( "RC-" + address.getName(), eTag, rawJsonData );

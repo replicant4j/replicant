@@ -22,41 +22,31 @@ public class ChangeSet
   @Nullable
   private String etag;
   @Nullable
-  private ChannelChange[] channel_actions;
+  private String[] channels;
+  @Nullable
+  private ChannelChange[] fchannels;
   @Nullable
   private EntityChange[] changes;
 
   @JsOverlay
   public static ChangeSet create( final int sequence,
-                                  final int requestId,
+                                  @Nullable final Integer requestId,
                                   @Nullable final String eTag,
-                                  @Nullable final ChannelChange[] channelChanges,
+                                  @Nullable final String[] channels,
+                                  @Nullable final ChannelChange[] fchannels,
                                   @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
     changeSet.last_id = sequence;
-    changeSet.requestId = (double) requestId;
+    changeSet.requestId = null == requestId ? null : requestId.doubleValue();
     changeSet.etag = eTag;
-    changeSet.channel_actions = channelChanges;
+    changeSet.channels = channels;
+    changeSet.fchannels = fchannels;
     changeSet.changes = entityChanges;
     return changeSet;
   }
 
-  @JsOverlay
-  public static ChangeSet create( final int sequence,
-                                  @Nullable final ChannelChange[] channelChanges,
-                                  @Nullable final EntityChange[] entityChanges )
-  {
-    final ChangeSet changeSet = new ChangeSet();
-    changeSet.last_id = sequence;
-    changeSet.requestId = null;
-    changeSet.etag = null;
-    changeSet.channel_actions = channelChanges;
-    changeSet.changes = entityChanges;
-    return changeSet;
-  }
-
-  private ChangeSet()
+  public ChangeSet()
   {
   }
 
@@ -91,32 +81,62 @@ public class ChangeSet
 
   /**
    * Return the channel changes that are part of the message.
-   * This should only be invoked if {@link #hasChannelChanges()} return true.
+   * This should only be invoked if {@link #hasChannels()} return true.
    *
    * @return the channel changes.
    */
   @Nonnull
   @JsOverlay
-  public final ChannelChange[] getChannelChanges()
+  public final String[] getChannels()
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> null != channel_actions,
-                    () -> "Replicant-0013: ChangeSet.getChannelChanges() invoked when no changes are present. Should guard call with ChangeSet.hasChannelChanges()." );
+      apiInvariant( () -> null != channels,
+                    () -> "Replicant-0013: ChangeSet.getChannels() invoked when no changes are present. Should guard call with ChangeSet.hasChannels()." );
     }
-    assert null != channel_actions;
-    return channel_actions;
+    assert null != channels;
+    return channels;
   }
 
   /**
-   * Return true if this ChangeSet contains ChannelChanges.
+   * Return true if this ChangeSet contains Channels.
    *
-   * @return true if this ChangeSet contains ChannelChanges
+   * @return true if this ChangeSet contains Channels
    */
   @JsOverlay
-  public final boolean hasChannelChanges()
+  public final boolean hasChannels()
   {
-    return null != channel_actions;
+    return null != channels;
+  }
+
+  /**
+   * Return the filtered channel changes that are part of the message.
+   * This should only be invoked if {@link #hasFilteredChannels()} return true.
+   *
+   * @return the channel changes.
+   */
+  @Nonnull
+  @JsOverlay
+  public final ChannelChange[] getFilteredChannels()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> null != fchannels,
+                    () -> "Replicant-0030: ChangeSet.getFilteredChannels() invoked when no changes are present. Should guard call with ChangeSet.hasFilteredChannels()." );
+    }
+    assert null != fchannels;
+    return fchannels;
+  }
+
+  /**
+   * Return true if this ChangeSet contains filtered channels.
+   *
+   * @return true if this ChangeSet contains filtered channels
+   */
+  @JsOverlay
+  public final boolean hasFilteredChannels()
+  {
+    return null != fchannels;
   }
 
   /**
@@ -170,18 +190,26 @@ public class ChangeSet
                               "messages with the id '" + id + "'." );
         }
       }
-      if ( null != channel_actions )
+      final HashSet<String> existingChannels = new HashSet<>();
+      if ( null != channels )
       {
-        final HashSet<String> existing = new HashSet<>();
-        for ( final ChannelChange channelAction : channel_actions )
+        for ( final String channelAction : channels )
         {
-          final int channelId = channelAction.getChannelId();
-          final Integer subChannelId = channelAction.hasSubChannelId() ? channelAction.getSubChannelId() : null;
-          final String key = channelId + "-" + subChannelId;
-          apiInvariant( () -> existing.add( key ),
+          final String key = channelAction.substring( 1 );
+          apiInvariant( () -> existingChannels.add( key ),
                         () -> "Replicant-0022: ChangeSet " + last_id + " contains multiple ChannelChange " +
-                              "messages for the channel with id " + channelId +
-                              ( null != subChannelId ? " and the subChannel with id " + subChannelId : "" ) + "." );
+                              "messages for the channel " + channelAction.substring( 1 ) + "." );
+        }
+      }
+      if ( null != fchannels )
+      {
+        for ( final ChannelChange channelChange : fchannels )
+        {
+          final String channelAction = channelChange.getChannel();
+          final String key = channelAction.substring( 1 );
+          apiInvariant( () -> existingChannels.add( key ),
+                        () -> "Replicant-0028: ChangeSet " + last_id + " contains multiple ChannelChange " +
+                              "messages for the channel " + channelAction.substring( 1 ) + "." );
 
         }
       }

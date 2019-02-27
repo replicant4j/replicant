@@ -69,48 +69,40 @@ final class ChangeSetParser
           object.containsKey( "requestId" ) ? object.getJsonNumber( "requestId" ).intValue() : null;
         final String etag =
           object.containsKey( "etag" ) ? object.getString( "etag" ) : null;
-        final ChannelChange[] channelChanges = parseChannelChanges( object );
+
+        final ChannelChange[] fchannels = parseChannelChanges( object );
         final EntityChange[] entityChanges = parseEntityChanges( object );
 
-        if ( null == requestId )
-        {
-          return ChangeSet.create( sequence, channelChanges, entityChanges );
-        }
-        else
-        {
-          return ChangeSet.create( sequence, requestId, etag, channelChanges, entityChanges );
-        }
+        return ChangeSet.create( sequence, requestId, etag, parseChannels( object ), fchannels, entityChanges );
       }
+    }
+
+    @GwtIncompatible
+    @Nullable
+    private String[] parseChannels( @Nonnull final JsonObject object )
+    {
+      return object.containsKey( "channels" ) ?
+             object.getJsonArray( "channels" )
+               .stream()
+               .map( value -> ( (JsonString) value ).getString() )
+               .toArray( String[]::new ) :
+             null;
     }
 
     @GwtIncompatible
     @Nullable
     private ChannelChange[] parseChannelChanges( @Nonnull final JsonObject object )
     {
-      if ( object.containsKey( "channel_actions" ) )
-      {
-        final ArrayList<ChannelChange> changes = new ArrayList<>();
-        for ( final JsonValue value : object.getJsonArray( "channel_actions" ) )
-        {
-          final JsonObject change = (JsonObject) value;
-          final int cid = change.getInt( "cid" );
-          final Integer scid = change.containsKey( "scid" ) ? change.getInt( "scid" ) : null;
-          final ChannelChange.Action action =
-            ChannelChange.Action.valueOf( change.getString( "action" ).toUpperCase() );
-
-          // TODO: Filters not yet supported properly
-          final Object filter = change.getOrDefault( "filter", null );
-
-          changes.add( null == scid ?
-                       ChannelChange.create( cid, action, filter ) :
-                       ChannelChange.create( cid, scid, action, filter ) );
-        }
-        return changes.toArray( new ChannelChange[ 0 ] );
-      }
-      else
-      {
-        return null;
-      }
+      // TODO: Filters not yet supported properly
+      return object.containsKey( "fchannels" ) ?
+             object
+               .getJsonArray( "fchannels" )
+               .stream()
+               .map( value -> (JsonObject) value )
+               .map( change -> ChannelChange.create( change.getString( "channel" ),
+                                                     change.getOrDefault( "filter", null ) ) )
+               .toArray( ChannelChange[]::new ) :
+             null;
     }
 
     @GwtIncompatible

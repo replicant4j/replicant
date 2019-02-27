@@ -6,19 +6,20 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAction.Action;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
 
 /**
@@ -64,27 +65,26 @@ public final class JsonEncoder
       generator.write( TransportConstants.ETAG, etag );
     }
 
-    final LinkedList<ChannelAction> actions = changeSet.getChannelActions();
-    if ( 0 != actions.size() )
+    final List<ChannelAction> actions =
+      changeSet.getChannelActions().stream().filter( c -> null == c.getFilter() ).collect( Collectors.toList() );
+    if ( !actions.isEmpty() )
     {
       generator.writeStartArray( TransportConstants.CHANNEL_ACTIONS );
-      for ( final ChannelAction action : actions )
-      {
+      actions.stream().map( JsonEncoder::toDescriptor ).forEach( generator::write );
+      generator.writeEnd();
+    }
+
+    final List<ChannelAction> filteredActions =
+      changeSet.getChannelActions().stream().filter( c -> null != c.getFilter() ).collect( Collectors.toList() );
+    if ( !filteredActions.isEmpty() )
+    {
+      generator.writeStartArray( TransportConstants.FILTERED_CHANNEL_ACTIONS );
+      filteredActions.forEach( a -> {
         generator.writeStartObject();
-        generator.write( TransportConstants.CHANNEL_ID, action.getAddress().getChannelId() );
-        writeSubChannel( generator, action.getAddress().getSubChannelId() );
-        final String actionValue =
-          action.getAction() == Action.ADD ? TransportConstants.ACTION_ADD :
-          action.getAction() == Action.REMOVE ? TransportConstants.ACTION_REMOVE :
-          TransportConstants.ACTION_UPDATE;
-        generator.write( TransportConstants.ACTION, actionValue );
-        final JsonObject filter = action.getFilter();
-        if ( null != filter )
-        {
-          generator.write( TransportConstants.CHANNEL_FILTER, filter );
-        }
+        generator.write( TransportConstants.CHANNEL, toDescriptor( a ) );
+        generator.write( TransportConstants.CHANNEL_FILTER, a.getFilter() );
         generator.writeEnd();
-      }
+      } );
       generator.writeEnd();
     }
 
@@ -133,6 +133,21 @@ public final class JsonEncoder
     return writer.toString();
   }
 
+  @Nonnull
+  private static String toDescriptor( final ChannelAction channelAction )
+  {
+    final Action action = channelAction.getAction();
+    final String actionValue =
+      action == Action.ADD ? TransportConstants.ACTION_ADD :
+      action == Action.REMOVE ? TransportConstants.ACTION_REMOVE :
+      TransportConstants.ACTION_UPDATE;
+
+    final ChannelAddress address = channelAction.getAddress();
+
+    final Integer scid = address.getSubChannelId();
+    return actionValue + address.getChannelId() + ( null == scid ? "" : "." + scid );
+  }
+
   private static void writeField( final JsonGenerator generator,
                                   final String key,
                                   final Serializable serializable,
@@ -169,15 +184,6 @@ public final class JsonEncoder
     else
     {
       throw new IllegalStateException( "Unable to encode: " + serializable );
-    }
-  }
-
-  private static void writeSubChannel( @Nonnull final JsonGenerator generator,
-                                       @Nullable final Integer value )
-  {
-    if ( null != value )
-    {
-      generator.write( TransportConstants.SUBCHANNEL_ID, value );
     }
   }
 }

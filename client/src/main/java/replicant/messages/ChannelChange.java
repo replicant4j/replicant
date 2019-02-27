@@ -12,15 +12,7 @@ import jsinterop.annotations.JsType;
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class ChannelChange
 {
-  public enum Action
-  {
-    ADD, REMOVE, UPDATE
-  }
-
-  private int cid;
-  @Nullable
-  private Double scid;
-  private String action;
+  private String channel;
   @Nullable
   private Object filter;
 
@@ -30,13 +22,10 @@ public class ChannelChange
    * @return the new ChannelChange.
    */
   @JsOverlay
-  public static ChannelChange create( final int cid,
-                                      @Nonnull final Action action,
-                                      @Nullable final Object filter )
+  public static ChannelChange create( @Nonnull final String channelAction, @Nullable final Object filter )
   {
     final ChannelChange channel = new ChannelChange();
-    channel.cid = cid;
-    channel.action = action.name().toLowerCase();
+    channel.channel = channelAction;
     channel.filter = filter;
     return channel;
   }
@@ -46,63 +35,23 @@ public class ChannelChange
   }
 
   /**
-   * Create a ChannelChange.
+   * Return the channel action description.
    *
-   * @return the new ChannelChange.
+   * @return the channel action description.
    */
   @JsOverlay
-  public static ChannelChange create( final int cid,
-                                      final int scid,
-                                      @Nonnull final Action action,
-                                      @Nullable final Object filter )
+  @Nonnull
+  public final String getChannel()
   {
-    assert Action.REMOVE != action || null == filter;
-    final ChannelChange channel = create( cid, action, filter );
-    channel.scid = (double) scid;
     return channel;
   }
 
   /**
    * @return the id of the Channel.
    */
-  @JsOverlay
-  public final int getChannelId()
-  {
-    return cid;
-  }
-
-  /**
-   * @return true if the reference has a SubChannel id present.
-   */
-  @JsOverlay
-  public final boolean hasSubChannelId()
-  {
-    return null != scid;
-  }
-
-  /**
-   * Return the sub-channel id.
-   * This method should not be invoked unless {@link #hasSubChannelId()} returns true.
-   *
-   * @return the sub-channel id.
-   */
-  @JsOverlay
-  public final int getSubChannelId()
-  {
-    assert null != scid;
-    return scid.intValue();
-  }
-
-  @JsOverlay
-  @Nonnull
-  public final Action getAction()
-  {
-    return Action.valueOf( action.toUpperCase() );
-  }
-
   @Nullable
   @JsOverlay
-  public final Object getChannelFilter()
+  public final Object getFilter()
   {
     return filter;
   }

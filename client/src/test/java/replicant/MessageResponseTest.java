@@ -44,10 +44,10 @@ public class MessageResponseTest
     final MessageResponse action3 = new MessageResponse( "", mock( SafeProcedure.class ) );
     final MessageResponse action4 = new MessageResponse( "", mock( SafeProcedure.class ) );
 
-    final ChangeSet changeSet1 = ChangeSet.create( 1, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSet changeSet2 = ChangeSet.create( 2, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSet changeSet3 = ChangeSet.create( 3, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSet changeSet4 = ChangeSet.create( 4, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet1 = ChangeSet.create( 1, null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet2 = ChangeSet.create( 2, null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet3 = ChangeSet.create( 3, null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final ChangeSet changeSet4 = ChangeSet.create( 4, null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
     action1.recordChangeSet( changeSet1, null );
     action2.recordChangeSet( changeSet2, null );
@@ -78,7 +78,7 @@ public class MessageResponseTest
     final int sequence = ValueUtil.randomInt();
     final int requestId = ValueUtil.randomInt();
     final ChangeSet changeSet =
-      ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+      ChangeSet.create( sequence, requestId, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
     final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
     action.recordChangeSet( changeSet, null );
@@ -144,9 +144,9 @@ public class MessageResponseTest
                   "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
     final int sequence = 33;
-    final Integer requestId = 767576;
+    final int requestId = 767576;
     final ChangeSet changeSet =
-      ChangeSet.create( sequence, requestId, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+      ChangeSet.create( sequence, requestId, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
     action.recordChangeSet( changeSet, null );
 
     assertEquals( action.toString(),
@@ -195,7 +195,8 @@ public class MessageResponseTest
 
     final Object[] entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
 
-    final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
+    final ChangeSet changeSet =
+      ChangeSet.create( sequence, requestId, null, null, channelChanges, entityChanges );
 
     final SafeProcedure completionAction = mock( SafeProcedure.class );
     final String rawJsonData = ValueUtil.randomString();
@@ -294,14 +295,14 @@ public class MessageResponseTest
     // Channel updates
     final String filter1 = ValueUtil.randomString();
     final String filter2 = ValueUtil.randomString();
-    final ChannelChange channelChange1 = ChannelChange.create( 42, ChannelChange.Action.ADD, filter1 );
-    final ChannelChange channelChange2 = ChannelChange.create( 43, 1, ChannelChange.Action.UPDATE, filter2 );
-    final ChannelChange channelChange3 = ChannelChange.create( 43, 2, ChannelChange.Action.REMOVE, null );
-    final ChannelChange[] channelChanges = new ChannelChange[]{ channelChange1, channelChange2, channelChange3 };
+    final ChannelChange channelChange1 = ChannelChange.create( "+42", filter1 );
+    final ChannelChange channelChange2 = ChannelChange.create( "=43.1", filter2 );
+    final ChannelChange[] channelChanges = new ChannelChange[]{ channelChange1, channelChange2 };
 
     final EntityChange[] entityChanges = new EntityChange[ 0 ];
 
-    final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
+    final ChangeSet changeSet =
+      ChangeSet.create( sequence, requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
 
     final SafeProcedure completionAction = mock( SafeProcedure.class );
     final String rawJsonData = ValueUtil.randomString();
@@ -358,12 +359,8 @@ public class MessageResponseTest
     final int sequence = 1;
     final int requestId = ValueUtil.randomInt();
 
-    // Channel updates
-    final ChannelChange[] channelChanges = new ChannelChange[ 0 ];
-
-    final EntityChange[] entityChanges = new EntityChange[ 0 ];
-
-    final ChangeSet changeSet = ChangeSet.create( sequence, requestId, null, channelChanges, entityChanges );
+    final ChangeSet changeSet =
+      ChangeSet.create( sequence, requestId, null, new String[ 0 ], new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
     final SafeProcedure oobCompletionAction = mock( SafeProcedure.class );
     final String rawJsonData = ValueUtil.randomString();
@@ -404,11 +401,7 @@ public class MessageResponseTest
     final MessageResponse action = new MessageResponse( ValueUtil.randomString(), mock( SafeProcedure.class ) );
 
     final ChangeSet changeSet =
-      ChangeSet.create( ValueUtil.randomInt(),
-                        1234,
-                        null,
-                        new ChannelChange[ 0 ],
-                        new EntityChange[ 0 ] );
+      ChangeSet.create( ValueUtil.randomInt(), 1234, null, null, null, null );
 
     final RequestEntry request = new RequestEntry( 1234, "DoMagic" );
 
@@ -424,11 +417,7 @@ public class MessageResponseTest
     final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
 
     final ChangeSet changeSet =
-      ChangeSet.create( ValueUtil.randomInt(),
-                        1234,
-                        null,
-                        new ChannelChange[ 0 ],
-                        new EntityChange[ 0 ] );
+      ChangeSet.create( ValueUtil.randomInt(), 1234, null, null, null, null );
 
     final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString() );
 
