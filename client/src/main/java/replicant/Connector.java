@@ -1045,7 +1045,7 @@ abstract class Connector
            getSchema().getChannel( channelChanges.get( 0 ).getAddress().getChannelId() ).isCacheable() )
       {
         final ChannelAddress address = channelChanges.get( 0 ).getAddress();
-        cacheService.store( "RC-" + address.getName(), eTag, rawJsonData );
+        cacheService.store( address.getCacheKey(), eTag, rawJsonData );
         candidate = true;
       }
     }
@@ -1224,7 +1224,7 @@ abstract class Connector
     final CacheService cacheService = getReplicantContext().getCacheService();
     final boolean cacheable =
       null != cacheService && getSchema().getChannel( request.getAddress().getChannelId() ).isCacheable();
-    final CacheEntry cacheEntry = cacheable ? cacheService.lookup( request.getCacheKey() ) : null;
+    final CacheEntry cacheEntry = cacheable ? cacheService.lookup( request.getAddress().getCacheKey() ) : null;
     if ( null != cacheEntry )
     {
       //Found locally cached data
@@ -1233,7 +1233,7 @@ abstract class Connector
       {
         // Loading cached data
         completeAreaOfInterestRequest();
-        ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), onSuccess );
+        ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), () -> onSubscribeCompleted( address ) );
         triggerMessageScheduler();
       };
       getTransport()

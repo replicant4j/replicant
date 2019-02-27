@@ -47,13 +47,6 @@ final class AreaOfInterestRequest
     return _type;
   }
 
-  @Nonnull
-  String getCacheKey()
-  {
-    final Integer id = _address.getId();
-    return _address.getSystemId() + "." + _address.getChannelId() + ( null != id ? "." + id : "" );
-  }
-
   @Nullable
   Object getFilter()
   {

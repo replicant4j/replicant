@@ -64,6 +64,12 @@ public final class ChannelAddress
     return getSystemId() + "." + getChannelId() + ( null != _id ? "." + _id : "" );
   }
 
+  @Nonnull
+  public String getCacheKey()
+  {
+    return "RC-" + getName();
+  }
+
   @Override
   public boolean equals( final Object o )
   {

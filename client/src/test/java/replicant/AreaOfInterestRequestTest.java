@@ -18,7 +18,6 @@ public class AreaOfInterestRequestTest
 
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getType(), action );
-    assertEquals( entry.getCacheKey(), "1.2" );
     assertEquals( entry.toString(), "AreaOfInterestRequest[Type=ADD Address=1.2]" );
     assertEquals( entry.getFilter(), filter );
     assertTrue( entry.match( action, address, filter ) );

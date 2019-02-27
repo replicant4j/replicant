@@ -17,6 +17,13 @@ public class ChannelAddressTest
     assertEquals( address.getId(), (Integer) 1 );
   }
 
+  @Test
+  public void getCacheKey()
+  {
+    final ChannelAddress address = new ChannelAddress( 2, 4, 1 );
+    assertEquals( address.getCacheKey(), "RC-2.4.1" );
+  }
+
   @SuppressWarnings( "EqualsWithItself" )
   @Test
   public void testEquals()

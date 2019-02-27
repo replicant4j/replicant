@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Caching fixed as the synthesis of the cache key had diverged between the code that added data to the
+  cache and the code that retrieved data from the cache. To avoid a similar problem in the future the
+  generation of the cache key has been moved to the `ChannelAddress` class.
+
 ### [v6.33](https://github.com/replicant4j/replicant/tree/v6.33) (2019-02-27)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.32...v6.33)
 

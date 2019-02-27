@@ -393,8 +393,8 @@ final class Connection
     final CacheService cacheService = _connector.getReplicantContext().getCacheService();
     return null != template.getAddress().getId() &&
            null != match.getAddress().getId() &&
-           ( null == cacheService || null == cacheService.lookup( template.getCacheKey() ) ) &&
-           ( null == cacheService || null == cacheService.lookup( match.getCacheKey() ) ) &&
+           ( null == cacheService || null == cacheService.lookup( template.getAddress().getCacheKey() ) ) &&
+           ( null == cacheService || null == cacheService.lookup( match.getAddress().getCacheKey() ) ) &&
            template.getType().equals( match.getType() ) &&
            template.getAddress().getChannelId() == match.getAddress().getChannelId() &&
            ( AreaOfInterestRequest.Type.REMOVE == match.getType() ||
