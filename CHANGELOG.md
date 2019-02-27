@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.33](https://github.com/replicant4j/replicant/tree/v6.33) (2019-02-27)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.32...v6.33)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b19-fb227e3`.
 * Change the serialized representation of links from an entity to a channel from an array
