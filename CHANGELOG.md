@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.34](https://github.com/replicant4j/replicant/tree/v6.34) (2019-02-27)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.33...v6.34)
 
 * Caching fixed as the synthesis of the cache key had diverged between the code that added data to the
   cache and the code that retrieved data from the cache. To avoid a similar problem in the future the
