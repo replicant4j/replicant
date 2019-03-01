@@ -8,7 +8,18 @@ public final class ChannelMetaData
 {
   public enum FilterType
   {
-    NONE, STATIC, DYNAMIC
+    /**
+     * No filtering
+     */
+    NONE,
+    /**
+     * Filtering occurs and the client passes a filter parameter but can never change the filter parameter without unsubscribing and resubscribing to graph.
+     */
+    STATIC,
+    /**
+     * Filtering occurs and the client passes a filter parameter and can change the filter parameter.
+     */
+    DYNAMIC
   }
 
   private final int _channelId;
