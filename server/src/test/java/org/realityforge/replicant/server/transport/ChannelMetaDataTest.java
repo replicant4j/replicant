@@ -16,6 +16,7 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
+    assertFalse( metaData.hasFilterParameter() );
     assertFalse( metaData.isExternal() );
 
     assertThrows( metaData::getFilterParameterType );
@@ -32,6 +33,7 @@ public class ChannelMetaDataTest
     assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
+    assertFalse( metaData.hasFilterParameter() );
     assertTrue( metaData.isExternal() );
   }
 
@@ -47,6 +49,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.STATIC );
     assertEquals( metaData.getFilterParameterType(), String.class );
     assertFalse( metaData.isCacheable() );
+    assertTrue( metaData.hasFilterParameter() );
     assertTrue( metaData.isExternal() );
   }
 

@@ -493,9 +493,7 @@ public abstract class AbstractSessionRestService
   @Nullable
   private Object toFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final String filterContent )
   {
-    return ChannelMetaData.FilterType.NONE == channelMetaData.getFilterType() ?
-           null :
-           parseFilter( channelMetaData, filterContent );
+    return channelMetaData.hasFilterParameter() ? parseFilter( channelMetaData, filterContent ) : null;
   }
 
   @SuppressWarnings( "unchecked" )

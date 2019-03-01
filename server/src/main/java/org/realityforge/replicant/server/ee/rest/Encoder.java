@@ -239,7 +239,7 @@ final class Encoder
     g.write( "url", getChannelURL( session, entry.getDescriptor(), uri ) );
     emitChannelDescriptor( systemMetaData, g, entry.getDescriptor() );
     g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
-    if ( channelMetaData.getFilterType() != ChannelMetaData.FilterType.NONE )
+    if ( channelMetaData.hasFilterParameter() )
     {
       final Object f = entry.getFilter();
       if ( null == f )

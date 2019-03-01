@@ -768,8 +768,7 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).getFilterType() !=
-           ChannelMetaData.FilterType.NONE;
+    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).hasFilterParameter();
     entry.setFilter( filter );
     final ChannelAddress address = entry.getDescriptor();
     collectDataForSubscriptionUpdate( entry.getDescriptor(), changeSet, originalFilter, filter );
@@ -974,14 +973,13 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelAddress target = link.getTargetChannel();
-      final boolean targetUnfiltered =
-        getSystemMetaData().getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
-      if ( targetUnfiltered || shouldFollowLink( sourceEntry, target ) )
+      final boolean linkingConditional = !getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
+      if ( linkingConditional || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          subscribe( session, target, false, targetUnfiltered ? null : sourceEntry.getFilter(), changeSet );
+          subscribe( session, target, false, linkingConditional ? null : sourceEntry.getFilter(), changeSet );
           linkSubscriptionEntries( sourceEntry, session.getSubscriptionEntry( target ) );
           return true;
         }

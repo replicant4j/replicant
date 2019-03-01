@@ -38,13 +38,13 @@ public final class ChannelMetaData
     _typeGraph = isTypeGraph;
     _filterType = Objects.requireNonNull( filterType );
     _filterParameterType = filterParameterType;
-    if ( FilterType.NONE == filterType && null != filterParameterType )
+    if ( !hasFilterParameter() && null != filterParameterType )
     {
-      throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to NONE" );
+      throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
     }
-    else if ( FilterType.NONE != filterType && null == filterParameterType )
+    else if ( hasFilterParameter() && null == filterParameterType )
     {
-      throw new IllegalArgumentException( "FilterParameterType not specified but filterType is not set to NONE" );
+      throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
     _cacheable = cacheable;
     _external = external;
@@ -75,6 +75,11 @@ public final class ChannelMetaData
   public FilterType getFilterType()
   {
     return _filterType;
+  }
+
+  public boolean hasFilterParameter()
+  {
+    return FilterType.DYNAMIC == _filterType || FilterType.STATIC == _filterType;
   }
 
   @Nonnull

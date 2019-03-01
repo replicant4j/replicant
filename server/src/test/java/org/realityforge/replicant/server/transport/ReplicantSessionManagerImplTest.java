@@ -978,7 +978,7 @@ public class ReplicantSessionManagerImplTest
     assertChannelActionCount( 0 );
     assertEntry( e1, false, 0, 0, null );
 
-    sm.performUpdateSubscription( session, e1, originalFilter, filter, getChangeSet() );
+    sm.performUpdateSubscription( e1, originalFilter, filter, getChangeSet() );
 
     assertEntry( e1, false, 0, 0, filter );
 
