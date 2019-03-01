@@ -428,7 +428,7 @@ public abstract class ReplicantSessionManagerImpl
     final Object originalFilter = entry.getFilter();
     if ( !doFiltersMatch( filter, originalFilter ) )
     {
-      performUpdateSubscription( session, entry, originalFilter, filter, changeSet );
+      performUpdateSubscription( entry, originalFilter, filter, changeSet );
     }
   }
 
@@ -763,8 +763,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  void performUpdateSubscription( @Nonnull final ReplicantSession session,
-                                  @Nonnull final SubscriptionEntry entry,
+  void performUpdateSubscription( @Nonnull final SubscriptionEntry entry,
                                   @Nullable final Object originalFilter,
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
