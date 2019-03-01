@@ -13,6 +13,10 @@ public final class ChannelMetaData
      */
     NONE,
     /**
+     * Filtering occurs but no parameter is passed to control such behaviour. Filtering rules are internal to the data.
+     */
+    INTERNAL,
+    /**
      * Filtering occurs and the client passes a filter parameter but can never change the filter parameter without unsubscribing and resubscribing to graph.
      */
     STATIC,

@@ -19,6 +19,8 @@ public final class ChannelSchema
   {
     /// No filtering
     NONE,
+    // Filtering occurs but no parameter is passed to control such behaviour. Filtering rules are internal to the data.
+    INTERNAL,
     /// Filtering is specified when the channel is created and is unable to be changed
     STATIC,
     /// Filtering can be changed after the channel has been created

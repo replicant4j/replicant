@@ -4,6 +4,9 @@
 
 * Add `ChannelMetaData.hasFilterParameter()` helper method to simplify the code that works differently
   depending on the presence or non-presence of thefilter parameter.
+* Add filtering type of `INTERNAL` that indicates that a graph is filtered but there is no parameter
+  that controls the filtering behaviour and instead the filtering is due to internal structure of the
+  data or the server.
 
 ### [v6.34](https://github.com/replicant4j/replicant/tree/v6.34) (2019-02-27)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.33...v6.34)
