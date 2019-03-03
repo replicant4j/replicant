@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
