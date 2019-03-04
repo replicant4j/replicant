@@ -11,7 +11,13 @@ public final class ChannelAction
 {
   public enum Action
   {
-    ADD, REMOVE, UPDATE
+    // The channel has been successfully added.
+    ADD,
+    // The channel has been removed. This could be as a result of client request or as a result of the
+    // filter excluding the graph, as the root instance being deleted
+    REMOVE,
+    // The filter associated with the channel has been updated
+    UPDATE
   }
 
   @Nonnull
