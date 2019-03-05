@@ -46,6 +46,25 @@ final class Scheduler
       }
       DomGlobal.requestAnimationFrame( v -> schedule( command ) );
     }
+/*
+    When we no longer need to support IE11 we should move to this code.
+
+    void schedule( @Nonnull final SafeFunction<Boolean> command )
+    {
+      DomGlobal.requestIdleCallback( deadline -> idleSchedule( deadline, command ) );
+    }
+
+    private void idleSchedule( @Nonnull final IdleDeadline deadline, @Nonnull final SafeFunction<Boolean> command )
+    {
+      while ( !deadline.isDidTimeout() )
+      {
+        if ( !command.call() )
+        {
+          return;
+        }
+      }
+      DomGlobal.requestIdleCallback( v -> idleSchedule( v, command ) );
+*/
   }
 
   private Scheduler()
