@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)
 
 * Remove `AbstractSessionContextImpl` as it was effectively unused. While subclasses exist, none of
   the subclasses invoked any of the `AbstractSessionContextImpl` methods.
