@@ -9,6 +9,8 @@
   instance graph has been deleted and will not be coming back. This allows the client-side to respond
   appropriately and differs from `REMOVED` that may just indicates that has been removed from the area
   of interest.
+* Emit the `SubscribeRequestQueuedEvent` before triggering scheduler so that the spy message is emitted
+  prior to performing action which improves traceability.
 
 ### [v6.35](https://github.com/replicant4j/replicant/tree/v6.35) (2019-03-01)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.34...v6.35)

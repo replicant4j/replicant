@@ -349,11 +349,11 @@ abstract class Connector
   final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     ensureConnection().requestSubscribe( address, filter );
-    triggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestQueuedEvent( address, filter ) );
     }
+    triggerMessageScheduler();
   }
 
   final void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
