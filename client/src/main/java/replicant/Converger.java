@@ -157,29 +157,32 @@ abstract class Converger
       // into first AreaOfInterest. If this is not here then the converger will not re-run.
       areaOfInterest.getStatus();
 
-      final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction );
-      switch ( action )
+      if ( AreaOfInterest.Status.DELETED != areaOfInterest.getStatus() )
       {
-        case SUBMITTED_ADD:
-          groupAction = AreaOfInterestRequest.Type.ADD;
-          groupTemplate = areaOfInterest;
-          break;
-        case SUBMITTED_UPDATE:
-          groupAction = AreaOfInterestRequest.Type.UPDATE;
-          groupTemplate = areaOfInterest;
-          break;
-        case SUBMITTED_REMOVE:
-          // A request to update a subscription that has static filter has resulted in remove being submitted.
-          return;
-        case IN_PROGRESS:
-          if ( null == groupTemplate )
-          {
-            // First thing in the subscription queue is in flight, so terminate
+        final Action action = convergeAreaOfInterest( areaOfInterest, groupTemplate, groupAction );
+        switch ( action )
+        {
+          case SUBMITTED_ADD:
+            groupAction = AreaOfInterestRequest.Type.ADD;
+            groupTemplate = areaOfInterest;
+            break;
+          case SUBMITTED_UPDATE:
+            groupAction = AreaOfInterestRequest.Type.UPDATE;
+            groupTemplate = areaOfInterest;
+            break;
+          case SUBMITTED_REMOVE:
+            // A request to update a subscription that has static filter has resulted in remove being submitted.
             return;
-          }
-          break;
-        case NO_ACTION:
-          break;
+          case IN_PROGRESS:
+            if ( null == groupTemplate )
+            {
+              // First thing in the subscription queue is in flight, so terminate
+              return;
+            }
+            break;
+          case NO_ACTION:
+            break;
+        }
       }
     }
     if ( null != groupTemplate )
