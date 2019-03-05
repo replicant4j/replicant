@@ -11,7 +11,7 @@
   of interest.
 * Emit the `SubscribeRequestQueuedEvent` before triggering scheduler so that the spy message is emitted
   prior to performing action which improves traceability.
-* Avoid convering any actions for `DELETED` `AreaOfInterest` instances.
+* Avoid converging any actions for `DELETED` `AreaOfInterest` instances.
 
 ### [v6.35](https://github.com/replicant4j/replicant/tree/v6.35) (2019-03-01)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.34...v6.35)
