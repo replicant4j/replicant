@@ -706,6 +706,34 @@ public class ConnectorTest
     } );
   }
 
+
+  @Test
+  public void onSubscribeCompleted_DeletedSubscription()
+    throws Exception
+  {
+    final Connector connector = createConnector();
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    safeAction( () -> areaOfInterest.setStatus( AreaOfInterest.Status.DELETED ) );
+
+    createSubscription( address, null, true );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.onSubscribeCompleted( address );
+
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.DELETED );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getAddress(), address );
+    } );
+  }
+
   @Test
   public void onSubscribeFailed()
     throws Exception
@@ -1870,9 +1898,78 @@ public class ConnectorTest
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
-    assertEquals( response.getChannelRemoveCount(), 0 );
+    assertEquals( response.getChannelRemoveCount(), 1 );
 
     handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void processChannelChanges_remove_WithMissingSubscription_butAreaOfInterestPresent()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+
+    final AreaOfInterest areaOfInterest =
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    final String[] channels = { "-0." + address.getId() };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channels, null, null ), null );
+    response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
+    assertTrue( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelRemoveCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges();
+
+    assertFalse( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelRemoveCount(), 1 );
+
+    assertTrue( Disposable.isDisposed( areaOfInterest ) );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest().getAddress(), address ) );
+  }
+
+  @Test
+  public void processChannelChanges_delete_WithMissingSubscription_butAreaOfInterestPresent()
+  {
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
+
+    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    connection.setCurrentMessageResponse( response );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+
+    final AreaOfInterest areaOfInterest =
+      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
+
+    final String[] channels = { "!0." + address.getId() };
+    response.recordChangeSet( ChangeSet.create( ValueUtil.randomInt(), null, null, channels, null, null ), null );
+    response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
+    assertTrue( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelRemoveCount(), 0 );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    connector.processChannelChanges();
+
+    assertFalse( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelRemoveCount(), 1 );
+
+    assertFalse( Disposable.isDisposed( areaOfInterest ) );
+    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.DELETED );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest().getAddress(), address ) );
   }
 
   @Test

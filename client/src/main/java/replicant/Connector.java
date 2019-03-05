@@ -701,8 +701,23 @@ abstract class Connector
             .anyMatch( a -> a.getAddress().equals( address ) );
         getReplicantContext().getSubscriptionService().createSubscription( address, filter, explicitSubscribe );
       }
-      else if ( ChannelChangeDescriptor.Type.REMOVE == actionType )
+      else if ( ChannelChangeDescriptor.Type.REMOVE == actionType || ChannelChangeDescriptor.Type.DELETE == actionType )
       {
+        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
+        if ( null != areaOfInterest )
+        {
+          if ( ChannelChangeDescriptor.Type.DELETE == actionType )
+          {
+            areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.DELETED, null );
+          }
+          else
+          {
+            // This means it has been deleted on the server side
+            // We dispose it locally and assume that whatever component create AreaOfInterest can respond appropriately
+            Disposable.dispose( areaOfInterest );
+          }
+        }
+
         final Subscription subscription = getReplicantContext().findSubscription( address );
         /*
          * It is possible for a subscription to no longer be present and still receive a remove action
@@ -713,15 +728,9 @@ abstract class Connector
          */
         if ( null != subscription )
         {
-          final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
-          if ( null != areaOfInterest )
-          {
-            // This means it has been deleted on the server side
-            Disposable.dispose( areaOfInterest );
-          }
           Disposable.dispose( subscription );
-          response.incChannelRemoveCount();
         }
+        response.incChannelRemoveCount();
       }
       else
       {
@@ -1562,7 +1571,11 @@ abstract class Connector
   @Action
   protected void onSubscribeCompleted( @Nonnull final ChannelAddress address )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.LOADED, null );
+    final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
+    if ( null != areaOfInterest && AreaOfInterest.Status.DELETED != areaOfInterest.getStatus() )
+    {
+      areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
+    }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()

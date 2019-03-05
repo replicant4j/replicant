@@ -34,6 +34,7 @@ import static org.testng.Assert.*;
 /**
  * TODO: Add tests for saveEntityMessages
  */
+@SuppressWarnings( "Duplicates" )
 public class ReplicantSessionManagerImplTest
 {
   private ChangeSet _changeSet;
@@ -184,7 +185,7 @@ public class ReplicantSessionManagerImplTest
 
     sm.setCacheKey( "X" );
 
-    sm.ensureCacheEntry( cd1 );
+    sm.tryGetCacheEntry( cd1 );
 
     assertTrue( sm.deleteCacheEntry( cd1 ) );
   }
@@ -486,10 +487,13 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData ch2 =
       new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+    final ChannelMetaData ch3 =
+      new ChannelMetaData( 2, "C3", false, ChannelMetaData.FilterType.NONE, null, false, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), null );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId() );
+    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId() );
+    final ChannelAddress cd3 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -549,6 +553,30 @@ public class ReplicantSessionManagerImplTest
 
       session.deleteSubscriptionEntry( e1 );
     }
+
+    // Root instance is deleted
+    {
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd3 );
+      //Rebind clears the state
+      resetChangeSet();
+
+      assertChannelActionCount( 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      sm.markChannelRootAsDeleted();
+
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, null, getChangeSet() );
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
+
+      assertEntry( e1, false, 0, 0, null );
+
+      final LinkedList<ChannelAction> actions = getChannelActions();
+      assertEquals( actions.size(), 1 );
+      assertChannelAction( actions.get( 0 ), cd3, ChannelAction.Action.DELETE, null );
+
+      assertEquals( getChanges().size(), 0 );
+    }
   }
 
   @Test
@@ -556,9 +584,12 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final ChannelMetaData ch2 =
+      new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, true, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId() );
+    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), 1 );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
@@ -566,6 +597,7 @@ public class ReplicantSessionManagerImplTest
 
     //Locally cached
     {
+      sm.deleteAllCacheEntries();
       final ReplicantSession session = sm.createSession();
       session.setETag( cd1, "X" );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
@@ -587,6 +619,7 @@ public class ReplicantSessionManagerImplTest
 
     //Locally cached but an old version
     {
+      sm.deleteAllCacheEntries();
       final ReplicantSession session = sm.createSession();
       session.setETag( cd1, "NOT" + sm._cacheKey );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
@@ -613,6 +646,7 @@ public class ReplicantSessionManagerImplTest
 
     //Not cached locally
     {
+      sm.deleteAllCacheEntries();
       final ReplicantSession session = sm.createSession();
       final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
       //Rebind clears the state
@@ -634,6 +668,31 @@ public class ReplicantSessionManagerImplTest
       assertEquals( packet.getETag(), "X" );
       assertEquals( packet.getChangeSet().getChanges().size(), 1 );
       assertEquals( packet.getChangeSet().getChannelActions().size(), 1 );
+    }
+
+    //Locally cached but deleted
+    {
+      sm.deleteAllCacheEntries();
+      final ReplicantSession session = sm.createSession();
+      session.setETag( cd1, "X" );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd2 );
+      //Rebind clears the state
+      resetChangeSet();
+
+      assertChannelActionCount( 0 );
+      assertEntry( e1, false, 0, 0, null );
+
+      sm.markChannelRootAsDeleted();
+
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.performSubscribe( session, e1, true, null, getChangeSet() );
+
+      assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
+
+      assertEntry( e1, false, 0, 0, null );
+
+      assertChannelActionCount( 0 );
+      assertSessionChangesCount( 0 );
     }
   }
 
@@ -1178,7 +1237,7 @@ public class ReplicantSessionManagerImplTest
     assertEntry( e1, false, 0, 0, originalFilter );
     assertEntry( e2, false, 0, 0, originalFilter );
 
-    sm.setBulkCollectDataForSubscriptionUpdate( true );
+    sm.markAsBulkCollectDataForSubscriptionUpdate();
 
     assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
 
@@ -1624,7 +1683,7 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
-  public void ensureCacheEntry()
+  public void tryGetCacheEntry()
   {
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
@@ -1633,16 +1692,62 @@ public class ReplicantSessionManagerImplTest
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
-    sm.setCacheKey( "MyCache" );
+    final String cacheKey = ValueUtil.randomString();
+    sm.setCacheKey( cacheKey );
 
     assertFalse( sm.getCacheEntry( cd1 ).isInitialized() );
 
-    final ChannelCacheEntry entry = sm.ensureCacheEntry( cd1 );
+    final ChannelCacheEntry entry = sm.tryGetCacheEntry( cd1 );
 
+    assertNotNull( entry );
     assertTrue( entry.isInitialized() );
     assertEquals( entry.getDescriptor(), cd1 );
-    assertEquals( entry.getCacheKey(), "MyCache" );
+    assertEquals( entry.getCacheKey(), cacheKey );
     assertEquals( entry.getChangeSet().getChanges().size(), 1 );
+  }
+
+  @Test
+  public void tryGetCacheEntry_entryNotCached()
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+
+    final String cacheKey = ValueUtil.randomString();
+    sm.setCacheKey( cacheKey );
+
+    assertFalse( sm.getCacheEntry( cd1 ).isInitialized() );
+
+    final ChannelCacheEntry entry = sm.tryGetCacheEntry( cd1 );
+
+    assertNotNull( entry );
+    assertTrue( entry.isInitialized() );
+    assertEquals( entry.getDescriptor(), cd1 );
+    assertEquals( entry.getCacheKey(), cacheKey );
+    assertEquals( entry.getChangeSet().getChanges().size(), 1 );
+  }
+
+  @Test
+  public void tryGetCacheEntry_entryNotCached_instanceDeleted()
+  {
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
+    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+
+    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+
+    sm.setCacheKey( ValueUtil.randomString() );
+    sm.markChannelRootAsDeleted();
+
+    assertFalse( sm.getCacheEntry( cd1 ).isInitialized() );
+
+    final ChannelCacheEntry entry = sm.tryGetCacheEntry( cd1 );
+
+    assertNull( entry );
   }
 
   private void assertEntry( @Nonnull final SubscriptionEntry entry,
@@ -1708,6 +1813,7 @@ public class ReplicantSessionManagerImplTest
     private String _cacheKey;
     private boolean _bulkCollectDataForSubscriptionUpdate;
     private int _bulkCollectDataForSubscriptionUpdateCallCount;
+    private boolean _channelRootDeleted;
 
     private TestReplicantSessionManager()
     {
@@ -1729,10 +1835,14 @@ public class ReplicantSessionManagerImplTest
       return _bulkCollectDataForSubscriptionUpdateCallCount;
     }
 
-    @SuppressWarnings( "SameParameterValue" )
-    void setBulkCollectDataForSubscriptionUpdate( final boolean bulkCollectDataForSubscriptionUpdate )
+    void markAsBulkCollectDataForSubscriptionUpdate()
     {
-      _bulkCollectDataForSubscriptionUpdate = bulkCollectDataForSubscriptionUpdate;
+      _bulkCollectDataForSubscriptionUpdate = true;
+    }
+
+    void markChannelRootAsDeleted()
+    {
+      _channelRootDeleted = true;
     }
 
     private void setCacheKey( final String cacheKey )
@@ -1789,17 +1899,25 @@ public class ReplicantSessionManagerImplTest
       return _bulkCollectDataForSubscriptionUpdate;
     }
 
+    @Nonnull
     @Override
-    protected String collectDataForSubscribe( @Nonnull final ChannelAddress descriptor,
-                                              @Nonnull final ChangeSet changeSet,
-                                              @Nullable final Object filter )
+    protected SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress descriptor,
+                                                       @Nonnull final ChangeSet changeSet,
+                                                       @Nullable final Object filter )
     {
-      final HashMap<String, Serializable> routingKeys = new HashMap<>();
-      final HashMap<String, Serializable> attributes = new HashMap<>();
-      attributes.put( "ID", 79 );
-      final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
-      changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getSubChannelId() ) );
-      return _cacheKey;
+      if ( !_channelRootDeleted )
+      {
+        final HashMap<String, Serializable> routingKeys = new HashMap<>();
+        final HashMap<String, Serializable> attributes = new HashMap<>();
+        attributes.put( "ID", 79 );
+        final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
+        changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getSubChannelId() ) );
+        return new SubscribeResult( false, _cacheKey );
+      }
+      else
+      {
+        return new SubscribeResult( true, null );
+      }
     }
 
     @Override

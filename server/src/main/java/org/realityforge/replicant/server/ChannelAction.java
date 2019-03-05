@@ -17,7 +17,9 @@ public final class ChannelAction
     // filter excluding the graph, as the root instance being deleted
     REMOVE,
     // The filter associated with the channel has been updated
-    UPDATE
+    UPDATE,
+    // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
+    DELETE
   }
 
   @Nonnull

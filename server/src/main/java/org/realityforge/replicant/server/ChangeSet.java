@@ -64,6 +64,17 @@ public final class ChangeSet
         return;
       }
     }
+    else if ( ChannelAction.Action.DELETE == action.getAction() )
+    {
+      final boolean removedAdd =
+        _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.getAction() &&
+                                       a.getAddress().equals( action.getAddress() ) );
+      _channelActions.removeIf( a -> a.getAddress().equals( action.getAddress() ) );
+      if ( removedAdd )
+      {
+        return;
+      }
+    }
 
     _channelActions.add( action );
   }

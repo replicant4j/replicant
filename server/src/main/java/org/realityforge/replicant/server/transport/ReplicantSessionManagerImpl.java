@@ -639,33 +639,58 @@ public abstract class ReplicantSessionManagerImpl
                                 @Nullable final Object filter,
                                 @Nonnull final ChangeSet changeSet )
   {
-    if ( explicitSubscribe )
-    {
-      entry.setExplicitlySubscribed( true );
-    }
     entry.setFilter( filter );
     final ChannelAddress address = entry.getDescriptor();
     final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
     if ( channelMetaData.isCacheable() )
     {
-      final ChannelCacheEntry cacheEntry = ensureCacheEntry( address );
-      final String eTag = cacheEntry.getCacheKey();
-      if ( eTag.equals( session.getETag( address ) ) )
+      final ChannelCacheEntry cacheEntry = tryGetCacheEntry( address );
+      if ( null != cacheEntry )
       {
-        return CacheStatus.USE;
+        if ( explicitSubscribe )
+        {
+          entry.setExplicitlySubscribed( true );
+        }
+
+        final String eTag = cacheEntry.getCacheKey();
+        if ( eTag.equals( session.getETag( address ) ) )
+        {
+          return CacheStatus.USE;
+        }
+        else
+        {
+          final ChangeSet cacheChangeSet = new ChangeSet();
+          cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
+          cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
+          sendPacket( session, eTag, cacheChangeSet );
+          return CacheStatus.REFRESH;
+        }
       }
       else
       {
+        // If we get here then we have requested a cacheable instance channel
+        // where the root has been removed
+        assert address.hasSubChannelId();
         final ChangeSet cacheChangeSet = new ChangeSet();
-        cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
-        cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
-        sendPacket( session, eTag, cacheChangeSet );
+        cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
+        sendPacket( session, null, cacheChangeSet );
         return CacheStatus.REFRESH;
       }
     }
 
-    collectDataForSubscribe( address, changeSet, filter );
-    changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
+    final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
+    if ( !result.isChannelRootDeleted() )
+    {
+      changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
+      if ( explicitSubscribe )
+      {
+        entry.setExplicitlySubscribed( true );
+      }
+    }
+    else
+    {
+      changeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
+    }
     return CacheStatus.REFRESH;
   }
 
@@ -682,13 +707,26 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  protected void deleteAllCacheEntries()
+  {
+    _cacheLock.writeLock().lock();
+    try
+    {
+      _cache.clear();
+    }
+    finally
+    {
+      _cacheLock.writeLock().unlock();
+    }
+  }
+
   /**
    * Return a CacheEntry for a specific channel. When this method returns the cache
    * data will have already been loaded. The cache data is loaded using a separate lock for
    * each channel cached.
    */
-  @Nonnull
-  protected ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelAddress address )
+  @Nullable
+  protected ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
     assert getSystemMetaData().getChannelMetaData( address ).isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( address );
@@ -713,10 +751,18 @@ public abstract class ReplicantSessionManagerImpl
         return entry;
       }
       final ChangeSet changeSet = new ChangeSet();
-      final String cacheKey = collectDataForSubscribe( address, changeSet, null );
-      assert null != cacheKey;
-      entry.init( cacheKey, changeSet );
-      return entry;
+      final SubscribeResult result = collectDataForSubscribe( address, changeSet, null );
+      if ( result.isChannelRootDeleted() )
+      {
+        return null;
+      }
+      else
+      {
+        final String cacheKey = result.getCacheKey();
+        assert null != cacheKey;
+        entry.init( cacheKey, changeSet );
+        return entry;
+      }
     }
     finally
     {
@@ -778,10 +824,10 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * @return the cacheKey if any. The return value is ignored for non-cacheable channels.
    */
-  @Nullable
-  protected abstract String collectDataForSubscribe( @Nonnull final ChannelAddress address,
-                                                     @Nonnull final ChangeSet changeSet,
-                                                     @Nullable final Object filter );
+  @Nonnull
+  protected abstract SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress address,
+                                                              @Nonnull final ChangeSet changeSet,
+                                                              @Nullable final Object filter );
 
   /**
    * This method is called in an attempt to use a more efficient method for bulk loading instance graphs.

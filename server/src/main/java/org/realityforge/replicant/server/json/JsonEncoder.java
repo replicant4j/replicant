@@ -21,6 +21,7 @@ import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.shared.SharedConstants;
 
 /**
  * Utility class used when encoding EntityMessage into JSON payload.
@@ -137,15 +138,16 @@ public final class JsonEncoder
   private static String toDescriptor( final ChannelAction channelAction )
   {
     final Action action = channelAction.getAction();
-    final String actionValue =
-      action == Action.ADD ? TransportConstants.ACTION_ADD :
-      action == Action.REMOVE ? TransportConstants.ACTION_REMOVE :
-      TransportConstants.ACTION_UPDATE;
+    final char actionValue =
+      Action.ADD == action ? SharedConstants.CHANNEL_ACTION_ADD :
+      Action.REMOVE == action ? SharedConstants.CHANNEL_ACTION_REMOVE :
+      Action.UPDATE == action ? SharedConstants.CHANNEL_ACTION_UPDATE :
+      SharedConstants.CHANNEL_ACTION_DELETE;
 
     final ChannelAddress address = channelAction.getAddress();
 
     final Integer scid = address.getSubChannelId();
-    return actionValue + address.getChannelId() + ( null == scid ? "" : "." + scid );
+    return String.valueOf( actionValue ) + address.getChannelId() + ( null == scid ? "" : "." + scid );
   }
 
   private static void writeField( final JsonGenerator generator,

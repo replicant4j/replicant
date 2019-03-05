@@ -142,6 +142,18 @@ public final class JsonEncoderTest
   }
 
   @Test
+  public void channelAction_DELETE()
+    throws Exception
+  {
+    final ChangeSet cs = new ChangeSet();
+    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.DELETE, null ) );
+    final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
+    assertNotNull( changeSet );
+
+    assertEquals( changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getString( 0 ), "!45" );
+  }
+
+  @Test
   public void encodeLong()
     throws Exception
   {

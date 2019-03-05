@@ -129,4 +129,15 @@ public class ChannelChangeDescriptorTest
     assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.UPDATE );
     assertEquals( descriptor.getFilter(), filter );
   }
+
+  @Test
+  public void deleteInstanceGraph()
+  {
+    final int schemaId = 0;
+    final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "!23.2" );
+    assertEquals( descriptor.getAddress().getSystemId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.DELETE );
+    assertNull( descriptor.getFilter() );
+  }
 }

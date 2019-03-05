@@ -32,6 +32,11 @@ public final class ChannelAddress
     return _subChannelId;
   }
 
+  public boolean hasSubChannelId()
+  {
+    return null != _subChannelId;
+  }
+
   @Override
   public boolean equals( final Object o )
   {

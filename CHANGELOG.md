@@ -4,6 +4,11 @@
 
 * Remove `AbstractSessionContextImpl` as it was effectively unused. While subclasses exist, none of
   the subclasses invoked any of the `AbstractSessionContextImpl` methods.
+* Add `ChannelAddress.hasSubChannelId()` helper method.
+* Add support for a separate `DELETED` channel action message that indicates that the root of an
+  instance graph has been deleted and will not be coming back. This allows the client-side to respond
+  appropriately and differs from `REMOVED` that may just indicates that has been removed from the area
+  of interest.
 
 ### [v6.35](https://github.com/replicant4j/replicant/tree/v6.35) (2019-03-01)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.34...v6.35)

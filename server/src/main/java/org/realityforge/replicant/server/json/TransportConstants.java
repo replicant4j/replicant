@@ -14,9 +14,6 @@ interface TransportConstants
   String CHANNEL_ACTIONS = "channels";
   String FILTERED_CHANNEL_ACTIONS = "fchannels";
   String CHANNEL = "channel";
-  String ACTION_ADD = "+";
-  String ACTION_REMOVE = "-";
-  String ACTION_UPDATE = "=";
   String CHANNELS = "channels";
   String CHANNEL_FILTER = "filter";
 }

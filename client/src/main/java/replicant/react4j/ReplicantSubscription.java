@@ -158,6 +158,9 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   protected abstract NoResultCallback getOnUnloaded();
 
+  @Nonnull
+  protected abstract NoResultCallback getOnDeleted();
+
   @ComponentDependency( action = ComponentDependency.Action.SET_NULL )
   @Observable
   @Nullable
@@ -290,10 +293,14 @@ public abstract class ReplicantSubscription<T>
                getOnInstanceSubscriptionUnloading().render( subscription, (T) subscription.getInstanceRoot() ) :
                getOnTypeSubscriptionUnloading().render( subscription );
       }
+      else if ( AreaOfInterest.Status.UNLOADED == status )
+      {
+        return getOnUnloaded().render();
+      }
       else
       {
-        assert AreaOfInterest.Status.UNLOADED == status;
-        return getOnUnloaded().render();
+        assert AreaOfInterest.Status.DELETED == status;
+        return getOnDeleted().render();
       }
     }
   }

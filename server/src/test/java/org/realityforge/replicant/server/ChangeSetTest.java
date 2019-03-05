@@ -3,6 +3,7 @@ package org.realityforge.replicant.server;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.realityforge.replicant.server.ChannelAction.Action;
@@ -172,5 +173,61 @@ public class ChangeSetTest
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
     assertNull( change.getChannels().get( 1 ) );
+  }
+
+  @Test
+  public void mergeActionDelete()
+  {
+    final ChangeSet changeSet = new ChangeSet();
+
+    assertEquals( changeSet.getChannelActions().size(), 0 );
+
+    final ChannelAddress address1 = new ChannelAddress( 1, 2 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 3 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 4 );
+
+    final TestFilter filter = new TestFilter( 23 );
+
+    changeSet.mergeAction( address1, Action.ADD, filter );
+    changeSet.mergeAction( address2, Action.REMOVE, null );
+    changeSet.mergeAction( address3, Action.UPDATE, filter );
+
+    assertEquals( changeSet.getChannelActions().size(), 3 );
+
+    assertAction( changeSet, Action.ADD, address1 );
+    assertAction( changeSet, Action.REMOVE, address2 );
+    assertAction( changeSet, Action.UPDATE, address3 );
+
+    changeSet.mergeAction( address3, Action.DELETE, null );
+
+    assertEquals( changeSet.getChannelActions().size(), 3 );
+
+    assertAction( changeSet, Action.ADD, address1 );
+    assertAction( changeSet, Action.REMOVE, address2 );
+    assertAction( changeSet, Action.DELETE, address3 );
+
+    changeSet.mergeAction( address2, Action.DELETE, null );
+
+    assertEquals( changeSet.getChannelActions().size(), 3 );
+
+    assertAction( changeSet, Action.ADD, address1 );
+    assertAction( changeSet, Action.DELETE, address2 );
+    assertAction( changeSet, Action.DELETE, address3 );
+
+    changeSet.mergeAction( address1, Action.DELETE, null );
+
+    assertEquals( changeSet.getChannelActions().size(), 2 );
+
+    assertAction( changeSet, Action.DELETE, address2 );
+    assertAction( changeSet, Action.DELETE, address3 );
+  }
+
+  private void assertAction( @Nonnull final ChangeSet changeSet,
+                             @Nonnull final Action action,
+                             @Nonnull final ChannelAddress address )
+  {
+    assertTrue( changeSet.getChannelActions()
+                  .stream()
+                  .anyMatch( a -> a.getAddress().equals( address ) && a.getAction() == action ) );
   }
 }

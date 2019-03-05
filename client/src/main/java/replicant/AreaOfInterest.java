@@ -33,7 +33,8 @@ public abstract class AreaOfInterest
     UPDATED,
     UPDATE_FAILED,
     UNLOADING,
-    UNLOADED
+    UNLOADED,
+    DELETED
   }
 
   @Nonnull

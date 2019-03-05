@@ -48,6 +48,12 @@ public final class SharedConstants
    */
   public static final int MAX_POLL_TIME_IN_SECONDS = 30;
 
+  public static final char CHANNEL_ACTION_ADD = '+';
+  public static final char CHANNEL_ACTION_REMOVE = '-';
+  public static final char CHANNEL_ACTION_UPDATE = '=';
+  // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
+  public static final char CHANNEL_ACTION_DELETE = '!';
+
   private SharedConstants()
   {
   }
