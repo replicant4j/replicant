@@ -724,7 +724,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.performUnsubscribe( session, entry, true, getChangeSet() );
+      sm.performUnsubscribe( session, entry, true, false, getChangeSet() );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -743,13 +743,13 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.performUnsubscribe( session, entry, false, getChangeSet() );
+      sm.performUnsubscribe( session, entry, false, false, getChangeSet() );
 
       assertChannelActionCount( 0 );
 
       assertNotNull( session.findSubscriptionEntry( cd1 ) );
 
-      sm.performUnsubscribe( session, entry, true, getChangeSet() );
+      sm.performUnsubscribe( session, entry, true, false, getChangeSet() );
 
       assertChannelActionCount( 1 );
 
@@ -767,7 +767,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.performUnsubscribe( session, entry, false, getChangeSet() );
+      sm.performUnsubscribe( session, entry, false, false, getChangeSet() );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -791,14 +791,14 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.performUnsubscribe( session, entry, false, getChangeSet() );
+      sm.performUnsubscribe( session, entry, false, false, getChangeSet() );
 
       assertChannelActionCount( 0 );
       assertNotNull( session.findSubscriptionEntry( cd1 ) );
 
       sm.delinkSubscriptionEntries( entry2, entry );
 
-      sm.performUnsubscribe( session, entry, false, getChangeSet() );
+      sm.performUnsubscribe( session, entry, false, false, getChangeSet() );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -830,7 +830,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.performUnsubscribe( session, entry, true, getChangeSet() );
+      sm.performUnsubscribe( session, entry, true, false, getChangeSet() );
 
       assertChannelActionCount( 5 );
       for ( final ChannelAction action : getChannelActions() )

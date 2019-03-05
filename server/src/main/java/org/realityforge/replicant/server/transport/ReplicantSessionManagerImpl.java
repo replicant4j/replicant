@@ -330,7 +330,7 @@ public abstract class ReplicantSessionManagerImpl
       delinkSubscriptionEntries( sourceEntry, targetEntry );
       if ( targetEntry.canUnsubscribe() )
       {
-        performUnsubscribe( session, targetEntry, false, changeSet );
+        performUnsubscribe( session, targetEntry, false, false, changeSet );
       }
     }
   }
@@ -877,7 +877,7 @@ public abstract class ReplicantSessionManagerImpl
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null != entry )
     {
-      performUnsubscribe( session, entry, explicitUnsubscribe, changeSet );
+      performUnsubscribe( session, entry, explicitUnsubscribe, false, changeSet );
     }
   }
 
@@ -897,6 +897,7 @@ public abstract class ReplicantSessionManagerImpl
   protected void performUnsubscribe( @Nonnull final ReplicantSession session,
                                      @Nonnull final SubscriptionEntry entry,
                                      final boolean explicitUnsubscribe,
+                                     final boolean delete,
                                      @Nonnull final ChangeSet changeSet )
   {
     if ( explicitUnsubscribe )
@@ -905,7 +906,9 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( entry.canUnsubscribe() )
     {
-      changeSet.mergeAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
+      changeSet.mergeAction( entry.getDescriptor(),
+                             delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
+                             null );
       for ( final ChannelAddress downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         delinkDownstreamSubscription( session, entry, downstream, changeSet );
@@ -923,7 +926,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != downstreamEntry )
     {
       delinkSubscriptionEntries( sourceEntry, downstreamEntry );
-      performUnsubscribe( session, downstreamEntry, false, changeSet );
+      performUnsubscribe( session, downstreamEntry, false, false, changeSet );
     }
   }
 
