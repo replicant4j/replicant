@@ -14,7 +14,7 @@
 * Rename `PacketQueue.getPacket(int)` to `PacketQueue.findPacketBySequence(int)` to align with existing
   conventions.
 * Add `ReplicantSession.sendMessage(...)` helper method that delegates to internal queue.
-* Add the `org.realityforge.spritz:spritz-core:jar` dependency in preparation for client-side websockets. 
+* Add the `org.realityforge.spritz:spritz-core:jar` dependency in preparation for client-side websockets.
 * Allow the creation of a `ReplicantSession` to be based of a WebSocket session.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
