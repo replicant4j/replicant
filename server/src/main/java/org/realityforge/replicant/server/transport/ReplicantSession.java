@@ -11,7 +11,9 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.websocket.Session;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
+import org.realityforge.replicant.server.json.JsonEncoder;
 
 public final class ReplicantSession
   implements Serializable, Closeable
@@ -100,6 +102,24 @@ public final class ReplicantSession
                           @Nonnull final ChangeSet changeSet )
   {
     _queue.addPacket( requestId, etag, changeSet );
+    if ( null != _webSocketSession && _webSocketSession.isOpen() && 1 == _queue.size() )
+    {
+      final Packet packet = _queue.nextPacketToProcess();
+      if ( null != packet )
+      {
+        final String message = JsonEncoder.
+          encodeChangeSet( packet.getSequence(), packet.getRequestId(), packet.getETag(), packet.getChangeSet() );
+        try
+        {
+          _webSocketSession.getBasicRemote().sendText( message );
+        }
+        catch ( final IOException ignored )
+        {
+          // This typically means that either the buffer is full or the websocket is in a bad state
+          // either way we can ignore it and wait till it recovers or the connection is reaped.
+        }
+      }
+    }
   }
 
   @SuppressWarnings( "WeakerAccess" )
