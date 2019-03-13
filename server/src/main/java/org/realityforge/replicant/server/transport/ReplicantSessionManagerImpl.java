@@ -157,15 +157,10 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   /**
-   * Remove sessions that have not been accessed for the specified idle time.
-   *
-   * @param maxIdleTime the max idle time for a session.
-   * @return the number of sessions removed.
+   * Remove sessions that are associated with a closed WebSocket.
    */
-  protected int removeIdleSessions( final long maxIdleTime )
+  public void removeClosedSessions()
   {
-    int removedSessions = 0;
-    final long now = System.currentTimeMillis();
     _lock.writeLock().lock();
     try
     {
@@ -173,10 +168,9 @@ public abstract class ReplicantSessionManagerImpl
       while ( iterator.hasNext() )
       {
         final ReplicantSession session = iterator.next().getValue();
-        if ( now - session.getLastAccessedAt() > maxIdleTime )
+        if ( session.isWebSocketSession() && !session.getWebSocketSession().isOpen() )
         {
           iterator.remove();
-          removedSessions++;
         }
       }
     }
@@ -184,7 +178,6 @@ public abstract class ReplicantSessionManagerImpl
     {
       _lock.writeLock().unlock();
     }
-    return removedSessions;
   }
 
   @Nullable

@@ -89,22 +89,48 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
-  public void removeIdleSessions()
+  public void removeClosedSessions_nonWebSocketSession()
     throws Exception
   {
     final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
-    final ReplicantSession session = sm.createSession();
-    final long accessedAt = session.getLastAccessedAt();
-    while ( System.currentTimeMillis() == accessedAt )
-    {
-      Thread.yield();
-    }
-    final int removeCount = sm.removeIdleSessions( 10000 );
-    assertEquals( removeCount, 0 );
-    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+    final ReplicantSession session = sm.createSession( null );
 
-    final int removeCount2 = sm.removeIdleSessions( 0 );
-    assertEquals( removeCount2, 1 );
+    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+    sm.removeClosedSessions();
+    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+  }
+
+  @Test
+  public void removeClosedSessions_openWebSocketSession()
+    throws Exception
+  {
+    final Session webSocketSession = mock( Session.class );
+    final String id = ValueUtil.randomString();
+    when( webSocketSession.getId() ).thenReturn( id );
+    when( webSocketSession.isOpen() ).thenReturn( true );
+
+    final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
+    final ReplicantSession session = sm.createSession( webSocketSession );
+
+    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+    sm.removeClosedSessions();
+    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+  }
+
+  @Test
+  public void removeClosedSessions_closedWebSocketSession()
+    throws Exception
+  {
+    final Session webSocketSession = mock( Session.class );
+    final String id = ValueUtil.randomString();
+    when( webSocketSession.getId() ).thenReturn( id );
+    when( webSocketSession.isOpen() ).thenReturn( false );
+
+    final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
+    final ReplicantSession session = sm.createSession( webSocketSession );
+
+    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+    sm.removeClosedSessions();
     assertNull( sm.getSessions().get( session.getSessionID() ) );
   }
 
