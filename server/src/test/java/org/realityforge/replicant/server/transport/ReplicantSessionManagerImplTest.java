@@ -1407,7 +1407,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-    final ReplicantSession session = sm.newReplicantSession();
+    final ReplicantSession session = sm.createSession();
 
     assertTrue( session.getSessionID().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
   }

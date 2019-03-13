@@ -121,7 +121,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   public ReplicantSession createSession()
   {
-    final ReplicantSession sessionInfo = newReplicantSession();
+    final ReplicantSession sessionInfo = new ReplicantSession( getUserID(), UUID.randomUUID().toString() );
     _lock.writeLock().lock();
     try
     {
@@ -226,12 +226,6 @@ public abstract class ReplicantSessionManagerImpl
    */
   @Nonnull
   protected abstract TransactionSynchronizationRegistry getRegistry();
-
-  @Nonnull
-  protected ReplicantSession newReplicantSession()
-  {
-    return new ReplicantSession( getUserID(), UUID.randomUUID().toString() );
-  }
 
   @Nullable
   protected String getUserID()
