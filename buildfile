@@ -76,6 +76,7 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:gwt_webpoller)
     pom.include_transitive_dependencies << artifact(:gwt_user)
     pom.include_transitive_dependencies << artifact(:javax_javaee)
+    pom.include_transitive_dependencies << artifact(:spritz_core)
 
     pom.provided_dependencies.concat [:javax_javaee, :gwt_user]
     pom.dependency_filter = Proc.new do |dep|
@@ -99,6 +100,7 @@ define 'replicant' do
                  GWT_DEPS,
                  :react4j_core,
                  :braincheck,
+                 :spritz_core,
                  :arez_core,
                  # javax_javaee is provided so that JSON parsing can occur for JRE variant.
                  :javax_javaee
