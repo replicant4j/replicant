@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
-import java.util.UUID;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.keycloak.adapters.OidcKeycloakAccount;
 import org.realityforge.keycloak.sks.SimpleAuthService;
 
@@ -14,14 +14,10 @@ public abstract class ReplicantSecuredSessionManagerImpl
   @Nonnull
   protected abstract SimpleAuthService getAuthService();
 
-  @Nonnull
-  @Override
-  protected ReplicantSession newReplicantSession()
+  @Nullable
+  protected String getUserID()
   {
     final OidcKeycloakAccount account = getAuthService().findAccount();
-    final String userId =
-      null == account ? null : account.getKeycloakSecurityContext().getToken().getPreferredUsername();
-    final String sessionId = UUID.randomUUID().toString();
-    return new ReplicantSession( userId, sessionId );
+    return null == account ? null : account.getKeycloakSecurityContext().getToken().getPreferredUsername();
   }
 }

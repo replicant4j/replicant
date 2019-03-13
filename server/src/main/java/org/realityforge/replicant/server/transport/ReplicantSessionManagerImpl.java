@@ -230,7 +230,13 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected ReplicantSession newReplicantSession()
   {
-    return new ReplicantSession( null, UUID.randomUUID().toString() );
+    return new ReplicantSession( getUserID(), UUID.randomUUID().toString() );
+  }
+
+  @Nullable
+  protected String getUserID()
+  {
+    return null;
   }
 
   /**
