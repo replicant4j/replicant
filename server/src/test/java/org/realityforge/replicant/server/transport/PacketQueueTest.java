@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.ChangeSet;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -13,32 +14,38 @@ public class PacketQueueTest
     assertEquals( queue.getLastSequenceAcked(), 0 );
     assertEquals( queue.size(), 0 );
 
-    final Packet p1 = queue.addPacket( null, null, new ChangeSet() );
-    final Packet p2 = queue.addPacket( null, null, new ChangeSet() );
-    final Packet p3 = queue.addPacket( null, null, new ChangeSet() );
-    final Packet p4 = queue.addPacket( null, null, new ChangeSet() );
+    queue.addPacket( 21, null, new ChangeSet() );
+    queue.addPacket( 22, null, new ChangeSet() );
+    queue.addPacket( 23, null, new ChangeSet() );
+    queue.addPacket( 24, null, new ChangeSet() );
 
     assertEquals( queue.size(), 4 );
 
-    assertEquals( queue.getPacket( 1 ), p1 );
-    assertEquals( queue.getPacket( 2 ), p2 );
-    assertEquals( queue.getPacket( 3 ), p3 );
-    assertEquals( queue.getPacket( 4 ), p4 );
+    assertEquals( getPacketBySequence( queue, 1 ).getRequestId(), (Integer) 21 );
+    assertEquals( getPacketBySequence( queue, 2 ).getRequestId(), (Integer) 22 );
+    assertEquals( getPacketBySequence( queue, 3 ).getRequestId(), (Integer) 23 );
+    assertEquals( getPacketBySequence( queue, 4 ).getRequestId(), (Integer) 24 );
 
-    assertEquals( queue.nextPacketToProcess().getSequence(), 1 );
-    assertEquals( queue.nextPacketToProcess(), queue.getPacket( 1 ) );
-    assertEquals( queue.nextPacketToProcess().getSequence(), 1 );
+    assertEquals( queue.nextPacketToProcess(), getPacketBySequence( queue, 1 ) );
 
     queue.ack( 0 );
-    assertEquals( queue.nextPacketToProcess().getSequence(), 1 );
+
+    assertEquals( queue.nextPacketToProcess(), getPacketBySequence( queue, 1 ) );
 
     queue.ack( 1 );
     assertEquals( queue.size(), 3 );
-    assertEquals( queue.nextPacketToProcess().getSequence(), 2 );
-    assertEquals( queue.nextPacketToProcess(), queue.getPacket( 2 ) );
+    assertEquals( queue.nextPacketToProcess(), getPacketBySequence( queue, 2 ) );
 
-    assertEquals( queue.getPacket( 3 ).getSequence(), 3 );
-    assertEquals( queue.getPacket( 4 ).getSequence(), 4 );
+    assertEquals( getPacketBySequence( queue, 3 ).getSequence(), 3 );
+    assertEquals( getPacketBySequence( queue, 4 ).getSequence(), 4 );
+  }
+
+  @Nonnull
+  private Packet getPacketBySequence( @Nonnull final PacketQueue queue, final int sequence )
+  {
+    final Packet packet = queue.findPacketBySequence( sequence );
+    assertNotNull( packet );
+    return packet;
   }
 
   @Test
