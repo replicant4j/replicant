@@ -396,7 +396,7 @@ public class ReplicantSessionManagerImplTest
 
       final PacketQueue queue = session.getQueue();
       assertEquals( queue.size(), 1 );
-      final Packet packet = queue.getPacket( 1 );
+      final Packet packet = queue.findPacketBySequence( 1 );
       assertNotNull( packet );
       assertEquals( packet.getETag(), "X" );
       assertEquals( packet.getChangeSet().getChanges().size(), 1 );
@@ -493,7 +493,7 @@ public class ReplicantSessionManagerImplTest
 
     final PacketQueue queue = session.getQueue();
     assertEquals( queue.size(), 1 );
-    final Packet packet = queue.getPacket( 1 );
+    final Packet packet = queue.findPacketBySequence( 1 );
     assertNotNull( packet );
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getChangeSet().getChanges().size(), 1 );
@@ -658,7 +658,7 @@ public class ReplicantSessionManagerImplTest
 
       final PacketQueue queue = session.getQueue();
       assertEquals( queue.size(), 1 );
-      final Packet packet = queue.getPacket( 1 );
+      final Packet packet = queue.findPacketBySequence( 1 );
       assertNotNull( packet );
       assertEquals( packet.getETag(), "X" );
       assertEquals( packet.getChangeSet().getChanges().size(), 1 );
@@ -684,7 +684,7 @@ public class ReplicantSessionManagerImplTest
 
       final PacketQueue queue = session.getQueue();
       assertEquals( queue.size(), 1 );
-      final Packet packet = queue.getPacket( 1 );
+      final Packet packet = queue.findPacketBySequence( 1 );
       assertNotNull( packet );
       assertEquals( packet.getETag(), "X" );
       assertEquals( packet.getChangeSet().getChanges().size(), 1 );

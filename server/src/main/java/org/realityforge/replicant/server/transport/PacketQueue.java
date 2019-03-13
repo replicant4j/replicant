@@ -126,7 +126,7 @@ public class PacketQueue
    * @return the packet with sequence or null if no such packet.
    */
   @Nullable
-  public synchronized Packet getPacket( final int sequence )
+  public synchronized Packet findPacketBySequence( final int sequence )
   {
     for ( final Packet packet : _packets )
     {

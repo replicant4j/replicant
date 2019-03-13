@@ -7,6 +7,9 @@
 * Stop tracking `createdAt` time of the `ReplicantSession` as it has never been used.
 * Replace `ReplicantSessionManagerImpl.removeIdleSessions()` with `ReplicantSessionManagerImpl.removeClosedSessions()`
   as not expecting to need to maintain infrastructure for polling clients.
+* Rename `PacketQueue.getPacket(int)` to `PacketQueue.findPacketBySequence(int)` to align with existing
+  conventions.
+
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)
 
