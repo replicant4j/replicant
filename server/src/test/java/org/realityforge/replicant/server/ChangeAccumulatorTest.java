@@ -17,7 +17,7 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation()
   {
-    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ReplicantSession c = new ReplicantSession( null, null );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -29,7 +29,7 @@ public class ChangeAccumulatorTest
     final Integer subChannelId = 2;
 
     accumulator.addChange( c, new Change( message, channelId, subChannelId ) );
-    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
+    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
 
     assertTrue( impactsInitiator );
     assertEquals( c.getQueue().size(), 1 );
@@ -51,7 +51,7 @@ public class ChangeAccumulatorTest
   @Test
   public void addEntityMessages()
   {
-    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ReplicantSession c = new ReplicantSession( null, null );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -63,7 +63,7 @@ public class ChangeAccumulatorTest
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
+    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 0 );
 
@@ -81,7 +81,7 @@ public class ChangeAccumulatorTest
   @Test
   public void addActions()
   {
-    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ReplicantSession c = new ReplicantSession( null, null );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
@@ -92,7 +92,7 @@ public class ChangeAccumulatorTest
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
+    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 0 );
 
@@ -114,13 +114,13 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation_whereSessionIDDifferent()
   {
-    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ReplicantSession c = new ReplicantSession( null, null );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChange( c, new Change( message, 1, 0 ) );
-    final boolean impactsInitiator = accumulator.complete( "s2", 1 );
+    final boolean impactsInitiator = accumulator.complete( "NoMatch", 1 );
 
     assertFalse( impactsInitiator );
 
@@ -133,11 +133,11 @@ public class ChangeAccumulatorTest
   @Test
   public void basicOperation_whereNoMessagesSentToInitiator()
   {
-    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ReplicantSession c = new ReplicantSession( null, null );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c );
-    final boolean impactsInitiator = accumulator.complete( "s1", 1 );
+    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
 
     assertFalse( impactsInitiator );
 
@@ -147,7 +147,7 @@ public class ChangeAccumulatorTest
   @Test
   public void complete_pingMessage()
   {
-    final ReplicantSession c = new ReplicantSession( null, "s1" );
+    final ReplicantSession c = new ReplicantSession( null, null );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c ).setPingResponse( true );
