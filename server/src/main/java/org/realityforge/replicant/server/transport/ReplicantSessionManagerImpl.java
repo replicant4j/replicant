@@ -68,7 +68,12 @@ public abstract class ReplicantSessionManagerImpl
     _lock.writeLock().lock();
     try
     {
-      return _sessions.remove( sessionId );
+      final ReplicantSession session = _sessions.remove( sessionId );
+      if ( null != session )
+      {
+        safeCloseSession( session );
+      }
+      return session;
     }
     finally
     {
