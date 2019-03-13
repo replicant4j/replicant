@@ -70,17 +70,12 @@ public class ReplicantSessionManagerImplTest
     assertNull( sessionInfo.getUserID() );
     assertNotNull( sessionInfo.getSessionID() );
     assertEquals( sm.getSessionIDs().size(), 1 );
-    assertEquals( sessionInfo.getCreatedAt(), sessionInfo.getLastAccessedAt() );
-    assertTrue( System.currentTimeMillis() - sessionInfo.getCreatedAt() < 100L );
-    assertTrue( System.currentTimeMillis() - sessionInfo.getLastAccessedAt() < 100L );
-    Thread.sleep( 1 );
 
     // Make sure we can also get it thorugh the map interface
     assertEquals( sm.getSessions().get( sessionInfo.getSessionID() ), sessionInfo );
 
     // The next line should update the last accessed time too!
     assertEquals( sm.getSession( sessionInfo.getSessionID() ), sessionInfo );
-    assertNotEquals( sessionInfo.getCreatedAt(), sessionInfo.getLastAccessedAt() );
 
     assertTrue( sm.invalidateSession( sessionInfo.getSessionID() ) );
     assertEquals( sm.getSessionIDs().size(), 0 );

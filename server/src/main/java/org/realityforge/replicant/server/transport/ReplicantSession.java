@@ -16,8 +16,6 @@ public final class ReplicantSession
   private final String _userID;
   @Nonnull
   private final String _sessionId;
-  private long _createdAt;
-  private long _lastAccessedAt;
   @Nonnull
   private final PacketQueue _queue = new PacketQueue();
   @Nonnull
@@ -33,7 +31,6 @@ public final class ReplicantSession
   {
     _userID = userID;
     _sessionId = Objects.requireNonNull( sessionId );
-    _createdAt = _lastAccessedAt = System.currentTimeMillis();
   }
 
   /**
@@ -54,30 +51,11 @@ public final class ReplicantSession
     return _sessionId;
   }
 
-  /**
-   * @return the time at which session was created.
-   */
-  public long getCreatedAt()
   {
-    return _createdAt;
   }
 
   /**
-   * @return the time at which session was last accessed.
    */
-  public long getLastAccessedAt()
-  {
-    return _lastAccessedAt;
-  }
-
-  /**
-   * Update the access time to now.
-   */
-  void updateAccessTime()
-  {
-    _lastAccessedAt = System.currentTimeMillis();
-  }
-
   @Nonnull
   public final PacketQueue getQueue()
   {

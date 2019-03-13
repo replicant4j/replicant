@@ -92,10 +92,6 @@ public abstract class ReplicantSessionManagerImpl
     {
       _lock.readLock().unlock();
     }
-    if ( null != sessionInfo )
-    {
-      sessionInfo.updateAccessTime();
-    }
     return sessionInfo;
   }
 

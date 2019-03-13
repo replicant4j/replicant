@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Stop tracking last access time of the `ReplicantSession` as it is no longer used. The sessions expire
+  after the associated web socket is closed rather than after a specified idle period.
+* Stop tracking `createdAt` time of the `ReplicantSession` as it has never been used.
 * Replace `ReplicantSessionManagerImpl.removeIdleSessions()` with `ReplicantSessionManagerImpl.removeClosedSessions()`
   as not expecting to need to maintain infrastructure for polling clients.
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
