@@ -7,6 +7,10 @@
 * Stop tracking `createdAt` time of the `ReplicantSession` as it has never been used.
 * Replace `ReplicantSessionManagerImpl.removeIdleSessions()` with `ReplicantSessionManagerImpl.removeClosedSessions()`
   as not expecting to need to maintain infrastructure for polling clients.
+* Change the return type of `ReplicantSessionManagerImpl.sendPacket(..)` to void rather than returning a
+  `Packet` as the return value was only ever used in tests.
+* Change the return type of `PacketQueue.addPacket(..)` to void rather than returning a
+  `Packet` as the return value was only ever used in tests.
 * Rename `PacketQueue.getPacket(int)` to `PacketQueue.findPacketBySequence(int)` to align with existing
   conventions.
 

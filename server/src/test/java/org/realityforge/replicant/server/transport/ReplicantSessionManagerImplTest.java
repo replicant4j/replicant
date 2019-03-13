@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
+import javax.websocket.Session;
 import org.realityforge.guiceyloops.server.AssertUtil;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -29,6 +30,7 @@ import org.realityforge.replicant.server.ee.RegistryUtil;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 /**
@@ -1442,7 +1444,10 @@ public class ReplicantSessionManagerImplTest
 
     sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, 1 );
 
-    final Packet packet = sm.sendPacket( session, "X", new ChangeSet() );
+    sm.sendPacket( session, "X", new ChangeSet() );
+
+    final Packet packet = session.getQueue().nextPacketToProcess();
+    assertNotNull( packet );
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestId(), (Integer) 1 );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
@@ -1455,16 +1460,40 @@ public class ReplicantSessionManagerImplTest
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.createSession();
-    final Packet p1 = session.getQueue().addPacket( null, null, new ChangeSet() );
-    final Packet p2 = session.getQueue().addPacket( null, null, new ChangeSet() );
-    final Packet p3 = session.getQueue().addPacket( null, null, new ChangeSet() );
+    session.sendPacket( 1, null, new ChangeSet() );
+    session.sendPacket( 2, null, new ChangeSet() );
+    session.sendPacket( 3, null, new ChangeSet() );
 
-    assertEquals( sm.pollPacket( session, 0 ), p1 );
-    assertEquals( sm.pollPacket( session, 0 ), p1 );
+    {
+      final Packet packet = sm.pollPacket( session, 0 );
+      assertNotNull( packet );
+      assertEquals( packet.getRequestId(), (Integer) 1 );
+      assertEquals( session.getQueue().size(), 3 );
 
-    assertEquals( sm.pollPacket( session, p1.getSequence() ), p2 );
-    assertEquals( sm.pollPacket( session, p2.getSequence() ), p3 );
-    assertNull( sm.pollPacket( session, p3.getSequence() ) );
+    }
+    // Sequence is still 0 so get same packet back
+    {
+      final Packet packet = sm.pollPacket( session, 0 );
+      assertNotNull( packet );
+      assertEquals( packet.getRequestId(), (Integer) 1 );
+      assertEquals( session.getQueue().size(), 3 );
+    }
+
+    // Sequence is 1 so get next packet back
+    {
+      final Packet packet = sm.pollPacket( session, 1 );
+      assertNotNull( packet );
+      assertEquals( packet.getRequestId(), (Integer) 2 );
+      assertEquals( session.getQueue().size(), 2 );
+    }
+
+    // Sequence is 2 so get next packet back
+    {
+      final Packet packet = sm.pollPacket( session, 2 );
+      assertNotNull( packet );
+      assertEquals( packet.getRequestId(), (Integer) 3 );
+      assertEquals( session.getQueue().size(), 1 );
+    }
   }
 
   @Test

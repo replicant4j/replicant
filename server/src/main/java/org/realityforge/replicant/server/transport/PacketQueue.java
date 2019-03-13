@@ -83,16 +83,14 @@ public class PacketQueue
    * @param requestId the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
    * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
    * @param changeSet the changeSet to create packet from.
-   * @return the packet.
    */
-  public synchronized Packet addPacket( @Nullable final Integer requestId,
-                                        @Nullable final String etag,
-                                        @Nonnull final ChangeSet changeSet )
+  public synchronized void addPacket( @Nullable final Integer requestId,
+                                      @Nullable final String etag,
+                                      @Nonnull final ChangeSet changeSet )
   {
     final Packet packet = new Packet( _nextSequence++, requestId, etag, changeSet );
     _packets.add( packet );
     _packets.sort( null );
-    return packet;
   }
 
   /**
