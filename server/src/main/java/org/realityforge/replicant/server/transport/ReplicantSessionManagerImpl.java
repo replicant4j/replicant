@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,6 +73,18 @@ public abstract class ReplicantSessionManagerImpl
     finally
     {
       _lock.writeLock().unlock();
+    }
+  }
+
+  private void safeCloseSession( @Nonnull final ReplicantSession session )
+  {
+    try
+    {
+      session.close();
+    }
+    catch ( final IOException ignored )
+    {
+      // The close was unsuccessful. This leaves it up to the container to close WebSocket.
     }
   }
 
@@ -150,6 +163,23 @@ public abstract class ReplicantSessionManagerImpl
   protected ReadWriteLock getLock()
   {
     return _lock;
+  }
+
+  /**
+   * Remove all sessions and force them to reconnect.
+   */
+  public void removeAllSessions()
+  {
+    _lock.writeLock().lock();
+    try
+    {
+      new ArrayList<>( _sessions.values() ).forEach( this::safeCloseSession );
+      _sessions.clear();
+    }
+    finally
+    {
+      _lock.writeLock().unlock();
+    }
   }
 
   /**
