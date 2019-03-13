@@ -13,6 +13,7 @@
   `Packet` as the return value was only ever used in tests.
 * Rename `PacketQueue.getPacket(int)` to `PacketQueue.findPacketBySequence(int)` to align with existing
   conventions.
+* Add `ReplicantSession.sendMessage(...)` helper method that delegates to internal queue.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)

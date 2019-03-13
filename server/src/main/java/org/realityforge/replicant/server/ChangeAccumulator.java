@@ -64,7 +64,7 @@ public final class ChangeAccumulator
       if ( changeSet.isPingResponse() || !changeSet.getChannelActions().isEmpty() || !changeSet.getChanges().isEmpty() )
       {
         impactsInitiator |= isInitiator;
-        session.getQueue().addPacket( isInitiator ? requestId : null, null, changeSet );
+        session.sendPacket( isInitiator ? requestId : null, null, changeSet );
       }
     }
     _changeSets.clear();

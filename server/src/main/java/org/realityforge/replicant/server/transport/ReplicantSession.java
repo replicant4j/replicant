@@ -51,15 +51,24 @@ public final class ReplicantSession
     return _sessionId;
   }
 
-  {
-  }
-
-  /**
-   */
   @Nonnull
   public final PacketQueue getQueue()
   {
     return _queue;
+  }
+
+  /**
+   * Add packet to queue and potentially send packet to client if client has acked last message.
+   *
+   * @param requestId the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
+   * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
+   * @param changeSet the changeSet to create packet from.
+   */
+  public void sendPacket( @Nullable final Integer requestId,
+                          @Nullable final String etag,
+                          @Nonnull final ChangeSet changeSet )
+  {
+    _queue.addPacket( requestId, etag, changeSet );
   }
 
   @SuppressWarnings( "WeakerAccess" )
