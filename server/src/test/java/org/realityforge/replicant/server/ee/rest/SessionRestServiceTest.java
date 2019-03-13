@@ -20,12 +20,13 @@ public class SessionRestServiceTest
     final ReplicantSessionManager sessionManager = mock( ReplicantSessionManager.class );
     final AbstractSessionRestService resource = newResource( sessionManager );
 
+    final ReplicantSession session = new ReplicantSession( null, null );
     when( sessionManager.createSession() ).
-      thenReturn( new ReplicantSession( null, "2222" ) );
+      thenReturn( session );
 
     final Response token = resource.createSession();
 
-    assertEquals( token.getEntity(), "2222" );
+    assertEquals( token.getEntity(), session.getSessionID() );
   }
 
   private AbstractSessionRestService newResource( final ReplicantSessionManager sessionManager )
