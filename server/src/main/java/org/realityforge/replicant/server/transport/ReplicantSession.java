@@ -102,6 +102,11 @@ public final class ReplicantSession
                           @Nonnull final ChangeSet changeSet )
   {
     _queue.addPacket( requestId, etag, changeSet );
+    sendNextPacketToWebSocketIfPossible();
+  }
+
+  private void sendNextPacketToWebSocketIfPossible()
+  {
     if ( null != _webSocketSession && _webSocketSession.isOpen() && 1 == _queue.size() )
     {
       final Packet packet = _queue.nextPacketToProcess();
@@ -120,6 +125,17 @@ public final class ReplicantSession
         }
       }
     }
+  }
+
+  /**
+   * Acknowledge that the remote side has received packet with specified sequence.
+   *
+   * @param sequence the sequence.
+   */
+  public void ack( final int sequence )
+  {
+    _queue.ack( sequence );
+    sendNextPacketToWebSocketIfPossible();
   }
 
   @SuppressWarnings( "WeakerAccess" )

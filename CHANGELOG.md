@@ -17,6 +17,8 @@
 * Add the `org.realityforge.spritz:spritz-core:jar` dependency in preparation for client-side websockets.
 * Allow the creation of a `ReplicantSession` to be based of a WebSocket session.
 * Add a method `ReplicantSessionManagerImpl.removeAllSessions()` that can forcibly close all connected clients.
+* Add a `ReplicantSession.ack(...)` that delegates to the underlying queue and may send next packet on WebSocket
+  connection.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)

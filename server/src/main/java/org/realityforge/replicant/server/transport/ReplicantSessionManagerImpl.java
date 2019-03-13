@@ -267,9 +267,8 @@ public abstract class ReplicantSessionManagerImpl
   @Nullable
   protected Packet pollPacket( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
   {
-    final PacketQueue queue = session.getQueue();
-    queue.ack( lastSequenceAcked );
-    return queue.nextPacketToProcess();
+    session.ack( lastSequenceAcked );
+    return session.getQueue().nextPacketToProcess();
   }
 
   /**
