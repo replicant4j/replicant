@@ -101,7 +101,6 @@ public interface ReplicantSessionManager
   @Nonnull
   CacheStatus subscribe( @Nonnull ReplicantSession session,
                          @Nonnull ChannelAddress address,
-                         boolean explicitlySubscribe,
                          @Nullable Object filter,
                          @Nonnull ChangeSet changeSet );
 

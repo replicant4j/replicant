@@ -310,7 +310,6 @@ public abstract class AbstractSessionRestService
       session.setETag( address, eTag );
       return getSessionManager().subscribe( session,
                                             address,
-                                            true,
                                             toFilter( getChannelMetaData( address ), filterContent ),
                                             EntityMessageCacheUtil.getSessionChanges() );
     };

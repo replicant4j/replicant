@@ -386,7 +386,7 @@ public abstract class ReplicantSessionManagerImpl
     setupRegistryContext( sessionId );
     final ReplicantSession session = ensureSession( sessionId );
     session.setETag( address, cacheKey );
-    final CacheStatus status = subscribe( session, address, true, filter, changeSet );
+    final CacheStatus status = subscribe( session, address, filter, changeSet );
     if ( status != CacheStatus.USE )
     {
       session.setETag( address, null );
@@ -548,7 +548,7 @@ public abstract class ReplicantSessionManagerImpl
         {
           try
           {
-            subscribe( session, address, true, filter, changeSet );
+            subscribe( session, address, filter, changeSet );
           }
           catch ( final Throwable e )
           {
@@ -580,7 +580,7 @@ public abstract class ReplicantSessionManagerImpl
             //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
             try
             {
-              subscribe( session, address, true, filter, changeSet );
+              subscribe( session, address, filter, changeSet );
             }
             catch ( final Throwable e )
             {
@@ -604,9 +604,18 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public CacheStatus subscribe( @Nonnull final ReplicantSession session,
                                 @Nonnull final ChannelAddress address,
-                                final boolean explicitlySubscribe,
                                 @Nullable final Object filter,
                                 @Nonnull final ChangeSet changeSet )
+  {
+    return subscribe( session, address, true, filter, changeSet );
+  }
+
+  @Nonnull
+  CacheStatus subscribe( @Nonnull final ReplicantSession session,
+                         @Nonnull final ChannelAddress address,
+                         final boolean explicitlySubscribe,
+                         @Nullable final Object filter,
+                         @Nonnull final ChangeSet changeSet )
   {
     if ( session.isSubscriptionEntryPresent( address ) )
     {

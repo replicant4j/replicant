@@ -19,6 +19,8 @@
 * Add a method `ReplicantSessionManagerImpl.removeAllSessions()` that can forcibly close all connected clients.
 * Add a `ReplicantSession.ack(...)` that delegates to the underlying queue and may send next packet on WebSocket
   connection.
+* Remove `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)` method as it is always
+  true and it is never reasonable for it to be any other value.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)
