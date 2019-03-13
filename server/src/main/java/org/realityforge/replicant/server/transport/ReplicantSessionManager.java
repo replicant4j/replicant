@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.websocket.Session;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
 
@@ -77,7 +78,19 @@ public interface ReplicantSessionManager
    * @return the new session.
    */
   @Nonnull
-  ReplicantSession createSession();
+  default ReplicantSession createSession()
+  {
+    return createSession( null );
+  }
+
+  /**
+   * Create replicant session for specified WebSocket session.
+   * It is assumed the username has already been authenticated and this is just tracking the session.
+   *
+   * @return the new session.
+   */
+  @Nonnull
+  ReplicantSession createSession( @Nullable Session webSocketSession );
 
   /**
    * @return the metadata for replicant system.

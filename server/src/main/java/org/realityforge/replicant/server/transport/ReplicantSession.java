@@ -1,19 +1,25 @@
 package org.realityforge.replicant.server.transport;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.websocket.Session;
 import org.realityforge.replicant.server.ChannelAddress;
 
 public final class ReplicantSession
-  implements Serializable
+  implements Serializable, Closeable
 {
   @Nullable
   private final String _userID;
+  @Nullable
+  private final Session _webSocketSession;
   @Nonnull
   private final String _sessionId;
   @Nonnull
@@ -27,10 +33,35 @@ public final class ReplicantSession
   @Nonnull
   private final Map<ChannelAddress, SubscriptionEntry> _roSubscriptions = Collections.unmodifiableMap( _subscriptions );
 
-  public ReplicantSession( @Nullable final String userID, @Nonnull final String sessionId )
+  public ReplicantSession( @Nullable final String userID, @Nullable Session webSocketSession )
   {
     _userID = userID;
-    _sessionId = Objects.requireNonNull( sessionId );
+    _webSocketSession = webSocketSession;
+    _sessionId =
+      null != webSocketSession ? webSocketSession.getId() : Objects.requireNonNull( UUID.randomUUID().toString() );
+  }
+
+
+  @Override
+  public void close()
+    throws IOException
+  {
+    if ( null != _webSocketSession && _webSocketSession.isOpen() )
+    {
+      _webSocketSession.close();
+    }
+  }
+
+  public boolean isWebSocketSession()
+  {
+    return null != _webSocketSession;
+  }
+
+  @Nonnull
+  public Session getWebSocketSession()
+  {
+    assert null != _webSocketSession;
+    return _webSocketSession;
   }
 
   /**

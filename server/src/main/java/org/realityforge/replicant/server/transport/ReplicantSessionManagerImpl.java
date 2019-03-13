@@ -8,12 +8,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
+import javax.websocket.Session;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
@@ -115,9 +115,9 @@ public abstract class ReplicantSessionManagerImpl
    */
   @Override
   @Nonnull
-  public ReplicantSession createSession()
+  public ReplicantSession createSession( @Nullable final Session webSocketSession )
   {
-    final ReplicantSession sessionInfo = new ReplicantSession( getUserID(), UUID.randomUUID().toString() );
+    final ReplicantSession sessionInfo = new ReplicantSession( getUserID(), webSocketSession );
     _lock.writeLock().lock();
     try
     {
