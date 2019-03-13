@@ -71,7 +71,7 @@ public interface ReplicantSessionManager
   boolean invalidateSession( @Nonnull String sessionId );
 
   /**
-   * Create session for specified username.
+   * Create replicant session.
    * It is assumed the username has already been authenticated and this is just tracking the session.
    *
    * @return the new session.
