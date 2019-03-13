@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.server.ChannelAddress;
@@ -11,21 +12,27 @@ import org.realityforge.replicant.server.ChannelAddress;
 public final class ReplicantSession
   implements Serializable
 {
+  @Nullable
   private final String _userID;
+  @Nonnull
   private final String _sessionId;
   private long _createdAt;
   private long _lastAccessedAt;
+  @Nonnull
   private final PacketQueue _queue = new PacketQueue();
+  @Nonnull
   private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
+  @Nonnull
   private final Map<ChannelAddress, String> _roETags = Collections.unmodifiableMap( _eTags );
+  @Nonnull
   private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
-  private final Map<ChannelAddress, SubscriptionEntry> _roSubscriptions =
-    Collections.unmodifiableMap( _subscriptions );
+  @Nonnull
+  private final Map<ChannelAddress, SubscriptionEntry> _roSubscriptions = Collections.unmodifiableMap( _subscriptions );
 
   public ReplicantSession( @Nullable final String userID, @Nonnull final String sessionId )
   {
     _userID = userID;
-    _sessionId = sessionId;
+    _sessionId = Objects.requireNonNull( sessionId );
     _createdAt = _lastAccessedAt = System.currentTimeMillis();
   }
 
