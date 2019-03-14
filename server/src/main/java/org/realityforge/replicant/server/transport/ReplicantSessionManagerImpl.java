@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.Change;
@@ -168,6 +169,12 @@ public abstract class ReplicantSessionManagerImpl
   protected ReadWriteLock getLock()
   {
     return _lock;
+  }
+
+  @PreDestroy
+  protected void preDestroy()
+  {
+    removeAllSessions();
   }
 
   /**
