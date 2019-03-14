@@ -1094,6 +1094,7 @@ public abstract class ReplicantSessionManagerImpl
 
   private void setupRegistryContext( @Nonnull final String sessionId )
   {
+    //TODO: Remove this once transition to WebSocket transport is complete.
     //Force the sessionId to the desired session in case call has not been set up by boundary
     getRegistry().putResource( ServerConstants.SESSION_ID_KEY, sessionId );
   }
