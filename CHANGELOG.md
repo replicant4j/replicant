@@ -19,7 +19,7 @@
 * Add a method `ReplicantSessionManagerImpl.removeAllSessions()` that can forcibly close all connected clients.
 * Add a `ReplicantSession.ack(...)` that delegates to the underlying queue and may send next packet on WebSocket
   connection.
-* Remove `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)` and
+* Remove the `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)` and
   `ReplicationSessionManager.unsubscribe(...)` methods as the value of the parameter is only ever expected
   to be true.
 * Ensure that `ReplicantSessionManagerImpl` explicitly expires sessions when the component is destroyed.
