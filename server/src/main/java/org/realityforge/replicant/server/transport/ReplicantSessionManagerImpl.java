@@ -437,14 +437,6 @@ public abstract class ReplicantSessionManagerImpl
     expandLinks( session, changeSet );
   }
 
-  protected void unsubscribe( @Nonnull final String sessionId,
-                              @Nonnull final ChannelAddress address,
-                              @Nonnull final ChangeSet changeSet )
-  {
-    setupRegistryContext( sessionId );
-    unsubscribe( ensureSession( sessionId ), address, true, changeSet );
-  }
-
   @Override
   public void updateSubscription( @Nonnull final ReplicantSession session,
                                   @Nonnull final ChannelAddress address,
@@ -909,8 +901,15 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void unsubscribe( @Nonnull final ReplicantSession session,
                            @Nonnull final ChannelAddress address,
-                           final boolean explicitUnsubscribe,
                            @Nonnull final ChangeSet changeSet )
+  {
+    unsubscribe( session, address, true, changeSet );
+  }
+
+  private void unsubscribe( @Nonnull final ReplicantSession session,
+                            @Nonnull final ChannelAddress address,
+                            final boolean explicitUnsubscribe,
+                            @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null != entry )

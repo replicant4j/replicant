@@ -369,7 +369,6 @@ public abstract class AbstractSessionRestService
     final Runnable action = () ->
       getSessionManager().unsubscribe( ensureSession( sessionId, requestId ),
                                        address,
-                                       true,
                                        EntityMessageCacheUtil.getSessionChanges() );
     runRequest( getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Unsubscribe" ),
                 sessionId,

@@ -19,8 +19,9 @@
 * Add a method `ReplicantSessionManagerImpl.removeAllSessions()` that can forcibly close all connected clients.
 * Add a `ReplicantSession.ack(...)` that delegates to the underlying queue and may send next packet on WebSocket
   connection.
-* Remove `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)` method as it is always
-  true and it is never reasonable for it to be any other value.
+* Remove `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)` and
+  `ReplicationSessionManager.unsubscribe(...)` methods as the value of the parameter is only ever expected
+  to be true.
 * Ensure that `ReplicantSessionManagerImpl` explicitly expires sessions when the component is destroyed.
 * Align the `ChannelAddress.toString()` output with the format used to serialize channel across the wire.
 * Add a `ChannelAddress.parse(String)` method to parse the channel from the wire format.

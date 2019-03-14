@@ -135,7 +135,6 @@ public interface ReplicantSessionManager
 
   void unsubscribe( @Nonnull ReplicantSession session,
                     @Nonnull ChannelAddress address,
-                    boolean explicitUnsubscribe,
                     @Nonnull ChangeSet changeSet );
 
   void bulkUnsubscribe( @Nonnull ReplicantSession session,

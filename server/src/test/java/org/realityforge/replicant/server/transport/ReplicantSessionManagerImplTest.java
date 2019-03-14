@@ -893,7 +893,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.unsubscribe( session, entry.getDescriptor(), true, getChangeSet() );
+      sm.unsubscribe( session, entry.getDescriptor(), getChangeSet() );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -907,7 +907,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.unsubscribe( session, cd1, true, getChangeSet() );
+      sm.unsubscribe( session, cd1, getChangeSet() );
 
       assertChannelActionCount( 0 );
     }
@@ -930,12 +930,10 @@ public class ReplicantSessionManagerImplTest
     sm.subscribe( session, cd1, true, null, getChangeSet() );
 
     resetChangeSet();
-    final TransactionSynchronizationRegistry registry = RegistryUtil.bind();
 
     assertChannelActionCount( 0 );
 
-    sm.unsubscribe( session.getSessionID(), cd1, getChangeSet() );
-    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getSessionID() );
+    sm.unsubscribe( session, cd1, getChangeSet() );
 
     assertChannelActionCount( 1 );
     assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
