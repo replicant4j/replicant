@@ -403,18 +403,6 @@ public abstract class ReplicantSessionManagerImpl
     return status;
   }
 
-  protected void bulkSubscribe( @Nonnull final String sessionId,
-                                final int channelId,
-                                @Nonnull final Collection<Integer> subChannelIds,
-                                @Nullable final Object filter,
-                                final boolean explicitSubscribe,
-                                @Nonnull final ChangeSet changeSet )
-  {
-    setupRegistryContext( sessionId );
-    final ReplicantSession session = ensureSession( sessionId );
-    bulkSubscribe( session, channelId, subChannelIds, filter, explicitSubscribe, changeSet );
-  }
-
   protected void updateSubscription( @Nonnull final String sessionId,
                                      @Nonnull final ChannelAddress address,
                                      @Nullable final Object filter,
