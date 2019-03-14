@@ -100,6 +100,6 @@ public final class ChannelAddress
   @Override
   public String toString()
   {
-    return "#" + _channelId + ( null == _subChannelId ? "" : "." + _subChannelId ) + "#";
+    return _channelId + ( null == _subChannelId ? "" : "." + _subChannelId );
   }
 }

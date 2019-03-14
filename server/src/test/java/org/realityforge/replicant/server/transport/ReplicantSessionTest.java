@@ -31,7 +31,7 @@ public class ReplicantSessionTest
     }
     catch ( final IllegalStateException ise )
     {
-      assertEquals( ise.getMessage(), "Unable to locate subscription entry for #1#" );
+      assertEquals( ise.getMessage(), "Unable to locate subscription entry for 1" );
     }
 
     final SubscriptionEntry entry = session.createSubscriptionEntry( cd1 );
@@ -86,7 +86,7 @@ public class ReplicantSessionTest
     }
     catch ( final IllegalStateException ise )
     {
-      assertEquals( ise.getMessage(), "Unable to locate subscription entry for #1#" );
+      assertEquals( ise.getMessage(), "Unable to locate subscription entry for 1" );
     }
 
     final SubscriptionEntry entry = session.createSubscriptionEntry( cd1 );
