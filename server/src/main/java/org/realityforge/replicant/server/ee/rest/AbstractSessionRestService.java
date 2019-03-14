@@ -308,10 +308,8 @@ public abstract class AbstractSessionRestService
     {
       final ReplicantSession session = ensureSession( sessionId, requestId );
       session.setETag( address, eTag );
-      return getSessionManager().subscribe( session,
-                                            address,
-                                            toFilter( getChannelMetaData( address ), filterContent ),
-                                            EntityMessageCacheUtil.getSessionChanges() );
+      final Object filter = toFilter( getChannelMetaData( address ), filterContent );
+      return getSessionManager().subscribe( session, address, filter );
     };
 
     final String invocationKey =
@@ -367,9 +365,7 @@ public abstract class AbstractSessionRestService
                                            @Nonnull final ChannelAddress address )
   {
     final Runnable action = () ->
-      getSessionManager().unsubscribe( ensureSession( sessionId, requestId ),
-                                       address,
-                                       EntityMessageCacheUtil.getSessionChanges() );
+      getSessionManager().unsubscribe( ensureSession( sessionId, requestId ), address );
     runRequest( getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Unsubscribe" ),
                 sessionId,
                 requestId,

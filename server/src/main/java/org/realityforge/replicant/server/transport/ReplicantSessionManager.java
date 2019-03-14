@@ -101,8 +101,7 @@ public interface ReplicantSessionManager
   @Nonnull
   CacheStatus subscribe( @Nonnull ReplicantSession session,
                          @Nonnull ChannelAddress address,
-                         @Nullable Object filter,
-                         @Nonnull ChangeSet changeSet );
+                         @Nullable Object filter );
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
@@ -133,9 +132,7 @@ public interface ReplicantSessionManager
                                @Nullable Object filter,
                                @Nonnull ChangeSet changeSet );
 
-  void unsubscribe( @Nonnull ReplicantSession session,
-                    @Nonnull ChannelAddress address,
-                    @Nonnull ChangeSet changeSet );
+  void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address );
 
   void bulkUnsubscribe( @Nonnull ReplicantSession session,
                         int channelId,

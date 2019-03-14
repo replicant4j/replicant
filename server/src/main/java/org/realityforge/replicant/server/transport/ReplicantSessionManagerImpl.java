@@ -25,6 +25,7 @@ import org.realityforge.replicant.server.ChannelLink;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ServerConstants;
+import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.json.JsonEncoder;
 
 /**
@@ -603,8 +604,16 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public CacheStatus subscribe( @Nonnull final ReplicantSession session,
                                 @Nonnull final ChannelAddress address,
-                                @Nullable final Object filter,
-                                @Nonnull final ChangeSet changeSet )
+                                @Nullable final Object filter )
+  {
+    return subscribe( session, address, filter, EntityMessageCacheUtil.getSessionChanges() );
+  }
+
+  @Nonnull
+  CacheStatus subscribe( @Nonnull final ReplicantSession session,
+                         @Nonnull final ChannelAddress address,
+                         @Nullable final Object filter,
+                         @Nonnull final ChangeSet changeSet )
   {
     return subscribe( session, address, true, filter, changeSet );
   }
@@ -899,9 +908,14 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void unsubscribe( @Nonnull final ReplicantSession session,
-                           @Nonnull final ChannelAddress address,
-                           @Nonnull final ChangeSet changeSet )
+  public void unsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
+  {
+    unsubscribe( session, address, EntityMessageCacheUtil.getSessionChanges() );
+  }
+
+  void unsubscribe( @Nonnull final ReplicantSession session,
+                    @Nonnull final ChannelAddress address,
+                    @Nonnull final ChangeSet changeSet )
   {
     unsubscribe( session, address, true, changeSet );
   }
