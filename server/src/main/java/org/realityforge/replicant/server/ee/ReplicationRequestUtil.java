@@ -49,7 +49,7 @@ public final class ReplicationRequestUtil
     }
   }
 
-  @Nullable
+  @Nonnull
   public static ReplicantSessionManager.CacheStatus runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
                                                                 @Nonnull final EntityManager entityManager,
                                                                 @Nonnull final EntityMessageEndpoint endpoint,

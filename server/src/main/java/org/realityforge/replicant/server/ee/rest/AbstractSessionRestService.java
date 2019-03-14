@@ -560,6 +560,7 @@ public abstract class AbstractSessionRestService
     return writer.toString();
   }
 
+  @Nonnull
   private ReplicantSessionManager.CacheStatus runRequest( @Nonnull final String invocationKey,
                                                           @Nonnull final String sessionId,
                                                           @Nullable final Integer requestId,
