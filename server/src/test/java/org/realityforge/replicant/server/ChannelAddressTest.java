@@ -45,4 +45,15 @@ public class ChannelAddressTest
     final ChannelAddress[] expected = { cd1, cd2, cd3, cd4, cd6, cd6, cd5 };
     assertEquals( list.toArray( new ChannelAddress[ 0 ] ), expected );
   }
+
+  @Test
+  public void parse()
+  {
+    final ChannelAddress address1 = ChannelAddress.parse( "1.22" );
+    assertEquals( address1.getChannelId(), 1 );
+    assertEquals( address1.getSubChannelId(), (Integer) 22 );
+    final ChannelAddress address2 = ChannelAddress.parse( "0" );
+    assertEquals( address2.getChannelId(), 0 );
+    assertEquals( address2.getSubChannelId(), null );
+  }
 }

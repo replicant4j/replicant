@@ -23,6 +23,7 @@
   true and it is never reasonable for it to be any other value.
 * Ensure that `ReplicantSessionManagerImpl` explicitly expires sessions when the component is destroyed.
 * Align the `ChannelAddress.toString()` output with the format used to serialize channel across the wire.
+* Add a `ChannelAddress.parse(String)` method to parse the channel from the wire format.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)

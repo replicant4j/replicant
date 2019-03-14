@@ -10,6 +10,15 @@ public final class ChannelAddress
   @Nullable
   private final Integer _subChannelId;
 
+  @Nonnull
+  public static ChannelAddress parse( @Nonnull final String name )
+  {
+    final int offset = name.indexOf( "." );
+    final int channelId = Integer.parseInt( -1 == offset ? name : name.substring( 0, offset ) );
+    final Integer subChannelId = -1 == offset ? null : Integer.parseInt( name.substring( offset + 1 ) );
+    return new ChannelAddress( channelId, subChannelId );
+  }
+
   public ChannelAddress( final int channelId )
   {
     this( channelId, null );
