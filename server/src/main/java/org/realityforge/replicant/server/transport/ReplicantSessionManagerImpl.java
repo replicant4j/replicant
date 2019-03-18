@@ -171,6 +171,7 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Remove all sessions and force them to reconnect.
    */
+  @SuppressWarnings( "WeakerAccess" )
   public void removeAllSessions()
   {
     _lock.writeLock().lock();
@@ -188,6 +189,7 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Remove sessions that are associated with a closed WebSocket.
    */
+  @SuppressWarnings( "WeakerAccess" )
   public void removeClosedSessions()
   {
     _lock.writeLock().lock();
@@ -209,6 +211,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nullable
   protected String pollJsonData( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
   {
@@ -262,6 +265,7 @@ public abstract class ReplicantSessionManagerImpl
    * @param lastSequenceAcked the sequence that the client last ack'ed.
    * @return the packet or null if no packet is ready.
    */
+  @SuppressWarnings( "WeakerAccess" )
   @Nullable
   protected Packet pollPacket( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
   {
@@ -565,6 +569,7 @@ public abstract class ReplicantSessionManagerImpl
     return CacheStatus.REFRESH;
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   protected boolean deleteCacheEntry( @Nonnull final ChannelAddress address )
   {
     _cacheLock.writeLock().lock();
@@ -764,6 +769,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @SuppressWarnings( { "SameParameterValue", "WeakerAccess" } )
   protected void performUnsubscribe( @Nonnull final ReplicantSession session,
                                      @Nonnull final SubscriptionEntry entry,
                                      final boolean explicitUnsubscribe,
@@ -800,6 +806,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @SuppressWarnings( "unused" )
   protected void delinkDownstreamSubscriptions( @Nonnull final ReplicantSession session,
                                                 @Nonnull final SubscriptionEntry entry,
                                                 @Nonnull final EntityMessage message,
