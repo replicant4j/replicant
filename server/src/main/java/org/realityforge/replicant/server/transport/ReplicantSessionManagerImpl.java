@@ -46,17 +46,6 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public boolean invalidateSession( @Nonnull final String sessionId )
   {
-    return null != removeSession( sessionId );
-  }
-
-  /**
-   * Remove session with specified id.
-   *
-   * @param sessionId the session id.
-   * @return the session removed if any.
-   */
-  protected ReplicantSession removeSession( final String sessionId )
-  {
     _lock.writeLock().lock();
     try
     {
@@ -64,8 +53,12 @@ public abstract class ReplicantSessionManagerImpl
       if ( null != session )
       {
         safeCloseSession( session );
+        return true;
       }
-      return session;
+      else
+      {
+        return false;
+      }
     }
     finally
     {
