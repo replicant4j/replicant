@@ -919,7 +919,7 @@ public abstract class ReplicantSessionManagerImpl
                                @Nonnull final Collection<Integer> subChannelIds,
                                @Nonnull final ChangeSet changeSet )
   {
-    bulkUnsubscribe( session, channelId, subChannelIds, true,changeSet );
+    bulkUnsubscribe( session, channelId, subChannelIds, true, changeSet );
   }
 
   protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
