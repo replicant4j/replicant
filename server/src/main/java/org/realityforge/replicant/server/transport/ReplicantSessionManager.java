@@ -106,8 +106,7 @@ public interface ReplicantSessionManager
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
                       @Nonnull Collection<Integer> subChannelIds,
-                      @Nullable Object filter,
-                      @Nonnull ChangeSet changeSet );
+                      @Nullable Object filter );
 
   void delinkSubscription( @Nonnull ReplicantSession session,
                            @Nonnull ChannelAddress sourceGraph,

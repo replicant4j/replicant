@@ -24,7 +24,7 @@
   `ReplicationSessionManager.bulkSubscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
   `ReplicationSessionManager.bulkUnsubscribe(...)` methods as the value of the parameter is only ever expected
   to be true.
-* Remove the `changeSet` parameter from the `ReplicationSessionManager.subscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
+* Remove the `changeSet` parameter from the `ReplicationSessionManager.subscribe(...)`, `ReplicationSessionManager.bulkSubscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
   `ReplicationSessionManager.bulkUnsubscribe(...)` methods as the value is always the result of the call
   `EntityMessageCacheUtil.getSessionChanges()`.
 * Ensure that `ReplicantSessionManagerImpl` explicitly expires sessions when the component is destroyed.

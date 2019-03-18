@@ -495,6 +495,14 @@ public abstract class ReplicantSessionManagerImpl
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
                              final int channelId,
                              @Nonnull final Collection<Integer> subChannelIds,
+                             @Nullable final Object filter )
+  {
+    bulkSubscribe( session, channelId, subChannelIds, filter,EntityMessageCacheUtil.getSessionChanges() );
+  }
+
+  protected void bulkSubscribe( @Nonnull final ReplicantSession session,
+                             final int channelId,
+                             @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter,
                              @Nonnull final ChangeSet changeSet )
   {

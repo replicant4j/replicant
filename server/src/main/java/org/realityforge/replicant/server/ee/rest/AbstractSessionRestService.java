@@ -331,11 +331,7 @@ public abstract class AbstractSessionRestService
     {
       final ReplicantSession session = ensureSession( sessionId, requestId );
       final Object filter = toFilter( getChannelMetaData( channelId ), filterContent );
-      getSessionManager().bulkSubscribe( session,
-                                         channelId,
-                                         subChannelIds,
-                                         filter,
-                                         EntityMessageCacheUtil.getSessionChanges() );
+      getSessionManager().bulkSubscribe( session, channelId, subChannelIds, filter );
     };
     runRequest( getInvocationKey( channelId, null, "BulkSubscribe" ), sessionId, requestId, action );
 
