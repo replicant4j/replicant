@@ -93,16 +93,16 @@ public abstract class ReplicantSessionManagerImpl
   public ReplicantSession getSession( @Nonnull final String sessionId )
   {
     _lock.readLock().lock();
-    final ReplicantSession sessionInfo;
+    final ReplicantSession session;
     try
     {
-      sessionInfo = _sessions.get( sessionId );
+      session = _sessions.get( sessionId );
     }
     finally
     {
       _lock.readLock().unlock();
     }
-    return sessionInfo;
+    return session;
   }
 
   @Nonnull
