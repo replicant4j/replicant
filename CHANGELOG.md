@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b20-bfe6e22`.
 * Stop tracking last access time of the `ReplicantSession` as it is no longer used. The sessions expire
