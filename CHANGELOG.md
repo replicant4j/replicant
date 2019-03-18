@@ -39,6 +39,7 @@
   - `bulkDelinkSubscription(...)`
 * Remove or reduce the access level of several methods in `ReplicationSessionManagerImpl` that are only used
   by tests.
+* Remove the local cache key during subscribe if the cache key is stale.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)

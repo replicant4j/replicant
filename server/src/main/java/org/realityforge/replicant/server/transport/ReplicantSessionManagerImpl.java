@@ -527,6 +527,7 @@ public abstract class ReplicantSessionManagerImpl
         }
         else
         {
+          session.setETag( address, null );
           final ChangeSet cacheChangeSet = new ChangeSet();
           cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
           cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
