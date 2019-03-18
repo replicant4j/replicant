@@ -107,7 +107,6 @@ public interface ReplicantSessionManager
                       int channelId,
                       @Nonnull Collection<Integer> subChannelIds,
                       @Nullable Object filter,
-                      boolean explicitSubscribe,
                       @Nonnull ChangeSet changeSet );
 
   void delinkSubscription( @Nonnull ReplicantSession session,

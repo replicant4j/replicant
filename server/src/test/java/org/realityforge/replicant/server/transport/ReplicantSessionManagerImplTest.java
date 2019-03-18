@@ -1930,8 +1930,7 @@ public class ReplicantSessionManagerImplTest
     protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
                                                    @Nonnull final ArrayList<ChannelAddress> descriptors,
                                                    @Nonnull final ChangeSet changeSet,
-                                                   @Nullable final Object filter,
-                                                   final boolean explicitSubscribe )
+                                                   @Nullable final Object filter )
     {
       return false;
     }

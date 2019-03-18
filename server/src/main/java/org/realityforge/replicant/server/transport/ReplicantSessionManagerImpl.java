@@ -496,7 +496,6 @@ public abstract class ReplicantSessionManagerImpl
                              final int channelId,
                              @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter,
-                             final boolean explicitSubscribe,
                              @Nonnull final ChangeSet changeSet )
   {
     assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
@@ -528,8 +527,7 @@ public abstract class ReplicantSessionManagerImpl
         bulkCollectDataForSubscribe( session,
                                      newChannels,
                                      changeSet,
-                                     filter,
-                                     explicitSubscribe );
+                                     filter );
       if ( !bulkLoaded )
       {
         for ( final ChannelAddress address : newChannels )
@@ -555,11 +553,7 @@ public abstract class ReplicantSessionManagerImpl
 
         if ( addresses.size() > 1 )
         {
-          bulkLoaded = bulkCollectDataForSubscriptionUpdate( session,
-                                                             addresses,
-                                                             changeSet,
-                                                             originalFilter,
-                                                             filter );
+          bulkLoaded = bulkCollectDataForSubscriptionUpdate( session, addresses, changeSet, originalFilter, filter );
         }
         if ( !bulkLoaded )
         {
@@ -866,8 +860,7 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
                                                           @Nonnull ArrayList<ChannelAddress> addresses,
                                                           @Nonnull ChangeSet changeSet,
-                                                          @Nullable Object filter,
-                                                          boolean explicitSubscribe );
+                                                          @Nullable Object filter );
 
   protected abstract void collectDataForSubscriptionUpdate( @Nonnull ChannelAddress address,
                                                             @Nonnull ChangeSet changeSet,

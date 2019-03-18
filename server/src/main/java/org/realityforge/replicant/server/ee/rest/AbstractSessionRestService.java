@@ -335,7 +335,6 @@ public abstract class AbstractSessionRestService
                                          channelId,
                                          subChannelIds,
                                          filter,
-                                         true,
                                          EntityMessageCacheUtil.getSessionChanges() );
     };
     runRequest( getInvocationKey( channelId, null, "BulkSubscribe" ), sessionId, requestId, action );
