@@ -414,23 +414,10 @@ public abstract class ReplicantSessionManagerImpl
     expandLinks( session, changeSet );
   }
 
-  protected void bulkUpdateSubscription( @Nonnull final String sessionId,
-                                         final int channelId,
-                                         @Nonnull final Collection<Integer> subChannelIds,
-                                         @Nullable final Object filter,
-                                         @Nonnull final ChangeSet changeSet )
-  {
-    setupRegistryContext( sessionId );
-    final ReplicantSession session = ensureSession( sessionId );
-    bulkUpdateSubscription( session, channelId, subChannelIds, filter, changeSet );
-    expandLinks( session, changeSet );
-  }
-
-  @Override
-  public void updateSubscription( @Nonnull final ReplicantSession session,
-                                  @Nonnull final ChannelAddress address,
-                                  @Nullable final Object filter,
-                                  @Nonnull final ChangeSet changeSet )
+  private void updateSubscription( @Nonnull final ReplicantSession session,
+                                   @Nonnull final ChannelAddress address,
+                                   @Nullable final Object filter,
+                                   @Nonnull final ChangeSet changeSet )
   {
     assert getSystemMetaData().getChannelMetaData( address ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
@@ -443,68 +430,19 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
-                                      final int channelId,
-                                      @Nonnull final Collection<Integer> subChannelIds,
-                                      @Nullable final Object filter,
-                                      @Nonnull final ChangeSet changeSet )
-  {
-    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( channelId );
-    assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
-
-    final ArrayList<ChannelAddress> channelsToUpdate = new ArrayList<>();
-
-    for ( final Integer subChannelId : subChannelIds )
-    {
-      final ChannelAddress address = new ChannelAddress( channelId, subChannelId );
-      final SubscriptionEntry entry = session.getSubscriptionEntry( address );
-      if ( !doFiltersMatch( filter, entry.getFilter() ) )
-      {
-        channelsToUpdate.add( address );
-      }
-    }
-
-    if ( channelsToUpdate.isEmpty() )
-    {
-      return;
-    }
-    else if ( 1 == channelsToUpdate.size() )
-    {
-      updateSubscription( session, channelsToUpdate.get( 0 ), filter, changeSet );
-    }
-    else
-    {
-      final Object originalFilter = session.getSubscriptionEntry( channelsToUpdate.get( 0 ) ).getFilter();
-      final boolean bulkLoaded =
-        bulkCollectDataForSubscriptionUpdate( session,
-                                              channelsToUpdate,
-                                              changeSet,
-                                              originalFilter,
-                                              filter );
-      if ( !bulkLoaded )
-      {
-        for ( final ChannelAddress address : channelsToUpdate )
-        {
-          updateSubscription( session, address, filter, changeSet );
-        }
-      }
-    }
-  }
-
-  @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
                              final int channelId,
                              @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter )
   {
-    bulkSubscribe( session, channelId, subChannelIds, filter,EntityMessageCacheUtil.getSessionChanges() );
+    bulkSubscribe( session, channelId, subChannelIds, filter, EntityMessageCacheUtil.getSessionChanges() );
   }
 
   protected void bulkSubscribe( @Nonnull final ReplicantSession session,
-                             final int channelId,
-                             @Nonnull final Collection<Integer> subChannelIds,
-                             @Nullable final Object filter,
-                             @Nonnull final ChangeSet changeSet )
+                                final int channelId,
+                                @Nonnull final Collection<Integer> subChannelIds,
+                                @Nullable final Object filter,
+                                @Nonnull final ChangeSet changeSet )
   {
     assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
 

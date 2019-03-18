@@ -1096,23 +1096,21 @@ public class ReplicantSessionManagerImplTest
 
     resetChangeSet();
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
-    e1.setFilter( originalFilter );
-
-    assertChannelActionCount( 0 );
-    assertEntry( e1, false, 0, 0, originalFilter );
+    sm.subscribe( session, cd, originalFilter, getChangeSet() );
+    resetChangeSet();
 
     // Attempt to update to same filter - should be a noop
-    sm.updateSubscription( session, cd, originalFilter, getChangeSet() );
+    sm.subscribe( session, cd, originalFilter, getChangeSet() );
 
-    assertEntry( e1, false, 0, 0, originalFilter );
+    final SubscriptionEntry e1 = session.getSubscriptionEntry( cd );
+    assertEntry( e1, true, 0, 0, originalFilter );
 
     assertChannelActionCount( 0 );
     assertSessionChangesCount( 0 );
 
-    sm.updateSubscription( session, cd, filter, getChangeSet() );
+    sm.subscribe( session, cd, filter, getChangeSet() );
 
-    assertEntry( e1, false, 0, 0, filter );
+    assertEntry( e1, true, 0, 0, filter );
 
     assertChannelActionCount( 1 );
     assertSessionChangesCount( 1 );
@@ -1152,7 +1150,7 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
-  public void bulkUpdateSubscription()
+  public void bulkSubscribe_forUpdate()
     throws Exception
   {
     final ChannelMetaData ch1 =
@@ -1177,35 +1175,37 @@ public class ReplicantSessionManagerImplTest
     subChannelIds.add( cd1.getSubChannelId() );
     subChannelIds.add( cd2.getSubChannelId() );
 
+    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, originalFilter, getChangeSet() );
+
     resetChangeSet();
 
     assertChannelActionCount( 0 );
-    assertEntry( e1, false, 0, 0, originalFilter );
-    assertEntry( e2, false, 0, 0, originalFilter );
+    assertEntry( e1, true, 0, 0, originalFilter );
+    assertEntry( e2, true, 0, 0, originalFilter );
 
     // Attempt to update to same filter - should be a noop
-    sm.bulkUpdateSubscription( session, ch1.getChannelId(), subChannelIds, originalFilter, getChangeSet() );
+    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, originalFilter, getChangeSet() );
 
-    assertEntry( e1, false, 0, 0, originalFilter );
-    assertEntry( e2, false, 0, 0, originalFilter );
+    assertEntry( e1, true, 0, 0, originalFilter );
+    assertEntry( e2, true, 0, 0, originalFilter );
 
     assertChannelActionCount( 0 );
     assertSessionChangesCount( 0 );
 
     // Attempt to update no channels - should be noop
-    sm.bulkUpdateSubscription( session, ch1.getChannelId(), new ArrayList<>(), filter, getChangeSet() );
+    sm.bulkSubscribe( session, ch1.getChannelId(), new ArrayList<>(), filter, getChangeSet() );
 
-    assertEntry( e1, false, 0, 0, originalFilter );
-    assertEntry( e2, false, 0, 0, originalFilter );
+    assertEntry( e1, true, 0, 0, originalFilter );
+    assertEntry( e2, true, 0, 0, originalFilter );
 
     assertChannelActionCount( 0 );
     assertSessionChangesCount( 0 );
 
     // Attempt to update both channels
-    sm.bulkUpdateSubscription( session.getSessionID(), ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
+    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
 
-    assertEntry( e1, false, 0, 0, filter );
-    assertEntry( e2, false, 0, 0, filter );
+    assertEntry( e1, true, 0, 0, filter );
+    assertEntry( e2, true, 0, 0, filter );
 
     assertChannelActionCount( 2 );
     assertSessionChangesCount( 1 );
@@ -1217,17 +1217,17 @@ public class ReplicantSessionManagerImplTest
     e2.setFilter( originalFilter );
 
     // Attempt to update one channels
-    sm.bulkUpdateSubscription( session, ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
+    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
 
-    assertEntry( e1, false, 0, 0, filter );
-    assertEntry( e2, false, 0, 0, filter );
+    assertEntry( e1, true, 0, 0, filter );
+    assertEntry( e2, true, 0, 0, filter );
 
     assertChannelActionCount( 1 );
     assertSessionChangesCount( 1 );
   }
 
   @Test
-  public void bulkUpdateSubscription_wherebulkUpdateHookIsUsed()
+  public void bulkSubscribe_ForUpdate_whereBulkUpdateHookIsUsed()
     throws Exception
   {
     final ChannelMetaData ch1 =
@@ -1263,7 +1263,7 @@ public class ReplicantSessionManagerImplTest
     assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
 
     // Attempt to update both channels
-    sm.bulkUpdateSubscription( session, ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
+    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
 
     assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 1 );
 
