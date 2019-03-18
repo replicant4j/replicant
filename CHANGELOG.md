@@ -20,7 +20,8 @@
 * Add a `ReplicantSession.ack(...)` that delegates to the underlying queue and may send next packet on WebSocket
   connection.
 * Remove the `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)`,
-  `ReplicationSessionManager.bulkSubscribe(...)` and `ReplicationSessionManager.unsubscribe(...)` methods as the value of the parameter is only ever expected
+  `ReplicationSessionManager.bulkSubscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
+  `ReplicationSessionManager.nulkUnsubscribe(...)` methods as the value of the parameter is only ever expected
   to be true.
 * Remove the `changeSet` parameter from the `ReplicationSessionManager.subscribe(...)` and
   `ReplicationSessionManager.unsubscribe(...)` methods as the value is always the result of the call

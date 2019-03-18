@@ -352,7 +352,6 @@ public abstract class AbstractSessionRestService
       getSessionManager().bulkUnsubscribe( ensureSession( sessionId, requestId ),
                                            channelId,
                                            subChannelIds,
-                                           true,
                                            EntityMessageCacheUtil.getSessionChanges() );
     runRequest( getInvocationKey( channelId, null, "BulkUnsubscribe" ), sessionId, requestId, action );
     return standardResponse( Response.Status.OK, "Channel subscriptions removed." );

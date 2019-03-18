@@ -917,8 +917,16 @@ public abstract class ReplicantSessionManagerImpl
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int channelId,
                                @Nonnull final Collection<Integer> subChannelIds,
-                               final boolean explicitUnsubscribe,
                                @Nonnull final ChangeSet changeSet )
+  {
+    bulkUnsubscribe( session, channelId, subChannelIds, true,changeSet );
+  }
+
+  protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
+                                  final int channelId,
+                                  @Nonnull final Collection<Integer> subChannelIds,
+                                  final boolean explicitUnsubscribe,
+                                  @Nonnull final ChangeSet changeSet )
   {
     for ( final Integer subChannelId : subChannelIds )
     {
