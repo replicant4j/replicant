@@ -5,7 +5,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.websocket.Session;
-import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
 
 public interface ReplicantSessionManager
@@ -34,15 +33,6 @@ public interface ReplicantSessionManager
      */
     IGNORE
   }
-
-  /**
-   * Return the key used to access session information.
-   * Typically this is used as part of the cookie or header name in the dependent system.
-   *
-   * @return the key used to access session information.
-   */
-  @Nonnull
-  String getSessionKey();
 
   /**
    * Return the session for specified ID.
@@ -107,17 +97,6 @@ public interface ReplicantSessionManager
                       int channelId,
                       @Nonnull Collection<Integer> subChannelIds,
                       @Nullable Object filter );
-
-  void delinkSubscription( @Nonnull ReplicantSession session,
-                           @Nonnull ChannelAddress sourceGraph,
-                           @Nonnull ChannelAddress targetGraph,
-                           @Nonnull ChangeSet changeSet );
-
-  void bulkDelinkSubscription( @Nonnull ReplicantSession session,
-                               @Nonnull ChannelAddress sourceGraph,
-                               int channelId,
-                               @Nonnull Collection<Integer> subChannelIds,
-                               @Nonnull ChangeSet changeSet );
 
   void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address );
 

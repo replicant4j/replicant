@@ -32,6 +32,13 @@
 * Add a `ChannelAddress.parse(String)` method to parse the channel from the wire format.
 * Remove the `ReplicationSessionManager.updateSubscription(...)` and `ReplicationSessionManager.bulkUpdateSubscription(...)`
   methods that have not been used since the move to "modern" replicant.
+* Remove several methods from `ReplicationSessionManager` not used outside of tests. These are remnants of
+  replicant's evolution and include:
+  - `getSessionKey()`
+  - `delinkSubscription(...)`
+  - `bulkDelinkSubscription(...)`
+* Remove or reduce the access level of several methods in `ReplicationSessionManagerImpl` that are only used
+  by tests.
 
 ### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)

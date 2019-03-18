@@ -57,7 +57,6 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
-    assertEquals( sm.getSessionKey(), "sid" );
     assertEquals( sm.getSessionIDs().size(), 0 );
     assertNull( sm.getSession( "MySessionID" ) );
     final ReplicantSession sessionInfo = sm.createSession();
@@ -415,8 +414,7 @@ public class ReplicantSessionManagerImplTest
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
-    final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getSessionID(), cd1, null, null, EntityMessageCacheUtil.getSessionChanges() );
+    final ReplicantSessionManagerImpl.CacheStatus status = sm.subscribe( session, cd1, null );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
@@ -445,8 +443,8 @@ public class ReplicantSessionManagerImplTest
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
-    final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getSessionID(), cd1, null, "X", EntityMessageCacheUtil.getSessionChanges() );
+    session.setETag( cd1, "X" );
+    final ReplicantSessionManagerImpl.CacheStatus status = sm.subscribe( session, cd1, null );
     assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
     assertEquals( session.getETag( cd1 ), "X" );
@@ -477,8 +475,8 @@ public class ReplicantSessionManagerImplTest
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
-    final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getSessionID(), cd1, null, "Y", EntityMessageCacheUtil.getSessionChanges() );
+    session.setETag( cd1, "Y" );
+    final ReplicantSessionManagerImpl.CacheStatus status = sm.subscribe( session, cd1, null );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
     assertNull( session.getETag( cd1 ) );
@@ -1019,7 +1017,7 @@ public class ReplicantSessionManagerImplTest
       // This next one is for wrong channel so should be no-op
       subChannelIds.add( cd4.getSubChannelId() );
       //sm.setupRegistryContext( sessionId );
-      sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds, EntityMessageCacheUtil.getSessionChanges() );
+      sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds );
 
       assertChannelActionCount( 2 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -1106,39 +1104,6 @@ public class ReplicantSessionManagerImplTest
     sm.subscribe( session, cd, filter, EntityMessageCacheUtil.getSessionChanges() );
 
     assertEntry( e1, true, 0, 0, filter );
-
-    assertChannelActionCount( 1 );
-    assertSessionChangesCount( 1 );
-  }
-
-  @Test
-  public void updateSubscription_usingSessionID()
-    throws Exception
-  {
-    final ChannelMetaData ch =
-      new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
-
-    final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
-
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
-    final ReplicantSession session = sm.createSession();
-
-    final TestFilter originalFilter = new TestFilter( 41 );
-    final TestFilter filter = new TestFilter( 42 );
-
-    final TransactionSynchronizationRegistry registry = RegistryUtil.bind();
-
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
-    e1.setFilter( originalFilter );
-
-    assertChannelActionCount( 0 );
-
-    sm.updateSubscription( session.getSessionID(), cd, filter, EntityMessageCacheUtil.getSessionChanges() );
-
-    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getSessionID() );
-
-    assertEntry( e1, false, 0, 0, filter );
 
     assertChannelActionCount( 1 );
     assertSessionChangesCount( 1 );
@@ -1339,86 +1304,6 @@ public class ReplicantSessionManagerImplTest
     assertEntry( se2b, false, 0, 0, null );
     assertFalse( se1.getOutwardSubscriptions().contains( cd2a ) );
     assertFalse( se2a.getInwardSubscriptions().contains( cd1 ) );
-  }
-
-  @Test
-  public void delinkSubscription()
-    throws Exception
-  {
-    final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
-    final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, null, false, true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
-
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
-
-    {
-      final ReplicantSession session = sm.createSession();
-      final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
-      se1.setExplicitlySubscribed( true );
-      final SubscriptionEntry se2 = session.createSubscriptionEntry( cd2 );
-      se2.setExplicitlySubscribed( true );
-
-      sm.linkSubscriptionEntries( se1, se2 );
-
-      assertEntry( se1, true, 0, 1, null );
-      assertEntry( se2, true, 1, 0, null );
-
-      final ChangeSet changeSet = new ChangeSet();
-      sm.delinkSubscription( session, cd1, cd2, changeSet );
-
-      //No action as se2 explicitly subscribed
-      assertEquals( changeSet.getChannelActions().size(), 0 );
-    }
-
-    {
-      final ReplicantSession session = sm.createSession();
-      final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
-      se1.setExplicitlySubscribed( true );
-      final SubscriptionEntry se2 = session.createSubscriptionEntry( cd2 );
-
-      sm.linkSubscriptionEntries( se1, se2 );
-
-      assertEntry( se1, true, 0, 1, null );
-      assertEntry( se2, false, 1, 0, null );
-
-      final ChangeSet changeSet = new ChangeSet();
-      sm.delinkSubscription( session, cd1, cd2, changeSet );
-
-      //Action as se2 not explicitly subscribed and now is delinked
-      final LinkedList<ChannelAction> channelActions = changeSet.getChannelActions();
-      assertEquals( channelActions.size(), 1 );
-      final ChannelAction action = channelActions.get( 0 );
-      assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
-      assertEquals( action.getAddress(), cd2 );
-      assertNull( action.getFilter() );
-    }
-  }
-
-  @Test
-  public void ensureSession()
-    throws Exception
-  {
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
-
-    boolean ensureFailed = false;
-    try
-    {
-      sm.ensureSession( "NotExist" );
-    }
-    catch ( final RuntimeException re )
-    {
-      ensureFailed = true;
-    }
-
-    assertTrue( ensureFailed, "Ensure expected to fail with non-existent session" );
-
-    final ReplicantSession session = sm.createSession();
-    assertEquals( sm.ensureSession( session.getSessionID() ), session );
   }
 
   @Test
@@ -1897,13 +1782,6 @@ public class ReplicantSessionManagerImplTest
     public SystemMetaData getSystemMetaData()
     {
       return _systemMetaData;
-    }
-
-    @Nonnull
-    @Override
-    protected RuntimeException newBadSessionException( @Nonnull final String sessionId )
-    {
-      return new IllegalStateException();
     }
 
     @Override

@@ -44,16 +44,6 @@ public abstract class ReplicantSessionManagerImpl
    * {@inheritDoc}
    */
   @Override
-  @Nonnull
-  public String getSessionKey()
-  {
-    return "sid";
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean invalidateSession( @Nonnull final String sessionId )
   {
     return null != removeSession( sessionId );
@@ -158,7 +148,7 @@ public abstract class ReplicantSessionManagerImpl
    * @return an unmodifiable map containing the set of sessions.
    */
   @Nonnull
-  protected Map<String, ReplicantSession> getSessions()
+  Map<String, ReplicantSession> getSessions()
   {
     return _roSessions;
   }
@@ -167,7 +157,7 @@ public abstract class ReplicantSessionManagerImpl
    * @return the lock used to guard access to sessions map.
    */
   @Nonnull
-  protected ReadWriteLock getLock()
+  ReadWriteLock getLock()
   {
     return _lock;
   }
@@ -243,9 +233,9 @@ public abstract class ReplicantSessionManagerImpl
    * @param etag      the etag for message if any.
    * @param changeSet the messages to be sent along to the client.
    */
-  protected void sendPacket( @Nonnull final ReplicantSession session,
-                             @Nullable final String etag,
-                             @Nonnull final ChangeSet changeSet )
+  void sendPacket( @Nonnull final ReplicantSession session,
+                   @Nullable final String etag,
+                   @Nonnull final ChangeSet changeSet )
   {
     final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
     getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
@@ -278,25 +268,6 @@ public abstract class ReplicantSessionManagerImpl
     session.ack( lastSequenceAcked );
     return session.getQueue().nextPacketToProcess();
   }
-
-  /**
-   * Return session associated with specified ID.
-   *
-   * @throws RuntimeException if no such session is available.
-   */
-  @Nonnull
-  protected ReplicantSession ensureSession( @Nonnull final String sessionId )
-  {
-    final ReplicantSession session = getSession( sessionId );
-    if ( null == session )
-    {
-      throw newBadSessionException( sessionId );
-    }
-    return session;
-  }
-
-  @Nonnull
-  protected abstract RuntimeException newBadSessionException( @Nonnull String sessionId );
 
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,
@@ -347,73 +318,6 @@ public abstract class ReplicantSessionManagerImpl
                                                  @Nonnull Collection<ReplicantSession> sessions,
                                                  @Nonnull ChangeAccumulator accumulator );
 
-  @Override
-  public void delinkSubscription( @Nonnull final ReplicantSession session,
-                                  @Nonnull final ChannelAddress sourceGraph,
-                                  @Nonnull final ChannelAddress targetGraph,
-                                  @Nonnull final ChangeSet changeSet )
-  {
-    final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( sourceGraph );
-    final SubscriptionEntry targetEntry = session.findSubscriptionEntry( targetGraph );
-    if ( null != sourceEntry && null != targetEntry )
-    {
-      delinkSubscriptionEntries( sourceEntry, targetEntry );
-      if ( targetEntry.canUnsubscribe() )
-      {
-        performUnsubscribe( session, targetEntry, false, false, changeSet );
-      }
-    }
-  }
-
-  @Override
-  public void bulkDelinkSubscription( @Nonnull final ReplicantSession session,
-                                      @Nonnull final ChannelAddress sourceGraph,
-                                      final int channelId,
-                                      @Nonnull final Collection<Integer> subChannelIds,
-                                      @Nonnull final ChangeSet changeSet )
-  {
-    for ( final Integer id : subChannelIds )
-    {
-      delinkSubscription( session, sourceGraph, new ChannelAddress( channelId, id ), changeSet );
-    }
-  }
-
-  /**
-   * Perform a a subscribe.
-   *
-   * @param cacheKey the opaque string that represents version of message client has cached locally.
-   * @return The cache status of data returned as part of subscribe.
-   */
-  @Nonnull
-  protected CacheStatus subscribe( @Nonnull final String sessionId,
-                                   @Nonnull final ChannelAddress address,
-                                   @Nullable final Object filter,
-                                   @Nullable final String cacheKey,
-                                   @Nonnull final ChangeSet changeSet )
-  {
-    setupRegistryContext( sessionId );
-    final ReplicantSession session = ensureSession( sessionId );
-    session.setETag( address, cacheKey );
-    final CacheStatus status = subscribe( session, address, filter, changeSet );
-    if ( status != CacheStatus.USE )
-    {
-      session.setETag( address, null );
-      expandLinks( session, changeSet );
-    }
-    return status;
-  }
-
-  protected void updateSubscription( @Nonnull final String sessionId,
-                                     @Nonnull final ChannelAddress address,
-                                     @Nullable final Object filter,
-                                     @Nonnull final ChangeSet changeSet )
-  {
-    setupRegistryContext( sessionId );
-    final ReplicantSession session = ensureSession( sessionId );
-    updateSubscription( session, address, filter, changeSet );
-    expandLinks( session, changeSet );
-  }
-
   private void updateSubscription( @Nonnull final ReplicantSession session,
                                    @Nonnull final ChannelAddress address,
                                    @Nullable final Object filter,
@@ -438,11 +342,11 @@ public abstract class ReplicantSessionManagerImpl
     bulkSubscribe( session, channelId, subChannelIds, filter, EntityMessageCacheUtil.getSessionChanges() );
   }
 
-  protected void bulkSubscribe( @Nonnull final ReplicantSession session,
-                                final int channelId,
-                                @Nonnull final Collection<Integer> subChannelIds,
-                                @Nullable final Object filter,
-                                @Nonnull final ChangeSet changeSet )
+  void bulkSubscribe( @Nonnull final ReplicantSession session,
+                      final int channelId,
+                      @Nonnull final Collection<Integer> subChannelIds,
+                      @Nullable final Object filter,
+                      @Nonnull final ChangeSet changeSet )
   {
     assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
 
@@ -674,7 +578,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  protected void deleteAllCacheEntries()
+  void deleteAllCacheEntries()
   {
     _cacheLock.writeLock().lock();
     try
@@ -693,7 +597,7 @@ public abstract class ReplicantSessionManagerImpl
    * each channel cached.
    */
   @Nullable
-  protected ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
+  ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
     assert getSystemMetaData().getChannelMetaData( address ).isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( address );
@@ -824,16 +728,6 @@ public abstract class ReplicantSessionManagerImpl
                                                                    @Nullable Object originalFilter,
                                                                    @Nullable Object filter );
 
-  protected void bulkUnsubscribe( @Nonnull final String sessionId,
-                                  final int channelId,
-                                  @Nonnull final Collection<Integer> subChannelIds,
-                                  final boolean explicitUnsubscribe,
-                                  @Nonnull final ChangeSet changeSet )
-  {
-    setupRegistryContext( sessionId );
-    bulkUnsubscribe( ensureSession( sessionId ), channelId, subChannelIds, explicitUnsubscribe, changeSet );
-  }
-
   @Override
   public void unsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
   {
@@ -844,18 +738,17 @@ public abstract class ReplicantSessionManagerImpl
                     @Nonnull final ChannelAddress address,
                     @Nonnull final ChangeSet changeSet )
   {
-    unsubscribe( session, address, true, changeSet );
+    performUnsubscribe( session, address, changeSet );
   }
 
-  private void unsubscribe( @Nonnull final ReplicantSession session,
-                            @Nonnull final ChannelAddress address,
-                            final boolean explicitUnsubscribe,
-                            @Nonnull final ChangeSet changeSet )
+  private void performUnsubscribe( @Nonnull final ReplicantSession session,
+                                   @Nonnull final ChannelAddress address,
+                                   @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null != entry )
     {
-      performUnsubscribe( session, entry, explicitUnsubscribe, false, changeSet );
+      performUnsubscribe( session, entry, true, false, changeSet );
     }
   }
 
@@ -864,18 +757,10 @@ public abstract class ReplicantSessionManagerImpl
                                final int channelId,
                                @Nonnull final Collection<Integer> subChannelIds )
   {
-    bulkUnsubscribe( session, channelId, subChannelIds, true, EntityMessageCacheUtil.getSessionChanges() );
-  }
-
-  protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
-                                  final int channelId,
-                                  @Nonnull final Collection<Integer> subChannelIds,
-                                  final boolean explicitUnsubscribe,
-                                  @Nonnull final ChangeSet changeSet )
-  {
+    final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
     for ( final Integer subChannelId : subChannelIds )
     {
-      unsubscribe( session, new ChannelAddress( channelId, subChannelId ), explicitUnsubscribe, changeSet );
+      performUnsubscribe( session, new ChannelAddress( channelId, subChannelId ), sessionChanges );
     }
   }
 
@@ -934,8 +819,8 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */
-  protected void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                          @Nonnull final SubscriptionEntry targetEntry )
+  void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.registerOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.registerInwardSubscriptions( sourceEntry.getDescriptor() );
@@ -944,15 +829,15 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
    */
-  protected void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                            @Nonnull final SubscriptionEntry targetEntry )
+  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                  @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.deregisterOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
   }
 
   @SuppressWarnings( { "PMD.WhileLoopsMustUseBraces", "StatementWithEmptyBody" } )
-  protected void expandLinks( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  void expandLinks( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
     while ( expandLink( session, changeSet ) )
     {
@@ -965,7 +850,7 @@ public abstract class ReplicantSessionManagerImpl
    * subscribed. The expand involves subscribing to the target graph. As soon as one is expanded
    * terminate search and return true, otherwise return false.
    */
-  protected boolean expandLink( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  boolean expandLink( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
     for ( final Change change : changeSet.getChanges() )
     {
@@ -1025,11 +910,4 @@ public abstract class ReplicantSessionManagerImpl
 
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelAddress target );
-
-  private void setupRegistryContext( @Nonnull final String sessionId )
-  {
-    //TODO: Remove this once transition to WebSocket transport is complete.
-    //Force the sessionId to the desired session in case call has not been set up by boundary
-    getRegistry().putResource( ServerConstants.SESSION_ID_KEY, sessionId );
-  }
 }
