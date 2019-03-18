@@ -22,7 +22,7 @@
   connection.
 * Remove the `explicitSubscribe` parameter from the `ReplicationSessionManager.subscribe(...)`,
   `ReplicationSessionManager.bulkSubscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
-  `ReplicationSessionManager.nulkUnsubscribe(...)` methods as the value of the parameter is only ever expected
+  `ReplicationSessionManager.bulkUnsubscribe(...)` methods as the value of the parameter is only ever expected
   to be true.
 * Remove the `changeSet` parameter from the `ReplicationSessionManager.subscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
   `ReplicationSessionManager.bulkUnsubscribe(...)` methods as the value is always the result of the call
