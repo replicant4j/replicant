@@ -89,9 +89,7 @@ public interface ReplicantSessionManager
   SystemMetaData getSystemMetaData();
 
   @Nonnull
-  CacheStatus subscribe( @Nonnull ReplicantSession session,
-                         @Nonnull ChannelAddress address,
-                         @Nullable Object filter );
+  CacheStatus subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
