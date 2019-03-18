@@ -977,7 +977,7 @@ public class ReplicantSessionManagerImplTest
       subChannelIds.add( cd3.getSubChannelId() );
       // This next one is for wrong channel so should be no-op
       subChannelIds.add( cd4.getSubChannelId() );
-      sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds, getChangeSet() );
+      sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds, true, getChangeSet() );
 
       assertChannelActionCount( 2 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );

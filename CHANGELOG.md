@@ -24,8 +24,8 @@
   `ReplicationSessionManager.bulkSubscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
   `ReplicationSessionManager.nulkUnsubscribe(...)` methods as the value of the parameter is only ever expected
   to be true.
-* Remove the `changeSet` parameter from the `ReplicationSessionManager.subscribe(...)` and
-  `ReplicationSessionManager.unsubscribe(...)` methods as the value is always the result of the call
+* Remove the `changeSet` parameter from the `ReplicationSessionManager.subscribe(...)`, `ReplicationSessionManager.unsubscribe(...)` and
+  `ReplicationSessionManager.bulkUnsubscribe(...)` methods as the value is always the result of the call
   `EntityMessageCacheUtil.getSessionChanges()`.
 * Ensure that `ReplicantSessionManagerImpl` explicitly expires sessions when the component is destroyed.
 * Align the `ChannelAddress.toString()` output with the format used to serialize channel across the wire.

@@ -916,10 +916,9 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int channelId,
-                               @Nonnull final Collection<Integer> subChannelIds,
-                               @Nonnull final ChangeSet changeSet )
+                               @Nonnull final Collection<Integer> subChannelIds )
   {
-    bulkUnsubscribe( session, channelId, subChannelIds, true, changeSet );
+    bulkUnsubscribe( session, channelId, subChannelIds, true, EntityMessageCacheUtil.getSessionChanges() );
   }
 
   protected void bulkUnsubscribe( @Nonnull final ReplicantSession session,
