@@ -213,7 +213,7 @@ public class ReplicantSessionManagerImplTest
     final ReplicantSession session = sm.createSession();
     session.sendPacket( null, null, new ChangeSet() );
 
-    assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1}" );
+    assertEquals( sm.pollJsonData( session, 0 ), "{\"seq\":1}" );
     assertNull( sm.pollJsonData( session, 1 ) );
   }
 

@@ -64,7 +64,7 @@ final class ChangeSetParser
       try ( final JsonReader reader = Json.createReader( new StringReader( rawJsonData ) ) )
       {
         final JsonObject object = reader.readObject();
-        final int sequence = object.getInt( "last_id" );
+        final int sequence = object.getInt( "seq" );
         final Integer requestId =
           object.containsKey( "requestId" ) ? object.getJsonNumber( "requestId" ).intValue() : null;
         final String etag =

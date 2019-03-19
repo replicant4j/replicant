@@ -65,7 +65,7 @@ public final class JsonEncoderTest
 
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
+    assertEquals( changeSet.getInt( TransportConstants.SEQUENCE ), lastChangeSetID );
     assertEquals( changeSet.getInt( TransportConstants.REQUEST_ID ), requestId );
     assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
 
@@ -115,7 +115,7 @@ public final class JsonEncoderTest
 
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
+    assertEquals( changeSet.getInt( TransportConstants.SEQUENCE ), lastChangeSetID );
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 

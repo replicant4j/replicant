@@ -2391,7 +2391,7 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1}";
+    final String rawJsonData = "{\"seq\": 1}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2420,7 +2420,7 @@ public class ConnectorTest
     final int requestId = request.getRequestId();
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1, \"requestId\": " + requestId + "}";
+    final String rawJsonData = "{\"seq\": 1, \"requestId\": " + requestId + "}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2462,7 +2462,7 @@ public class ConnectorTest
     final String etag = ValueUtil.randomString();
 
     final String rawJsonData =
-      "{\"last_id\": 1" +
+      "{\"seq\": 1" +
       ", \"requestId\": " + requestId +
       ", \"etag\": \"" + etag + "\"" +
       ", \"channels\": [ \"+0\" ] }";
@@ -2508,7 +2508,7 @@ public class ConnectorTest
     final String etag = ValueUtil.randomString();
 
     final String rawJsonData =
-      "{\"last_id\": 1" +
+      "{\"seq\": 1" +
       ", \"requestId\": " + requestId +
       ", \"etag\": \"" + etag + "\"" +
       ", \"channels\": [ \"+0\", \"+1.1\" ] }";
@@ -2540,7 +2540,7 @@ public class ConnectorTest
     final int requestId = request.getRequestId();
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1, \"requestId\": " + requestId + "}";
+    final String rawJsonData = "{\"seq\": 1, \"requestId\": " + requestId + "}";
     final SafeProcedure oobCompletionAction = () -> {
     };
     final MessageResponse response = new MessageResponse( rawJsonData, oobCompletionAction );
@@ -2567,7 +2567,7 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
 
     @Language( "json" )
-    final String rawJsonData = "{\"last_id\": 1, \"requestId\": 22}";
+    final String rawJsonData = "{\"seq\": 1, \"requestId\": 22}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
     connection.setCurrentMessageResponse( response );
@@ -2841,7 +2841,7 @@ public class ConnectorTest
     @Language( "json" )
     final String rawJsonData =
       "{" +
-      "\"last_id\": 1, " +
+      "\"seq\": 1, " +
       // Add Channel 0
       "\"channels\": [ \"+0\" ], " +
       // Add Entity 1 of type 0 from channel 0

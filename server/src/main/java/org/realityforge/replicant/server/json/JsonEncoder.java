@@ -56,7 +56,7 @@ public final class JsonEncoder
 
     generator.
       writeStartObject().
-      write( TransportConstants.LAST_CHANGE_SET_ID, lastChangeSetID );
+      write( TransportConstants.SEQUENCE, lastChangeSetID );
     if ( null != requestId )
     {
       generator.write( TransportConstants.REQUEST_ID, requestId );

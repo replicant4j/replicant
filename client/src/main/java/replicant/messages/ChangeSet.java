@@ -16,7 +16,7 @@ import static org.realityforge.braincheck.Guards.*;
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class ChangeSet
 {
-  private int last_id;
+  private int seq;
   @Nullable
   private Double requestId;
   @Nullable
@@ -37,7 +37,7 @@ public class ChangeSet
                                   @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
-    changeSet.last_id = sequence;
+    changeSet.seq = sequence;
     changeSet.requestId = null == requestId ? null : requestId.doubleValue();
     changeSet.etag = eTag;
     changeSet.channels = channels;
@@ -56,7 +56,7 @@ public class ChangeSet
   @JsOverlay
   public final int getSequence()
   {
-    return last_id;
+    return seq;
   }
 
   /**
@@ -186,7 +186,7 @@ public class ChangeSet
         {
           final String id = change.getId();
           apiInvariant( () -> existing.add( id ),
-                        () -> "Replicant-0014: ChangeSet " + last_id + " contains multiple EntityChange " +
+                        () -> "Replicant-0014: ChangeSet " + seq + " contains multiple EntityChange " +
                               "messages with the id '" + id + "'." );
         }
       }
@@ -197,7 +197,7 @@ public class ChangeSet
         {
           final String key = channelAction.substring( 1 );
           apiInvariant( () -> existingChannels.add( key ),
-                        () -> "Replicant-0022: ChangeSet " + last_id + " contains multiple ChannelChange " +
+                        () -> "Replicant-0022: ChangeSet " + seq + " contains multiple ChannelChange " +
                               "messages for the channel " + channelAction.substring( 1 ) + "." );
         }
       }
@@ -208,7 +208,7 @@ public class ChangeSet
           final String channelAction = channelChange.getChannel();
           final String key = channelAction.substring( 1 );
           apiInvariant( () -> existingChannels.add( key ),
-                        () -> "Replicant-0028: ChangeSet " + last_id + " contains multiple ChannelChange " +
+                        () -> "Replicant-0028: ChangeSet " + seq + " contains multiple ChannelChange " +
                               "messages for the channel " + channelAction.substring( 1 ) + "." );
 
         }
