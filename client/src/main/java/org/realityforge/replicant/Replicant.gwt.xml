@@ -3,6 +3,7 @@
   <inherits name='org.realityforge.gwt.webpoller.client.WebPoller'/>
   <inherits name='org.realityforge.gwt.webpoller.client.http.Http'/>
   <inherits name='com.google.gwt.user.RemoteService'/>
+  <inherits name='org.realityforge.braincheck.BrainCheck'/>
 
   <source path='client' includes='*.java'/>
   <source path='client/gwt'/>
