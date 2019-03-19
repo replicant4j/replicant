@@ -39,3 +39,7 @@ Some actions that should occur at some point in the future.
 * Generate DebugTool to show client side replicant graph subscriptions
 
 * Fix TODO in `ReplicantSession`
+
+* Make sure that the requestId going back and forth is correct and increasing in sequence
+
+* Change `invalidateSession()` to take a `ReplicantSession` rather than `sessionId`
