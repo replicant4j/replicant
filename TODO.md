@@ -39,5 +39,3 @@ Some actions that should occur at some point in the future.
 * Generate DebugTool to show client side replicant graph subscriptions
 
 * Fix TODO in `ReplicantSession`
-
-* Fix TODO in `ReplicantSessionManagerImpl` relating to WebSocket transition.
