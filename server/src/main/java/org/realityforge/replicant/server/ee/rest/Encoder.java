@@ -49,7 +49,6 @@ final class Encoder
                            @Nonnull final UriInfo uri,
                            final boolean emitNetworkData )
   {
-    final PacketQueue queue = session.getQueue();
     g.writeStartObject();
     g.write( "id", session.getSessionID() );
     g.write( "type", session.isWebSocketSession() ? "websocket" : "poll" );
@@ -65,7 +64,7 @@ final class Encoder
     g.write( "url", getSessionURL( session, uri ) );
     if ( !session.isWebSocketSession() )
     {
-      g.write( "synchronized", 0 == queue.size() );
+      g.write( "synchronized", 0 == session.getQueue().size() );
     }
 
     if ( emitNetworkData )
@@ -77,6 +76,7 @@ final class Encoder
       }
       else
       {
+        final PacketQueue queue = session.getQueue();
         g.write( "queueSize", queue.size() );
         g.write( "lastSequenceAcked", queue.getLastSequenceAcked() );
         final Packet nextPacket = queue.nextPacketToProcess();
