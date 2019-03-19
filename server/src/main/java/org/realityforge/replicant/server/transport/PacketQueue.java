@@ -9,6 +9,7 @@ import org.realityforge.replicant.server.ChangeSet;
 /**
  * A queue of packets for session.
  */
+//TODO: Class can be removed once we are WebSocket only
 public class PacketQueue
 {
   /**
