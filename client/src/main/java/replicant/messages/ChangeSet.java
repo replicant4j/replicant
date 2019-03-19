@@ -28,7 +28,7 @@ public class ChangeSet
   @Nullable
   private EntityChange[] changes;
 
-  @JsOverlay
+  @GwtIncompatible
   public static ChangeSet create( final int sequence,
                                   @Nullable final Integer requestId,
                                   @Nullable final String eTag,
