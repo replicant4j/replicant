@@ -52,6 +52,7 @@ final class Encoder
     final PacketQueue queue = session.getQueue();
     g.writeStartObject();
     g.write( "id", session.getSessionID() );
+    g.write( "type", session.isWebSocketSession() ? "websocket" : "poll" );
     final String userID = session.getUserID();
     if ( null == userID )
     {
@@ -62,21 +63,30 @@ final class Encoder
       g.write( "userID", userID );
     }
     g.write( "url", getSessionURL( session, uri ) );
-    g.write( "synchronized", 0 == queue.size() );
+    if ( !session.isWebSocketSession() )
+    {
+      g.write( "synchronized", 0 == queue.size() );
+    }
 
     if ( emitNetworkData )
     {
       g.writeStartObject( "net" );
-      g.write( "queueSize", queue.size() );
-      g.write( "lastSequenceAcked", queue.getLastSequenceAcked() );
-      final Packet nextPacket = queue.nextPacketToProcess();
-      if ( null != nextPacket )
+      if ( session.isWebSocketSession() )
       {
-        g.write( "nextPacketSequence", nextPacket.getSequence() );
       }
       else
       {
-        g.writeNull( "nextPacketSequence" );
+        g.write( "queueSize", queue.size() );
+        g.write( "lastSequenceAcked", queue.getLastSequenceAcked() );
+        final Packet nextPacket = queue.nextPacketToProcess();
+        if ( null != nextPacket )
+        {
+          g.write( "nextPacketSequence", nextPacket.getSequence() );
+        }
+        else
+        {
+          g.writeNull( "nextPacketSequence" );
+        }
       }
       g.writeEnd();
 
