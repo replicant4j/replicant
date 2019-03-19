@@ -23,8 +23,13 @@ public final class ReplicantSession
   //TODO: Make this field final once we have transitionsed to WebSockets
   @Nullable
   private Session _webSocketSession;
+  /**
+   * Sequence of next packet to be sent to added to WebSocket.
+   */
+  private int _nextSequence = 1;
   @Nonnull
   private final String _sessionId;
+  //TODO: Remove queue as not needed in WebSocket world
   @Nonnull
   private final PacketQueue _queue = new PacketQueue();
   @Nonnull
@@ -60,10 +65,17 @@ public final class ReplicantSession
     }
   }
 
+  //TODO: Delete this method
   public boolean isWebSocketSession()
   {
     return null != _webSocketSession;
   }
+
+    public synchronized int getNextSequence()
+  {
+    return _nextSequence;
+  }
+
 
   @Nonnull
   public Session getWebSocketSession()
@@ -93,6 +105,7 @@ public final class ReplicantSession
   @Nonnull
   public final PacketQueue getQueue()
   {
+    assert null == _webSocketSession;
     return _queue;
   }
 
@@ -107,29 +120,29 @@ public final class ReplicantSession
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {
-    _queue.addPacket( requestId, etag, changeSet );
-    sendNextPacketToWebSocketIfPossible();
+    if ( null == _webSocketSession )
+    {
+      getQueue().addPacket( requestId, etag, changeSet );
+    }
+    else if ( _webSocketSession.isOpen() )
+    {
+      sendPacket( new Packet( _nextSequence++, requestId, etag, changeSet ) );
+    }
   }
 
-  private void sendNextPacketToWebSocketIfPossible()
+  private void sendPacket( @Nonnull final Packet packet )
   {
-    if ( null != _webSocketSession && _webSocketSession.isOpen() && 1 == _queue.size() )
+    assert null != _webSocketSession && _webSocketSession.isOpen();
+    final String message = JsonEncoder.
+      encodeChangeSet( packet.getSequence(), packet.getRequestId(), packet.getETag(), packet.getChangeSet() );
+    try
     {
-      final Packet packet = _queue.nextPacketToProcess();
-      if ( null != packet )
-      {
-        final String message = JsonEncoder.
-          encodeChangeSet( packet.getSequence(), packet.getRequestId(), packet.getETag(), packet.getChangeSet() );
-        try
-        {
-          _webSocketSession.getBasicRemote().sendText( message );
-        }
-        catch ( final IOException ignored )
-        {
-          // This typically means that either the buffer is full or the websocket is in a bad state
-          // either way we can ignore it and wait till it recovers or the connection is reaped.
-        }
-      }
+      _webSocketSession.getBasicRemote().sendText( message );
+    }
+    catch ( final IOException ignored )
+    {
+      // This typically means that either the buffer is full or the websocket is in a bad state
+      // either way we can ignore it and wait till it recovers or the connection is reaped.
     }
   }
 
@@ -140,8 +153,7 @@ public final class ReplicantSession
    */
   public void ack( final int sequence )
   {
-    _queue.ack( sequence );
-    sendNextPacketToWebSocketIfPossible();
+    getQueue().ack( sequence );
   }
 
   @SuppressWarnings( "WeakerAccess" )

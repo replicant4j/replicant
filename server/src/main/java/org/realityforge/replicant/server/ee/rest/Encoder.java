@@ -73,6 +73,7 @@ final class Encoder
       g.writeStartObject( "net" );
       if ( session.isWebSocketSession() )
       {
+        g.write( "nextSequence", session.getNextSequence() );
       }
       else
       {

@@ -70,7 +70,6 @@ public class ReplicantSessionTest
     final ReplicantSession session = new ReplicantSession( null, webSocketSession );
 
     assertEquals( session.getSessionID(), sessionId );
-    assertEquals( session.getQueue().size(), 0 );
 
     assertEquals( session.getSubscriptions().size(), 0 );
 
