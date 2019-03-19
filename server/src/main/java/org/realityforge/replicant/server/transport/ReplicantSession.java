@@ -20,9 +20,9 @@ public final class ReplicantSession
 {
   @Nullable
   private final String _userID;
-  //TODO: Make this field final once we have transitionsed to WebSockets
+  //TODO: Make this field Nonnull once we have transitioned to WebSockets
   @Nullable
-  private Session _webSocketSession;
+  private final Session _webSocketSession;
   /**
    * Sequence of next packet to be sent to added to WebSocket.
    */
@@ -47,12 +47,6 @@ public final class ReplicantSession
     _webSocketSession = webSocketSession;
     _sessionId =
       null != webSocketSession ? webSocketSession.getId() : Objects.requireNonNull( UUID.randomUUID().toString() );
-  }
-
-  public void bindWebSocketSession( @Nonnull final Session webSocketSession )
-  {
-    //TODO: Remove me - this only here during transition from Rest to WebSockets
-    _webSocketSession = webSocketSession;
   }
 
   @Override
