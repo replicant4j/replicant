@@ -349,16 +349,6 @@ public abstract class WebPollerTransport
     }
   }
 
-  @Override
-  public void requestSubscribe( @Nonnull final ChannelAddress address,
-                                @Nullable final Object filter,
-                                @Nonnull final SafeProcedure onSuccess,
-                                @Nonnull final Consumer<Throwable> onError )
-  {
-    final Request request = newRequest( toRequestKey( "Subscribe", address ) );
-    remote( () -> doSubscribe( request, filter, getChannelURL( address ), null, onSuccess, null, onError ) );
-  }
-
   @Nonnull
   private Request newRequest( @Nullable final String requestKey )
   {
@@ -398,8 +388,8 @@ public abstract class WebPollerTransport
   @Override
   public void requestSubscribe( @Nonnull final ChannelAddress address,
                                 @Nullable final Object filter,
-                                @Nonnull final String eTag,
-                                @Nonnull final SafeProcedure onCacheValid,
+                                @Nullable final String eTag,
+                                @Nullable final SafeProcedure onCacheValid,
                                 @Nonnull final SafeProcedure onSuccess,
                                 @Nonnull final Consumer<Throwable> onError )
   {
@@ -414,28 +404,6 @@ public abstract class WebPollerTransport
                                     @Nonnull final Consumer<Throwable> onError )
   {
     final Request request = newRequest( toRequestKey( "BulkSubscribe", addresses ) );
-    remote( () -> doSubscribe( request, filter, getChannelURL( addresses ), null, onSuccess, null, onError ) );
-  }
-
-  @Override
-  public void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
-                                         @Nonnull final Object filter,
-                                         @Nonnull final SafeProcedure onSuccess,
-                                         @Nonnull final Consumer<Throwable> onError )
-  {
-    final Request request =
-      newRequest( toRequestKey( "SubscriptionUpdate", address ) );
-    remote( () -> doSubscribe( request, filter, getChannelURL( address ), null, onSuccess, null, onError ) );
-  }
-
-  @Override
-  public void requestBulkSubscriptionUpdate( @Nonnull final List<ChannelAddress> addresses,
-                                             @Nonnull final Object filter,
-                                             @Nonnull final SafeProcedure onSuccess,
-                                             @Nonnull final Consumer<Throwable> onError )
-  {
-    final Request request =
-      newRequest( toRequestKey( "BulkSubscriptionUpdate", addresses ) );
     remote( () -> doSubscribe( request, filter, getChannelURL( addresses ), null, onSuccess, null, onError ) );
   }
 

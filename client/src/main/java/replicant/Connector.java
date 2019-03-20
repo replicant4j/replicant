@@ -1250,7 +1250,7 @@ abstract class Connector
     }
     else
     {
-      getTransport().requestSubscribe( request.getAddress(), request.getFilter(), onSuccess, onError );
+      getTransport().requestSubscribe( request.getAddress(), request.getFilter(), null, null, onSuccess, onError );
     }
   }
 
@@ -1308,7 +1308,7 @@ abstract class Connector
 
     final Object filter = request.getFilter();
     assert null != filter;
-    getTransport().requestSubscriptionUpdate( address, filter, onSuccess, onError );
+    getTransport().requestSubscribe( address, filter, null, null, onSuccess, onError );
   }
 
   final void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1328,7 +1328,7 @@ abstract class Connector
     // All filters will be the same if they are grouped
     final Object filter = requests.get( 0 ).getFilter();
     assert null != filter;
-    getTransport().requestBulkSubscriptionUpdate( addresses, filter, onSuccess, onError );
+    getTransport().requestBulkSubscribe( addresses, filter, onSuccess, onError );
   }
 
   final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )

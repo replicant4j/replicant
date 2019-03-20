@@ -2977,6 +2977,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -3052,6 +3054,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -3210,6 +3214,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -3504,6 +3510,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address1 ),
                          eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
                          any( SafeProcedure.class ),
                          any() );
 
@@ -3714,7 +3722,12 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestSubscriptionUpdate( eq( address ), eq( filter ), any( SafeProcedure.class ), any() );
+      .requestSubscribe( eq( address ),
+                         eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
+                         any( SafeProcedure.class ),
+                         any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3786,7 +3799,12 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestSubscriptionUpdate( eq( address ), eq( filter ), any( SafeProcedure.class ), any() );
+      .requestSubscribe( eq( address ),
+                         eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
+                         any( SafeProcedure.class ),
+                         any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3873,10 +3891,10 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestBulkSubscriptionUpdate( anyListOf( ChannelAddress.class ),
-                                      eq( filter ),
-                                      any( SafeProcedure.class ),
-                                      any() );
+      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
+                             eq( filter ),
+                             isNull( SafeProcedure.class ),
+                             any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3981,10 +3999,7 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestBulkSubscriptionUpdate( anyListOf( ChannelAddress.class ),
-                                      eq( filter ),
-                                      any( SafeProcedure.class ),
-                                      any() );
+      .requestBulkSubscribe( anyListOf( ChannelAddress.class ), eq( filter ), any( SafeProcedure.class ), any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -4079,7 +4094,12 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestSubscriptionUpdate( eq( address1 ), eq( filter ), any( SafeProcedure.class ), any() );
+      .requestSubscribe( eq( address1 ),
+                         eq( filter ),
+                         isNull( String.class ),
+                         isNull( SafeProcedure.class ),
+                         any( SafeProcedure.class ),
+                         any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -4205,10 +4225,10 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestBulkSubscriptionUpdate( anyListOf( ChannelAddress.class ),
-                                      eq( filter ),
-                                      any( SafeProcedure.class ),
-                                      any() );
+      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
+                             eq( filter ),
+                             isNull( SafeProcedure.class ),
+                             any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );

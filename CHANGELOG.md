@@ -4,6 +4,8 @@
 
 * Omit attributes not relevant to WebSocket based sessions from the the rest API describing sessions.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.133`.
+* Refactor the `replicant.Transport` interface to remove methods 4-arg `requestSubscribe()`, `requestSubscriptionUpdate()`
+  and `requestBulkSubscriptionUpdate()` that can be reimplemented as calls to 6-arg `requestSubscribe()`.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
