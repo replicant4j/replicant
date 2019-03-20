@@ -4,6 +4,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@SuppressWarnings( "WeakerAccess" )
 public final class ChannelMetaData
 {
   public enum FilterType
