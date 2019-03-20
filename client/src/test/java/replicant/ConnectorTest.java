@@ -706,7 +706,6 @@ public class ConnectorTest
     } );
   }
 
-
   @Test
   public void onSubscribeCompleted_DeletedSubscription()
     throws Exception
