@@ -69,11 +69,10 @@ public final class ReplicantSession
     return null != _webSocketSession;
   }
 
-    public synchronized int getNextSequence()
+  public synchronized int getNextSequence()
   {
     return _nextSequence;
   }
-
 
   @Nonnull
   public Session getWebSocketSession()
