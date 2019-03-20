@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -176,14 +175,6 @@ final class Encoder
     {
       return baseURL;
     }
-  }
-
-  @Nonnull
-  private static String asDateTimeString( final long timeInMillis )
-  {
-    final GregorianCalendar calendar = new GregorianCalendar();
-    calendar.setTimeInMillis( timeInMillis );
-    return c_datatypeFactory.newXMLGregorianCalendar( calendar ).toXMLFormat();
   }
 
   private static void emitSubscriptions( @Nonnull final SystemMetaData systemMetaData,
