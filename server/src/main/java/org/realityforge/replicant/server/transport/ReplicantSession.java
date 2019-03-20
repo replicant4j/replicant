@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,9 @@ import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonWriter;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
@@ -120,15 +124,23 @@ public final class ReplicantSession
     }
     else if ( _webSocketSession.isOpen() )
     {
-      sendPacket( new Packet( _nextSequence++, requestId, etag, changeSet ) );
+      sendWebSocketMessage( JsonEncoder.encodeChangeSet( _nextSequence++, requestId, etag, changeSet ) );
     }
   }
 
-  private void sendPacket( @Nonnull final Packet packet )
+  void sendWebSocketMessage( @Nonnull final JsonObject message )
+  {
+    final StringWriter writer = new StringWriter();
+    final JsonWriter jsonWriter = Json.createWriter( writer );
+    jsonWriter.writeObject( message );
+    jsonWriter.close();
+    writer.flush();
+    sendWebSocketMessage( writer.toString() );
+  }
+
+  private void sendWebSocketMessage( @Nonnull final String message )
   {
     assert null != _webSocketSession && _webSocketSession.isOpen();
-    final String message = JsonEncoder.
-      encodeChangeSet( packet.getSequence(), packet.getRequestId(), packet.getETag(), packet.getChangeSet() );
     try
     {
       _webSocketSession.getBasicRemote().sendText( message );
