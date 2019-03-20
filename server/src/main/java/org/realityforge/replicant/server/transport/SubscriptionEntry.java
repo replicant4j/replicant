@@ -169,7 +169,7 @@ public final class SubscriptionEntry
   }
 
   @Override
-  public int compareTo( final SubscriptionEntry o )
+  public int compareTo( @Nonnull final SubscriptionEntry o )
   {
     return getDescriptor().compareTo( o.getDescriptor() );
   }
