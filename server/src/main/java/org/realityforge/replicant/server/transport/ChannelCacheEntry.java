@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
 
-public final class ChannelCacheEntry
+final class ChannelCacheEntry
 {
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
   private final ChannelAddress _descriptor;
@@ -19,13 +19,13 @@ public final class ChannelCacheEntry
   }
 
   @Nonnull
-  public ReadWriteLock getLock()
+  ReadWriteLock getLock()
   {
     return _lock;
   }
 
   @Nonnull
-  public ChannelAddress getDescriptor()
+  ChannelAddress getDescriptor()
   {
     return _descriptor;
   }
@@ -42,7 +42,7 @@ public final class ChannelCacheEntry
   }
 
   @Nonnull
-  public String getCacheKey()
+  String getCacheKey()
   {
     if ( null == _cacheKey )
     {
@@ -52,7 +52,7 @@ public final class ChannelCacheEntry
   }
 
   @Nonnull
-  public ChangeSet getChangeSet()
+  ChangeSet getChangeSet()
   {
     if ( null == _changeSet )
     {
