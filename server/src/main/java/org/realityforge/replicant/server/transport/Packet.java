@@ -7,6 +7,7 @@ import org.realityforge.replicant.server.ChangeSet;
 /**
  * The server-side representation of a ChangeSet.
  */
+//TODO: Remove this as not needed in WebSocket world
 public final class Packet
   implements Comparable
 {
