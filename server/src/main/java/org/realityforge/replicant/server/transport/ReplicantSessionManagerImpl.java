@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
+import javax.json.Json;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.Change;
@@ -523,6 +524,12 @@ public abstract class ReplicantSessionManagerImpl
         final String eTag = cacheEntry.getCacheKey();
         if ( eTag.equals( session.getETag( address ) ) )
         {
+          if ( session.isWebSocketSession() && session.getWebSocketSession().isOpen() )
+          {
+            session.sendWebSocketMessage( Json.createObjectBuilder()
+                                            .add( "type", "load-cache" )
+                                            .add( "channel", address.toString() ).build() );
+          }
           return CacheStatus.USE;
         }
         else
