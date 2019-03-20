@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
@@ -44,20 +45,12 @@ final class ChannelCacheEntry
   @Nonnull
   String getCacheKey()
   {
-    if ( null == _cacheKey )
-    {
-      throw new NullPointerException( "cacheKey" );
-    }
-    return _cacheKey;
+    return Objects.requireNonNull( _cacheKey );
   }
 
   @Nonnull
   ChangeSet getChangeSet()
   {
-    if ( null == _changeSet )
-    {
-      throw new NullPointerException( "changeSet" );
-    }
-    return _changeSet;
+    return Objects.requireNonNull( _changeSet );
   }
 }
