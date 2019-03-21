@@ -42,7 +42,5 @@ Some actions that should occur at some point in the future.
 
 * Make sure that the requestId going back and forth is correct and increasing in sequence
 
-* Change `invalidateSession()` to take a `ReplicantSession` rather than `sessionId`
-
 * Remove `seq` from message formwat and all form of buffering/sequencing on the client and server as we can assume
   messages are sequenced in order.
