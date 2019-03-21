@@ -46,5 +46,3 @@ Some actions that should occur at some point in the future.
 
 * Remove `seq` from message formwat and all form of buffering/sequencing on the client and server as we can assume
   messages are sequenced in order.
-
-* Remove `Packet`, `PacketQueue` from serverside and equivs on client-side
