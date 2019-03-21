@@ -6,6 +6,8 @@ import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ServerConstants;
+import org.realityforge.replicant.server.transport.ReplicantSession;
+import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 
 /**
  * A base class that used to wrap around invocation of an action.
@@ -18,15 +20,19 @@ public abstract class AbstractInvocationAdapter
   {
     final String sessionId = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
     final Integer requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
-
+    final ReplicantSession session =
+      null != sessionId ? getReplicantSessionManager().getSession( sessionId ) : null;
     return ReplicationRequestUtil.runRequest( getRegistry(),
                                               getEntityManager(),
                                               getEndpoint(),
                                               key,
-                                              sessionId,
+                                              session,
                                               requestId,
                                               action );
   }
+
+  @Nonnull
+  protected abstract ReplicantSessionManager getReplicantSessionManager();
 
   @Nonnull
   protected abstract EntityManager getEntityManager();

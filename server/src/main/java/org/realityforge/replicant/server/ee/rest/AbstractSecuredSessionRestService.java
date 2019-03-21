@@ -1,10 +1,8 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.keycloak.adapters.OidcKeycloakAccount;
@@ -12,40 +10,21 @@ import org.realityforge.keycloak.sks.SimpleAuthService;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 
+@SuppressWarnings( "unused" )
 public abstract class AbstractSecuredSessionRestService
   extends AbstractSessionRestService
 {
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract SimpleAuthService getAuthService();
 
   /**
    * Override this and return true if security should be disabled. Typically used during local development.
    */
+  @SuppressWarnings( "WeakerAccess" )
   protected boolean disableSecurity()
   {
     return false;
-  }
-
-  @Nonnull
-  @Override
-  protected Response doCreateSession()
-  {
-    final OidcKeycloakAccount account = getAuthService().findAccount();
-    if ( disableSecurity() || null != account )
-    {
-      return super.doCreateSession();
-    }
-    else
-    {
-      return createForbiddenResponse();
-    }
-  }
-
-  @Nonnull
-  @Override
-  protected Response doDeleteSession( @Nonnull final String sessionId )
-  {
-    return guard( sessionId, () -> super.doDeleteSession( sessionId ) );
   }
 
   @Nonnull
@@ -72,26 +51,6 @@ public abstract class AbstractSecuredSessionRestService
 
   @Nonnull
   @Override
-  protected Response doSubscribeChannel( @Nonnull final String sessionId,
-                                         @Nullable final Integer requestId,
-                                         @Nullable final String eTag,
-                                         @Nonnull final ChannelAddress address,
-                                         @Nonnull final String filterContent )
-  {
-    return guard( sessionId, () -> super.doSubscribeChannel( sessionId, requestId, eTag, address, filterContent ) );
-  }
-
-  @Nonnull
-  @Override
-  protected Response doUnsubscribeChannel( @Nonnull final String sessionId,
-                                           @Nullable final Integer requestId,
-                                           @Nonnull final ChannelAddress address )
-  {
-    return guard( sessionId, () -> super.doUnsubscribeChannel( sessionId, requestId, address ) );
-  }
-
-  @Nonnull
-  @Override
   protected Response doGetChannel( @Nonnull final String sessionId,
                                    @Nonnull final ChannelAddress address,
                                    @Nonnull final UriInfo uri )
@@ -105,28 +64,6 @@ public abstract class AbstractSecuredSessionRestService
                                     @Nonnull final UriInfo uri )
   {
     return guard( sessionId, () -> super.doGetChannels( sessionId, uri ) );
-  }
-
-  @Nonnull
-  @Override
-  protected Response doBulkSubscribeChannel( @Nonnull final String sessionId,
-                                             @Nullable final Integer requestId,
-                                             final int channelId,
-                                             @Nonnull final Collection<Integer> subChannelIds,
-                                             @Nonnull final String filterContent )
-  {
-    return guard( sessionId,
-                  () -> super.doBulkSubscribeChannel( sessionId, requestId, channelId, subChannelIds, filterContent ) );
-  }
-
-  @Nonnull
-  @Override
-  protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionId,
-                                               @Nullable final Integer requestId,
-                                               final int channelId,
-                                               @Nonnull final Collection<Integer> subChannelIds )
-  {
-    return guard( sessionId, () -> super.doBulkUnsubscribeChannel( sessionId, requestId, channelId, subChannelIds ) );
   }
 
   @Nonnull
@@ -162,7 +99,7 @@ public abstract class AbstractSecuredSessionRestService
   {
     final String userID = account.getKeycloakSecurityContext().getToken().getPreferredUsername();
     final ReplicantSession session = getSessionManager().getSession( sessionId );
-    return null != session && Objects.equals( session.getUserID(), userID );
+    return null != session && Objects.equals( session.getUserId(), userID );
   }
 
   private Response createForbiddenResponse()

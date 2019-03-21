@@ -3,17 +3,14 @@ package org.realityforge.replicant.server.transport;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonWriter;
+import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
@@ -23,50 +20,53 @@ public final class ReplicantSession
   implements Serializable, Closeable
 {
   @Nullable
-  private final String _userID;
-  //TODO: Make this field Nonnull once we have transitioned to WebSockets
-  @Nullable
+  private final String _userId;
+  @Nonnull
   private final Session _webSocketSession;
   /**
    * Sequence of next packet to be sent to added to WebSocket.
    */
   private int _nextSequence = 1;
   @Nonnull
-  private final String _sessionId;
-  //TODO: Remove queue as not needed in WebSocket world
-  @Nonnull
-  private final PacketQueue _queue = new PacketQueue();
-  @Nonnull
   private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
-  private final Map<ChannelAddress, String> _roETags = Collections.unmodifiableMap( _eTags );
-  @Nonnull
   private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
-  @Nonnull
-  private final Map<ChannelAddress, SubscriptionEntry> _roSubscriptions = Collections.unmodifiableMap( _subscriptions );
 
-  public ReplicantSession( @Nullable final String userID, @Nullable Session webSocketSession )
+  public ReplicantSession( @Nullable final String userId, @Nonnull Session webSocketSession )
   {
-    _userID = userID;
-    _webSocketSession = webSocketSession;
-    _sessionId =
-      null != webSocketSession ? webSocketSession.getId() : Objects.requireNonNull( UUID.randomUUID().toString() );
+    _userId = userId;
+    _webSocketSession = Objects.requireNonNull( webSocketSession );
+  }
+
+  public void close( @Nonnull final CloseReason closeReason )
+  {
+    if ( _webSocketSession.isOpen() )
+    {
+      try
+      {
+        _webSocketSession.close( closeReason );
+      }
+      catch ( final IOException ignored )
+      {
+        // Assume it is already closing
+      }
+    }
   }
 
   @Override
   public void close()
-    throws IOException
   {
-    if ( null != _webSocketSession && _webSocketSession.isOpen() )
+    if ( _webSocketSession.isOpen() )
     {
-      _webSocketSession.close();
+      try
+      {
+        _webSocketSession.close();
+      }
+      catch ( final IOException ignored )
+      {
+        // Assume it is already closing
+      }
     }
-  }
-
-  //TODO: Delete this method
-  public boolean isWebSocketSession()
-  {
-    return null != _webSocketSession;
   }
 
   public synchronized int getNextSequence()
@@ -77,7 +77,6 @@ public final class ReplicantSession
   @Nonnull
   public Session getWebSocketSession()
   {
-    assert null != _webSocketSession;
     return _webSocketSession;
   }
 
@@ -85,25 +84,18 @@ public final class ReplicantSession
    * @return an opaque ID representing user that created session.
    */
   @Nullable
-  public String getUserID()
+  public String getUserId()
   {
-    return _userID;
+    return _userId;
   }
 
   /**
    * @return an opaque ID representing session.
    */
   @Nonnull
-  public String getSessionID()
+  public String getId()
   {
-    return _sessionId;
-  }
-
-  @Nonnull
-  public final PacketQueue getQueue()
-  {
-    assert null == _webSocketSession;
-    return _queue;
+    return getWebSocketSession().getId();
   }
 
   /**
@@ -117,55 +109,15 @@ public final class ReplicantSession
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {
-    if ( null == _webSocketSession )
-    {
-      getQueue().addPacket( requestId, etag, changeSet );
-    }
-    else if ( _webSocketSession.isOpen() )
-    {
-      sendWebSocketMessage( JsonEncoder.encodeChangeSet( _nextSequence++, requestId, etag, changeSet ) );
-    }
-  }
-
-  void sendWebSocketMessage( @Nonnull final JsonObject message )
-  {
-    final StringWriter writer = new StringWriter();
-    final JsonWriter jsonWriter = Json.createWriter( writer );
-    jsonWriter.writeObject( message );
-    jsonWriter.close();
-    writer.flush();
-    sendWebSocketMessage( writer.toString() );
-  }
-
-  private void sendWebSocketMessage( @Nonnull final String message )
-  {
-    assert null != _webSocketSession && _webSocketSession.isOpen();
-    try
-    {
-      _webSocketSession.getBasicRemote().sendText( message );
-    }
-    catch ( final IOException ignored )
-    {
-      // This typically means that either the buffer is full or the websocket is in a bad state
-      // either way we can ignore it and wait till it recovers or the connection is reaped.
-    }
-  }
-
-  /**
-   * Acknowledge that the remote side has received packet with specified sequence.
-   *
-   * @param sequence the sequence.
-   */
-  public void ack( final int sequence )
-  {
-    getQueue().ack( sequence );
+    WebSocketUtil.sendText( getWebSocketSession(),
+                            JsonEncoder.encodeChangeSet( _nextSequence++, requestId, etag, changeSet ) );
   }
 
   @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   public Map<ChannelAddress, String> getETags()
   {
-    return _roETags;
+    return Collections.unmodifiableMap( _eTags );
   }
 
   @SuppressWarnings( "WeakerAccess" )
@@ -175,6 +127,7 @@ public final class ReplicantSession
     return _eTags.get( address );
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   public void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
   {
     if ( null == eTag )
@@ -190,7 +143,7 @@ public final class ReplicantSession
   @Nonnull
   public final Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
   {
-    return _roSubscriptions;
+    return Collections.unmodifiableMap( _subscriptions );
   }
 
   /**

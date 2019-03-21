@@ -1,23 +1,28 @@
 package org.realityforge.replicant.server;
 
+import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.websocket.RemoteEndpoint;
+import javax.websocket.Session;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.ChannelAction.Action;
-import org.realityforge.replicant.server.transport.Packet;
-import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ChangeAccumulatorTest
 {
   @Test
   public void basicOperation()
+    throws IOException
   {
-    final ReplicantSession c = new ReplicantSession( null, null );
+    final Session webSocketSession = createSession();
+
+    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -29,29 +34,24 @@ public class ChangeAccumulatorTest
     final Integer subChannelId = 2;
 
     accumulator.addChange( c, new Change( message, channelId, subChannelId ) );
-    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
+    final boolean impactsInitiator = accumulator.complete( c, 1 );
 
     assertTrue( impactsInitiator );
-    assertEquals( c.getQueue().size(), 1 );
-    final Packet packet = c.getQueue().nextPacketToProcess();
-    assertNotNull( packet );
-    final Change change = packet.getChangeSet().getChanges().iterator().next();
-    assertEquals( change.getKey(), "42#17" );
-    assertEquals( change.getEntityMessage().getId(), id );
-    assertEquals( change.getEntityMessage().getTypeId(), typeID );
-    assertEquals( packet.getRequestId(), (Integer) 1 );
-    final Map<Integer, Integer> channels = change.getChannels();
-    assertEquals( channels.size(), 1 );
-    assertEquals( channels.get( channelId ), subChannelId );
 
+    final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
+    verify( remote ).sendText(
+      "{\"seq\":1,\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.2\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+    reset( remote );
     accumulator.complete( null, null );
-    assertEquals( c.getQueue().size(), 1 );
+    verify( remote, never() ).sendText( anyString() );
   }
 
   @Test
   public void addEntityMessages()
+    throws IOException
   {
-    final ReplicantSession c = new ReplicantSession( null, null );
+    final Session webSocketSession = createSession();
+    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -63,25 +63,29 @@ public class ChangeAccumulatorTest
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
+    final boolean impactsInitiator = accumulator.complete( c, 1 );
 
     assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 0 );
 
     assertTrue( impactsInitiator );
-    assertEquals( c.getQueue().size(), 1 );
-    final Packet packet = c.getQueue().nextPacketToProcess();
-    assertNotNull( packet );
-    assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getId(), id );
-    assertEquals( packet.getRequestId(), (Integer) 1 );
+
+    final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
+    verify( remote ).sendText(
+      "{\"seq\":1,\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+    reset( remote );
 
     accumulator.complete( null, null );
-    assertEquals( c.getQueue().size(), 1 );
+
+    verify( remote, never() ).sendText( anyString() );
   }
 
   @Test
   public void addActions()
+    throws IOException
   {
-    final ReplicantSession c = new ReplicantSession( null, null );
+    final Session webSocketSession = createSession();
+
+    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
@@ -92,74 +96,73 @@ public class ChangeAccumulatorTest
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
+    final boolean impactsInitiator = accumulator.complete( c, 1 );
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 0 );
 
     assertTrue( impactsInitiator );
-    assertEquals( c.getQueue().size(), 1 );
-    final Packet packet = c.getQueue().nextPacketToProcess();
-    assertNotNull( packet );
-    final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
-    assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAction(), Action.ADD );
-    assertEquals( action.getFilter(), filter );
-    assertEquals( packet.getRequestId(), (Integer) 1 );
 
-    assertEquals( c.getQueue().size(), 1 );
+    final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
+    verify( remote ).sendText(
+      "{\"seq\":1,\"requestId\":1,\"fchannels\":[{\"channel\":\"+1.2\",\"filter\":{}}]}" );
+    reset( remote );
+
     accumulator.complete( null, null );
-    assertEquals( c.getQueue().size(), 1 );
+
+    verify( remote, never() ).sendText( anyString() );
   }
 
   @Test
   public void basicOperation_whereSessionIDDifferent()
+    throws IOException
   {
-    final ReplicantSession c = new ReplicantSession( null, null );
+    final Session webSocketSession = createSession();
+
+    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChange( c, new Change( message, 1, 0 ) );
-    final boolean impactsInitiator = accumulator.complete( "NoMatch", 1 );
+    final boolean impactsInitiator = accumulator.complete( new ReplicantSession( null, createSession() ), 1 );
 
     assertFalse( impactsInitiator );
 
-    assertEquals( c.getQueue().size(), 1 );
-    final Packet packet = c.getQueue().nextPacketToProcess();
-    assertNotNull( packet );
-    assertNull( packet.getRequestId() );
+    final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
+    verify( remote ).sendText(
+      "{\"seq\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+    reset( remote );
+
+    accumulator.complete( null, null );
+
+    verify( remote, never() ).sendText( anyString() );
   }
 
   @Test
   public void basicOperation_whereNoMessagesSentToInitiator()
+    throws IOException
   {
-    final ReplicantSession c = new ReplicantSession( null, null );
+    final Session webSocketSession = createSession();
+
+    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c );
-    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), 1 );
+    final boolean impactsInitiator = accumulator.complete( c, 1 );
 
     assertFalse( impactsInitiator );
 
-    assertEquals( c.getQueue().size(), 0 );
+    verify( webSocketSession.getBasicRemote(), never() ).sendText( anyString() );
   }
 
-  @Test
-  public void complete_pingMessage()
+  @Nonnull
+  private Session createSession()
   {
-    final ReplicantSession c = new ReplicantSession( null, null );
-    final ChangeAccumulator accumulator = new ChangeAccumulator();
-
-    accumulator.getChangeSet( c ).setPingResponse( true );
-    final Integer requestId = ValueUtil.randomInt();
-    final boolean impactsInitiator = accumulator.complete( c.getSessionID(), requestId );
-
-    assertTrue( impactsInitiator );
-
-    final PacketQueue queue = c.getQueue();
-    assertEquals( queue.size(), 1 );
-    final Packet packet = c.getQueue().nextPacketToProcess();
-    assertNotNull( packet );
-    assertEquals( packet.getRequestId(), requestId );
+    final Session webSocketSession = mock( Session.class );
+    when( webSocketSession.getId() ).thenReturn( ValueUtil.randomString() );
+    when( webSocketSession.isOpen() ).thenReturn( true );
+    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    when( webSocketSession.getBasicRemote() ).thenReturn( remote );
+    return webSocketSession;
   }
 }

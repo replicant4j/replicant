@@ -6,6 +6,13 @@
 * Upgrade the `org.realityforge.arez` artifacts to version `0.133`.
 * Refactor the `replicant.Transport` interface to remove methods 4-arg `requestSubscribe()`, `requestSubscriptionUpdate()`
   and `requestBulkSubscriptionUpdate()` that can be reimplemented as calls to 6-arg `requestSubscribe()`.
+* Refactor the serverside code to mandate the use of `WebSocket` transport layer. As a result of this there is no
+  need to maintain infrastructure for representing packets, queuing and retrying packets. Thus the `Packet` class
+  and `PacketQueue` have been removed. The endpoints designed for manipulation of sessions (i.e. creating,
+  destroying, subscribe, unsubscribe etc) has also been removed.
+* `ReplicantSessionManager.invalidateSession(...)` now accepts a `ReplicantSession session` as a parameter rather
+  than `String sessionId` as all callers have a session available.
+* `ReplicantSessionManager.subscribe(...)` no longer returns `CacheStatus` parameter as it is no longer used.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)

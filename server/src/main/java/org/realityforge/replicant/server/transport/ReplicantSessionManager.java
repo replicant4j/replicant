@@ -10,31 +10,6 @@ import org.realityforge.replicant.server.ChannelAddress;
 public interface ReplicantSessionManager
 {
   /**
-   * Status returned when attempting to subscribe.
-   */
-  enum CacheStatus
-  {
-    /**
-     * The client supplied cacheKey is still valid and cached data should be reused.
-     */
-    USE,
-    /**
-     * The client did not supply cacheKey or it is out of date. Client cache should be refreshed from supplied data.
-     */
-    REFRESH,
-    /**
-     * The client did not supply cacheKey or it is out of date and the response is not cacheable. This may occur
-     * if multiple subscriptions occur in a single subscribe call or attempting to subscribe to channels that are
-     * already on the client.
-     *
-     * One day this may not be needed if the client can generate the cache from the in-memory representation rather
-     * than the representation as it passes over the network.
-     * TODO: Fix this.
-     */
-    IGNORE
-  }
-
-  /**
    * Return the session for specified ID.
    * Session ID's are effectively opaque.
    *
@@ -53,25 +28,12 @@ public interface ReplicantSessionManager
   Set<String> getSessionIDs();
 
   /**
-   * Invalidate session with specified session ID.
-   * Ignore if no session with specified id.
+   * Invalidate specified session.
    *
-   * @param sessionId the session id.
+   * @param session the session.
    * @return true if a session was invalidated, false otherwise.
    */
-  boolean invalidateSession( @Nonnull String sessionId );
-
-  /**
-   * Create replicant session.
-   * It is assumed the username has already been authenticated and this is just tracking the session.
-   *
-   * @return the new session.
-   */
-  @Nonnull
-  default ReplicantSession createSession()
-  {
-    return createSession( null );
-  }
+  boolean invalidateSession( @Nonnull ReplicantSession session );
 
   /**
    * Create replicant session for specified WebSocket session.
@@ -80,7 +42,7 @@ public interface ReplicantSessionManager
    * @return the new session.
    */
   @Nonnull
-  ReplicantSession createSession( @Nullable Session webSocketSession );
+  ReplicantSession createSession( @Nonnull Session webSocketSession );
 
   /**
    * @return the metadata for replicant system.
@@ -88,8 +50,7 @@ public interface ReplicantSessionManager
   @Nonnull
   SystemMetaData getSystemMetaData();
 
-  @Nonnull
-  CacheStatus subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
+  void subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,

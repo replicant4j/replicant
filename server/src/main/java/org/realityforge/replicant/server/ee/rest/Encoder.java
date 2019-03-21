@@ -10,13 +10,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
-import org.realityforge.replicant.server.transport.Packet;
-import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
@@ -24,20 +20,6 @@ import org.realityforge.replicant.shared.SharedConstants;
 
 final class Encoder
 {
-  private static final DatatypeFactory c_datatypeFactory;
-
-  static
-  {
-    try
-    {
-      c_datatypeFactory = DatatypeFactory.newInstance();
-    }
-    catch ( final DatatypeConfigurationException dtce )
-    {
-      throw new IllegalStateException( "Unable to initialize DatatypeFactory", dtce );
-    }
-  }
-
   private Encoder()
   {
   }
@@ -49,9 +31,8 @@ final class Encoder
                            final boolean emitNetworkData )
   {
     g.writeStartObject();
-    g.write( "id", session.getSessionID() );
-    g.write( "type", session.isWebSocketSession() ? "websocket" : "poll" );
-    final String userID = session.getUserID();
+    g.write( "id", session.getId() );
+    final String userID = session.getUserId();
     if ( null == userID )
     {
       g.writeNull( "userID" );
@@ -61,35 +42,10 @@ final class Encoder
       g.write( "userID", userID );
     }
     g.write( "url", getSessionURL( session, uri ) );
-    if ( !session.isWebSocketSession() )
-    {
-      g.write( "synchronized", 0 == session.getQueue().size() );
-    }
+    g.write( "nextSequence", session.getNextSequence() );
 
     if ( emitNetworkData )
     {
-      g.writeStartObject( "net" );
-      if ( session.isWebSocketSession() )
-      {
-        g.write( "nextSequence", session.getNextSequence() );
-      }
-      else
-      {
-        final PacketQueue queue = session.getQueue();
-        g.write( "queueSize", queue.size() );
-        g.write( "lastSequenceAcked", queue.getLastSequenceAcked() );
-        final Packet nextPacket = queue.nextPacketToProcess();
-        if ( null != nextPacket )
-        {
-          g.write( "nextPacketSequence", nextPacket.getSequence() );
-        }
-        else
-        {
-          g.writeNull( "nextPacketSequence" );
-        }
-      }
-      g.writeEnd();
-
       g.writeStartObject( "channels" );
       emitChannels( systemMetaData, session, g, uri );
       g.writeEnd();
@@ -144,7 +100,7 @@ final class Encoder
   @Nonnull
   private static String getSessionURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
-    return uri.getBaseUri() + SharedConstants.CONNECTION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
+    return uri.getBaseUri() + SharedConstants.CONNECTION_URL_FRAGMENT.substring( 1 ) + "/" + session.getId();
   }
 
   @Nonnull

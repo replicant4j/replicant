@@ -3,7 +3,6 @@ package org.realityforge.replicant.server.ee;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -16,7 +15,7 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
 import org.realityforge.replicant.server.ServerConstants;
-import org.realityforge.replicant.server.transport.ReplicantSessionManager;
+import org.realityforge.replicant.server.transport.ReplicantSession;
 
 /**
  * Utility class for interacting with replication request infrastructure.
@@ -29,16 +28,17 @@ public final class ReplicationRequestUtil
   {
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   public static <T> T runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
                                   @Nonnull final EntityManager entityManager,
                                   @Nonnull final EntityMessageEndpoint endpoint,
                                   @Nonnull final String invocationKey,
-                                  @Nullable final String sessionId,
+                                  @Nullable final ReplicantSession session,
                                   @Nullable final Integer requestId,
                                   @Nonnull final Callable<T> action )
     throws Exception
   {
-    startReplication( registry, invocationKey, sessionId, requestId );
+    startReplication( registry, invocationKey, session, requestId );
     try
     {
       return action.call();
@@ -49,35 +49,16 @@ public final class ReplicationRequestUtil
     }
   }
 
-  @Nonnull
-  public static ReplicantSessionManager.CacheStatus runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
-                                                                @Nonnull final EntityManager entityManager,
-                                                                @Nonnull final EntityMessageEndpoint endpoint,
-                                                                @Nonnull final String invocationKey,
-                                                                @Nullable final String sessionId,
-                                                                @Nullable final Integer requestId,
-                                                                @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
-  {
-    startReplication( registry, invocationKey, sessionId, requestId );
-    try
-    {
-      return action.get();
-    }
-    finally
-    {
-      completeReplication( registry, entityManager, endpoint, invocationKey );
-    }
-  }
-
+  @SuppressWarnings( "unused" )
   public static void runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
                                  @Nonnull final EntityManager entityManager,
                                  @Nonnull final EntityMessageEndpoint endpoint,
                                  @Nonnull final String invocationKey,
-                                 @Nullable final String sessionId,
+                                 @Nullable final ReplicantSession session,
                                  @Nullable final Integer requestId,
                                  @Nonnull final Runnable action )
   {
-    startReplication( registry, invocationKey, sessionId, requestId );
+    startReplication( registry, invocationKey, session, requestId );
     try
     {
       action.run();
@@ -92,12 +73,12 @@ public final class ReplicationRequestUtil
    * Start a replication context.
    *
    * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
-   * @param sessionId     the id of the session that initiated change if any.
+   * @param session       the session that initiated change if any.
    * @param requestId     the id of the request in the session that initiated change..
    */
   private static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
                                         @Nonnull final String invocationKey,
-                                        @Nullable final String sessionId,
+                                        @Nullable final ReplicantSession session,
                                         @Nullable final Integer requestId )
   {
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
@@ -112,9 +93,9 @@ public final class ReplicationRequestUtil
     }
 
     registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, invocationKey );
-    if ( null != sessionId )
+    if ( null != session )
     {
-      registry.putResource( ServerConstants.SESSION_ID_KEY, sessionId );
+      registry.putResource( ServerConstants.SESSION_ID_KEY, session.getId() );
     }
     else
     {

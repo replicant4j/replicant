@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.transport;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +26,6 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
-import org.realityforge.replicant.server.json.JsonEncoder;
 
 /**
  * Base class for session managers.
@@ -45,15 +43,14 @@ public abstract class ReplicantSessionManagerImpl
    * {@inheritDoc}
    */
   @Override
-  public boolean invalidateSession( @Nonnull final String sessionId )
+  public boolean invalidateSession( @Nonnull final ReplicantSession session )
   {
     _lock.writeLock().lock();
     try
     {
-      final ReplicantSession session = _sessions.remove( sessionId );
-      if ( null != session )
+      if ( null != _sessions.remove( session.getId() ) )
       {
-        safeCloseSession( session );
+        session.close();
         return true;
       }
       else
@@ -64,18 +61,6 @@ public abstract class ReplicantSessionManagerImpl
     finally
     {
       _lock.writeLock().unlock();
-    }
-  }
-
-  private void safeCloseSession( @Nonnull final ReplicantSession session )
-  {
-    try
-    {
-      session.close();
-    }
-    catch ( final IOException ignored )
-    {
-      // The close was unsuccessful. This leaves it up to the container to close WebSocket.
     }
   }
 
@@ -119,19 +104,19 @@ public abstract class ReplicantSessionManagerImpl
    */
   @Override
   @Nonnull
-  public ReplicantSession createSession( @Nullable final Session webSocketSession )
+  public ReplicantSession createSession( @Nonnull final Session webSocketSession )
   {
-    final ReplicantSession sessionInfo = new ReplicantSession( getUserID(), webSocketSession );
+    final ReplicantSession session = new ReplicantSession( getUserID(), webSocketSession );
     _lock.writeLock().lock();
     try
     {
-      _sessions.put( sessionInfo.getSessionID(), sessionInfo );
+      _sessions.put( session.getId(), session );
     }
     finally
     {
       _lock.writeLock().unlock();
     }
-    return sessionInfo;
+    return session;
   }
 
   /**
@@ -171,7 +156,7 @@ public abstract class ReplicantSessionManagerImpl
     _lock.writeLock().lock();
     try
     {
-      new ArrayList<>( _sessions.values() ).forEach( this::safeCloseSession );
+      new ArrayList<>( _sessions.values() ).forEach( ReplicantSession::close );
       _sessions.clear();
     }
     finally
@@ -193,7 +178,7 @@ public abstract class ReplicantSessionManagerImpl
       while ( iterator.hasNext() )
       {
         final ReplicantSession session = iterator.next().getValue();
-        if ( session.isWebSocketSession() && !session.getWebSocketSession().isOpen() )
+        if ( !session.getWebSocketSession().isOpen() )
         {
           iterator.remove();
         }
@@ -202,22 +187,6 @@ public abstract class ReplicantSessionManagerImpl
     finally
     {
       _lock.writeLock().unlock();
-    }
-  }
-
-  @SuppressWarnings( "WeakerAccess" )
-  @Nullable
-  protected String pollJsonData( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
-  {
-    final Packet packet = pollPacket( session, lastSequenceAcked );
-    if ( null != packet )
-    {
-      return JsonEncoder.
-        encodeChangeSet( packet.getSequence(), packet.getRequestId(), packet.getETag(), packet.getChangeSet() );
-    }
-    else
-    {
-      return null;
     }
   }
 
@@ -251,22 +220,6 @@ public abstract class ReplicantSessionManagerImpl
     return null;
   }
 
-  /**
-   * Return the next packet to send to the client.
-   * The packet is only returned if the client has acked the previous message.
-   *
-   * @param session           the session.
-   * @param lastSequenceAcked the sequence that the client last ack'ed.
-   * @return the packet or null if no packet is ready.
-   */
-  @SuppressWarnings( "WeakerAccess" )
-  @Nullable
-  protected Packet pollPacket( @Nonnull final ReplicantSession session, final int lastSequenceAcked )
-  {
-    session.ack( lastSequenceAcked );
-    return session.getQueue().nextPacketToProcess();
-  }
-
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,
                                      @Nullable final Integer requestId,
@@ -275,6 +228,7 @@ public abstract class ReplicantSessionManagerImpl
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
+    final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
     final ChangeAccumulator accumulator = new ChangeAccumulator();
     try
     {
@@ -288,7 +242,6 @@ public abstract class ReplicantSessionManagerImpl
       {
         processUpdateMessages( message, sessions, accumulator );
       }
-      final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
       if ( null != initiatorSession && null != sessionChanges )
       {
         accumulator.getChangeSet( initiatorSession ).setPingResponse( sessionChanges.isPingResponse() );
@@ -305,7 +258,7 @@ public abstract class ReplicantSessionManagerImpl
       getLock().readLock().unlock();
     }
 
-    return accumulator.complete( sessionId, requestId );
+    return accumulator.complete( initiatorSession, requestId );
   }
 
   protected abstract void processUpdateMessages( @Nonnull EntityMessage message,
@@ -337,15 +290,6 @@ public abstract class ReplicantSessionManagerImpl
                              @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter )
   {
-    bulkSubscribe( session, channelId, subChannelIds, filter, EntityMessageCacheUtil.getSessionChanges() );
-  }
-
-  void bulkSubscribe( @Nonnull final ReplicantSession session,
-                      final int channelId,
-                      @Nonnull final Collection<Integer> subChannelIds,
-                      @Nullable final Object filter,
-                      @Nonnull final ChangeSet changeSet )
-  {
     assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
 
     final ArrayList<ChannelAddress> newChannels = new ArrayList<>();
@@ -371,24 +315,9 @@ public abstract class ReplicantSessionManagerImpl
 
     if ( !newChannels.isEmpty() )
     {
-      final boolean bulkLoaded =
-        bulkCollectDataForSubscribe( session,
-                                     newChannels,
-                                     changeSet,
-                                     filter );
-      if ( !bulkLoaded )
+      if ( !bulkCollectDataForSubscribe( session, newChannels, filter ) )
       {
-        for ( final ChannelAddress address : newChannels )
-        {
-          try
-          {
-            subscribe( session, address, filter, changeSet );
-          }
-          catch ( final Throwable e )
-          {
-            t = e;
-          }
-        }
+        t = subscribeToAddresses( session, newChannels, filter );
       }
     }
     if ( !channelsToUpdate.isEmpty() )
@@ -401,21 +330,14 @@ public abstract class ReplicantSessionManagerImpl
 
         if ( addresses.size() > 1 )
         {
-          bulkLoaded = bulkCollectDataForSubscriptionUpdate( session, addresses, changeSet, originalFilter, filter );
+          bulkLoaded = bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter );
         }
         if ( !bulkLoaded )
         {
-          for ( final ChannelAddress address : addresses )
+          final Throwable error = subscribeToAddresses( session, addresses, filter );
+          if ( null != error )
           {
-            //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
-            try
-            {
-              subscribe( session, address, filter, changeSet );
-            }
-            catch ( final Throwable e )
-            {
-              t = e;
-            }
+            t = error;
           }
         }
       }
@@ -430,30 +352,39 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  @Nonnull
+  @Nullable
+  private Throwable subscribeToAddresses( @Nonnull final ReplicantSession session,
+                                          @Nonnull final ArrayList<ChannelAddress> addresses,
+                                          @Nullable final Object filter )
+  {
+    Throwable t = null;
+    for ( final ChannelAddress address : addresses )
+    {
+      try
+      {
+        subscribe( session, address, filter );
+      }
+      catch ( final Throwable e )
+      {
+        t = e;
+      }
+    }
+    return t;
+  }
+
   @Override
-  public CacheStatus subscribe( @Nonnull final ReplicantSession session,
-                                @Nonnull final ChannelAddress address,
-                                @Nullable final Object filter )
+  public void subscribe( @Nonnull final ReplicantSession session,
+                         @Nonnull final ChannelAddress address,
+                         @Nullable final Object filter )
   {
-    return subscribe( session, address, filter, EntityMessageCacheUtil.getSessionChanges() );
+    subscribe( session, address, true, filter, EntityMessageCacheUtil.getSessionChanges() );
   }
 
-  @Nonnull
-  CacheStatus subscribe( @Nonnull final ReplicantSession session,
-                         @Nonnull final ChannelAddress address,
-                         @Nullable final Object filter,
-                         @Nonnull final ChangeSet changeSet )
-  {
-    return subscribe( session, address, true, filter, changeSet );
-  }
-
-  @Nonnull
-  CacheStatus subscribe( @Nonnull final ReplicantSession session,
-                         @Nonnull final ChannelAddress address,
-                         final boolean explicitlySubscribe,
-                         @Nullable final Object filter,
-                         @Nonnull final ChangeSet changeSet )
+  void subscribe( @Nonnull final ReplicantSession session,
+                  @Nonnull final ChannelAddress address,
+                  final boolean explicitlySubscribe,
+                  @Nullable final Object filter,
+                  @Nonnull final ChangeSet changeSet )
   {
     if ( session.isSubscriptionEntryPresent( address ) )
     {
@@ -478,14 +409,13 @@ public abstract class ReplicantSessionManagerImpl
           throw new AttemptedToUpdateStaticFilterException( message );
         }
       }
-      return CacheStatus.IGNORE;
     }
     else
     {
       final SubscriptionEntry entry = session.createSubscriptionEntry( address );
       try
       {
-        return performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
+        performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
       }
       catch ( final Throwable e )
       {
@@ -501,12 +431,11 @@ public abstract class ReplicantSessionManagerImpl
            ( null != filter2 && filter2.equals( filter1 ) );
   }
 
-  @Nonnull
-  CacheStatus performSubscribe( @Nonnull final ReplicantSession session,
-                                @Nonnull final SubscriptionEntry entry,
-                                final boolean explicitSubscribe,
-                                @Nullable final Object filter,
-                                @Nonnull final ChangeSet changeSet )
+  void performSubscribe( @Nonnull final ReplicantSession session,
+                         @Nonnull final SubscriptionEntry entry,
+                         final boolean explicitSubscribe,
+                         @Nullable final Object filter,
+                         @Nonnull final ChangeSet changeSet )
   {
     entry.setFilter( filter );
     final ChannelAddress address = entry.getDescriptor();
@@ -524,13 +453,15 @@ public abstract class ReplicantSessionManagerImpl
         final String eTag = cacheEntry.getCacheKey();
         if ( eTag.equals( session.getETag( address ) ) )
         {
-          if ( session.isWebSocketSession() && session.getWebSocketSession().isOpen() )
+          if ( session.getWebSocketSession().isOpen() )
           {
-            session.sendWebSocketMessage( Json.createObjectBuilder()
+            WebSocketUtil.sendJsonObject( session.getWebSocketSession(),
+                                          Json
+                                            .createObjectBuilder()
                                             .add( "type", "load-cache" )
-                                            .add( "channel", address.toString() ).build() );
+                                            .add( "channel", address.toString() )
+                                            .build() );
           }
-          return CacheStatus.USE;
         }
         else
         {
@@ -539,8 +470,8 @@ public abstract class ReplicantSessionManagerImpl
           cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
           cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
           sendPacket( session, eTag, cacheChangeSet );
-          return CacheStatus.REFRESH;
         }
+        return;
       }
       else
       {
@@ -550,12 +481,16 @@ public abstract class ReplicantSessionManagerImpl
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
         sendPacket( session, null, cacheChangeSet );
-        return CacheStatus.REFRESH;
+        return;
       }
     }
 
     final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
-    if ( !result.isChannelRootDeleted() )
+    if ( result.isChannelRootDeleted() )
+    {
+      changeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
+    }
+    else
     {
       changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
       if ( explicitSubscribe )
@@ -563,11 +498,6 @@ public abstract class ReplicantSessionManagerImpl
         entry.setExplicitlySubscribed( true );
       }
     }
-    else
-    {
-      changeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
-    }
-    return CacheStatus.REFRESH;
   }
 
   @SuppressWarnings( "WeakerAccess" )
@@ -715,7 +645,6 @@ public abstract class ReplicantSessionManagerImpl
    */
   protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
                                                           @Nonnull ArrayList<ChannelAddress> addresses,
-                                                          @Nonnull ChangeSet changeSet,
                                                           @Nullable Object filter );
 
   protected abstract void collectDataForSubscriptionUpdate( @Nonnull ChannelAddress address,
@@ -730,7 +659,6 @@ public abstract class ReplicantSessionManagerImpl
    */
   protected abstract boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
                                                                    @Nonnull ArrayList<ChannelAddress> addresses,
-                                                                   @Nonnull ChangeSet changeSet,
                                                                    @Nullable Object originalFilter,
                                                                    @Nullable Object filter );
 
