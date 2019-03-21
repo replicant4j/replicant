@@ -1481,7 +1481,6 @@ abstract class Connector
    */
   void onMessageProcessed( @Nonnull final MessageResponse response )
   {
-    getTransport().onMessageProcessed();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()

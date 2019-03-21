@@ -152,10 +152,4 @@ public interface Transport
   void requestBulkUnsubscribe( @Nonnull List<ChannelAddress> addresses,
                                @Nonnull SafeProcedure onSuccess,
                                @Nonnull Consumer<Throwable> onError );
-
-  /**
-   * Notify the Transport when a Connector has completed processing a message.
-   * This is used by the Transport to perform primitive form of flow-control
-   */
-  void onMessageProcessed();
 }

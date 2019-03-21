@@ -495,8 +495,6 @@ public class ConnectorTest
     response.recordChangeSet( ChangeSet.create( 47, null, null, null, null, null ), null );
     connector.onMessageProcessed( response );
 
-    verify( connector.getTransport() ).onMessageProcessed();
-
     handler.assertEventCount( 1 );
 
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {

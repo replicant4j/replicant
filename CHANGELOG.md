@@ -16,6 +16,8 @@
 * Remove the dependency on the `org.realityforge.gwt.webpoller:gwt-webpoller:jar` artifact.
 * Move the `InvalidHttpResponseException` exception to the package `org.realityforge.replicant.client.gwt` as that
   is the only remaining place where it is used.
+* Remove `Transport.onMessageProcessed()` as flow control is no longer part of the application layer and is instead
+  managed by the `WebSocket` implementation.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
