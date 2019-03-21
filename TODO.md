@@ -30,9 +30,6 @@ Some actions that should occur at some point in the future.
 
 * Introduce TransportFactory and pass that into context.
 
-* Add https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API to find out where time
-  is and time each phase in message processing occurs
-
 * Rather than DEFAULT_LINKS_TO_PROCESS_PER_TICK and DEFAULT_CHANGES_TO_PROCESS_PER_TICK try to use time based feedback
 
 * Generate DebugTool to show client side replicant graph subscriptions
