@@ -2,7 +2,6 @@
 
 Some actions that should occur at some point in the future.
 
-* Change should take a ChannelDescriptor as a parameter.
 * Consolidate some of the common code across server and client libraries. i.e.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
 * Rework the request system so that all the inputs/outputs are explicit.
