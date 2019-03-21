@@ -4,13 +4,13 @@ import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.ws.rs.core.Response;
 
-public final class CacheUtil
+final class CacheUtil
 {
   private CacheUtil()
   {
   }
 
-  public static void configureNoCacheHeaders( @Nonnull final Response.ResponseBuilder builder )
+  static void configureNoCacheHeaders( @Nonnull final Response.ResponseBuilder builder )
   {
     final Date now = new Date();
     // set create date to current timestamp
