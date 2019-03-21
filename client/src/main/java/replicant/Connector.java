@@ -840,12 +840,6 @@ abstract class Connector
     final Connection connection = ensureConnection();
     final MessageResponse response = connection.ensureCurrentMessageResponse();
 
-    // OOB messages are not sequenced
-    if ( !response.isOob() )
-    {
-      connection.setLastRxSequence( response.getChangeSet().getSequence() );
-    }
-
     //Step: Run the post actions
     final RequestEntry request = response.getRequest();
     if ( null != request )
@@ -1015,14 +1009,12 @@ abstract class Connector
     else
     {
       final Integer requestId = changeSet.getRequestId();
-      final int sequence = changeSet.getSequence();
       request = null != requestId ? connection.getRequest( requestId ) : null;
       if ( Replicant.shouldCheckApiInvariants() )
       {
         apiInvariant( () -> null != request || null == requestId,
-                      () -> "Replicant-0066: Unable to locate request with id '" +
-                            requestId + "' specified for ChangeSet with sequence " +
-                            sequence + ". Existing Requests: " + connection.getRequests() );
+                      () -> "Replicant-0066: Unable to locate request with id '" + requestId + "' specified for " +
+                            "ChangeSet. Existing Requests: " + connection.getRequests() );
       }
     }
 
@@ -1062,8 +1054,7 @@ abstract class Connector
     {
       final boolean c = candidate;
       apiInvariant( () -> null == eTag || null == cacheService || c,
-                    () -> "Replicant-0072: eTag in reply for ChangeSet " + changeSet.getSequence() +
-                          " but ChangeSet is not a candidate for caching." );
+                    () -> "Replicant-0072: eTag in reply for ChangeSet but ChangeSet is not a candidate for caching." );
     }
   }
 
@@ -1130,9 +1121,8 @@ abstract class Connector
           if ( Replicant.shouldCheckInvariants() )
           {
             invariant( () -> null != subscription,
-                       () -> "Replicant-0069: ChangeSet " + response.getChangeSet().getSequence() + " contained an " +
-                             "EntityChange message referencing channel " + address +
-                             " but no such subscription exists locally." );
+                       () -> "Replicant-0069: ChangeSet contained an EntityChange message referencing channel " +
+                             address + " but no such subscription exists locally." );
           }
           assert null != subscription;
           entity.tryLinkToSubscription( subscription );

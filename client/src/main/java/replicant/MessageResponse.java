@@ -299,14 +299,14 @@ final class MessageResponse
   {
     assert Replicant.areSpiesEnabled();
     final ChangeSet changeSet = getChangeSet();
-    return new DataLoadStatus( changeSet.getSequence(),
-                               changeSet.getRequestId(),
-                               getChannelAddCount(),
-                               getChannelUpdateCount(),
-                               getChannelRemoveCount(),
-                               getEntityUpdateCount(),
-                               getEntityRemoveCount(),
-                               getEntityLinkCount() );
+    return new DataLoadStatus(
+      changeSet.getRequestId(),
+      getChannelAddCount(),
+      getChannelUpdateCount(),
+      getChannelRemoveCount(),
+      getEntityUpdateCount(),
+      getEntityRemoveCount(),
+      getEntityLinkCount() );
   }
 
   @Override
@@ -345,9 +345,7 @@ final class MessageResponse
     }
     else
     {
-      final ChangeSet changeSet1 = getChangeSet();
-      final ChangeSet changeSet2 = other.getChangeSet();
-      return changeSet1.getSequence() - changeSet2.getSequence();
+      return 0;
     }
   }
 

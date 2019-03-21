@@ -12,7 +12,6 @@ public class MessageProcessedEventTest
   @Test
   public void basicOperation()
   {
-    final int sequence = ValueUtil.randomInt();
     final int requestId = ValueUtil.randomInt();
     final int channelAddCount = ValueUtil.getRandom().nextInt( 10 );
     final int channelUpdateCount = ValueUtil.getRandom().nextInt( 10 );
@@ -21,8 +20,7 @@ public class MessageProcessedEventTest
     final int entityRemoveCount = ValueUtil.getRandom().nextInt( 100 );
     final int entityLinkCount = ValueUtil.getRandom().nextInt( 10 );
     final DataLoadStatus dataLoadStatus =
-      new DataLoadStatus( sequence,
-                          requestId,
+      new DataLoadStatus( requestId,
                           channelAddCount,
                           channelUpdateCount,
                           channelRemoveCount,
@@ -42,7 +40,6 @@ public class MessageProcessedEventTest
     assertEquals( data.get( "type" ), "Connector.MessageProcess" );
     assertEquals( data.get( "schema.id" ), 23 );
     assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "sequence" ), sequence );
     assertEquals( data.get( "requestId" ), requestId );
     assertEquals( data.get( "channelAddCount" ), channelAddCount );
     assertEquals( data.get( "channelUpdateCount" ), channelUpdateCount );
@@ -50,6 +47,6 @@ public class MessageProcessedEventTest
     assertEquals( data.get( "entityUpdateCount" ), entityUpdateCount );
     assertEquals( data.get( "entityRemoveCount" ), entityRemoveCount );
     assertEquals( data.get( "entityLinkCount" ), entityLinkCount );
-    assertEquals( data.size(), 11 );
+    assertEquals( data.size(), 10 );
   }
 }

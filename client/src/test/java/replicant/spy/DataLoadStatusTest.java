@@ -11,7 +11,6 @@ public class DataLoadStatusTest
   @Test
   public void basicOperation()
   {
-    final int sequence = 13;
     final int requestId = 44;
     final int channelAddCount = 4;
     final int channelUpdateCount = 2;
@@ -20,8 +19,7 @@ public class DataLoadStatusTest
     final int entityRemoveCount = 3;
     final int entityLinkCount = 126;
     final DataLoadStatus status =
-      new DataLoadStatus( sequence,
-                          requestId,
+      new DataLoadStatus( requestId,
                           channelAddCount,
                           channelUpdateCount,
                           channelRemoveCount,
@@ -29,7 +27,6 @@ public class DataLoadStatusTest
                           entityRemoveCount,
                           entityLinkCount );
 
-    assertEquals( status.getSequence(), sequence );
     assertEquals( status.getRequestId(), (Integer) requestId );
     assertEquals( status.getChannelAddCount(), channelAddCount );
     assertEquals( status.getChannelUpdateCount(), channelUpdateCount );
@@ -39,11 +36,10 @@ public class DataLoadStatusTest
     assertEquals( status.getEntityLinkCount(), entityLinkCount );
 
     assertEquals( status.toString(),
-                  "[Message 13 involved 4 subscribes, 2 subscription updates, 1 un-subscribes, 123 updates, 3 removes and 126 links]" );
+                  "[Message involved 4 subscribes, 2 subscription updates, 1 un-subscribes, 123 updates, 3 removes and 126 links]" );
 
     ReplicantTestUtil.disableNames();
 
-    assertEquals( status.toString(),
-                  "replicant.spy.DataLoadStatus@" + Integer.toHexString( status.hashCode() ) );
+    assertEquals( status.toString(), "replicant.spy.DataLoadStatus@" + Integer.toHexString( status.hashCode() ) );
   }
 }

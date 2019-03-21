@@ -40,15 +40,13 @@ public final class JsonEncoder
   /**
    * Encode the change set with the EntityMessages.
    *
-   * @param lastChangeSetID the last change set ID.
    * @param requestId       the requestId that initiated the change. Only set if packet is destined for originating session.
    * @param etag            the associated etag.
    * @param changeSet       the changeSet being encoded.
    * @return the encoded change set.
    */
   @Nonnull
-  public static String encodeChangeSet( final int lastChangeSetID,
-                                        @Nullable final Integer requestId,
+  public static String encodeChangeSet( @Nullable final Integer requestId,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {
@@ -56,9 +54,7 @@ public final class JsonEncoder
     final JsonGenerator generator = FACTORY.createGenerator( writer );
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
-    generator.
-      writeStartObject().
-      write( TransportConstants.SEQUENCE, lastChangeSetID );
+    generator.writeStartObject();
     if ( null != requestId )
     {
       generator.write( TransportConstants.REQUEST_ID, requestId );

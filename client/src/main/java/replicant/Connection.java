@@ -67,7 +67,6 @@ final class Connection
    * really used in responding to requests with cached value.
    */
   private final LinkedList<MessageResponse> _outOfBandResponses = new LinkedList<>();
-  private int _lastRxSequence;
   /**
    * The current message being processed.
    */
@@ -155,16 +154,6 @@ final class Connection
     _pendingResponses.add( _currentMessageResponse );
     Collections.sort( _pendingResponses );
     _currentMessageResponse = null;
-  }
-
-  int getLastRxSequence()
-  {
-    return _lastRxSequence;
-  }
-
-  void setLastRxSequence( final int lastRxSequence )
-  {
-    _lastRxSequence = lastRxSequence;
   }
 
   /**
@@ -333,15 +322,11 @@ final class Connection
       return true;
     }
 
-    //Step: Retrieve the action from the parsed queue if it is the next in the sequence
+    //Step: Retrieve the action from the parsed queue
     if ( !_pendingResponses.isEmpty() )
     {
-      final MessageResponse response = _pendingResponses.get( 0 );
-      if ( response.isOob() || _lastRxSequence + 1 == response.getChangeSet().getSequence() )
-      {
-        _currentMessageResponse = _pendingResponses.remove();
-        return true;
-      }
+      _currentMessageResponse = _pendingResponses.remove();
+      return true;
     }
 
     // Abort if there is no pending data load actions to take

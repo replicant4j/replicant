@@ -15,14 +15,12 @@ public class ChangeSetTest
     final String[] channelChanges = {};
     final ChannelChange[] fchannels = new ChannelChange[ 0 ];
 
-    final int sequence = ValueUtil.randomInt();
     final int requestId = ValueUtil.randomInt();
     final String eTag = ValueUtil.randomString();
 
     final ChangeSet changeSet =
-      ChangeSet.create( sequence, requestId, eTag, channelChanges, fchannels, entityChanges );
+      ChangeSet.create( requestId, eTag, channelChanges, fchannels, entityChanges );
 
-    assertEquals( changeSet.getSequence(), sequence );
     assertEquals( changeSet.getRequestId(), (Integer) requestId );
     assertEquals( changeSet.getETag(), eTag );
     assertEquals( changeSet.getEntityChanges(), entityChanges );
@@ -38,12 +36,9 @@ public class ChangeSetTest
   @Test
   public void construct_NoChanges()
   {
-    final int sequence = ValueUtil.randomInt();
-
     final ChangeSet changeSet =
-      ChangeSet.create( sequence, null, null, null, null, null );
+      ChangeSet.create( null, null, null, null, null );
 
-    assertEquals( changeSet.getSequence(), sequence );
     assertNull( changeSet.getRequestId() );
     assertNull( changeSet.getETag() );
     assertFalse( changeSet.hasEntityChanges() );
@@ -68,7 +63,7 @@ public class ChangeSetTest
     };
 
     final ChangeSet changeSet =
-      ChangeSet.create( ValueUtil.randomInt(), null, null, channelChanges, null, entityChanges );
+      ChangeSet.create( null, null, channelChanges, null, entityChanges );
 
     changeSet.validate();
   }
@@ -79,12 +74,12 @@ public class ChangeSetTest
     final String[] channelChanges = new String[]{ "+1", "+2.50", "+3.50", "+4.23", "+1" };
 
     final ChangeSet changeSet =
-      ChangeSet.create( 77, null, null, channelChanges, null, null );
+      ChangeSet.create( null, null, channelChanges, null, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, changeSet::validate );
     assertEquals( exception.getMessage(),
-                  "Replicant-0022: ChangeSet 77 contains multiple ChannelChange messages for the channel 1." );
+                  "Replicant-0022: ChangeSet contains multiple ChannelChange messages for the channel 1." );
   }
 
   @Test
@@ -96,12 +91,12 @@ public class ChangeSetTest
     };
 
     final ChangeSet changeSet =
-      ChangeSet.create( 77, null, null, new String[]{ "+1", "+4.23" }, channelChanges, null );
+      ChangeSet.create( null, null, new String[]{ "+1", "+4.23" }, channelChanges, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, changeSet::validate );
     assertEquals( exception.getMessage(),
-                  "Replicant-0028: ChangeSet 77 contains multiple ChannelChange messages for the channel 2.50." );
+                  "Replicant-0028: ChangeSet contains multiple ChannelChange messages for the channel 2.50." );
   }
 
   @Test
@@ -118,19 +113,18 @@ public class ChangeSetTest
     };
 
     final ChangeSet changeSet =
-      ChangeSet.create( 77, null, null, null, null, entityChanges );
+      ChangeSet.create( null, null, null, null, entityChanges );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, changeSet::validate );
     assertEquals( exception.getMessage(),
-                  "Replicant-0014: ChangeSet 77 contains multiple EntityChange messages with the id '1.1'." );
+                  "Replicant-0014: ChangeSet contains multiple EntityChange messages with the id '1.1'." );
   }
 
   @Test
   public void getChannels_WhenNone()
   {
-    final ChangeSet changeSet =
-      ChangeSet.create( ValueUtil.randomInt(), null, null, null, null, null );
+    final ChangeSet changeSet = ChangeSet.create( null, null, null, null, null );
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, changeSet::getChannels );
     assertEquals( exception.getMessage(),
@@ -140,8 +134,7 @@ public class ChangeSetTest
   @Test
   public void getFilteredChannels_WhenNone()
   {
-    final ChangeSet changeSet =
-      ChangeSet.create( ValueUtil.randomInt(), null, null, null, null, null );
+    final ChangeSet changeSet = ChangeSet.create( null, null, null, null, null );
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, changeSet::getFilteredChannels );
     assertEquals( exception.getMessage(),
@@ -151,8 +144,7 @@ public class ChangeSetTest
   @Test
   public void getEntityChanges_WhenNone()
   {
-    final ChangeSet changeSet =
-      ChangeSet.create( ValueUtil.randomInt(), null, null, null, null, null );
+    final ChangeSet changeSet = ChangeSet.create( null, null, null, null, null );
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, changeSet::getEntityChanges );
     assertEquals( exception.getMessage(),

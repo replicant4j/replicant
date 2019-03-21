@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.JsonObject;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.ChangeSet;
@@ -23,10 +22,6 @@ public final class ReplicantSession
   private final String _userId;
   @Nonnull
   private final Session _webSocketSession;
-  /**
-   * Sequence of next packet to be sent to added to WebSocket.
-   */
-  private int _nextSequence = 1;
   @Nonnull
   private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
@@ -69,11 +64,6 @@ public final class ReplicantSession
     }
   }
 
-  public synchronized int getNextSequence()
-  {
-    return _nextSequence;
-  }
-
   @Nonnull
   public Session getWebSocketSession()
   {
@@ -109,8 +99,7 @@ public final class ReplicantSession
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {
-    WebSocketUtil.sendText( getWebSocketSession(),
-                            JsonEncoder.encodeChangeSet( _nextSequence++, requestId, etag, changeSet ) );
+    WebSocketUtil.sendText( getWebSocketSession(), JsonEncoder.encodeChangeSet( requestId, etag, changeSet ) );
   }
 
   @SuppressWarnings( "WeakerAccess" )

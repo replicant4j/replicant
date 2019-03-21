@@ -38,13 +38,6 @@ public interface Transport
     int getSchemaId();
 
     /**
-     * Return the sequence of the last PDU received.
-     *
-     * @return the sequence of the last PDU received.
-     */
-    int getLastRxSequence();
-
-    /**
      * Return the id of the last request transmitted.
      *
      * @return the id of the last request transmitted.

@@ -8,7 +8,6 @@ import replicant.Replicant;
  */
 public final class DataLoadStatus
 {
-  private final int _sequence;
   @Nullable
   private final Integer _requestId;
   /// The number of channels added as a result of the Message
@@ -24,8 +23,7 @@ public final class DataLoadStatus
   // The number of entities where link() was invoked
   private final int _entityLinkCount;
 
-  public DataLoadStatus( final int sequence,
-                         @Nullable final Integer requestId,
+  public DataLoadStatus( @Nullable final Integer requestId,
                          final int channelAddCount,
                          final int channelUpdateCount,
                          final int channelRemoveCount,
@@ -33,7 +31,6 @@ public final class DataLoadStatus
                          final int entityRemoveCount,
                          final int entityLinkCount )
   {
-    _sequence = sequence;
     _requestId = requestId;
     _channelAddCount = channelAddCount;
     _channelUpdateCount = channelUpdateCount;
@@ -41,11 +38,6 @@ public final class DataLoadStatus
     _entityUpdateCount = entityUpdateCount;
     _entityRemoveCount = entityRemoveCount;
     _entityLinkCount = entityLinkCount;
-  }
-
-  public int getSequence()
-  {
-    return _sequence;
   }
 
   @Nullable
@@ -89,7 +81,7 @@ public final class DataLoadStatus
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return "[Message " + getSequence() + " involved " +
+      return "[Message involved " +
              getChannelAddCount() + " subscribes, " +
              getChannelUpdateCount() + " subscription updates, " +
              getChannelRemoveCount() + " un-subscribes, " +

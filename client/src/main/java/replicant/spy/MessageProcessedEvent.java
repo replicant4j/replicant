@@ -52,7 +52,6 @@ public final class MessageProcessedEvent
     map.put( "schema.id", getSchemaId() );
     map.put( "schema.name", getSchemaName() );
     final DataLoadStatus status = getDataLoadStatus();
-    map.put( "sequence", status.getSequence() );
     map.put( "requestId", status.getRequestId() );
     map.put( "channelAddCount", status.getChannelAddCount() );
     map.put( "channelRemoveCount", status.getChannelRemoveCount() );

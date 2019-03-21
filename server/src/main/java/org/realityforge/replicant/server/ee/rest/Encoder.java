@@ -42,7 +42,6 @@ final class Encoder
       g.write( "userID", userID );
     }
     g.write( "url", getSessionURL( session, uri ) );
-    g.write( "nextSequence", session.getNextSequence() );
 
     if ( emitNetworkData )
     {

@@ -16,7 +16,6 @@ import static org.realityforge.braincheck.Guards.*;
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class ChangeSet
 {
-  private int seq;
   @Nullable
   private Double requestId;
   @Nullable
@@ -29,15 +28,13 @@ public class ChangeSet
   private EntityChange[] changes;
 
   @GwtIncompatible
-  public static ChangeSet create( final int sequence,
-                                  @Nullable final Integer requestId,
+  public static ChangeSet create( @Nullable final Integer requestId,
                                   @Nullable final String eTag,
                                   @Nullable final String[] channels,
                                   @Nullable final ChannelChange[] fchannels,
                                   @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
-    changeSet.seq = sequence;
     changeSet.requestId = null == requestId ? null : requestId.doubleValue();
     changeSet.etag = eTag;
     changeSet.channels = channels;
@@ -48,15 +45,6 @@ public class ChangeSet
 
   public ChangeSet()
   {
-  }
-
-  /**
-   * @return the sequence representing the last transaction in the change set.
-   */
-  @JsOverlay
-  public final int getSequence()
-  {
-    return seq;
   }
 
   /**
@@ -186,8 +174,8 @@ public class ChangeSet
         {
           final String id = change.getId();
           apiInvariant( () -> existing.add( id ),
-                        () -> "Replicant-0014: ChangeSet " + seq + " contains multiple EntityChange " +
-                              "messages with the id '" + id + "'." );
+                        () -> "Replicant-0014: ChangeSet contains multiple EntityChange messages " +
+                              "with the id '" + id + "'." );
         }
       }
       final HashSet<String> existingChannels = new HashSet<>();
@@ -197,8 +185,8 @@ public class ChangeSet
         {
           final String key = channelAction.substring( 1 );
           apiInvariant( () -> existingChannels.add( key ),
-                        () -> "Replicant-0022: ChangeSet " + seq + " contains multiple ChannelChange " +
-                              "messages for the channel " + channelAction.substring( 1 ) + "." );
+                        () -> "Replicant-0022: ChangeSet contains multiple ChannelChange messages " +
+                              "for the channel " + channelAction.substring( 1 ) + "." );
         }
       }
       if ( null != fchannels )
@@ -208,8 +196,8 @@ public class ChangeSet
           final String channelAction = channelChange.getChannel();
           final String key = channelAction.substring( 1 );
           apiInvariant( () -> existingChannels.add( key ),
-                        () -> "Replicant-0028: ChangeSet " + seq + " contains multiple ChannelChange " +
-                              "messages for the channel " + channelAction.substring( 1 ) + "." );
+                        () -> "Replicant-0028: ChangeSet contains multiple ChannelChange messages " +
+                              "for the channel " + channelAction.substring( 1 ) + "." );
 
         }
       }

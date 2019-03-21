@@ -48,7 +48,6 @@ public final class JsonEncoderTest
     assertNotNull( values );
     values.put( "key3", date );
 
-    final int lastChangeSetID = 1;
     final int requestId = 1;
     final String etag = "#1";
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
@@ -60,12 +59,11 @@ public final class JsonEncoderTest
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
     cs.mergeAction( new ChannelAction( new ChannelAddress( 45, 77 ), Action.UPDATE, filter ) );
-    final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestId, etag, cs );
+    final String encoded = JsonEncoder.encodeChangeSet( requestId, etag, cs );
     final JsonObject changeSet = toJsonObject( encoded );
 
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getInt( TransportConstants.SEQUENCE ), lastChangeSetID );
     assertEquals( changeSet.getInt( TransportConstants.REQUEST_ID ), requestId );
     assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
 
@@ -107,15 +105,12 @@ public final class JsonEncoderTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
-    final int lastChangeSetID = 1;
     final ChangeSet cs = new ChangeSet();
     cs.merge( new Change( message ) );
-    final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, null, null, cs );
+    final String encoded = JsonEncoder.encodeChangeSet( null, null, cs );
     final JsonObject changeSet = toJsonObject( encoded );
 
     assertNotNull( changeSet );
-
-    assertEquals( changeSet.getInt( TransportConstants.SEQUENCE ), lastChangeSetID );
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
@@ -135,7 +130,7 @@ public final class JsonEncoderTest
   {
     final ChangeSet cs = new ChangeSet();
     cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.ADD, null ) );
-    final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
+    final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, cs ) );
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getString( 0 ), "+45" );
@@ -147,7 +142,7 @@ public final class JsonEncoderTest
   {
     final ChangeSet cs = new ChangeSet();
     cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.DELETE, null ) );
-    final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
+    final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, cs ) );
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getString( 0 ), "!45" );
@@ -167,7 +162,7 @@ public final class JsonEncoderTest
     final ChangeSet cs = new ChangeSet();
     cs.merge( new Change( message ) );
 
-    final String encoded = JsonEncoder.encodeChangeSet( 0, null, null, cs );
+    final String encoded = JsonEncoder.encodeChangeSet( null, null, cs );
 
     final String value =
       toJsonObject( encoded ).

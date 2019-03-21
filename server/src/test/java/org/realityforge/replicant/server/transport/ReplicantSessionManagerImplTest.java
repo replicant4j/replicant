@@ -365,7 +365,7 @@ public class ReplicantSessionManagerImplTest
 
       final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
       verify( remote ).sendText(
-        "{\"seq\":1,\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+        "{\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
     }
   }
 
@@ -459,7 +459,7 @@ public class ReplicantSessionManagerImplTest
 
     final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
     verify( remote ).sendText(
-      "{\"seq\":1,\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+      "{\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
   }
 
   @Test
@@ -612,7 +612,7 @@ public class ReplicantSessionManagerImplTest
 
       final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
       verify( remote ).sendText(
-        "{\"seq\":1,\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+        "{\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
     }
 
     //Not cached locally
@@ -632,7 +632,7 @@ public class ReplicantSessionManagerImplTest
 
       final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
       verify( remote ).sendText(
-        "{\"seq\":1,\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+        "{\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
     }
 
     //Locally cached but deleted
@@ -1272,7 +1272,7 @@ public class ReplicantSessionManagerImplTest
     sm.sendPacket( session, "X", new ChangeSet() );
 
     final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-    verify( remote ).sendText( "{\"seq\":1,\"requestId\":1,\"etag\":\"X\"}" );
+    verify( remote ).sendText( "{\"requestId\":1,\"etag\":\"X\"}" );
     assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }
 

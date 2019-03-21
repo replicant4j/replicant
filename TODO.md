@@ -39,6 +39,3 @@ Some actions that should occur at some point in the future.
 * Generate DebugTool to show client side replicant graph subscriptions
 
 * Make sure that the requestId going back and forth is correct and increasing in sequence
-
-* Remove `seq` from message formwat and all form of buffering/sequencing on the client and server as we can assume
-  messages are sequenced in order.

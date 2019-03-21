@@ -19,23 +19,6 @@ public class TransportContextImplTest
   }
 
   @Test
-  public void getLastRxSequence()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-    final TransportContextImpl context = new TransportContextImpl( connector );
-
-    assertFalse( context.isDisposed() );
-    assertEquals( context.getLastRxSequence(), connection.getLastRxSequence() );
-
-    context.dispose();
-
-    assertTrue( context.isDisposed() );
-
-    assertEquals( context.getLastRxSequence(), -1 );
-  }
-
-  @Test
   public void getLastTxRequestId()
   {
     final Connector connector = createConnector();

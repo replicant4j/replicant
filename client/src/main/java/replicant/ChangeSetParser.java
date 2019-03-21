@@ -64,7 +64,6 @@ final class ChangeSetParser
       try ( final JsonReader reader = Json.createReader( new StringReader( rawJsonData ) ) )
       {
         final JsonObject object = reader.readObject();
-        final int sequence = object.getInt( "seq" );
         final Integer requestId =
           object.containsKey( "requestId" ) ? object.getJsonNumber( "requestId" ).intValue() : null;
         final String etag =
@@ -73,7 +72,7 @@ final class ChangeSetParser
         final ChannelChange[] fchannels = parseChannelChanges( object );
         final EntityChange[] entityChanges = parseEntityChanges( object );
 
-        return ChangeSet.create( sequence, requestId, etag, parseChannels( object ), fchannels, entityChanges );
+        return ChangeSet.create( requestId, etag, parseChannels( object ), fchannels, entityChanges );
       }
     }
 

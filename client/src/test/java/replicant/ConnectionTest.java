@@ -28,7 +28,6 @@ public class ConnectionTest
 
     assertFalse( connection.isDisposed() );
     assertEquals( connection.getConnectionId(), connectionId );
-    assertEquals( connection.getLastRxSequence(), 0 );
     assertEquals( connection.getLastTxRequestId(), 0 );
     assertNull( connection.getCurrentMessageResponse() );
     assertNotNull( connection.getTransportContext() );
@@ -39,9 +38,6 @@ public class ConnectionTest
 
     assertEquals( connection.getCurrentMessageResponse(), response );
     assertEquals( connection.ensureCurrentMessageResponse(), response );
-
-    connection.setLastRxSequence( 2 );
-    assertEquals( connection.getLastRxSequence(), 2 );
   }
 
   @Test
@@ -123,11 +119,11 @@ public class ConnectionTest
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
-    final MessageResponse response1 = new MessageResponse( "" );
-    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null, null ), null );
+    final MessageResponse response = new MessageResponse( "" );
+    response.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
-    connection.injectPendingResponses( response1 );
+    connection.injectPendingResponses( response );
 
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -137,35 +133,11 @@ public class ConnectionTest
     assertTrue( selectedMessage );
     final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
     assertNotNull( currentMessageResponse );
-    assertEquals( currentMessageResponse.getChangeSet().getSequence(), 1 );
     assertEquals( connection.getPendingResponses().size(), 0 );
   }
 
   @Test
-  public void selectNextMessageResponse_parsedOutOfSequenceMessage()
-  {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
-
-    final MessageResponse response1 = new MessageResponse( "" );
-    response1.recordChangeSet( ChangeSet.create( 22, null, null, null, null, null ), null );
-
-    // Add a "parsed" message with sequence indicating it is next
-    connection.injectPendingResponses( response1 );
-
-    assertNull( connection.getCurrentMessageResponse() );
-    assertEquals( connection.getPendingResponses().size(), 1 );
-
-    final boolean selectedMessage = connection.selectNextMessageResponse();
-
-    assertFalse( selectedMessage );
-    assertNull( connection.getCurrentMessageResponse() );
-    assertEquals( connection.getPendingResponses().size(), 1 );
-  }
-
-  @Test
-  public void selectNextMessageResponse_parsedOutOfSequenceOutOfBandMessage()
+  public void selectNextMessageResponse_parsedOutOfBandMessage()
   {
     final Connector connector = createConnector();
     final String connectionId = ValueUtil.randomString();
@@ -173,11 +145,11 @@ public class ConnectionTest
 
     final SafeProcedure oobCompletionAction = () -> {
     };
-    final MessageResponse response1 = new MessageResponse( "", oobCompletionAction );
-    response1.recordChangeSet( ChangeSet.create( 324, null, null, null, null, null ), null );
+    final MessageResponse response = new MessageResponse( "", oobCompletionAction );
+    response.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
-    connection.injectPendingResponses( response1 );
+    connection.injectPendingResponses( response );
 
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -188,7 +160,6 @@ public class ConnectionTest
     final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
     assertNotNull( currentMessageResponse );
     assertTrue( currentMessageResponse.isOob() );
-    assertEquals( currentMessageResponse.getChangeSet().getSequence(), 324 );
     assertEquals( connection.getPendingResponses().size(), 0 );
   }
 
@@ -199,13 +170,11 @@ public class ConnectionTest
     final String connectionId = ValueUtil.randomString();
     final Connection connection = new Connection( connector, connectionId );
 
-    final MessageResponse response1 = new MessageResponse( "" );
     final MessageResponse response2 = new MessageResponse( "" );
     final MessageResponse response3 = new MessageResponse( "" );
 
-    response1.recordChangeSet( ChangeSet.create( 1, null, null, null, null, null ), null );
-    response2.recordChangeSet( ChangeSet.create( 2, null, null, null, null, null ), null );
-    response3.recordChangeSet( ChangeSet.create( 3, null, null, null, null, null ), null );
+    response2.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
+    response3.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
 
     connection.setCurrentMessageResponse( response2 );
 
@@ -217,7 +186,6 @@ public class ConnectionTest
     assertEquals( connection.getPendingResponses().get( 0 ), response2 );
     assertNull( connection.getCurrentMessageResponse() );
 
-    // This should be added to end of queue as it has later sequence
     connection.setCurrentMessageResponse( response3 );
 
     connection.queueCurrentResponse();
@@ -225,17 +193,6 @@ public class ConnectionTest
     assertEquals( connection.getPendingResponses().size(), 2 );
     assertEquals( connection.getPendingResponses().get( 0 ), response2 );
     assertEquals( connection.getPendingResponses().get( 1 ), response3 );
-    assertNull( connection.getCurrentMessageResponse() );
-
-    // This should be added to start of queue as it has earlier sequence
-    connection.setCurrentMessageResponse( response1 );
-
-    connection.queueCurrentResponse();
-
-    assertEquals( connection.getPendingResponses().size(), 3 );
-    assertEquals( connection.getPendingResponses().get( 0 ), response1 );
-    assertEquals( connection.getPendingResponses().get( 1 ), response2 );
-    assertEquals( connection.getPendingResponses().get( 2 ), response3 );
     assertNull( connection.getCurrentMessageResponse() );
   }
 
