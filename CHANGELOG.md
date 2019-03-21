@@ -14,6 +14,8 @@
   than `String sessionId` as all callers have a session available.
 * `ReplicantSessionManager.subscribe(...)` no longer returns `CacheStatus` parameter as it is no longer used.
 * Remove the dependency on the `org.realityforge.gwt.webpoller:gwt-webpoller:jar` artifact.
+* Move the `InvalidHttpResponseException` exception to the package `org.realityforge.replicant.client.gwt` as that
+  is the only remaining place where it is used.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)

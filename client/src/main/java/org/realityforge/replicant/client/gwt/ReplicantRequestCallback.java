@@ -5,7 +5,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.shared.SharedConstants;
 
 final class ReplicantRequestCallback
