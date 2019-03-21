@@ -93,7 +93,6 @@ final class ChangeSetParser
     @Nullable
     private ChannelChange[] parseChannelChanges( @Nonnull final JsonObject object )
     {
-      // TODO: Filters not yet supported properly
       return object.containsKey( "fchannels" ) ?
              object
                .getJsonArray( "fchannels" )
@@ -143,12 +142,10 @@ final class ChangeSetParser
               }
               else if ( JsonValue.ValueType.NUMBER == valueType )
               {
-                //TODO: Handle real/float values
                 changeData.getData().put( key, ( (JsonNumber) v ).intValue() );
               }
               else
               {
-                //TODO: Handle all the other types valid here
                 assert JsonValue.ValueType.STRING == valueType;
                 changeData.getData().put( key, ( (JsonString) v ).getString() );
               }
