@@ -37,5 +37,3 @@ Some actions that should occur at some point in the future.
 * Rather than DEFAULT_LINKS_TO_PROCESS_PER_TICK and DEFAULT_CHANGES_TO_PROCESS_PER_TICK try to use time based feedback
 
 * Generate DebugTool to show client side replicant graph subscriptions
-
-* Make sure that the requestId going back and forth is correct and increasing in sequence
