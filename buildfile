@@ -73,7 +73,6 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:elemental2_webstorage)
     pom.include_transitive_dependencies << artifact(:react4j_core)
     pom.include_transitive_dependencies << artifact(:arez_core)
-    pom.include_transitive_dependencies << artifact(:gwt_webpoller)
     pom.include_transitive_dependencies << artifact(:gwt_user)
     pom.include_transitive_dependencies << artifact(:javax_javaee)
     pom.include_transitive_dependencies << artifact(:spritz_core)
@@ -95,7 +94,6 @@ define 'replicant' do
 
     compile.with project('shared').package(:jar),
                  project('shared').compile.dependencies,
-                 :gwt_webpoller,
                  :jetbrains_annotations,
                  GWT_DEPS,
                  :react4j_core,
