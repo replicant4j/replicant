@@ -2968,7 +2968,7 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 4 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -3045,7 +3045,7 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 4 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -3205,7 +3205,7 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -3501,7 +3501,7 @@ public class ConnectorTest
     final AtomicInteger callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -3715,7 +3715,7 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onSuccess.set( (SafeProcedure) i.getArguments()[ 2 ] );
+      onSuccess.set( (SafeProcedure) i.getArguments()[ 4 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -3792,7 +3792,7 @@ public class ConnectorTest
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -3890,7 +3890,7 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
                              eq( filter ),
-                             isNull( SafeProcedure.class ),
+                             any( SafeProcedure.class ),
                              any() );
 
     assertEquals( callCount.get(), 0 );
@@ -4087,7 +4087,7 @@ public class ConnectorTest
     final AtomicInteger callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
+      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
       return null;
     } )
       .when( connector.getTransport() )
@@ -4224,7 +4224,7 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
                              eq( filter ),
-                             isNull( SafeProcedure.class ),
+                             any( SafeProcedure.class ),
                              any() );
 
     assertEquals( callCount.get(), 0 );
