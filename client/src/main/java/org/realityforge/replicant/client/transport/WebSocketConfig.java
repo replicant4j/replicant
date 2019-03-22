@@ -47,9 +47,8 @@ public final class WebSocketConfig
     return null != _authenticationTokenGenerator ? _authenticationTokenGenerator.get() : null;
   }
 
-  @Nonnull
-  public Consumer<Runnable> getRemoteCallWrapper()
+  public void remote( @Nonnull final Runnable action )
   {
-    return _remoteCallWrapper;
+    _remoteCallWrapper.accept( action );
   }
 }
