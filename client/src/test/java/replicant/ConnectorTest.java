@@ -569,7 +569,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.disconnectIfPossible( error ) );
+    connector.disconnectIfPossible( error );
 
     handler.assertEventCount( 0 );
 
