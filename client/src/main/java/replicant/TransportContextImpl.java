@@ -75,7 +75,7 @@ final class TransportContextImpl
   }
 
   @Override
-  public void onMessageReadFailure( @Nonnull final Throwable error )
+  public void onError( @Nonnull final Throwable error )
   {
     if ( isNotDisposed() )
     {

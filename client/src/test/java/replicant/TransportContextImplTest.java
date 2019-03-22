@@ -150,7 +150,7 @@ public class TransportContextImplTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
     handler.assertEventCount( 0 );
-    context.onMessageReadFailure( new Throwable() );
+    context.onError( new Throwable() );
     handler.assertEventCount( 2 );
 
     handler.assertEvent( MessageReadFailureEvent.class );
@@ -165,7 +165,7 @@ public class TransportContextImplTest
     handler.assertEventCount( 2 );
 
     // This should be ignored
-    context.onMessageReadFailure( new Throwable() );
+    context.onError( new Throwable() );
 
     handler.assertEventCount( 2 );
   }

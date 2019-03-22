@@ -66,11 +66,11 @@ public interface Transport
     void onMessageReceived( @Nonnull String rawJsonData );
 
     /**
-     * Notify the Connector that there was an error reading a message from the Transport.
+     * Notify the Connector that there was an error from the Transport.
      *
      * @param error the error.
      */
-    void onMessageReadFailure( @Nonnull Throwable error );
+    void onError( @Nonnull Throwable error );
 
     /**
      * Direct the Connector to disconnect the transport.
