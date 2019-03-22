@@ -20,8 +20,8 @@
   managed by the `WebSocket` implementation.
 * Removed sequences from the server-to-client message as messages can never be transmitted out of sequence.
 * Refactor `Connector.state` to be readable outside a transaction.
-* Remove the need to pass `onDisconnectionError` handler to the `Transport.disconnect(...)` method and instead
-  detect disconnect error as normal error while disconnecting.
+* Remove the need to pass `onDisconnectionError` handler to the `Transport.disconnect(...)` method and instead treat
+  any error while disconnecting as a disconnect error.
 * Remove the need to pass `onConnectionError` handler to the `Transport.connect(...)` method and instead treat any
   error while connecting as a connect error.
 
