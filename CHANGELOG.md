@@ -20,6 +20,8 @@
   managed by the `WebSocket` implementation.
 * Removed sequences from the server-to-client message as messages can never be transmitted out of sequence.
 * Refactor `Connector.state` to be readable outside a transaction.
+* Remove the need to pass `onDisconnectionError` handler to the `Transport.disconnect(...)` method and instead
+  detect disconnect error as normal error while disconnecting.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)

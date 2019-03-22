@@ -90,7 +90,7 @@ public interface Transport
    * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.
    * This method is responsible for providing the necessary context information for the Transport to
    * communicate with the back-end. This context is no longer valid after the callbacks of the
-   * {@link #disconnect(SafeProcedure, OnError)} method are invoked.
+   * {@link #disconnect(SafeProcedure)} method are invoked.
    *
    * @param context the context that provides environmental data to Transport.
    */
@@ -106,10 +106,9 @@ public interface Transport
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.
    *
-   * @param onDisconnect      the action to invoke once disconnect has completed.
-   * @param onDisconnectError the action to invoke if disconnect errors.
+   * @param onDisconnect the action to invoke once disconnect has completed.
    */
-  void disconnect( @Nonnull SafeProcedure onDisconnect, @Nonnull OnError onDisconnectError );
+  void disconnect( @Nonnull SafeProcedure onDisconnect );
 
   /**
    * Request a synchronization point.

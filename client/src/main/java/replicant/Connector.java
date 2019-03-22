@@ -185,7 +185,7 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().disconnect( this::onDisconnection, this::onDisconnectionError );
+        getTransport().disconnect( this::onDisconnection );
         newState = ConnectorState.DISCONNECTING;
       }
       finally
@@ -210,12 +210,6 @@ abstract class Connector
   {
     doSetConnection( new Connection( this, connectionId ) );
     triggerMessageScheduler();
-  }
-
-  private void onDisconnectionError( @Nonnull final Throwable error )
-  {
-    onDisconnection();
-    onDisconnectFailure( error );
   }
 
   final void onDisconnection()
@@ -250,13 +244,17 @@ abstract class Connector
     recordSyncInFlight( false );
     recordPendingResponseQueueEmpty( true );
     purgeSubscriptions();
-    if ( null != _connection )
+    // Avoid emitting an event if disconnect resulted in an error
+    if ( ConnectorState.ERROR != getState() )
     {
-      onConnected();
-    }
-    else
-    {
-      onDisconnected();
+      if ( null != _connection )
+      {
+        onConnected();
+      }
+      else
+      {
+        onDisconnected();
+      }
     }
   }
 
@@ -1446,6 +1444,7 @@ abstract class Connector
   protected void onDisconnectFailure( @Nonnull final Throwable error )
   {
     setState( ConnectorState.ERROR );
+    doSetConnection( null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
