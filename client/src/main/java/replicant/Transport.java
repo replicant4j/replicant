@@ -68,15 +68,15 @@ public interface Transport
     void onError( @Nonnull Throwable error );
 
     /**
-     * Direct the Connector to disconnect the transport.
+     * Notify the Connector that the Transport has disconnected.
      */
-    void disconnect();
+    void onDisconnect();
   }
 
   /**
    * Perform the connection, invoking the action when connection has completed.
-   *  @param onConnect      the action to invoke once connect has completed.
    *
+   * @param onConnect the action to invoke once connect has completed.
    */
   void connect( @Nonnull OnConnect onConnect );
 
@@ -84,7 +84,7 @@ public interface Transport
    * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.
    * This method is responsible for providing the necessary context information for the Transport to
    * communicate with the back-end. This context is no longer valid after the callbacks of the
-   * {@link #disconnect(SafeProcedure)} method are invoked.
+   * {@link #disconnect()} method are invoked.
    *
    * @param context the context that provides environmental data to Transport.
    */
@@ -100,9 +100,8 @@ public interface Transport
   /**
    * Perform the disconnection, invoking the action when disconnection has completed.
    *
-   * @param onDisconnect the action to invoke once disconnect has completed.
    */
-  void disconnect( @Nonnull SafeProcedure onDisconnect );
+  void disconnect();
 
   /**
    * Request a synchronization point.

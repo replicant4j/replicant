@@ -95,12 +95,15 @@ final class TransportContextImpl
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void disconnect()
+  public void onDisconnect()
   {
     if ( isNotDisposed() )
     {
-      _connector.transportDisconnect();
+      _connector.onDisconnection();
     }
   }
 }

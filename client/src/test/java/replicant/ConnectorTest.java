@@ -225,7 +225,7 @@ public class ConnectorTest
 
     connector.transportDisconnect();
 
-    verify( connector.getTransport() ).disconnect( any( SafeProcedure.class ) );
+    verify( connector.getTransport() ).disconnect();
 
     assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
@@ -242,7 +242,7 @@ public class ConnectorTest
 
     safeAction( connector::disconnect );
 
-    verify( connector.getTransport() ).disconnect( any( SafeProcedure.class ) );
+    verify( connector.getTransport() ).disconnect();
 
     assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
 
@@ -263,7 +263,7 @@ public class ConnectorTest
     final IllegalStateException exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
-    } ).when( connector.getTransport() ).disconnect( any( SafeProcedure.class ) );
+    } ).when( connector.getTransport() ).disconnect();
 
     final IllegalStateException actual =
       expectThrows( IllegalStateException.class, () -> safeAction( connector::disconnect ) );

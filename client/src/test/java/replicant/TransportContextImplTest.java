@@ -2,6 +2,7 @@ package replicant;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import static org.testng.Assert.*;
@@ -171,7 +172,7 @@ public class TransportContextImplTest
   }
 
   @Test
-  public void disconnect()
+  public void onDisconnect()
   {
     final Connector connector = createConnector();
     connector.pauseMessageScheduler();
@@ -182,21 +183,36 @@ public class TransportContextImplTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    context.disconnect();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
+    context.onDisconnect();
 
-    assertFalse( context.isDisposed() );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( DisconnectedEvent.class );
+  }
+
+  @Test
+  public void onDisconnect_onDisposed()
+  {
+    final Connector connector = createConnector();
+    connector.pauseMessageScheduler();
+    pauseScheduler();
+
+    newConnection( connector );
+    final TransportContextImpl context = new TransportContextImpl( connector );
+
+    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     context.dispose();
 
-    assertTrue( context.isDisposed() );
+    context.onDisconnect();
 
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    assertEquals( connector.getState(), ConnectorState.CONNECTED );
 
-    // This should be ignored
-    context.disconnect();
-
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
+    handler.assertEventCount( 0 );
   }
 }
