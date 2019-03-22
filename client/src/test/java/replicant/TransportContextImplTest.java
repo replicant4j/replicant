@@ -184,7 +184,7 @@ public class TransportContextImplTest
 
     context.disconnect();
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
 
     assertFalse( context.isDisposed() );
 

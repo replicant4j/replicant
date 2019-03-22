@@ -659,7 +659,7 @@ abstract class Connector
    * {@inheritDoc}
    */
   @Nonnull
-  @Observable
+  @Observable( readOutsideTransaction = true )
   ConnectorState getState()
   {
     return _state;
@@ -1481,7 +1481,7 @@ abstract class Connector
   /**
    * Called when a data load has resulted in a failure.
    */
-  @Action
+  @Action( verifyRequired = false )
   protected void onMessageProcessFailure( @Nonnull final Throwable error )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -1495,7 +1495,7 @@ abstract class Connector
   /**
    * Attempted to retrieve data from backend and failed.
    */
-  @Action
+  @Action( verifyRequired = false )
   protected void onMessageReadFailure( @Nonnull final Throwable error )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )

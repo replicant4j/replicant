@@ -77,11 +77,11 @@ public class ConnectorTest
     assertEquals( connector.getReplicantRuntime(), runtime );
     assertTrue( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ) );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
 
     schedulerLock.dispose();
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.CONNECTING );
   }
 
   @Test
@@ -180,13 +180,13 @@ public class ConnectorTest
     pauseScheduler();
 
     final Connector connector = createConnector();
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
 
     safeAction( connector::connect );
 
     verify( connector.getTransport() ).connect( any( Transport.OnConnect.class ), any( Transport.OnError.class ) );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.CONNECTING );
   }
 
   @Test
@@ -195,7 +195,7 @@ public class ConnectorTest
     pauseScheduler();
 
     final Connector connector = createConnector();
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
 
     reset( connector.getTransport() );
 
@@ -208,7 +208,7 @@ public class ConnectorTest
       expectThrows( IllegalStateException.class, () -> safeAction( connector::connect ) );
 
     assertEquals( actual, exception );
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    assertEquals( connector.getState(), ConnectorState.ERROR );
 
     verify( connector.getTransport() ).unbind();
   }
@@ -227,7 +227,7 @@ public class ConnectorTest
 
     verify( connector.getTransport() ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
 
   @Test
@@ -244,7 +244,7 @@ public class ConnectorTest
 
     verify( connector.getTransport() ).disconnect( any( SafeProcedure.class ), any( Transport.OnError.class ) );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
 
     verify( connector.getTransport(), never() ).unbind();
   }
@@ -270,7 +270,7 @@ public class ConnectorTest
 
     assertEquals( actual, exception );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    assertEquals( connector.getState(), ConnectorState.ERROR );
     verify( connector.getTransport() ).unbind();
   }
 
@@ -293,7 +293,7 @@ public class ConnectorTest
 
     connector.onDisconnected();
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTED ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.DISCONNECTED ) );
 
@@ -338,7 +338,7 @@ public class ConnectorTest
 
     connector.onDisconnectFailure( error );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    assertEquals( connector.getState(), ConnectorState.ERROR );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.ERROR ) );
   }
@@ -388,7 +388,7 @@ public class ConnectorTest
 
     connector.onConnected();
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTED ) );
+    assertEquals( connector.getState(), ConnectorState.CONNECTED );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.CONNECTED ) );
 
@@ -431,7 +431,7 @@ public class ConnectorTest
 
     connector.onConnectFailure( error );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.ERROR ) );
+    assertEquals( connector.getState(), ConnectorState.ERROR );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.ERROR ) );
   }
@@ -517,7 +517,7 @@ public class ConnectorTest
 
     connector.onMessageProcessFailure( error );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
 
   @Test
@@ -554,7 +554,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.disconnectIfPossible( error ) );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
 
   @Test
@@ -573,7 +573,7 @@ public class ConnectorTest
 
     handler.assertEventCount( 0 );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.CONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.CONNECTING );
   }
 
   @Test
@@ -614,7 +614,7 @@ public class ConnectorTest
 
     connector.onMessageReadFailure( error );
 
-    safeAction( () -> assertEquals( connector.getState(), ConnectorState.DISCONNECTING ) );
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
 
   @Test
@@ -5054,7 +5054,7 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
-    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+    assertFalse( connector.isSynchronized() );
   }
 
   @Test
@@ -5148,7 +5148,7 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
-    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+    assertFalse( connector.shouldRequestSync() );
   }
 
   @Test
