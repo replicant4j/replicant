@@ -22,6 +22,8 @@
 * Refactor `Connector.state` to be readable outside a transaction.
 * Remove the need to pass `onDisconnectionError` handler to the `Transport.disconnect(...)` method and instead
   detect disconnect error as normal error while disconnecting.
+* Remove the need to pass `onConnectionError` handler to the `Transport.connect(...)` method and instead treat any
+  error while connecting as a connect error.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)

@@ -15,11 +15,6 @@ public interface Transport
     void onConnect( @Nonnull String connectionId );
   }
 
-  interface OnError
-  {
-    void onError( @Nonnull Throwable error );
-  }
-
   interface Context
   {
     /**
@@ -80,11 +75,10 @@ public interface Transport
 
   /**
    * Perform the connection, invoking the action when connection has completed.
+   *  @param onConnect      the action to invoke once connect has completed.
    *
-   * @param onConnect      the action to invoke once connect has completed.
-   * @param onConnectError the action to invoke if connect errors.
    */
-  void connect( @Nonnull OnConnect onConnect, @Nonnull OnError onConnectError );
+  void connect( @Nonnull OnConnect onConnect );
 
   /**
    * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.

@@ -80,9 +80,13 @@ final class TransportContextImpl
     if ( isNotDisposed() )
     {
       final ConnectorState state = _connector.getState();
-      if ( ConnectorState.CONNECTED == state )
+      if ( ConnectorState.CONNECTING == state )
       {
-        _connector.onError( error );
+        _connector.onConnectFailure( error );
+      }
+      else if ( ConnectorState.CONNECTED == state )
+      {
+        _connector.onMessageReadFailure( error );
       }
       else if ( ConnectorState.DISCONNECTING == state )
       {
