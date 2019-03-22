@@ -50,7 +50,7 @@ final class TransportContextImpl
   @Override
   public void recordLastSyncRxRequestId( final int requestId )
   {
-    if ( !isDisposed() )
+    if ( isNotDisposed() )
     {
       _connector.recordLastSyncRxRequestId( requestId );
     }
@@ -59,7 +59,7 @@ final class TransportContextImpl
   @Override
   public void recordLastSyncTxRequestId( final int requestId )
   {
-    if ( !isDisposed() )
+    if ( isNotDisposed() )
     {
       _connector.recordLastSyncTxRequestId( requestId );
     }
@@ -68,7 +68,7 @@ final class TransportContextImpl
   @Override
   public void onMessageReceived( @Nonnull final String rawJsonData )
   {
-    if ( !isDisposed() )
+    if ( isNotDisposed() )
     {
       _connector.onMessageReceived( rawJsonData );
     }
@@ -77,7 +77,7 @@ final class TransportContextImpl
   @Override
   public void onMessageReadFailure( @Nonnull final Throwable error )
   {
-    if ( !isDisposed() )
+    if ( isNotDisposed() )
     {
       _connector.onMessageReadFailure( error );
     }
@@ -86,7 +86,7 @@ final class TransportContextImpl
   @Override
   public void disconnect()
   {
-    if ( !isDisposed() )
+    if ( isNotDisposed() )
     {
       _connector.transportDisconnect();
     }
