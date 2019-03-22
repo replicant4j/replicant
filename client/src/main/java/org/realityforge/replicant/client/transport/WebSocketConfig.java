@@ -42,9 +42,9 @@ public final class WebSocketConfig
   }
 
   @Nullable
-  public Supplier<String> getAuthenticationTokenGenerator()
+  public String getAuthenticationToken()
   {
-    return _authenticationTokenGenerator;
+    return null != _authenticationTokenGenerator ? _authenticationTokenGenerator.get() : null;
   }
 
   @Nonnull
