@@ -1457,7 +1457,7 @@ abstract class Connector
    *
    * @param rawJsonData the message.
    */
-  void onMessageReceived( @Nonnull String rawJsonData )
+  void onMessageReceived( @Nonnull final String rawJsonData )
   {
     ensureConnection().enqueueResponse( rawJsonData );
     triggerMessageScheduler();
