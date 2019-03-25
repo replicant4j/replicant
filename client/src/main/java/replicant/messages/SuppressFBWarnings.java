@@ -14,9 +14,4 @@ import java.lang.annotation.RetentionPolicy;
    * annotated element. The value can be a bug category, kind or pattern.
    */
   String[] value() default {};
-
-  /**
-   * Optional documentation of the reason why the warning is suppressed
-   */
-  String justification() default "";
 }
