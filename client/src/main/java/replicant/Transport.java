@@ -98,8 +98,7 @@ public interface Transport
   void unbind();
 
   /**
-   * Perform the disconnection, invoking the action when disconnection has completed.
-   *
+   * Request disconnection.
    */
   void disconnect();
 
