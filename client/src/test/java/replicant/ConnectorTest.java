@@ -2463,6 +2463,7 @@ public class ConnectorTest
 
     final String etag = ValueUtil.randomString();
 
+    @Language( "json" )
     final String rawJsonData =
       "{\"requestId\": " + requestId +
       ", \"etag\": \"" + etag + "\"" +
@@ -2512,6 +2513,7 @@ public class ConnectorTest
 
     final String etag = ValueUtil.randomString();
 
+    @Language( "json" )
     final String rawJsonData =
       "{\"requestId\": " + requestId +
       ", \"etag\": \"" + etag + "\"" +
