@@ -12,7 +12,7 @@ public final class SubscribeMessage
   extends ClientToServerMessage
 {
   @Nonnull
-  private String ch;
+  private String channel;
   @Nullable
   private Object filter;
 
@@ -23,7 +23,7 @@ public final class SubscribeMessage
     final SubscribeMessage message = new SubscribeMessage();
     message.type = "sub";
     message.req = req;
-    message.ch = ch;
+    message.channel = ch;
     message.filter = filter;
     return message;
   }

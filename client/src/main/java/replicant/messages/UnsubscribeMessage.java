@@ -11,7 +11,7 @@ public final class UnsubscribeMessage
   extends ClientToServerMessage
 {
   @Nonnull
-  private String ch;
+  private String channel;
 
   @JsOverlay
   @Nonnull
@@ -20,7 +20,7 @@ public final class UnsubscribeMessage
     final UnsubscribeMessage message = new UnsubscribeMessage();
     message.type = "unsub";
     message.req = req;
-    message.ch = ch;
+    message.channel = ch;
     return message;
   }
 }
