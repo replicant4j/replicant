@@ -33,6 +33,7 @@
 * Add "type" field to the `ChangeSet` message sent from the server to client in preparation for allowing multiple
   different types of messages to be emitted from the server. Refactor the client side representation to have
   `AbstractMessage` and `ServerToClientMessage` parent classes to allow some code sharing.
+* Add `SubscribeMessage` and `UnsubscribeMessage` classes to represent the requests that are sent to the server.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
