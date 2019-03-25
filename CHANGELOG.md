@@ -30,6 +30,9 @@
   (i.e. `EntityChangeDataImpl`) from the main source tree into the test source tree.
 * Rename the `Transport.disconnect()` method to `Transport.requestDisconnect()` to align with intent and existing
   patterns in the `Transport` interface.
+* Add "type" field to the `ChangeSet` message sent from the server to client in preparation for allowing multiple
+  different types of messages to be emitted from the server. Refactor the client side representation to have
+  `AbstractMessage` and `ServerToClientMessage` parent classes to allow some code sharing.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)

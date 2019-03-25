@@ -5,6 +5,8 @@ package org.realityforge.replicant.server.json;
  */
 interface TransportConstants
 {
+  String TYPE = "type";
+  String UPDATE_TYPE = "update";
   String REQUEST_ID = "requestId";
   String ETAG = "etag";
   String CHANGES = "changes";

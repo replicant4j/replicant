@@ -1,0 +1,28 @@
+package replicant.messages;
+
+import javax.annotation.Nonnull;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsType;
+
+/**
+ * The abstract message that messages conform to.
+ */
+@SuppressWarnings( "NullableProblems" )
+@SuppressFBWarnings( "EI_EXPOSE_REP" )
+@JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
+public abstract class AbstractMessage
+{
+  @Nonnull
+  String type;
+
+  /**
+   * Return the type of the message.
+   *
+   * @return the type of the message.
+   */
+  @Nonnull
+  public String getType()
+  {
+    return type;
+  }
+}

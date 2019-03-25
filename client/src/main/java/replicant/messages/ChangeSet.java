@@ -15,9 +15,8 @@ import static org.realityforge.braincheck.Guards.*;
 @SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class ChangeSet
+  extends ServerToClientMessage
 {
-  @Nullable
-  private Double requestId;
   @Nullable
   private String etag;
   @Nullable
@@ -35,6 +34,7 @@ public class ChangeSet
                                   @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSet changeSet = new ChangeSet();
+    changeSet.type = "update";
     changeSet.requestId = null == requestId ? null : requestId.doubleValue();
     changeSet.etag = eTag;
     changeSet.channels = channels;
@@ -45,16 +45,6 @@ public class ChangeSet
 
   public ChangeSet()
   {
-  }
-
-  /**
-   * @return the id of the request that generated the changes. Null if not the originating session.
-   */
-  @Nullable
-  @JsOverlay
-  public final Integer getRequestId()
-  {
-    return null == requestId ? null : requestId.intValue();
   }
 
   /**

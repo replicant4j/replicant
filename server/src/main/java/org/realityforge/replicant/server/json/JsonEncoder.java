@@ -40,9 +40,9 @@ public final class JsonEncoder
   /**
    * Encode the change set with the EntityMessages.
    *
-   * @param requestId       the requestId that initiated the change. Only set if packet is destined for originating session.
-   * @param etag            the associated etag.
-   * @param changeSet       the changeSet being encoded.
+   * @param requestId the requestId that initiated the change. Only set if packet is destined for originating session.
+   * @param etag      the associated etag.
+   * @param changeSet the changeSet being encoded.
    * @return the encoded change set.
    */
   @Nonnull
@@ -55,6 +55,7 @@ public final class JsonEncoder
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject();
+    generator.write( TransportConstants.TYPE, TransportConstants.UPDATE_TYPE );
     if ( null != requestId )
     {
       generator.write( TransportConstants.REQUEST_ID, requestId );
