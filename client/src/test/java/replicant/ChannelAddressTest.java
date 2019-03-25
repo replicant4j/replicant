@@ -61,6 +61,12 @@ public class ChannelAddressTest
     assertEquals( new ChannelAddress( 1, 3, 5 ).getName(), "1.3.5" );
   }
 
+  @Test
+  public void asChannelDescriptor()
+  {
+    assertEquals( new ChannelAddress( 1, 3, 5 ).asChannelDescriptor(), "3.5" );
+  }
+
   @SuppressWarnings( "EqualsWithItself" )
   @Test
   public void compareTo()

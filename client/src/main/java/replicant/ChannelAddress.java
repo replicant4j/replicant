@@ -61,7 +61,13 @@ public final class ChannelAddress
   @Nonnull
   public String getName()
   {
-    return getSystemId() + "." + getChannelId() + ( null != _id ? "." + _id : "" );
+    return getSystemId() + "." + asChannelDescriptor();
+  }
+
+  @Nonnull
+  public String asChannelDescriptor()
+  {
+    return getChannelId() + ( null != _id ? "." + _id : "" );
   }
 
   @Nonnull
