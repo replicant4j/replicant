@@ -40,7 +40,7 @@ public class ChangeAccumulatorTest
 
     final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
     verify( remote ).sendText(
-      "{\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.2\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+      "{\"type\":\"update\",\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.2\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
     reset( remote );
     accumulator.complete( null, null );
     verify( remote, never() ).sendText( anyString() );
@@ -71,7 +71,7 @@ public class ChangeAccumulatorTest
 
     final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
     verify( remote ).sendText(
-      "{\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+      "{\"type\":\"update\",\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
     reset( remote );
 
     accumulator.complete( null, null );
@@ -104,7 +104,7 @@ public class ChangeAccumulatorTest
 
     final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
     verify( remote ).sendText(
-      "{\"requestId\":1,\"fchannels\":[{\"channel\":\"+1.2\",\"filter\":{}}]}" );
+      "{\"type\":\"update\",\"requestId\":1,\"fchannels\":[{\"channel\":\"+1.2\",\"filter\":{}}]}" );
     reset( remote );
 
     accumulator.complete( null, null );
@@ -130,7 +130,7 @@ public class ChangeAccumulatorTest
 
     final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
     verify( remote ).sendText(
-      "{\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+      "{\"type\":\"update\",\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
     reset( remote );
 
     accumulator.complete( null, null );
