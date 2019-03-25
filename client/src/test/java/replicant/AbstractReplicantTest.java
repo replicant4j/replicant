@@ -119,6 +119,12 @@ public abstract class AbstractReplicantTest
     return (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger();
   }
 
+  @Nonnull
+  ChangeSetParser.ProxyParser getProxyParser()
+  {
+    return (ChangeSetParser.ProxyParser) ChangeSetParser.getParser();
+  }
+
   private void onObserverError( @Nonnull final Observer observer,
                                 @Nonnull final ObserverError error,
                                 @Nullable final Throwable throwable )

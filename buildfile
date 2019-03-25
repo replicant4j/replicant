@@ -99,9 +99,7 @@ define 'replicant' do
                  :react4j_core,
                  :braincheck,
                  :spritz_core,
-                 :arez_core,
-                 # javax_javaee is provided so that JSON parsing can occur for JRE variant.
-                 :javax_javaee
+                 :arez_core
 
     gwt_enhance(project)
 

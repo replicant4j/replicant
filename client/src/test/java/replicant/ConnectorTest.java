@@ -2389,6 +2389,10 @@ public class ConnectorTest
     final String rawJsonData = "{}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSet.create( null, null, null, null, null ) );
+    getProxyParser().setParser( parser );
+
     connection.setCurrentMessageResponse( response );
     assertEquals( connection.getPendingResponses().size(), 0 );
 
@@ -2416,6 +2420,11 @@ public class ConnectorTest
     @Language( "json" )
     final String rawJsonData = "{\"requestId\": " + requestId + "}";
     final MessageResponse response = new MessageResponse( rawJsonData );
+
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) )
+      .thenReturn( ChangeSet.create( requestId, null, null, null, null ) );
+    getProxyParser().setParser( parser );
 
     connection.setCurrentMessageResponse( response );
     assertEquals( connection.getPendingResponses().size(), 0 );
@@ -2461,6 +2470,11 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( rawJsonData );
 
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) )
+      .thenReturn( ChangeSet.create( requestId, etag, new String[]{ "+0" }, null, null ) );
+    getProxyParser().setParser( parser );
+
     connection.setCurrentMessageResponse( response );
     assertEquals( connection.getPendingResponses().size(), 0 );
 
@@ -2505,6 +2519,11 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( rawJsonData );
 
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) )
+      .thenReturn( ChangeSet.create( requestId, etag, new String[]{ "+0", "+1.1" }, null, null ) );
+    getProxyParser().setParser( parser );
+
     connection.setCurrentMessageResponse( response );
     assertEquals( connection.getPendingResponses().size(), 0 );
 
@@ -2535,6 +2554,10 @@ public class ConnectorTest
     };
     final MessageResponse response = new MessageResponse( rawJsonData, oobCompletionAction );
 
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSet.create( requestId, null, null, null, null ) );
+    getProxyParser().setParser( parser );
+
     connection.setCurrentMessageResponse( response );
     assertEquals( connection.getPendingResponses().size(), 0 );
 
@@ -2558,6 +2581,10 @@ public class ConnectorTest
     @Language( "json" )
     final String rawJsonData = "{\"requestId\": 22}";
     final MessageResponse response = new MessageResponse( rawJsonData );
+
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSet.create( 22, null, null, null, null ) );
+    getProxyParser().setParser( parser );
 
     connection.setCurrentMessageResponse( response );
     assertEquals( connection.getPendingResponses().size(), 0 );
@@ -2819,6 +2846,18 @@ public class ConnectorTest
       "\"changes\": [{\"id\": 1,\"type\":0,\"channels\":[\"0\"], \"data\":{}}] " +
       "}";
     connection.enqueueResponse( rawJsonData );
+
+    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    when( parser.parseChangeSet( rawJsonData ) )
+      .thenReturn( ChangeSet.create( null,
+                                     null,
+                                     new String[]{ "+0" },
+                                     null,
+                                     new EntityChange[]{ EntityChange.create( 0,
+                                                                              1,
+                                                                              new String[]{ "0" },
+                                                                              new EntityChangeDataImpl() ) } ) );
+    getProxyParser().setParser( parser );
 
     final MessageResponse response = connection.getUnparsedResponses().get( 0 );
     {
