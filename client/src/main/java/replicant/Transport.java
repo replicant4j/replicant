@@ -84,7 +84,7 @@ public interface Transport
    * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.
    * This method is responsible for providing the necessary context information for the Transport to
    * communicate with the back-end. This context is no longer valid after the callbacks of the
-   * {@link #disconnect()} method are invoked.
+   * {@link #requestDisconnect()} method are invoked.
    *
    * @param context the context that provides environmental data to Transport.
    */
@@ -100,7 +100,7 @@ public interface Transport
   /**
    * Request disconnection.
    */
-  void disconnect();
+  void requestDisconnect();
 
   /**
    * Request a synchronization point.

@@ -185,7 +185,7 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().disconnect();
+        getTransport().requestDisconnect();
         newState = ConnectorState.DISCONNECTING;
       }
       finally

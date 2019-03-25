@@ -28,6 +28,8 @@
   callback from `Transport`.
 * Decouple the `ChangeSetParser` class from the javaee infrastructure and remove code used for testing
   (i.e. `EntityChangeDataImpl`) from the main source tree into the test source tree.
+* Rename the `Transport.disconnect()` method to `Transport.requestDisconnect()` to align with intent and existing
+  patterns in the `Transport` interface.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
