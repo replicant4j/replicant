@@ -17,7 +17,7 @@ final class ChangeSetParser
   /**
    * The code to parse change sets. Extracted into a separate class so it can be vary by environment.
    */
-  private static Parser c_parser = ReplicantConfig.isProductionMode() ? new JsParser() : new ProxyParser();
+  private static Parser c_parser = new JsParser();
 
   @Nonnull
   static ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
