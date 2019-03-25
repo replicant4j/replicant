@@ -42,11 +42,6 @@ public abstract class AbstractReplicantTest
     DomGlobal.window = null;
   }
 
-  protected static void observeADependency()
-  {
-    Arez.context().observable().reportObserved();
-  }
-
   @Nonnull
   protected final Disposable pauseScheduler()
   {
@@ -56,7 +51,7 @@ public abstract class AbstractReplicantTest
   final void observer( @Nonnull final Procedure procedure )
   {
     Arez.context().observer( () -> {
-      observeADependency();
+      Arez.context().observable().reportObserved();
       procedure.call();
     } );
   }
