@@ -19,6 +19,7 @@ import replicant.messages.ChangeSet;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
+import replicant.messages.EntityChangeDataImpl;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
