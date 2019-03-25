@@ -43,6 +43,7 @@ public class ChangeSet
     return changeSet;
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   public ChangeSet()
   {
   }
