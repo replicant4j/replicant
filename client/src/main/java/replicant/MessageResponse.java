@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.messages.ChangeSet;
+import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
@@ -27,7 +27,7 @@ final class MessageResponse
    * The array of changes after parsing. Null prior to parsing.
    */
   @Nullable
-  private ChangeSet _changeSet;
+  private ChangeSetMessage _changeSet;
   /**
    * The action executed at completion of out-of-band message.
    */
@@ -159,7 +159,7 @@ final class MessageResponse
     return _rawJsonData;
   }
 
-  void recordChangeSet( @Nonnull final ChangeSet changeSet, @Nullable final RequestEntry request )
+  void recordChangeSet( @Nonnull final ChangeSetMessage changeSet, @Nullable final RequestEntry request )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -258,7 +258,7 @@ final class MessageResponse
   }
 
   @Nonnull
-  ChangeSet getChangeSet()
+  ChangeSetMessage getChangeSet()
   {
     assert null != _changeSet;
     return _changeSet;
@@ -298,7 +298,7 @@ final class MessageResponse
   DataLoadStatus toStatus()
   {
     assert Replicant.areSpiesEnabled();
-    final ChangeSet changeSet = getChangeSet();
+    final ChangeSetMessage changeSet = getChangeSet();
     return new DataLoadStatus(
       changeSet.getRequestId(),
       getChannelAddCount(),

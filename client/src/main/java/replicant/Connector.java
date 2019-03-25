@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.messages.ChangeSet;
+import replicant.messages.ChangeSetMessage;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
@@ -758,7 +758,7 @@ abstract class Connector
   }
 
   @Nonnull
-  private List<ChannelChangeDescriptor> toChannelChanges( final ChangeSet changeSet )
+  private List<ChannelChangeDescriptor> toChannelChanges( final ChangeSetMessage changeSet )
   {
     final List<ChannelChangeDescriptor> changes = new ArrayList<>();
 
@@ -858,7 +858,7 @@ abstract class Connector
     if ( !response.isOob() )
     {
       // We can remove the request because this side ran second and the RPC channel has already returned.
-      final ChangeSet changeSet = response.getChangeSet();
+      final ChangeSetMessage changeSet = response.getChangeSet();
       final Integer requestId = changeSet.getRequestId();
       if ( null != requestId )
       {
@@ -872,7 +872,7 @@ abstract class Connector
     recordPendingResponseQueueEmpty( connection.getPendingResponses().isEmpty() &&
                                      connection.getUnparsedResponses().isEmpty() );
 
-    final ChangeSet changeSet = response.getChangeSet();
+    final ChangeSetMessage changeSet = response.getChangeSet();
     if ( changeSet.hasChannels() || changeSet.hasFilteredChannels() || changeSet.hasEntityChanges() )
     {
       // If message is not a ping response then try to perform sync
@@ -988,7 +988,7 @@ abstract class Connector
     final MessageResponse response = connection.ensureCurrentMessageResponse();
     final String rawJsonData = response.getRawJsonData();
     assert null != rawJsonData;
-    final ChangeSet changeSet = ChangeSetParser.parseChangeSet( rawJsonData );
+    final ChangeSetMessage changeSet = ChangeSetParser.parseChangeSet( rawJsonData );
     if ( Replicant.shouldValidateChangeSetOnRead() )
     {
       changeSet.validate();
@@ -1024,7 +1024,7 @@ abstract class Connector
 
   private void cacheMessageIfPossible( @Nonnull final String rawJsonData,
                                        @Nonnull final MessageResponse response,
-                                       @Nonnull final ChangeSet changeSet )
+                                       @Nonnull final ChangeSetMessage changeSet )
   {
     final String eTag = changeSet.getETag();
     final CacheService cacheService = getReplicantContext().getCacheService();

@@ -4,7 +4,7 @@ import elemental2.core.Global;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import jsinterop.base.Js;
-import replicant.messages.ChangeSet;
+import replicant.messages.ChangeSetMessage;
 
 /**
  * This is the class responsible for parsing change sets.
@@ -20,7 +20,7 @@ final class ChangeSetParser
   private static Parser c_parser = ReplicantConfig.isProductionMode() ? new JsParser() : new ProxyParser();
 
   @Nonnull
-  static ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+  static ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
   {
     return c_parser.parseChangeSet( rawJsonData );
   }
@@ -28,7 +28,7 @@ final class ChangeSetParser
   interface Parser
   {
     @Nonnull
-    ChangeSet parseChangeSet( @Nonnull String rawJsonData );
+    ChangeSetMessage parseChangeSet( @Nonnull String rawJsonData );
   }
 
   /**
@@ -40,7 +40,7 @@ final class ChangeSetParser
   {
     @SuppressWarnings( "unused" )
     @Nonnull
-    public ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+    public ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
     {
       return Js.cast( Global.JSON.parse( rawJsonData ) );
     }
@@ -64,7 +64,7 @@ final class ChangeSetParser
 
     @SuppressWarnings( "unused" )
     @Nonnull
-    public ChangeSet parseChangeSet( @Nonnull final String rawJsonData )
+    public ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
     {
       if ( null == _parser )
       {

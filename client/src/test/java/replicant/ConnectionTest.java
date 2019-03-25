@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
-import replicant.messages.ChangeSet;
+import replicant.messages.ChangeSetMessage;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import static org.mockito.Mockito.*;
@@ -120,7 +120,7 @@ public class ConnectionTest
     final Connection connection = new Connection( connector, connectionId );
 
     final MessageResponse response = new MessageResponse( "" );
-    response.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
+    response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response );
@@ -146,7 +146,7 @@ public class ConnectionTest
     final SafeProcedure oobCompletionAction = () -> {
     };
     final MessageResponse response = new MessageResponse( "", oobCompletionAction );
-    response.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
+    response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
 
     // Add a "parsed" message with sequence indicating it is next
     connection.injectPendingResponses( response );
@@ -173,8 +173,8 @@ public class ConnectionTest
     final MessageResponse response2 = new MessageResponse( "" );
     final MessageResponse response3 = new MessageResponse( "" );
 
-    response2.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
-    response3.recordChangeSet( ChangeSet.create( null, null, null, null, null ), null );
+    response2.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
+    response3.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
 
     connection.setCurrentMessageResponse( response2 );
 
