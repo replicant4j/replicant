@@ -1,4 +1,4 @@
 /**
- * Classes representing change messages passed across a Transport.
+ * Classes representing messages passed across a Transport.
  */
 package replicant.messages;
