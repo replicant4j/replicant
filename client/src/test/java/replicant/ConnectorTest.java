@@ -2390,7 +2390,7 @@ public class ConnectorTest
     final String rawJsonData = "{}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSetMessage.create( null, null, null, null, null ) );
     getProxyParser().setParser( parser );
 
@@ -2422,7 +2422,7 @@ public class ConnectorTest
     final String rawJsonData = "{\"requestId\": " + requestId + "}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) )
       .thenReturn( ChangeSetMessage.create( requestId, null, null, null, null ) );
     getProxyParser().setParser( parser );
@@ -2472,7 +2472,7 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( rawJsonData );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) )
       .thenReturn( ChangeSetMessage.create( requestId, etag, new String[]{ "+0" }, null, null ) );
     getProxyParser().setParser( parser );
@@ -2522,7 +2522,7 @@ public class ConnectorTest
 
     final MessageResponse response = new MessageResponse( rawJsonData );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) )
       .thenReturn( ChangeSetMessage.create( requestId, etag, new String[]{ "+0", "+1.1" }, null, null ) );
     getProxyParser().setParser( parser );
@@ -2557,7 +2557,7 @@ public class ConnectorTest
     };
     final MessageResponse response = new MessageResponse( rawJsonData, oobCompletionAction );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSetMessage.create( requestId, null, null, null, null ) );
     getProxyParser().setParser( parser );
 
@@ -2585,7 +2585,7 @@ public class ConnectorTest
     final String rawJsonData = "{\"requestId\": 22}";
     final MessageResponse response = new MessageResponse( rawJsonData );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSetMessage.create( 22, null, null, null, null ) );
     getProxyParser().setParser( parser );
 
@@ -2850,7 +2850,7 @@ public class ConnectorTest
       "}";
     connection.enqueueResponse( rawJsonData );
 
-    final ChangeSetParser.Parser parser = mock( ChangeSetParser.Parser.class );
+    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
     when( parser.parseChangeSet( rawJsonData ) )
       .thenReturn( ChangeSetMessage.create( null,
                                             null,

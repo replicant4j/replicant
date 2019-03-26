@@ -120,9 +120,9 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  ChangeSetParser.ProxyParser getProxyParser()
+  MessageParser.ProxyParser getProxyParser()
   {
-    return (ChangeSetParser.ProxyParser) ChangeSetParser.getParser();
+    return (MessageParser.ProxyParser) MessageParser.getParser();
   }
 
   private void onObserverError( @Nonnull final Observer observer,

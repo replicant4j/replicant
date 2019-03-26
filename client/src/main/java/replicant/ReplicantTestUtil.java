@@ -39,7 +39,7 @@ public final class ReplicantTestUtil
       disableSpies();
       noCheckInvariants();
       noCheckApiInvariants();
-      ChangeSetParser.setParser( new ChangeSetParser.JsParser() );
+      MessageParser.setParser( new MessageParser.JsParser() );
     }
     else
     {
@@ -49,7 +49,7 @@ public final class ReplicantTestUtil
       enableSpies();
       checkInvariants();
       checkApiInvariants();
-      ChangeSetParser.setParser( new ChangeSetParser.ProxyParser() );
+      MessageParser.setParser( new MessageParser.ProxyParser() );
     }
     disableZones();
     ( (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger() ).setLogger( null );

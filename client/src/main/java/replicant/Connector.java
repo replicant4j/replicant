@@ -988,7 +988,7 @@ abstract class Connector
     final MessageResponse response = connection.ensureCurrentMessageResponse();
     final String rawJsonData = response.getRawJsonData();
     assert null != rawJsonData;
-    final ChangeSetMessage changeSet = ChangeSetParser.parseChangeSet( rawJsonData );
+    final ChangeSetMessage changeSet = MessageParser.parseChangeSet( rawJsonData );
     if ( Replicant.shouldValidateChangeSetOnRead() )
     {
       changeSet.validate();
