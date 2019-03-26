@@ -1,6 +1,7 @@
 package replicant;
 
 import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -11,7 +12,7 @@ public class RequestTest
   @Test
   public void construct()
   {
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
 
     assertEquals( request.getConnectionId(), connection.getConnectionId() );
@@ -22,7 +23,7 @@ public class RequestTest
   public void onSuccess_messageIncomplete()
   {
     final AtomicReference<Object> result = new AtomicReference<>();
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
 
     assertNull( request.getEntry().getCompletionAction() );
@@ -41,7 +42,7 @@ public class RequestTest
   public void onSuccess_messageComplete()
   {
     final AtomicReference<Object> result = new AtomicReference<>();
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
 
     assertNull( request.getEntry().getCompletionAction() );
@@ -61,7 +62,7 @@ public class RequestTest
   @Test
   public void onSuccess_alreadyCompleted()
   {
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( "DoStuff" );
 
     final SafeProcedure onSuccess = () -> {
@@ -79,7 +80,7 @@ public class RequestTest
   public void onSuccess_failureMessage()
   {
     final AtomicReference<Object> result = new AtomicReference<>();
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
 
     assertNull( request.getEntry().getCompletionAction() );
@@ -99,7 +100,7 @@ public class RequestTest
   @Test
   public void onFailure_alreadyCompleted()
   {
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( "DoStuff" );
 
     final SafeProcedure onFailure = () -> {
@@ -111,5 +112,11 @@ public class RequestTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0074: Request.onFailure invoked on completed request Request(DoStuff)[Id=1]." );
+  }
+
+  @Nonnull
+  private Connection createConnection()
+  {
+    return new Connection( createConnector(), ValueUtil.randomString() );
   }
 }
