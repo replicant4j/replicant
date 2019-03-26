@@ -17,6 +17,8 @@ import static org.realityforge.braincheck.Guards.*;
 public class ChangeSetMessage
   extends ServerToClientMessage
 {
+  @JsOverlay
+  public static final String TYPE = "update";
   @Nullable
   private String etag;
   @Nullable
@@ -34,18 +36,13 @@ public class ChangeSetMessage
                                          @Nullable final EntityChange[] entityChanges )
   {
     final ChangeSetMessage changeSet = new ChangeSetMessage();
-    changeSet.type = "update";
+    changeSet.type = TYPE;
     changeSet.requestId = null == requestId ? null : requestId.doubleValue();
     changeSet.etag = eTag;
     changeSet.channels = channels;
     changeSet.fchannels = fchannels;
     changeSet.changes = entityChanges;
     return changeSet;
-  }
-
-  @SuppressWarnings( "WeakerAccess" )
-  public ChangeSetMessage()
-  {
   }
 
   /**
