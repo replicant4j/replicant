@@ -1,6 +1,7 @@
 package replicant.messages;
 
 import javax.annotation.Nonnull;
+import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
@@ -21,7 +22,8 @@ public abstract class AbstractMessage
    * @return the type of the message.
    */
   @Nonnull
-  public String getType()
+  @JsOverlay
+  public final String getType()
   {
     return type;
   }
