@@ -30,4 +30,10 @@ public abstract class ServerToClientMessage
   {
     return null == requestId ? null : requestId.intValue();
   }
+
+  @JsOverlay
+  public final void setRequestId( @Nullable final Integer requestId )
+  {
+    this.requestId = null == requestId ? null : requestId.doubleValue();
+  }
 }
