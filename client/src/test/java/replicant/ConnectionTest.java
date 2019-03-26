@@ -65,28 +65,6 @@ public class ConnectionTest
   }
 
   @Test
-  public void selectNextMessageResponse_unparsedOobMessage()
-  {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
-
-    // Add an unparsed message to queue
-    final SafeProcedure oobCompletionAction = () -> {
-    };
-    connection.enqueueOutOfBandResponse( "", oobCompletionAction );
-
-    assertNull( connection.getCurrentMessageResponse() );
-    assertEquals( connection.getOutOfBandResponses().size(), 1 );
-
-    final boolean selectedMessage = connection.selectNextMessageResponse();
-
-    assertTrue( selectedMessage );
-    assertEquals( connection.getOutOfBandResponses().size(), 0 );
-    assertNotNull( connection.getCurrentMessageResponse() );
-  }
-
-  @Test
   public void selectNextMessageResponse_unparsedMessage()
   {
     final Connection connection = createConnection();
@@ -304,43 +282,6 @@ public class ConnectionTest
 
     assertEquals( response1.getRawJsonData(), data1 );
     assertEquals( response2.getRawJsonData(), data2 );
-  }
-
-  @Test
-  public void enqueueOutOfBandResponse()
-  {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
-
-    assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
-
-    final String data1 = ValueUtil.randomString();
-    final String data2 = ValueUtil.randomString();
-
-    final SafeProcedure action1 = () -> {
-    };
-    final SafeProcedure action2 = () -> {
-    };
-
-    assertEquals( connection.getOutOfBandResponses().size(), 0 );
-
-    connection.enqueueOutOfBandResponse( data1, action1 );
-
-    assertEquals( connection.getOutOfBandResponses().size(), 1 );
-
-    connection.enqueueOutOfBandResponse( data2, action2 );
-
-    assertEquals( connection.getOutOfBandResponses().size(), 2 );
-
-    final MessageResponse response1 = connection.getOutOfBandResponses().get( 0 );
-    final MessageResponse response2 = connection.getOutOfBandResponses().get( 1 );
-
-    assertEquals( response1.getRawJsonData(), data1 );
-    assertEquals( response1.getCompletionAction(), action1 );
-
-    assertEquals( response2.getRawJsonData(), data2 );
-    assertEquals( response2.getCompletionAction(), action2 );
   }
 
   @Test
