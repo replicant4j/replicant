@@ -16,7 +16,6 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @SuppressFBWarnings( value = { "EQ_COMPARETO_USE_OBJECT_EQUALS" }, justification = "Equals is not used and implementing it would add code that GWT2.x could not optimize away" )
 final class MessageResponse
-  implements Comparable<MessageResponse>
 {
   /**
    * The raw data string data prior to parsing. Null-ed after parsing.
@@ -325,27 +324,6 @@ final class MessageResponse
     else
     {
       return super.toString();
-    }
-  }
-
-  @Override
-  public int compareTo( @Nonnull final MessageResponse other )
-  {
-    if ( isOob() && other.isOob() )
-    {
-      return 0;
-    }
-    else if ( isOob() )
-    {
-      return -1;
-    }
-    else if ( other.isOob() )
-    {
-      return 1;
-    }
-    else
-    {
-      return 0;
     }
   }
 

@@ -35,43 +35,6 @@ public class MessageResponseTest
     assertEquals( action.getEntityLinkCount(), 0 );
   }
 
-  @SuppressWarnings( "EqualsWithItself" )
-  @Test
-  public void compareTo()
-  {
-    final MessageResponse action1 = new MessageResponse( "" );
-    final MessageResponse action2 = new MessageResponse( "" );
-    final MessageResponse action3 = new MessageResponse( "", mock( SafeProcedure.class ) );
-    final MessageResponse action4 = new MessageResponse( "", mock( SafeProcedure.class ) );
-
-    final ChangeSetMessage changeSet1 = ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSetMessage changeSet2 = ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSetMessage changeSet3 = ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    final ChangeSetMessage changeSet4 = ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-
-    action1.recordChangeSet( changeSet1, null );
-    action2.recordChangeSet( changeSet2, null );
-    action3.recordChangeSet( changeSet3, null );
-    action4.recordChangeSet( changeSet4, null );
-
-    assertEquals( action1.compareTo( action1 ), 0 );
-    assertEquals( action1.compareTo( action2 ), 0 );
-    assertEquals( action1.compareTo( action3 ), 1 );
-    assertEquals( action1.compareTo( action4 ), 1 );
-    assertEquals( action2.compareTo( action1 ), 0 );
-    assertEquals( action2.compareTo( action2 ), 0 );
-    assertEquals( action2.compareTo( action3 ), 1 );
-    assertEquals( action2.compareTo( action4 ), 1 );
-    assertEquals( action3.compareTo( action1 ), -1 );
-    assertEquals( action3.compareTo( action2 ), -1 );
-    assertEquals( action3.compareTo( action3 ), 0 );
-    assertEquals( action3.compareTo( action4 ), 0 );
-    assertEquals( action4.compareTo( action1 ), -1 );
-    assertEquals( action4.compareTo( action2 ), -1 );
-    assertEquals( action4.compareTo( action3 ), 0 );
-    assertEquals( action4.compareTo( action4 ), 0 );
-  }
-
   @Test
   public void toStatus()
   {
