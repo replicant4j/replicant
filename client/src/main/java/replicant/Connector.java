@@ -154,7 +154,7 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().connect( this::onConnection );
+        getTransport().requestConnect( this::onConnection );
         newState = ConnectorState.CONNECTING;
       }
       finally

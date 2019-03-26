@@ -78,7 +78,7 @@ public interface Transport
    *
    * @param onConnect the action to invoke once connect has completed.
    */
-  void connect( @Nonnull OnConnect onConnect );
+  void requestConnect( @Nonnull OnConnect onConnect );
 
   /**
    * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.
