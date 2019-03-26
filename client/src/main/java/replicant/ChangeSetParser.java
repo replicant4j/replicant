@@ -52,11 +52,6 @@ final class ChangeSetParser
   {
     private Parser _parser;
 
-    Parser getParser()
-    {
-      return _parser;
-    }
-
     void setParser( final Parser parser )
     {
       _parser = parser;
