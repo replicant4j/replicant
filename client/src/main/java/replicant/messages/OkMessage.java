@@ -1,0 +1,26 @@
+package replicant.messages;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import jsinterop.annotations.JsOverlay;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsType;
+
+@JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
+@SuppressWarnings( { "NullableProblems", "unused" } )
+public final class OkMessage
+  extends ServerToClientMessage
+{
+  @JsOverlay
+  public static final String TYPE = "ok";
+
+  @GwtIncompatible
+  @Nonnull
+  public static OkMessage create( @Nullable final Integer requestId )
+  {
+    final OkMessage message = new OkMessage();
+    message.type = TYPE;
+    message.requestId = null == requestId ? null : requestId.doubleValue();
+    return message;
+  }
+}
