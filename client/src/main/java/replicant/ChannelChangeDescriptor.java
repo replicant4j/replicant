@@ -28,7 +28,7 @@ final class ChannelChangeDescriptor
       SharedConstants.CHANNEL_ACTION_ADD == commandCode ?
       Type.ADD :
       SharedConstants.CHANNEL_ACTION_REMOVE == commandCode ? Type.REMOVE : Type.DELETE;
-    final ChannelAddress address = toAddress( schema, channelAction );
+    final ChannelAddress address = ChannelAddress.parse( schema, channelAction.substring( 1 ) );
     return new ChannelChangeDescriptor( type, address, null );
   }
 
@@ -43,18 +43,8 @@ final class ChannelChangeDescriptor
       SharedConstants.CHANNEL_ACTION_REMOVE == commandCode ?
       Type.REMOVE :
       SharedConstants.CHANNEL_ACTION_DELETE == commandCode ? Type.DELETE : Type.UPDATE;
-    final ChannelAddress address = toAddress( schema, channelAction );
+    final ChannelAddress address = ChannelAddress.parse( schema, channelAction.substring( 1 ) );
     return new ChannelChangeDescriptor( type, address, channelChange.getFilter() );
-  }
-
-  @Nonnull
-  private static ChannelAddress toAddress( final int schema, @Nonnull final String channelAction )
-  {
-    final int offset = channelAction.indexOf( ".", 1 );
-    final int channelId =
-      Integer.parseInt( -1 == offset ? channelAction.substring( 1 ) : channelAction.substring( 1, offset ) );
-    final Integer subChannelId = -1 == offset ? null : Integer.parseInt( channelAction.substring( offset + 1 ) );
-    return new ChannelAddress( schema, channelId, subChannelId );
   }
 
   private ChannelChangeDescriptor( @Nonnull final Type type,

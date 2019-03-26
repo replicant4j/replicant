@@ -18,6 +18,26 @@ public class ChannelAddressTest
   }
 
   @Test
+  public void parseWithSubChannel()
+  {
+    final ChannelAddress address = ChannelAddress.parse( 2, "4.1" );
+
+    assertEquals( address.getSystemId(), 2 );
+    assertEquals( address.getChannelId(), 4 );
+    assertEquals( address.getId(), (Integer) 1 );
+  }
+
+  @Test
+  public void parse()
+  {
+    final ChannelAddress address = ChannelAddress.parse( 4, "77" );
+
+    assertEquals( address.getSystemId(), 4 );
+    assertEquals( address.getChannelId(), 77 );
+    assertEquals( address.getId(), null );
+  }
+
+  @Test
   public void getCacheKey()
   {
     final ChannelAddress address = new ChannelAddress( 2, 4, 1 );

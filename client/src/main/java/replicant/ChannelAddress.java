@@ -76,6 +76,16 @@ public final class ChannelAddress
     return "RC-" + getName();
   }
 
+  @Nonnull
+  public static ChannelAddress parse( final int schema, @Nonnull final String channel )
+  {
+    final int offset = channel.indexOf( ".", 1 );
+    final int channelId =
+      Integer.parseInt( -1 == offset ? channel : channel.substring( 0, offset ) );
+    final Integer subChannelId = -1 == offset ? null : Integer.parseInt( channel.substring( offset + 1 ) );
+    return new ChannelAddress( schema, channelId, subChannelId );
+  }
+
   @Override
   public boolean equals( final Object o )
   {
