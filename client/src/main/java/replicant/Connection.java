@@ -152,7 +152,6 @@ final class Connection
   {
     assert null != _currentMessageResponse;
     _pendingResponses.add( _currentMessageResponse );
-    Collections.sort( _pendingResponses );
     _currentMessageResponse = null;
   }
 
