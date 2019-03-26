@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import jsinterop.base.Js;
 import replicant.messages.ChangeSetMessage;
+import replicant.messages.ServerToClientMessage;
 
 /**
  * This is the class responsible for parsing change sets.
@@ -20,15 +21,15 @@ final class MessageParser
   private static Parser c_parser = new JsParser();
 
   @Nonnull
-  static ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
+  static ServerToClientMessage parseMessage( @Nonnull final String rawJsonData )
   {
-    return c_parser.parseChangeSet( rawJsonData );
+    return c_parser.parseMessage( rawJsonData );
   }
 
   interface Parser
   {
     @Nonnull
-    ChangeSetMessage parseChangeSet( @Nonnull String rawJsonData );
+    ServerToClientMessage parseMessage( @Nonnull String rawJsonData );
   }
 
   /**
@@ -40,7 +41,7 @@ final class MessageParser
   {
     @SuppressWarnings( "unused" )
     @Nonnull
-    public ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
+    public ServerToClientMessage parseMessage( @Nonnull final String rawJsonData )
     {
       return Js.cast( Global.JSON.parse( rawJsonData ) );
     }
@@ -59,13 +60,13 @@ final class MessageParser
 
     @SuppressWarnings( "unused" )
     @Nonnull
-    public ChangeSetMessage parseChangeSet( @Nonnull final String rawJsonData )
+    public ServerToClientMessage parseMessage( @Nonnull final String rawJsonData )
     {
       if ( null == _parser )
       {
-        throw new IllegalStateException( "Invoked parseChangeSet without setting up proxy" );
+        throw new IllegalStateException( "Invoked parseMessage without setting up proxy" );
       }
-      return _parser.parseChangeSet( rawJsonData );
+      return _parser.parseMessage( rawJsonData );
     }
   }
 
