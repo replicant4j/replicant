@@ -3,7 +3,6 @@ package replicant;
 import arez.Disposable;
 import arez.component.CollectionsUtil;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,12 +60,6 @@ final class Connection
    * in ascending order.
    */
   private final LinkedList<MessageResponse> _pendingResponses = new LinkedList<>();
-  /**
-   * Sometimes a "Message" occurs that is not initiated by the server. These do not
-   * typically need to be sequenced and are prioritized above other actions. This is only
-   * really used in responding to requests with cached value.
-   */
-  private final LinkedList<MessageResponse> _outOfBandResponses = new LinkedList<>();
   /**
    * The current message being processed.
    */
@@ -141,12 +134,6 @@ final class Connection
   void enqueueResponse( @Nonnull final String rawJsonData )
   {
     _unparsedResponses.add( new MessageResponse( rawJsonData ) );
-  }
-
-  void enqueueOutOfBandResponse( @Nonnull final String rawJsonData,
-                                 @Nonnull final SafeProcedure oobCompletionAction )
-  {
-    _outOfBandResponses.add( new MessageResponse( rawJsonData, oobCompletionAction ) );
   }
 
   /**
@@ -320,12 +307,6 @@ final class Connection
   boolean selectNextMessageResponse()
   {
     assert null == _currentMessageResponse;
-    // Step: Retrieve any out of band actions
-    if ( !_outOfBandResponses.isEmpty() )
-    {
-      _currentMessageResponse = _outOfBandResponses.removeFirst();
-      return true;
-    }
 
     //Step: Retrieve the action from the parsed queue
     if ( !_pendingResponses.isEmpty() )
@@ -423,11 +404,6 @@ final class Connection
   List<MessageResponse> getUnparsedResponses()
   {
     return CollectionsUtil.wrap( _unparsedResponses );
-  }
-
-  List<MessageResponse> getOutOfBandResponses()
-  {
-    return CollectionsUtil.wrap( _outOfBandResponses );
   }
 
   List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()

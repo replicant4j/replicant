@@ -21,7 +21,6 @@ public class MessageResponseTest
     final String rawJsonData = "";
     final MessageResponse action = new MessageResponse( rawJsonData );
     assertEquals( action.getRawJsonData(), rawJsonData );
-    assertFalse( action.isOob() );
 
     assertFalse( action.areEntityLinksPending() );
     assertFalse( action.areEntityChangesPending() );

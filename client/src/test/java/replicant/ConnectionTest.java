@@ -105,31 +105,6 @@ public class ConnectionTest
   }
 
   @Test
-  public void selectNextMessageResponse_parsedOutOfBandMessage()
-  {
-    final Connection connection = createConnection();
-
-    final SafeProcedure oobCompletionAction = () -> {
-    };
-    final MessageResponse response = new MessageResponse( "", oobCompletionAction );
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
-
-    // Add a "parsed" message with sequence indicating it is next
-    connection.injectPendingResponses( response );
-
-    assertNull( connection.getCurrentMessageResponse() );
-    assertEquals( connection.getPendingResponses().size(), 1 );
-
-    final boolean selectedMessage = connection.selectNextMessageResponse();
-
-    assertTrue( selectedMessage );
-    final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
-    assertNotNull( currentMessageResponse );
-    assertTrue( currentMessageResponse.isOob() );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-  }
-
-  @Test
   public void queueCurrentResponse()
   {
     final Connection connection = createConnection();

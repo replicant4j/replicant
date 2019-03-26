@@ -2542,40 +2542,6 @@ public class ConnectorTest
   }
 
   @Test
-  public void parseMessageResponse_oob()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    final Request request = connection.newRequest( "SomeAction" );
-
-    final int requestId = request.getRequestId();
-
-    @Language( "json" )
-    final String rawJsonData = "{\"requestId\": " + requestId + "}";
-    final SafeProcedure oobCompletionAction = () -> {
-    };
-    final MessageResponse response = new MessageResponse( rawJsonData, oobCompletionAction );
-
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseChangeSet( rawJsonData ) ).thenReturn( ChangeSetMessage.create( requestId, null, null, null, null ) );
-    getProxyParser().setParser( parser );
-
-    connection.setCurrentMessageResponse( response );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    connector.parseMessageResponse();
-
-    assertNull( response.getRawJsonData() );
-    final ChangeSetMessage changeSet = response.getChangeSet();
-    assertNotNull( changeSet );
-    assertNull( response.getRequest() );
-
-    assertEquals( connection.getPendingResponses().size(), 1 );
-    assertNull( connection.getCurrentMessageResponse() );
-  }
-
-  @Test
   public void parseMessageResponse_invalidRequestId()
   {
     final Connector connector = createConnector();
@@ -2699,36 +2665,6 @@ public class ConnectorTest
     connector.completeMessageResponse();
 
     assertEquals( postActionCallCount.get(), 1 );
-  }
-
-  @Test
-  public void completeMessageResponse_OOBMessage()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    final AtomicInteger completionCallCount = new AtomicInteger();
-    final MessageResponse response = new MessageResponse( "", completionCallCount::incrementAndGet );
-
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( 1234, null, null, null, null );
-    response.recordChangeSet( changeSet, null );
-
-    connection.setCurrentMessageResponse( response );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    assertEquals( completionCallCount.get(), 0 );
-
-    connector.completeMessageResponse();
-
-    assertEquals( completionCallCount.get(), 1 );
-    assertNull( connection.getCurrentMessageResponse() );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
-    } );
   }
 
   @Test
@@ -3171,14 +3107,12 @@ public class ConnectorTest
     } );
 
     assertFalse( connector.isSchedulerActive() );
-    assertEquals( connection.getOutOfBandResponses().size(), 0 );
 
     onCacheValid.get().call();
 
     assertTrue( connector.isSchedulerActive() );
 
     assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    assertEquals( connection.getOutOfBandResponses().size(), 1 );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );

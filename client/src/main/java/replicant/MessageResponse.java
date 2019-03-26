@@ -137,16 +137,6 @@ final class MessageResponse
     }
   }
 
-  /**
-   * Return true if the message is an out-of-band message, false otherwise.
-   *
-   * @return true if the message is an out-of-band message, false otherwise.
-   */
-  boolean isOob()
-  {
-    return null != _oobCompletionAction;
-  }
-
   boolean needsParsing()
   {
     return null != _rawJsonData;
@@ -162,10 +152,6 @@ final class MessageResponse
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> !isOob() || null == request,
-                 () -> "Replicant-0010: Incorrectly associating a request named '" +
-                       Objects.requireNonNull( request ).getName() + "' with requestId '" +
-                       Objects.requireNonNull( request ).getRequestId() + "' with an out-of-band message." );
       invariant( () -> null == request || ( (Integer) request.getRequestId() ).equals( changeSet.getRequestId() ),
                  () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestId() +
                        "' but request with requestId '" + Objects.requireNonNull( request ).getRequestId() +
