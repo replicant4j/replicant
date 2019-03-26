@@ -1,7 +1,6 @@
 package replicant;
 
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -112,11 +111,5 @@ public class RequestTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0074: Request.onFailure invoked on completed request Request(DoStuff)[Id=1]." );
-  }
-
-  @Nonnull
-  private Connection createConnection()
-  {
-    return new Connection( createConnector(), ValueUtil.randomString() );
   }
 }

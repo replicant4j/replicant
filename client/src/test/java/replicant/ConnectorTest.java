@@ -372,8 +372,8 @@ public class ConnectorTest
   public void onConnected()
     throws Exception
   {
-    final Connector connector = createConnector();
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    final Connection connection = createConnection();
+    final Connector connector = connection.getConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 

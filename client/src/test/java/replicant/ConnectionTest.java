@@ -22,12 +22,9 @@ public class ConnectionTest
   @Test
   public void construct()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     assertFalse( connection.isDisposed() );
-    assertEquals( connection.getConnectionId(), connectionId );
     assertEquals( connection.getLastTxRequestId(), 0 );
     assertNull( connection.getCurrentMessageResponse() );
     assertNotNull( connection.getTransportContext() );
@@ -43,8 +40,7 @@ public class ConnectionTest
   @Test
   public void dispose()
   {
-    final Connector connector = createConnector();
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     assertFalse( connection.isDisposed() );
     assertFalse( Disposable.isDisposed( connection.getTransportContext() ) );
@@ -58,9 +54,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_noMessages()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     assertNull( connection.getCurrentMessageResponse() );
 
@@ -95,9 +89,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_unparsedMessage()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     // Add an unparsed message to queue
     connection.enqueueResponse( "" );
@@ -115,9 +107,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_parsedMessage()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     final MessageResponse response = new MessageResponse( "" );
     response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
@@ -139,9 +129,7 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_parsedOutOfBandMessage()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     final SafeProcedure oobCompletionAction = () -> {
     };
@@ -166,9 +154,7 @@ public class ConnectionTest
   @Test
   public void queueCurrentResponse()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     final MessageResponse response2 = new MessageResponse( "" );
     final MessageResponse response3 = new MessageResponse( "" );
@@ -199,9 +185,7 @@ public class ConnectionTest
   @Test
   public void requestSubscribe()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
@@ -233,9 +217,7 @@ public class ConnectionTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
@@ -267,9 +249,7 @@ public class ConnectionTest
   @Test
   public void requestUnsubscribe()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
@@ -299,9 +279,7 @@ public class ConnectionTest
   @Test
   public void enqueueResponse()
   {
-    final Connector connector = createConnector();
-    final String connectionId = ValueUtil.randomString();
-    final Connection connection = new Connection( connector, connectionId );
+    final Connection connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
@@ -368,9 +346,8 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final SystemSchema schema = newSchema( 1 );
-    final Connector connector = createConnector( schema );
-    final Connection connection = new Connection( connector, ValueUtil.randomString() );
+    final Connection connection = createConnection();
+    final Connector connector = connection.getConnector();
     final String requestName = ValueUtil.randomString();
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -390,7 +367,7 @@ public class ConnectionTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), schema.getId() );
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getRequestId(), request.getRequestId() );
       assertEquals( e.getName(), requestName );
     } );
@@ -411,18 +388,19 @@ public class ConnectionTest
   @Test
   public void removeRequestWhenNoRequest()
   {
-    final Connection connection = new Connection( createConnector(), "123" );
+    final Connection connection = createConnection();
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789 ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0067: Attempted to remove request with id 789 from connection with id '123' but no such request exists." );
+                  "Replicant-0067: Attempted to remove request with id 789 from connection with id '" +
+                  connection.getConnectionId() + "' but no such request exists." );
   }
 
   @Test
   public void completeAreaOfInterestRequest()
   {
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
@@ -454,7 +432,7 @@ public class ConnectionTest
   @Test
   public void completeAreaOfInterestRequest_whenNoRequests()
   {
-    final Connection connection = new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, connection::completeAreaOfInterestRequest );
@@ -465,7 +443,7 @@ public class ConnectionTest
   @Test
   public void completeRequest()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
@@ -494,7 +472,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_expectingResults()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
@@ -524,7 +502,7 @@ public class ConnectionTest
   @Test
   public void completeRequest_resultsArrived()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
     final Request request = connection.newRequest( ValueUtil.randomString() );
 
     // Remove request as it will be removed when the response arrived and was processed
@@ -558,7 +536,7 @@ public class ConnectionTest
   @Test
   public void canGroupRequests()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress addressA = new ChannelAddress( 1, 0 );
     final ChannelAddress addressB = new ChannelAddress( 1, 1, 1 );
@@ -642,7 +620,7 @@ public class ConnectionTest
   @Test
   public void canGroupRequests_presentInCache()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
@@ -665,7 +643,7 @@ public class ConnectionTest
   @Test
   public void getCurrentAreaOfInterestRequests()
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
     final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
@@ -697,7 +675,7 @@ public class ConnectionTest
   public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
     throws Exception
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = "MyFilter";
@@ -715,7 +693,7 @@ public class ConnectionTest
   public void isAreaOfInterestRequestPending_passingNonnullFilterForDelete()
     throws Exception
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address = new ChannelAddress( 1, 0 );
     final String filter = "MyFilter";
@@ -733,7 +711,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
     throws Exception
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0 );
 
@@ -749,7 +727,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_requestPending()
     throws Exception
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
@@ -786,7 +764,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_currentPending()
     throws Exception
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
@@ -821,7 +799,7 @@ public class ConnectionTest
   public void pendingAreaOfInterestRequestQueries_jumbledAggregate()
     throws Exception
   {
-    final Connection connection = new Connection( createConnector( newSchema( 1 ) ), ValueUtil.randomString() );
+    final Connection connection = createConnection();
 
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );

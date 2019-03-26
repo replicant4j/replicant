@@ -212,4 +212,10 @@ public abstract class AbstractReplicantTest
   {
     return (Connector) Replicant.context().registerConnector( schema, mock( Transport.class ) );
   }
+
+  @Nonnull
+  protected final Connection createConnection()
+  {
+    return new Connection( createConnector(), ValueUtil.randomString() );
+  }
 }

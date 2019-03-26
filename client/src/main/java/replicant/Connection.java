@@ -105,6 +105,12 @@ final class Connection
   }
 
   @Nonnull
+  Connector getConnector()
+  {
+    return _connector;
+  }
+
+  @Nonnull
   Transport.Context getTransportContext()
   {
     return _transportContext;
