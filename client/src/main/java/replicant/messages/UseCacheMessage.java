@@ -16,7 +16,7 @@ public class UseCacheMessage
   extends ServerToClientMessage
 {
   @JsOverlay
-  public static final String TYPE = "update";
+  public static final String TYPE = "use-cache";
   @Nonnull
   private String channel;
   @Nonnull
