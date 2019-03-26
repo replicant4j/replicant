@@ -2562,7 +2562,7 @@ public class ConnectorTest
       expectThrows( IllegalStateException.class, connector::parseMessageResponse );
 
     assertEquals( exception.getMessage(),
-                  "Replicant-0066: Unable to locate request with id '22' specified for ChangeSet. Existing Requests: {}" );
+                  "Replicant-0066: Unable to locate request with id '22' specified by message. Existing Requests: {}" );
   }
 
   @Test
