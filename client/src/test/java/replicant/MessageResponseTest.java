@@ -75,7 +75,6 @@ public class MessageResponseTest
   @Test
   public void toStatus()
   {
-    final int sequence = ValueUtil.randomInt();
     final int requestId = ValueUtil.randomInt();
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( requestId, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
@@ -142,7 +141,6 @@ public class MessageResponseTest
     assertEquals( action.toString(),
                   "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
-    final int sequence = 33;
     final int requestId = 767576;
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( requestId, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
@@ -167,7 +165,6 @@ public class MessageResponseTest
   public void lifeCycleWithNormallyCompletedRequest()
   {
     // ChangeSet details
-    final int sequence = 1;
     final int requestId = ValueUtil.randomInt();
 
     // Channel updates
@@ -288,7 +285,6 @@ public class MessageResponseTest
   public void lifeCycleWithChannelUpdates()
   {
     // ChangeSet details
-    final int sequence = 1;
     final int requestId = ValueUtil.randomInt();
 
     // Channel updates
@@ -355,7 +351,6 @@ public class MessageResponseTest
   public void lifeCycleWithOOBMessage()
   {
     // ChangeSet details
-    final int sequence = 1;
     final int requestId = ValueUtil.randomInt();
 
     final ChangeSetMessage changeSet =
