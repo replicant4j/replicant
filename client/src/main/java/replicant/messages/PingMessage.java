@@ -12,7 +12,7 @@ public final class PingMessage
 {
   @JsOverlay
   @Nonnull
-  public static PingMessage create( final int req, @Nonnull final String ch )
+  public static PingMessage create( final int req )
   {
     final PingMessage message = new PingMessage();
     message.type = "ping";
