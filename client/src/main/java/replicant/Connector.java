@@ -154,7 +154,7 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().requestConnect( this::onConnection );
+        _transport.requestConnect( this::onConnection );
         newState = ConnectorState.CONNECTING;
       }
       finally
@@ -185,7 +185,7 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        getTransport().requestDisconnect();
+        _transport.requestDisconnect();
         newState = ConnectorState.DISCONNECTING;
       }
       finally
@@ -219,12 +219,11 @@ abstract class Connector
 
   private void doSetConnection( @Nullable final Connection connection )
   {
-    final Connection existing = getConnection();
-    if ( null != existing )
+    if ( null != _connection )
     {
-      Disposable.dispose( existing );
+      Disposable.dispose( _connection );
     }
-    if ( null == existing || null == existing.getCurrentMessageResponse() )
+    if ( null == _connection || null == _connection.getCurrentMessageResponse() )
     {
       setConnection( connection );
     }
@@ -258,12 +257,6 @@ abstract class Connector
     }
   }
 
-  @Nullable
-  final Connection getConnection()
-  {
-    return _connection;
-  }
-
   @Nonnull
   final Connection ensureConnection()
   {
@@ -280,12 +273,6 @@ abstract class Connector
   private MessageResponse ensureCurrentMessageResponse()
   {
     return ensureConnection().ensureCurrentMessageResponse();
-  }
-
-  @Nonnull
-  final Transport getTransport()
-  {
-    return _transport;
   }
 
   @Action
@@ -319,8 +306,7 @@ abstract class Connector
                                                 @Nonnull final ChannelAddress address,
                                                 @Nullable final Object filter )
   {
-    final Connection connection = getConnection();
-    return null != connection && connection.isAreaOfInterestRequestPending( action, address, filter );
+    return null != _connection && _connection.isAreaOfInterestRequestPending( action, address, filter );
   }
 
   /**
@@ -330,14 +316,13 @@ abstract class Connector
                                                      @Nonnull final ChannelAddress address,
                                                      @Nullable final Object filter )
   {
-    final Connection connection = getConnection();
-    return null == connection ? -1 : connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
+    return null == _connection ? -1 : _connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
   }
 
   final void requestSync()
   {
     recordSyncInFlight( true );
-    getTransport().requestSync( this::onInSync, this::onOutOfSync, this::onSyncError );
+    _transport.requestSync( this::onInSync, this::onOutOfSync, this::onSyncError );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
@@ -445,8 +430,7 @@ abstract class Connector
     }
     try
     {
-      final Connection connection = getConnection();
-      if ( null != connection )
+      if ( null != _connection )
       {
         final boolean step1 = progressAreaOfInterestRequestProcessing();
         final boolean step2 = progressResponseProcessing();
@@ -668,11 +652,11 @@ abstract class Connector
     _state = Objects.requireNonNull( state );
     if ( ConnectorState.ERROR == _state || ConnectorState.DISCONNECTED == _state )
     {
-      getTransport().unbind();
+      _transport.unbind();
     }
     else if ( ConnectorState.CONNECTED == _state )
     {
-      getTransport().bind( ensureConnection().getTransportContext(), getReplicantContext() );
+      _transport.bind( ensureConnection().getTransportContext(), getReplicantContext() );
     }
   }
 
@@ -1238,7 +1222,7 @@ abstract class Connector
     }
     else
     {
-      getTransport().requestSubscribe( request.getAddress(), request.getFilter(), null, null, onSuccess, onError );
+      _transport.requestSubscribe( request.getAddress(), request.getFilter(), null, null, onSuccess, onError );
     }
   }
 
@@ -1258,7 +1242,7 @@ abstract class Connector
       addresses.forEach( a -> onSubscribeFailed( a, error ) );
     };
 
-    getTransport().requestBulkSubscribe( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
+    _transport.requestBulkSubscribe( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
   }
 
   final void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1296,7 +1280,7 @@ abstract class Connector
 
     final Object filter = request.getFilter();
     assert null != filter;
-    getTransport().requestSubscribe( address, filter, null, null, onSuccess, onError );
+    _transport.requestSubscribe( address, filter, null, null, onSuccess, onError );
   }
 
   final void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1316,7 +1300,7 @@ abstract class Connector
     // All filters will be the same if they are grouped
     final Object filter = requests.get( 0 ).getFilter();
     assert null != filter;
-    getTransport().requestBulkSubscribe( addresses, filter, onSuccess, onError );
+    _transport.requestBulkSubscribe( addresses, filter, onSuccess, onError );
   }
 
   final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1354,7 +1338,7 @@ abstract class Connector
       onUnsubscribeFailed( address, error );
     };
 
-    getTransport().requestUnsubscribe( address, onSuccess, onError );
+    _transport.requestUnsubscribe( address, onSuccess, onError );
   }
 
   final void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1375,7 +1359,7 @@ abstract class Connector
       addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
     };
 
-    getTransport().requestBulkUnsubscribe( addresses, onSuccess, onError );
+    _transport.requestBulkUnsubscribe( addresses, onSuccess, onError );
   }
 
   /**
@@ -1693,5 +1677,17 @@ abstract class Connector
   final SafeProcedure getPostMessageResponseAction()
   {
     return _postMessageResponseAction;
+  }
+
+  @Nullable
+  final Connection getConnection()
+  {
+    return _connection;
+  }
+
+  @Nonnull
+  final Transport getTransport()
+  {
+    return _transport;
   }
 }
