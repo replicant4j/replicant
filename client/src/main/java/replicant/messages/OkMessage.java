@@ -16,11 +16,11 @@ public final class OkMessage
 
   @GwtIncompatible
   @Nonnull
-  public static OkMessage create( @Nullable final Integer requestId )
+  public static OkMessage create( final int requestId )
   {
     final OkMessage message = new OkMessage();
     message.type = TYPE;
-    message.requestId = null == requestId ? null : requestId.doubleValue();
+    message.requestId = (double) requestId;
     return message;
   }
 }
