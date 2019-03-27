@@ -205,7 +205,7 @@ final class Connection
   @Nonnull
   final Request newRequest( @Nullable final String name )
   {
-    final int requestId = nextRequestId();
+    final int requestId = ++_lastTxRequestId;
     final RequestEntry request = new RequestEntry( requestId, name );
     _requests.put( requestId, request );
     _connector.recordLastTxRequestId( requestId );
@@ -272,16 +272,6 @@ final class Connection
                  () -> "Replicant-0067: Attempted to remove request with id " + requestId +
                        " from connection with id '" + getConnectionId() + "' but no such request exists." );
     }
-  }
-
-  int getLastTxRequestId()
-  {
-    return _lastTxRequestId;
-  }
-
-  private int nextRequestId()
-  {
-    return ++_lastTxRequestId;
   }
 
   @Nullable

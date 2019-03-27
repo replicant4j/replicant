@@ -25,13 +25,6 @@ public interface Transport
     int getSchemaId();
 
     /**
-     * Return the id of the last request transmitted.
-     *
-     * @return the id of the last request transmitted.
-     */
-    int getLastTxRequestId();
-
-    /**
      * Record the id of the last sync request transmitted.
      *
      * @param requestId the id of the last sync request transmitted.
