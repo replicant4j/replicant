@@ -34,13 +34,6 @@ final class TransportContextImpl
     return _connector.getSchema().getId();
   }
 
-  @Nullable
-  @Override
-  public String getConnectionId()
-  {
-    return isDisposed() ? null : _connector.ensureConnection().getConnectionId();
-  }
-
   @Override
   public int getLastTxRequestId()
   {
