@@ -24,6 +24,8 @@ import replicant.messages.ChangeSetMessage;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
+import replicant.messages.ServerToClientMessage;
+import replicant.messages.UseCacheMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -208,7 +210,9 @@ abstract class Connector
 
   final void onConnection( @Nonnull final String connectionId )
   {
-    doSetConnection( new Connection( this, connectionId ) );
+    final Connection connection = new Connection( this );
+    connection.setConnectionId( connectionId );
+    doSetConnection( connection );
     triggerMessageScheduler();
   }
 
@@ -236,12 +240,6 @@ abstract class Connector
   final void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
-    recordLastTxRequestId( 0 );
-    recordLastRxRequestId( 0 );
-    recordLastSyncTxRequestId( 0 );
-    recordLastSyncRxRequestId( 0 );
-    recordSyncInFlight( false );
-    recordPendingResponseQueueEmpty( true );
     purgeSubscriptions();
     // Avoid emitting an event if disconnect resulted in an error
     if ( ConnectorState.ERROR != getState() )
@@ -321,7 +319,6 @@ abstract class Connector
 
   final void requestSync()
   {
-    recordSyncInFlight( true );
     _transport.requestSync( this::onInSync, this::onOutOfSync, this::onSyncError );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -537,104 +534,29 @@ abstract class Connector
     }
   }
 
-  /*
-   * The following are Arez observable properties used to expose state from non-arez enabled
-   * elements. The other elements explicitly set state into variables which is picked up by
-   * interested observers.
-   */
-
-  @Observable
-  abstract int getLastSyncRxRequestId();
-
-  abstract void setLastSyncRxRequestId( int requestId );
-
-  @Action
-  void recordLastSyncRxRequestId( final int requestId )
-  {
-    setLastSyncRxRequestId( requestId );
-  }
-
-  @Observable
-  abstract int getLastSyncTxRequestId();
-
-  abstract void setLastSyncTxRequestId( int requestId );
-
-  @Action
-  void recordLastSyncTxRequestId( final int requestId )
-  {
-    setLastSyncTxRequestId( requestId );
-  }
-
-  @Observable
-  abstract int getLastTxRequestId();
-
-  abstract void setLastTxRequestId( int lastTxRequestId );
-
-  @Action
-  void recordLastTxRequestId( final int lastTxRequestId )
-  {
-    setLastTxRequestId( lastTxRequestId );
-  }
-
-  @Observable
-  abstract int getLastRxRequestId();
-
-  abstract void setLastRxRequestId( int lastRxRequestId );
-
-  @Action
-  void recordLastRxRequestId( final int lastRxRequestId )
-  {
-    setLastRxRequestId( lastRxRequestId );
-  }
-
-  @Observable
-  abstract boolean isSyncInFlight();
-
-  abstract void setSyncInFlight( boolean syncInFlight );
-
-  @Action
-  void recordSyncInFlight( final boolean syncInFlight )
-  {
-    setSyncInFlight( syncInFlight );
-  }
-
-  @Observable
-  abstract boolean isPendingResponseQueueEmpty();
-
-  abstract void setPendingResponseQueueEmpty( boolean isEmpty );
-
-  @Action
-  void recordPendingResponseQueueEmpty( final boolean isEmpty )
-  {
-    setPendingResponseQueueEmpty( isEmpty );
-  }
-
   boolean isSynchronized()
   {
-    return getState() == ConnectorState.CONNECTED &&
-           // Last request acknowledged is last request responded to
-           getLastSyncRxRequestId() == getLastRxRequestId() &&
-           // No requests outwards bound
-           getLastSyncRxRequestId() == getLastTxRequestId() &&
-           // No messages pending processing
-           isPendingResponseQueueEmpty();
+    return areRequestResponseQueuesEmpty() && ensureConnection().syncComplete();
   }
 
   boolean shouldRequestSync()
   {
-    return getState() == ConnectorState.CONNECTED &&
-           !(
-             // Last request acknowledged is last request responded to
-             getLastSyncRxRequestId() == getLastRxRequestId() &&
-             // No requests outwards bound
-             getLastSyncRxRequestId() == getLastTxRequestId()
-           ) &&
-           // No requests in flight
-           getLastRxRequestId() == getLastTxRequestId() &&
-           // No sync requests are in flight
-           !isSyncInFlight() &&
-           // No messages pending processing, otherwise can pick up later
-           isPendingResponseQueueEmpty();
+    return areRequestResponseQueuesEmpty() && !ensureConnection().syncComplete();
+  }
+
+  private boolean areRequestResponseQueuesEmpty()
+  {
+    if ( ConnectorState.CONNECTED != getState() )
+    {
+      return false;
+    }
+    else
+    {
+      final Connection connection = ensureConnection();
+      return connection.getRequests().isEmpty() &&
+             connection.getPendingResponses().isEmpty() &&
+             connection.getUnparsedResponses().isEmpty();
+    }
   }
 
   /**
@@ -829,34 +751,24 @@ abstract class Connector
       request.markResultsAsArrived();
     }
     /*
-     * An action will be returned if the message is an OOB message
-     * or it is an answer to a response and the rpc invocation has
-     * already returned.
+     * An action will be returned if the message is an answer to a request.
      */
     final SafeProcedure action = response.getCompletionAction();
     if ( null != action )
     {
       action.call();
     }
-    // OOB messages are not in response to requests (at least not request associated with the current connection)
-    if ( !response.isOob() )
+    // We can remove the request because this side ran second and the RPC channel has already returned.
+    final ChangeSetMessage changeSet = response.getChangeSet();
+    final Integer requestId = changeSet.getRequestId();
+    if ( null != requestId )
     {
-      // We can remove the request because this side ran second and the RPC channel has already returned.
-      final ChangeSetMessage changeSet = response.getChangeSet();
-      final Integer requestId = changeSet.getRequestId();
-      if ( null != requestId )
-      {
-        connection.removeRequest( requestId );
-      }
+      connection.removeRequest( requestId, false );
     }
     connection.setCurrentMessageResponse( null );
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
 
-    recordPendingResponseQueueEmpty( connection.getPendingResponses().isEmpty() &&
-                                     connection.getUnparsedResponses().isEmpty() );
-
-    final ChangeSetMessage changeSet = response.getChangeSet();
     if ( changeSet.hasChannels() || changeSet.hasFilteredChannels() || changeSet.hasEntityChanges() )
     {
       // If message is not a ping response then try to perform sync
@@ -864,7 +776,6 @@ abstract class Connector
     }
   }
 
-  @Action
   void maybeRequestSync()
   {
     if ( shouldRequestSync() )
@@ -972,37 +883,64 @@ abstract class Connector
     final MessageResponse response = connection.ensureCurrentMessageResponse();
     final String rawJsonData = response.getRawJsonData();
     assert null != rawJsonData;
-    final ChangeSetMessage changeSet = MessageParser.parseChangeSet( rawJsonData );
-    if ( Replicant.shouldValidateChangeSetOnRead() )
-    {
-      changeSet.validate();
-    }
+    final ServerToClientMessage message = MessageParser.parseMessage( rawJsonData );
 
-    final RequestEntry request;
-    if ( response.isOob() )
+    final Integer requestId = message.getRequestId();
+    final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
+    if ( Replicant.shouldCheckApiInvariants() )
     {
-      /*
-       * OOB messages are really just cached messages at this stage and they are the
-       * same bytes as originally sent down and then cached. So the requestId present
-       * in the json blob is for old connection and can be ignored.
-       */
-      request = null;
+      apiInvariant( () -> null != request || null == requestId,
+                    () -> "Replicant-0066: Unable to locate request with id '" + requestId + "' specified " +
+                          "by message. Existing Requests: " + connection.getRequests() );
     }
-    else
+    ChangeSetMessage changeSetMessage = null;
+    if ( UseCacheMessage.TYPE.equals( message.getType() ) )
     {
-      final Integer requestId = changeSet.getRequestId();
-      request = null != requestId ? connection.getRequest( requestId ) : null;
+      final UseCacheMessage useCacheMessage = (UseCacheMessage) message;
+      final String channel = useCacheMessage.getChannel();
+      final ChannelAddress address = ChannelAddress.parse( getSchema().getId(), channel );
+      final String etag = useCacheMessage.getEtag();
+
+      final CacheService cacheService = getReplicantContext().getCacheService();
       if ( Replicant.shouldCheckApiInvariants() )
       {
-        apiInvariant( () -> null != request || null == requestId,
-                      () -> "Replicant-0066: Unable to locate request with id '" + requestId + "' specified for " +
-                            "ChangeSet. Existing Requests: " + connection.getRequests() );
+        apiInvariant( () -> null != cacheService,
+                      () -> "Replicant-0042: Received a use-cache message for channel " + address +
+                            " but no cache service configured." );
       }
+      assert null != cacheService;
+
+      final CacheEntry entry = cacheService.lookup( address.getCacheKey() );
+      if ( Replicant.shouldCheckApiInvariants() )
+      {
+        apiInvariant( () -> null != entry,
+                      () -> "Replicant-0068: Received a use-cache message for channel " + channel +
+                            " but no cache entry present for channel." );
+        assert null != entry;
+        apiInvariant( () -> entry.getETag().equals( etag ),
+                      () -> "Replicant-0075: Received a use-cache message for channel " + channel +
+                            " with etag '" + etag + "' but cache entry has etag '" + entry.getETag() +
+                            "'." );
+      }
+      assert null != entry;
+      changeSetMessage = (ChangeSetMessage) MessageParser.parseMessage( entry.getContent() );
+      changeSetMessage.setRequestId( requestId );
+    }
+    else if ( ChangeSetMessage.TYPE.equals( message.getType() ) )
+    {
+      changeSetMessage = (ChangeSetMessage) message;
+      cacheMessageIfPossible( rawJsonData, response, ( changeSetMessage ) );
     }
 
-    cacheMessageIfPossible( rawJsonData, response, changeSet );
+    if ( Replicant.shouldValidateChangeSetOnRead() && null != changeSetMessage )
+    {
+      changeSetMessage.validate();
+    }
 
-    response.recordChangeSet( changeSet, request );
+    if ( null != changeSetMessage )
+    {
+      response.recordChangeSet( changeSetMessage, request );
+    }
     connection.queueCurrentResponse();
   }
 
@@ -1214,7 +1152,7 @@ abstract class Connector
       {
         // Loading cached data
         completeAreaOfInterestRequest();
-        ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), () -> onSubscribeCompleted( address ) );
+        //TODO: ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), () -> onSubscribeCompleted( address ) );
         triggerMessageScheduler();
       };
       getTransport()
@@ -1504,7 +1442,6 @@ abstract class Connector
 
   void onInSync()
   {
-    recordSyncInFlight( false );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new InSyncEvent( getSchema().getId() ) );
@@ -1513,7 +1450,6 @@ abstract class Connector
 
   void onOutOfSync()
   {
-    recordSyncInFlight( false );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new OutOfSyncEvent( getSchema().getId() ) );
@@ -1522,7 +1458,6 @@ abstract class Connector
 
   void onSyncError( @Nonnull final Throwable error )
   {
-    recordSyncInFlight( false );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SyncFailureEvent( getSchema().getId(), error ) );

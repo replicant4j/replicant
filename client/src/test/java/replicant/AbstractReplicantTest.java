@@ -70,7 +70,9 @@ public abstract class AbstractReplicantTest
   protected final Connection newConnection( @Nonnull final Connector connector )
   {
     connector.onConnection( ValueUtil.randomString() );
-    return connector.ensureConnection();
+    final Connection connection = connector.ensureConnection();
+    connection.setConnectionId( ValueUtil.randomString() );
+    return connection;
   }
 
   @Nonnull
@@ -214,8 +216,10 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  protected final Connection createConnection()
+  final Connection createConnection()
   {
-    return new Connection( createConnector(), ValueUtil.randomString() );
+    final Connection connection = new Connection( createConnector() );
+    connection.setConnectionId( ValueUtil.randomString() );
+    return connection;
   }
 }

@@ -28,28 +28,12 @@ final class TransportContextImpl
     return _disposed;
   }
 
+  @Nonnull
   @Override
-  public int getSchemaId()
+  public Request newRequest( @Nullable final String name )
   {
-    return _connector.getSchema().getId();
-  }
-
-  @Override
-  public void recordLastSyncRxRequestId( final int requestId )
-  {
-    if ( isNotDisposed() )
-    {
-      _connector.recordLastSyncRxRequestId( requestId );
-    }
-  }
-
-  @Override
-  public void recordLastSyncTxRequestId( final int requestId )
-  {
-    if ( isNotDisposed() )
-    {
-      _connector.recordLastSyncTxRequestId( requestId );
-    }
+    assert isNotDisposed();
+    return _connector.ensureConnection().newRequest( name );
   }
 
   @Override

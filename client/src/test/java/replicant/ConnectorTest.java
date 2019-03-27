@@ -151,13 +151,6 @@ public class ConnectorTest
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    connector.recordLastRxRequestId( ValueUtil.randomInt() );
-    connector.recordLastTxRequestId( ValueUtil.randomInt() );
-    connector.recordLastSyncRxRequestId( ValueUtil.randomInt() );
-    connector.recordLastSyncTxRequestId( ValueUtil.randomInt() );
-    connector.recordSyncInFlight( true );
-    connector.recordPendingResponseQueueEmpty( false );
-
     assertFalse( Disposable.isDisposed( connection ) );
     assertEquals( connector.getConnection(), connection );
 
@@ -167,12 +160,8 @@ public class ConnectorTest
     assertTrue( Disposable.isDisposed( connection ) );
     assertEquals( connector.ensureConnection().getConnectionId(), newConnectionId );
 
-    safeAction( () -> assertEquals( connector.getLastRxRequestId(), 0 ) );
-    safeAction( () -> assertEquals( connector.getLastTxRequestId(), 0 ) );
-    safeAction( () -> assertEquals( connector.getLastSyncRxRequestId(), 0 ) );
-    safeAction( () -> assertEquals( connector.getLastSyncTxRequestId(), 0 ) );
-    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
-    safeAction( () -> assertTrue( connector.isPendingResponseQueueEmpty() ) );
+    assertTrue( connector.ensureConnection().getPendingResponses().isEmpty() );
+    assertTrue( connector.ensureConnection().getUnparsedResponses().isEmpty() );
   }
 
   @Test
@@ -2583,7 +2572,6 @@ public class ConnectorTest
     connector.completeMessageResponse();
 
     assertNull( connection.getCurrentMessageResponse() );
-    safeAction( () -> assertTrue( connector.isPendingResponseQueueEmpty() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2598,14 +2586,13 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
 
     final MessageResponse response = new MessageResponse( "" );
+    final Request request = connection.newRequest( ValueUtil.randomString() );
 
     final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( null, null, new String[]{ "+1" }, null, null );
-    response.recordChangeSet( changeSet, null );
+      ChangeSetMessage.create( request.getRequestId(), null, new String[]{ "+1" }, null, null );
+    response.recordChangeSet( changeSet, request.getEntry() );
 
     connection.setCurrentMessageResponse( response );
 
@@ -2614,7 +2601,6 @@ public class ConnectorTest
     connector.completeMessageResponse();
 
     assertNull( connection.getCurrentMessageResponse() );
-    safeAction( () -> assertTrue( connector.isPendingResponseQueueEmpty() ) );
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2641,7 +2627,8 @@ public class ConnectorTest
 
     connector.completeMessageResponse();
 
-    safeAction( () -> assertFalse( connector.isPendingResponseQueueEmpty() ) );
+    assertTrue( connector.ensureConnection().getPendingResponses().isEmpty() );
+    assertFalse( connector.ensureConnection().getUnparsedResponses().isEmpty() );
   }
 
   @Test
@@ -5039,84 +5026,7 @@ public class ConnectorTest
     final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> assertTrue( connector.isSynchronized() ) );
-  }
-
-  @Test
-  public void isSynchronized_sentRequest_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> assertFalse( connector.isSynchronized() ) );
-  }
-
-  @Test
-  public void isSynchronized_receivedRequestResponse_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> assertFalse( connector.isSynchronized() ) );
-  }
-
-  @Test
-  public void isSynchronized_sentSyncRequest_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( true ) );
-    safeAction( () -> assertFalse( connector.isSynchronized() ) );
-  }
-
-  @Test
-  public void isSynchronized_receivedSyncRequestResponse_Synced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( false ) );
-    safeAction( () -> assertTrue( connector.isSynchronized() ) );
-  }
-
-  @Test
-  public void isSynchronized_receivedSyncRequestResponseButResponsesQueued_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( false ) );
-    safeAction( () -> connector.setPendingResponseQueueEmpty( false ) );
-    safeAction( () -> assertFalse( connector.isSynchronized() ) );
-  }
-
-  @Test
-  public void isSynchronized_receivedSyncRequestResponseErrored_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( false ) );
-    safeAction( () -> connector.setPendingResponseQueueEmpty( true ) );
-    safeAction( () -> assertFalse( connector.isSynchronized() ) );
+    assertTrue( connector.isSynchronized() );
   }
 
   @Test
@@ -5132,8 +5042,10 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+    safeAction( () -> {
+      connector.setState( ConnectorState.CONNECTED );
+      assertFalse( connector.shouldRequestSync() );
+    } );
   }
 
   @Test
@@ -5141,76 +5053,51 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+    safeAction( () -> {
+      connector.setState( ConnectorState.CONNECTED );
+      connector.ensureConnection().newRequest( ValueUtil.randomString() );
+      assertFalse( connector.shouldRequestSync() );
+    } );
   }
 
   @Test
   public void shouldRequestSync_receivedRequestResponse_NotSynced()
   {
     final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
-  }
-
-  @Test
-  public void shouldRequestSync_sentSyncRequest_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( true ) );
-    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+    final Connection connection = newConnection( connector );
+    safeAction( () -> {
+      connector.setState( ConnectorState.CONNECTED );
+      final Request request = connection.newRequest( ValueUtil.randomString() );
+      connection.removeRequest( request.getRequestId(), false );
+      assertTrue( connector.shouldRequestSync() );
+    } );
   }
 
   @Test
   public void shouldRequestSync_receivedSyncRequestResponse_Synced()
   {
     final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( false ) );
-    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
+    final Connection connection = newConnection( connector );
+    safeAction( () -> {
+      connector.setState( ConnectorState.CONNECTED );
+      final Request request = connection.newRequest( ValueUtil.randomString() );
+      connection.removeRequest( request.getRequestId(), true );
+      assertFalse( connector.shouldRequestSync() );
+    } );
   }
 
   @Test
   public void shouldRequestSync_receivedSyncRequestResponseButResponsesQueued_NotSynced()
   {
     final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncRxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( false ) );
-    safeAction( () -> connector.setPendingResponseQueueEmpty( false ) );
-    safeAction( () -> assertFalse( connector.shouldRequestSync() ) );
-  }
-
-  @Test
-  public void shouldRequestSync_receivedSyncRequestResponseErrored_NotSynced()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> connector.setLastSyncTxRequestId( 2 ) );
-    safeAction( () -> connector.setSyncInFlight( false ) );
-    safeAction( () -> connector.setPendingResponseQueueEmpty( true ) );
-    safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
+    final Connection connection = newConnection( connector );
+    safeAction( () -> {
+      connector.setState( ConnectorState.CONNECTED );
+      final Request request = connection.newRequest( ValueUtil.randomString() );
+      connection.removeRequest( request.getRequestId(), true );
+      connection.enqueueResponse( "" );
+      assertFalse( connector.shouldRequestSync() );
+    } );
   }
 
   @Test
@@ -5220,9 +5107,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.setSyncInFlight( true ) );
     connector.onInSync();
-    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( InSyncEvent.class,
@@ -5236,9 +5121,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.setSyncInFlight( true ) );
     connector.onOutOfSync();
-    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( OutOfSyncEvent.class,
@@ -5252,10 +5135,8 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> connector.setSyncInFlight( true ) );
     final Throwable error = new Throwable();
     connector.onSyncError( error );
-    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SyncFailureEvent.class,
@@ -5273,9 +5154,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
     connector.requestSync();
-    safeAction( () -> assertTrue( connector.isSyncInFlight() ) );
 
     verify( connector.getTransport() ).requestSync( any( SafeProcedure.class ),
                                                     any( SafeProcedure.class ),
@@ -5290,20 +5169,21 @@ public class ConnectorTest
   public void maybeRequestSync()
   {
     final Connector connector = createConnector();
-    newConnection( connector );
+    final Connection connection = newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
+    assertFalse( connector.shouldRequestSync() );
     connector.maybeRequestSync();
 
-    safeAction( () -> assertFalse( connector.isSyncInFlight() ) );
+    assertTrue( connector.ensureConnection().getRequests().isEmpty() );
 
-    safeAction( () -> connector.setLastTxRequestId( 2 ) );
-    safeAction( () -> connector.setLastRxRequestId( 2 ) );
-    safeAction( () -> assertTrue( connector.shouldRequestSync() ) );
+    final Request request = connection.newRequest( ValueUtil.randomString() );
+    connection.removeRequest( request.getRequestId(), false );
+    assertTrue( connector.shouldRequestSync() );
 
     connector.maybeRequestSync();
 
-    safeAction( () -> assertTrue( connector.isSyncInFlight() ) );
+    verify( connector.getTransport() ).requestSync( any(), any(), any() );
   }
 }

@@ -18,25 +18,15 @@ public interface Transport
   interface Context
   {
     /**
-     * Return the schemaId that the transport is responsible for transporting.
+     * Create a new request abstraction.
+     * This generates a requestId for connection but it is the responsibility of the caller to perform request and
+     * invoke the {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
+     * when the request completes.
      *
-     * @return the schemaId that the transport is responsible for transporting.
+     * @param name the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
      */
-    int getSchemaId();
-
-    /**
-     * Record the id of the last sync request transmitted.
-     *
-     * @param requestId the id of the last sync request transmitted.
-     */
-    void recordLastSyncTxRequestId( int requestId );
-
-    /**
-     * Record the id of the last sync request received.
-     *
-     * @param requestId the id of the last sync request received.
-     */
-    void recordLastSyncRxRequestId( int requestId );
+    @Nonnull
+    Request newRequest( @Nullable String name );
 
     /**
      * Notify the Connector that a message was received.

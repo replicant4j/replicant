@@ -28,11 +28,6 @@ final class MessageResponse
   @Nullable
   private ChangeSetMessage _changeSet;
   /**
-   * The action executed at completion of out-of-band message.
-   */
-  @Nullable
-  private final SafeProcedure _oobCompletionAction;
-  /**
    * The current index into changes.
    */
   private int _entityChangeIndex;
@@ -50,13 +45,7 @@ final class MessageResponse
 
   MessageResponse( @Nonnull final String rawJsonData )
   {
-    this( rawJsonData, null );
-  }
-
-  MessageResponse( @Nonnull final String rawJsonData, @Nullable final SafeProcedure oobCompletionAction )
-  {
     _rawJsonData = Objects.requireNonNull( rawJsonData );
-    _oobCompletionAction = oobCompletionAction;
   }
 
   int getChannelAddCount()
@@ -252,11 +241,7 @@ final class MessageResponse
   @Nullable
   SafeProcedure getCompletionAction()
   {
-    if ( null != _oobCompletionAction )
-    {
-      return _oobCompletionAction;
-    }
-    else if ( null == _request || !_request.hasCompleted() )
+    if ( null == _request || !_request.hasCompleted() )
     {
       return null;
     }

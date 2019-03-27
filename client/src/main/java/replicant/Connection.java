@@ -36,7 +36,7 @@ final class Connection
   /**
    * A unique identifier for the connection, typically supplied by the backend.
    */
-  private final String _connectionId;
+  private String _connectionId;
   /**
    * A map containing the rpc requests that are in progress.
    */
@@ -45,6 +45,10 @@ final class Connection
    * The id of the last rpc request transmitted to the server.
    */
   private int _lastTxRequestId;
+  /**
+   * The id of the last sync request responded to by the server.
+   */
+  private int _lastRxSyncRequestId;
   /**
    * Pending actions that will change the area of interest.
    */
@@ -72,10 +76,9 @@ final class Connection
   @Nonnull
   private List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
 
-  Connection( @Nonnull final Connector connector, @Nonnull final String connectionId )
+  Connection( @Nonnull final Connector connector )
   {
     _connector = Objects.requireNonNull( connector );
-    _connectionId = Objects.requireNonNull( connectionId );
     _transportContext = new TransportContextImpl( connector );
   }
 
@@ -95,6 +98,11 @@ final class Connection
   String getConnectionId()
   {
     return _connectionId;
+  }
+
+  void setConnectionId( @Nonnull final String connectionId )
+  {
+    _connectionId = Objects.requireNonNull( connectionId );
   }
 
   @Nonnull
@@ -208,7 +216,6 @@ final class Connection
     final int requestId = ++_lastTxRequestId;
     final RequestEntry request = new RequestEntry( requestId, name );
     _requests.put( requestId, request );
-    _connector.recordLastTxRequestId( requestId );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       _connector
@@ -232,7 +239,7 @@ final class Connection
     {
       if ( !request.isExpectingResults() )
       {
-        removeRequest( request.getRequestId() );
+        removeRequest( request.getRequestId(), false );
       }
       completionAction.call();
     }
@@ -262,10 +269,13 @@ final class Connection
     return _requests;
   }
 
-  void removeRequest( final int requestId )
+  void removeRequest( final int requestId, final boolean isSyncRequest )
   {
     final boolean removed = null != _requests.remove( requestId );
-    _connector.recordLastRxRequestId( requestId );
+    if ( isSyncRequest )
+    {
+      _lastRxSyncRequestId = requestId;
+    }
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> removed,
@@ -285,6 +295,14 @@ final class Connection
   {
     assert null != _currentMessageResponse;
     return _currentMessageResponse;
+  }
+
+  /**
+   * Return true if there are no pending requests and the last request was a "SYNC" request.
+   */
+  boolean syncComplete()
+  {
+    return null != _connectionId && _lastTxRequestId == _lastRxSyncRequestId;
   }
 
   /**

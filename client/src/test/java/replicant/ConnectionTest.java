@@ -267,8 +267,6 @@ public class ConnectionTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    safeAction( () -> assertEquals( connector.getLastRxRequestId(), 0 ) );
-
     final Request request = connection.newRequest( requestName );
     final RequestEntry entry = request.getEntry();
 
@@ -285,7 +283,7 @@ public class ConnectionTest
     assertEquals( connection.getRequests().get( request.getRequestId() ), entry );
     assertNull( connection.getRequest( ValueUtil.randomInt() ) );
 
-    connection.removeRequest( request.getRequestId() );
+    connection.removeRequest( request.getRequestId(), false );
 
     assertNull( connection.getRequest( request.getRequestId() ) );
   }
@@ -296,7 +294,7 @@ public class ConnectionTest
     final Connection connection = createConnection();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789 ) );
+      expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789, false ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0067: Attempted to remove request with id 789 from connection with id '" +
                   connection.getConnectionId() + "' but no such request exists." );
@@ -411,7 +409,7 @@ public class ConnectionTest
     final Request request = connection.newRequest( ValueUtil.randomString() );
 
     // Remove request as it will be removed when the response arrived and was processed
-    connection.removeRequest( request.getRequestId() );
+    connection.removeRequest( request.getRequestId(), false );
     final RequestEntry entry = request.getEntry();
     final SafeProcedure action = mock( SafeProcedure.class );
 
