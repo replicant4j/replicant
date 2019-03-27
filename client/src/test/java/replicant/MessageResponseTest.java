@@ -310,48 +310,6 @@ public class MessageResponseTest
   }
 
   @Test
-  public void lifeCycleWithOOBMessage()
-  {
-    // ChangeSet details
-    final int requestId = ValueUtil.randomInt();
-
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( requestId, null, new String[ 0 ], new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-
-    final SafeProcedure oobCompletionAction = mock( SafeProcedure.class );
-    final String rawJsonData = ValueUtil.randomString();
-    final MessageResponse action = new MessageResponse( rawJsonData, oobCompletionAction );
-
-    //Ensure the initial state is as expected
-    assertEquals( action.getCompletionAction(), oobCompletionAction );
-    assertEquals( action.getRawJsonData(), rawJsonData );
-    assertThrows( action::getChangeSet );
-
-    assertFalse( action.needsChannelChangesProcessed() );
-    assertFalse( action.areEntityChangesPending() );
-    assertFalse( action.areEntityLinksPending() );
-    assertFalse( action.hasWorldBeenValidated() );
-
-    action.recordChangeSet( changeSet, null );
-
-    assertEquals( action.getChangeSet(), changeSet );
-    assertNull( action.getRequest() );
-    assertNull( action.getRawJsonData() );
-
-    assertFalse( action.needsChannelChangesProcessed() );
-    assertFalse( action.areEntityChangesPending() );
-    assertFalse( action.areEntityLinksPending() );
-    assertFalse( action.hasWorldBeenValidated() );
-
-    action.markWorldAsValidated();
-
-    assertFalse( action.needsChannelChangesProcessed() );
-    assertFalse( action.areEntityChangesPending() );
-    assertFalse( action.areEntityLinksPending() );
-    assertTrue( action.hasWorldBeenValidated() );
-  }
-
-  @Test
   public void setChangeSet_mismatchedRequestId()
   {
     final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
