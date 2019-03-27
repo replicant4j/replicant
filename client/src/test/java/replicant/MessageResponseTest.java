@@ -18,9 +18,7 @@ public class MessageResponseTest
   @Test
   public void construct()
   {
-    final String rawJsonData = "";
-    final MessageResponse action = new MessageResponse( rawJsonData );
-    assertEquals( action.getRawJsonData(), rawJsonData );
+    final MessageResponse action = new MessageResponse( 1, new ChangeSetMessage(), null );
 
     assertFalse( action.areEntityLinksPending() );
     assertFalse( action.areEntityChangesPending() );
@@ -37,12 +35,10 @@ public class MessageResponseTest
   @Test
   public void toStatus()
   {
-    final int requestId = ValueUtil.randomInt();
     final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( requestId, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+      ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
-    final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
-    action.recordChangeSet( changeSet, null );
+    final MessageResponse action = new MessageResponse( 1, changeSet, null );
 
     action.incChannelAddCount();
     action.incChannelAddCount();
@@ -57,7 +53,7 @@ public class MessageResponseTest
 
     final DataLoadStatus status = action.toStatus();
 
-    assertEquals( status.getRequestId(), (Integer) requestId );
+    assertEquals( status.getRequestId(), null );
     assertEquals( status.getChannelAddCount(), 2 );
     assertEquals( status.getChannelUpdateCount(), 1 );
     assertEquals( status.getChannelRemoveCount(), 3 );
@@ -71,7 +67,7 @@ public class MessageResponseTest
   {
     ReplicantTestUtil.disableSpies();
 
-    final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
+    final MessageResponse action = new MessageResponse( 1, new ChangeSetMessage(), null );
 
     assertEquals( action.getChannelAddCount(), 0 );
     assertEquals( action.getChannelUpdateCount(), 0 );
@@ -99,23 +95,17 @@ public class MessageResponseTest
   @Test
   public void testToString()
   {
-    final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
-    assertEquals( action.toString(),
-                  "DataLoad[,RawJson.null?=false,ChangeSet.null?=true,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
-
-    final int requestId = 767576;
     final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( requestId, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
-    action.recordChangeSet( changeSet, null );
-
+      ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final MessageResponse action = new MessageResponse( 1, changeSet, null );
     assertEquals( action.toString(),
-                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
+                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
     // Null out Entities
     action.nextEntityToLink();
 
     assertEquals( action.toString(),
-                  "DataLoad[,RawJson.null?=true,ChangeSet.null?=false,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
+                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
 
     ReplicantTestUtil.disableNames();
 
@@ -156,34 +146,22 @@ public class MessageResponseTest
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( requestId, null, null, channelChanges, entityChanges );
 
-    final SafeProcedure completionAction = mock( SafeProcedure.class );
-    final String rawJsonData = ValueUtil.randomString();
-    final MessageResponse action = new MessageResponse( rawJsonData );
-
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey );
 
-    //Ensure the initial state is as expected
-    assertEquals( action.getRawJsonData(), rawJsonData );
-    assertThrows( action::getChangeSet );
-
-    assertFalse( action.needsChannelChangesProcessed() );
-    assertFalse( action.areEntityChangesPending() );
-    assertFalse( action.areEntityLinksPending() );
-    assertFalse( action.hasWorldBeenValidated() );
+    final SafeProcedure completionAction = mock( SafeProcedure.class );
+    final MessageResponse action = new MessageResponse( 1, changeSet, request );
 
     assertNull( action.getCompletionAction() );
 
     request.setCompletionAction( completionAction );
 
-    action.recordChangeSet( changeSet, request );
     request.setNormalCompletion( true );
 
     assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( request.getCompletionAction(), completionAction );
-    assertEquals( action.getChangeSet(), changeSet );
+    assertEquals( action.getMessage(), changeSet );
     assertEquals( action.getRequest(), request );
-    assertNull( action.getRawJsonData() );
 
     assertFalse( action.needsChannelChangesProcessed() );
     assertTrue( action.areEntityChangesPending() );
@@ -260,33 +238,20 @@ public class MessageResponseTest
 
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
-
-    final SafeProcedure completionAction = mock( SafeProcedure.class );
-    final String rawJsonData = ValueUtil.randomString();
-    final MessageResponse action = new MessageResponse( rawJsonData );
-
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey );
 
-    //Ensure the initial state is as expected
-    assertEquals( action.getRawJsonData(), rawJsonData );
-    assertThrows( action::getChangeSet );
+    final SafeProcedure completionAction = mock( SafeProcedure.class );
+    final MessageResponse action = new MessageResponse( 1, changeSet, request );
 
-    assertFalse( action.needsChannelChangesProcessed() );
-    assertFalse( action.areEntityChangesPending() );
-    assertFalse( action.areEntityLinksPending() );
-    assertFalse( action.hasWorldBeenValidated() );
+    assertEquals( action.getMessage(), changeSet );
+    assertEquals( action.getRequest(), request );
 
     assertNull( action.getCompletionAction() );
 
     request.setCompletionAction( completionAction );
 
-    action.recordChangeSet( changeSet, request );
-
     assertEquals( request.getCompletionAction(), completionAction );
-    assertEquals( action.getChangeSet(), changeSet );
-    assertEquals( action.getRequest(), request );
-    assertNull( action.getRawJsonData() );
 
     assertTrue( action.needsChannelChangesProcessed() );
     assertFalse( action.areEntityChangesPending() );
@@ -312,16 +277,13 @@ public class MessageResponseTest
   @Test
   public void setChangeSet_mismatchedRequestId()
   {
-    final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
-
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( 1234, null, null, null, null );
-
     final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString() );
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
+      expectThrows( IllegalStateException.class, () -> new MessageResponse( 1, changeSet, request ) );
     assertEquals( exception.getMessage(),
-                  "Replicant-0011: ChangeSet specified requestId '1234' but request with requestId '5678' has been passed to recordChangeSet." );
+                  "Replicant-0011: Response message specified requestId '1234' but request specified requestId '5678'." );
   }
 }

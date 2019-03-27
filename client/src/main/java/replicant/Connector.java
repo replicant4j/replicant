@@ -10,6 +10,7 @@ import arez.annotations.Observable;
 import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
 import arez.component.Linkable;
+import elemental2.core.Global;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
@@ -494,12 +496,6 @@ abstract class Connector
       // Select the MessageResponse if there is none active
       return connection.selectNextMessageResponse();
     }
-    else if ( response.needsParsing() )
-    {
-      // Parse the json
-      parseMessageResponse();
-      return true;
-    }
     else if ( response.needsChannelChangesProcessed() )
     {
       // Process the updates to channels
@@ -554,8 +550,7 @@ abstract class Connector
     {
       final Connection connection = ensureConnection();
       return connection.getRequests().isEmpty() &&
-             connection.getPendingResponses().isEmpty() &&
-             connection.getUnparsedResponses().isEmpty();
+             connection.getPendingResponses().isEmpty();
     }
   }
 
@@ -587,9 +582,7 @@ abstract class Connector
   {
     final MessageResponse response = ensureCurrentMessageResponse();
 
-    final List<ChannelChangeDescriptor> changes = response.getChannelChanges();
-
-    for ( final ChannelChangeDescriptor channelChange : changes )
+    for ( final ChannelChangeDescriptor channelChange : response.getChannelChanges() )
     {
       final ChannelAddress address = channelChange.getAddress();
       final Object filter = channelChange.getFilter();
@@ -663,27 +656,6 @@ abstract class Connector
     response.markChannelActionsProcessed();
   }
 
-  @Nonnull
-  private List<ChannelChangeDescriptor> toChannelChanges( final ChangeSetMessage changeSet )
-  {
-    final List<ChannelChangeDescriptor> changes = new ArrayList<>();
-
-    if ( changeSet.hasChannels() )
-    {
-      for ( final String channelChange : changeSet.getChannels() )
-      {
-        changes.add( ChannelChangeDescriptor.from( getSchema().getId(), channelChange ) );
-      }
-    }
-    if ( changeSet.hasFilteredChannels() )
-    {
-      for ( final ChannelChange channelChange : changeSet.getFilteredChannels() )
-      {
-        changes.add( ChannelChangeDescriptor.from( getSchema().getId(), channelChange ) );
-      }
-    }
-    return changes;
-  }
 
   @Action( verifyRequired = false )
   protected void processEntityLinks()
@@ -759,8 +731,8 @@ abstract class Connector
       action.call();
     }
     // We can remove the request because this side ran second and the RPC channel has already returned.
-    final ChangeSetMessage changeSet = response.getChangeSet();
-    final Integer requestId = changeSet.getRequestId();
+    final ServerToClientMessage message = response.getMessage();
+    final Integer requestId = message.getRequestId();
     if ( null != requestId )
     {
       connection.removeRequest( requestId, false );
@@ -769,7 +741,7 @@ abstract class Connector
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
 
-    if ( changeSet.hasChannels() || changeSet.hasFilteredChannels() || changeSet.hasEntityChanges() )
+    if ( message instanceof ChangeSetMessage )
     {
       // If message is not a ping response then try to perform sync
       maybeRequestSync();
@@ -881,9 +853,9 @@ abstract class Connector
   {
     final Connection connection = ensureConnection();
     final MessageResponse response = connection.ensureCurrentMessageResponse();
-    final String rawJsonData = response.getRawJsonData();
+    final String rawJsonData = "";//response.getRawJsonData();
     assert null != rawJsonData;
-    final ServerToClientMessage message = MessageParser.parseMessage( rawJsonData );
+    final ServerToClientMessage message = Js.cast( Global.JSON.parse( rawJsonData ) );
 
     final Integer requestId = message.getRequestId();
     final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
@@ -923,7 +895,7 @@ abstract class Connector
                             "'." );
       }
       assert null != entry;
-      changeSetMessage = (ChangeSetMessage) MessageParser.parseMessage( entry.getContent() );
+      changeSetMessage = Js.cast( Global.JSON.parse( entry.getContent() ) );
       changeSetMessage.setRequestId( requestId );
     }
     else if ( ChangeSetMessage.TYPE.equals( message.getType() ) )
@@ -939,9 +911,9 @@ abstract class Connector
 
     if ( null != changeSetMessage )
     {
-      response.recordChangeSet( changeSetMessage, request );
+      //response.recordChangeSet( changeSetMessage, request );
     }
-    connection.queueCurrentResponse();
+    //TODO: connection.queueCurrentResponse();
   }
 
   private void cacheMessageIfPossible( @Nonnull final String rawJsonData,
@@ -951,13 +923,8 @@ abstract class Connector
     final String eTag = changeSet.getETag();
     final CacheService cacheService = getReplicantContext().getCacheService();
 
-    final boolean hasChannelChanges = changeSet.hasChannels() || changeSet.hasFilteredChannels();
-    if ( hasChannelChanges )
-    {
-      response.setParsedChannelChanges( toChannelChanges( changeSet ) );
-    }
     boolean candidate = false;
-    if ( null != cacheService && null != eTag && hasChannelChanges )
+    if ( null != cacheService && null != eTag && ( changeSet.hasChannels() || changeSet.hasFilteredChannels()) )
     {
       final List<ChannelChangeDescriptor> channelChanges = response.getChannelChanges();
 
@@ -1377,11 +1344,11 @@ abstract class Connector
   /**
    * Invoked when a transport received a message.
    *
-   * @param rawJsonData the message.
+   * @param message the message.
    */
-  void onMessageReceived( @Nonnull final String rawJsonData )
+  void onMessageReceived( @Nonnull final ServerToClientMessage message )
   {
-    ensureConnection().enqueueResponse( rawJsonData );
+    ensureConnection().enqueueResponse( message );
     triggerMessageScheduler();
   }
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.messages.ServerToClientMessage;
 
 /**
  * The transport is responsible for communicating with the backend system.
@@ -31,9 +32,9 @@ public interface Transport
     /**
      * Notify the Connector that a message was received.
      *
-     * @param rawJsonData the message.
+     * @param message the message.
      */
-    void onMessageReceived( @Nonnull String rawJsonData );
+    void onMessageReceived( @Nonnull ServerToClientMessage message );
 
     /**
      * Notify the Connector that there was an error from the Transport.

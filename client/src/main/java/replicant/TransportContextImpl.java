@@ -4,6 +4,7 @@ import arez.Disposable;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.messages.ServerToClientMessage;
 
 final class TransportContextImpl
   implements Transport.Context, Disposable
@@ -37,11 +38,11 @@ final class TransportContextImpl
   }
 
   @Override
-  public void onMessageReceived( @Nonnull final String rawJsonData )
+  public void onMessageReceived( @Nonnull final ServerToClientMessage message )
   {
     if ( isNotDisposed() )
     {
-      _connector.onMessageReceived( rawJsonData );
+      _connector.onMessageReceived( message );
     }
   }
 

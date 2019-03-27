@@ -1,13 +1,16 @@
 package replicant;
 
 import arez.component.Linkable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.messages.ChangeSetMessage;
+import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
+import replicant.messages.ServerToClientMessage;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -17,16 +20,12 @@ import static org.realityforge.braincheck.Guards.*;
 @SuppressFBWarnings( value = { "EQ_COMPARETO_USE_OBJECT_EQUALS" }, justification = "Equals is not used and implementing it would add code that GWT2.x could not optimize away" )
 final class MessageResponse
 {
+  private final int _schemaId;
   /**
-   * The raw data string data prior to parsing. Null-ed after parsing.
+   * The message to process.
    */
-  @Nullable
-  private String _rawJsonData;
-  /**
-   * The array of changes after parsing. Null prior to parsing.
-   */
-  @Nullable
-  private ChangeSetMessage _changeSet;
+  @Nonnull
+  private final ServerToClientMessage _message;
   /**
    * The current index into changes.
    */
@@ -43,9 +42,21 @@ final class MessageResponse
   private int _entityRemoveCount;
   private int _entityLinkCount;
 
-  MessageResponse( @Nonnull final String rawJsonData )
+  MessageResponse( final int schemaId,
+                   @Nonnull final ServerToClientMessage message,
+                   @Nullable final RequestEntry request )
   {
-    _rawJsonData = Objects.requireNonNull( rawJsonData );
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> null == request || ( (Integer) request.getRequestId() ).equals( message.getRequestId() ),
+                 () -> "Replicant-0011: Response message specified requestId '" + message.getRequestId() +
+                       "' but request specified requestId '" + Objects.requireNonNull( request ).getRequestId() +
+                       "'." );
+    }
+    _schemaId = schemaId;
+    _message = Objects.requireNonNull( message );
+    _request = request;
+    _entityChangeIndex = 0;
   }
 
   int getChannelAddCount()
@@ -126,32 +137,6 @@ final class MessageResponse
     }
   }
 
-  boolean needsParsing()
-  {
-    return null != _rawJsonData;
-  }
-
-  @Nullable
-  String getRawJsonData()
-  {
-    return _rawJsonData;
-  }
-
-  void recordChangeSet( @Nonnull final ChangeSetMessage changeSet, @Nullable final RequestEntry request )
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( () -> null == request || ( (Integer) request.getRequestId() ).equals( changeSet.getRequestId() ),
-                 () -> "Replicant-0011: ChangeSet specified requestId '" + changeSet.getRequestId() +
-                       "' but request with requestId '" + Objects.requireNonNull( request ).getRequestId() +
-                       "' has been passed to recordChangeSet." );
-    }
-    _changeSet = Objects.requireNonNull( changeSet );
-    _request = request;
-    _rawJsonData = null;
-    _entityChangeIndex = 0;
-  }
-
   RequestEntry getRequest()
   {
     return _request;
@@ -159,19 +144,31 @@ final class MessageResponse
 
   boolean areEntityChangesPending()
   {
-    return null != _changeSet &&
-           _changeSet.hasEntityChanges() &&
-           _entityChangeIndex < _changeSet.getEntityChanges().length;
+    if ( _message instanceof ChangeSetMessage )
+    {
+      final ChangeSetMessage message = (ChangeSetMessage) _message;
+      return message.hasEntityChanges() && _entityChangeIndex < message.getEntityChanges().length;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   boolean needsChannelChangesProcessed()
   {
-    return null != _changeSet &&
-           (
-             ( _changeSet.hasChannels() && 0 != _changeSet.getChannels().length ) ||
-             ( _changeSet.hasFilteredChannels() && 0 != _changeSet.getFilteredChannels().length )
-           ) &&
-           !_channelActionsProcessed;
+    if ( _message instanceof ChangeSetMessage )
+    {
+      final ChangeSetMessage message = (ChangeSetMessage) _message;
+      return !_channelActionsProcessed && (
+        message.hasChannels() && 0 != message.getChannels().length ||
+        message.hasFilteredChannels() && 0 != message.getFilteredChannels().length
+      );
+    }
+    else
+    {
+      return false;
+    }
   }
 
   void setParsedChannelChanges( @Nonnull final List<ChannelChangeDescriptor> parsedChannelChanges )
@@ -181,6 +178,13 @@ final class MessageResponse
 
   List<ChannelChangeDescriptor> getChannelChanges()
   {
+    assert _message instanceof ChangeSetMessage;
+    final ChangeSetMessage changeSet = (ChangeSetMessage) _message;
+    assert changeSet.hasChannels() || changeSet.hasFilteredChannels();
+    if ( null == _parsedChannelChanges )
+    {
+      _parsedChannelChanges = toChannelChanges( changeSet );
+    }
     return _parsedChannelChanges;
   }
 
@@ -193,8 +197,7 @@ final class MessageResponse
   {
     if ( areEntityChangesPending() )
     {
-      assert null != _changeSet;
-      final EntityChange change = _changeSet.getEntityChanges()[ _entityChangeIndex ];
+      final EntityChange change = ( (ChangeSetMessage) _message ).getEntityChanges()[ _entityChangeIndex ];
       _entityChangeIndex++;
       return change;
     }
@@ -232,10 +235,9 @@ final class MessageResponse
   }
 
   @Nonnull
-  ChangeSetMessage getChangeSet()
+  ServerToClientMessage getMessage()
   {
-    assert null != _changeSet;
-    return _changeSet;
+    return _message;
   }
 
   @Nullable
@@ -268,15 +270,13 @@ final class MessageResponse
   DataLoadStatus toStatus()
   {
     assert Replicant.areSpiesEnabled();
-    final ChangeSetMessage changeSet = getChangeSet();
-    return new DataLoadStatus(
-      changeSet.getRequestId(),
-      getChannelAddCount(),
-      getChannelUpdateCount(),
-      getChannelRemoveCount(),
-      getEntityUpdateCount(),
-      getEntityRemoveCount(),
-      getEntityLinkCount() );
+    return new DataLoadStatus( _message.getRequestId(),
+                               getChannelAddCount(),
+                               getChannelUpdateCount(),
+                               getChannelRemoveCount(),
+                               getEntityUpdateCount(),
+                               getEntityRemoveCount(),
+                               getEntityLinkCount() );
   }
 
   @Override
@@ -284,9 +284,9 @@ final class MessageResponse
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return "DataLoad[" +
-             ",RawJson.null?=" + ( null == _rawJsonData ) +
-             ",ChangeSet.null?=" + ( null == _changeSet ) +
+      return "MessageResponse[" +
+             "Type=" + _message.getType() +
+             ",RequestId=" + _message.getRequestId() +
              ",ChangeIndex=" + _entityChangeIndex +
              ",CompletionAction.null?=" + ( null == getCompletionAction() ) +
              ",UpdatedEntities.size=" + ( null == _updatedEntities ? 0 : _updatedEntities.size() ) +
@@ -298,8 +298,25 @@ final class MessageResponse
     }
   }
 
-  LinkedList<Linkable> getUpdatedEntities()
+  @Nonnull
+  private List<ChannelChangeDescriptor> toChannelChanges( @Nonnull final ChangeSetMessage changeSet )
   {
-    return _updatedEntities;
+    final List<ChannelChangeDescriptor> changes = new ArrayList<>();
+
+    if ( changeSet.hasChannels() )
+    {
+      for ( final String channelChange : changeSet.getChannels() )
+      {
+        changes.add( ChannelChangeDescriptor.from( _schemaId, channelChange ) );
+      }
+    }
+    if ( changeSet.hasFilteredChannels() )
+    {
+      for ( final ChannelChange channelChange : changeSet.getFilteredChannels() )
+      {
+        changes.add( ChannelChangeDescriptor.from( _schemaId, channelChange ) );
+      }
+    }
+    return changes;
   }
 }

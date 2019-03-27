@@ -9,7 +9,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
-import replicant.messages.ChangeSetMessage;
+import replicant.messages.OkMessage;
+import replicant.messages.ServerToClientMessage;
+import replicant.messages.UseCacheMessage;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import static org.mockito.Mockito.*;
@@ -29,7 +31,9 @@ public class ConnectionTest
     assertNotNull( connection.getTransportContext() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
-    final MessageResponse response = new MessageResponse( "" );
+    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final MessageResponse response =
+      new MessageResponse( 1, OkMessage.create( request.getRequestId() ), request.getEntry() );
     connection.setCurrentMessageResponse( response );
 
     assertEquals( connection.getCurrentMessageResponse(), response );
@@ -64,33 +68,11 @@ public class ConnectionTest
   }
 
   @Test
-  public void selectNextMessageResponse_unparsedMessage()
+  public void selectNextMessageResponse()
   {
     final Connection connection = createConnection();
 
-    // Add an unparsed message to queue
-    connection.enqueueResponse( "" );
-
-    assertNull( connection.getCurrentMessageResponse() );
-    assertEquals( connection.getUnparsedResponses().size(), 1 );
-
-    final boolean selectedMessage = connection.selectNextMessageResponse();
-
-    assertTrue( selectedMessage );
-    assertNotNull( connection.getCurrentMessageResponse() );
-    assertEquals( connection.getUnparsedResponses().size(), 0 );
-  }
-
-  @Test
-  public void selectNextMessageResponse_parsedMessage()
-  {
-    final Connection connection = createConnection();
-
-    final MessageResponse response = new MessageResponse( "" );
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
-
-    // Add a "parsed" message with sequence indicating it is next
-    connection.injectPendingResponses( response );
+    connection.enqueueResponse( UseCacheMessage.create( null, "0", ValueUtil.randomString() ) );
 
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -101,37 +83,6 @@ public class ConnectionTest
     final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
     assertNotNull( currentMessageResponse );
     assertEquals( connection.getPendingResponses().size(), 0 );
-  }
-
-  @Test
-  public void queueCurrentResponse()
-  {
-    final Connection connection = createConnection();
-
-    final MessageResponse response2 = new MessageResponse( "" );
-    final MessageResponse response3 = new MessageResponse( "" );
-
-    response2.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
-    response3.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
-
-    connection.setCurrentMessageResponse( response2 );
-
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    connection.queueCurrentResponse();
-
-    assertEquals( connection.getPendingResponses().size(), 1 );
-    assertEquals( connection.getPendingResponses().get( 0 ), response2 );
-    assertNull( connection.getCurrentMessageResponse() );
-
-    connection.setCurrentMessageResponse( response3 );
-
-    connection.queueCurrentResponse();
-
-    assertEquals( connection.getPendingResponses().size(), 2 );
-    assertEquals( connection.getPendingResponses().get( 0 ), response2 );
-    assertEquals( connection.getPendingResponses().get( 1 ), response3 );
-    assertNull( connection.getCurrentMessageResponse() );
   }
 
   @Test
@@ -235,27 +186,24 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final String data1 = ValueUtil.randomString();
-    final String data2 = ValueUtil.randomString();
+    final ServerToClientMessage data1 = OkMessage.create( 1 );
+    final ServerToClientMessage data2 = OkMessage.create( 1 );
 
-    assertEquals( connection.getUnparsedResponses().size(), 0 );
     assertEquals( connection.getPendingResponses().size(), 0 );
 
     connection.enqueueResponse( data1 );
 
-    assertEquals( connection.getUnparsedResponses().size(), 1 );
-    assertEquals( connection.getPendingResponses().size(), 0 );
+    assertEquals( connection.getPendingResponses().size(), 1 );
 
     connection.enqueueResponse( data2 );
 
-    assertEquals( connection.getUnparsedResponses().size(), 2 );
-    assertEquals( connection.getPendingResponses().size(), 0 );
+    assertEquals( connection.getPendingResponses().size(), 2 );
 
-    final MessageResponse response1 = connection.getUnparsedResponses().get( 0 );
-    final MessageResponse response2 = connection.getUnparsedResponses().get( 1 );
+    final MessageResponse response1 = connection.getPendingResponses().get( 0 );
+    final MessageResponse response2 = connection.getPendingResponses().get( 1 );
 
-    assertEquals( response1.getRawJsonData(), data1 );
-    assertEquals( response2.getRawJsonData(), data2 );
+    assertEquals( response1.getMessage(), data1 );
+    assertEquals( response2.getMessage(), data2 );
   }
 
   @Test

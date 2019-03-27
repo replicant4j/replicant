@@ -2,6 +2,7 @@ package replicant;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
+import replicant.messages.OkMessage;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
@@ -20,9 +21,9 @@ public class TransportContextImplTest
     final Connection connection = newConnection( connector );
     final TransportContextImpl context = new TransportContextImpl( connector );
 
-    assertEquals( connection.getUnparsedResponses().size(), 0 );
-    context.onMessageReceived( ValueUtil.randomString() );
-    assertEquals( connection.getUnparsedResponses().size(), 1 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
+    context.onMessageReceived( OkMessage.create( 1 ) );
+    assertEquals( connection.getPendingResponses().size(), 1 );
 
     assertFalse( context.isDisposed() );
 
@@ -30,12 +31,12 @@ public class TransportContextImplTest
 
     assertTrue( context.isDisposed() );
 
-    assertEquals( connection.getUnparsedResponses().size(), 1 );
+    assertEquals( connection.getPendingResponses().size(), 1 );
 
     // This should be ignored
-    context.onMessageReceived( ValueUtil.randomString() );
+    context.onMessageReceived( OkMessage.create( 1 ) );
 
-    assertEquals( connection.getUnparsedResponses().size(), 1 );
+    assertEquals( connection.getPendingResponses().size(), 1 );
   }
 
   @Test

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import replicant.messages.ServerToClientMessage;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -54,14 +55,7 @@ final class Connection
    */
   private final LinkedList<AreaOfInterestRequest> _pendingAreaOfInterestRequests = new LinkedList<>();
   /**
-   * This contains the messages that are not yet parsed. These need to be parsed
-   * and placed in the {@link #_pendingResponses} list in order before they will
-   * progress.
-   */
-  private final LinkedList<MessageResponse> _unparsedResponses = new LinkedList<>();
-  /**
-   * This list contains the messages that have been parsed and are ordered according to their sequence
-   * in ascending order.
+   * This list contains the messages from the server.
    */
   private final LinkedList<MessageResponse> _pendingResponses = new LinkedList<>();
   /**
@@ -139,21 +133,9 @@ final class Connection
     _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( address, action, filter ) );
   }
 
-  void enqueueResponse( @Nonnull final String rawJsonData )
+  void enqueueResponse( @Nonnull final ServerToClientMessage message )
   {
-    _unparsedResponses.add( new MessageResponse( rawJsonData ) );
-  }
-
-  /**
-   * Take the current message and queue it in the pending messages lists.
-   * This is invoked when the message has been parsed and now has enough
-   * information to sequence message.
-   */
-  void queueCurrentResponse()
-  {
-    assert null != _currentMessageResponse;
-    _pendingResponses.add( _currentMessageResponse );
-    _currentMessageResponse = null;
+    _pendingResponses.add( new MessageResponse( _connector.getSchema().getId(), message, _requests.get( message.getRequestId() ) ) );
   }
 
   /**
@@ -269,6 +251,7 @@ final class Connection
     return _requests;
   }
 
+  //TODO: Pings should pass in correct isSyncRequest
   void removeRequest( final int requestId, final boolean isSyncRequest )
   {
     final boolean removed = null != _requests.remove( requestId );
@@ -322,17 +305,9 @@ final class Connection
       _currentMessageResponse = _pendingResponses.remove();
       return true;
     }
-
-    // Abort if there is no pending data load actions to take
-    if ( _unparsedResponses.isEmpty() )
-    {
-      return false;
-    }
     else
     {
-      //Step: Retrieve the action from the un-parsed queue
-      _currentMessageResponse = _unparsedResponses.remove();
-      return true;
+      return false;
     }
   }
 
@@ -399,19 +374,9 @@ final class Connection
     _currentAreaOfInterestRequests.add( request );
   }
 
-  void injectPendingResponses( @Nonnull final MessageResponse response )
-  {
-    _pendingResponses.add( response );
-  }
-
   List<MessageResponse> getPendingResponses()
   {
     return CollectionsUtil.wrap( _pendingResponses );
-  }
-
-  List<MessageResponse> getUnparsedResponses()
-  {
-    return CollectionsUtil.wrap( _unparsedResponses );
   }
 
   List<AreaOfInterestRequest> getPendingAreaOfInterestRequests()

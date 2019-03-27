@@ -121,12 +121,6 @@ public abstract class AbstractReplicantTest
     return (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger();
   }
 
-  @Nonnull
-  MessageParser.ProxyParser getProxyParser()
-  {
-    return (MessageParser.ProxyParser) MessageParser.getParser();
-  }
-
   private void onObserverError( @Nonnull final Observer observer,
                                 @Nonnull final ObserverError error,
                                 @Nullable final Throwable throwable )

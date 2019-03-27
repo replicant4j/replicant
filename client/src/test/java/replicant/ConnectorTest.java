@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.intellij.lang.annotations.Language;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.messages.ChangeSetMessage;
@@ -20,6 +19,7 @@ import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.OkMessage;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
@@ -126,7 +126,7 @@ public class ConnectorTest
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
     connection.setCurrentMessageResponse( response );
 
     final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0 );
@@ -161,7 +161,6 @@ public class ConnectorTest
     assertEquals( connector.ensureConnection().getConnectionId(), newConnectionId );
 
     assertTrue( connector.ensureConnection().getPendingResponses().isEmpty() );
-    assertTrue( connector.ensureConnection().getUnparsedResponses().isEmpty() );
   }
 
   @Test
@@ -456,18 +455,18 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
-    final String rawJsonData = ValueUtil.randomString();
 
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    assertEquals( connection.getUnparsedResponses().size(), 0 );
+    assertEquals( connection.getPendingResponses().size(), 0 );
     assertFalse( connector.isSchedulerActive() );
 
-    connector.onMessageReceived( rawJsonData );
+    final ChangeSetMessage message = new ChangeSetMessage();
+    connector.onMessageReceived( message );
 
-    assertEquals( connection.getUnparsedResponses().size(), 1 );
-    assertEquals( connection.getUnparsedResponses().get( 0 ).getRawJsonData(), rawJsonData );
+    assertEquals( connection.getPendingResponses().size(), 1 );
+    assertEquals( connection.getPendingResponses().get( 0 ).getMessage(), message );
     assertTrue( connector.isSchedulerActive() );
   }
 
@@ -481,8 +480,7 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final MessageResponse response = new MessageResponse( "" );
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
+    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
     connector.onMessageProcessed( response );
 
     handler.assertEventCount( 1 );
@@ -1041,10 +1039,10 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
     final String[] channels = { "+0" };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertNull( connector.getSchedulerLock() );
@@ -1085,10 +1083,10 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
     final String[] channels = { "+0" };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     final AtomicInteger callCount = new AtomicInteger();
@@ -1385,8 +1383,6 @@ public class ConnectorTest
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
 
     final Linkable userObject1 = mock( Linkable.class );
     final Linkable userObject2 = mock( Linkable.class );
@@ -1415,11 +1411,11 @@ public class ConnectorTest
       EntityChange.create( 0, 3, new String[]{ "1" } )
     };
     final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, entityChanges );
-    response.recordChangeSet( changeSet, null );
+    final MessageResponse response = new MessageResponse( 1, changeSet, null );
+    connection.setCurrentMessageResponse( response );
 
     when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
-    assertEquals( response.getUpdatedEntities().size(), 0 );
     assertEquals( response.getEntityUpdateCount(), 0 );
     assertEquals( response.getEntityRemoveCount(), 0 );
 
@@ -1432,8 +1428,6 @@ public class ConnectorTest
     verify( creator, never() ).createEntity( 2, data2 );
     verify( updater, never() ).updateEntity( userObject2, data2 );
 
-    assertEquals( response.getUpdatedEntities().size(), 1 );
-    assertTrue( response.getUpdatedEntities().contains( userObject1 ) );
     assertEquals( response.getEntityUpdateCount(), 1 );
     assertEquals( response.getEntityRemoveCount(), 0 );
 
@@ -1446,9 +1440,6 @@ public class ConnectorTest
     verify( creator, never() ).createEntity( 2, data2 );
     verify( updater, times( 1 ) ).updateEntity( userObject2, data2 );
 
-    assertEquals( response.getUpdatedEntities().size(), 2 );
-    assertTrue( response.getUpdatedEntities().contains( userObject1 ) );
-    assertTrue( response.getUpdatedEntities().contains( userObject2 ) );
     assertEquals( response.getEntityUpdateCount(), 2 );
     assertEquals( response.getEntityRemoveCount(), 1 );
     assertFalse( Disposable.isDisposed( entity2 ) );
@@ -1481,8 +1472,6 @@ public class ConnectorTest
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
 
     final Linkable userObject1 = mock( Linkable.class );
 
@@ -1494,7 +1483,8 @@ public class ConnectorTest
       EntityChange.create( 0, 1, new String[]{ "1" }, data1 )
     };
     final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, entityChanges );
-    response.recordChangeSet( changeSet, null );
+    final MessageResponse response = new MessageResponse( 1, changeSet, null );
+    connection.setCurrentMessageResponse( response );
 
     when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
@@ -1527,8 +1517,6 @@ public class ConnectorTest
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
 
     // Pause scheduler to avoid converge of subscriptions
     pauseScheduler();
@@ -1538,7 +1526,8 @@ public class ConnectorTest
       EntityChange.create( 0, 3, new String[]{ "1" } )
     };
     final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, entityChanges );
-    response.recordChangeSet( changeSet, null );
+    final MessageResponse response = new MessageResponse( 1, changeSet, null );
+    connection.setCurrentMessageResponse( response );
 
     connector.setChangesToProcessPerTick( 1 );
 
@@ -1554,7 +1543,9 @@ public class ConnectorTest
     connector.setLinksToProcessPerTick( 1 );
 
     final Connection connection = newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, new String[ 0 ], null, new EntityChange[ 0 ] ),
+                           null );
     connection.setCurrentMessageResponse( response );
 
     final Linkable entity1 = mock( Linkable.class );
@@ -1618,14 +1609,14 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final int channelId = 0;
     final int subChannelId = ValueUtil.randomInt();
     final String filter = null;
     final String[] channels = { "+0." + subChannelId };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -1657,14 +1648,13 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final int channelId = 0;
     final int subChannelId = ValueUtil.randomInt();
     final String filter = ValueUtil.randomString();
     final ChannelChange[] fchannels = { ChannelChange.create( "+0." + subChannelId, filter ) };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, fchannels, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, fchannels, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, fchannels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -1696,9 +1686,6 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final int channelId = 0;
     final int subChannelId = ValueUtil.randomInt();
 
@@ -1707,7 +1694,9 @@ public class ConnectorTest
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     final String[] channels = { "+0." + subChannelId };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -1740,15 +1729,14 @@ public class ConnectorTest
 
     connector.pauseMessageScheduler();
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     final String[] channels = { "+0." + address.getId() };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, null );
@@ -1787,13 +1775,12 @@ public class ConnectorTest
 
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     final String[] channels = { "-0." + address.getId() };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     final Subscription initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
@@ -1826,16 +1813,15 @@ public class ConnectorTest
 
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     final String[] channels = { "-0." + address.getId() };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     final Subscription initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
 
@@ -1869,11 +1855,10 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final String[] channels = { "-0.72" };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1894,16 +1879,15 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     final String[] channels = { "-0." + address.getId() };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1928,16 +1912,15 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     final String[] channels = { "!0." + address.getId() };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, channels, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1982,16 +1965,15 @@ public class ConnectorTest
 
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     final String oldFilter = ValueUtil.randomString();
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0." + address.getId(), newFilter ) };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
 
@@ -2032,14 +2014,13 @@ public class ConnectorTest
     final Connector connector = createConnector( schema );
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final String oldFilter = ValueUtil.randomString();
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0.2223", newFilter ) };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
     createSubscription( new ChannelAddress( 1, 0, 2223 ), oldFilter, true );
@@ -2057,13 +2038,12 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
-    connection.setCurrentMessageResponse( response );
-
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0.42", newFilter ) };
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
+    connection.setCurrentMessageResponse( response );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
@@ -2282,7 +2262,7 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
     connector.ensureConnection().setCurrentMessageResponse( response );
 
     assertFalse( response.hasWorldBeenValidated() );
@@ -2303,12 +2283,12 @@ public class ConnectorTest
   }
 
   @Test
-  public void validateWorld_invalidEntity_ignoredIfCOmpileSettingDisablesValidation()
+  public void validateWorld_invalidEntity_ignoredIfCompileSettingDisablesValidation()
   {
     ReplicantTestUtil.noValidateEntitiesOnLoad();
     final Connector connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
     connector.ensureConnection().setCurrentMessageResponse( response );
 
     assertTrue( response.hasWorldBeenValidated() );
@@ -2329,7 +2309,7 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = new MessageResponse( ValueUtil.randomString() );
+    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
     connector.ensureConnection().setCurrentMessageResponse( response );
 
     assertFalse( response.hasWorldBeenValidated() );
@@ -2370,200 +2350,13 @@ public class ConnectorTest
   }
 
   @Test
-  public void parseMessageResponse_basicMessage()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    @Language( "json" )
-    final String rawJsonData = "{}";
-    final MessageResponse response = new MessageResponse( rawJsonData );
-
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseMessage( rawJsonData ) ).thenReturn( ChangeSetMessage.create( null, null, null, null, null ) );
-    getProxyParser().setParser( parser );
-
-    connection.setCurrentMessageResponse( response );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    connector.parseMessageResponse();
-
-    assertNull( response.getRawJsonData() );
-    final ChangeSetMessage changeSet = response.getChangeSet();
-    assertNotNull( changeSet );
-    assertNull( response.getRequest() );
-
-    assertEquals( connection.getPendingResponses().size(), 1 );
-    assertNull( connection.getCurrentMessageResponse() );
-  }
-
-  @Test
-  public void parseMessageResponse_requestPresent()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    final Request request = connection.newRequest( "SomeAction" );
-
-    final int requestId = request.getRequestId();
-
-    @Language( "json" )
-    final String rawJsonData = "{\"requestId\": " + requestId + "}";
-    final MessageResponse response = new MessageResponse( rawJsonData );
-
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseMessage( rawJsonData ) )
-      .thenReturn( ChangeSetMessage.create( requestId, null, null, null, null ) );
-    getProxyParser().setParser( parser );
-
-    connection.setCurrentMessageResponse( response );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    connector.parseMessageResponse();
-
-    assertNull( response.getRawJsonData() );
-    final ChangeSetMessage changeSet = response.getChangeSet();
-    assertNotNull( changeSet );
-    assertEquals( response.getRequest(), request.getEntry() );
-
-    assertEquals( connection.getPendingResponses().size(), 1 );
-    assertNull( connection.getCurrentMessageResponse() );
-  }
-
-  @Test
-  public void parseMessageResponse_cacheResult()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         null,
-                         ChannelSchema.FilterType.NONE,
-                         null,
-                         true,
-                         true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final Request request = connection.newRequest( "SomeAction" );
-
-    final int requestId = request.getRequestId();
-
-    final String etag = ValueUtil.randomString();
-
-    @Language( "json" )
-    final String rawJsonData =
-      "{\"requestId\": " + requestId +
-      ", \"etag\": \"" + etag + "\"" +
-      ", \"channels\": [ \"+0\" ] }";
-
-    final MessageResponse response = new MessageResponse( rawJsonData );
-
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseMessage( rawJsonData ) )
-      .thenReturn( ChangeSetMessage.create( requestId, etag, new String[]{ "+0" }, null, null ) );
-    getProxyParser().setParser( parser );
-
-    connection.setCurrentMessageResponse( response );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    final CacheService cacheService = new TestCacheService();
-    Replicant.context().setCacheService( cacheService );
-    assertNull( cacheService.lookup( ValueUtil.randomString() ) );
-
-    connector.parseMessageResponse();
-
-    assertNull( response.getRawJsonData() );
-    final ChangeSetMessage changeSet = response.getChangeSet();
-    assertNotNull( changeSet );
-    assertEquals( response.getRequest(), request.getEntry() );
-
-    assertEquals( connection.getPendingResponses().size(), 1 );
-    assertNull( connection.getCurrentMessageResponse() );
-
-    final String cacheKey = "RC-1.0";
-    final CacheEntry entry = cacheService.lookup( cacheKey );
-    assertNotNull( entry );
-    assertEquals( entry.getKey(), cacheKey );
-    assertEquals( entry.getETag(), etag );
-    assertEquals( entry.getContent(), rawJsonData );
-  }
-
-  @Test
-  public void parseMessageResponse_eTagWhenNotCacheCandidate()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    final Request request = connection.newRequest( "SomeAction" );
-
-    final int requestId = request.getRequestId();
-
-    final String etag = ValueUtil.randomString();
-
-    @Language( "json" )
-    final String rawJsonData =
-      "{\"requestId\": " + requestId +
-      ", \"etag\": \"" + etag + "\"" +
-      ", \"channels\": [ \"+0\", \"+1.1\" ] }";
-
-    final MessageResponse response = new MessageResponse( rawJsonData );
-
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseMessage( rawJsonData ) )
-      .thenReturn( ChangeSetMessage.create( requestId, etag, new String[]{ "+0", "+1.1" }, null, null ) );
-    getProxyParser().setParser( parser );
-
-    connection.setCurrentMessageResponse( response );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    final CacheService cacheService = new TestCacheService();
-    Replicant.context().setCacheService( cacheService );
-    assertNull( cacheService.lookup( ValueUtil.randomString() ) );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, connector::parseMessageResponse );
-
-    assertEquals( exception.getMessage(),
-                  "Replicant-0072: eTag in reply for ChangeSet but ChangeSet is not a candidate for caching." );
-  }
-
-  @Test
-  public void parseMessageResponse_invalidRequestId()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    @Language( "json" )
-    final String rawJsonData = "{\"requestId\": 22}";
-    final MessageResponse response = new MessageResponse( rawJsonData );
-
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseMessage( rawJsonData ) ).thenReturn( ChangeSetMessage.create( 22, null, null, null, null ) );
-    getProxyParser().setParser( parser );
-
-    connection.setCurrentMessageResponse( response );
-    assertEquals( connection.getPendingResponses().size(), 0 );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, connector::parseMessageResponse );
-
-    assertEquals( exception.getMessage(),
-                  "Replicant-0066: Unable to locate request with id '22' specified by message. Existing Requests: {}" );
-  }
-
-  @Test
   public void completeMessageResponse()
   {
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( "" );
-
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, null );
-    response.recordChangeSet( changeSet, null );
+    final ChangeSetMessage changeSet = new ChangeSetMessage();
+    final MessageResponse response = new MessageResponse( 1, changeSet, null );
 
     connection.setCurrentMessageResponse( response );
 
@@ -2587,12 +2380,11 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final MessageResponse response = new MessageResponse( "" );
     final Request request = connection.newRequest( ValueUtil.randomString() );
-
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( request.getRequestId(), null, new String[]{ "+1" }, null, null );
-    response.recordChangeSet( changeSet, request.getEntry() );
+
+    final MessageResponse response = new MessageResponse( 1, changeSet, request.getEntry() );
 
     connection.setCurrentMessageResponse( response );
 
@@ -2617,18 +2409,16 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( "" );
-
-    response.recordChangeSet( ChangeSetMessage.create( null, null, null, null, null ), null );
+    final MessageResponse response =
+      new MessageResponse( 1, new ChangeSetMessage(), null );
 
     connection.setCurrentMessageResponse( response );
 
-    connection.enqueueResponse( ValueUtil.randomString() );
+    connection.enqueueResponse( new ChangeSetMessage() );
 
     connector.completeMessageResponse();
 
-    assertTrue( connector.ensureConnection().getPendingResponses().isEmpty() );
-    assertFalse( connector.ensureConnection().getUnparsedResponses().isEmpty() );
+    assertFalse( connector.ensureConnection().getPendingResponses().isEmpty() );
   }
 
   @Test
@@ -2637,10 +2427,8 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response = new MessageResponse( "" );
-
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, null );
-    response.recordChangeSet( changeSet, null );
+    final ChangeSetMessage changeSet = new ChangeSetMessage();
+    final MessageResponse response = new MessageResponse( 1, changeSet, null );
 
     connection.setCurrentMessageResponse( response );
 
@@ -2668,10 +2456,7 @@ public class ConnectorTest
     entry.setNormalCompletion( true );
     entry.setCompletionAction( completionCalled::incrementAndGet );
 
-    final MessageResponse response = new MessageResponse( "" );
-
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( requestId, null, null, null, null );
-    response.recordChangeSet( changeSet, entry );
+    final MessageResponse response = new MessageResponse( 1, OkMessage.create( requestId ), entry );
 
     connection.setCurrentMessageResponse( response );
 
@@ -2707,10 +2492,7 @@ public class ConnectorTest
     final int requestId = request.getRequestId();
     final RequestEntry entry = request.getEntry();
 
-    final MessageResponse response = new MessageResponse( "" );
-
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( requestId, null, null, null, null );
-    response.recordChangeSet( changeSet, entry );
+    final MessageResponse response = new MessageResponse( 1, OkMessage.create( requestId ), entry );
 
     connection.setCurrentMessageResponse( response );
 
@@ -2763,64 +2545,26 @@ public class ConnectorTest
     final Connector connector = createConnector( schema );
     final Connection connection = newConnection( connector );
 
-    @Language( "json" )
-    final String rawJsonData =
-      "{" +
-      // Add Channel 0
-      "\"channels\": [ \"+0\" ], " +
-      // Add Entity 1 of type 0 from channel 0
-      "\"changes\": [{\"id\": 1,\"type\":0,\"channels\":[\"0\"], \"data\":{}}] " +
-      "}";
-    connection.enqueueResponse( rawJsonData );
+    final ChangeSetMessage message =
+      ChangeSetMessage.create( null,
+                               null,
+                               new String[]{ "+0" },
+                               null,
+                               new EntityChange[]{ EntityChange.create( 0,
+                                                                        1,
+                                                                        new String[]{ "0" },
+                                                                        new EntityChangeDataImpl() ) } );
+    connection.enqueueResponse( message );
+    assertNull( connection.getCurrentMessageResponse() );
+    assertEquals( connection.getPendingResponses().size(), 1 );
 
-    final MessageParser.Parser parser = mock( MessageParser.Parser.class );
-    when( parser.parseMessage( rawJsonData ) )
-      .thenReturn( ChangeSetMessage.create( null,
-                                            null,
-                                            new String[]{ "+0" },
-                                            null,
-                                            new EntityChange[]{ EntityChange.create( 0,
-                                                                                     1,
-                                                                                     new String[]{ "0" },
-                                                                                     new EntityChangeDataImpl() ) } ) );
-    getProxyParser().setParser( parser );
+    final MessageResponse response = connection.getPendingResponses().get( 0 );
 
-    final MessageResponse response = connection.getUnparsedResponses().get( 0 );
-    {
-      assertNull( connection.getCurrentMessageResponse() );
-      assertEquals( connection.getUnparsedResponses().size(), 1 );
+    // Pickup parsed response and set it as current
+    assertTrue( connector.progressResponseProcessing() );
 
-      // Select response
-      assertTrue( connector.progressResponseProcessing() );
-
-      assertEquals( connection.getCurrentMessageResponse(), response );
-      assertEquals( connection.getUnparsedResponses().size(), 0 );
-    }
-
-    {
-      assertEquals( response.getRawJsonData(), rawJsonData );
-      assertThrows( response::getChangeSet );
-      assertTrue( response.needsParsing() );
-      assertEquals( connection.getPendingResponses().size(), 0 );
-
-      // Parse response
-      assertTrue( connector.progressResponseProcessing() );
-
-      assertNull( response.getRawJsonData() );
-      assertNotNull( response.getChangeSet() );
-      assertFalse( response.needsParsing() );
-    }
-
-    {
-      assertNull( connection.getCurrentMessageResponse() );
-      assertEquals( connection.getPendingResponses().size(), 1 );
-
-      // Pickup parsed response and set it as current
-      assertTrue( connector.progressResponseProcessing() );
-
-      assertEquals( connection.getCurrentMessageResponse(), response );
-      assertEquals( connection.getPendingResponses().size(), 0 );
-    }
+    assertEquals( connection.getCurrentMessageResponse(), response );
+    assertEquals( connection.getPendingResponses().size(), 0 );
 
     {
       assertTrue( response.needsChannelChangesProcessed() );
@@ -5095,7 +4839,7 @@ public class ConnectorTest
       connector.setState( ConnectorState.CONNECTED );
       final Request request = connection.newRequest( ValueUtil.randomString() );
       connection.removeRequest( request.getRequestId(), true );
-      connection.enqueueResponse( "" );
+      connection.enqueueResponse( new ChangeSetMessage() );
       assertFalse( connector.shouldRequestSync() );
     } );
   }
