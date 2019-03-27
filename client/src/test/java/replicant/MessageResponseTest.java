@@ -352,22 +352,6 @@ public class MessageResponseTest
   }
 
   @Test
-  public void setChangeSet_includingRequestWithOOBMessage()
-  {
-    final MessageResponse action = new MessageResponse( ValueUtil.randomString(), mock( SafeProcedure.class ) );
-
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( 1234, null, null, null, null );
-
-    final RequestEntry request = new RequestEntry( 1234, "DoMagic" );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> action.recordChangeSet( changeSet, request ) );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0010: Incorrectly associating a request named 'DoMagic' with requestId '1234' with an out-of-band message." );
-  }
-
-  @Test
   public void setChangeSet_mismatchedRequestId()
   {
     final MessageResponse action = new MessageResponse( ValueUtil.randomString() );
