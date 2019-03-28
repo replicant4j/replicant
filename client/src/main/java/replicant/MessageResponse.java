@@ -144,7 +144,7 @@ final class MessageResponse
 
   boolean areEntityChangesPending()
   {
-    if ( _message instanceof ChangeSetMessage )
+    if ( ChangeSetMessage.TYPE.equals( _message.getType() ) )
     {
       final ChangeSetMessage message = (ChangeSetMessage) _message;
       return message.hasEntityChanges() && _entityChangeIndex < message.getEntityChanges().length;
@@ -157,7 +157,7 @@ final class MessageResponse
 
   boolean needsChannelChangesProcessed()
   {
-    if ( _message instanceof ChangeSetMessage )
+    if ( ChangeSetMessage.TYPE.equals( _message.getType() ) )
     {
       final ChangeSetMessage message = (ChangeSetMessage) _message;
       return !_channelActionsProcessed && (
@@ -178,7 +178,7 @@ final class MessageResponse
 
   List<ChannelChangeDescriptor> getChannelChanges()
   {
-    assert _message instanceof ChangeSetMessage;
+    assert ChangeSetMessage.TYPE.equals( _message.getType() );
     final ChangeSetMessage changeSet = (ChangeSetMessage) _message;
     assert changeSet.hasChannels() || changeSet.hasFilteredChannels();
     if ( null == _parsedChannelChanges )

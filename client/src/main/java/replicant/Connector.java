@@ -741,7 +741,7 @@ abstract class Connector
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
 
-    if ( message instanceof ChangeSetMessage )
+    if ( ChangeSetMessage.TYPE.equals( message.getType() ) )
     {
       // If message is not a ping response then try to perform sync
       maybeRequestSync();
