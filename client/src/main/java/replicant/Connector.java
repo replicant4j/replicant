@@ -924,7 +924,7 @@ abstract class Connector
     final CacheService cacheService = getReplicantContext().getCacheService();
 
     boolean candidate = false;
-    if ( null != cacheService && null != eTag && ( changeSet.hasChannels() || changeSet.hasFilteredChannels()) )
+    if ( null != cacheService && null != eTag && ( changeSet.hasChannels() || changeSet.hasFilteredChannels() ) )
     {
       final List<ChannelChangeDescriptor> channelChanges = response.getChannelChanges();
 
