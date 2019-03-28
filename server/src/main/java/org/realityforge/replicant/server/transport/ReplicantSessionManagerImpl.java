@@ -394,11 +394,11 @@ public abstract class ReplicantSessionManagerImpl
         entry.setExplicitlySubscribed( true );
       }
       final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
-      if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC )
+      if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() )
       {
         updateSubscription( session, address, filter, changeSet );
       }
-      else if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.STATIC )
+      else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
         final Object existingFilter = entry.getFilter();
         if ( !doFiltersMatch( filter, existingFilter ) )
