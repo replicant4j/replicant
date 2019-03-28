@@ -656,7 +656,6 @@ abstract class Connector
     response.markChannelActionsProcessed();
   }
 
-
   @Action( verifyRequired = false )
   protected void processEntityLinks()
   {
