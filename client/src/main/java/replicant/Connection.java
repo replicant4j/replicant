@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Disposable;
 import arez.component.CollectionsUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,18 +21,12 @@ import static org.realityforge.braincheck.Guards.*;
  * to the local state etc.
  */
 final class Connection
-  implements Disposable
 {
   /**
    * The containing Connector.
    */
   @Nonnull
   private final Connector _connector;
-  /**
-   * The interface between Transport and Connector infrastructure.
-   */
-  @Nonnull
-  private final TransportContextImpl _transportContext;
   /**
    * A unique identifier for the connection, typically supplied by the backend.
    */
@@ -73,19 +66,6 @@ final class Connection
   Connection( @Nonnull final Connector connector )
   {
     _connector = Objects.requireNonNull( connector );
-    _transportContext = new TransportContextImpl( connector );
-  }
-
-  @Override
-  public void dispose()
-  {
-    _transportContext.dispose();
-  }
-
-  @Override
-  public boolean isDisposed()
-  {
-    return _transportContext.isDisposed();
   }
 
   @Nonnull
@@ -103,12 +83,6 @@ final class Connection
   Connector getConnector()
   {
     return _connector;
-  }
-
-  @Nonnull
-  Transport.Context getTransportContext()
-  {
-    return _transportContext;
   }
 
   void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
@@ -135,7 +109,9 @@ final class Connection
 
   void enqueueResponse( @Nonnull final ServerToClientMessage message )
   {
-    _pendingResponses.add( new MessageResponse( _connector.getSchema().getId(), message, _requests.get( message.getRequestId() ) ) );
+    _pendingResponses.add( new MessageResponse( _connector.getSchema().getId(),
+                                                message,
+                                                _requests.get( message.getRequestId() ) ) );
   }
 
   /**

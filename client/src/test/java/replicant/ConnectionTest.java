@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Disposable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +25,7 @@ public class ConnectionTest
   {
     final Connection connection = createConnection();
 
-    assertFalse( connection.isDisposed() );
     assertNull( connection.getCurrentMessageResponse() );
-    assertNotNull( connection.getTransportContext() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
     final Request request = connection.newRequest( ValueUtil.randomString() );
@@ -38,20 +35,6 @@ public class ConnectionTest
 
     assertEquals( connection.getCurrentMessageResponse(), response );
     assertEquals( connection.ensureCurrentMessageResponse(), response );
-  }
-
-  @Test
-  public void dispose()
-  {
-    final Connection connection = createConnection();
-
-    assertFalse( connection.isDisposed() );
-    assertFalse( Disposable.isDisposed( connection.getTransportContext() ) );
-
-    connection.dispose();
-
-    assertTrue( connection.isDisposed() );
-    assertTrue( Disposable.isDisposed( connection.getTransportContext() ) );
   }
 
   @Test

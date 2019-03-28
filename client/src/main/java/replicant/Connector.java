@@ -157,7 +157,7 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        _transport.requestConnect( this::onConnection );
+        _transport.requestConnect( new TransportContextImpl( this ) );
         newState = ConnectorState.CONNECTING;
       }
       finally
@@ -569,10 +569,6 @@ abstract class Connector
     if ( ConnectorState.ERROR == _state || ConnectorState.DISCONNECTED == _state )
     {
       _transport.unbind();
-    }
-    else if ( ConnectorState.CONNECTED == _state )
-    {
-      _transport.bind( ensureConnection().getTransportContext() );
     }
   }
 

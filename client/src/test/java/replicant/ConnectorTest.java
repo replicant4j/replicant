@@ -173,7 +173,7 @@ public class ConnectorTest
 
     safeAction( connector::connect );
 
-    verify( connector.getTransport() ).requestConnect( any( Transport.OnConnect.class ) );
+    verify( connector.getTransport() ).requestConnect( any( Transport.Context.class ) );
 
     assertEquals( connector.getState(), ConnectorState.CONNECTING );
   }
@@ -191,7 +191,7 @@ public class ConnectorTest
     final IllegalStateException exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
-    } ).when( connector.getTransport() ).requestConnect( any( Transport.OnConnect.class ) );
+    } ).when( connector.getTransport() ).requestConnect( any( Transport.Context.class ) );
 
     final IllegalStateException actual =
       expectThrows( IllegalStateException.class, () -> safeAction( connector::connect ) );
@@ -378,10 +378,7 @@ public class ConnectorTest
     connector.onConnected();
 
     assertEquals( connector.getState(), ConnectorState.CONNECTED );
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.CONNECTED ) );
-
-    verify( connector.getTransport() ).bind( connection.getTransportContext() );
+    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTED ) );
   }
 
   @Test

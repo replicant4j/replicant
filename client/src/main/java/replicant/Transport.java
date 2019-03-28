@@ -50,26 +50,14 @@ public interface Transport
   }
 
   /**
-   * Perform the connection, invoking the action when connection has completed.
-   *
-   * @param onConnect the action to invoke once connect has completed.
+   * Perform the connection.
    */
-  void requestConnect( @Nonnull OnConnect onConnect );
-
-  /**
-   * This is invoked by the Connector when the {@link OnConnect#onConnect(String)} method executes.
-   * This method is responsible for providing the necessary context information for the Transport to
-   * communicate with the back-end. This context is no longer valid after the callbacks of the
-   * {@link #requestDisconnect()} method are invoked.
-   *
-   * @param context the context that provides environmental data to Transport.
-   */
-  void bind( @Nonnull Context context );
+  void requestConnect( @Nonnull Context context );
 
   /**
    * This method is invoked by the Connector when the connection
    * disconnects or there is a fatal error. This method disassociates the connection context bound to the transport
-   * via the {@link #bind(Context)} method.
+   * via the {@link #requestConnect(Context)} method.
    */
   void unbind();
 
