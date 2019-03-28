@@ -381,7 +381,7 @@ public class ConnectorTest
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.CONNECTED ) );
 
-    verify( connector.getTransport() ).bind( connection.getTransportContext(), Replicant.context() );
+    verify( connector.getTransport() ).bind( connection.getTransportContext() );
   }
 
   @Test

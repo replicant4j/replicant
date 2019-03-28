@@ -572,7 +572,7 @@ abstract class Connector
     }
     else if ( ConnectorState.CONNECTED == _state )
     {
-      _transport.bind( ensureConnection().getTransportContext(), getReplicantContext() );
+      _transport.bind( ensureConnection().getTransportContext() );
     }
   }
 

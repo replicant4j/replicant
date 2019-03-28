@@ -64,12 +64,12 @@ public interface Transport
    *
    * @param context the context that provides environmental data to Transport.
    */
-  void bind( @Nonnull Context context, @Nonnull ReplicantContext replicantContext );
+  void bind( @Nonnull Context context );
 
   /**
    * This method is invoked by the Connector when the connection
    * disconnects or there is a fatal error. This method disassociates the connection context bound to the transport
-   * via the {@link #bind(Context, ReplicantContext)} method.
+   * via the {@link #bind(Context)} method.
    */
   void unbind();
 
