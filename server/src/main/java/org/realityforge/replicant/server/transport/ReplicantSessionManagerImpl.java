@@ -494,7 +494,7 @@ public abstract class ReplicantSessionManagerImpl
         // where the root has been removed
         assert address.hasSubChannelId();
         final ChangeSet cacheChangeSet = new ChangeSet();
-        cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
+        cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
         sendPacket( session, null, cacheChangeSet );
         return;
       }
@@ -503,7 +503,7 @@ public abstract class ReplicantSessionManagerImpl
     final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
     if ( result.isChannelRootDeleted() )
     {
-      changeSet.mergeAction( address, ChannelAction.Action.DELETE, filter );
+      changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
     }
     else
     {
