@@ -549,7 +549,7 @@ public class SubscriptionServiceTest
   @Test
   public void dispose_delinksFromEntity()
   {
-    createConnector( newSchema( 1 ) );
+    createConnector();
 
     final EntityService entityService = Replicant.context().getEntityService();
     final SubscriptionService subscriptionService = Replicant.context().getSubscriptionService();
