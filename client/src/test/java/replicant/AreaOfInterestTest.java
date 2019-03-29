@@ -44,7 +44,7 @@ public class AreaOfInterestTest
   @Test
   public void notifications()
   {
-    createConnector( newSchema( 1 ) );
+    createConnector();
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     final AtomicInteger getStatusCallCount = new AtomicInteger();
