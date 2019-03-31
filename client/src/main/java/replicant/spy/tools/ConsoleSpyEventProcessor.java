@@ -22,20 +22,16 @@ import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
-import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
-import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
-import replicant.spy.SyncFailureEvent;
 import replicant.spy.SyncRequestEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
-import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 
@@ -80,15 +76,12 @@ public class ConsoleSpyEventProcessor
     on( RestartEvent.class, this::onRestart );
     on( SubscribeRequestQueuedEvent.class, this::onSubscribeRequestQueued );
     on( SubscribeCompletedEvent.class, this::onSubscribeCompleted );
-    on( SubscribeFailedEvent.class, this::onSubscribeFailed );
     on( SubscribeStartedEvent.class, this::onSubscribeStarted );
     on( SubscriptionUpdateRequestQueuedEvent.class, this::onSubscriptionUpdateRequestQueued );
     on( SubscriptionUpdateCompletedEvent.class, this::onSubscriptionUpdateCompleted );
-    on( SubscriptionUpdateFailedEvent.class, this::onSubscriptionUpdateFailed );
     on( SubscriptionUpdateStartedEvent.class, this::onSubscriptionUpdateStarted );
     on( UnsubscribeRequestQueuedEvent.class, this::onUnsubscribeRequestQueued );
     on( UnsubscribeCompletedEvent.class, this::onUnsubscribeCompleted );
-    on( UnsubscribeFailedEvent.class, this::onUnsubscribeFailed );
     on( UnsubscribeStartedEvent.class, this::onUnsubscribeStarted );
 
     on( RequestStartedEvent.class, this::onRequestStarted );
@@ -97,7 +90,6 @@ public class ConsoleSpyEventProcessor
     on( SyncRequestEvent.class, this::onSyncRequest );
     on( InSyncEvent.class, this::onInSync );
     on( OutOfSyncEvent.class, this::onOutOfSync );
-    on( SyncFailureEvent.class, this::onSyncFailure );
   }
 
   /**
@@ -128,16 +120,6 @@ public class ConsoleSpyEventProcessor
   protected void onOutOfSync( @Nonnull final OutOfSyncEvent e )
   {
     log( "%cSync completed. Backend not synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
-  }
-
-  /**
-   * Handle the ConnectFailureEvent.
-   *
-   * @param e the event.
-   */
-  protected void onSyncFailure( @Nonnull final SyncFailureEvent e )
-  {
-    log( "%cSync Failed. SchemaId: " + e.getSchemaId() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
@@ -269,17 +251,6 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscribeFailed( @Nonnull final SubscribeFailedEvent e )
-  {
-    log( "%cConnector subscribe failed. System: " + e.getSchemaName() +
-         " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
-  }
-
-  /**
-   * Handle the SubscribeStartedEvent.
-   *
-   * @param e the event.
-   */
   protected void onSubscribeStarted( @Nonnull final SubscribeStartedEvent e )
   {
     log( "%cConnector started subscribe. System: " + e.getSchemaName() +
@@ -302,17 +273,6 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionUpdateFailed( @Nonnull final SubscriptionUpdateFailedEvent e )
-  {
-    log( "%cConnector subscription update failed. System: " + e.getSchemaName() +
-         " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
-  }
-
-  /**
-   * Handle the SubscriptionUpdateStartedEvent.
-   *
-   * @param e the event.
-   */
   protected void onSubscriptionUpdateStarted( @Nonnull final SubscriptionUpdateStartedEvent e )
   {
     log( "%cConnector started subscribe. System: " + e.getSchemaName() +
@@ -328,17 +288,6 @@ public class ConsoleSpyEventProcessor
   {
     log( "%cConnector completed unsubscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
-  }
-
-  /**
-   * Handle the UnsubscribeStartedEvent.
-   *
-   * @param e the event.
-   */
-  protected void onUnsubscribeFailed( @Nonnull final UnsubscribeFailedEvent e )
-  {
-    log( "%cConnector unsubscribe failed. System: " + e.getSchemaName() +
-         " Address: " + e.getAddress() + " Error: " + e.getError(), ERROR_COLOR );
   }
 
   /**
