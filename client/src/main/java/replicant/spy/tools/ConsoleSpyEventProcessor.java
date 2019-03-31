@@ -338,7 +338,8 @@ public class ConsoleSpyEventProcessor
     final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
     final Object filter = areaOfInterest.getFilter();
     final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
-    log( "%cAreaOfInterest Status Updated " + areaOfInterest.getAddress() + filterString + " :: " + areaOfInterest.getStatus(), AREA_OF_INTEREST_COLOR );
+    log( "%cAreaOfInterest Status Updated " + areaOfInterest.getAddress() +
+         filterString + " :: " + areaOfInterest.getStatus(), AREA_OF_INTEREST_COLOR );
   }
 
   /**
