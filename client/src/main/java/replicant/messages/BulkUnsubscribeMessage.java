@@ -20,7 +20,7 @@ public final class BulkUnsubscribeMessage
   {
     final BulkUnsubscribeMessage message = new BulkUnsubscribeMessage();
     message.type = "bulk-unsub";
-    message.req = req;
+    message.requestId = req;
     message.channels = Objects.requireNonNull( channels );
     return message;
   }

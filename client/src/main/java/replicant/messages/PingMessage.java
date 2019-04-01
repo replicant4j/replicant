@@ -16,7 +16,7 @@ public final class PingMessage
   {
     final PingMessage message = new PingMessage();
     message.type = "ping";
-    message.req = req;
+    message.requestId = req;
     return message;
   }
 }

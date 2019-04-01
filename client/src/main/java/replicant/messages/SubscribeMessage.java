@@ -22,7 +22,7 @@ public final class SubscribeMessage
   {
     final SubscribeMessage message = new SubscribeMessage();
     message.type = "sub";
-    message.req = req;
+    message.requestId = req;
     message.channel = ch;
     message.filter = filter;
     return message;

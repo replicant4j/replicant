@@ -25,7 +25,7 @@ public final class BulkSubscribeMessage
   {
     final BulkSubscribeMessage message = new BulkSubscribeMessage();
     message.type = "bulk-sub";
-    message.req = req;
+    message.requestId = req;
     message.channels = Objects.requireNonNull( channels );
     message.filter = filter;
     return message;

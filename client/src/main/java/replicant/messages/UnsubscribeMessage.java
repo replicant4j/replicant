@@ -19,7 +19,7 @@ public final class UnsubscribeMessage
   {
     final UnsubscribeMessage message = new UnsubscribeMessage();
     message.type = "unsub";
-    message.req = req;
+    message.requestId = req;
     message.channel = ch;
     return message;
   }

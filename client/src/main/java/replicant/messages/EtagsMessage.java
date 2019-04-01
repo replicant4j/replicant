@@ -19,7 +19,7 @@ public final class EtagsMessage
   {
     final EtagsMessage message = new EtagsMessage();
     message.type = "etags";
-    message.req = req;
+    message.requestId = req;
     message.etags = etags;
     return message;
   }

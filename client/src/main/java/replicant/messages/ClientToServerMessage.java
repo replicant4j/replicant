@@ -13,7 +13,7 @@ import jsinterop.annotations.JsType;
 public abstract class ClientToServerMessage
   extends AbstractMessage
 {
-  int req;
+  int requestId;
 
   /**
    * Return the request id of the message.
@@ -25,6 +25,6 @@ public abstract class ClientToServerMessage
   @JsOverlay
   public final int getRequestId()
   {
-    return req;
+    return requestId;
   }
 }
