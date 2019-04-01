@@ -265,6 +265,11 @@ final class Connection
     return _lastTxRequestId;
   }
 
+  int getLastRxSyncRequestId()
+  {
+    return _lastRxSyncRequestId;
+  }
+
   /**
    * Return true if there are no pending requests and the last request was a "SYNC" request.
    */
