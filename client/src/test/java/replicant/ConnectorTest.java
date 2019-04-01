@@ -1620,7 +1620,7 @@ public class ConnectorTest
 
     final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, null );
     connection.injectCurrentAreaOfInterestRequest( request );
-    request.markAsInProgress(newRequest(connection).getRequestId());
+    request.markAsInProgress( newRequest( connection ).getRequestId() );
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelAddCount(), 0 );
@@ -2320,7 +2320,7 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final RequestEntry request = newRequest(connection );
+    final RequestEntry request = newRequest( connection );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
