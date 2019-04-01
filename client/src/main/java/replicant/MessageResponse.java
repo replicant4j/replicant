@@ -26,6 +26,7 @@ final class MessageResponse
    */
   @Nonnull
   private final ServerToClientMessage _message;
+  private final RequestEntry _request;
   /**
    * The current index into changes.
    */
@@ -34,7 +35,6 @@ final class MessageResponse
   private List<ChannelChangeDescriptor> _parsedChannelChanges;
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
-  private RequestEntry _request;
   private int _channelAddCount;
   private int _channelUpdateCount;
   private int _channelRemoveCount;
