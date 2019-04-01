@@ -311,11 +311,11 @@ abstract class Connector
 
   final void requestSync()
   {
-    _transport.requestSync( this::onInSync, this::onOutOfSync );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
     }
+    _transport.requestSync();
   }
 
   final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )

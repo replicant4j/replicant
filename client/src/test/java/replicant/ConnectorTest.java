@@ -3660,9 +3660,7 @@ public class ConnectorTest
 
     connector.requestSync();
 
-    verify( connector.getTransport() ).requestSync( any( SafeProcedure.class ),
-                                                    any( SafeProcedure.class )
-    );
+    verify( connector.getTransport() ).requestSync();
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SyncRequestEvent.class,
@@ -3687,7 +3685,7 @@ public class ConnectorTest
 
     connector.maybeRequestSync();
 
-    verify( connector.getTransport() ).requestSync( any(), any() );
+    verify( connector.getTransport() ).requestSync();
   }
 
   @Nonnull

@@ -50,7 +50,7 @@ public class WebSocketTransport
   }
 
   @Override
-  public void requestSync( @Nonnull final SafeProcedure onInSync, @Nonnull final SafeProcedure onOutOfSync )
+  public void requestSync()
   {
     assert null != _transportContext;
     sendRemoteMessage( PingMessage.create( _transportContext.newRequest( "Sync", true ).getRequestId() ) );

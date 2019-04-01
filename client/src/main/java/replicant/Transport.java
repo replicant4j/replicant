@@ -32,11 +32,8 @@ public interface Transport
    * intermediate requests then the connection is considered synchronized to that point. If there
    * has been requests in the meantime (i.e. the sequence number of sync is not 1 behind) then
    * there is still processing queued on the server (or client).
-   *
-   * @param onInSync    hook invoked when request returns and replicant state is in sync.
-   * @param onOutOfSync hook invoked when request returns and replicant state is not in sync.
    */
-  void requestSync( @Nonnull SafeProcedure onInSync, @Nonnull SafeProcedure onOutOfSync );
+  void requestSync();
 
   void requestSubscribe( @Nonnull ChannelAddress address,
                          @Nullable Object filter,
