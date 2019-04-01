@@ -12,10 +12,12 @@ public class RequestTest
   public void construct()
   {
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final String name = ValueUtil.randomString();
+    final RequestEntry entry = connection.newRequest( name, false );
+    final Request request = new Request( connection, entry );
 
     assertEquals( request.getConnectionId(), connection.getConnectionId() );
-    assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
+    assertEquals( request.getRequestId(), entry.getRequestId() );
   }
 
   @Test
@@ -23,46 +25,49 @@ public class RequestTest
   {
     final AtomicReference<Object> result = new AtomicReference<>();
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false );
+    final Request request = new Request( connection, entry );
 
-    assertNull( request.getEntry().getCompletionAction() );
-    assertFalse( request.getEntry().hasCompleted() );
+    assertNull( entry.getCompletionAction() );
+    assertFalse( entry.hasCompleted() );
 
     request.onSuccess( false, () -> result.set( true ) );
 
     assertNull( result.get() );
-    assertTrue( request.getEntry().hasCompleted() );
-    assertNotNull( request.getEntry().getCompletionAction() );
-    assertTrue( request.getEntry().isNormalCompletion() );
-    assertTrue( request.getEntry().isExpectingResults() );
+    assertTrue( entry.hasCompleted() );
+    assertNotNull( entry.getCompletionAction() );
+    assertTrue( entry.isNormalCompletion() );
+    assertTrue( entry.isExpectingResults() );
   }
 
   @Test
-  public void onSuccess_messageComplete()
+  public void onSuccess()
   {
     final AtomicReference<Object> result = new AtomicReference<>();
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false );
+    final Request request = new Request( connection, entry );
 
-    assertNull( request.getEntry().getCompletionAction() );
-    assertFalse( request.getEntry().hasCompleted() );
+    assertNull( entry.getCompletionAction() );
+    assertFalse( entry.hasCompleted() );
 
     request.onSuccess( true, () -> result.set( true ) );
 
     assertEquals( result.get(), true );
-    assertTrue( request.getEntry().hasCompleted() );
+    assertTrue( entry.hasCompleted() );
 
     // Completion action is null as it has already run
-    assertNull( request.getEntry().getCompletionAction() );
-    assertTrue( request.getEntry().isNormalCompletion() );
-    assertFalse( request.getEntry().isExpectingResults() );
+    assertNull( entry.getCompletionAction() );
+    assertTrue( entry.isNormalCompletion() );
+    assertFalse( entry.isExpectingResults() );
   }
 
   @Test
   public void onSuccess_alreadyCompleted()
   {
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( "DoStuff" );
+    final RequestEntry entry = connection.newRequest( "DoStuff", false );
+    final Request request = new Request( connection, entry );
 
     final SafeProcedure onSuccess = () -> {
     };
@@ -76,11 +81,12 @@ public class RequestTest
   }
 
   @Test
-  public void onSuccess_failureMessage()
+  public void onFailure()
   {
     final AtomicReference<Object> result = new AtomicReference<>();
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false );
+    final Request request = new Request( connection, entry );
 
     assertNull( request.getEntry().getCompletionAction() );
     assertFalse( request.getEntry().hasCompleted() );
@@ -91,7 +97,6 @@ public class RequestTest
     assertTrue( request.getEntry().hasCompleted() );
 
     // Completion action is null as it has already run
-    assertNull( request.getEntry().getCompletionAction() );
     assertFalse( request.getEntry().isNormalCompletion() );
     assertFalse( request.getEntry().isExpectingResults() );
   }
@@ -100,7 +105,8 @@ public class RequestTest
   public void onFailure_alreadyCompleted()
   {
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( "DoStuff" );
+    final RequestEntry entry = connection.newRequest( "DoStuff", false );
+    final Request request = new Request( connection, entry );
 
     final SafeProcedure onFailure = () -> {
     };

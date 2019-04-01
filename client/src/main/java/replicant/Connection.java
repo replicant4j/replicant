@@ -107,11 +107,9 @@ final class Connection
     _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( address, action, filter ) );
   }
 
-  void enqueueResponse( @Nonnull final ServerToClientMessage message )
+  void enqueueResponse( @Nonnull final ServerToClientMessage message, @Nullable final RequestEntry request )
   {
-    _pendingResponses.add( new MessageResponse( _connector.getSchema().getId(),
-                                                message,
-                                                _requests.get( message.getRequestId() ) ) );
+    _pendingResponses.add( new MessageResponse( _connector.getSchema().getId(), message, request ) );
   }
 
   /**
@@ -169,10 +167,10 @@ final class Connection
   }
 
   @Nonnull
-  final Request newRequest( @Nullable final String name )
+  final RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
   {
     final int requestId = ++_lastTxRequestId;
-    final RequestEntry request = new RequestEntry( requestId, name );
+    final RequestEntry request = new RequestEntry( requestId, name, syncRequest );
     _requests.put( requestId, request );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -184,7 +182,7 @@ final class Connection
                                                   request.getRequestId(),
                                                   request.getName() ) );
     }
-    return new Request( this, request );
+    return request;
   }
 
   final void completeRequest( @Nonnull final RequestEntry request, @Nonnull final SafeProcedure completionAction )
@@ -197,7 +195,7 @@ final class Connection
     {
       if ( !request.isExpectingResults() )
       {
-        removeRequest( request.getRequestId(), false );
+        removeRequest( request.getRequestId() );
       }
       completionAction.call();
     }
@@ -216,10 +214,17 @@ final class Connection
     }
   }
 
-  @Nullable
+  @Nonnull
   RequestEntry getRequest( final int requestId )
   {
-    return _requests.get( requestId );
+    final RequestEntry entry = _requests.get( requestId );
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> null != entry,
+                    () -> "Replicant-0066: Unable to locate request with id '" + requestId + "' specified " +
+                          "by message. Existing Requests: " + getRequests() );
+    }
+    return entry;
   }
 
   Map<Integer, RequestEntry> getRequests()
@@ -227,17 +232,16 @@ final class Connection
     return _requests;
   }
 
-  //TODO: Pings should pass in correct isSyncRequest
-  void removeRequest( final int requestId, final boolean isSyncRequest )
+  void removeRequest( final int requestId )
   {
-    final boolean removed = null != _requests.remove( requestId );
-    if ( isSyncRequest )
+    final RequestEntry entry = _requests.remove( requestId );
+    if ( null != entry && entry.isSyncRequest() )
     {
       _lastRxSyncRequestId = requestId;
     }
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> removed,
+      invariant( () -> null != entry,
                  () -> "Replicant-0067: Attempted to remove request with id " + requestId +
                        " from connection with id '" + getConnectionId() + "' but no such request exists." );
     }
@@ -254,6 +258,11 @@ final class Connection
   {
     assert null != _currentMessageResponse;
     return _currentMessageResponse;
+  }
+
+  int getLastTxRequestId()
+  {
+    return _lastTxRequestId;
   }
 
   /**
@@ -290,6 +299,12 @@ final class Connection
   void setCurrentMessageResponse( @Nullable final MessageResponse currentMessageResponse )
   {
     _currentMessageResponse = currentMessageResponse;
+  }
+
+  @Nonnull
+  List<AreaOfInterestRequest> getActiveAreaOfInterestRequests()
+  {
+    return CollectionsUtil.wrap( _currentAreaOfInterestRequests );
   }
 
   /**

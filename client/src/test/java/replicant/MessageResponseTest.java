@@ -18,7 +18,8 @@ public class MessageResponseTest
   @Test
   public void construct()
   {
-    final MessageResponse action = new MessageResponse( 1, new ChangeSetMessage(), null );
+    final MessageResponse action =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, null, null ), null );
 
     assertFalse( action.areEntityLinksPending() );
     assertFalse( action.areEntityChangesPending() );
@@ -147,7 +148,7 @@ public class MessageResponseTest
       ChangeSetMessage.create( requestId, null, null, channelChanges, entityChanges );
 
     final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey );
+    final RequestEntry request = new RequestEntry( requestId, requestKey, false );
 
     final SafeProcedure completionAction = mock( SafeProcedure.class );
     final MessageResponse action = new MessageResponse( 1, changeSet, request );
@@ -239,19 +240,12 @@ public class MessageResponseTest
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
     final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey );
+    final RequestEntry request = new RequestEntry( requestId, requestKey, false );
 
-    final SafeProcedure completionAction = mock( SafeProcedure.class );
     final MessageResponse action = new MessageResponse( 1, changeSet, request );
 
     assertEquals( action.getMessage(), changeSet );
     assertEquals( action.getRequest(), request );
-
-    assertNull( action.getCompletionAction() );
-
-    request.setCompletionAction( completionAction );
-
-    assertEquals( request.getCompletionAction(), completionAction );
 
     assertTrue( action.needsChannelChangesProcessed() );
     assertFalse( action.areEntityChangesPending() );
@@ -279,7 +273,7 @@ public class MessageResponseTest
   {
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( 1234, null, null, null, null );
-    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString() );
+    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), false );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> new MessageResponse( 1, changeSet, request ) );

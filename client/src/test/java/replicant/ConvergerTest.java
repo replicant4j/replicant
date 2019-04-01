@@ -969,7 +969,7 @@ public class ConvergerTest
     final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    connector.ensureConnection().newRequest( ValueUtil.randomString() );
+    connector.ensureConnection().newRequest( ValueUtil.randomString(), false );
 
     safeAction( () -> assertFalse( converger.allConnectorsSynchronized() ) );
   }
@@ -998,7 +998,7 @@ public class ConvergerTest
     final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    connector.ensureConnection().newRequest( ValueUtil.randomString() );
+    connector.ensureConnection().newRequest( ValueUtil.randomString(), false );
 
     final Connector connector2 = createConnector( newSchema( 2 ) );
     newConnection( connector2 );

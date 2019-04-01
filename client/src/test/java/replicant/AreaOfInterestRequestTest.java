@@ -26,7 +26,7 @@ public class AreaOfInterestRequestTest
     assertFalse( entry.match( action, new ChannelAddress( 1, 3, ValueUtil.randomInt() ), filter ) );
 
     assertFalse( entry.isInProgress() );
-    entry.markAsInProgress();
+    entry.markAsInProgress( 1 );
     assertTrue( entry.isInProgress() );
     entry.markAsComplete();
     assertFalse( entry.isInProgress() );

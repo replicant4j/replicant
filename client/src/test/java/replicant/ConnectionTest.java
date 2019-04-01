@@ -28,9 +28,9 @@ public class ConnectionTest
     assertNull( connection.getCurrentMessageResponse() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
     final MessageResponse response =
-      new MessageResponse( 1, OkMessage.create( request.getRequestId() ), request.getEntry() );
+      new MessageResponse( 1, OkMessage.create( request.getRequestId() ), request );
     connection.setCurrentMessageResponse( response );
 
     assertEquals( connection.getCurrentMessageResponse(), response );
@@ -55,7 +55,7 @@ public class ConnectionTest
   {
     final Connection connection = createConnection();
 
-    connection.enqueueResponse( UseCacheMessage.create( null, "0", ValueUtil.randomString() ) );
+    connection.enqueueResponse( UseCacheMessage.create( null, "0", ValueUtil.randomString() ), null );
 
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -174,11 +174,11 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingResponses().size(), 0 );
 
-    connection.enqueueResponse( data1 );
+    connection.enqueueResponse( data1, null );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
 
-    connection.enqueueResponse( data2 );
+    connection.enqueueResponse( data2, null );
 
     assertEquals( connection.getPendingResponses().size(), 2 );
 
@@ -198,10 +198,9 @@ public class ConnectionTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Request request = connection.newRequest( requestName );
-    final RequestEntry entry = request.getEntry();
+    final RequestEntry request = connection.newRequest( requestName, false );
 
-    assertEquals( entry.getName(), requestName );
+    assertEquals( request.getName(), requestName );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestStartedEvent.class, e -> {
@@ -210,13 +209,13 @@ public class ConnectionTest
       assertEquals( e.getName(), requestName );
     } );
 
-    assertEquals( connection.getRequest( request.getRequestId() ), entry );
-    assertEquals( connection.getRequests().get( request.getRequestId() ), entry );
-    assertNull( connection.getRequest( ValueUtil.randomInt() ) );
+    assertEquals( connection.getRequest( request.getRequestId() ), request );
+    assertEquals( connection.getRequests().get( request.getRequestId() ), request );
+    assertNull( connection.getRequests().get( ValueUtil.randomInt() ) );
 
-    connection.removeRequest( request.getRequestId(), false );
+    connection.removeRequest( request.getRequestId() );
 
-    assertNull( connection.getRequest( request.getRequestId() ) );
+    assertNull( connection.getRequests().get( request.getRequestId() ) );
   }
 
   @Test
@@ -225,7 +224,7 @@ public class ConnectionTest
     final Connection connection = createConnection();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789, false ) );
+      expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0067: Attempted to remove request with id 789 from connection with id '" +
                   connection.getConnectionId() + "' but no such request exists." );
@@ -249,8 +248,8 @@ public class ConnectionTest
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
 
-    request1.markAsInProgress();
-    request2.markAsInProgress();
+    request1.markAsInProgress( 1 );
+    request2.markAsInProgress( 2 );
 
     assertTrue( request1.isInProgress() );
     assertTrue( request1.isInProgress() );
@@ -278,25 +277,23 @@ public class ConnectionTest
   public void completeRequest()
   {
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
-    final RequestEntry entry = request.getEntry();
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    entry.setNormalCompletion( false );
+    request.setNormalCompletion( false );
 
-    connection.completeRequest( entry, action );
+    connection.completeRequest( request, action );
 
     verify( action ).call();
-    assertNull( entry.getCompletionAction() );
-    assertNull( connection.getRequest( request.getRequestId() ) );
+    assertNull( connection.getRequests().get( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
-      assertEquals( ev.getName(), entry.getName() );
+      assertEquals( ev.getName(), request.getName() );
       assertFalse( ev.isNormalCompletion() );
       assertFalse( ev.isExpectingResults() );
       assertFalse( ev.haveResultsArrived() );
@@ -307,26 +304,25 @@ public class ConnectionTest
   public void completeRequest_expectingResults()
   {
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
-    final RequestEntry entry = request.getEntry();
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    entry.setNormalCompletion( true );
-    entry.setExpectingResults( true );
+    request.setNormalCompletion( true );
+    request.setExpectingResults( true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connection.completeRequest( entry, action );
+    connection.completeRequest( request, action );
 
     verify( action, never() ).call();
-    assertEquals( entry.getCompletionAction(), action );
+    assertEquals( request.getCompletionAction(), action );
     assertNotNull( connection.getRequest( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
-      assertEquals( ev.getName(), entry.getName() );
+      assertEquals( ev.getName(), request.getName() );
       assertTrue( ev.isNormalCompletion() );
       assertTrue( ev.isExpectingResults() );
       assertFalse( ev.haveResultsArrived() );
@@ -337,30 +333,30 @@ public class ConnectionTest
   public void completeRequest_resultsArrived()
   {
     final Connection connection = createConnection();
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
 
     // Remove request as it will be removed when the response arrived and was processed
-    connection.removeRequest( request.getRequestId(), false );
-    final RequestEntry entry = request.getEntry();
+    connection.removeRequest( request.getRequestId() );
+
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    entry.setNormalCompletion( true );
-    entry.setExpectingResults( true );
-    entry.markResultsAsArrived();
+    request.setNormalCompletion( true );
+    request.setExpectingResults( true );
+    request.markResultsAsArrived();
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connection.completeRequest( entry, action );
+    connection.completeRequest( request, action );
 
     verify( action ).call();
-    assertNull( entry.getCompletionAction() );
-    assertNull( connection.getRequest( request.getRequestId() ) );
+    assertNull( request.getCompletionAction() );
+    assertNull( connection.getRequests().get( request.getRequestId() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
-      assertEquals( ev.getName(), entry.getName() );
+      assertEquals( ev.getName(), request.getName() );
       assertTrue( ev.isNormalCompletion() );
       assertTrue( ev.isExpectingResults() );
       assertTrue( ev.haveResultsArrived() );

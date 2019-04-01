@@ -11,13 +11,13 @@ final class ReplicantRequestCallback
   implements RequestCallback
 {
   @Nonnull
-  private final replicant.Request _r;
+  private final replicant.Request _replicantRequest;
   @Nonnull
   private final RequestCallback _callback;
 
-  ReplicantRequestCallback( @Nonnull final replicant.Request r, @Nonnull final RequestCallback callback )
+  ReplicantRequestCallback( @Nonnull final replicant.Request replicantRequest, @Nonnull final RequestCallback callback )
   {
-    _r = Objects.requireNonNull( r );
+    _replicantRequest = Objects.requireNonNull( replicantRequest );
     _callback = Objects.requireNonNull( callback );
   }
 
@@ -28,19 +28,17 @@ final class ReplicantRequestCallback
     if ( Response.SC_OK == statusCode )
     {
       final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
-      _r.onSuccess( messageComplete, () -> _callback.onResponseReceived( request, response ) );
+      _replicantRequest.onSuccess( messageComplete, () -> _callback.onResponseReceived( request, response ) );
     }
     else
     {
-      final InvalidHttpResponseException error =
-        new InvalidHttpResponseException( statusCode, response.getStatusText() );
-      _r.onFailure( () -> _callback.onError( request, error ) );
+      onError( request, new InvalidHttpResponseException( statusCode, response.getStatusText() ) );
     }
   }
 
   @Override
   public void onError( final Request request, final Throwable exception )
   {
-    _r.onFailure( () -> _callback.onError( request, exception ) );
+    _replicantRequest.onFailure( () -> _callback.onError( request, exception ) );
   }
 }

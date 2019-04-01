@@ -5,9 +5,10 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.messages.ServerToClientMessage;
+import replicant.messages.SessionCreatedMessage;
 
 final class TransportContextImpl
-  implements Transport.Context, Disposable
+  implements TransportContext, Disposable
 {
   private final Connector _connector;
   private boolean _disposed;
@@ -31,10 +32,10 @@ final class TransportContextImpl
 
   @Nonnull
   @Override
-  public Request newRequest( @Nullable final String name )
+  public RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
   {
     assert isNotDisposed();
-    return _connector.ensureConnection().newRequest( name );
+    return _connector.ensureConnection().newRequest( name, syncRequest );
   }
 
   @Override
@@ -42,7 +43,14 @@ final class TransportContextImpl
   {
     if ( isNotDisposed() )
     {
-      _connector.onMessageReceived( message );
+      if ( SessionCreatedMessage.TYPE.equals( message.getType() ) )
+      {
+        _connector.onConnection( ( (SessionCreatedMessage) message ).getSessionId() );
+      }
+      else
+      {
+        _connector.onMessageReceived( message );
+      }
     }
   }
 

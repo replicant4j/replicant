@@ -357,7 +357,8 @@ public final class ReplicantContext
   @Nonnull
   public Request newRequest( final int schemaId, @Nullable final String name )
   {
-    return getRuntime().getConnector( schemaId ).ensureConnection().newRequest( name );
+    final Connection connection = getRuntime().getConnector( schemaId ).ensureConnection();
+    return new Request( connection, connection.newRequest( name, false ) );
   }
 
   /**

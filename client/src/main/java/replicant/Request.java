@@ -32,7 +32,7 @@ public final class Request
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> !this.hasCompleted(),
+      apiInvariant( () -> !_entry.hasCompleted(),
                     () -> "Replicant-0073: Request.onSuccess invoked on completed request " + _entry + "." );
     }
     _entry.setNormalCompletion( true );
@@ -44,17 +44,12 @@ public final class Request
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> !this.hasCompleted(),
+      apiInvariant( () -> !_entry.hasCompleted(),
                     () -> "Replicant-0074: Request.onFailure invoked on completed request " + _entry + "." );
     }
     _entry.setNormalCompletion( false );
     _entry.setExpectingResults( false );
     _connection.completeRequest( _entry, Objects.requireNonNull( onError ) );
-  }
-
-  public boolean hasCompleted()
-  {
-    return _entry.hasCompleted();
   }
 
   @Nonnull

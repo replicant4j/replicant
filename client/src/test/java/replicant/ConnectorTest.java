@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -20,6 +20,7 @@ import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.EntityChangeDataImpl;
 import replicant.messages.OkMessage;
+import replicant.messages.ServerToClientMessage;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
@@ -33,19 +34,15 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
-import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionCreatedEvent;
 import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
-import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
-import replicant.spy.SyncFailureEvent;
 import replicant.spy.SyncRequestEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
-import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 import static org.mockito.Mockito.*;
@@ -126,8 +123,7 @@ public class ConnectorTest
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, null ) );
 
     final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0 );
     final Subscription subscription = createSubscription( address, null, true );
@@ -173,7 +169,7 @@ public class ConnectorTest
 
     safeAction( connector::connect );
 
-    verify( connector.getTransport() ).requestConnect( any( Transport.Context.class ) );
+    verify( connector.getTransport() ).requestConnect( any( TransportContext.class ) );
 
     assertEquals( connector.getState(), ConnectorState.CONNECTING );
   }
@@ -191,7 +187,7 @@ public class ConnectorTest
     final IllegalStateException exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
-    } ).when( connector.getTransport() ).requestConnect( any( Transport.Context.class ) );
+    } ).when( connector.getTransport() ).requestConnect( any( TransportContext.class ) );
 
     final IllegalStateException actual =
       expectThrows( IllegalStateException.class, () -> safeAction( connector::connect ) );
@@ -459,7 +455,7 @@ public class ConnectorTest
     assertEquals( connection.getPendingResponses().size(), 0 );
     assertFalse( connector.isSchedulerActive() );
 
-    final ChangeSetMessage message = new ChangeSetMessage();
+    final ChangeSetMessage message = ChangeSetMessage.create( null, null, null, null, null );
     connector.onMessageReceived( message );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -477,7 +473,8 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, null, null ), null );
     connector.onMessageProcessed( response );
 
     handler.assertEventCount( 1 );
@@ -715,40 +712,6 @@ public class ConnectorTest
   }
 
   @Test
-  public void onSubscribeFailed()
-    throws Exception
-  {
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final Throwable error = new Throwable();
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    connector.onSubscribeFailed( address, error );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOAD_FAILED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), error ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @Test
   public void onUnsubscribeStarted()
     throws Exception
   {
@@ -809,40 +772,6 @@ public class ConnectorTest
     handler.assertNextEvent( UnsubscribeCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @Test
-  public void onUnsubscribeFailed()
-    throws Exception
-  {
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final Throwable error = new Throwable();
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    connector.onUnsubscribeFailed( address, error );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-      assertEquals( e.getError(), error );
     } );
   }
 
@@ -909,42 +838,6 @@ public class ConnectorTest
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @Test
-  public void onSubscriptionUpdateFailed()
-    throws Exception
-  {
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final Throwable error = new Throwable();
-
-    final Subscription subscription = createSubscription( address, null, true );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    connector.onSubscriptionUpdateFailed( address, error );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATE_FAILED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertEquals( areaOfInterest.getError(), error ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                             e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-      assertEquals( e.getError(), error );
     } );
   }
 
@@ -1038,8 +931,7 @@ public class ConnectorTest
 
     final String[] channels = { "+0" };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertNull( connector.getSchedulerLock() );
@@ -1082,8 +974,7 @@ public class ConnectorTest
 
     final String[] channels = { "+0" };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     final AtomicInteger callCount = new AtomicInteger();
@@ -1407,9 +1298,8 @@ public class ConnectorTest
       // Remove change
       EntityChange.create( 0, 3, new String[]{ "1" } )
     };
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, entityChanges );
-    final MessageResponse response = new MessageResponse( 1, changeSet, null );
-    connection.setCurrentMessageResponse( response );
+    final MessageResponse response =
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, entityChanges ) );
 
     when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
@@ -1479,9 +1369,7 @@ public class ConnectorTest
     final EntityChange[] entityChanges = {
       EntityChange.create( 0, 1, new String[]{ "1" }, data1 )
     };
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, entityChanges );
-    final MessageResponse response = new MessageResponse( 1, changeSet, null );
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, entityChanges ) );
 
     when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
@@ -1522,9 +1410,8 @@ public class ConnectorTest
       // Remove change
       EntityChange.create( 0, 3, new String[]{ "1" } )
     };
-    final ChangeSetMessage changeSet = ChangeSetMessage.create( null, null, null, null, entityChanges );
-    final MessageResponse response = new MessageResponse( 1, changeSet, null );
-    connection.setCurrentMessageResponse( response );
+    final MessageResponse response =
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, entityChanges ) );
 
     connector.setChangesToProcessPerTick( 1 );
 
@@ -1541,9 +1428,8 @@ public class ConnectorTest
 
     final Connection connection = newConnection( connector );
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, new String[ 0 ], null, new EntityChange[ 0 ] ),
-                           null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection,
+                                 ChangeSetMessage.create( null, null, new String[ 0 ], null, new EntityChange[ 0 ] ) );
 
     final Linkable entity1 = mock( Linkable.class );
     final Linkable entity2 = mock( Linkable.class );
@@ -1612,8 +1498,7 @@ public class ConnectorTest
     final String[] channels = { "+0." + subChannelId };
 
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -1650,8 +1535,7 @@ public class ConnectorTest
     final String filter = ValueUtil.randomString();
     final ChannelChange[] fchannels = { ChannelChange.create( "+0." + subChannelId, filter ) };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, fchannels, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, fchannels, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, fchannels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -1692,8 +1576,7 @@ public class ConnectorTest
 
     final String[] channels = { "+0." + subChannelId };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -1732,13 +1615,12 @@ public class ConnectorTest
 
     final String[] channels = { "+0." + address.getId() };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, null );
     connection.injectCurrentAreaOfInterestRequest( request );
-    request.markAsInProgress();
+    request.markAsInProgress(newRequest(connection).getRequestId());
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelAddCount(), 0 );
@@ -1776,8 +1658,7 @@ public class ConnectorTest
 
     final String[] channels = { "-0." + address.getId() };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     final Subscription initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
@@ -1817,8 +1698,7 @@ public class ConnectorTest
 
     final String[] channels = { "-0." + address.getId() };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     final Subscription initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
 
@@ -1854,8 +1734,7 @@ public class ConnectorTest
 
     final String[] channels = { "-0.72" };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1883,8 +1762,7 @@ public class ConnectorTest
 
     final String[] channels = { "-0." + address.getId() };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1916,8 +1794,7 @@ public class ConnectorTest
 
     final String[] channels = { "!0." + address.getId() };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, channels, null, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, channels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
@@ -1969,10 +1846,9 @@ public class ConnectorTest
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0." + address.getId(), newFilter ) };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
-    connection.setCurrentMessageResponse( response );
-    response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
-                                                                                               channelChanges[ 0 ] ) ) );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, channelChanges, null ) );
+    response
+      .setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channelChanges[ 0 ] ) ) );
 
     final Subscription initialSubscription = createSubscription( address, oldFilter, true );
 
@@ -2016,8 +1892,7 @@ public class ConnectorTest
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0.2223", newFilter ) };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, channelChanges, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
     createSubscription( new ChannelAddress( 1, 0, 2223 ), oldFilter, true );
@@ -2039,8 +1914,7 @@ public class ConnectorTest
     final ChannelChange[] channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0.42", newFilter ) };
     final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, channelChanges, null ), null );
-    connection.setCurrentMessageResponse( response );
+      setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, channelChanges, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
@@ -2129,7 +2003,9 @@ public class ConnectorTest
     requests.add( request2 );
     requests.add( request3 );
 
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+    final RequestEntry request = newRequest( createConnection() );
+
+    requests.forEach( r -> r.markAsInProgress( request.getRequestId() ) );
 
     createSubscription( address1, null, true );
     // Address2 is already implicit ...
@@ -2159,7 +2035,8 @@ public class ConnectorTest
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
     requests.add( request1 );
 
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -2181,7 +2058,8 @@ public class ConnectorTest
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
     requests.add( request1 );
 
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
 
     createSubscription( address1, null, false );
 
@@ -2213,7 +2091,8 @@ public class ConnectorTest
     requests.add( request2 );
     requests.add( request3 );
 
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
 
     createSubscription( address1, null, true );
     // Address2 is already implicit ...
@@ -2244,7 +2123,8 @@ public class ConnectorTest
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, null );
     requests.add( request1 );
 
-    requests.forEach( AreaOfInterestRequest::markAsInProgress );
+    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
@@ -2259,8 +2139,12 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
-    connector.ensureConnection().setCurrentMessageResponse( response );
+    final MessageResponse response = setCurrentMessageResponse( connector.ensureConnection(),
+                                                                ChangeSetMessage.create( null,
+                                                                                         null,
+                                                                                         null,
+                                                                                         null,
+                                                                                         null ) );
 
     assertFalse( response.hasWorldBeenValidated() );
 
@@ -2285,8 +2169,9 @@ public class ConnectorTest
     ReplicantTestUtil.noValidateEntitiesOnLoad();
     final Connector connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
-    connector.ensureConnection().setCurrentMessageResponse( response );
+    final MessageResponse response =
+      setCurrentMessageResponse( connector.ensureConnection(),
+                                 ChangeSetMessage.create( null, null, null, null, null ) );
 
     assertTrue( response.hasWorldBeenValidated() );
 
@@ -2306,8 +2191,9 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = new MessageResponse( 1, new ChangeSetMessage(), null );
-    connector.ensureConnection().setCurrentMessageResponse( response );
+    final MessageResponse response =
+      setCurrentMessageResponse( connector.ensureConnection(),
+                                 ChangeSetMessage.create( null, null, null, null, null ) );
 
     assertFalse( response.hasWorldBeenValidated() );
 
@@ -2352,10 +2238,7 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final ChangeSetMessage changeSet = new ChangeSetMessage();
-    final MessageResponse response = new MessageResponse( 1, changeSet, null );
-
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, null ) );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -2377,13 +2260,11 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final Request request = connection.newRequest( ValueUtil.randomString() );
+    final RequestEntry request = newRequest( connection );
     final ChangeSetMessage changeSet =
       ChangeSetMessage.create( request.getRequestId(), null, new String[]{ "+1" }, null, null );
 
-    final MessageResponse response = new MessageResponse( 1, changeSet, request.getEntry() );
-
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, changeSet, request );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -2406,12 +2287,9 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final MessageResponse response =
-      new MessageResponse( 1, new ChangeSetMessage(), null );
+    setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, null ) );
 
-    connection.setCurrentMessageResponse( response );
-
-    connection.enqueueResponse( new ChangeSetMessage() );
+    connection.enqueueResponse( ChangeSetMessage.create( null, null, null, null, null ), null );
 
     connector.completeMessageResponse();
 
@@ -2424,10 +2302,7 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final ChangeSetMessage changeSet = new ChangeSetMessage();
-    final MessageResponse response = new MessageResponse( 1, changeSet, null );
-
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, ChangeSetMessage.create( null, null, null, null, null ) );
 
     final AtomicInteger postActionCallCount = new AtomicInteger();
     connector.setPostMessageResponseAction( postActionCallCount::incrementAndGet );
@@ -2445,30 +2320,27 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final Request request = connection.newRequest( "SomeAction" );
+    final RequestEntry request = newRequest(connection );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
-    final RequestEntry entry = request.getEntry();
-    entry.setNormalCompletion( true );
-    entry.setCompletionAction( completionCalled::incrementAndGet );
+    request.setNormalCompletion( true );
+    request.setCompletionAction( completionCalled::incrementAndGet );
 
-    final MessageResponse response = new MessageResponse( 1, OkMessage.create( requestId ), entry );
-
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, OkMessage.create( requestId ), request );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertFalse( entry.haveResultsArrived() );
+    assertFalse( request.haveResultsArrived() );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), entry );
+    assertEquals( connection.getRequest( requestId ), request );
 
     connector.completeMessageResponse();
 
-    assertTrue( entry.haveResultsArrived() );
+    assertTrue( request.haveResultsArrived() );
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( completionCalled.get(), 1 );
-    assertNull( connection.getRequest( requestId ) );
+    assertNull( connection.getRequests().get( requestId ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2483,28 +2355,26 @@ public class ConnectorTest
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
 
-    final Request request = connection.newRequest( "SomeAction" );
+    final RequestEntry request = newRequest( connection );
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
-    final RequestEntry entry = request.getEntry();
+    request.setCompletionAction( completionCalled::incrementAndGet );
 
-    final MessageResponse response = new MessageResponse( 1, OkMessage.create( requestId ), entry );
-
-    connection.setCurrentMessageResponse( response );
+    setCurrentMessageResponse( connection, OkMessage.create( requestId ), request );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertFalse( entry.haveResultsArrived() );
+    assertFalse( request.haveResultsArrived() );
     assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), entry );
+    assertEquals( connection.getRequest( requestId ), request );
 
     connector.completeMessageResponse();
 
-    assertTrue( entry.haveResultsArrived() );
+    assertTrue( request.haveResultsArrived() );
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( completionCalled.get(), 0 );
-    assertNull( connection.getRequest( requestId ) );
+    assertNull( connection.getRequests().get( requestId ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( MessageProcessedEvent.class, e -> {
@@ -2551,7 +2421,7 @@ public class ConnectorTest
                                                                         1,
                                                                         new String[]{ "0" },
                                                                         new EntityChangeDataImpl() ) } );
-    connection.enqueueResponse( message );
+    connection.enqueueResponse( message, null );
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
 
@@ -2643,21 +2513,16 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final AtomicReference<SafeProcedure> onSuccess = new AtomicReference<>();
     final AtomicInteger callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
-      onSuccess.set( (SafeProcedure) i.getArguments()[ 4 ] );
       return null;
     } )
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
+                         isNull( SafeProcedure.class ) );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -2673,8 +2538,6 @@ public class ConnectorTest
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
-
-    onSuccess.get().call();
 
     assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
@@ -2731,10 +2594,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
+                         isNull( SafeProcedure.class )
+      );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -2814,10 +2675,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         any(),
-                         any( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
+                         any( SafeProcedure.class )
+      );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -2844,83 +2703,6 @@ public class ConnectorTest
     assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
 
     handler.assertEventCount( 1 );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestAddRequest_onFailure()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         null,
-                         ChannelSchema.FilterType.STATIC,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
-      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
-
-    pauseScheduler();
-
-    connection.injectCurrentAreaOfInterestRequest( request );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      assertEquals( i.getArguments()[ 0 ], address );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestSubscribe( eq( address ),
-                         eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    connector.progressAreaOfInterestAddRequest( request );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-      assertEquals( e.getError(), error );
-    } );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -2980,9 +2762,8 @@ public class ConnectorTest
     } )
       .when( connector.getTransport() )
       .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
-                             eq( filter ),
-                             any( SafeProcedure.class ),
-                             any() );
+                             eq( filter )
+      );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3028,194 +2809,6 @@ public class ConnectorTest
     handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address3 );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressBulkAreaOfInterestAddRequests_onFailure()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.STATIC,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
-    final AreaOfInterestRequest request3 =
-      new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.ADD, filter );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-    final Subscription subscription3 = createSubscription( address3, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-    connection.injectCurrentAreaOfInterestRequest( request2 );
-    connection.injectCurrentAreaOfInterestRequest( request3 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertTrue( addresses.contains( address1 ) );
-      assertTrue( addresses.contains( address2 ) );
-      assertTrue( addresses.contains( address3 ) );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
-                             eq( filter ),
-                             any( SafeProcedure.class ),
-                             any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    connector.progressBulkAreaOfInterestAddRequests( Arrays.asList( request1, request2, request3 ) );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 3 );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-    } );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address3 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 6 );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address3 );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestAddRequests_onFailure_singleRequests()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.STATIC,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
-
-    pauseScheduler();
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestSubscribe( eq( address1 ),
-                         eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    requests.add( request1 );
-    connector.progressAreaOfInterestAddRequests( requests );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
     } );
   }
 
@@ -3264,98 +2857,6 @@ public class ConnectorTest
 
   @SuppressWarnings( "unchecked" )
   @Test
-  public void progressAreaOfInterestAddRequests_onFailure_multipleRequests()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.STATIC,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
-
-    pauseScheduler();
-    connector.pauseMessageScheduler();
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-    connection.injectCurrentAreaOfInterestRequest( request2 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertTrue( addresses.contains( address1 ) );
-      assertTrue( addresses.contains( address2 ) );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
-                             eq( filter ),
-                             any( SafeProcedure.class ),
-                             any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    requests.add( request1 );
-    requests.add( request2 );
-    connector.progressAreaOfInterestAddRequests( requests );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-    handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    handler.assertEventCount( 4 );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( SubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
   public void progressAreaOfInterestUpdateRequest_onSuccess()
   {
     final ChannelSchema channelSchema =
@@ -3399,10 +2900,8 @@ public class ConnectorTest
       .when( connector.getTransport() )
       .requestSubscribe( eq( address ),
                          eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
+                         isNull( SafeProcedure.class )
+      );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3428,85 +2927,6 @@ public class ConnectorTest
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestUpdateRequest_onFailure()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         null,
-                         ChannelSchema.FilterType.DYNAMIC,
-                         mock( SubscriptionUpdateEntityFilter.class ),
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
-      new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.UPDATE, filter );
-
-    pauseScheduler();
-
-    final Subscription subscription = createSubscription( address, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      assertEquals( i.getArguments()[ 0 ], address );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestSubscribe( eq( address ),
-                         eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    connector.progressAreaOfInterestUpdateRequest( request );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-      assertEquals( e.getError(), error );
     } );
   }
 
@@ -3567,9 +2987,8 @@ public class ConnectorTest
     } )
       .when( connector.getTransport() )
       .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
-                             eq( filter ),
-                             any( SafeProcedure.class ),
-                             any() );
+                             eq( filter )
+      );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3615,195 +3034,6 @@ public class ConnectorTest
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address3 );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressBulkAreaOfInterestUpdateRequests_onFailure()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.DYNAMIC,
-                         mock( SubscriptionUpdateEntityFilter.class ),
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.UPDATE, filter );
-    final AreaOfInterestRequest request3 =
-      new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.UPDATE, filter );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-    final Subscription subscription3 = createSubscription( address3, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-    connection.injectCurrentAreaOfInterestRequest( request2 );
-    connection.injectCurrentAreaOfInterestRequest( request3 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertTrue( addresses.contains( address1 ) );
-      assertTrue( addresses.contains( address2 ) );
-      assertTrue( addresses.contains( address3 ) );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestBulkSubscribe( anyListOf( ChannelAddress.class ), eq( filter ), any( SafeProcedure.class ), any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    connector.progressBulkAreaOfInterestUpdateRequests( Arrays.asList( request1, request2, request3 ) );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 3 );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-    } );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address3 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 6 );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address3 );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestUpdateRequests_onFailure_singleRequests()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.DYNAMIC,
-                         mock( SubscriptionUpdateEntityFilter.class ),
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 5 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestSubscribe( eq( address1 ),
-                         eq( filter ),
-                         isNull( String.class ),
-                         isNull( SafeProcedure.class ),
-                         any( SafeProcedure.class ),
-                         any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    requests.add( request1 );
-    connector.progressAreaOfInterestUpdateRequests( requests );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
     } );
   }
 
@@ -3852,104 +3082,6 @@ public class ConnectorTest
 
   @SuppressWarnings( "unchecked" )
   @Test
-  public void progressAreaOfInterestUpdateRequests_onFailure_multipleRequests()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.DYNAMIC,
-                         mock( SubscriptionUpdateEntityFilter.class ),
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.UPDATE, filter );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-    connection.injectCurrentAreaOfInterestRequest( request2 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertTrue( addresses.contains( address1 ) );
-      assertTrue( addresses.contains( address2 ) );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 3 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestBulkSubscribe( anyListOf( ChannelAddress.class ),
-                             eq( filter ),
-                             any( SafeProcedure.class ),
-                             any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    requests.add( request1 );
-    requests.add( request2 );
-    connector.progressAreaOfInterestUpdateRequests( requests );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-    handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 4 );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( SubscriptionUpdateFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
   public void progressAreaOfInterestRemoveRequest_onSuccess()
   {
     final ChannelSchema channelSchema =
@@ -3989,7 +3121,7 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestUnsubscribe( eq( address ), any( SafeProcedure.class ), any() );
+      .requestUnsubscribe( eq( address ) );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -4015,78 +3147,6 @@ public class ConnectorTest
     handler.assertNextEvent( UnsubscribeCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestRemoveRequest_onFailure()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         null,
-                         ChannelSchema.FilterType.NONE,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
-
-    pauseScheduler();
-
-    final Subscription subscription = createSubscription( address, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      assertEquals( i.getArguments()[ 0 ], address );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 2 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestUnsubscribe( eq( address ), any( SafeProcedure.class ), any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    connector.progressAreaOfInterestRemoveRequest( request );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-      assertEquals( e.getError(), error );
     } );
   }
 
@@ -4145,7 +3205,7 @@ public class ConnectorTest
       return null;
     } )
       .when( connector.getTransport() )
-      .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ), any( SafeProcedure.class ), any() );
+      .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ) );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -4196,188 +3256,6 @@ public class ConnectorTest
 
   @SuppressWarnings( "unchecked" )
   @Test
-  public void progressBulkAreaOfInterestRemoveRequests_onFailure()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.NONE,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request3 =
-      new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-    final Subscription subscription3 = createSubscription( address3, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-    connection.injectCurrentAreaOfInterestRequest( request2 );
-    connection.injectCurrentAreaOfInterestRequest( request3 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertTrue( addresses.contains( address1 ) );
-      assertTrue( addresses.contains( address2 ) );
-      assertTrue( addresses.contains( address3 ) );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 2 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ), any( SafeProcedure.class ), any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    connector.progressBulkAreaOfInterestRemoveRequests( Arrays.asList( request1, request2, request3 ) );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription3.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 3 );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-    } );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address3 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertFalse( subscription2.isExplicitSubscription() ) );
-    safeAction( () -> assertFalse( subscription3.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 6 );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address3 );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestRemoveRequests_onFailure_singleRequests()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.NONE,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 2 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestUnsubscribe( eq( address1 ), any( SafeProcedure.class ), any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    requests.add( request1 );
-    connector.progressAreaOfInterestRemoveRequests( requests );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
   public void progressAreaOfInterestRemoveRequests_onFailure_zeroRequests()
   {
     final ChannelSchema channelSchema =
@@ -4416,100 +3294,6 @@ public class ConnectorTest
     assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
     handler.assertEventCount( 0 );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
-  public void progressAreaOfInterestRemoveRequests_onFailure_multipleRequests()
-  {
-    final ChannelSchema channelSchema =
-      new ChannelSchema( 0,
-                         ValueUtil.randomString(),
-                         String.class,
-                         ChannelSchema.FilterType.NONE,
-                         null,
-                         false, true,
-                         Collections.emptyList() );
-    final SystemSchema schema =
-      new SystemSchema( 1,
-                        ValueUtil.randomString(),
-                        new ChannelSchema[]{ channelSchema },
-                        new EntitySchema[]{} );
-
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
-
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final AreaOfInterestRequest request1 =
-      new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request2 =
-      new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null );
-
-    pauseScheduler();
-
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-
-    connection.injectCurrentAreaOfInterestRequest( request1 );
-    connection.injectCurrentAreaOfInterestRequest( request2 );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final AtomicReference<Consumer<Throwable>> onFailure = new AtomicReference<>();
-    final AtomicInteger callCount = new AtomicInteger();
-    doAnswer( i -> {
-      callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
-      assertTrue( addresses.contains( address1 ) );
-      assertTrue( addresses.contains( address2 ) );
-      onFailure.set( (Consumer<Throwable>) i.getArguments()[ 2 ] );
-      return null;
-    } )
-      .when( connector.getTransport() )
-      .requestBulkUnsubscribe( anyListOf( ChannelAddress.class ), any( SafeProcedure.class ), any() );
-
-    assertEquals( callCount.get(), 0 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    requests.add( request1 );
-    requests.add( request2 );
-    connector.progressAreaOfInterestRemoveRequests( requests );
-
-    assertEquals( callCount.get(), 1 );
-    assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertTrue( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertTrue( subscription2.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 2 );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-    } );
-    handler.assertNextEvent( UnsubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-    } );
-
-    final Throwable error = new Throwable();
-    onFailure.get().accept( error );
-
-    assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    safeAction( () -> assertFalse( subscription1.isExplicitSubscription() ) );
-    safeAction( () -> assertFalse( subscription2.isExplicitSubscription() ) );
-
-    handler.assertEventCount( 4 );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address1 );
-      assertEquals( e.getError(), error );
-    } );
-    handler.assertNextEvent( UnsubscribeFailedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address2 );
-      assertEquals( e.getError(), error );
-    } );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -4574,7 +3358,7 @@ public class ConnectorTest
 
     pauseScheduler();
 
-    request1.markAsInProgress();
+    request1.markAsInProgress( newRequest( connection ).getRequestId() );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
@@ -4796,7 +3580,7 @@ public class ConnectorTest
     newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
-      connector.ensureConnection().newRequest( ValueUtil.randomString() );
+      newRequest( connector.ensureConnection() );
       assertFalse( connector.shouldRequestSync() );
     } );
   }
@@ -4808,8 +3592,7 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
-      final Request request = connection.newRequest( ValueUtil.randomString() );
-      connection.removeRequest( request.getRequestId(), false );
+      connection.removeRequest( newRequest( connection ).getRequestId() );
       assertTrue( connector.shouldRequestSync() );
     } );
   }
@@ -4821,8 +3604,7 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
-      final Request request = connection.newRequest( ValueUtil.randomString() );
-      connection.removeRequest( request.getRequestId(), true );
+      connection.removeRequest( connection.newRequest( ValueUtil.randomString(), true ).getRequestId() );
       assertFalse( connector.shouldRequestSync() );
     } );
   }
@@ -4834,9 +3616,8 @@ public class ConnectorTest
     final Connection connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
-      final Request request = connection.newRequest( ValueUtil.randomString() );
-      connection.removeRequest( request.getRequestId(), true );
-      connection.enqueueResponse( new ChangeSetMessage() );
+      connection.removeRequest( newRequest( connection ).getRequestId() );
+      connection.enqueueResponse( ChangeSetMessage.create( null, null, null, null, null ), null );
       assertFalse( connector.shouldRequestSync() );
     } );
   }
@@ -4869,24 +3650,6 @@ public class ConnectorTest
                              e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
-  @Test
-  public void onSyncError()
-  {
-    final Connector connector = createConnector();
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    final Throwable error = new Throwable();
-    connector.onSyncError( error );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( SyncFailureEvent.class,
-                             e -> {
-                               assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-                               assertEquals( e.getError(), error );
-                             } );
-  }
-
   @SuppressWarnings( "unchecked" )
   @Test
   public void requestSync()
@@ -4898,8 +3661,8 @@ public class ConnectorTest
     connector.requestSync();
 
     verify( connector.getTransport() ).requestSync( any( SafeProcedure.class ),
-                                                    any( SafeProcedure.class ),
-                                                    (Consumer<Throwable>) any( Consumer.class ) );
+                                                    any( SafeProcedure.class )
+    );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SyncRequestEvent.class,
@@ -4919,12 +3682,36 @@ public class ConnectorTest
 
     assertTrue( connector.ensureConnection().getRequests().isEmpty() );
 
-    final Request request = connection.newRequest( ValueUtil.randomString() );
-    connection.removeRequest( request.getRequestId(), false );
+    connection.removeRequest( newRequest( connection ).getRequestId() );
     assertTrue( connector.shouldRequestSync() );
 
     connector.maybeRequestSync();
 
-    verify( connector.getTransport() ).requestSync( any(), any(), any() );
+    verify( connector.getTransport() ).requestSync( any(), any() );
+  }
+
+  @Nonnull
+  private RequestEntry newRequest( @Nonnull final Connection connection )
+  {
+    return connection.newRequest( ValueUtil.randomString(), false );
+  }
+
+  @Nonnull
+  private MessageResponse setCurrentMessageResponse( @Nonnull final Connection connection,
+                                                     @Nonnull final ServerToClientMessage message )
+  {
+    return setCurrentMessageResponse( connection, message, null );
+  }
+
+  @Nonnull
+  private MessageResponse setCurrentMessageResponse( @Nonnull final Connection connection,
+                                                     @Nonnull final ServerToClientMessage message,
+                                                     @Nullable final RequestEntry request )
+  {
+    connection.enqueueResponse( message, request );
+    connection.selectNextMessageResponse();
+    final MessageResponse response = connection.getCurrentMessageResponse();
+    assert null != response;
+    return response;
   }
 }

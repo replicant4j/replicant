@@ -2,8 +2,5 @@
   <inherits name='replicant.Replicant'/>
   <inherits name='com.google.gwt.user.RemoteService'/>
 
-  <source path='client' includes='*.java'/>
   <source path='client/gwt'/>
-  <source path='client/transport'/>
-  <source path='shared'/>
 </module>

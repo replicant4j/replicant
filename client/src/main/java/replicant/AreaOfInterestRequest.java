@@ -18,7 +18,7 @@ final class AreaOfInterestRequest
   private final Type _type;
   @Nullable
   private final Object _filter;
-  private boolean _inProgress;
+  private int _requestId;
 
   AreaOfInterestRequest( @Nonnull final ChannelAddress address,
                          @Nonnull final Type type,
@@ -33,6 +33,7 @@ final class AreaOfInterestRequest
     _address = Objects.requireNonNull( address );
     _type = Objects.requireNonNull( type );
     _filter = filter;
+    _requestId = -1;
   }
 
   @Nonnull
@@ -55,17 +56,22 @@ final class AreaOfInterestRequest
 
   boolean isInProgress()
   {
-    return _inProgress;
+    return -1 != _requestId;
   }
 
-  void markAsInProgress()
+  int getRequestId()
   {
-    _inProgress = true;
+    return _requestId;
+  }
+
+  void markAsInProgress( final int requestId )
+  {
+    _requestId = requestId;
   }
 
   void markAsComplete()
   {
-    _inProgress = false;
+    _requestId = -1;
   }
 
   boolean match( @Nonnull final Type action, @Nonnull final ChannelAddress address, @Nullable final Object filter )
@@ -85,7 +91,7 @@ final class AreaOfInterestRequest
              "Type=" + _type +
              " Address=" + address +
              ( null == _filter ? "" : " Filter=" + FilterUtil.filterToString( _filter ) ) + "]" +
-             ( _inProgress ? "(InProgress)" : "" );
+             ( -1 != _requestId ? "(InProgress)" : "" );
     }
     else
     {

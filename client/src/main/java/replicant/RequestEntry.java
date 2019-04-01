@@ -13,12 +13,13 @@ final class RequestEntry
   private final int _requestId;
   @Nullable
   private final String _name;
+  private final boolean _syncRequest;
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
   private SafeProcedure _completionAction;
 
-  RequestEntry( final int requestId, @Nullable final String name )
+  RequestEntry( final int requestId, @Nullable final String name, final boolean syncRequest )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -28,11 +29,17 @@ final class RequestEntry
     }
     _requestId = requestId;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
+    _syncRequest = syncRequest;
   }
 
   int getRequestId()
   {
     return _requestId;
+  }
+
+  boolean isSyncRequest()
+  {
+    return _syncRequest;
   }
 
   @Nonnull
@@ -53,14 +60,14 @@ final class RequestEntry
     return _completionAction;
   }
 
-  void setNormalCompletion( final boolean normalCompletion )
-  {
-    _normalCompletion = normalCompletion;
-  }
-
   void setCompletionAction( @Nonnull final SafeProcedure completionAction )
   {
     _completionAction = completionAction;
+  }
+
+  void setNormalCompletion( final boolean normalCompletion )
+  {
+    _normalCompletion = normalCompletion;
   }
 
   boolean hasCompleted()

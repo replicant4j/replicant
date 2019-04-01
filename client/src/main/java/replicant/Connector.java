@@ -10,23 +10,19 @@ import arez.annotations.Observable;
 import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
 import arez.component.Linkable;
-import elemental2.core.Global;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jsinterop.base.Js;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.ServerToClientMessage;
-import replicant.messages.UseCacheMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -38,17 +34,13 @@ import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
-import replicant.spy.SubscribeFailedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
-import replicant.spy.SubscriptionUpdateFailedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
-import replicant.spy.SyncFailureEvent;
 import replicant.spy.SyncRequestEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
-import replicant.spy.UnsubscribeFailedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -112,6 +104,7 @@ abstract class Connector
    */
   @Nullable
   private SafeProcedure _postMessageResponseAction;
+  private TransportContextImpl _context;
 
   @Nonnull
   static Connector create( @Nullable final ReplicantContext context,
@@ -157,7 +150,9 @@ abstract class Connector
       ConnectorState newState = ConnectorState.ERROR;
       try
       {
-        _transport.requestConnect( new TransportContextImpl( this ) );
+        Disposable.dispose( _context );
+        _context = new TransportContextImpl( this );
+        _transport.requestConnect( _context );
         newState = ConnectorState.CONNECTING;
       }
       finally
@@ -224,10 +219,6 @@ abstract class Connector
 
   private void doSetConnection( @Nullable final Connection connection )
   {
-    if ( null != _connection )
-    {
-      Disposable.dispose( _connection );
-    }
     if ( null == _connection || null == _connection.getCurrentMessageResponse() )
     {
       setConnection( connection );
@@ -320,7 +311,7 @@ abstract class Connector
 
   final void requestSync()
   {
-    _transport.requestSync( this::onInSync, this::onOutOfSync, this::onSyncError );
+    _transport.requestSync( this::onInSync, this::onOutOfSync );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
@@ -729,7 +720,7 @@ abstract class Connector
     final Integer requestId = message.getRequestId();
     if ( null != requestId )
     {
-      connection.removeRequest( requestId, false );
+      connection.removeRequest( requestId );
     }
     connection.setCurrentMessageResponse( null );
     onMessageProcessed( response );
@@ -739,6 +730,35 @@ abstract class Connector
     {
       // If message is not a ping response then try to perform sync
       maybeRequestSync();
+    }
+    if ( null != request )
+    {
+      final List<AreaOfInterestRequest> requests = connection.getActiveAreaOfInterestRequests();
+      if ( !requests.isEmpty() )
+      {
+        if ( requests.get( 0 ).getRequestId() == request.getRequestId() )
+        {
+          requests.forEach( areaOfInterestRequest -> {
+            final ChannelAddress address = areaOfInterestRequest.getAddress();
+            final AreaOfInterestRequest.Type type = areaOfInterestRequest.getType();
+            if ( AreaOfInterestRequest.Type.ADD == type )
+            {
+              onSubscribeCompleted( address );
+            }
+            else if ( AreaOfInterestRequest.Type.REMOVE == type )
+            {
+              removeExplicitSubscriptions( Collections.singletonList( areaOfInterestRequest ) );
+              onUnsubscribeCompleted( address );
+            }
+            else
+            {
+              assert AreaOfInterestRequest.Type.UPDATE == type;
+              onSubscriptionUpdateCompleted( address );
+            }
+          } );
+          completeAreaOfInterestRequest();
+        }
+      }
     }
   }
 
@@ -843,6 +863,7 @@ abstract class Connector
   /**
    * Parse the json data associated with the current response and then enqueue it.
    */
+  /*
   void parseMessageResponse()
   {
     final Connection connection = ensureConnection();
@@ -853,12 +874,6 @@ abstract class Connector
 
     final Integer requestId = message.getRequestId();
     final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( () -> null != request || null == requestId,
-                    () -> "Replicant-0066: Unable to locate request with id '" + requestId + "' specified " +
-                          "by message. Existing Requests: " + connection.getRequests() );
-    }
     ChangeSetMessage changeSetMessage = null;
     if ( UseCacheMessage.TYPE.equals( message.getType() ) )
     {
@@ -909,7 +924,7 @@ abstract class Connector
     }
     //TODO: connection.queueCurrentResponse();
   }
-
+  */
   private void cacheMessageIfPossible( @Nonnull final String rawJsonData,
                                        @Nonnull final MessageResponse response,
                                        @Nonnull final ChangeSetMessage changeSet )
@@ -1047,7 +1062,6 @@ abstract class Connector
     }
     else
     {
-      requests.forEach( AreaOfInterestRequest::markAsInProgress );
       final AreaOfInterestRequest.Type type = requests.get( 0 ).getType();
       if ( AreaOfInterestRequest.Type.ADD == type )
       {
@@ -1090,39 +1104,9 @@ abstract class Connector
   {
     final ChannelAddress address = request.getAddress();
     onSubscribeStarted( address );
-    final SafeProcedure onSuccess = () -> {
-      completeAreaOfInterestRequest();
-      onSubscribeCompleted( address );
-    };
 
-    final Consumer<Throwable> onError = error ->
-    {
-      completeAreaOfInterestRequest();
-      onSubscribeFailed( address, error );
-    };
-
-    final CacheService cacheService = getReplicantContext().getCacheService();
-    final boolean cacheable =
-      null != cacheService && getSchema().getChannel( request.getAddress().getChannelId() ).isCacheable();
-    final CacheEntry cacheEntry = cacheable ? cacheService.lookup( request.getAddress().getCacheKey() ) : null;
-    if ( null != cacheEntry )
-    {
-      //Found locally cached data
-      final String eTag = cacheEntry.getETag();
-      final SafeProcedure onCacheValid = () ->
-      {
-        // Loading cached data
-        completeAreaOfInterestRequest();
-        //TODO: ensureConnection().enqueueOutOfBandResponse( cacheEntry.getContent(), () -> onSubscribeCompleted( address ) );
-        triggerMessageScheduler();
-      };
-      getTransport()
-        .requestSubscribe( request.getAddress(), request.getFilter(), eTag, onCacheValid, onSuccess, onError );
-    }
-    else
-    {
-      _transport.requestSubscribe( request.getAddress(), request.getFilter(), null, null, onSuccess, onError );
-    }
+    _transport.requestSubscribe( request.getAddress(), request.getFilter(), null );
+    request.markAsInProgress( ensureConnection().getLastTxRequestId() );
   }
 
   final void progressBulkAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1131,17 +1115,9 @@ abstract class Connector
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
     addresses.forEach( this::onSubscribeStarted );
 
-    final SafeProcedure onSuccess = () -> {
-      completeAreaOfInterestRequest();
-      addresses.forEach( this::onSubscribeCompleted );
-    };
-
-    final Consumer<Throwable> onError = error -> {
-      completeAreaOfInterestRequest();
-      addresses.forEach( a -> onSubscribeFailed( a, error ) );
-    };
-
-    _transport.requestBulkSubscribe( addresses, requests.get( 0 ).getFilter(), onSuccess, onError );
+    _transport.requestBulkSubscribe( addresses, requests.get( 0 ).getFilter() );
+    final int requestId = ensureConnection().getLastTxRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
   }
 
   final void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1166,20 +1142,12 @@ abstract class Connector
   {
     final ChannelAddress address = request.getAddress();
     onSubscriptionUpdateStarted( address );
-    final SafeProcedure onSuccess = () -> {
-      completeAreaOfInterestRequest();
-      onSubscriptionUpdateCompleted( address );
-    };
-
-    final Consumer<Throwable> onError = error ->
-    {
-      completeAreaOfInterestRequest();
-      onSubscriptionUpdateFailed( address, error );
-    };
 
     final Object filter = request.getFilter();
     assert null != filter;
-    _transport.requestSubscribe( address, filter, null, null, onSuccess, onError );
+    _transport.requestSubscribe( address, filter, null );
+    final int requestId = ensureConnection().getLastTxRequestId();
+    request.markAsInProgress( requestId );
   }
 
   final void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1187,19 +1155,13 @@ abstract class Connector
     final List<ChannelAddress> addresses =
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
     addresses.forEach( this::onSubscriptionUpdateStarted );
-    final SafeProcedure onSuccess = () -> {
-      completeAreaOfInterestRequest();
-      addresses.forEach( this::onSubscriptionUpdateCompleted );
-    };
 
-    final Consumer<Throwable> onError = error -> {
-      completeAreaOfInterestRequest();
-      addresses.forEach( a -> onSubscriptionUpdateFailed( a, error ) );
-    };
     // All filters will be the same if they are grouped
     final Object filter = requests.get( 0 ).getFilter();
     assert null != filter;
-    _transport.requestBulkSubscribe( addresses, filter, onSuccess, onError );
+    _transport.requestBulkSubscribe( addresses, filter );
+    final int requestId = ensureConnection().getLastTxRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
   }
 
   final void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1224,20 +1186,9 @@ abstract class Connector
   {
     final ChannelAddress address = request.getAddress();
     onUnsubscribeStarted( address );
-    final SafeProcedure onSuccess = () -> {
-      removeExplicitSubscriptions( Collections.singletonList( request ) );
-      completeAreaOfInterestRequest();
-      onUnsubscribeCompleted( address );
-    };
 
-    final Consumer<Throwable> onError = error ->
-    {
-      removeExplicitSubscriptions( Collections.singletonList( request ) );
-      completeAreaOfInterestRequest();
-      onUnsubscribeFailed( address, error );
-    };
-
-    _transport.requestUnsubscribe( address, onSuccess, onError );
+    _transport.requestUnsubscribe( address );
+    request.markAsInProgress( ensureConnection().getLastTxRequestId() );
   }
 
   final void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
@@ -1246,19 +1197,9 @@ abstract class Connector
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
     addresses.forEach( this::onUnsubscribeStarted );
 
-    final SafeProcedure onSuccess = () -> {
-      removeExplicitSubscriptions( requests );
-      completeAreaOfInterestRequest();
-      addresses.forEach( this::onUnsubscribeCompleted );
-    };
-
-    final Consumer<Throwable> onError = error -> {
-      removeExplicitSubscriptions( requests );
-      completeAreaOfInterestRequest();
-      addresses.forEach( a -> onUnsubscribeFailed( a, error ) );
-    };
-
-    _transport.requestBulkUnsubscribe( addresses, onSuccess, onError );
+    _transport.requestBulkUnsubscribe( addresses );
+    final int requestId = ensureConnection().getLastTxRequestId();
+    requests.forEach( r -> r.markAsInProgress( requestId ) );
   }
 
   /**
@@ -1342,7 +1283,12 @@ abstract class Connector
    */
   void onMessageReceived( @Nonnull final ServerToClientMessage message )
   {
-    ensureConnection().enqueueResponse( message );
+    final Connection connection = ensureConnection();
+
+    final Integer requestId = message.getRequestId();
+    final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
+
+    connection.enqueueResponse( message, request );
     triggerMessageScheduler();
   }
 
@@ -1417,18 +1363,10 @@ abstract class Connector
     }
   }
 
-  void onSyncError( @Nonnull final Throwable error )
-  {
-    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
-    {
-      getReplicantContext().getSpy().reportSpyEvent( new SyncFailureEvent( getSchema().getId(), error ) );
-    }
-  }
-
   @Action
   protected void onSubscribeStarted( @Nonnull final ChannelAddress address )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.LOADING, null );
+    updateAreaOfInterest( address, AreaOfInterest.Status.LOADING );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1452,20 +1390,9 @@ abstract class Connector
   }
 
   @Action
-  protected void onSubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.LOAD_FAILED, error );
-    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
-    {
-      getReplicantContext().getSpy()
-        .reportSpyEvent( new SubscribeFailedEvent( getSchema().getId(), getSchema().getName(), address, error ) );
-    }
-  }
-
-  @Action
   protected void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING, null );
+    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1476,7 +1403,7 @@ abstract class Connector
   @Action
   protected void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
+    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1485,20 +1412,9 @@ abstract class Connector
   }
 
   @Action
-  protected void onUnsubscribeFailed( @Nonnull final ChannelAddress address, @Nonnull final Throwable error )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED, null );
-    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
-    {
-      getReplicantContext().getSpy()
-        .reportSpyEvent( new UnsubscribeFailedEvent( getSchema().getId(), getSchema().getName(), address, error ) );
-    }
-  }
-
-  @Action
   protected void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING, null );
+    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1509,7 +1425,7 @@ abstract class Connector
   @Action
   protected void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
   {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED, null );
+    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1517,30 +1433,13 @@ abstract class Connector
     }
   }
 
-  @Action
-  protected void onSubscriptionUpdateFailed( @Nonnull final ChannelAddress address,
-                                             @Nonnull final Throwable error )
-  {
-    updateAreaOfInterest( address, AreaOfInterest.Status.UPDATE_FAILED, error );
-    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
-    {
-      getReplicantContext()
-        .getSpy()
-        .reportSpyEvent( new SubscriptionUpdateFailedEvent( getSchema().getId(),
-                                                            getSchema().getName(),
-                                                            address,
-                                                            error ) );
-    }
-  }
-
   private void updateAreaOfInterest( @Nonnull final ChannelAddress address,
-                                     @Nonnull final AreaOfInterest.Status status,
-                                     @Nullable final Throwable error )
+                                     @Nonnull final AreaOfInterest.Status status )
   {
     final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
     {
-      areaOfInterest.updateAreaOfInterest( status, error );
+      areaOfInterest.updateAreaOfInterest( status, null );
     }
   }
 
