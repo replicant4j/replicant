@@ -81,7 +81,9 @@ public final class DataLoadStatus
   {
     if ( Replicant.areNamesEnabled() )
     {
-      return "[Message involved " +
+      return "[Message" +
+             ( null == _requestId ? "" : " for request " + _requestId ) +
+             " involved " +
              getChannelAddCount() + " subscribes, " +
              getChannelUpdateCount() + " subscription updates, " +
              getChannelRemoveCount() + " un-subscribes, " +
