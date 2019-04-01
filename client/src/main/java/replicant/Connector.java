@@ -320,11 +320,11 @@ abstract class Connector
 
   final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    ensureConnection().requestSubscribe( address, filter );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestQueuedEvent( address, filter ) );
     }
+    ensureConnection().requestSubscribe( address, filter );
     triggerMessageScheduler();
   }
 
