@@ -36,7 +36,7 @@ public class DataLoadStatusTest
     assertEquals( status.getEntityLinkCount(), entityLinkCount );
 
     assertEquals( status.toString(),
-                  "[Message involved 4 subscribes, 2 subscription updates, 1 un-subscribes, 123 updates, 3 removes and 126 links]" );
+                  "[Message for request 44 involved 4 subscribes, 2 subscription updates, 1 un-subscribes, 123 updates, 3 removes and 126 links]" );
 
     ReplicantTestUtil.disableNames();
 
