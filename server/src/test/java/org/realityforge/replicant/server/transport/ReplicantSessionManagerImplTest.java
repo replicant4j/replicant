@@ -267,6 +267,9 @@ public class ReplicantSessionManagerImplTest
 
       EntityMessageCacheUtil.removeSessionChanges();
 
+    TransactionSynchronizationRegistryUtil.lookup()
+      .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
+
       //Should be a noop as same filter
       sm.subscribe( session, address2, originalFilter );
 
@@ -1036,6 +1039,8 @@ public class ReplicantSessionManagerImplTest
     sm.subscribe( session, cd, originalFilter );
     EntityMessageCacheUtil.removeSessionChanges();
 
+    TransactionSynchronizationRegistryUtil.lookup()
+      .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
     // Attempt to update to same filter - should be a noop
     sm.subscribe( session, cd, originalFilter );
 
@@ -1078,6 +1083,9 @@ public class ReplicantSessionManagerImplTest
     final ArrayList<Integer> subChannelIds = new ArrayList<>();
     subChannelIds.add( address1.getSubChannelId() );
     subChannelIds.add( address2.getSubChannelId() );
+
+    TransactionSynchronizationRegistryUtil.lookup()
+      .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
 
     sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, originalFilter );
 
