@@ -11,8 +11,6 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.ReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -29,6 +27,7 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.RegistryUtil;
+import org.realityforge.replicant.server.ee.TransactionSynchronizationRegistryUtil;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -1762,17 +1761,7 @@ public class ReplicantSessionManagerImplTest
     @Override
     protected TransactionSynchronizationRegistry getRegistry()
     {
-      final String key = "java:comp/TransactionSynchronizationRegistry";
-      try
-      {
-        return (TransactionSynchronizationRegistry) new InitialContext().lookup( key );
-      }
-      catch ( final NamingException ne )
-      {
-        final String message =
-          "Unable to locate TransactionSynchronizationRegistry at " + key + " due to " + ne;
-        throw new IllegalStateException( message, ne );
-      }
+      return TransactionSynchronizationRegistryUtil.lookup();
     }
   }
 
