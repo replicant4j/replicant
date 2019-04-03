@@ -433,10 +433,11 @@ public abstract class ReplicantSessionManagerImpl
 
   private void sendOk( @Nonnull final ReplicantSession session )
   {
+    final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
     final JsonObjectBuilder builder =
       Json.createObjectBuilder()
         .add( "type", "ok" )
-        .add( "req", (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY ) );
+        .add( "requestId", requestId );
     WebSocketUtil.sendJsonObject( session.getWebSocketSession(), builder.build() );
   }
 
