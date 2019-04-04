@@ -20,7 +20,7 @@ public final class Request
   @Nonnull
   public String getConnectionId()
   {
-    return _connection.getConnectionId();
+    return _connection.ensureConnectionId();
   }
 
   public int getRequestId()

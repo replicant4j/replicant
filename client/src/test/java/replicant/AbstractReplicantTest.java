@@ -212,7 +212,7 @@ public abstract class AbstractReplicantTest
   @Nonnull
   final Connection createConnection()
   {
-    final Connection connection = new Connection( createConnector() );
+    final Connection connection = Connection.create( createConnector() );
     connection.setConnectionId( ValueUtil.randomString() );
     return connection;
   }

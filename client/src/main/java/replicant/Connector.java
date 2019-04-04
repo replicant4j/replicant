@@ -6,6 +6,7 @@ import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.ContextRef;
 import arez.annotations.Feature;
+import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
+import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -206,7 +208,7 @@ abstract class Connector
 
   final void onConnection( @Nonnull final String connectionId )
   {
-    final Connection connection = new Connection( this );
+    final Connection connection = Connection.create( this );
     connection.setConnectionId( connectionId );
     doSetConnection( connection );
     triggerMessageScheduler();
@@ -316,6 +318,7 @@ abstract class Connector
       getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
     }
     _transport.requestSync();
+    triggerMessageScheduler();
   }
 
   final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
@@ -520,6 +523,7 @@ abstract class Connector
     }
   }
 
+  @Memoize
   boolean isSynchronized()
   {
     return areRequestResponseQueuesEmpty() && ensureConnection().syncComplete();
@@ -726,11 +730,6 @@ abstract class Connector
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
 
-    if ( ChangeSetMessage.TYPE.equals( message.getType() ) )
-    {
-      // If message is not a ping response then try to perform sync
-      maybeRequestSync();
-    }
     if ( null != request )
     {
       final List<AreaOfInterestRequest> requests = connection.getActiveAreaOfInterestRequests();
@@ -738,28 +737,55 @@ abstract class Connector
       {
         if ( requests.get( 0 ).getRequestId() == request.getRequestId() )
         {
-          requests.forEach( areaOfInterestRequest -> {
-            final ChannelAddress address = areaOfInterestRequest.getAddress();
-            final AreaOfInterestRequest.Type type = areaOfInterestRequest.getType();
-            if ( AreaOfInterestRequest.Type.ADD == type )
-            {
-              onSubscribeCompleted( address );
-            }
-            else if ( AreaOfInterestRequest.Type.REMOVE == type )
-            {
-              removeExplicitSubscriptions( Collections.singletonList( areaOfInterestRequest ) );
-              onUnsubscribeCompleted( address );
-            }
-            else
-            {
-              assert AreaOfInterestRequest.Type.UPDATE == type;
-              onSubscriptionUpdateCompleted( address );
-            }
-          } );
-          completeAreaOfInterestRequest();
+          completeAreaOfInterestRequests( requests );
         }
       }
     }
+    if ( OkMessage.TYPE.equals( message.getType() ) )
+    {
+      if ( null != requestId && connection.getLastRxSyncRequestId() == requestId )
+      {
+        if ( connection.syncComplete() )
+        {
+          onInSync();
+        }
+        else
+        {
+          onOutOfSync();
+        }
+        triggerMessageScheduler();
+      }
+    }
+    else if ( ChangeSetMessage.TYPE.equals( message.getType() ) )
+    {
+      // If message is not a ping response then try to perform sync
+      maybeRequestSync();
+    }
+  }
+
+  // This is in an action so that completeAreaOfInterestRequest() is called observers can react to status changes in AreaOfInterest
+  @Action
+  void completeAreaOfInterestRequests( final List<AreaOfInterestRequest> requests )
+  {
+    requests.forEach( areaOfInterestRequest -> {
+      final ChannelAddress address = areaOfInterestRequest.getAddress();
+      final AreaOfInterestRequest.Type type = areaOfInterestRequest.getType();
+      if ( AreaOfInterestRequest.Type.ADD == type )
+      {
+        onSubscribeCompleted( address );
+      }
+      else if ( AreaOfInterestRequest.Type.REMOVE == type )
+      {
+        removeExplicitSubscriptions( Collections.singletonList( areaOfInterestRequest ) );
+        onUnsubscribeCompleted( address );
+      }
+      else
+      {
+        assert AreaOfInterestRequest.Type.UPDATE == type;
+        onSubscriptionUpdateCompleted( address );
+      }
+    } );
+    completeAreaOfInterestRequest();
   }
 
   void maybeRequestSync()
@@ -1287,7 +1313,6 @@ abstract class Connector
 
     final Integer requestId = message.getRequestId();
     final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
-
     connection.enqueueResponse( message, request );
     triggerMessageScheduler();
   }

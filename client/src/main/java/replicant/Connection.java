@@ -1,5 +1,7 @@
 package replicant;
 
+import arez.annotations.ArezComponent;
+import arez.annotations.Observable;
 import arez.component.CollectionsUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +22,8 @@ import static org.realityforge.braincheck.Guards.*;
  * This includes a list of pending requests, pending messages that needs to be applied
  * to the local state etc.
  */
-final class Connection
+@ArezComponent
+abstract class Connection
 {
   /**
    * The containing Connector.
@@ -28,21 +31,9 @@ final class Connection
   @Nonnull
   private final Connector _connector;
   /**
-   * A unique identifier for the connection, typically supplied by the backend.
-   */
-  private String _connectionId;
-  /**
    * A map containing the rpc requests that are in progress.
    */
   private final Map<Integer, RequestEntry> _requests = new HashMap<>();
-  /**
-   * The id of the last rpc request transmitted to the server.
-   */
-  private int _lastTxRequestId;
-  /**
-   * The id of the last sync request responded to by the server.
-   */
-  private int _lastRxSyncRequestId;
   /**
    * Pending actions that will change the area of interest.
    */
@@ -63,21 +54,33 @@ final class Connection
   @Nonnull
   private List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
 
+  @Nonnull
+  static Connection create( @Nonnull final Connector connector )
+  {
+    return new Arez_Connection( connector );
+  }
+
   Connection( @Nonnull final Connector connector )
   {
     _connector = Objects.requireNonNull( connector );
   }
 
   @Nonnull
-  String getConnectionId()
+  String ensureConnectionId()
   {
-    return _connectionId;
+    final String connectionId = getConnectionId();
+    assert null != connectionId;
+    return connectionId;
   }
 
-  void setConnectionId( @Nonnull final String connectionId )
-  {
-    _connectionId = Objects.requireNonNull( connectionId );
-  }
+  /**
+   * Return a unique identifier for the connection, typically supplied by the backend.
+   */
+  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  @Nullable
+  abstract String getConnectionId();
+
+  abstract void setConnectionId( @Nonnull String connectionId );
 
   @Nonnull
   Connector getConnector()
@@ -169,7 +172,9 @@ final class Connection
   @Nonnull
   final RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
   {
-    final int requestId = ++_lastTxRequestId;
+
+    final int requestId = getLastTxRequestId() + 1;
+    setLastTxRequestId( requestId );
     final RequestEntry request = new RequestEntry( requestId, name, syncRequest );
     _requests.put( requestId, request );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -237,7 +242,7 @@ final class Connection
     final RequestEntry entry = _requests.remove( requestId );
     if ( null != entry && entry.isSyncRequest() )
     {
-      _lastRxSyncRequestId = requestId;
+      setLastRxSyncRequestId( requestId );
     }
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -260,22 +265,28 @@ final class Connection
     return _currentMessageResponse;
   }
 
-  int getLastTxRequestId()
-  {
-    return _lastTxRequestId;
-  }
+  /**
+   * Return the id of the last request transmitted to the server.
+   */
+  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  abstract int getLastTxRequestId();
 
-  int getLastRxSyncRequestId()
-  {
-    return _lastRxSyncRequestId;
-  }
+  abstract void setLastTxRequestId( int lastTxRequestId );
+
+  /**
+   * Return the id of the last sync request received from the server.
+   */
+  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  abstract int getLastRxSyncRequestId();
+
+  abstract void setLastRxSyncRequestId( int lastRxSyncRequestId );
 
   /**
    * Return true if there are no pending requests and the last request was a "SYNC" request.
    */
   boolean syncComplete()
   {
-    return null != _connectionId && _lastTxRequestId == _lastRxSyncRequestId;
+    return null != getConnectionId() && getLastTxRequestId() == getLastRxSyncRequestId();
   }
 
   /**
