@@ -24,7 +24,10 @@ public final class SubscribeMessage
     message.type = "sub";
     message.requestId = req;
     message.channel = ch;
-    message.filter = filter;
+    if ( null != filter )
+    {
+      message.filter = filter;
+    }
     return message;
   }
 }
