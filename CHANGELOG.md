@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.braincheck` artifact to version `1.15.0`.
 * Omit attributes not relevant to WebSocket based sessions from the the rest API describing sessions.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.133`.
 * Refactor the `replicant.Transport` interface to remove methods 4-arg `requestSubscribe()`, `requestSubscriptionUpdate()`
