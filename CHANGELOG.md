@@ -2,8 +2,10 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b21-6a027d2`.
+* Upgrade the `org.realityforge.braincheck` artifact to version `1.15.0`.
 * Omit attributes not relevant to WebSocket based sessions from the the rest API describing sessions.
-* Upgrade the `org.realityforge.arez` artifacts to version `0.133`.
+* Upgrade the `org.realityforge.arez` artifacts to version `0.135`.
 * Refactor the `replicant.Transport` interface to remove methods 4-arg `requestSubscribe()`, `requestSubscriptionUpdate()`
   and `requestBulkSubscriptionUpdate()` that can be reimplemented as calls to 6-arg `requestSubscribe()`.
 * Refactor the serverside code to mandate the use of `WebSocket` transport layer. As a result of this there is no
