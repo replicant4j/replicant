@@ -471,12 +471,17 @@ public abstract class ReplicantSessionManagerImpl
         {
           if ( session.getWebSocketSession().isOpen() )
           {
-            WebSocketUtil.sendJsonObject( session.getWebSocketSession(),
-                                          Json
-                                            .createObjectBuilder()
-                                            .add( "type", "load-cache" )
-                                            .add( "channel", address.toString() )
-                                            .build() );
+            final JsonObjectBuilder response = Json
+              .createObjectBuilder()
+              .add( "type", "use-cache" )
+              .add( "channel", address.toString() )
+              .add( "etag", eTag );
+            final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
+            if ( null != requestId )
+            {
+              response.add( "requestId", requestId );
+            }
+            WebSocketUtil.sendJsonObject( session.getWebSocketSession(), response.build() );
           }
         }
         else
