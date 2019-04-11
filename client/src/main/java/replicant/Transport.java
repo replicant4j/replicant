@@ -1,6 +1,7 @@
 package replicant;
 
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -34,6 +35,8 @@ public interface Transport
    * there is still processing queued on the server (or client).
    */
   void requestSync();
+
+  void updateEtagsSync( @Nonnull Map<String, String> channelToEtagMap );
 
   void requestSubscribe( @Nonnull ChannelAddress address,
                          @Nullable Object filter,

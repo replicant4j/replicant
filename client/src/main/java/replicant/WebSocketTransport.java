@@ -4,12 +4,15 @@ import elemental2.core.Global;
 import elemental2.dom.WebSocket;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 import replicant.messages.BulkSubscribeMessage;
 import replicant.messages.BulkUnsubscribeMessage;
+import replicant.messages.EtagsMessage;
 import replicant.messages.PingMessage;
 import replicant.messages.SubscribeMessage;
 import replicant.messages.UnsubscribeMessage;
@@ -54,6 +57,16 @@ public class WebSocketTransport
   {
     assert null != _transportContext;
     sendRemoteMessage( PingMessage.create( _transportContext.newRequest( "Sync", true ).getRequestId() ) );
+  }
+
+  @Override
+  public void updateEtagsSync( @Nonnull final Map<String, String> channelToEtagMap )
+  {
+    assert null != _transportContext;
+    final JsPropertyMap<Object> map = JsPropertyMap.of();
+    channelToEtagMap.forEach( map::set );
+    final RequestEntry request = _transportContext.newRequest( "Sync", true );
+    sendRemoteMessage( EtagsMessage.create( request.getRequestId(), Js.uncheckedCast( map ) ) );
   }
 
   @Override

@@ -11,20 +11,25 @@ import arez.annotations.Observable;
 import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
 import arez.component.Linkable;
+import elemental2.core.Global;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
+import replicant.messages.UseCacheMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -240,11 +245,32 @@ abstract class Connector
     {
       if ( null != _connection )
       {
+        sendEtagsIfAny();
         onConnected();
       }
       else
       {
         onDisconnected();
+      }
+    }
+  }
+
+  private void sendEtagsIfAny()
+  {
+    final CacheService cacheService = getReplicantContext().getCacheService();
+    if ( null != cacheService )
+    {
+      final HashMap<String, String> etags = new HashMap<>();
+      final Set<ChannelAddress> addresses = cacheService.keySet( getSchema().getId() );
+      for ( final ChannelAddress address : addresses )
+      {
+        final String eTag = cacheService.lookupEtag( address );
+        assert null != eTag;
+        etags.put( address.asChannelDescriptor(), eTag );
+      }
+      if ( !etags.isEmpty() )
+      {
+        _transport.updateEtagsSync( etags );
       }
     }
   }
@@ -760,6 +786,11 @@ abstract class Connector
     {
       // If message is not a ping response then try to perform sync
       maybeRequestSync();
+      final ChangeSetMessage changeSetMessage = (ChangeSetMessage) message;
+      if ( null != changeSetMessage.getETag() )
+      {
+        cacheMessageIfPossible( response, changeSetMessage );
+      }
     }
   }
 
@@ -886,8 +917,7 @@ abstract class Connector
     } );
   }
 
-  private void cacheMessageIfPossible( @Nonnull final String rawJsonData,
-                                       @Nonnull final MessageResponse response,
+  private void cacheMessageIfPossible( @Nonnull final MessageResponse response,
                                        @Nonnull final ChangeSetMessage changeSet )
   {
     final String eTag = changeSet.getETag();
@@ -903,7 +933,7 @@ abstract class Connector
            getSchema().getChannel( channelChanges.get( 0 ).getAddress().getChannelId() ).isCacheable() )
       {
         final ChannelAddress address = channelChanges.get( 0 ).getAddress();
-        cacheService.store( address.getCacheKey(), eTag, rawJsonData );
+        cacheService.store( address, eTag, Global.JSON.stringify( changeSet ) );
         candidate = true;
       }
     }
@@ -1248,7 +1278,47 @@ abstract class Connector
 
     final Integer requestId = message.getRequestId();
     final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
-    connection.enqueueResponse( message, request );
+
+    @Nonnull
+    final ServerToClientMessage messageToQueue;
+    if ( UseCacheMessage.TYPE.equals( message.getType() ) )
+    {
+      final UseCacheMessage useCacheMessage = (UseCacheMessage) message;
+      final String channel = useCacheMessage.getChannel();
+      final ChannelAddress address = ChannelAddress.parse( getSchema().getId(), channel );
+      final String etag = useCacheMessage.getEtag();
+
+      final CacheService cacheService = getReplicantContext().getCacheService();
+      if ( Replicant.shouldCheckApiInvariants() )
+      {
+        apiInvariant( () -> null != cacheService,
+                      () -> "Replicant-0042: Received a use-cache message for channel " + address +
+                            " but no cache service configured." );
+      }
+      assert null != cacheService;
+
+      final CacheEntry entry = cacheService.lookup( address );
+      if ( Replicant.shouldCheckApiInvariants() )
+      {
+        apiInvariant( () -> null != entry,
+                      () -> "Replicant-0068: Received a use-cache message for channel " + channel +
+                            " but no cache entry present for channel." );
+        assert null != entry;
+        apiInvariant( () -> entry.getETag().equals( etag ),
+                      () -> "Replicant-0075: Received a use-cache message for channel " + channel +
+                            " with etag '" + etag + "' but cache entry has etag '" + entry.getETag() +
+                            "'." );
+      }
+      assert null != entry;
+      messageToQueue = Js.cast( Global.JSON.parse( entry.getContent() ) );
+      messageToQueue.setRequestId( requestId );
+    }
+    else
+    {
+      messageToQueue = message;
+    }
+
+    connection.enqueueResponse( messageToQueue, request );
     triggerMessageScheduler();
   }
 
