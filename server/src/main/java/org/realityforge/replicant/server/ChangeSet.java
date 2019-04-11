@@ -12,6 +12,17 @@ public final class ChangeSet
 {
   private final LinkedList<ChannelAction> _channelActions = new LinkedList<>();
   private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<>();
+  private boolean _required;
+
+  public boolean isRequired()
+  {
+    return _required;
+  }
+
+  public void setRequired( final boolean required )
+  {
+    _required = required;
+  }
 
   private void mergeActions( @Nonnull final Collection<ChannelAction> actions )
   {

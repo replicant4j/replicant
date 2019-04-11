@@ -245,6 +245,7 @@ public abstract class ReplicantSessionManagerImpl
       }
       if ( null != initiatorSession && null != sessionChanges )
       {
+        accumulator.getChangeSet( initiatorSession ).setRequired( sessionChanges.isRequired() );
         accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
         accumulator.addActions( initiatorSession, sessionChanges.getChannelActions() );
       }
