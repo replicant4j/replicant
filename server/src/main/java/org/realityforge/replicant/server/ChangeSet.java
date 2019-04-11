@@ -12,17 +12,6 @@ public final class ChangeSet
 {
   private final LinkedList<ChannelAction> _channelActions = new LinkedList<>();
   private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<>();
-  private boolean _pingResponse;
-
-  public boolean isPingResponse()
-  {
-    return _pingResponse;
-  }
-
-  public void setPingResponse( final boolean pingResponse )
-  {
-    _pingResponse = pingResponse;
-  }
 
   private void mergeActions( @Nonnull final Collection<ChannelAction> actions )
   {
