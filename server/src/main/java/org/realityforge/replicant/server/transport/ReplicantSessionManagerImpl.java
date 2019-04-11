@@ -467,6 +467,7 @@ public abstract class ReplicantSessionManagerImpl
               response.add( "requestId", requestId );
             }
             WebSocketUtil.sendJsonObject( session.getWebSocketSession(), response.build() );
+            changeSet.setRequired( false );
           }
         }
         else
