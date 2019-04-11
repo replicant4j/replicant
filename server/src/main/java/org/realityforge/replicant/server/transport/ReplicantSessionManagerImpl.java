@@ -283,10 +283,6 @@ public abstract class ReplicantSessionManagerImpl
     {
       performUpdateSubscription( entry, originalFilter, filter, changeSet );
     }
-    else
-    {
-      sendOk( session );
-    }
   }
 
   @Override
@@ -413,7 +409,6 @@ public abstract class ReplicantSessionManagerImpl
             " to " + filter + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
           throw new AttemptedToUpdateStaticFilterException( message );
         }
-        sendOk( session );
       }
     }
     else
@@ -429,16 +424,6 @@ public abstract class ReplicantSessionManagerImpl
         throw e;
       }
     }
-  }
-
-  private void sendOk( @Nonnull final ReplicantSession session )
-  {
-    final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
-    final JsonObjectBuilder builder =
-      Json.createObjectBuilder()
-        .add( "type", "ok" )
-        .add( "requestId", requestId );
-    WebSocketUtil.sendJsonObject( session.getWebSocketSession(), builder.build() );
   }
 
   private boolean doFiltersMatch( final Object filter1, final Object filter2 )
