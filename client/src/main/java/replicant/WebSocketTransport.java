@@ -101,7 +101,7 @@ public class WebSocketTransport
 
     _webSocket = new WebSocket( _config.getUrl() );
 
-    _webSocket.onmessage = e -> onWebSocketMessage( (String) e.data );
+    _webSocket.onmessage = e -> onWebSocketMessage( e.data.asString() );
     //TODO: Fix error handling so propagate error from ... somewhere
     _webSocket.onerror = e -> onWebSocketError( new IllegalStateException() );
     _webSocket.onclose = e -> onWebSocketClose();
