@@ -110,11 +110,6 @@ public final class ChangeSet
     }
   }
 
-  public void merge( @Nonnull final ChangeSet changeSet )
-  {
-    merge( changeSet, false );
-  }
-
   public void merge( @Nonnull final ChangeSet changeSet, final boolean copyOnMerge )
   {
     mergeAll( changeSet.getChanges(), copyOnMerge );
