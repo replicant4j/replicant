@@ -1,51 +1,65 @@
 package replicant;
 
+import arez.component.CollectionsUtil;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TestCacheService
   implements CacheService
 {
-  private final Map<String, String> _data = new HashMap<>();
+  private final Map<Integer, Map<ChannelAddress, CacheEntry>> _data = new HashMap<>();
+
+  @Nonnull
+  private Map<ChannelAddress, CacheEntry> getSystemCache( final int systemId )
+  {
+    return _data.computeIfAbsent( systemId, v -> new HashMap<>() );
+  }
+
+  @Nonnull
+  @Override
+  public Set<ChannelAddress> keySet( final int systemId )
+  {
+    return CollectionsUtil.wrap( getSystemCache( systemId ).keySet() );
+  }
 
   @Nullable
   @Override
-  public CacheEntry lookup( @Nonnull final String key )
+  public String lookupEtag( @Nonnull final ChannelAddress address )
   {
-    final String eTag = _data.get( key + "ETAG" );
-    final String content = _data.get( key );
-    if ( null != eTag && null != content )
-    {
-      return new CacheEntry( key, eTag, content );
-    }
-    else
-    {
-      return null;
-    }
+    final CacheEntry entry = getSystemCache( address.getSystemId() ).get( address );
+    return null != entry ? entry.getETag() : null;
+  }
+
+  @Nullable
+  @Override
+  public CacheEntry lookup( @Nonnull final ChannelAddress address )
+  {
+    return getSystemCache( address.getSystemId() ).get( address );
   }
 
   @Override
-  public boolean store( @Nonnull final String key, @Nonnull final String eTag, @Nonnull final String content )
+  public boolean store( @Nonnull final ChannelAddress address,
+                        @Nonnull final String eTag,
+                        @Nonnull final String content )
   {
-    _data.put( key + "ETAG", eTag );
-    _data.put( key, content );
+    getSystemCache( address.getSystemId() ).put( address, new CacheEntry( address, eTag, content ) );
     return true;
-
   }
 
   @Override
-  public boolean invalidate( @Nonnull final String key )
+  public boolean invalidate( @Nonnull final ChannelAddress address )
   {
-    if ( !_data.containsKey( key + "ETAG" ) )
+    final Map<ChannelAddress, CacheEntry> systemCache = getSystemCache( address.getSystemId() );
+    if ( !systemCache.containsKey( address ) )
     {
       return false;
     }
     else
     {
-      _data.remove( key + "ETAG" );
-      _data.remove( key );
+      systemCache.remove( address );
       return true;
     }
   }

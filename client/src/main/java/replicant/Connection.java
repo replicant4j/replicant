@@ -172,7 +172,6 @@ abstract class Connection
   @Nonnull
   final RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
   {
-
     final int requestId = getLastTxRequestId() + 1;
     setLastTxRequestId( requestId );
     final RequestEntry request = new RequestEntry( requestId, name, syncRequest );
@@ -354,8 +353,8 @@ abstract class Connection
     final CacheService cacheService = _connector.getReplicantContext().getCacheService();
     return null != template.getAddress().getId() &&
            null != match.getAddress().getId() &&
-           ( null == cacheService || null == cacheService.lookup( template.getAddress().getCacheKey() ) ) &&
-           ( null == cacheService || null == cacheService.lookup( match.getAddress().getCacheKey() ) ) &&
+           ( null == cacheService || null == cacheService.lookup( template.getAddress() ) ) &&
+           ( null == cacheService || null == cacheService.lookup( match.getAddress() ) ) &&
            template.getType().equals( match.getType() ) &&
            template.getAddress().getChannelId() == match.getAddress().getChannelId() &&
            ( AreaOfInterestRequest.Type.REMOVE == match.getType() ||

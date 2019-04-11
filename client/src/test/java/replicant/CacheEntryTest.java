@@ -10,12 +10,13 @@ public class CacheEntryTest
   @Test
   public void basicOperation()
   {
-    final String key = ValueUtil.randomString();
+    final ChannelAddress address =
+      new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt() );
     final String eTag = ValueUtil.randomString();
     final String content = ValueUtil.randomString();
-    final CacheEntry entry = new CacheEntry( key, eTag, content );
+    final CacheEntry entry = new CacheEntry( address, eTag, content );
 
-    assertEquals( entry.getKey(), key );
+    assertEquals( entry.getAddress(), address );
     assertEquals( entry.getETag(), eTag );
     assertEquals( entry.getContent(), content );
   }

@@ -2661,7 +2661,7 @@ public class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final String eTag = "";
-    cacheService.store( address.getCacheKey(), eTag, ValueUtil.randomString() );
+    cacheService.store( address, eTag, ValueUtil.randomString() );
     final AtomicReference<SafeProcedure> onCacheValid = new AtomicReference<>();
     final AtomicInteger callCount = new AtomicInteger();
     doAnswer( i -> {

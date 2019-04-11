@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -8,30 +9,42 @@ import javax.annotation.Nullable;
  */
 public interface CacheService
 {
+  @Nonnull
+  Set<ChannelAddress> keySet( int systemId );
+
   /**
-   * Lookup cached resource with specified key.
+   * Lookup etag for specified address.
    *
-   * @param key the key.
+   * @param address the address.
+   * @return the etag or null if not cached.
+   */
+  @Nullable
+  String lookupEtag( @Nonnull ChannelAddress address );
+
+  /**
+   * Lookup cached content for the specified address.
+   *
+   * @param address the address.
    * @return the cached resource or null if not cached.
    */
   @Nullable
-  CacheEntry lookup( @Nonnull String key );
+  CacheEntry lookup( @Nonnull ChannelAddress address );
 
   /**
-   * Store resource in cache.
+   * Store content in cache.
    *
-   * @param key     the key under which to store resource.
+   * @param address the address under which to store resource.
    * @param eTag    the pseudo eTag for resource.
    * @param content the content of resource.
    * @return true if successfully cached, false otherwise.
    */
-  boolean store( @Nonnull String key, @Nonnull String eTag, @Nonnull String content );
+  boolean store( @Nonnull ChannelAddress address, @Nonnull String eTag, @Nonnull String content );
 
   /**
    * Remove and invalidate cached resource.
    *
-   * @param key the key.
+   * @param address the address.
    * @return if resource has been removed from cache, false if resource was not cached.
    */
-  boolean invalidate( @Nonnull String key );
+  boolean invalidate( @Nonnull ChannelAddress address );
 }

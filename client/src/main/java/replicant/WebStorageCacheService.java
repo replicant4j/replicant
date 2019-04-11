@@ -1,12 +1,19 @@
 package replicant;
 
+import arez.component.CollectionsUtil;
+import elemental2.core.Global;
+import elemental2.core.JsObject;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.Window;
 import elemental2.webstorage.Storage;
 import elemental2.webstorage.WebStorageWindow;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -16,7 +23,7 @@ import static org.realityforge.braincheck.Guards.*;
 public class WebStorageCacheService
   implements CacheService
 {
-  static final String ETAG_SUFFIX = "_ETAG_";
+  static final String ETAG_INDEX = "REPLICANT_ETAG_INDEX";
   @Nonnull
   private final Storage _storage;
 
@@ -114,16 +121,38 @@ public class WebStorageCacheService
   /**
    * {@inheritDoc}
    */
+  @Nonnull
   @Override
-  @Nullable
-  public CacheEntry lookup( @Nonnull final String key )
+  public Set<ChannelAddress> keySet( final int systemId )
   {
-    Objects.requireNonNull( key );
-    final String eTag = _storage.getItem( key + ETAG_SUFFIX );
-    final String content = _storage.getItem( key );
+    final HashSet<ChannelAddress> keys = new HashSet<>();
+    getIndex( systemId ).forEach( v -> keys.add( ChannelAddress.parse( systemId, v ) ) );
+    return CollectionsUtil.wrap( keys );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Nullable
+  @Override
+  public String lookupEtag( @Nonnull final ChannelAddress address )
+  {
+    return getIndex( address.getSystemId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Nullable
+  @Override
+  public CacheEntry lookup( @Nonnull final ChannelAddress address )
+  {
+    Objects.requireNonNull( address );
+    final String eTag = getIndex( address.getSystemId() ).get( address.asChannelDescriptor() );
+    final String content = _storage.getItem( address.getCacheKey() );
     if ( null != eTag && null != content )
     {
-      return new CacheEntry( key, eTag, content );
+      return new CacheEntry( address, eTag, content );
     }
     else
     {
@@ -135,23 +164,41 @@ public class WebStorageCacheService
    * {@inheritDoc}
    */
   @Override
-  public boolean store( @Nonnull final String key, @Nonnull final String eTag, @Nonnull final String content )
+  public boolean store( @Nonnull final ChannelAddress address,
+                        @Nonnull final String eTag,
+                        @Nonnull final String content )
   {
-    Objects.requireNonNull( key );
+    Objects.requireNonNull( address );
     Objects.requireNonNull( eTag );
     Objects.requireNonNull( content );
     try
     {
-      final Storage storage = getStorage();
-      storage.setItem( key + ETAG_SUFFIX, eTag );
-      storage.setItem( key, content );
+      final int systemId = address.getSystemId();
+      final JsPropertyMap<String> index = getIndex( systemId );
+      index.set( address.asChannelDescriptor(), eTag );
+      saveIndex( systemId, index );
+      getStorage().setItem( address.getCacheKey(), content );
       return true;
     }
     catch ( final Throwable e )
     {
       // This exception can occur when storage is full
-      invalidate( key );
+      invalidate( address );
       return false;
+    }
+  }
+
+  private void saveIndex( final int systemId, @Nonnull final JsPropertyMap<String> index )
+  {
+    final Storage storage = getStorage();
+    final String key = indexKey( systemId );
+    if ( 0 == JsObject.keys( index ).length )
+    {
+      storage.removeItem( key );
+    }
+    else
+    {
+      storage.setItem( key, Global.JSON.stringify( index ) );
     }
   }
 
@@ -159,18 +206,21 @@ public class WebStorageCacheService
    * {@inheritDoc}
    */
   @Override
-  public boolean invalidate( @Nonnull final String key )
+  public boolean invalidate( @Nonnull final ChannelAddress address )
   {
-    Objects.requireNonNull( key );
-    final Storage storage = getStorage();
-    if ( null == storage.getItem( key + ETAG_SUFFIX ) )
+    Objects.requireNonNull( address );
+    final int systemId = address.getSystemId();
+    final JsPropertyMap<String> index = findIndex( systemId );
+    final String key = address.asChannelDescriptor();
+    if ( null == index || null == index.get( key ) )
     {
       return false;
     }
     else
     {
-      storage.removeItem( key + ETAG_SUFFIX );
-      storage.removeItem( key );
+      index.delete( key );
+      saveIndex( systemId, index );
+      getStorage().removeItem( address.getCacheKey() );
       return true;
     }
   }
@@ -198,5 +248,25 @@ public class WebStorageCacheService
   final Storage getStorage()
   {
     return _storage;
+  }
+
+  @Nonnull
+  private JsPropertyMap<String> getIndex( final int systemId )
+  {
+    final JsPropertyMap<String> index = findIndex( systemId );
+    return null == index ? Js.uncheckedCast( JsPropertyMap.of() ) : index;
+  }
+
+  @Nullable
+  private JsPropertyMap<String> findIndex( final int systemId )
+  {
+    final String indexData = _storage.getItem( indexKey( systemId ) );
+    return null == indexData ? null : Js.uncheckedCast( Global.JSON.parse( indexData ) );
+  }
+
+  @Nonnull
+  private String indexKey( final int systemId )
+  {
+    return ETAG_INDEX + '-' + systemId;
   }
 }

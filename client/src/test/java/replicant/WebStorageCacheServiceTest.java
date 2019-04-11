@@ -3,7 +3,7 @@ package replicant;
 import elemental2.dom.DomGlobal;
 import elemental2.webstorage.Storage;
 import elemental2.webstorage.WebStorageWindow;
-import org.mockito.Mockito;
+import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -106,152 +106,18 @@ public class WebStorageCacheServiceTest
 
     final WebStorageCacheService service = new WebStorageCacheService( storage );
 
-    final String key = ValueUtil.randomString();
+    final ChannelAddress address = newAddress();
 
-    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) ).thenReturn( null );
+    when( storage.getItem( WebStorageCacheService.ETAG_INDEX + '-' + address.getSystemId() ) ).thenReturn( null );
 
-    final boolean removed = service.invalidate( key );
+    assertFalse( service.invalidate( address ) );
 
-    assertFalse( removed );
-
-    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
+    verify( storage ).getItem( WebStorageCacheService.ETAG_INDEX + '-' + address.getSystemId() );
   }
 
-  @Test
-  public void invalidate_whenPresent()
+  @Nonnull
+  private ChannelAddress newAddress()
   {
-    final Storage storage = mock( Storage.class );
-
-    final WebStorageCacheService service = new WebStorageCacheService( storage );
-
-    final String key = ValueUtil.randomString();
-
-    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
-      .thenReturn( ValueUtil.randomString() );
-
-    final boolean removed = service.invalidate( key );
-
-    assertTrue( removed );
-
-    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( storage ).removeItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( storage ).removeItem( key );
-  }
-
-  @Test
-  public void store_whenPresent()
-  {
-    final Storage storage = mock( Storage.class );
-
-    final WebStorageCacheService service = new WebStorageCacheService( storage );
-
-    final String key = ValueUtil.randomString();
-    final String eTag = ValueUtil.randomString();
-    final String content = ValueUtil.randomString();
-
-    final boolean stored = service.store( key, eTag, content );
-
-    assertTrue( stored );
-
-    verify( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
-    verify( storage ).setItem( key, content );
-  }
-
-  @Test
-  public void store_generatesError()
-  {
-    final Storage storage = mock( Storage.class );
-
-    final WebStorageCacheService service = new WebStorageCacheService( storage );
-
-    final String key = ValueUtil.randomString();
-    final String eTag = ValueUtil.randomString();
-    final String content = ValueUtil.randomString();
-
-    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
-      .thenReturn( null );
-
-    Mockito.doAnswer( i -> {
-      throw new IllegalStateException();
-    } ).when( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
-
-    final boolean stored = service.store( key, eTag, content );
-
-    assertFalse( stored );
-
-    verify( storage ).setItem( key + WebStorageCacheService.ETAG_SUFFIX, eTag );
-    verify( storage, never() ).setItem( key, content );
-    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-  }
-
-  @Test
-  public void lookup()
-  {
-    final Storage storage = mock( Storage.class );
-
-    final WebStorageCacheService service = new WebStorageCacheService( storage );
-
-    final String key = ValueUtil.randomString();
-    final String eTag = ValueUtil.randomString();
-    final String content = ValueUtil.randomString();
-
-    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
-      .thenReturn( eTag );
-    when( storage.getItem( key ) )
-      .thenReturn( content );
-
-    final CacheEntry entry = service.lookup( key );
-    assertNotNull( entry );
-
-    assertEquals( entry.getKey(), key );
-    assertEquals( entry.getETag(), eTag );
-    assertEquals( entry.getContent(), content );
-
-    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( storage ).getItem( key );
-  }
-
-  @Test
-  public void lookup_eTagMissing()
-  {
-    final Storage storage = mock( Storage.class );
-
-    final WebStorageCacheService service = new WebStorageCacheService( storage );
-
-    final String key = ValueUtil.randomString();
-    final String content = ValueUtil.randomString();
-
-    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
-      .thenReturn( null );
-    when( storage.getItem( key ) )
-      .thenReturn( content );
-
-    final CacheEntry entry = service.lookup( key );
-    assertNull( entry );
-
-    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( storage ).getItem( key );
-  }
-
-  @Test
-  public void lookup_ContentMissing()
-  {
-    final Storage storage = mock( Storage.class );
-
-    final WebStorageCacheService service = new WebStorageCacheService( storage );
-
-    final String key = ValueUtil.randomString();
-    final String eTag = ValueUtil.randomString();
-
-    when( storage.getItem( key + WebStorageCacheService.ETAG_SUFFIX ) )
-      .thenReturn( eTag );
-    when( storage.getItem( key ) )
-      .thenReturn( null );
-
-    final CacheEntry entry = service.lookup( key );
-    assertNull( entry );
-
-    verify( storage ).getItem( key + WebStorageCacheService.ETAG_SUFFIX );
-    verify( storage ).getItem( key );
+    return new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
   }
 }

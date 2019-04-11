@@ -464,7 +464,7 @@ public class ConnectionTest
     final TestCacheService cacheService = new TestCacheService();
     Replicant.context().setCacheService( cacheService );
 
-    cacheService.store( addressA.getCacheKey(), ValueUtil.randomString(), ValueUtil.randomString() );
+    cacheService.store( addressA, ValueUtil.randomString(), ValueUtil.randomString() );
 
     assertFalse( connection.canGroupRequests( requestA, requestB ) );
     assertFalse( connection.canGroupRequests( requestB, requestA ) );
