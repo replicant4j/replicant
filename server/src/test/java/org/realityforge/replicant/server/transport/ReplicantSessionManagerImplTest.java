@@ -345,7 +345,7 @@ public class ReplicantSessionManagerImplTest
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
-      verify( webSocketSession.getBasicRemote() ).sendText( "{\"type\":\"load-cache\",\"channel\":\"0\"}" );
+      verify( webSocketSession.getBasicRemote() ).sendText( "{\"type\":\"use-cache\",\"channel\":\"0\"}" );
 
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
@@ -427,7 +427,7 @@ public class ReplicantSessionManagerImplTest
     assertChannelActionCount( 0 );
     assertSessionChangesCount( 0 );
     final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-    verify( remote ).sendText( "{\"type\":\"load-cache\",\"channel\":\"0\"}" );
+    verify( remote ).sendText( "{\"type\":\"use-cache\",\"channel\":\"0\"}" );
   }
 
   @Test
@@ -591,7 +591,7 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
 
-      verify( session.getWebSocketSession().getBasicRemote() ).sendText( "{\"type\":\"load-cache\",\"channel\":\"0\"}" );
+      verify( session.getWebSocketSession().getBasicRemote() ).sendText( "{\"type\":\"use-cache\",\"channel\":\"0\"}" );
     }
 
     //Locally cached but an old version
