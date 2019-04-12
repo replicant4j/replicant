@@ -477,6 +477,7 @@ public abstract class ReplicantSessionManagerImpl
           cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
           cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
           sendPacket( session, eTag, cacheChangeSet );
+          changeSet.setRequired( false );
         }
         return;
       }
@@ -488,6 +489,7 @@ public abstract class ReplicantSessionManagerImpl
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
         sendPacket( session, null, cacheChangeSet );
+        changeSet.setRequired( false );
         return;
       }
     }
