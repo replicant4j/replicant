@@ -70,9 +70,7 @@ public class WebSocketTransport
   }
 
   @Override
-  public void requestSubscribe( @Nonnull final ChannelAddress address,
-                                @Nullable final Object filter,
-                                @Nullable final SafeProcedure onCacheValid )
+  public void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
     assert null != _transportContext;
     final RequestEntry request = _transportContext.newRequest( toRequestKey( "Subscribe", address ), false );

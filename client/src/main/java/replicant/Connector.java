@@ -1096,7 +1096,7 @@ abstract class Connector
     final ChannelAddress address = request.getAddress();
     onSubscribeStarted( address );
 
-    _transport.requestSubscribe( request.getAddress(), request.getFilter(), null );
+    _transport.requestSubscribe( request.getAddress(), request.getFilter() );
     request.markAsInProgress( ensureConnection().getLastTxRequestId() );
   }
 
@@ -1136,7 +1136,7 @@ abstract class Connector
 
     final Object filter = request.getFilter();
     assert null != filter;
-    _transport.requestSubscribe( address, filter, null );
+    _transport.requestSubscribe( address, filter );
     final int requestId = ensureConnection().getLastTxRequestId();
     request.markAsInProgress( requestId );
   }

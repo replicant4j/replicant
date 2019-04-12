@@ -38,9 +38,7 @@ public interface Transport
 
   void updateEtagsSync( @Nonnull Map<String, String> channelToEtagMap );
 
-  void requestSubscribe( @Nonnull ChannelAddress address,
-                         @Nullable Object filter,
-                         @Nullable SafeProcedure onCacheValid );
+  void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
 
   void requestUnsubscribe( @Nonnull ChannelAddress address );
 
