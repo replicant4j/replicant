@@ -37,6 +37,7 @@
   `AbstractMessage` and `ServerToClientMessage` parent classes to allow some code sharing.
 * Add `SubscribeMessage` and `UnsubscribeMessage` classes to represent the requests that are sent to the server.
 * Rename `ChangeSet` to `ChangeSetMessage` to match the naming conventions of other messages.
+* Significant rework of the entire network layer to enable `WebsocketTransport`.
 
 ### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
