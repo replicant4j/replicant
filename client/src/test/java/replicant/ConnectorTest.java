@@ -3542,7 +3542,7 @@ public class ConnectorTest
   {
     final Connector connector = createConnector();
     safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
-    assertFalse( connector.isSynchronized() );
+    safeAction( () -> assertFalse( connector.isSynchronized() ) );
   }
 
   @Test
@@ -3551,7 +3551,7 @@ public class ConnectorTest
     final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-    assertTrue( connector.isSynchronized() );
+    safeAction( () -> assertTrue( connector.isSynchronized() ) );
   }
 
   @Test
