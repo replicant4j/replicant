@@ -90,7 +90,6 @@ public abstract class AbstractReplicantEndpoint
     if ( "etags".equals( type ) )
     {
       onETags( replicantSession, command );
-      sendOk( session, requestId );
     }
     else if ( "ping".equals( type ) )
     {
@@ -129,6 +128,7 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void onETags( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+    throws IOException
   {
     final JsonObject etags = command.getJsonObject( "etags" );
     for ( final Map.Entry<String, JsonValue> entry : etags.entrySet() )
@@ -137,6 +137,7 @@ public abstract class AbstractReplicantEndpoint
       final String eTag = ( (JsonString) entry.getValue() ).getString();
       replicantSession.setETag( address, eTag );
     }
+    sendOk( replicantSession.getWebSocketSession(), command.getInt( "requestId" ) );
   }
 
   private void onMalformedMessage( @Nonnull final ReplicantSession replicantSession, @Nonnull final String message )
