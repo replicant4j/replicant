@@ -169,7 +169,7 @@ public abstract class AbstractReplicantEndpoint
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
     if ( checkSubscribeRequest( replicantSession, channelMetaData, address ) )
     {
-      subscribe( replicantSession, getRequestId( command ), address, extractFilter( channelMetaData, command ) );
+      subscribe( replicantSession, command.getInt( "requestId" ), address, extractFilter( channelMetaData, command ) );
     }
   }
 
@@ -251,7 +251,7 @@ public abstract class AbstractReplicantEndpoint
       }
     }
 
-    final Integer requestId = getRequestId( command );
+    final int requestId = command.getInt( "requestId" );
     final Object filter = extractFilter( channelMetaData, command );
     if ( 1 == addresses.length )
     {
@@ -303,7 +303,7 @@ public abstract class AbstractReplicantEndpoint
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
     if ( checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
     {
-      final Integer requestId = getRequestId( command );
+      final int requestId = command.getInt( "requestId" );
       unsubscribe( replicantSession, requestId, address );
     }
   }
@@ -343,7 +343,7 @@ public abstract class AbstractReplicantEndpoint
       }
     }
 
-    final Integer requestId = getRequestId( command );
+    final int requestId = command.getInt( "requestId" );
     if ( 1 == addresses.length )
     {
       unsubscribe( replicantSession, requestId, addresses[ 0 ] );
@@ -405,12 +405,6 @@ public abstract class AbstractReplicantEndpoint
     {
       return true;
     }
-  }
-
-  @Nullable
-  private Integer getRequestId( @Nonnull final JsonObject command )
-  {
-    return command.containsKey( "requestId" ) ? command.getInt( "requestId" ) : null;
   }
 
   @Nonnull
