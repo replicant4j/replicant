@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.38](https://github.com/replicant4j/replicant/tree/v6.38) (2019-04-12)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.37...v6.38)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b21-6a027d2`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.15.0`.
