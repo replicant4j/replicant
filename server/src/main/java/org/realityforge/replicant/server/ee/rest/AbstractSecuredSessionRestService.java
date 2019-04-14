@@ -1,14 +1,11 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.keycloak.adapters.OidcKeycloakAccount;
 import org.realityforge.keycloak.sks.SimpleAuthService;
 import org.realityforge.replicant.server.ChannelAddress;
-import org.realityforge.replicant.server.transport.ReplicantSession;
 
 @SuppressWarnings( "unused" )
 public abstract class AbstractSecuredSessionRestService
@@ -78,7 +75,7 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   private Response guard( @Nonnull final String sessionId, @Nonnull final Supplier<Response> action )
   {
-    if ( disableSecurity() || doesCurrentUserMatchSession( sessionId ) )
+    if ( disableSecurity() )
     {
       return action.get();
     }
@@ -86,20 +83,6 @@ public abstract class AbstractSecuredSessionRestService
     {
       return createForbiddenResponse();
     }
-  }
-
-  private boolean doesCurrentUserMatchSession( @Nonnull final String sessionId )
-  {
-    final OidcKeycloakAccount account = getAuthService().findAccount();
-    return null != account && doesUserMatchSession( sessionId, account );
-  }
-
-  private boolean doesUserMatchSession( @Nonnull final String sessionId,
-                                        @Nonnull final OidcKeycloakAccount account )
-  {
-    final String userID = account.getKeycloakSecurityContext().getToken().getPreferredUsername();
-    final ReplicantSession session = getSessionManager().getSession( sessionId );
-    return null != session && Objects.equals( session.getUserId(), userID );
   }
 
   private Response createForbiddenResponse()
