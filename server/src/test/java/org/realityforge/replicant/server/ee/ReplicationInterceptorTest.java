@@ -85,7 +85,7 @@ public class ReplicationInterceptorTest
     final Session session = mock( Session.class );
     when( session.getId() ).thenReturn( sessionId );
     when( interceptor.getReplicantSessionManager().getSession( sessionId ) )
-      .thenReturn( new ReplicantSession( null, session ) );
+      .thenReturn( new ReplicantSession( session ) );
 
     final Object result = interceptor.businessIntercept( context );
     verify( interceptor.getEntityManager() ).flush();
@@ -115,7 +115,7 @@ public class ReplicationInterceptorTest
     final Session session = mock( Session.class );
     when( session.getId() ).thenReturn( sessionId );
     when( interceptor.getReplicantSessionManager().getSession( sessionId ) )
-      .thenReturn( new ReplicantSession( null, session ) );
+      .thenReturn( new ReplicantSession( session ) );
 
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
@@ -144,7 +144,7 @@ public class ReplicationInterceptorTest
     final Session session = mock( Session.class );
     when( session.getId() ).thenReturn( sessionId );
     when( interceptor.getReplicantSessionManager().getSession( sessionId ) )
-      .thenReturn( new ReplicantSession( null, session ) );
+      .thenReturn( new ReplicantSession( session ) );
 
     when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );

@@ -61,7 +61,6 @@ public class ReplicantSessionManagerImplTest
     assertNull( sm.getSession( "MySessionID" ) );
     final ReplicantSession session = createSession( sm );
     assertNotNull( session );
-    assertNull( session.getUserId() );
     assertNotNull( session.getId() );
     assertEquals( sm.getSessionIDs().size(), 1 );
 

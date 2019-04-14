@@ -15,7 +15,7 @@ public class ReplicantSessionTest
     final Session webSocketSession = mock( Session.class );
     final String sessionId = ValueUtil.randomString();
     when( webSocketSession.getId() ).thenReturn( sessionId );
-    final ReplicantSession session = new ReplicantSession( null, webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
 
     assertEquals( session.getId(), sessionId );
 
@@ -66,7 +66,7 @@ public class ReplicantSessionTest
   @Test
   public void cacheKeys()
   {
-    final ReplicantSession session = new ReplicantSession( null, mock( Session.class ) );
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
 
     assertEquals( session.getETags().size(), 0 );
 

@@ -22,7 +22,7 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
+    final ReplicantSession c = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -51,7 +51,7 @@ public class ChangeAccumulatorTest
     throws IOException
   {
     final Session webSocketSession = createSession();
-    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
+    final ReplicantSession c = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -85,7 +85,7 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
+    final ReplicantSession c = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
@@ -118,13 +118,13 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
+    final ReplicantSession c = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChange( c, new Change( message, 1, 0 ) );
-    final boolean impactsInitiator = accumulator.complete( new ReplicantSession( null, createSession() ), 1 );
+    final boolean impactsInitiator = accumulator.complete( new ReplicantSession( createSession() ), 1 );
 
     assertFalse( impactsInitiator );
 
@@ -144,7 +144,7 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( null, webSocketSession );
+    final ReplicantSession c = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     accumulator.getChangeSet( c );

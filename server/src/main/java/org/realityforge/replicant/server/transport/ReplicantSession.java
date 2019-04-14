@@ -18,8 +18,6 @@ import org.realityforge.replicant.server.json.JsonEncoder;
 public final class ReplicantSession
   implements Serializable, Closeable
 {
-  @Nullable
-  private final String _userId;
   @Nonnull
   private final Session _webSocketSession;
   @Nonnull
@@ -27,9 +25,8 @@ public final class ReplicantSession
   @Nonnull
   private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
 
-  public ReplicantSession( @Nullable final String userId, @Nonnull Session webSocketSession )
+  public ReplicantSession( @Nonnull final Session webSocketSession )
   {
-    _userId = userId;
     _webSocketSession = Objects.requireNonNull( webSocketSession );
   }
 
@@ -68,15 +65,6 @@ public final class ReplicantSession
   public Session getWebSocketSession()
   {
     return _webSocketSession;
-  }
-
-  /**
-   * @return an opaque ID representing user that created session.
-   */
-  @Nullable
-  public String getUserId()
-  {
-    return _userId;
   }
 
   /**
