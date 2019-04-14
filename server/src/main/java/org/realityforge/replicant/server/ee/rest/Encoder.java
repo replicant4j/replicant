@@ -32,15 +32,6 @@ final class Encoder
   {
     g.writeStartObject();
     g.write( "id", session.getId() );
-    final String userID = session.getUserId();
-    if ( null == userID )
-    {
-      g.writeNull( "userID" );
-    }
-    else
-    {
-      g.write( "userID", userID );
-    }
     g.write( "url", getSessionURL( session, uri ) );
 
     if ( emitNetworkData )
