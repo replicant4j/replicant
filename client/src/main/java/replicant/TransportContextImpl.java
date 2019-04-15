@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import elemental2.dom.DomGlobal;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,7 +50,21 @@ final class TransportContextImpl
       }
       else
       {
+        final boolean active = _connector.isSchedulerActive();
+        final boolean paused = _connector.isSchedulerPaused();
         _connector.onMessageReceived( message );
+        /*
+         * If the browser page is not visible then do all processing within the message handler callback
+         * to avoid suffering under the vagaries of the background timer throttling.
+         */
+        if ( !active && !paused && !"visible".equals( DomGlobal.document.visibilityState ) )
+        {
+          //noinspection StatementWithEmptyBody
+          while ( _connector.progressMessages() )
+          {
+            //keep processing messages until done
+          }
+        }
       }
     }
   }
