@@ -44,7 +44,7 @@ final class Scheduler
           return;
         }
       }
-      DomGlobal.requestAnimationFrame( v -> schedule( command ) );
+      DomGlobal.setTimeout( v -> schedule( command ) );
     }
 /*
     When we no longer need to support IE11 we should move to this code.

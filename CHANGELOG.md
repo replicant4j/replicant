@@ -7,6 +7,7 @@
 * Remove `userID` from session as no longer populated or used.
 * Remove `ReplicantSecuredSessionManagerImpl` as no longer used.
 * Add the ability to specify and update an authentication token over WebSocket transport. Add a hook to `AbstractReplicantEndpoint` to enable downstream projects to implement authentication as required.
+* Return to using `setTimeout` to schedule network activity to avoid background timer throttling.
 
 ### [v6.38](https://github.com/replicant4j/replicant/tree/v6.38) (2019-04-12)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.37...v6.38)
