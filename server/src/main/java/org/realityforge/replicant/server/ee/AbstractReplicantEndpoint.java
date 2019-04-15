@@ -73,11 +73,6 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( session, "Unable to locate associated replicant session" );
       return;
     }
-    if ( !isAuthorized( replicantSession ) )
-    {
-      sendErrorAndClose( session, "Replicant session not authroized" );
-      return;
-    }
     final JsonObject command;
     final String type;
     final int requestId;
@@ -90,6 +85,11 @@ public abstract class AbstractReplicantEndpoint
     catch ( final Throwable ignored )
     {
       onMalformedMessage( replicantSession, message );
+      return;
+    }
+    if ( !"auth".equals( type )  && !isAuthorized( replicantSession ) )
+    {
+      sendErrorAndClose( session, "Replicant session not authroized" );
       return;
     }
     if ( "etags".equals( type ) )
