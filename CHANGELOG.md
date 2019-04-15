@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.39](https://github.com/replicant4j/replicant/tree/v6.39) (2019-04-16)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.38...v6.39)
 
 * Change security of `AbstractSecuredSessionRestService` so sessions are not allowed to access their individual
   details as no longer required.
