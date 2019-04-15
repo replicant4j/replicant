@@ -107,7 +107,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   public ReplicantSession createSession( @Nonnull final Session webSocketSession )
   {
-    final ReplicantSession session = new ReplicantSession( getUserID(), webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
     _lock.writeLock().lock();
     try
     {
@@ -214,12 +214,6 @@ public abstract class ReplicantSessionManagerImpl
    */
   @Nonnull
   protected abstract TransactionSynchronizationRegistry getRegistry();
-
-  @Nullable
-  protected String getUserID()
-  {
-    return null;
-  }
 
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,

@@ -73,6 +73,11 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( session, "Unable to locate associated replicant session" );
       return;
     }
+    if ( !isAuthorized( replicantSession ) )
+    {
+      sendErrorAndClose( session, "Replicant session not authroized" );
+      return;
+    }
     final JsonObject command;
     final String type;
     final int requestId;
@@ -111,10 +116,19 @@ public abstract class AbstractReplicantEndpoint
     {
       onBulkUnsubscribe( replicantSession, command );
     }
+    else if ( "auth".equals( type ) )
+    {
+      onAuthorize( replicantSession, command );
+    }
     else
     {
       onUnknownCommand( replicantSession, command );
     }
+  }
+
+  protected boolean isAuthorized( @Nonnull final ReplicantSession replicantSession )
+  {
+    return true;
   }
 
   private void sendOk( @Nonnull final Session session, final int requestId )
@@ -160,6 +174,13 @@ public abstract class AbstractReplicantEndpoint
         .add( "type", "unknown-command" )
         .add( "command", command );
     closeWithError( replicantSession, CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unknown command", builder.build() );
+  }
+
+  private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+    throws IOException
+  {
+    replicantSession.setAuthToken( command.getString( "token" ) );
+    sendOk( replicantSession.getWebSocketSession(), command.getInt( "requestId" ) );
   }
 
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )

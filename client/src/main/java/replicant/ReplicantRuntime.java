@@ -12,6 +12,7 @@ import arez.component.CollectionsUtil;
 import arez.component.DisposeNotifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
@@ -21,11 +22,43 @@ abstract class ReplicantRuntime
 {
   private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();
   private boolean _active = true;
+  /**
+   * Token used to authenticate replicant sessions.
+   */
+  @Nullable
+  private String _authToken;
 
   @Nonnull
   static ReplicantRuntime create()
   {
     return new Arez_ReplicantRuntime();
+  }
+
+  @Action( verifyRequired = false )
+  public void setAuthToken( @Nullable final String authToken )
+  {
+    if ( !Objects.equals( _authToken, authToken ) )
+    {
+      _authToken = authToken;
+      final List<ConnectorEntry> connectors = getConnectors();
+      for ( final ConnectorEntry entry : connectors )
+      {
+        final Connector connector = entry.getConnector();
+        if ( ConnectorState.CONNECTED == connector.getState() )
+        {
+          connector.getTransport().updateAuthToken( authToken );
+        }
+      }
+    }
+  }
+
+  /**
+   * @return a token used for authentication, if any.
+   */
+  @Nullable
+  String getAuthToken()
+  {
+    return _authToken;
   }
 
   @Action

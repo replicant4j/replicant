@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
+import replicant.messages.AuthTokenMessage;
 import replicant.messages.BulkSubscribeMessage;
 import replicant.messages.BulkUnsubscribeMessage;
 import replicant.messages.EtagsMessage;
@@ -57,6 +58,14 @@ public class WebSocketTransport
   {
     assert null != _transportContext;
     sendRemoteMessage( PingMessage.create( _transportContext.newRequest( "Sync", true ).getRequestId() ) );
+  }
+
+  @Override
+  public void updateAuthToken( @Nullable final String authToken )
+  {
+    assert null != _transportContext;
+    final RequestEntry request = _transportContext.newRequest( "Auth", true );
+    sendRemoteMessage( AuthTokenMessage.create( request.getRequestId(), authToken ) );
   }
 
   @Override

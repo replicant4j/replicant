@@ -18,6 +18,8 @@ import org.realityforge.replicant.server.json.JsonEncoder;
 public final class ReplicantSession
   implements Serializable, Closeable
 {
+  @Nullable
+  private String _authToken;
   @Nonnull
   private final Session _webSocketSession;
   @Nonnull
@@ -65,6 +67,20 @@ public final class ReplicantSession
   public Session getWebSocketSession()
   {
     return _webSocketSession;
+  }
+
+  public void setAuthToken( @Nullable final String authToken )
+  {
+    _authToken = authToken;
+  }
+
+  /**
+   * @return a token used for authentication, if any.
+   */
+  @Nullable
+  public String getAuthToken()
+  {
+    return _authToken;
   }
 
   /**

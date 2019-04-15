@@ -46,6 +46,20 @@ public final class ReplicantContext
     Arez.context().triggerScheduler();
   }
 
+  public void setAuthToken( @Nullable final String authToken )
+  {
+    getRuntime().setAuthToken( authToken );
+  }
+
+  /**
+   * @return a token used for authentication, if any.
+   */
+  @Nullable
+  public String getAuthToken()
+  {
+    return getRuntime().getAuthToken();
+  }
+
   /**
    * Register a connector with specified schema and transport. The transport instance must be unique
    * to this connector but the schema may be shared between multiple connectors.

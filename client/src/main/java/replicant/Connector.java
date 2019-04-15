@@ -245,6 +245,7 @@ abstract class Connector
     {
       if ( null != _connection )
       {
+        sendAuthTokenIfAny();
         sendEtagsIfAny();
         onConnected();
       }
@@ -252,6 +253,15 @@ abstract class Connector
       {
         onDisconnected();
       }
+    }
+  }
+
+  private void sendAuthTokenIfAny()
+  {
+    final String authToken = getReplicantContext().getAuthToken();
+    if( null != authToken )
+    {
+      _transport.updateAuthToken( authToken );
     }
   }
 

@@ -36,6 +36,8 @@ public interface Transport
    */
   void requestSync();
 
+  void updateAuthToken( @Nullable String authToken );
+
   void updateEtagsSync( @Nonnull Map<String, String> channelToEtagMap );
 
   void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
