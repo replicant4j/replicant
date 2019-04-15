@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Change security of `AbstractSecuredSessionRestService` so sessions are not allowed to access their individual
+  details as no longer required.
+* Remove `userID` from session as no longer populated or used.
+
 ### [v6.38](https://github.com/replicant4j/replicant/tree/v6.38) (2019-04-12)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.37...v6.38)
 
