@@ -4,6 +4,7 @@
 
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.16.0`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.136`.
+* Update the `org.realityforge.react4j` dependencies to version `0.125`.
 
 ### [v6.39](https://github.com/replicant4j/replicant/tree/v6.39) (2019-04-16)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.38...v6.39)
