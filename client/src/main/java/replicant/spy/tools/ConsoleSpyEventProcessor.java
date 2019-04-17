@@ -167,8 +167,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onConnectFailure( @Nonnull final ConnectFailureEvent e )
   {
-    log( "%cConnector Connect Failed. System: " + e.getSchemaName() + " Error: " + e.getError(),
-         ERROR_COLOR );
+    log( "%cConnector Connect Failed. System: " + e.getSchemaName(), ERROR_COLOR );
   }
 
   /**
@@ -188,7 +187,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
   {
-    log( "%cConnector Disconnect Failed. System: " + e.getSchemaName() + " Error: " + e.getError(),
+    log( "%cConnector Disconnect Failed. System: " + e.getSchemaName(),
          ERROR_COLOR );
   }
 
@@ -220,8 +219,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onMessageReadFailure( @Nonnull final MessageReadFailureEvent e )
   {
-    log( "%cConnector Error Reading Message. System: " + e.getSchemaName() + " Error: " + e.getError(),
-         ERROR_COLOR );
+    log( "%cConnector Error Reading Message. System: " + e.getSchemaName(), ERROR_COLOR );
   }
 
   /**
@@ -231,8 +229,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onRestart( @Nonnull final RestartEvent e )
   {
-    log( "%cConnector attempting to disconnect and restart due to error. System: " +
-         e.getSchemaName() + " Error: " + e.getError(), ERROR_COLOR );
+    log( "%cConnector attempting to disconnect and restart due to error. System: " + e.getSchemaName(), ERROR_COLOR );
   }
 
   /**

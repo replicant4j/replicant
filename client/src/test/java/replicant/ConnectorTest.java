@@ -318,7 +318,7 @@ public class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    connector.onDisconnectFailure( error );
+    connector.onDisconnectFailure();
 
     assertEquals( connector.getState(), ConnectorState.ERROR );
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
@@ -335,18 +335,13 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Throwable error = new Throwable();
-
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    connector.onDisconnectFailure( error );
+    connector.onDisconnectFailure();
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DisconnectFailureEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getError(), error );
-    } );
+    handler.assertNextEvent( DisconnectFailureEvent.class, e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
@@ -400,19 +395,15 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.CONNECTING ) );
-
-    final Throwable error = new Throwable();
+    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING ) );
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    connector.onConnectFailure( error );
+    connector.onConnectFailure();
 
     assertEquals( connector.getState(), ConnectorState.ERROR );
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.ERROR ) );
+    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.ERROR ) );
   }
 
   @Test
@@ -425,18 +416,14 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Throwable error = new Throwable();
-
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    connector.onConnectFailure( error );
+    connector.onConnectFailure();
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( ConnectFailureEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getError(), error );
-    } );
+    handler.assertNextEvent( ConnectFailureEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
@@ -529,9 +516,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final Throwable error = new Throwable();
-
-    safeAction( () -> connector.disconnectIfPossible( error ) );
+    safeAction( connector::disconnectIfPossible );
 
     assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
@@ -544,11 +529,9 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final Throwable error = new Throwable();
-
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    connector.disconnectIfPossible( error );
+    connector.disconnectIfPossible();
 
     handler.assertEventCount( 0 );
 
@@ -566,15 +549,10 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Throwable error = new Throwable();
-
-    safeAction( () -> connector.disconnectIfPossible( error ) );
+    safeAction( connector::disconnectIfPossible );
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( RestartEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getError(), error );
-    } );
+    handler.assertNextEvent( RestartEvent.class, e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
@@ -586,12 +564,10 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final Throwable error = new Throwable();
-
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    connector.onMessageReadFailure( error );
+    connector.onMessageReadFailure();
 
     assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
   }
@@ -606,15 +582,11 @@ public class ConnectorTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final Throwable error = new Throwable();
-
-    connector.onMessageReadFailure( error );
+    connector.onMessageReadFailure();
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( MessageReadFailureEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getError(), error );
-    } );
+    handler.assertNextEvent( MessageReadFailureEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test

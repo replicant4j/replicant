@@ -14,14 +14,11 @@ public final class RestartEvent
   private final int _schemaId;
   @Nonnull
   private final String _schemaName;
-  @Nonnull
-  private final Throwable _error;
 
-  public RestartEvent( final int schemaId, @Nonnull final String schemaName, @Nonnull final Throwable error )
+  public RestartEvent( final int schemaId, @Nonnull final String schemaName )
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
-    _error = Objects.requireNonNull( error );
   }
 
   public int getSchemaId()
@@ -35,12 +32,6 @@ public final class RestartEvent
     return _schemaName;
   }
 
-  @Nonnull
-  public Throwable getError()
-  {
-    return _error;
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -50,7 +41,5 @@ public final class RestartEvent
     map.put( "type", "Connector.Restart" );
     map.put( "schema.id", getSchemaId() );
     map.put( "schema.name", getSchemaName() );
-    final Throwable throwable = getError();
-    map.put( "message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage() );
   }
 }

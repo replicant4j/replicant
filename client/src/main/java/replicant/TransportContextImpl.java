@@ -70,22 +70,22 @@ final class TransportContextImpl
   }
 
   @Override
-  public void onError( @Nonnull final Throwable error )
+  public void onError()
   {
     if ( isNotDisposed() )
     {
       final ConnectorState state = _connector.getState();
       if ( ConnectorState.CONNECTING == state )
       {
-        _connector.onConnectFailure( error );
+        _connector.onConnectFailure();
       }
       else if ( ConnectorState.CONNECTED == state )
       {
-        _connector.onMessageReadFailure( error );
+        _connector.onMessageReadFailure();
       }
       else if ( ConnectorState.DISCONNECTING == state )
       {
-        _connector.onDisconnectFailure( error );
+        _connector.onDisconnectFailure();
       }
     }
   }

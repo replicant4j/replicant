@@ -4,6 +4,7 @@
 
 * Defer `WebSocket.close()` invocation on web socket that is still `CONNECTING` until it has connected
   to avoid an error.
+* Remove error parameter from several spy events as it is no longer available within a `WebSocket` system.
 
 ### [v6.40](https://github.com/replicant4j/replicant/tree/v6.40) (2019-04-17)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.39...v6.40)

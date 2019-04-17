@@ -1235,13 +1235,13 @@ abstract class Connector
    * Invoked to fire an event when failed to connect.
    */
   @Action
-  protected void onConnectFailure( @Nonnull final Throwable error )
+  protected void onConnectFailure()
   {
     setState( ConnectorState.ERROR );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
-        .reportSpyEvent( new ConnectFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
+        .reportSpyEvent( new ConnectFailureEvent( getSchema().getId(), getSchema().getName() ) );
     }
   }
 
@@ -1263,14 +1263,14 @@ abstract class Connector
    * Invoked to fire an event when failed to connect.
    */
   @Action
-  protected void onDisconnectFailure( @Nonnull final Throwable error )
+  protected void onDisconnectFailure()
   {
     setState( ConnectorState.ERROR );
     doSetConnection( null );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
-        .reportSpyEvent( new DisconnectFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
+        .reportSpyEvent( new DisconnectFailureEvent( getSchema().getId(), getSchema().getName() ) );
     }
   }
 
@@ -1354,31 +1354,31 @@ abstract class Connector
       getReplicantContext().getSpy()
         .reportSpyEvent( new MessageProcessFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
     }
-    disconnectIfPossible( error );
+    disconnectIfPossible();
   }
 
   /**
    * Attempted to retrieve data from backend and failed.
    */
   @Action( verifyRequired = false )
-  protected void onMessageReadFailure( @Nonnull final Throwable error )
+  protected void onMessageReadFailure()
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
-        .reportSpyEvent( new MessageReadFailureEvent( getSchema().getId(), getSchema().getName(), error ) );
+        .reportSpyEvent( new MessageReadFailureEvent( getSchema().getId(), getSchema().getName() ) );
     }
-    disconnectIfPossible( error );
+    disconnectIfPossible();
   }
 
-  final void disconnectIfPossible( @Nonnull final Throwable cause )
+  final void disconnectIfPossible()
   {
     if ( !ConnectorState.isTransitionState( getState() ) )
     {
       if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
       {
         getReplicantContext().getSpy()
-          .reportSpyEvent( new RestartEvent( getSchema().getId(), getSchema().getName(), cause ) );
+          .reportSpyEvent( new RestartEvent( getSchema().getId(), getSchema().getName() ) );
       }
       disconnect();
     }

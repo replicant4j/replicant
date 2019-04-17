@@ -148,7 +148,7 @@ public class WebSocketTransport
     // if connection has been disconnected whilst poller request was in flight then ignore response
     if ( null != _transportContext )
     {
-      _transportContext.onError( error );
+      _transportContext.onError();
     }
   }
 

@@ -25,9 +25,8 @@ interface TransportContext
   /**
    * Notify the Connector that there was an error from the Transport.
    *
-   * @param error the error.
    */
-  void onError( @Nonnull Throwable error );
+  void onError();
 
   /**
    * Notify the Connector that the Transport has disconnected.
