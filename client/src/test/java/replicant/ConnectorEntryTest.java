@@ -26,7 +26,7 @@ public class ConnectorEntryTest
     final ConnectorEntry entry = new ConnectorEntry( connector, true );
     assertEquals( entry.getConnector(), connector );
     assertTrue( entry.isRequired() );
-    assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.REQUIRED_REGEN_PER_MILLISECOND );
+    assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.REQUIRED_REGEN_PER_SECOND );
 
     entry.getRateLimiter().setTokenCount( 0 );
 
@@ -45,7 +45,7 @@ public class ConnectorEntryTest
   {
     final ConnectorEntry entry = new ConnectorEntry( createConnector(), false );
     assertFalse( entry.isRequired() );
-    assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_MILLISECOND );
+    assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_SECOND );
   }
 
   @Test

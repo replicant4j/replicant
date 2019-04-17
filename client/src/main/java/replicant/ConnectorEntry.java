@@ -15,8 +15,8 @@ final class ConnectorEntry
    * The cost to attempt to modify action on DataLoader.
    */
   private static final int ACTION_COST = 10000;
-  static final int REQUIRED_REGEN_PER_MILLISECOND = ACTION_COST;
-  static final int OPTIONAL_REGEN_PER_MILLISECOND = REQUIRED_REGEN_PER_MILLISECOND / 5;
+  static final int REQUIRED_REGEN_PER_SECOND = ACTION_COST;
+  static final int OPTIONAL_REGEN_PER_SECOND = REQUIRED_REGEN_PER_SECOND / 5;
   @Nonnull
   private final Connector _connector;
   /**
@@ -30,7 +30,7 @@ final class ConnectorEntry
     _connector = Objects.requireNonNull( connector );
     _required = required;
 
-    final int regenRate = required ? REQUIRED_REGEN_PER_MILLISECOND : OPTIONAL_REGEN_PER_MILLISECOND;
+    final int regenRate = required ? REQUIRED_REGEN_PER_SECOND : OPTIONAL_REGEN_PER_SECOND;
     _rateLimiter = new RateLimitedValue( System.currentTimeMillis(), regenRate, ACTION_COST * 2 );
   }
 
