@@ -859,10 +859,6 @@ abstract class Connector
       final Subscription subscription = getReplicantContext().findSubscription( request.getAddress() );
       if ( null != subscription )
       {
-        /*
-         * It is unclear whether this code is actually required as should note the response from the server
-         * automatically setExplicitSubscription to false?
-         */
         subscription.setExplicitSubscription( false );
       }
     } );
