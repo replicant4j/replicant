@@ -226,13 +226,16 @@ abstract class Connector
 
   private void doSetConnection( @Nullable final Connection connection )
   {
-    if ( null == _connection || null == _connection.getCurrentMessageResponse() )
+    if ( !Objects.equals( connection, _connection ) )
     {
-      setConnection( connection );
-    }
-    else
-    {
-      setPostMessageResponseAction( () -> setConnection( connection ) );
+      if ( null == _connection || null == _connection.getCurrentMessageResponse() )
+      {
+        setConnection( connection );
+      }
+      else
+      {
+        setPostMessageResponseAction( () -> setConnection( connection ) );
+      }
     }
   }
 
