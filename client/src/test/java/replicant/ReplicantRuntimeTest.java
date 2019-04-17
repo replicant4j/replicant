@@ -156,8 +156,7 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock2.dispose();
-    verify( service1.getTransport(), never() ).requestConnect( any( TransportContext.class )
-    );
+    verify( service1.getTransport(), never() ).requestConnect( any( TransportContext.class ) );
 
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
@@ -175,8 +174,7 @@ public class ReplicantRuntimeTest
     entry1.getRateLimiter().fillBucket();
     runtime.activate();
     schedulerLock3.dispose();
-    verify( service1.getTransport(), never() )
-      .requestConnect( any( TransportContext.class ) );
+    verify( service1.getTransport(), never() ).requestConnect( any( TransportContext.class ) );
 
     // set service state to disconnected but rate limit it
 
