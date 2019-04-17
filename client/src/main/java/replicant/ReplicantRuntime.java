@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Disposable;
 import arez.ObservableValue;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
@@ -272,18 +273,41 @@ abstract class ReplicantRuntime
     return null;
   }
 
+  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  abstract int retryGeneration();
+
+  abstract void setRetryGeneration( int value );
+
+  private void incrementRetryGeneration()
+  {
+    /*
+     * Called from timer that will trigger a change so that reflectActiveState() is reactivated
+     */
+    if ( Disposable.isNotDisposed( this ) )
+    {
+      setRetryGeneration( retryGeneration() + 1 );
+    }
+  }
+
   @Observe( mutation = true )
   void reflectActiveState()
   {
+    // Need to watch retryGeneration so that observer is retriggered when it is changed
+    retryGeneration();
     final boolean active = isActive();
     for ( final ConnectorEntry entry : getConnectors() )
     {
-      final ConnectorState state = entry.getConnector().getState();
+      final Connector connector = entry.getConnector();
+      final ConnectorState state = connector.getState();
       if ( !ConnectorState.isTransitionState( state ) )
       {
         if ( active && ConnectorState.CONNECTED != state )
         {
-          entry.attemptAction( Connector::connect );
+          if ( !entry.attemptAction( Connector::connect ) )
+          {
+            final int delay = ( ConnectorEntry.REGEN_TIME_IN_SECONDS * 1000 ) + 50;
+            Scheduler.scheduleOnceOff( this::incrementRetryGeneration, delay );
+          }
         }
         else if ( !active && ConnectorState.DISCONNECTED != state && ConnectorState.ERROR != state )
         {

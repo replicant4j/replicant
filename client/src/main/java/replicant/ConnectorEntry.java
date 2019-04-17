@@ -15,7 +15,8 @@ final class ConnectorEntry
    * The cost to attempt to modify action on DataLoader.
    */
   private static final int ACTION_COST = 10000;
-  static final int REQUIRED_REGEN_PER_SECOND = ACTION_COST;
+  static final int REGEN_TIME_IN_SECONDS = 1;
+  static final int REQUIRED_REGEN_PER_SECOND = REGEN_TIME_IN_SECONDS * ACTION_COST;
   static final int OPTIONAL_REGEN_PER_SECOND = REQUIRED_REGEN_PER_SECOND / 5;
   @Nonnull
   private final Connector _connector;

@@ -7,6 +7,7 @@
 * Remove error parameter from several spy events as it is no longer available within a `WebSocket` system.
 * Avoid attempting attempts to set connection in `Connector` if the same value ias passed as the setter has the side-effect of generating spy messages which can be confusing.
 * Rename constants in `ConnectorEntry` to be named `*_REGEN_PER_SECOND` rather than `*_REGEN_PER_MILLISECOND` to reflect actual behaviour.
+* When `Connector` reconnection attempts are rate limited, schedule another attempt in the future.
 
 ### [v6.40](https://github.com/replicant4j/replicant/tree/v6.40) (2019-04-17)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.39...v6.40)
