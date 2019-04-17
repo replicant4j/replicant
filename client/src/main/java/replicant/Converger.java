@@ -100,15 +100,6 @@ abstract class Converger
     }
   }
 
-  @Observe( mutation = true, nestedActionsAllowed = true )
-  void removeOrphanSubscriptionsIfInSync()
-  {
-    if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() && allConnectorsSynchronized() )
-    {
-      removeOrphanSubscriptions();
-    }
-  }
-
   /**
    * Return true if all connectors connected are synchronized.
    *
@@ -326,7 +317,7 @@ abstract class Converger
     }
   }
 
-  @arez.annotations.Action( requireNewTransaction = true )
+  @arez.annotations.Action
   void removeOrphanSubscriptions()
   {
     final HashSet<ChannelAddress> expected = new HashSet<>();

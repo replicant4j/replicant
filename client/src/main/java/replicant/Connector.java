@@ -784,6 +784,7 @@ abstract class Connector
         if ( connection.syncComplete() )
         {
           onInSync();
+          getReplicantContext().getConverger().removeOrphanSubscriptions();
         }
         else
         {

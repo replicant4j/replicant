@@ -5,6 +5,7 @@
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.16.0`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.136`.
 * Update the `org.realityforge.react4j` dependencies to version `0.125`.
+* Explicitly invoke `Converger.removeOrphanSubscriptions()` method when the session is synchronized rather than relying on `@Observer` being triggered on changes. This is more explicitly behaviour and simpler to understand. This fixes a problem introduced in the `v6.37` which would result in no channels being unsubscribed as they observer would no longer activate.
 
 ### [v6.39](https://github.com/replicant4j/replicant/tree/v6.39) (2019-04-16)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.38...v6.39)
