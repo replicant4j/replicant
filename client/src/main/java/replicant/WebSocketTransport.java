@@ -165,9 +165,16 @@ public class WebSocketTransport
   {
     if ( null != _webSocket )
     {
-      if ( WebSocket.CLOSED != _webSocket.readyState && WebSocket.CLOSING != _webSocket.readyState )
+      if ( WebSocket.OPEN == _webSocket.readyState )
       {
         _webSocket.close();
+      }
+      else if ( WebSocket.CONNECTING == _webSocket.readyState )
+      {
+        // It is an error to invoke close() on a socket that is not open, so defer the close until the
+        // socket has opened.
+        final WebSocket webSocket = _webSocket;
+        webSocket.onopen = e -> webSocket.close();
       }
       _webSocket = null;
     }

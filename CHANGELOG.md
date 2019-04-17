@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Defer `WebSocket.close()` invocation on web socket that is still `CONNECTING` until it has connected
+  to avoid an error.
+
 ### [v6.40](https://github.com/replicant4j/replicant/tree/v6.40) (2019-04-17)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.39...v6.40)
 
