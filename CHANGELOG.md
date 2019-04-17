@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.41](https://github.com/replicant4j/replicant/tree/v6.41) (2019-04-17)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.40...v6.41)
 
 * Defer `WebSocket.close()` invocation on web socket that is still `CONNECTING` until it has connected
   to avoid an error.
