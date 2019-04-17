@@ -259,7 +259,7 @@ abstract class Connector
   private void sendAuthTokenIfAny()
   {
     final String authToken = getReplicantContext().getAuthToken();
-    if( null != authToken )
+    if ( null != authToken )
     {
       _transport.updateAuthToken( authToken );
     }
