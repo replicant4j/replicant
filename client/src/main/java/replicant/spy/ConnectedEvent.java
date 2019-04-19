@@ -32,9 +32,6 @@ public final class ConnectedEvent
     return _schemaName;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

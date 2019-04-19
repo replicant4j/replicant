@@ -156,9 +156,6 @@ public final class SystemSchema
     return _channels[ channelId ];
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString()
   {

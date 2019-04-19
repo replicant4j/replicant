@@ -115,9 +115,6 @@ public final class ChannelAddress
     return result;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @SuppressWarnings( "unchecked" )
   @Override
   public int compareTo( @Nonnull final ChannelAddress o )

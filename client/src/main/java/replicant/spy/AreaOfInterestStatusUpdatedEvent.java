@@ -28,9 +28,6 @@ public final class AreaOfInterestStatusUpdatedEvent
     return _areaOfInterest;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

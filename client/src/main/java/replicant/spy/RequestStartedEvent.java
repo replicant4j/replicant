@@ -52,9 +52,6 @@ public final class RequestStartedEvent
     return _name;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

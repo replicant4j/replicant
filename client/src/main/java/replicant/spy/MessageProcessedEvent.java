@@ -42,9 +42,6 @@ public final class MessageProcessedEvent
     return _dataLoadStatus;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

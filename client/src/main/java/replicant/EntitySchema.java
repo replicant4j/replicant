@@ -154,9 +154,6 @@ public final class EntitySchema
     return _updater;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString()
   {

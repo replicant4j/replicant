@@ -118,9 +118,6 @@ public class WebStorageCacheService
     _storage = Objects.requireNonNull( storage );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Override
   public Set<ChannelAddress> keySet( final int systemId )
@@ -130,9 +127,6 @@ public class WebStorageCacheService
     return CollectionsUtil.wrap( keys );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nullable
   @Override
   public String lookupEtag( @Nonnull final ChannelAddress address )
@@ -140,9 +134,6 @@ public class WebStorageCacheService
     return getIndex( address.getSystemId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nullable
   @Override
   public CacheEntry lookup( @Nonnull final ChannelAddress address )
@@ -160,9 +151,6 @@ public class WebStorageCacheService
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean store( @Nonnull final ChannelAddress address,
                         @Nonnull final String eTag,
@@ -202,9 +190,6 @@ public class WebStorageCacheService
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean invalidate( @Nonnull final ChannelAddress address )
   {

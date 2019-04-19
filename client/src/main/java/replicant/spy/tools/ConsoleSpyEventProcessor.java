@@ -428,9 +428,6 @@ public class ConsoleSpyEventProcessor
     DomGlobal.console.log( message, styling );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   protected void handleUnhandledEvent( @Nonnull final Object event )
   {

@@ -90,9 +90,6 @@ final class TransportContextImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void onDisconnect()
   {

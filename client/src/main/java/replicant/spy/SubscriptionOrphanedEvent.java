@@ -31,9 +31,6 @@ public final class SubscriptionOrphanedEvent
     return _subscription;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

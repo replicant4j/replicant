@@ -44,9 +44,6 @@ public final class UnsubscribeCompletedEvent
     return _address;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

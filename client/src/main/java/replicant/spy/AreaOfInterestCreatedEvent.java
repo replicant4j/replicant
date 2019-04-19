@@ -27,9 +27,6 @@ public final class AreaOfInterestCreatedEvent
     return _areaOfInterest;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

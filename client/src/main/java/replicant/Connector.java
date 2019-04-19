@@ -587,9 +587,6 @@ abstract class Connector
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Observable( readOutsideTransaction = true )
   ConnectorState getState()
@@ -1493,9 +1490,6 @@ abstract class Connector
   @Nonnull
   protected abstract ArezContext context();
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString()
   {

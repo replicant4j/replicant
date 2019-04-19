@@ -75,9 +75,6 @@ public final class RequestCompletedEvent
     return _resultsArrived;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

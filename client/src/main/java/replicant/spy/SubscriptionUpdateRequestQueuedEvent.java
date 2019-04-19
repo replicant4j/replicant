@@ -36,9 +36,6 @@ public final class SubscriptionUpdateRequestQueuedEvent
     return _filter;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

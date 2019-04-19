@@ -44,9 +44,6 @@ public final class SubscribeStartedEvent
     return _address;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

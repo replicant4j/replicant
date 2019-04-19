@@ -67,18 +67,12 @@ final class ConnectorEntry
     _required = required;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void dispose()
   {
     Disposable.dispose( _connector );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isDisposed()
   {

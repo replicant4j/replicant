@@ -24,9 +24,6 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class AreaOfInterestService
   extends AbstractContainer<Integer, AreaOfInterest>
 {
-  /**
-   * {@inheritDoc}
-   */
   @Override
   protected final boolean shouldDisposeEntryOnDispose()
   {

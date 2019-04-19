@@ -40,9 +40,6 @@ public abstract class ReplicantSessionManagerImpl
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
   {
@@ -65,9 +62,6 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public ReplicantSession getSession( @Nonnull final String sessionId )
@@ -100,9 +94,6 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nonnull
   public ReplicantSession createSession( @Nonnull final Session webSocketSession )

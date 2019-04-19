@@ -16,9 +16,6 @@ final class SpyImpl
    */
   private final ArrayList<SpyEventHandler> _spyEventHandlers = new ArrayList<>();
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void addSpyEventHandler( @Nonnull final SpyEventHandler handler )
   {
@@ -31,9 +28,6 @@ final class SpyImpl
     _spyEventHandlers.add( Objects.requireNonNull( handler ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void removeSpyEventHandler( @Nonnull final SpyEventHandler handler )
   {
@@ -46,9 +40,6 @@ final class SpyImpl
     _spyEventHandlers.remove( Objects.requireNonNull( handler ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void reportSpyEvent( @Nonnull final Object event )
   {
@@ -74,9 +65,6 @@ final class SpyImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean willPropagateSpyEvents()
   {

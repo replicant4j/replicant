@@ -32,9 +32,6 @@ public final class MessageReadFailureEvent
     return _schemaName;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {

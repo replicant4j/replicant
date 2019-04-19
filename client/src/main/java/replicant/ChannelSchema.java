@@ -224,9 +224,6 @@ public final class ChannelSchema
     return _entities.stream().filter( e -> e.getId() == entityId ).findAny().orElse( null );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString()
   {

@@ -32,9 +32,6 @@ public final class RestartEvent
     return _schemaName;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
