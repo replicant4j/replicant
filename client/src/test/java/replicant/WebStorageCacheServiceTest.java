@@ -1,9 +1,11 @@
 package replicant;
 
-import elemental2.dom.DomGlobal;
+import elemental2.dom.Window;
 import elemental2.webstorage.Storage;
 import elemental2.webstorage.WebStorageWindow;
+import java.lang.reflect.Field;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -18,7 +20,7 @@ public class WebStorageCacheServiceTest
     final WebStorageWindow window = new WebStorageWindow();
     final Storage storage = mock( Storage.class );
     window.localStorage = storage;
-    DomGlobal.window = window;
+    setWindow( window );
 
     assertNull( Replicant.context().getCacheService() );
 
@@ -63,43 +65,6 @@ public class WebStorageCacheServiceTest
   }
 
   @Test
-  public void lookupStorageWhenNotSupported()
-  {
-    DomGlobal.window = new WebStorageWindow();
-    assertFalse( WebStorageCacheService.isSupported() );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, () -> WebStorageCacheService.lookupStorage( DomGlobal.window ) );
-
-    assertEquals( exception.getMessage(),
-                  "Replicant-0026: Attempted to create WebStorageCacheService on window that does not support WebStorage" );
-  }
-
-  @Test
-  public void lookupStorageWithLocalStorage()
-  {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.localStorage = mock( Storage.class );
-    DomGlobal.window = window;
-
-    assertTrue( WebStorageCacheService.isSupported() );
-
-    assertEquals( WebStorageCacheService.lookupStorage( DomGlobal.window ), window.localStorage );
-  }
-
-  @Test
-  public void lookupStorageWithSessionStorage()
-  {
-    final WebStorageWindow window = new WebStorageWindow();
-    window.sessionStorage = mock( Storage.class );
-    DomGlobal.window = window;
-
-    assertTrue( WebStorageCacheService.isSupported() );
-
-    assertEquals( WebStorageCacheService.lookupStorage( DomGlobal.window ), window.sessionStorage );
-  }
-
-  @Test
   public void invalidate_whenNotPresent()
   {
     final Storage storage = mock( Storage.class );
@@ -119,5 +84,20 @@ public class WebStorageCacheServiceTest
   private ChannelAddress newAddress()
   {
     return new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+  }
+
+  private void setWindow( @Nullable final Window window )
+  {
+    try
+    {
+      final Class<?> type = Class.forName( "elemental2.dom.DomGlobal__Constants" );
+      final Field field = type.getDeclaredField( "window" );
+      field.setAccessible( true );
+      field.set( null, window );
+    }
+    catch ( final ClassNotFoundException | NoSuchFieldException | IllegalAccessException e )
+    {
+      throw new IllegalStateException( "Error setting field", e );
+    }
   }
 }

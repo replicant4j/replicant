@@ -8,7 +8,6 @@ import arez.ObserverError;
 import arez.Procedure;
 import arez.SafeFunction;
 import arez.SafeProcedure;
-import elemental2.dom.DomGlobal;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -39,7 +38,6 @@ public abstract class AbstractReplicantTest
     _printObserverErrors = true;
     _observerErrors.clear();
     Arez.context().addObserverErrorHandler( this::onObserverError );
-    DomGlobal.window = null;
   }
 
   @Nonnull
