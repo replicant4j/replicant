@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Remove `Converger.allConnectorsSynchronized()` as it was unused outside of tests and could return an incorrect
+  result as not all dependencies were reactive.
+
 ### [v6.42](https://github.com/replicant4j/replicant/tree/v6.42) (2019-04-25)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.41...v6.42)
 
