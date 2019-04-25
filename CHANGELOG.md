@@ -4,7 +4,7 @@
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.23`.
 * Remove `{@inheritDoc}` as it only explicitly indicates that the default behaviour at the expense of significant visual clutter.
-* Remove unused parameters and cleanup TODO in `WebSocketTransport` 
+* Remove unused parameters and cleanup TODO in `WebSocketTransport`
 
 ### [v6.41](https://github.com/replicant4j/replicant/tree/v6.41) (2019-04-17)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.40...v6.41)
