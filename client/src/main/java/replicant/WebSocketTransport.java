@@ -122,8 +122,7 @@ public class WebSocketTransport
     _webSocket = new WebSocket( _config.getUrl() );
 
     _webSocket.onmessage = e -> onWebSocketMessage( e.data.asString() );
-    //TODO: Fix error handling so propagate error from ... somewhere
-    _webSocket.onerror = e -> onWebSocketError( new IllegalStateException() );
+    _webSocket.onerror = e -> onWebSocketError();
     _webSocket.onclose = e -> onWebSocketClose();
   }
 
@@ -143,7 +142,7 @@ public class WebSocketTransport
     }
   }
 
-  private void onWebSocketError( @Nonnull final Throwable error )
+  private void onWebSocketError()
   {
     // if connection has been disconnected whilst poller request was in flight then ignore response
     if ( null != _transportContext )
