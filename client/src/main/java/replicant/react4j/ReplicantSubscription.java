@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import react4j.Component;
 import react4j.ReactNode;
-import react4j.annotations.PostRender;
+import react4j.annotations.PostMountOrUpdate;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.ChannelSchema;
@@ -184,8 +184,8 @@ public abstract class ReplicantSubscription<T>
     }
   }
 
-  @PostRender
-  protected final void postRender()
+  @PostMountOrUpdate
+  protected final void postMountOrUpdate()
   {
     updateAreaOfInterest();
   }
