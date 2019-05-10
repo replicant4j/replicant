@@ -55,7 +55,7 @@ task 'perform_release' do
     end
 
     stage('Build', 'Build the project to ensure that the tests pass') do
-      task('package').invoke
+      sh "bundle exec buildr clean package install PRODUCT_VERSION=#{ENV['PRODUCT_VERSION']}#{ENV['TEST'].nil? ? '' : " TEST=#{ENV['TEST']}"}#{Buildr.application.options.trace ? ' --trace' : ''}"
     end
 
     stage('PatchChangelog', 'Patch the changelog to update from previous release') do
