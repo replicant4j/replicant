@@ -38,7 +38,7 @@ task 'perform_release' do
       end
 
       # Also initialize release date if required
-      ENV['RELEASE_DATE'] ||=  Time.now.strftime('%Y-%m-%d')
+      ENV['RELEASE_DATE'] ||= Time.now.strftime('%Y-%m-%d')
     end
 
     stage('ZapWhite', 'Ensure that zapwhite produces no changes') do
