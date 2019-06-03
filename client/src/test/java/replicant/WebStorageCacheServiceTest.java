@@ -1,11 +1,9 @@
 package replicant;
 
-import elemental2.dom.Window;
+import elemental2.dom.DomGlobal;
 import elemental2.webstorage.Storage;
 import elemental2.webstorage.WebStorageWindow;
-import java.lang.reflect.Field;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -20,7 +18,7 @@ public class WebStorageCacheServiceTest
     final WebStorageWindow window = new WebStorageWindow();
     final Storage storage = mock( Storage.class );
     window.localStorage = storage;
-    setWindow( window );
+    DomGlobal.window = window;
 
     assertNull( Replicant.context().getCacheService() );
 
@@ -84,20 +82,5 @@ public class WebStorageCacheServiceTest
   private ChannelAddress newAddress()
   {
     return new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-  }
-
-  private void setWindow( @Nullable final Window window )
-  {
-    try
-    {
-      final Class<?> type = Class.forName( "elemental2.dom.DomGlobal__Constants" );
-      final Field field = type.getDeclaredField( "window" );
-      field.setAccessible( true );
-      field.set( null, window );
-    }
-    catch ( final ClassNotFoundException | NoSuchFieldException | IllegalAccessException e )
-    {
-      throw new IllegalStateException( "Error setting field", e );
-    }
   }
 }
