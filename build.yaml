@@ -1,6 +1,6 @@
 repositories:
   remote:
-   - https://repo1.maven.org/maven2
+   - https://repo.maven.apache.org/maven2
    - https://stocksoftware.artifactoryonline.com/stocksoftware/public
    - https://stocksoftware.artifactoryonline.com/stocksoftware/oss
    - https://stocksoftware.artifactoryonline.com/stocksoftware/staging
