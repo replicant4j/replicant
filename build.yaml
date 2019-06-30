@@ -38,7 +38,7 @@ artifacts:
   elemental2_dom: org.realityforge.com.google.elemental2:elemental2-dom:jar:2.24
   elemental2_webstorage: org.realityforge.com.google.elemental2:elemental2-webstorage:jar:2.24
 
-  braincheck: org.realityforge.braincheck:braincheck:jar:1.17.0
+  braincheck: org.realityforge.braincheck:braincheck:jar:1.18.0
 
   jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.0.0
 
