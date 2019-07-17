@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.44](https://github.com/replicant4j/replicant/tree/v6.44) (2019-07-17)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.43...v6.44)
 
 * Upgrade the `org.realityforge.guiceyloops` artifact to version `0.102`.
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.14`.
