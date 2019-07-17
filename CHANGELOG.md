@@ -6,6 +6,7 @@
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.14`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.20.0`.
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.24`.
+* Remove unused `spritz` dependency.
 
 ### [v6.43](https://github.com/replicant4j/replicant/tree/v6.43) (2019-04-29)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.42...v6.43)

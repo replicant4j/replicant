@@ -75,7 +75,6 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:arez_core)
     pom.include_transitive_dependencies << artifact(:gwt_user)
     pom.include_transitive_dependencies << artifact(:javax_javaee)
-    pom.include_transitive_dependencies << artifact(:spritz_core)
 
     pom.provided_dependencies.concat [:javax_javaee, :gwt_user]
     pom.dependency_filter = Proc.new do |dep|
@@ -98,7 +97,6 @@ define 'replicant' do
                  GWT_DEPS,
                  :react4j_core,
                  :braincheck,
-                 :spritz_core,
                  :arez_core
 
     gwt_enhance(project)

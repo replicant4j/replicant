@@ -52,5 +52,3 @@ artifacts:
   keycloak_adapter_spi: org.keycloak:keycloak-adapter-spi:jar:2.0.0.Final
 
   simple_keycloak_service: org.realityforge.keycloak.sks:simple-keycloak-service:jar:0.1
-
-  spritz_core: org.realityforge.spritz:spritz-core:jar:0.04
