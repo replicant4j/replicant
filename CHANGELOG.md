@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.45](https://github.com/replicant4j/replicant/tree/v6.45) (2019-09-03)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.44...v6.45)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.25`.
 * Add the `org.realityforge.replicant.server.graphql.ReplicantEnabledDataFetcher` class to simplify writing replicant enabled GraphQL operations using `graphql-java`.
