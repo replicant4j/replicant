@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v6.46](https://github.com/replicant4j/replicant/tree/v6.46) (2019-09-16)
+[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.45...v6.46)
 
 * Upgrade the `org.realityforge.javax.annotation` artifact to version `1.0.1`.
 * Migrate `@ComponentDependency` to fields where possible to avoid warnings in the next version of Arez.
