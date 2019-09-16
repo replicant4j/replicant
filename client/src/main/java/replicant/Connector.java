@@ -4,6 +4,7 @@ import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
+import arez.annotations.CascadeDispose;
 import arez.annotations.ContextRef;
 import arez.annotations.Feature;
 import arez.annotations.Memoize;
@@ -77,6 +78,7 @@ abstract class Connector
    * The current connection managed by the connector, if any.
    */
   @Nullable
+  @CascadeDispose
   private Connection _connection;
   /**
    * Flag indicating that the Connectors internal scheduler is actively progressing

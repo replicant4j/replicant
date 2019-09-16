@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.annotations.ArezComponent;
+import arez.annotations.ComponentDependency;
 import arez.annotations.Observable;
 import arez.component.CollectionsUtil;
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ abstract class Connection
    * The containing Connector.
    */
   @Nonnull
-  private final Connector _connector;
+  @ComponentDependency
+  final Connector _connector;
   /**
    * A map containing the rpc requests that are in progress.
    */
