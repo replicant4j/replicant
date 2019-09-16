@@ -5,6 +5,7 @@ import arez.annotations.ComponentDependency;
 import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
+import arez.annotations.SuppressArezWarnings;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +28,7 @@ public abstract class ReplicantSubscription<T>
   //The warning is suppressed as reference is managed on method.
   // We can not convert this field into abstract observable because of some surgery do to work between
   // React/Arez component models.
-  @SuppressWarnings( "Arez:UnmanagedComponentReference" )
+  @SuppressArezWarnings( "Arez:UnmanagedComponentReference" )
   @Nullable
   private AreaOfInterest _areaOfInterest;
 
