@@ -20,6 +20,7 @@ abstract class EntitySubscriptionEntry
   @Nonnull
   private final Entity _entity;
 
+  @Nonnull
   static EntitySubscriptionEntry create( @Nonnull final Entity entity )
   {
     return new Arez_EntitySubscriptionEntry( entity );
