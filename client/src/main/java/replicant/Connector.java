@@ -79,7 +79,7 @@ abstract class Connector
    */
   @Nullable
   @CascadeDispose
-  private Connection _connection;
+  Connection _connection;
   /**
    * Flag indicating that the Connectors internal scheduler is actively progressing
    * requests and responses. A scheduler should only be active if there is a connection present.
