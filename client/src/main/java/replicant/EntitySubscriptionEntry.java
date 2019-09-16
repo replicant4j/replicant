@@ -18,7 +18,8 @@ abstract class EntitySubscriptionEntry
    * The underlying entity.
    */
   @Nonnull
-  private final Entity _entity;
+  @ComponentDependency
+  final Entity _entity;
 
   @Nonnull
   static EntitySubscriptionEntry create( @Nonnull final Entity entity )
@@ -42,7 +43,6 @@ abstract class EntitySubscriptionEntry
    * @return the entity the entry represents.
    */
   @Nonnull
-  @ComponentDependency
   final Entity getEntity()
   {
     return _entity;
