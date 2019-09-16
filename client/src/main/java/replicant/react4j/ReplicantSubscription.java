@@ -24,6 +24,10 @@ import replicant.Subscription;
 public abstract class ReplicantSubscription<T>
   extends Component
 {
+  //The warning is suppressed as reference is managed on method.
+  // We can not convert this field into abstract observable because of some surgery do to work between
+  // React/Arez component models.
+  @SuppressWarnings( "Arez:UnmanagedComponentReference" )
   @Nullable
   private AreaOfInterest _areaOfInterest;
 
