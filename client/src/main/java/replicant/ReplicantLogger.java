@@ -15,7 +15,6 @@ final class ReplicantLogger
   private static final Logger c_logger =
     "console".equals( ReplicantConfig.loggerType() ) ? new BasicLogger() :
     "console_js".equals( ReplicantConfig.loggerType() ) ? new BasicJsLogger() :
-    "jul".equals( ReplicantConfig.loggerType() ) ? new JavaUtilLogger() :
     "proxy".equals( ReplicantConfig.loggerType() ) ? new ProxyLogger() :
     new NoopLogger();
 
@@ -97,22 +96,6 @@ final class ReplicantLogger
       {
         NativeJsLoggerUtil.log( throwable );
       }
-    }
-  }
-
-  /**
-   * The normal log provider implementation.
-   */
-  private static final class JavaUtilLogger
-    implements Logger
-  {
-    private final java.util.logging.Logger _logger =
-      java.util.logging.Logger.getLogger( ReplicantLogger.class.getName() );
-
-    @Override
-    public void log( @Nonnull final String message, @Nullable final Throwable throwable )
-    {
-      _logger.log( Level.INFO, message, throwable );
     }
   }
 

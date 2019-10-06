@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Remove the `jul` (a.k.a. `java.util.logging`) strategy available when configuring the `ReplicantLogger` via the compile-time property `replicant.logger`. This strategy was never used in practice.
+
 ### [v6.46](https://github.com/replicant4j/replicant/tree/v6.46) (2019-09-16)
 [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.45...v6.46)
 
