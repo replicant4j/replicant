@@ -3,22 +3,20 @@
 ### Unreleased
 
 * Remove the `jul` (a.k.a. `java.util.logging`) strategy available when configuring the `ReplicantLogger` via the compile-time property `replicant.logger`. This strategy was never used in practice.
+* Upgrade the `org.realityforge.braincheck` artifact to version `1.25.0`.
 
-### [v6.46](https://github.com/replicant4j/replicant/tree/v6.46) (2019-09-16)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.45...v6.46)
+### [v6.46](https://github.com/replicant4j/replicant/tree/v6.46) (2019-09-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.45...v6.46)
 
 * Upgrade the `org.realityforge.javax.annotation` artifact to version `1.0.1`.
 * Migrate `@ComponentDependency` to fields where possible to avoid warnings in the next version of Arez.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.145`.
 
-### [v6.45](https://github.com/replicant4j/replicant/tree/v6.45) (2019-09-03)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.44...v6.45)
+### [v6.45](https://github.com/replicant4j/replicant/tree/v6.45) (2019-09-03) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.44...v6.45)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.25`.
 * Add the `org.realityforge.replicant.server.graphql.ReplicantEnabledDataFetcher` class to simplify writing replicant enabled GraphQL operations using `graphql-java`.
 
-### [v6.44](https://github.com/replicant4j/replicant/tree/v6.44) (2019-07-17)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.43...v6.44)
+### [v6.44](https://github.com/replicant4j/replicant/tree/v6.44) (2019-07-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.43...v6.44)
 
 * Upgrade the `org.realityforge.guiceyloops` artifact to version `0.102`.
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.14`.
@@ -28,22 +26,19 @@
 * Upgrade the `org.realityforge.arez` artifacts to version `0.143`.
 * Remove unused `spritz` dependency.
 
-### [v6.43](https://github.com/replicant4j/replicant/tree/v6.43) (2019-04-29)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.42...v6.43)
+### [v6.43](https://github.com/replicant4j/replicant/tree/v6.43) (2019-04-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.42...v6.43)
 
 * Remove `Converger.allConnectorsSynchronized()` as it was unused outside of tests and could return an incorrect
   result as not all dependencies were reactive.
 * Update the `org.realityforge.react4j` dependencies to version `0.126`.
 
-### [v6.42](https://github.com/replicant4j/replicant/tree/v6.42) (2019-04-25)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.41...v6.42)
+### [v6.42](https://github.com/replicant4j/replicant/tree/v6.42) (2019-04-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.41...v6.42)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.23`.
 * Remove `{@inheritDoc}` as it only explicitly indicates that the default behaviour at the expense of significant visual clutter.
 * Remove unused parameters and cleanup TODO in `WebSocketTransport`
 
-### [v6.41](https://github.com/replicant4j/replicant/tree/v6.41) (2019-04-17)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.40...v6.41)
+### [v6.41](https://github.com/replicant4j/replicant/tree/v6.41) (2019-04-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.40...v6.41)
 
 * Defer `WebSocket.close()` invocation on web socket that is still `CONNECTING` until it has connected
   to avoid an error.
@@ -52,16 +47,14 @@
 * Rename constants in `ConnectorEntry` to be named `*_REGEN_PER_SECOND` rather than `*_REGEN_PER_MILLISECOND` to reflect actual behaviour.
 * When `Connector` reconnection attempts are rate limited, schedule another attempt in the future.
 
-### [v6.40](https://github.com/replicant4j/replicant/tree/v6.40) (2019-04-17)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.39...v6.40)
+### [v6.40](https://github.com/replicant4j/replicant/tree/v6.40) (2019-04-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.39...v6.40)
 
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.16.0`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.136`.
 * Update the `org.realityforge.react4j` dependencies to version `0.125`.
 * Explicitly invoke `Converger.removeOrphanSubscriptions()` method when the session is synchronized rather than relying on `@Observer` being triggered on changes. This is more explicitly behaviour and simpler to understand. This fixes a problem introduced in the `v6.37` which would result in no channels being unsubscribed as they observer would no longer activate.
 
-### [v6.39](https://github.com/replicant4j/replicant/tree/v6.39) (2019-04-16)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.38...v6.39)
+### [v6.39](https://github.com/replicant4j/replicant/tree/v6.39) (2019-04-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.38...v6.39)
 
 * Change security of `AbstractSecuredSessionRestService` so sessions are not allowed to access their individual
   details as no longer required.
@@ -71,8 +64,7 @@
 * Return to using `setTimeout` to schedule network activity to avoid background timer throttling.
 * If the browser page is not visible then do all message processing within the message handler callback to avoid suffering under the vagaries of the background timer throttling.
 
-### [v6.38](https://github.com/replicant4j/replicant/tree/v6.38) (2019-04-12)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.37...v6.38)
+### [v6.38](https://github.com/replicant4j/replicant/tree/v6.38) (2019-04-12) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.37...v6.38)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b21-6a027d2`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.15.0`.
@@ -111,8 +103,7 @@
 * Rename `ChangeSet` to `ChangeSetMessage` to match the naming conventions of other messages.
 * Significant rework of the entire network layer to enable `WebsocketTransport`.
 
-### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
+### [v6.37](https://github.com/replicant4j/replicant/tree/v6.37) (2019-03-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.36...v6.37)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b20-bfe6e22`.
 * Stop tracking last access time of the `ReplicantSession` as it is no longer used. The sessions expire
@@ -153,8 +144,7 @@
   by tests.
 * Remove the local cache key during subscribe if the cache key is stale.
 
-### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)
+### [v6.36](https://github.com/replicant4j/replicant/tree/v6.36) (2019-03-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.35...v6.36)
 
 * Remove `AbstractSessionContextImpl` as it was effectively unused. While subclasses exist, none of
   the subclasses invoked any of the `AbstractSessionContextImpl` methods.
@@ -167,8 +157,7 @@
   prior to performing action which improves traceability.
 * Avoid converging any actions for `DELETED` `AreaOfInterest` instances.
 
-### [v6.35](https://github.com/replicant4j/replicant/tree/v6.35) (2019-03-01)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.34...v6.35)
+### [v6.35](https://github.com/replicant4j/replicant/tree/v6.35) (2019-03-01) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.34...v6.35)
 
 * Add `ChannelMetaData.hasFilterParameter()` helper method to simplify the code that works differently
   depending on the presence or non-presence of thefilter parameter.
@@ -176,15 +165,13 @@
   that controls the filtering behaviour and instead the filtering is due to internal structure of the
   data or the server.
 
-### [v6.34](https://github.com/replicant4j/replicant/tree/v6.34) (2019-02-27)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.33...v6.34)
+### [v6.34](https://github.com/replicant4j/replicant/tree/v6.34) (2019-02-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.33...v6.34)
 
 * Caching fixed as the synthesis of the cache key had diverged between the code that added data to the
   cache and the code that retrieved data from the cache. To avoid a similar problem in the future the
   generation of the cache key has been moved to the `ChannelAddress` class.
 
-### [v6.33](https://github.com/replicant4j/replicant/tree/v6.33) (2019-02-27)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.32...v6.33)
+### [v6.33](https://github.com/replicant4j/replicant/tree/v6.33) (2019-02-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.32...v6.33)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b19-fb227e3`.
 * Change the serialized representation of links from an entity to a channel from an array
@@ -201,15 +188,13 @@
 * Change the serialized representation of channels from `"channel_types":[{"cid": 20, "scid": 1, "action":"add"}]`
   to a more compact `"channels":["+20.1"]`. Filtered channels actions were optimized in a similar fashion.
 
-### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.31...v6.32)
+### [v6.32](https://github.com/replicant4j/replicant/tree/v6.32) (2019-02-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.31...v6.32)
 
 * Upgrade the `org.realityforge.com.google.jsinterop` artifact to version `1.0.0-b2-e6d791f`.
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b18-f3472e7`.
 * Update the `org.realityforge.react4j` dependencies to version `0.121`.
 
-### [v6.31](https://github.com/replicant4j/replicant/tree/v6.31) (2019-02-18)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.30...v6.31)
+### [v6.31](https://github.com/replicant4j/replicant/tree/v6.31) (2019-02-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.30...v6.31)
 
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b17-6897368`.
 * Add explicit reference counting to `AreaOfInterest` to ensure that object is disposed only if there
@@ -222,24 +207,21 @@
   This typically occurs when the root entity in an instance graph is removed and the instance graph is
   subsequently removed.
 
-### [v6.30](https://github.com/replicant4j/replicant/tree/v6.30) (2019-02-14)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.29...v6.30)
+### [v6.30](https://github.com/replicant4j/replicant/tree/v6.30) (2019-02-14) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.29...v6.30)
 
 * Update the `org.realityforge.arez` dependencies to version `0.130`.
 * Update the `org.realityforge.react4j` dependencies to version `0.119`.
 * Remove the unused `@*Ref` annotated methods `getContext()`, `getComponentName()`
   and `component()` from `SubscriptionService` and `ReplicantRuntime`.
 
-### [v6.29](https://github.com/replicant4j/replicant/tree/v6.29) (2019-02-12)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.28...v6.29)
+### [v6.29](https://github.com/replicant4j/replicant/tree/v6.29) (2019-02-12) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.28...v6.29)
 
 * Fix pom for `replicant-client` so that it includes `react4j` dependency.
 * Update project to reflect migration to `replicant4j/replicant` project.
 * Emit the name of the graph in the session rest service to aid debugging.
 * Fix bug in `ReplicantSubscription` that resulted in `@Action` triggering during dispose.
 
-### [v6.28](https://github.com/replicant4j/replicant/tree/v6.28) (2019-02-07)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.27...v6.28)
+### [v6.28](https://github.com/replicant4j/replicant/tree/v6.28) (2019-02-07) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.27...v6.28)
 
 * Update the `org.realityforge.arez` dependencies to version `0.128`.
 * Update the `org.realityforge.react4j` dependencies to version `0.117`.
@@ -252,15 +234,13 @@
   have their status updated if the existing subscription is explicit, otherwise the normal
   "request subscription" process will be initiated.
 
-### [v6.27](https://github.com/replicant4j/replicant/tree/v6.27) (2019-02-04)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.26...v6.27)
+### [v6.27](https://github.com/replicant4j/replicant/tree/v6.27) (2019-02-04) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.26...v6.27)
 
 * Remove the prop `onNotAsked` from the `ReplicantSubscription` component as it represents
   a state that is never presented to the user and is followed in quick succession by the
   `OnLoading` state and can thus be replaced by the `onLoading` prop.
 
-### [v6.26](https://github.com/replicant4j/replicant/tree/v6.26) (2019-02-04)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.25...v6.26)
+### [v6.26](https://github.com/replicant4j/replicant/tree/v6.26) (2019-02-04) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.25...v6.26)
 
 * Work around bug resulting from react4j upgrade that merged the `componentWillUnmount` and
   dispose steps for react4j components. Previously we were able to invoke `@Action` annotated
@@ -272,50 +252,42 @@
   and version `1.0.0-b14-2f97dbe`. This makes it possible to use a newer version of the
   Elemental2 library in downstream products.
 
-### [v6.25](https://github.com/replicant4j/replicant/tree/v6.25) (2019-01-30)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.24...v6.25)
+### [v6.25](https://github.com/replicant4j/replicant/tree/v6.25) (2019-01-30) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.24...v6.25)
 
 * Update the `org.realityforge.arez` dependencies to version `0.127`.
 * Update the `org.realityforge.react4j` dependencies to version `0.114`.
 
-### [v6.24](https://github.com/replicant4j/replicant/tree/v6.24) (2019-01-18)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.23...v6.24)
+### [v6.24](https://github.com/replicant4j/replicant/tree/v6.24) (2019-01-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.23...v6.24)
 
 * Fix access modifiers on `ReplicantSubscription.postRender()` so that subclasses can be in
   different packages.
 
-### [v6.23](https://github.com/replicant4j/replicant/tree/v6.23) (2019-01-18)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.22...v6.23)
+### [v6.23](https://github.com/replicant4j/replicant/tree/v6.23) (2019-01-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.22...v6.23)
 
 * Fix the release process to push release to staging repository and Maven Central.
 
-### [v6.22](https://github.com/replicant4j/replicant/tree/v6.22) (2019-01-18)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.21...v6.22)
+### [v6.22](https://github.com/replicant4j/replicant/tree/v6.22) (2019-01-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.21...v6.22)
 
 * Rename some react lifecycle methods in `ReplicantSubscription` so that they align with the names of
   the annotations rather than the names of the methods that needed to be overridden in the past.
 
-### [v6.21](https://github.com/replicant4j/replicant/tree/v6.21) (2019-01-17)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.20...v6.21)
+### [v6.21](https://github.com/replicant4j/replicant/tree/v6.21) (2019-01-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.20...v6.21)
 
 * Remove deployment from TravisCI infrastructure as it is no longer feasible.
 * Update the `org.realityforge.arez` dependencies to version `0.122`.
 * Update the `org.realityforge.react4j` dependencies to version `0.110`.
 
-### [v6.20](https://github.com/replicant4j/replicant/tree/v6.20) (2018-11-20)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.19...v6.20)
+### [v6.20](https://github.com/replicant4j/replicant/tree/v6.20) (2018-11-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.19...v6.20)
 
 * Update the `org.realityforge.arez` dependencies to version `0.115`.
 * Update the `org.realityforge.react4j` dependencies to version `0.107`.
 
-### [v6.19](https://github.com/replicant4j/replicant/tree/v6.19) (2018-11-08)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.18...v6.19)
+### [v6.19](https://github.com/replicant4j/replicant/tree/v6.19) (2018-11-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.18...v6.19)
 
 * Update the `org.realityforge.arez` dependencies to version `0.114`.
 * Update the `org.realityforge.react4j` dependencies to version `0.106`.
 
-### [v6.18](https://github.com/replicant4j/replicant/tree/v6.18) (2018-11-02)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.17...v6.18)
+### [v6.18](https://github.com/replicant4j/replicant/tree/v6.18) (2018-11-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.17...v6.18)
 
 * Enhance the console message for the spy event `AreaOfInterestStatusUpdatedEvent` to include the
   status that the `AreaOfInterest`  was changed to.
@@ -328,40 +300,33 @@
 * Update the `org.realityforge.arez` dependencies to version `0.111`.
 * Update the `org.realityforge.react4j` dependencies to version `0.103`.
 
-### [v6.17](https://github.com/replicant4j/replicant/tree/v6.17) (2018-10-16)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.16...v6.17)
+### [v6.17](https://github.com/replicant4j/replicant/tree/v6.17) (2018-10-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.16...v6.17)
 
 * Update the `org.realityforge.react4j` dependencies to version `0.102`.
 
-### [v6.16](https://github.com/replicant4j/replicant/tree/v6.16) (2018-10-09)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.15...v6.16)
+### [v6.16](https://github.com/replicant4j/replicant/tree/v6.16) (2018-10-09) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.15...v6.16)
 
 * Fix bug in `ReplicantSubscription` react4j component was incorrectly comparing a primitive id
   and a boxed id in `componentDidUpdate()` lifecycle method.
 
-### [v6.15](https://github.com/replicant4j/replicant/tree/v6.15) (2018-10-09)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.14...v6.15)
+### [v6.15](https://github.com/replicant4j/replicant/tree/v6.15) (2018-10-09) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.14...v6.15)
 
 * Correct bug where id was set as `0` for type graphs.
 
-### [v6.14](https://github.com/replicant4j/replicant/tree/v6.14) (2018-10-09)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.13...v6.14)
+### [v6.14](https://github.com/replicant4j/replicant/tree/v6.14) (2018-10-09) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.13...v6.14)
 
 * Update the `org.realityforge.arez` dependencies to version `0.109`.
 * Update the `org.realityforge.react4j` dependencies to version `0.100`.
 
-### [v6.13](https://github.com/replicant4j/replicant/tree/v6.13) (2018-10-04)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.12...v6.13)
+### [v6.13](https://github.com/replicant4j/replicant/tree/v6.13) (2018-10-04) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.12...v6.13)
 
 * Change `ReplicantSubscription.getId()` to return a primitive integer rather than a boxed `Integer`.
 
-### [v6.12](https://github.com/replicant4j/replicant/tree/v6.12) (2018-09-27)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.11...v6.12)
+### [v6.12](https://github.com/replicant4j/replicant/tree/v6.12) (2018-09-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.11...v6.12)
 
 * Upgrade the `org.realityforge.gwt.webpoller:gwt-webpoller:jar` artifact to version `0.9.8`.
 
-### [v6.11](https://github.com/replicant4j/replicant/tree/v6.11) (2018-09-25)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.10...v6.11)
+### [v6.11](https://github.com/replicant4j/replicant/tree/v6.11) (2018-09-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.10...v6.11)
 
 * Remove `super.componentDidMount()` and `super.componentDidUpdate( prevProps, prevState )` calls from
   the `ReplicantSubscription` react component as not needed as parent methods are empty as of react4j
@@ -370,22 +335,19 @@
   the later `AreaOfInterest` instances can not be grouped into the first `AreaOfInterest` instance. The
   converger would previously incorrectly halt after the first action completed.
 
-### [v6.10](https://github.com/replicant4j/replicant/tree/v6.10) (2018-09-21)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.09...v6.10)
+### [v6.10](https://github.com/replicant4j/replicant/tree/v6.10) (2018-09-21) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.09...v6.10)
 
 * Update the `org.realityforge.arez` dependencies to version `0.107`.
 * Update the `org.realityforge.react4j` dependencies to version `0.96`.
 * Update the `org.realityforge.braincheck` dependencies to version `1.12.0`.
 
-### [v6.09](https://github.com/replicant4j/replicant/tree/v6.09) (2018-08-24)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.08...v6.09)
+### [v6.09](https://github.com/replicant4j/replicant/tree/v6.09) (2018-08-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.08...v6.09)
 
 * During code-optimization the `Converger.converge()` method stopped observing filters when converging
   filters which mean that if the filter changed it would no longer re-converge the state of the world.
   This bug has been fixed by an explicit observe of the filter field on `AreaOfInterest`.
 
-### [v6.08](https://github.com/replicant4j/replicant/tree/v6.08) (2018-08-23)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.07...v6.08)
+### [v6.08](https://github.com/replicant4j/replicant/tree/v6.08) (2018-08-23) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.07...v6.08)
 
 * Update the `org.realityforge.arez` dependencies to version `0.105`.
 * Update the `org.realityforge.react4j` dependencies to version `0.93`.
@@ -396,22 +358,19 @@
 * Replace the interface `replicant.Linkable` with the `arez.component.Linkable` interface.
 * Replace the interface `replicant.Verifiable` with the `arez.component.Verifiable` interface.
 
-### [v6.07](https://github.com/replicant4j/replicant/tree/v6.07) (2018-07-30)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.06...v6.07)
+### [v6.07](https://github.com/replicant4j/replicant/tree/v6.07) (2018-07-30) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.06...v6.07)
 
 * Change the scope of the dependencies enlisted in the `@Autorun` actions on the `Converger`
   to eliminate monitoring of entities in `preConverge()` and to re-add dependencies on
   `AreaOfInterest` collection.
 
-### [v6.06](https://github.com/replicant4j/replicant/tree/v6.06) (2018-07-27)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.05...v6.06)
+### [v6.06](https://github.com/replicant4j/replicant/tree/v6.06) (2018-07-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.05...v6.06)
 
 * Update the `org.realityforge.arez` dependencies to version `0.102`.
 * Explicitly limit the scope of the dependencies enlisted in the `@Autorun` actions on the `Converger`
   so that only the data required to trigger changes are monitored.
 
-### [v6.05](https://github.com/replicant4j/replicant/tree/v6.05) (2018-07-26)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.04...v6.05)
+### [v6.05](https://github.com/replicant4j/replicant/tree/v6.05) (2018-07-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.04...v6.05)
 
 * Change the scheduler used by the browser from using `setTimeout` to using `requestAnimationFrame`. This
   resulted in a shorter and more consistent delay between successive invocations.
@@ -427,16 +386,14 @@
   thus applications failing at runtime.
 * Update the `org.realityforge.react4j` dependencies to version `0.87`.
 
-### [v6.04](https://github.com/replicant4j/replicant/tree/v6.04) (2018-07-24)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.03...v6.04)
+### [v6.04](https://github.com/replicant4j/replicant/tree/v6.04) (2018-07-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.03...v6.04)
 
 * In the `ConsoleSpyEventProcessor` class, correct the log message when a `SubscriptionUpdateCompleted`
   event is generated.
 * Fix a concurrency bug where the WebPoller could be left paused on receipt of a "ping" message.
 * Add tasks to cleanup artifacts from staging repositories as part of the release process.
 
-### [v6.03](https://github.com/replicant4j/replicant/tree/v6.03) (2018-07-17)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.02...v6.03)
+### [v6.03](https://github.com/replicant4j/replicant/tree/v6.03) (2018-07-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.02...v6.03)
 
 * Fix a bug in `Connector` related to interleaving of subscription removal and removal
   of the instance root that would result in invariant failure in normal scenario.
@@ -490,59 +447,50 @@
   window during which the server skips a subscription as the client is implicitly subscribed but the
   client is in the process of removing the subscription that it believes is an orphan.
 
-### [v6.02](https://github.com/replicant4j/replicant/tree/v6.02) (2018-07-03)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.01...v6.02)
+### [v6.02](https://github.com/replicant4j/replicant/tree/v6.02) (2018-07-03) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.01...v6.02)
 
 * Fix `Connector.completeAreaOfInterestRequest()` to handle scenario where the area of interest
   request completes after a connection disconnects. This can happen as a result of errors during
   area of interest request or during normal overlapping requests.
 
-### [v6.01](https://github.com/replicant4j/replicant/tree/v6.01) (2018-07-02)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v6.00...v6.01)
+### [v6.01](https://github.com/replicant4j/replicant/tree/v6.01) (2018-07-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.00...v6.01)
 
 * Link `EntitySchema` instances associated with channel to `ChannelSchema` to simplify validation
   of graph when or if needed.
 
-### [v6.00](https://github.com/replicant4j/replicant/tree/v6.00) (2018-07-02)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v5.99...v6.00)
+### [v6.00](https://github.com/replicant4j/replicant/tree/v6.00) (2018-07-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.99...v6.00)
 
 * Stop using replicant specific mechanisms for managing state and move to Arez for state management.
   This is a major rewrite of the library and involved large scale changes. See the git history for
   full details.
 
-### [v5.99](https://github.com/replicant4j/replicant/tree/v5.99) (2018-04-26)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v5.98...v5.99)
+### [v5.99](https://github.com/replicant4j/replicant/tree/v5.99) (2018-04-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.98...v5.99)
 
 * Make AreaOfInterest public to fix problem when deployed into EE container that attempts to proxy
   package access method that returns AreaOfInterest.  Submitted by James Walker.
 
-### [v5.98](https://github.com/replicant4j/replicant/tree/v5.98) (2018-03-27)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v5.97...v5.98)
+### [v5.98](https://github.com/replicant4j/replicant/tree/v5.98) (2018-03-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.97...v5.98)
 
 * Increase timeout during replication server-to-server session establishment, to handle
   very large data sets. Bit of a hack.  Submitted by James Walker.
 
-### [v5.97](https://github.com/replicant4j/replicant/tree/v5.97) (2017-11-29)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v5.96...v5.97)
+### [v5.97](https://github.com/replicant4j/replicant/tree/v5.97) (2017-11-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.96...v5.97)
 
 * Exposed more information in the `status` endpoint of `AbstractDataLoaderServiceRestService`.
   Add details of the timing, errors, and properties to the connection.   Submitted by James Walker.
 
-### [v5.96](https://github.com/replicant4j/replicant/tree/v5.96) (2017-11-21)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v0.06...v5.96)
+### [v5.96](https://github.com/replicant4j/replicant/tree/v5.96) (2017-11-21) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v0.06...v5.96)
 
 * Add ability to query the `ContextConverger` to see if it is idle. Submitted by James Walker.
 
-### [v0.06](https://github.com/replicant4j/replicant/tree/v0.06) (2017-11-14)
-[Full Changelog](https://github.com/replicant4j/replicant/compare/v0.5.94...v0.06)
+### [v0.06](https://github.com/replicant4j/replicant/tree/v0.06) (2017-11-14) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v0.5.94...v0.06)
 
 * Updated the `AbstractDataLoaderService` to support bulk loads. Aggregated consecutive AOI actions that can be
   grouped into a single bulk load. Submitted by James Walker.
 * Updated the `ContextConvergerImpl` to schedule multiple AOI actions where they are compatible with bulk
   loading. Submitted by James Walker.
 
-### [v0.5.94](https://github.com/replicant4j/replicant/tree/v0.5.94)
-[Full Changelog](https://github.com/realityforge/react4j/compare/v0.5.93...v0.5.94)
+### [v0.5.94](https://github.com/replicant4j/replicant/tree/v0.5.94) · [Full Changelog](https://github.com/realityforge/react4j/compare/v0.5.93...v0.5.94)
 
 * in `AbstractSecuredSessionRestService`, check the `PreferredUsename` claim against the UserID associated with the
   Replicant Session, rather than the TokenID. Works with the change on 0.5.93. Submitted by James Walker.

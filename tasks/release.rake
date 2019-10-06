@@ -62,8 +62,7 @@ task 'perform_release' do
       changelog = IO.read('CHANGELOG.md')
       from = '0.00' == ENV['PREVIOUS_PRODUCT_VERSION'] ? `git rev-list --max-parents=0 HEAD`.strip : "v#{ENV['PREVIOUS_PRODUCT_VERSION']}"
       changelog = changelog.gsub("### Unreleased\n", <<HEADER)
-### [v#{ENV['PRODUCT_VERSION']}](https://github.com/replicant4j/replicant/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']})
-[Full Changelog](https://github.com/replicant4j/replicant/compare/#{from}...v#{ENV['PRODUCT_VERSION']})
+### [v#{ENV['PRODUCT_VERSION']}](https://github.com/replicant4j/replicant/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']}) · [Full Changelog](https://github.com/replicant4j/replicant/compare/#{from}...v#{ENV['PRODUCT_VERSION']})
 HEADER
       IO.write('CHANGELOG.md', changelog)
 
