@@ -13,8 +13,7 @@ import jsinterop.annotations.JsType;
 final class ReplicantLogger
 {
   private static final Logger c_logger =
-    "console".equals( ReplicantConfig.loggerType() ) ? new BasicLogger() :
-    "console_js".equals( ReplicantConfig.loggerType() ) ? new BasicJsLogger() :
+    "console".equals( ReplicantConfig.loggerType() ) ? new ConsoleLogger() :
     "proxy".equals( ReplicantConfig.loggerType() ) ? new ProxyLogger() :
     new NoopLogger();
 
@@ -59,11 +58,12 @@ final class ReplicantLogger
   }
 
   /**
-   * The basic log provider implementation.
+   * The console log provider implementation.
    */
-  private static final class BasicLogger
-    implements Logger
+  private static final class ConsoleLogger
+    extends AbstractConsoleLogger
   {
+    @GwtIncompatible
     @Override
     public void log( @Nonnull final String message, @Nullable final Throwable throwable )
     {
@@ -83,9 +83,9 @@ final class ReplicantLogger
   }
 
   /**
-   * The basic log provider implementation.
+   * The console log provider implementation providing javascript based console logging.
    */
-  private static final class BasicJsLogger
+  private static abstract class AbstractConsoleLogger
     implements Logger
   {
     @Override

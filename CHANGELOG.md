@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Remove the `jul` (a.k.a. `java.util.logging`) strategy available when configuring the `ReplicantLogger` via the compile-time property `replicant.logger`. This strategy was never used in practice.
+* Rework the way `ReplicantLogger` is implemented to consolidate the JRE and javascript based console loggers into the class `ConsoleLogger`. The involved renaming the `console_js` value to `console` for the compile-time property `replicant.logger`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.25.0`.
 
 ### [v6.46](https://github.com/replicant4j/replicant/tree/v6.46) (2019-09-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.45...v6.46)
