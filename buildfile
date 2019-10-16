@@ -75,9 +75,8 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:react4j_core)
     pom.include_transitive_dependencies << artifact(:arez_core)
     pom.include_transitive_dependencies << artifact(:gwt_user)
-    pom.include_transitive_dependencies << artifact(:javax_javaee)
 
-    pom.provided_dependencies.concat [:javax_javaee, :gwt_user]
+    pom.provided_dependencies.concat [:gwt_user]
     pom.dependency_filter = Proc.new do |dep|
       dep[:scope].to_s != 'test' &&
         !project('shared').compile.dependencies.include?(dep[:artifact]) &&
