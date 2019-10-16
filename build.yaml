@@ -18,6 +18,7 @@ artifacts:
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
 
   glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:4.1.1.164
+  javax_json: org.glassfish:javax.json:jar:1.1
 
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.102
 
@@ -39,6 +40,9 @@ artifacts:
   elemental2_webstorage: org.realityforge.com.google.elemental2:elemental2-webstorage:jar:2.25
 
   braincheck: org.realityforge.braincheck:braincheck:jar:1.25.0
+
+  grim_annotations: org.realityforge.grim:grim-annotations:jar:0.03
+  grim_processor: org.realityforge.grim:grim-processor:jar:0.03
 
   jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.1.0
 

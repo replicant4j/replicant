@@ -84,11 +84,13 @@ define 'replicant' do
         (dep[:group].to_s != 'org.realityforge.com.google.elemental2' || %w(elemental2-dom elemental2-webstorage).include?(dep[:id].to_s)) &&
         (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-core).include?(dep[:id].to_s)) &&
         dep[:group].to_s != 'com.google.jsinterop' &&
+        dep[:group].to_s != 'org.realityforge.grim' &&
         dep[:group].to_s != 'org.realityforge.braincheck'
     end
 
     project.processorpath << :react4j_processor
     project.processorpath << :arez_processor
+    project.processorpath << artifacts(:grim_processor, :javax_json)
 
     compile.with project('shared').package(:jar),
                  project('shared').compile.dependencies,
@@ -96,6 +98,7 @@ define 'replicant' do
                  GWT_DEPS,
                  :react4j_core,
                  :braincheck,
+                 :grim_annotations,
                  :arez_core
 
     gwt_enhance(project)
