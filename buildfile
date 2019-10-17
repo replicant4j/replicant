@@ -124,6 +124,10 @@ define 'replicant' do
   ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development')
   ipr.add_component_from_artifact(:idea_codestyle)
 
+  ipr.add_component('JavacSettings') do |xml|
+    xml.option(:name => 'ADDITIONAL_OPTIONS_STRING', :value => '-Xlint:all,-processing,-serial')
+  end
+
   iml.add_jruby_facet
 
   ([project] + projects).each do |p|
