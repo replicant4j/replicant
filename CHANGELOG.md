@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.134`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.150`.
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.1.0`.
 * Remove the `jul` (a.k.a. `java.util.logging`) strategy available when configuring the `ReplicantLogger` via the compile-time property `replicant.logger`. This strategy was never used in practice.
