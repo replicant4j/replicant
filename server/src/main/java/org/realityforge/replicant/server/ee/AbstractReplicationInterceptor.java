@@ -20,6 +20,7 @@ public abstract class AbstractReplicationInterceptor
     return invokeAction( getInvocationKey( context ), context::proceed );
   }
 
+  @Nonnull
   private String getInvocationKey( @Nonnull final InvocationContext context )
   {
     final Method method = context.getMethod();
