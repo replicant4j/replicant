@@ -7,7 +7,6 @@ import jsinterop.annotations.JsType;
 /**
  * The abstract message type that all messages that are sent to the server conform to.
  */
-@SuppressWarnings( "NullableProblems" )
 @SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public abstract class ClientToServerMessage

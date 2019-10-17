@@ -9,7 +9,6 @@ import static org.testng.Assert.*;
 
 public class ChannelAddressTest
 {
-  @SuppressWarnings( "EqualsWithItself" )
   @Test
   public void basicOperation()
   {

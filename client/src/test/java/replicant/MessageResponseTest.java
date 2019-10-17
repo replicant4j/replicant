@@ -11,7 +11,6 @@ import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
-@SuppressWarnings( "ResultOfMethodCallIgnored" )
 public class MessageResponseTest
   extends AbstractReplicantTest
 {

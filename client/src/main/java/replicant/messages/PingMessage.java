@@ -6,7 +6,7 @@ import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
-@SuppressWarnings( { "NullableProblems", "unused" } )
+@SuppressWarnings( { "unused" } )
 public final class PingMessage
   extends ClientToServerMessage
 {

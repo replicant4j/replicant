@@ -57,7 +57,6 @@ import org.realityforge.replicant.shared.SharedConstants;
  * }
  * </pre>
  */
-@SuppressWarnings( "RSReferenceInspection" )
 public abstract class AbstractSessionRestService
 {
   private JsonGeneratorFactory _factory;

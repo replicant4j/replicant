@@ -47,7 +47,7 @@ import replicant.spy.UnsubscribeStartedEvent;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
-@SuppressWarnings( { "NonJREEmulationClassesInClientCode", "Duplicates" } )
+@SuppressWarnings( { "NonJREEmulationClassesInClientCode" } )
 public class ConnectorTest
   extends AbstractReplicantTest
 {
@@ -2353,7 +2353,7 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( { "ResultOfMethodCallIgnored", "unchecked" } )
+  @SuppressWarnings( { "unchecked" } )
   @Test
   public void progressResponseProcessing()
   {
@@ -2451,7 +2451,6 @@ public class ConnectorTest
     }
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestAddRequest_onSuccess()
   {
@@ -2511,7 +2510,6 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestAddRequest_onSuccess_CachedValueNotInLocalCache()
   {
@@ -2569,7 +2567,6 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCache()
   {
@@ -2713,7 +2710,6 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestAddRequests_onFailure_zeroRequests()
   {
@@ -2756,7 +2752,6 @@ public class ConnectorTest
     handler.assertEventCount( 0 );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestUpdateRequest_onSuccess()
   {
@@ -2894,7 +2889,6 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestUpdateRequests_onFailure_zeroRequests()
   {
@@ -2937,7 +2931,6 @@ public class ConnectorTest
     handler.assertEventCount( 0 );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRemoveRequest_onSuccess()
   {
@@ -3073,7 +3066,6 @@ public class ConnectorTest
     } );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRemoveRequests_onFailure_zeroRequests()
   {
@@ -3115,7 +3107,6 @@ public class ConnectorTest
     handler.assertEventCount( 0 );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRequestProcessing_Noop()
   {
@@ -3149,7 +3140,6 @@ public class ConnectorTest
     handler.assertEventCount( 0 );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRequestProcessing_InProgress()
   {
@@ -3192,7 +3182,6 @@ public class ConnectorTest
     handler.assertEventCount( 0 );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRequestProcessing_Add()
   {
@@ -3234,7 +3223,6 @@ public class ConnectorTest
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRequestProcessing_Update()
   {
@@ -3277,7 +3265,6 @@ public class ConnectorTest
     handler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> assertEquals( e.getAddress(), address1 ) );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void progressAreaOfInterestRequestProcessing_Remove()
   {
@@ -3469,7 +3456,6 @@ public class ConnectorTest
                              e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
-  @SuppressWarnings( "unchecked" )
   @Test
   public void requestSync()
   {

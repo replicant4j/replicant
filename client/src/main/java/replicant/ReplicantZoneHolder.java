@@ -68,7 +68,6 @@ final class ReplicantZoneHolder
    * This takes the zone that was current when {@link #activateZone(Zone)} was called for the active zone
    * and restores it to being the current zone.
    */
-  @SuppressWarnings( "ConstantConditions" )
   static void deactivateZone( @Nonnull final Zone zone )
   {
     if ( Replicant.shouldCheckInvariants() )

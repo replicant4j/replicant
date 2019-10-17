@@ -19,7 +19,6 @@ import static org.testng.Assert.*;
 public class ConnectionTest
   extends AbstractReplicantTest
 {
-  @SuppressWarnings( "ResultOfMethodCallIgnored" )
   @Test
   public void construct()
   {

@@ -117,7 +117,6 @@ public final class Replicant
   /**
    * Save the old zone and make the specified zone the current zone.
    */
-  @SuppressWarnings( "ConstantConditions" )
   static void activateZone( @Nonnull final Zone zone )
   {
     ReplicantZoneHolder.activateZone( zone );
@@ -128,7 +127,6 @@ public final class Replicant
    * This takes the zone that was current when {@link #activateZone(Zone)} was called for the active zone
    * and restores it to being the current zone.
    */
-  @SuppressWarnings( "ConstantConditions" )
   static void deactivateZone( @Nonnull final Zone zone )
   {
     ReplicantZoneHolder.deactivateZone( zone );

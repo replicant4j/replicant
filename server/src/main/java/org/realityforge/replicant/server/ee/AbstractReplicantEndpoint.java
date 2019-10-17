@@ -484,7 +484,6 @@ public abstract class AbstractReplicantEndpoint
     return channelMetaData.hasFilterParameter() ? parseFilter( channelMetaData, filterContent ) : null;
   }
 
-  @SuppressWarnings( "unchecked" )
   @Nonnull
   private Object parseFilter( @Nonnull final ChannelMetaData channelMetaData,
                               @Nonnull final JsonObject filterContent )

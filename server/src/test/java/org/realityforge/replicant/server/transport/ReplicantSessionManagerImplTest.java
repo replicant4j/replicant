@@ -37,7 +37,6 @@ import static org.testng.Assert.*;
 /**
  * TODO: Add tests for saveEntityMessages
  */
-@SuppressWarnings( "Duplicates" )
 public class ReplicantSessionManagerImplTest
 {
   @BeforeMethod

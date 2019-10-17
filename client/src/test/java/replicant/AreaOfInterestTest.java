@@ -138,7 +138,6 @@ public class AreaOfInterestTest
                   "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
   }
 
-  @SuppressWarnings( "ThrowableNotThrown" )
   @Test
   public void updateAreaOfInterest()
   {
@@ -224,7 +223,6 @@ public class AreaOfInterestTest
                   "Replicant-0016: Invoked updateAreaOfInterest for channel at address 1.0 with status LOAD_FAILED but failed to supply the expected error." );
   }
 
-  @SuppressWarnings( "ThrowableNotThrown" )
   @Test
   public void updateAreaOfInterest_errorWhenUnexpected()
   {
