@@ -128,7 +128,7 @@ public abstract class Entity
   }
 
   @ObservableValueRef
-  abstract ObservableValue getSubscriptionsObservableValue();
+  abstract ObservableValue<?> getSubscriptionsObservableValue();
 
   /**
    * Link to subscription if not already subscribed, ignore otherwise.

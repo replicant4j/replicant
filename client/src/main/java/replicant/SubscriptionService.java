@@ -62,7 +62,7 @@ abstract class SubscriptionService
   }
 
   @ObservableValueRef
-  protected abstract ObservableValue getTypeSubscriptionsObservableValue();
+  protected abstract ObservableValue<?> getTypeSubscriptionsObservableValue();
 
   /**
    * Return the collection of instance subscriptions.
@@ -82,7 +82,7 @@ abstract class SubscriptionService
   }
 
   @ObservableValueRef
-  protected abstract ObservableValue getInstanceSubscriptionsObservableValue();
+  protected abstract ObservableValue<?> getInstanceSubscriptionsObservableValue();
 
   /**
    * Return the collection of instance subscriptions for channel.

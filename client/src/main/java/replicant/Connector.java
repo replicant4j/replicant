@@ -719,6 +719,7 @@ abstract class Connector
       final List<Entity> entities = subscription.findAllEntitiesByType( entityType );
       if ( !entities.isEmpty() )
       {
+        @SuppressWarnings( "rawtypes" )
         final SubscriptionUpdateEntityFilter updateFilter = channel.getFilter();
         assert null != updateFilter;
         final Object filter = subscription.getFilter();
@@ -997,6 +998,7 @@ abstract class Connector
         }
         else
         {
+          @SuppressWarnings( "rawtypes" )
           final EntitySchema.Updater updater = entitySchema.getUpdater();
           if ( null != updater )
           {

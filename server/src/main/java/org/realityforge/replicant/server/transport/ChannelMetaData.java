@@ -33,7 +33,7 @@ public final class ChannelMetaData
   private final boolean _typeGraph;
   @Nonnull
   private final FilterType _filterType;
-  private final Class _filterParameterType;
+  private final Class<?> _filterParameterType;
   private final boolean _cacheable;
   /**
    * Flag indicating whether the channel should able to be subscribed to externally.
@@ -45,7 +45,7 @@ public final class ChannelMetaData
                           @Nonnull final String name,
                           final boolean isTypeGraph,
                           @Nonnull final FilterType filterType,
-                          @Nullable final Class filterParameterType,
+                          @Nullable final Class<?> filterParameterType,
                           final boolean cacheable,
                           final boolean external )
   {
@@ -99,7 +99,7 @@ public final class ChannelMetaData
   }
 
   @Nonnull
-  public Class getFilterParameterType()
+  public Class<?> getFilterParameterType()
   {
     if ( null == _filterParameterType )
     {

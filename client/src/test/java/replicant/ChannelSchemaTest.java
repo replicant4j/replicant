@@ -114,7 +114,7 @@ public class ChannelSchemaTest
     final String name = ValueUtil.randomString();
     final boolean cacheable = false;
     final boolean external = true;
-    final SubscriptionUpdateEntityFilter filter = mock( SubscriptionUpdateEntityFilter.class );
+    final SubscriptionUpdateEntityFilter<?> filter = mock( SubscriptionUpdateEntityFilter.class );
     final ChannelSchema channelSchema =
       new ChannelSchema( id,
                          name,
