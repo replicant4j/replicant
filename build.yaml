@@ -44,7 +44,7 @@ artifacts:
   grim_annotations: org.realityforge.grim:grim-annotations:jar:0.03
   grim_processor: org.realityforge.grim:grim-processor:jar:0.03
 
-  jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.1.0
+  jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.2.0
 
   #
   # Mocking library
