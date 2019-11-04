@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.arez` artifacts to version `0.152`.
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.2.0`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.135`.
 
