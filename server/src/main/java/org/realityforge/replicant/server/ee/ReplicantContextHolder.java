@@ -44,7 +44,7 @@ public final class ReplicantContextHolder
    *
    * @param data the data.
    */
-  public static void putAll( @Nonnull final Map<String, Serializable> data )
+  static void putAll( @Nonnull final Map<String, Serializable> data )
   {
     getRawContext().putAll( data );
   }
