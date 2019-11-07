@@ -158,7 +158,6 @@ public abstract class AbstractReplicantEndpoint
         .add( "type", "malformed-message" )
         .add( "message", message );
     closeWithError( replicantSession,
-                    CloseReason.CloseCodes.UNEXPECTED_CONDITION,
                     "Malformed message",
                     builder.build() );
   }
@@ -169,7 +168,7 @@ public abstract class AbstractReplicantEndpoint
       Json.createObjectBuilder()
         .add( "type", "unknown-command" )
         .add( "command", command );
-    closeWithError( replicantSession, CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unknown command", builder.build() );
+    closeWithError( replicantSession, "Unknown command", builder.build() );
   }
 
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
@@ -500,12 +499,11 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void closeWithError( @Nonnull final ReplicantSession replicantSession,
-                               @Nonnull final CloseReason.CloseCodes condition,
                                @Nonnull final String reason,
                                @Nonnull final JsonObject object )
   {
     WebSocketUtil.sendJsonObject( replicantSession.getWebSocketSession(), object );
-    replicantSession.close( new CloseReason( condition, reason ) );
+    replicantSession.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, reason ) );
     getSessionManager().invalidateSession( replicantSession );
   }
 }
