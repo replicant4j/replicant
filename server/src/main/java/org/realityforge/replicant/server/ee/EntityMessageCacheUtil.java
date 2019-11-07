@@ -130,7 +130,7 @@ public final class EntityMessageCacheUtil
   }
 
   @SuppressWarnings( "unchecked" )
-  private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
+  private static <T> T lookup( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
   {
     final Object invocationContext = r.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null == invocationContext )
