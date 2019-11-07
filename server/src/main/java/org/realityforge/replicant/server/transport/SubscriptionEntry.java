@@ -103,7 +103,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   /**
@@ -121,7 +121,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   /**
@@ -147,7 +147,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   /**
@@ -165,7 +165,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   @Override
