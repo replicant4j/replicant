@@ -28,7 +28,6 @@ public final class ReplicationRequestUtil
   {
   }
 
-  @SuppressWarnings( "WeakerAccess" )
   public static <T> T runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
                                   @Nonnull final EntityManager entityManager,
                                   @Nonnull final EntityMessageEndpoint endpoint,
