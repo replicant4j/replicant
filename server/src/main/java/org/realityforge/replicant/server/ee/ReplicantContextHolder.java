@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
  */
 public final class ReplicantContextHolder
 {
+  @Nonnull
   private static final ThreadLocal<Map<String, Serializable>> c_context = new ThreadLocal<>();
 
   private ReplicantContextHolder()
