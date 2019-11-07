@@ -29,11 +29,13 @@ public class EntityMessageCacheUtilTest
     assertNull( EntityMessageCacheUtil.lookupEntityMessageSet() );
 
     //Now we force the creation of EntityMessageSet
-    final EntityMessageSet messageSet = EntityMessageCacheUtil.getEntityMessageSet();
+    final EntityMessageSet messageSet =
+      EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
 
     assertNotNull( messageSet );
     assertEquals( messageSet, EntityMessageCacheUtil.lookupEntityMessageSet() );
-    assertEquals( messageSet, EntityMessageCacheUtil.getEntityMessageSet() );
+    assertEquals( messageSet,
+                  EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() ) );
 
     //Now we remove EntityMessageSet
     assertEquals( messageSet, EntityMessageCacheUtil.removeEntityMessageSet() );
