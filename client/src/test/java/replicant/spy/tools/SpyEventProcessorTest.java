@@ -29,7 +29,6 @@ public class SpyEventProcessorTest
 
   @Test
   public void handleUnhandledEvent()
-    throws Throwable
   {
     final TestSpyEventProcessor processor = new TestSpyEventProcessor();
 
@@ -41,7 +40,6 @@ public class SpyEventProcessorTest
 
   @Test
   public void handleEvent()
-    throws Throwable
   {
     final TestSpyEventProcessor processor = new TestSpyEventProcessor();
 
@@ -57,7 +55,6 @@ public class SpyEventProcessorTest
 
   @Test
   public void onFailsOnDuplicates()
-    throws Throwable
   {
     final TestSpyEventProcessor processor = new TestSpyEventProcessor();
 

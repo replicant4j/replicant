@@ -53,7 +53,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void basicWorkflow()
-    throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     assertEquals( sm.getSessionIDs().size(), 0 );
@@ -77,7 +76,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void removeClosedSessions_openWebSocketSession()
-    throws Exception
   {
     final Session webSocketSession = mock( Session.class );
     final String id = ValueUtil.randomString();
@@ -94,7 +92,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void removeClosedSessions_closedWebSocketSession()
-    throws Exception
   {
     final Session webSocketSession = mock( Session.class );
     final String id = ValueUtil.randomString();
@@ -199,7 +196,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void subscribe()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false, true );
@@ -462,7 +458,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void performSubscribe()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false, true );
@@ -658,7 +653,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void performUnsubscribe()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false, true );
@@ -808,7 +802,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void unsubscribe()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false, true );
@@ -852,7 +845,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void unsubscribe_usingSessionID()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false, true );
@@ -975,7 +967,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void performUpdateSubscription()
-    throws Exception
   {
     final ChannelMetaData ch =
       new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
@@ -1018,7 +1009,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void updateSubscription()
-    throws Exception
   {
     final ChannelMetaData ch =
       new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
@@ -1058,7 +1048,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void bulkSubscribe_forUpdate()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
@@ -1138,7 +1127,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void bulkSubscribe_ForUpdate_whereBulkUpdateHookIsUsed()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
@@ -1188,7 +1176,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void linkSubscriptionEntries()
-    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
@@ -1255,7 +1242,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void newReplicantSession()
-    throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = createSession( sm );

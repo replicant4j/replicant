@@ -48,7 +48,6 @@ public abstract class AbstractReplicantEndpoint
 
   @OnOpen
   public void onOpen( @Nonnull final Session session )
-    throws IOException
   {
     final ReplicantSession newReplicantSession = getSessionManager().createSession( session );
     final JsonObjectBuilder builder =
@@ -132,7 +131,6 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void sendOk( @Nonnull final Session session, final int requestId )
-    throws IOException
   {
     final JsonObjectBuilder builder =
       Json.createObjectBuilder()
@@ -142,7 +140,6 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void onETags( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
   {
     final JsonObject etags = command.getJsonObject( "etags" );
     for ( final Map.Entry<String, JsonValue> entry : etags.entrySet() )
@@ -167,7 +164,6 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void onUnknownCommand( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
   {
     final JsonObjectBuilder builder =
       Json.createObjectBuilder()
@@ -177,7 +173,6 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
   {
     replicantSession.setAuthToken( command.getString( "token" ) );
     sendOk( replicantSession.getWebSocketSession(), command.getInt( "requestId" ) );

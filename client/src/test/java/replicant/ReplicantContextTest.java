@@ -216,7 +216,6 @@ public class ReplicantContextTest
 
   @Test
   public void getSpy_whenSpiesDisabled()
-    throws Exception
   {
     ReplicantTestUtil.disableSpies();
     ReplicantTestUtil.resetState();
@@ -227,7 +226,6 @@ public class ReplicantContextTest
 
   @Test
   public void getSpy()
-    throws Exception
   {
     final ReplicantContext context = Replicant.context();
 
@@ -248,7 +246,6 @@ public class ReplicantContextTest
 
   @Test
   public void preConvergeAction()
-    throws Exception
   {
     safeAction( () -> {
       final SafeProcedure action = () -> {
@@ -261,7 +258,6 @@ public class ReplicantContextTest
 
   @Test
   public void convergeCompleteAction()
-    throws Exception
   {
     safeAction( () -> {
       final SafeProcedure action = () -> {
@@ -274,7 +270,6 @@ public class ReplicantContextTest
 
   @Test
   public void active()
-    throws Exception
   {
     final ReplicantContext context = Replicant.context();
     safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
@@ -289,7 +284,6 @@ public class ReplicantContextTest
 
   @Test
   public void setConnectorRequired()
-    throws Exception
   {
     final SystemSchema schema = newSchema();
 
@@ -305,7 +299,6 @@ public class ReplicantContextTest
 
   @Test
   public void setCacheService()
-    throws Exception
   {
     createConnector();
 
@@ -325,7 +318,6 @@ public class ReplicantContextTest
 
   @Test
   public void newRequest()
-    throws Exception
   {
     final Connector connector = createConnector();
     newConnection( connector );
@@ -338,7 +330,6 @@ public class ReplicantContextTest
 
   @Test
   public void registerConnector()
-    throws Exception
   {
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );
     assertEquals( Replicant.context().getSchemas().size(), 0 );

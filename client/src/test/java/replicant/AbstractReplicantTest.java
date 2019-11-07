@@ -96,7 +96,6 @@ public abstract class AbstractReplicantTest
 
   @AfterMethod
   protected void afterTest()
-    throws Exception
   {
     BrainCheckTestUtil.resetConfig( true );
     ArezTestUtil.resetConfig( true );

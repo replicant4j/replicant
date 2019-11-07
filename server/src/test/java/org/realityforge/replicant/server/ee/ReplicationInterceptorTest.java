@@ -190,7 +190,6 @@ public class ReplicationInterceptorTest
 
   @Test
   public void ensureNestedInvocationsShouldExcept()
-    throws Exception
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestReplicationInterceptor interceptor = createInterceptor( registry );
@@ -322,14 +321,12 @@ public class ReplicationInterceptorTest
   }
 
   private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry )
-    throws Exception
   {
     return createInterceptor( registry, true );
   }
 
   private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry,
                                                         final boolean routeToSession )
-    throws Exception
   {
     return new TestReplicationInterceptor( registry, routeToSession );
   }

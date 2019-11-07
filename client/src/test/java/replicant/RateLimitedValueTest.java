@@ -9,7 +9,6 @@ public class RateLimitedValueTest
 {
   @Test
   public void basicOperation()
-    throws Exception
   {
     final RateLimitedValue value = new RateLimitedValue( 100L, 10D, 30D );
 
@@ -62,7 +61,6 @@ public class RateLimitedValueTest
 
   @Test
   public void regenerateTokens()
-    throws Exception
   {
     final RateLimitedValue value = new RateLimitedValue( 0L, 2000D, 2000D );
     value.setTokenCount( 0D );
@@ -82,7 +80,6 @@ public class RateLimitedValueTest
   }
 
   private Object getLastRegenTime( final RateLimitedValue value )
-    throws Exception
   {
     return getFieldValue( value, "_lastRegenTime" );
   }

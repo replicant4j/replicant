@@ -10,7 +10,6 @@ public class SpyImplTest
 {
   @Test
   public void basicOperation()
-    throws Exception
   {
     final SpyImpl spy = new SpyImpl();
 
@@ -64,7 +63,6 @@ public class SpyImplTest
 
   @Test
   public void addSpyEventHandler_alreadyExists()
-    throws Exception
   {
     final SpyImpl support = new SpyImpl();
 
@@ -82,7 +80,6 @@ public class SpyImplTest
 
   @Test
   public void removeSpyEventHandler_noExists()
-    throws Exception
   {
     final SpyImpl support = new SpyImpl();
 

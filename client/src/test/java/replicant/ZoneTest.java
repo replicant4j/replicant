@@ -56,7 +56,6 @@ public class ZoneTest
 
   @Test
   public void zone_run_Function_throwsException()
-    throws Throwable
   {
     ReplicantTestUtil.enableZones();
 
@@ -79,7 +78,6 @@ public class ZoneTest
 
   @Test
   public void zone_run_Procedure_throwsException()
-    throws Throwable
   {
     ReplicantTestUtil.enableZones();
 

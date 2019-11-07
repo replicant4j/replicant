@@ -502,7 +502,6 @@ public class ConnectionTest
 
   @Test
   public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
-    throws Exception
   {
     final Connection connection = createConnection();
 
@@ -520,7 +519,6 @@ public class ConnectionTest
 
   @Test
   public void isAreaOfInterestRequestPending_passingNonnullFilterForDelete()
-    throws Exception
   {
     final Connection connection = createConnection();
 
@@ -538,7 +536,6 @@ public class ConnectionTest
 
   @Test
   public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
-    throws Exception
   {
     final Connection connection = createConnection();
 
@@ -554,7 +551,6 @@ public class ConnectionTest
 
   @Test
   public void pendingAreaOfInterestRequestQueries_requestPending()
-    throws Exception
   {
     final Connection connection = createConnection();
 
@@ -591,7 +587,6 @@ public class ConnectionTest
 
   @Test
   public void pendingAreaOfInterestRequestQueries_currentPending()
-    throws Exception
   {
     final Connection connection = createConnection();
 
@@ -626,7 +621,6 @@ public class ConnectionTest
 
   @Test
   public void pendingAreaOfInterestRequestQueries_jumbledAggregate()
-    throws Exception
   {
     final Connection connection = createConnection();
 

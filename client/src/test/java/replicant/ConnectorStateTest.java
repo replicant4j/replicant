@@ -8,7 +8,6 @@ public class ConnectorStateTest
 {
   @Test
   public void isTransitionState()
-    throws Exception
   {
     assertTrue( ConnectorState.isTransitionState( ConnectorState.CONNECTING ) );
     assertFalse( ConnectorState.isTransitionState( ConnectorState.CONNECTED ) );

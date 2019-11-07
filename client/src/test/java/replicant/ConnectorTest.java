@@ -53,7 +53,6 @@ public class ConnectorTest
 {
   @Test
   public void construct()
-    throws Exception
   {
     final Disposable schedulerLock = pauseScheduler();
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
@@ -102,7 +101,6 @@ public class ConnectorTest
 
   @Test
   public void testToString()
-    throws Exception
   {
     final SystemSchema schema = newSchema();
     final Connector connector = createConnector( schema );
@@ -113,7 +111,6 @@ public class ConnectorTest
 
   @Test
   public void setConnection_whenConnectorProcessingMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -137,7 +134,6 @@ public class ConnectorTest
 
   @Test
   public void setConnection_whenExistingConnection()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -284,7 +280,6 @@ public class ConnectorTest
 
   @Test
   public void onDisconnected_generatesSpyMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -304,7 +299,6 @@ public class ConnectorTest
 
   @Test
   public void onDisconnectFailure()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -327,7 +321,6 @@ public class ConnectorTest
 
   @Test
   public void onDisconnectFailure_generatesSpyMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -371,7 +364,6 @@ public class ConnectorTest
 
   @Test
   public void onConnected_generatesSpyMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
     newConnection( connector );
@@ -389,7 +381,6 @@ public class ConnectorTest
 
   @Test
   public void onConnectFailure()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -408,7 +399,6 @@ public class ConnectorTest
 
   @Test
   public void onConnectFailure_generatesSpyMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -428,7 +418,6 @@ public class ConnectorTest
 
   @Test
   public void onMessageReceived()
-    throws Exception
   {
     final Connector connector = createConnector();
     final Connection connection = newConnection( connector );
@@ -449,7 +438,6 @@ public class ConnectorTest
 
   @Test
   public void onMessageProcessed()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -469,7 +457,6 @@ public class ConnectorTest
 
   @Test
   public void onMessageProcessFailure()
-    throws Exception
   {
     final Connector connector = createConnector();
     newConnection( connector );
@@ -488,7 +475,6 @@ public class ConnectorTest
 
   @Test
   public void onMessageProcessFailure_generatesSpyMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -509,7 +495,6 @@ public class ConnectorTest
 
   @Test
   public void disconnectIfPossible()
-    throws Exception
   {
     final Connector connector = createConnector();
     newConnection( connector );
@@ -523,7 +508,6 @@ public class ConnectorTest
 
   @Test
   public void disconnectIfPossible_noActionAsConnecting()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -540,7 +524,6 @@ public class ConnectorTest
 
   @Test
   public void disconnectIfPossible_generatesSpyEvent()
-    throws Exception
   {
     final Connector connector = createConnector();
     newConnection( connector );
@@ -557,7 +540,6 @@ public class ConnectorTest
 
   @Test
   public void onMessageReadFailure()
-    throws Exception
   {
     final Connector connector = createConnector();
     newConnection( connector );
@@ -574,7 +556,6 @@ public class ConnectorTest
 
   @Test
   public void onMessageReadFailure_generatesSpyMessage()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -591,7 +572,6 @@ public class ConnectorTest
 
   @Test
   public void onSubscribeStarted()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -622,7 +602,6 @@ public class ConnectorTest
 
   @Test
   public void onSubscribeCompleted()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -655,7 +634,6 @@ public class ConnectorTest
 
   @Test
   public void onSubscribeCompleted_DeletedSubscription()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -682,7 +660,6 @@ public class ConnectorTest
 
   @Test
   public void onUnsubscribeStarted()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -715,7 +692,6 @@ public class ConnectorTest
 
   @Test
   public void onUnsubscribeCompleted()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -746,7 +722,6 @@ public class ConnectorTest
 
   @Test
   public void onSubscriptionUpdateStarted()
-    throws Exception
   {
     final Connector connector = createConnector();
 
@@ -779,7 +754,6 @@ public class ConnectorTest
 
   @Test
   public void onSubscriptionUpdateCompleted()
-    throws Exception
   {
     final Connector connector = createConnector();
 

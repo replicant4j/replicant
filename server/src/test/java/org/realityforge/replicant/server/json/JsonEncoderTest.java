@@ -27,7 +27,6 @@ public final class JsonEncoderTest
 {
   @Test
   public void encodeAllData()
-    throws Exception
   {
     final int id = 17;
     final int typeID = 42;
@@ -98,7 +97,6 @@ public final class JsonEncoderTest
 
   @Test
   public void encodeChangeSetFromEntityMessages_deleteMessage()
-    throws Exception
   {
     final int id = 17;
     final int typeID = 42;
@@ -126,7 +124,6 @@ public final class JsonEncoderTest
 
   @Test
   public void action_WithNoFilter()
-    throws Exception
   {
     final ChangeSet cs = new ChangeSet();
     cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.ADD, null ) );
@@ -138,7 +135,6 @@ public final class JsonEncoderTest
 
   @Test
   public void channelAction_DELETE()
-    throws Exception
   {
     final ChangeSet cs = new ChangeSet();
     cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.DELETE, null ) );
@@ -150,7 +146,6 @@ public final class JsonEncoderTest
 
   @Test
   public void encodeLong()
-    throws Exception
   {
     final int id = ValueUtil.randomInt();
     final int typeID = 42;
