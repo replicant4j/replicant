@@ -34,15 +34,19 @@ public abstract class AbstractReplicantEndpoint
 {
   private transient final ObjectMapper _jsonMapper = new ObjectMapper();
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract ReplicantSessionManager getSessionManager();
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract TransactionSynchronizationRegistry getRegistry();
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract EntityManager getEntityManager();
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract EntityMessageEndpoint getEndpoint();
 
@@ -125,6 +129,7 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
+  @SuppressWarnings( { "WeakerAccess", "unused" } )
   protected boolean isAuthorized( @Nonnull final ReplicantSession replicantSession )
   {
     return true;
