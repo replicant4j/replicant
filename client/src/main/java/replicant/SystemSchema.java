@@ -43,24 +43,24 @@ public final class SystemSchema
                     () -> "Replicant-0051: SystemSchema passed a name '" + name +
                           "' but Replicant.areNamesEnabled() is false" );
       apiInvariant( () -> Arrays.stream( entities ).allMatch( Objects::nonNull ),
-                    () -> "Replicant-0053: SystemSchema named '" + ( null == name ? '?' : name ) +
+                    () -> "Replicant-0053: SystemSchema named '" + ( null == name ? "?" : name ) +
                           "' passed an array of entities that has a null element" );
       for ( int i = 0; i < entities.length; i++ )
       {
         final int index = i;
         apiInvariant( () -> index == entities[ index ].getId(),
-                      () -> "Replicant-0054: SystemSchema named '" + ( null == name ? '?' : name ) +
+                      () -> "Replicant-0054: SystemSchema named '" + ( null == name ? "?" : name ) +
                             "' passed an array of entities where entity at index " + index + " does not " +
                             "have id matching index." );
       }
       apiInvariant( () -> Arrays.stream( channels ).allMatch( Objects::nonNull ),
-                    () -> "Replicant-0055: SystemSchema named '" + ( null == name ? '?' : name ) +
+                    () -> "Replicant-0055: SystemSchema named '" + ( null == name ? "?" : name ) +
                           "' passed an array of channels that has a null element" );
       for ( int i = 0; i < channels.length; i++ )
       {
         final int index = i;
         apiInvariant( () -> index == channels[ index ].getId(),
-                      () -> "Replicant-0056: SystemSchema named '" + ( null == name ? '?' : name ) +
+                      () -> "Replicant-0056: SystemSchema named '" + ( null == name ? "?" : name ) +
                             "' passed an array of channels where channel at index " + index + " does not " +
                             "have id matching index." );
       }

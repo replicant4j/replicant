@@ -9,6 +9,7 @@
 * Remove unused method `ReplicantContextHolder.contains(...)`.
 * Reduce access of `ReplicantContextHolder.clean()` to package access.
 * Reduce access of `ReplicantContextHolder.putAll(...)` to package access.
+* Avoid intersection types that trigger bugs in recent versions of JDT used by post-2.8.2 versions of GWT.
 
 ### [v6.48](https://github.com/replicant4j/replicant/tree/v6.48) (2019-10-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.47...v6.48)
 
