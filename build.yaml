@@ -11,8 +11,8 @@ artifacts:
   javax_annotation: org.realityforge.javax.annotation:javax.annotation:jar:1.0.1
   javax_javaee: javax:javaee-api:jar:7.0
 
-  gwt_user: com.google.gwt:gwt-user:jar:2.8.2
-  gwt_dev: com.google.gwt:gwt-dev:jar:2.8.2
+  gwt_user: org.realityforge.com.google.gwt:gwt-user:jar:2.8.2-v20191108
+  gwt_dev: org.realityforge.com.google.gwt:gwt-dev:jar:2.8.2-v20191108
 
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
