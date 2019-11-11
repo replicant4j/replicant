@@ -4,7 +4,7 @@
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.154`.
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.2.0`.
-* Upgrade the `org.realityforge.react4j` artifacts to version `0.139`.
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.140`.
 * Remove some unused methods from `EntityMessageCacheUtil`.
 * Remove unused method `ReplicantContextHolder.contains(...)`.
 * Reduce access of `ReplicantContextHolder.clean()` to package access.
