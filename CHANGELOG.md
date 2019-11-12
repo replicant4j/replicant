@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.27`.
+
 ### [v6.49](https://github.com/replicant4j/replicant/tree/v6.49) (2019-11-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.48...v6.49)
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.154`.
