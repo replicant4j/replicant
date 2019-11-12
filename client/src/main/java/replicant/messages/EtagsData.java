@@ -1,5 +1,6 @@
 package replicant.messages;
 
+import elemental2.core.JsArray;
 import elemental2.core.JsObject;
 import javax.annotation.Nonnull;
 import jsinterop.annotations.JsOverlay;
@@ -34,7 +35,8 @@ public interface EtagsData
   @JsOverlay
   default String[] channels()
   {
-    return JsObject.keys( this );
+    final JsArray<String> keys = JsObject.keys( this );
+    return keys.asArray( new String[ keys.length ] );
   }
 
   @Nonnull
