@@ -1492,7 +1492,7 @@ abstract class Connector
 
   @ContextRef
   @Nonnull
-  protected abstract ArezContext context();
+  abstract ArezContext context();
 
   @Override
   public String toString()
