@@ -111,7 +111,7 @@ abstract class ReplicantRuntime
   }
 
   @ObservableValueRef
-  protected abstract ObservableValue<?> getConnectorsObservableValue();
+  abstract ObservableValue<?> getConnectorsObservableValue();
 
   /**
    * Set the "required" flag for connector for specified type.

@@ -40,7 +40,7 @@ abstract class EntityService
   }
 
   @ObservableValueRef
-  protected abstract ObservableValue<?> getEntitiesObservableValue();
+  abstract ObservableValue<?> getEntitiesObservableValue();
 
   @Observable( expectSetter = false )
   Map<Class<?>, Map<Integer, Entity>> getEntities()

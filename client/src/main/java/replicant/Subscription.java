@@ -170,7 +170,7 @@ public abstract class Subscription
   }
 
   @ObservableValueRef
-  protected abstract ObservableValue<?> getEntitiesObservableValue();
+  abstract ObservableValue<?> getEntitiesObservableValue();
 
   @Override
   public int compareTo( @Nonnull final Subscription o )
