@@ -97,9 +97,47 @@ HEADER
       sh 'git push'
       sh 'git push --tags'
     end
+
+    stage('GithubRelease', 'Create a Release on GitHub') do
+      changelog = IO.read('CHANGELOG.md')
+      start = changelog.index("### [v#{ENV['PRODUCT_VERSION']}]")
+      raise "Unable to locate version #{ENV['PRODUCT_VERSION']} in change log" if -1 == start
+      start = changelog.index("\n", start)
+      start = changelog.index("\n", start + 1)
+
+      end_index = changelog.index('### [v', start)
+      end_index = changelog.length if end_index.nil?
+
+      changes = changelog[start, end_index - start]
+
+      changes = changes.strip
+
+      tag = "v#{ENV['PRODUCT_VERSION']}"
+
+      version_parts = ENV['PRODUCT_VERSION'].split('.')
+      prerelease = '0' == version_parts[0]
+
+      require 'octokit'
+
+      client = Octokit::Client.new(:netrc => true, :auto_paginate => true)
+      client.login
+      client.create_release('replicant4j/replicant', tag, :name => tag, :body => changes, :draft => false, :prerelease => prerelease)
+
+      candidates = client.list_milestones('replicant4j/replicant').select {|m| m[:title].to_s == tag}
+      unless candidates.empty?
+        milestone = candidates[0]
+        unless milestone[:state] == 'closed'
+          client.update_milestone('replicant4j/replicant', milestone[:number], :state => 'closed')
+        end
+      end
+    end
   end
 
   if ENV['STAGE']
-    raise "Invalid STAGE specified '#{ENV['STAGE']}' that did not match any stage"
+    if ENV['LAST_STAGE'] == ENV['STAGE']
+      puts "LAST_STAGE specified '#{ENV['LAST_STAGE']}', later stages were skipped"
+    else
+      raise "Invalid STAGE specified '#{ENV['STAGE']}' that did not match any stage"
+    end
   end
 end
