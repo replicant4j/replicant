@@ -57,33 +57,22 @@ define 'replicant' do
     test.compile.with TEST_DEPS
   end
 
-  define 'client-common' do
-    compile.with :javax_jsr305, :gwt_webpoller, project('shared').package(:jar)
+  define 'client' do
+    compile.with GWT_DEPS,
+                 :javax_jsr305,
+                 :gwt_webpoller,
+                 project('shared').package(:jar)
 
-    package(:jar).include("#{_(:source, :main, :java)}/*")
-    package(:sources)
+    package(:jar).include("#{_(:source, :main, :java)}/*").include("#{_(:source, :main, :super)}/*")
+    package(:sources).include("#{_(:source, :main, :super)}/*")
     package(:javadoc)
 
     test.using :testng
     test.compile.with TEST_DEPS
 
-    iml.add_gwt_facet({'org.realityforge.replicant.ReplicantClientCommon' => false},
-                      :settings => {:compilerMaxHeapSize => '1024'},
-                      :gwt_dev_artifact => :gwt_dev)
-  end
-
-  define 'client-gwt' do
-    compile.with GWT_DEPS,
-                 project('client-common').package(:jar),
-                 project('client-common').compile.dependencies
-
     gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
         :java_args => %w(-Xms512M -Xmx1024M),
         :draft_compile => 'true') unless ENV['GWT'] == 'no'
-
-    package(:jar).include("#{_(:source, :main, :java)}/*")
-    package(:sources)
-    package(:javadoc)
 
     test.using :testng
     test.compile.with TEST_DEPS
@@ -95,20 +84,6 @@ define 'replicant' do
 
     # Not sure what in this project breakes jacoco
     jacoco.enabled = false
-  end
-
-  define 'client-qa-support' do
-    compile.with GWT_DEPS,
-                 TEST_INFRA_DEPS,
-                 project('client-common').package(:jar),
-                 project('client-common').compile.dependencies
-
-    package(:jar)
-    package(:sources)
-    package(:javadoc)
-
-    test.using :testng
-    test.compile.with TEST_DEPS
   end
 
   ipr.add_component_from_artifact(:idea_codestyle)
