@@ -4,39 +4,33 @@
 * Remove `client-ee` module as it is no longer supported.
 * Merge `shared-ee` module into `server` module.
 
-### [v5.99](https://github.com/realityforge/replicant/tree/v5.99) (2018-04-26)
-[Full Changelog](https://github.com/realityforge/replicant/compare/v5.98...v5.99)
+### [v5.99](https://github.com/realityforge/replicant/tree/v5.99) (2018-04-26) · [Full Changelog](https://github.com/realityforge/replicant/compare/v5.98...v5.99)
 
 * Make AreaOfInterest public to fix problem when deployed into EE container that attempts to proxy
   package access method that returns AreaOfInterest.  Submitted by James Walker.
 
-### [v5.98](https://github.com/realityforge/replicant/tree/v5.98) (2018-03-27)
-[Full Changelog](https://github.com/realityforge/replicant/compare/v5.97...v5.98)
+### [v5.98](https://github.com/realityforge/replicant/tree/v5.98) (2018-03-27) · [Full Changelog](https://github.com/realityforge/replicant/compare/v5.97...v5.98)
 
 * Increase timeout during replication server-to-server session establishment, to handle
   very large data sets. Bit of a hack.  Submitted by James Walker.
 
-### [v5.97](https://github.com/realityforge/replicant/tree/v5.97) (2017-11-29)
-[Full Changelog](https://github.com/realityforge/replicant/compare/v5.96...v5.97)
+### [v5.97](https://github.com/realityforge/replicant/tree/v5.97) (2017-11-29) · [Full Changelog](https://github.com/realityforge/replicant/compare/v5.96...v5.97)
 
 * Exposed more information in the `status` endpoint of `AbstractDataLoaderServiceRestService`.
   Add details of the timing, errors, and properties to the connection.   Submitted by James Walker.
 
-### [v5.96](https://github.com/realityforge/replicant/tree/v5.96) (2017-11-21)
-[Full Changelog](https://github.com/realityforge/replicant/compare/v0.06...v5.96)
+### [v5.96](https://github.com/realityforge/replicant/tree/v5.96) (2017-11-21) · [Full Changelog](https://github.com/realityforge/replicant/compare/v0.06...v5.96)
 
 * Add ability to query the `ContextConverger` to see if it is idle. Submitted by James Walker.
 
-### [v0.06](https://github.com/realityforge/replicant/tree/v0.06) (2017-11-14)
-[Full Changelog](https://github.com/realityforge/replicant/compare/v0.5.94...v0.06)
+### [v0.06](https://github.com/realityforge/replicant/tree/v0.06) (2017-11-14) · [Full Changelog](https://github.com/realityforge/replicant/compare/v0.5.94...v0.06)
 
 * Updated the `AbstractDataLoaderService` to support bulk loads. Aggregated consecutive AOI actions that can be
   grouped into a single bulk load. Submitted by James Walker.
 * Updated the `ContextConvergerImpl` to schedule multiple AOI actions where they are compatible with bulk
   loading. Submitted by James Walker.
 
-### [v0.5.94](https://github.com/realityforge/replicant/tree/v0.5.94)
-[Full Changelog](https://github.com/realityforge/react4j/compare/v0.5.93...v0.5.94)
+### [v0.5.94](https://github.com/realityforge/replicant/tree/v0.5.94) · [Full Changelog](https://github.com/realityforge/react4j/compare/v0.5.93...v0.5.94)
 
 * in `AbstractSecuredSessionRestService`, check the `PreferredUsename` claim against the UserID associated with the
   Replicant Session, rather than the TokenID. Works with the change on 0.5.93. Submitted by James Walker.
