@@ -1,5 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/util')
 
+ENV['PREVIOUS_PRODUCT_VERSION'] = nil if ENV['PREVIOUS_PRODUCT_VERSION'].to_s == ''
+ENV['PRODUCT_VERSION'] = nil if ENV['PRODUCT_VERSION'].to_s == ''
+
 def stage(stage_name, description, options = {})
   if ENV['STAGE'].nil? || ENV['STAGE'] == stage_name || options[:always_run]
     puts "🚀 Release Stage: #{stage_name} - #{description}"
@@ -14,6 +17,9 @@ def stage(stage_name, description, options = {})
   elsif !ENV['STAGE'].nil?
     puts "Skipping Stage: #{stage_name} - #{description}"
   end
+  if ENV['LAST_STAGE'] == stage_name
+    ENV['STAGE'] = ENV['LAST_STAGE']
+  end
 end
 
 desc 'Perform a release'
@@ -22,12 +28,12 @@ task 'perform_release' do
   in_dir(WORKSPACE_DIR) do
     stage('ExtractVersion', 'Extract the last version from CHANGELOG.md and derive next version unless specified', :always_run => true) do
       changelog = IO.read('CHANGELOG.md')
-      ENV['PREVIOUS_PRODUCT_VERSION'] ||= changelog[/^### \[v(\d+\.\d+)\]/,1]
+      ENV['PREVIOUS_PRODUCT_VERSION'] ||= changelog[/^### \[v(\d+\.\d+(\.\d+)?)\]/, 1] || '0.00'
 
       next_version = ENV['PRODUCT_VERSION']
       unless next_version
         version_parts = ENV['PREVIOUS_PRODUCT_VERSION'].split('.')
-        next_version = "#{version_parts[0]}.#{sprintf('%02d', version_parts[1].to_i + 1)}"
+        next_version = "#{version_parts[0]}.#{sprintf('%02d', version_parts[1].to_i + 1)}#{version_parts.length > 2 ? ".#{version_parts[2]}" : ''}"
         ENV['PRODUCT_VERSION'] = next_version
       end
 
@@ -54,9 +60,9 @@ task 'perform_release' do
 
     stage('PatchChangelog', 'Patch the changelog to update from previous release') do
       changelog = IO.read('CHANGELOG.md')
-      changelog = changelog.gsub("### Unreleased\n",<<HEADER)
-### [v#{ENV['PRODUCT_VERSION']}](https://github.com/realityforge/replicant/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']})
-[Full Changelog](https://github.com/realityforge/replicant/compare/v#{ENV['PREVIOUS_PRODUCT_VERSION']}...v#{ENV['PRODUCT_VERSION']})
+      from = '0.00' == ENV['PREVIOUS_PRODUCT_VERSION'] ? `git rev-list --max-parents=0 HEAD`.strip : "v#{ENV['PREVIOUS_PRODUCT_VERSION']}"
+      changelog = changelog.gsub("### Unreleased\n", <<HEADER)
+### [v#{ENV['PRODUCT_VERSION']}](https://github.com/replicant4j/replicant/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']}) · [Full Changelog](https://github.com/replicant4j/replicant/compare/#{from}...v#{ENV['PRODUCT_VERSION']})
 HEADER
       IO.write('CHANGELOG.md', changelog)
 
