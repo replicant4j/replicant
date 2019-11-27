@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'buildr', '= 1.5.5'
-gem 'zapwhite', '= 2.10.0'
-gem 'mcrt', '= 1.9.0'
+gem 'buildr', '= 1.5.8'
+gem 'zapwhite', '= 2.16.0'
+gem 'mcrt', '= 1.14.0'
