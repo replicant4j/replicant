@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
@@ -155,6 +156,29 @@ public abstract class ReplicantSessionManagerImpl
   protected ReadWriteLock getLock()
   {
     return _lock;
+  }
+
+  @PreDestroy
+  protected void preDestroy()
+  {
+    removeAllSessions();
+  }
+
+  /**
+   * Remove all sessions and force them to reconnect.
+   */
+  @SuppressWarnings( "WeakerAccess" )
+  public void removeAllSessions()
+  {
+    _lock.writeLock().lock();
+    try
+    {
+      _sessions.clear();
+    }
+    finally
+    {
+      _lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -741,7 +765,8 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).getFilterType() != ChannelMetaData.FilterType.NONE;
+    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).getFilterType() !=
+           ChannelMetaData.FilterType.NONE;
     entry.setFilter( filter );
     final ChannelDescriptor descriptor = entry.getDescriptor();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
@@ -949,7 +974,8 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelDescriptor target = link.getTargetChannel();
-      final boolean targetUnfiltered = getSystemMetaData().getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
+      final boolean targetUnfiltered =
+        getSystemMetaData().getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
       if ( targetUnfiltered || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
