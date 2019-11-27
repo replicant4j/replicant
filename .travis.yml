@@ -1,26 +1,16 @@
+# Lock down dist to ensure that builds run on a distribution that supports oraclejdk8
+dist: trusty
 language: ruby
 jdk:
-- oraclejdk8
-sudo: false
+  - oraclejdk8
 rvm:
-- 2.3.1
-before_install:
-- openssl aes-256-cbc -K $encrypted_02ff0eb47d03_key -iv $encrypted_02ff0eb47d03_iv
-  -in etc/secrets -out ../secrets.tar -d
-- "(cd ../ && tar xvf secrets.tar)"
-- chmod 600 ../release.asc
-- gpg --import ../release.asc
+  - 2.3.1
 install:
-- rvm use 2.3.1
-- gem install bundler
-- bundle install
-script: buildr clean package jacoco:report mcrt:publish_if_tagged
+  - rvm use 2.3.1
+  - gem install bundler
+  - bundle install
+script: buildr package jacoco:report error_codes:check_duplicates
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
 git:
   depth: false
-env:
-  global:
-  - secure: GIuKQD9pGNeNPdvFfrjgy61nuID48p1WChQ1gxhC8aWv5ZLfSHmN+/reD2ZJokVs4LmhWFF4LoOSDuEN8q/wlUVDTfYcuPf2E1bz4YVyvQPHr289w2fgW8gxkWiRwiiWT0okOctJ5Zffh5p4C8Z7eneUr1DV5idI4Xd3DdY/C9o=
-  - secure: EEPpxG4QczBLn9aWXdczkOgE00oktrlj7LO2aRmMSm7V6Z7oL+APw/sSGlcGU8obzYLNtZCSs/8/EgbTmXx7zsFCaQ0YNCydlW+LgNn8PBu5cbL3Si8auirUCV1XiPPpq90aedd1SFFc7SDHatLRC0JK7npUqNC/FvMXOctHDiA=
-  - secure: UlSPv9whdFV7/Y768voB5ugryk/eE5YFmBR9J6MtXYUtMSLvkCvX4wu5/o8dLJODd23795aOLtG5ihcFjrd8wQiQnnQDuwn08LLkKBRpczIvD8hQSFw722VlN6tKxCwiPnnD6ZIXqLoSuc/nGEISdB6rm1VmHJodQEXZUUqdEyo=
