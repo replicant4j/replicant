@@ -1,6 +1,7 @@
 # Change Log
 
 * Import `ReplicantSessionManagerImpl.removeAllSessions()` from master branch.
+* Remove `client-ee` module as it is no longer supported.
 
 ### [v5.99](https://github.com/realityforge/replicant/tree/v5.99) (2018-04-26)
 [Full Changelog](https://github.com/realityforge/replicant/compare/v5.98...v5.99)
