@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 * Import `ReplicantSessionManagerImpl.removeAllSessions()` from master branch.
 * Remove `client-ee` module as it is no longer supported.
 * Merge `shared-ee` module into `server` module.
