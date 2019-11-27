@@ -49,8 +49,12 @@ define 'replicant' do
 
     compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar)
 
-    package(:jar)
-    package(:sources)
+    package(:jar).enhance do |jar|
+      jar.merge(project('shared').package(:jar))
+    end
+    package(:sources).enhance do |jar|
+      jar.merge(project('shared').package(:jar, :classifier => :sources))
+    end
     package(:javadoc)
 
     test.using :testng
@@ -63,8 +67,15 @@ define 'replicant' do
                  :gwt_webpoller,
                  project('shared').package(:jar)
 
-    package(:jar).include("#{_(:source, :main, :java)}/*").include("#{_(:source, :main, :super)}/*")
-    package(:sources).include("#{_(:source, :main, :super)}/*")
+    package(:jar).enhance do |jar|
+      jar.include("#{_(:source, :main, :java)}/*")
+      jar.include("#{_(:source, :main, :super)}/*")
+      jar.merge(project('shared').package(:jar))
+    end
+    package(:sources).enhance do |jar|
+      jar.include("#{_(:source, :main, :super)}/*")
+      jar.merge(project('shared').package(:jar, :classifier => :sources))
+    end
     package(:javadoc)
 
     test.using :testng
@@ -93,4 +104,5 @@ define 'replicant' do
   ([project] + projects).each do |p|
     p.enable_annotation_processor = false if p.processorpath.empty?
   end
+  project('shared').task('upload').actions.clear
 end
