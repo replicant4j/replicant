@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v5.100](https://github.com/replicant4j/replicant/tree/v5.100) (2019-11-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.99...v5.100)
 
 * Import `ReplicantSessionManagerImpl.removeAllSessions()` from master branch.
 * Remove `client-ee` module as it is no longer supported.
