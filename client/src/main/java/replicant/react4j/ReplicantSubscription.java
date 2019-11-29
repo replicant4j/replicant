@@ -14,7 +14,6 @@ import react4j.ReactNode;
 import react4j.annotations.PostMountOrUpdate;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
-import replicant.ChannelSchema;
 import replicant.Replicant;
 import replicant.Subscription;
 
@@ -72,20 +71,6 @@ public abstract class ReplicantSubscription<T>
   {
     @Nullable
     ReactNode render( @Nonnull Subscription subscription, @Nonnull T rootEntity, @Nonnull Throwable error );
-  }
-
-  protected abstract int getSystemId();
-
-  protected abstract int getChannelId();
-
-  protected int getId()
-  {
-    return 0;
-  }
-
-  protected boolean hasId()
-  {
-    return false;
   }
 
   @Nullable
@@ -232,10 +217,7 @@ public abstract class ReplicantSubscription<T>
   }
 
   @Nonnull
-  private ChannelAddress getAddress()
-  {
-    return new ChannelAddress( getSystemId(), getChannelId(), hasId() ? getId() : null );
-  }
+  protected abstract ChannelAddress getAddress();
 
   @SuppressWarnings( "unchecked" )
   @Nullable
@@ -250,7 +232,13 @@ public abstract class ReplicantSubscription<T>
     else
     {
       final AreaOfInterest.Status status = getStatus();
-      final boolean isInstanceChannel = isInstanceChannel();
+
+      final ChannelAddress address = areaOfInterest.getAddress();
+      final boolean isInstanceChannel =
+        Replicant.context()
+          .getSchemaById( address.getSystemId() )
+          .getChannel( address.getChannelId() )
+          .isInstanceChannel();
 
       if ( AreaOfInterest.Status.NOT_ASKED == status || AreaOfInterest.Status.LOADING == status )
       {
@@ -336,16 +324,5 @@ public abstract class ReplicantSubscription<T>
       }
     }
     return status;
-  }
-
-  private boolean isInstanceChannel()
-  {
-    return getChannelSchema().isInstanceChannel();
-  }
-
-  @Nonnull
-  private ChannelSchema getChannelSchema()
-  {
-    return Replicant.context().getSchemaById( getSystemId() ).getChannel( getChannelId() );
   }
 }
