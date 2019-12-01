@@ -66,12 +66,12 @@ public interface Change
    * @param index the index of the channel.
    * @return the channel id.
    */
-  int getChannelID( int index );
+  int getChannelId( int index );
 
   /**
    * @param index the index of the channel.
    * @return the sub-channel id.
    */
   @Nullable
-  Object getSubChannelID( int index );
+  Object getSubChannelId( int index );
 }

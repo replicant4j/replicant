@@ -9,10 +9,10 @@ public class ChannelLinkTest
   public void basicOperation()
   {
     final ChannelLink link = new ChannelLink( new ChannelDescriptor( 22, 44 ), new ChannelDescriptor( 1, "2" ) );
-    assertEquals( link.getSourceChannel().getChannelID(), 22 );
-    assertEquals( link.getSourceChannel().getSubChannelID(), 44 );
-    assertEquals( link.getTargetChannel().getChannelID(), 1 );
-    assertEquals( link.getTargetChannel().getSubChannelID(), "2" );
+    assertEquals( link.getSourceChannel().getChannelId(), 22 );
+    assertEquals( link.getSourceChannel().getSubChannelId(), 44 );
+    assertEquals( link.getTargetChannel().getChannelId(), 1 );
+    assertEquals( link.getTargetChannel().getSubChannelId(), "2" );
     assertEquals( link.toString(), "[#22.44#=>#1.2#]" );
   }
 

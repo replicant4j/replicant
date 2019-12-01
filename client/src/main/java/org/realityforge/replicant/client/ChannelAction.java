@@ -10,10 +10,10 @@ public interface ChannelAction
     ADD, REMOVE, UPDATE
   }
 
-  int getChannelID();
+  int getChannelId();
 
   @Nullable
-  Object getSubChannelID();
+  Object getSubChannelId();
 
   @Nonnull
   Action getAction();

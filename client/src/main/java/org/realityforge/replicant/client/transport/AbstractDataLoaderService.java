@@ -1169,10 +1169,10 @@ public abstract class AbstractDataLoaderService
   @Nonnull
   private ChannelDescriptor toChannelDescriptor( final ChannelAction action )
   {
-    final int channel = action.getChannelID();
-    final Object subChannelID = action.getSubChannelID();
+    final int channel = action.getChannelId();
+    final Object subChannelId = action.getSubChannelId();
     final Enum graph = channelToGraph( channel );
-    return new ChannelDescriptor( graph, subChannelID );
+    return new ChannelDescriptor( graph, subChannelId );
   }
 
   private int deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )

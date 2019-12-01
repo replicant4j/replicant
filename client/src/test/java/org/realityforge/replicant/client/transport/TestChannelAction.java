@@ -10,40 +10,40 @@ class TestChannelAction
 
   private final int _channelID;
   @Nullable
-  private final Object _subChannelID;
+  private final Object _subChannelId;
   private final Action _action;
   @Nullable
   private final Object _filter;
 
   private TestChannelAction( final int channelID,
-                             @Nullable final Object subChannelID,
+                             @Nullable final Object subChannelId,
                              @Nonnull final Action action,
                              @Nullable final Object filter )
   {
     _channelID = channelID;
-    _subChannelID = subChannelID;
+    _subChannelId = subChannelId;
     _action = action;
     _filter = filter;
   }
 
   TestChannelAction( final int channelID,
-                     @Nullable final Object subChannelID,
+                     @Nullable final Object subChannelId,
                      @Nonnull final Action action )
   {
-    this( channelID, subChannelID, action, null );
+    this( channelID, subChannelId, action, null );
   }
 
   @Override
-  public int getChannelID()
+  public int getChannelId()
   {
     return _channelID;
   }
 
   @Nullable
   @Override
-  public Object getSubChannelID()
+  public Object getSubChannelId()
   {
-    return _subChannelID;
+    return _subChannelId;
   }
 
   @Nonnull

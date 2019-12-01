@@ -20,16 +20,16 @@ public class ChannelDescriptorTest
     final ChannelDescriptor cd5 = new ChannelDescriptor( 3, null );
     final ChannelDescriptor cd6 = new ChannelDescriptor( 2, null );
 
-    assertEquals( cd1.getChannelID(), 1 );
-    assertEquals( cd1.getSubChannelID(), "X" );
+    assertEquals( cd1.getChannelId(), 1 );
+    assertEquals( cd1.getSubChannelId(), "X" );
     assertEquals( cd1.toString(), "#1.X#" );
     assertTrue( cd1.equals( cd1 ) );
     assertTrue( cd1.equals( cd2 ) );
     assertFalse( cd1.equals( cd3 ) );
     assertFalse( cd1.equals( cd4 ) );
 
-    assertEquals( cd4.getChannelID(), 2 );
-    assertEquals( cd4.getSubChannelID(), null );
+    assertEquals( cd4.getChannelId(), 2 );
+    assertEquals( cd4.getSubChannelId(), null );
     assertEquals( cd4.toString(), "#2#" );
     assertTrue( cd4.equals( cd4 ) );
     assertTrue( cd4.equals( cd6 ) );

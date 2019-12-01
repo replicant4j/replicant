@@ -46,7 +46,7 @@ public final class ChannelMetaData
     _cacheable = cacheable;
   }
 
-  public int getChannelID()
+  public int getChannelId()
   {
     return _channelID;
   }

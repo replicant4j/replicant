@@ -7,30 +7,30 @@ import javax.annotation.Nullable;
 public final class ChannelDescriptor
   implements Comparable<ChannelDescriptor>
 {
-  private final int _channelID;
+  private final int _channelId;
   @Nullable
-  private final Serializable _subChannelID;
+  private final Serializable _subChannelId;
 
-  public ChannelDescriptor( final int channelID )
+  public ChannelDescriptor( final int channelId )
   {
-    this( channelID, null );
+    this( channelId, null );
   }
 
-  public ChannelDescriptor( final int channelID, @Nullable final Serializable subChannelID )
+  public ChannelDescriptor( final int channelId, @Nullable final Serializable subChannelId )
   {
-    _channelID = channelID;
-    _subChannelID = subChannelID;
+    _channelId = channelId;
+    _subChannelId = subChannelId;
   }
 
-  public int getChannelID()
+  public int getChannelId()
   {
-    return _channelID;
+    return _channelId;
   }
 
   @Nullable
-  public Serializable getSubChannelID()
+  public Serializable getSubChannelId()
   {
-    return _subChannelID;
+    return _subChannelId;
   }
 
   @Override
@@ -46,49 +46,49 @@ public final class ChannelDescriptor
     }
 
     final ChannelDescriptor that = (ChannelDescriptor) o;
-    return _channelID == that._channelID &&
-           !( _subChannelID != null ? !_subChannelID.equals( that._subChannelID ) : null != that._subChannelID );
+    return _channelId == that._channelId &&
+           !( _subChannelId != null ? !_subChannelId.equals( that._subChannelId ) : null != that._subChannelId );
   }
 
   @Override
   public int hashCode()
   {
-    int result = _channelID;
-    result = 31 * result + ( _subChannelID != null ? _subChannelID.hashCode() : 0 );
+    int result = _channelId;
+    result = 31 * result + ( _subChannelId != null ? _subChannelId.hashCode() : 0 );
     return result;
   }
 
   @Override
   public int compareTo( @Nonnull final ChannelDescriptor other )
   {
-    final int otherChannelID = other.getChannelID();
-    final int channelID = getChannelID();
+    final int otherChannelId = other.getChannelId();
+    final int channelID = getChannelId();
 
-    final int channelDiff = ( channelID < otherChannelID ) ? -1 : ( ( channelID == otherChannelID ) ? 0 : 1 );
+    final int channelDiff = ( channelID < otherChannelId ) ? -1 : ( ( channelID == otherChannelId ) ? 0 : 1 );
     if ( 0 != channelDiff )
     {
       return channelDiff;
     }
     else
     {
-      final Serializable otherSubChannelID = other.getSubChannelID();
-      final Serializable subChannelID = getSubChannelID();
-      if ( null == otherSubChannelID && null == subChannelID )
+      final Serializable otherSubChannelId = other.getSubChannelId();
+      final Serializable subChannelId = getSubChannelId();
+      if ( null == otherSubChannelId && null == subChannelId )
       {
         return 0;
       }
-      else if ( null == otherSubChannelID )
+      else if ( null == otherSubChannelId )
       {
         return -1;
       }
-      else if ( null == subChannelID )
+      else if ( null == subChannelId )
       {
         return 1;
       }
       else
       {
         //noinspection unchecked
-        return ( (Comparable) subChannelID ).compareTo( otherSubChannelID );
+        return ( (Comparable) subChannelId ).compareTo( otherSubChannelId );
       }
     }
   }
@@ -96,6 +96,6 @@ public final class ChannelDescriptor
   @Override
   public String toString()
   {
-    return "#" + _channelID + ( null == _subChannelID ? "" : "." + _subChannelID ) + "#";
+    return "#" + _channelId + ( null == _subChannelId ? "" : "." + _subChannelId ) + "#";
   }
 }

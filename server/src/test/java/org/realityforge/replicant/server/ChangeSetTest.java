@@ -68,8 +68,8 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelId(), 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -87,8 +87,8 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelId(), 2 );
     assertEquals( action.getAction(), Action.ADD );
 
     final JsonObject filter =
@@ -147,8 +147,8 @@ public class ChangeSetTest
     assertEquals( actions.size(), 1 );
 
     final ChannelAction action = actions.get( 0 );
-    assertEquals( action.getChannelDescriptor().getChannelID(), 1 );
-    assertEquals( action.getChannelDescriptor().getSubChannelID(), 2 );
+    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelDescriptor().getSubChannelId(), 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }

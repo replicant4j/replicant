@@ -120,7 +120,7 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native int getChannelID( final int index ) /*-{
+  public final native int getChannelId( final int index ) /*-{
     if ( this.channels && index < this.channels.length )
     {
       return this.channels[index].cid;
@@ -132,7 +132,7 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native Object getSubChannelID( final int index ) /*-{
+  public final native Object getSubChannelId( final int index ) /*-{
     if ( this.channels && index < this.channels.length )
     {
       if ( typeof(this.channels[index].scid) == 'number' )

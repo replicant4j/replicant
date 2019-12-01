@@ -13,12 +13,12 @@ public class JsoChannelAction
   }
 
   @Override
-  public final native int getChannelID() /*-{
+  public final native int getChannelId() /*-{
     return this.cid;
   }-*/;
 
   @Override
-  public final native Object getSubChannelID() /*-{
+  public final native Object getSubChannelId() /*-{
     if ( typeof(this.scid) == 'number' )
     {
       return new @java.lang.Integer::new(I)( this.scid );

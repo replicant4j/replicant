@@ -112,21 +112,21 @@ public abstract class WebPollerDataLoaderService
    */
   @Nonnull
   protected String getChannelURL( final int channel,
-                                  @Nullable Serializable subChannelID )
+                                  @Nullable Serializable subChannelId )
   {
     return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT +
-           "/" + channel + ( null == subChannelID ? "" : "." + subChannelID );
+           "/" + channel + ( null == subChannelId ? "" : "." + subChannelId );
   }
 
   /**
-   * Return URL to the specified channel, for the set of subChannelIDs for this session.
+   * Return URL to the specified channel, for the set of subChannelIds for this session.
    */
   @Nonnull
   protected String getChannelURL( final int channel,
-                                  @Nonnull List<Serializable> subChannelIDs )
+                                  @Nonnull List<Serializable> subChannelIds )
   {
     final String queryParam = ReplicantContext.SUB_CHANNEL_ID_PARAM + "=" +
-                              subChannelIDs.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
+                              subChannelIds.stream().map( Object::toString ).collect( Collectors.joining( "," ) );
     return getSessionURL() + ReplicantContext.CHANNEL_URL_FRAGMENT + "/" + channel + "?" + queryParam;
   }
 
@@ -310,7 +310,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performSubscribe( final int channel,
-                                   @Nullable Serializable subChannelID,
+                                   @Nullable Serializable subChannelId,
                                    @Nullable final Object filterParameter,
                                    @Nullable String cacheKey,
                                    @Nullable String eTag,
@@ -322,7 +322,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelID ),
+                   getChannelURL( channel, subChannelId ),
                    eTag,
                    onSuccess,
                    onCacheValid,
@@ -359,7 +359,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performBulkSubscribe( final int channel,
-                                       @Nonnull List<Serializable> subChannelIDs,
+                                       @Nonnull List<Serializable> subChannelIds,
                                        @Nullable final Object filterParameter,
                                        @Nonnull final Runnable onSuccess,
                                        @Nonnull final Consumer<Throwable> onError )
@@ -368,7 +368,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelIDs ),
+                   getChannelURL( channel, subChannelIds ),
                    null,
                    onSuccess,
                    null,
@@ -401,7 +401,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performUpdateSubscription( final int channel,
-                                            @Nullable Serializable subChannelID,
+                                            @Nullable Serializable subChannelId,
                                             @Nullable final Object filterParameter,
                                             @Nonnull final Runnable onSuccess,
                                             @Nonnull final Consumer<Throwable> onError )
@@ -410,7 +410,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelID ),
+                   getChannelURL( channel, subChannelId ),
                    null,
                    onSuccess,
                    null,
@@ -444,7 +444,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performBulkUpdateSubscription( final int channel,
-                                                @Nonnull List<Serializable> subChannelIDs,
+                                                @Nonnull List<Serializable> subChannelIds,
                                                 @Nullable final Object filterParameter,
                                                 @Nonnull final Runnable onSuccess,
                                                 @Nonnull final Consumer<Throwable> onError )
@@ -453,7 +453,7 @@ public abstract class WebPollerDataLoaderService
       doSubscribe( session,
                    request,
                    filterParameter,
-                   getChannelURL( channel, subChannelIDs ),
+                   getChannelURL( channel, subChannelIds ),
                    null,
                    onSuccess,
                    null,
@@ -481,12 +481,12 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performUnsubscribe( final int channel,
-                                     @Nullable Serializable subChannelID,
+                                     @Nullable Serializable subChannelId,
                                      @Nonnull final Runnable onSuccess,
                                      @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "Unsubscribe", channel ), null, ( session, request ) ->
-      doUnsubscribe( session, request, getChannelURL( channel, subChannelID ), onSuccess, onError ) );
+      doUnsubscribe( session, request, getChannelURL( channel, subChannelId ), onSuccess, onError ) );
   }
 
   @Override
@@ -517,14 +517,14 @@ public abstract class WebPollerDataLoaderService
   }
 
   protected void performBulkUnsubscribe( final int channel,
-                                         @Nonnull List<Serializable> subChannelIDs,
+                                         @Nonnull List<Serializable> subChannelIds,
                                          @Nonnull final Runnable onSuccess,
                                          @Nonnull final Consumer<Throwable> onError )
   {
     getSessionContext().request( toRequestKey( "BulkUnsubscribe", channel ), null, ( session, request ) ->
       doUnsubscribe( session,
                      request,
-                     getChannelURL( channel, subChannelIDs ),
+                     getChannelURL( channel, subChannelIds ),
                      onSuccess,
                      onError ) );
   }
