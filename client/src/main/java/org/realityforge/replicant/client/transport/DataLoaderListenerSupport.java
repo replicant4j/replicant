@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 public final class DataLoaderListenerSupport
   implements DataLoaderListener
@@ -82,21 +82,21 @@ public final class DataLoaderListenerSupport
 
   @Override
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
-                                  @Nonnull final ChannelDescriptor descriptor )
+                                  @Nonnull final ChannelAddress descriptor )
   {
     cloneListeners().forEach( l -> l.onSubscribeStarted( service, descriptor ) );
   }
 
   @Override
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelDescriptor descriptor )
+                                    @Nonnull final ChannelAddress descriptor )
   {
     cloneListeners().forEach( l -> l.onSubscribeCompleted( service, descriptor ) );
   }
 
   @Override
   public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                 @Nonnull final ChannelDescriptor descriptor,
+                                 @Nonnull final ChannelAddress descriptor,
                                  @Nonnull final Throwable throwable )
   {
     cloneListeners().forEach( l -> l.onSubscribeFailed( service, descriptor, throwable ) );
@@ -104,21 +104,21 @@ public final class DataLoaderListenerSupport
 
   @Override
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelDescriptor descriptor )
+                                    @Nonnull final ChannelAddress descriptor )
   {
     cloneListeners().forEach( l -> l.onUnsubscribeStarted( service, descriptor ) );
   }
 
   @Override
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelDescriptor descriptor )
+                                      @Nonnull final ChannelAddress descriptor )
   {
     cloneListeners().forEach( l -> l.onUnsubscribeCompleted( service, descriptor ) );
   }
 
   @Override
   public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final Throwable throwable )
   {
     cloneListeners().forEach( l -> l.onUnsubscribeFailed( service, descriptor, throwable ) );
@@ -126,21 +126,21 @@ public final class DataLoaderListenerSupport
 
   @Override
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
-                                           @Nonnull final ChannelDescriptor descriptor )
+                                           @Nonnull final ChannelAddress descriptor )
   {
     cloneListeners().forEach( l -> l.onSubscriptionUpdateStarted( service, descriptor ) );
   }
 
   @Override
   public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                             @Nonnull final ChannelDescriptor descriptor )
+                                             @Nonnull final ChannelAddress descriptor )
   {
     cloneListeners().forEach( l -> l.onSubscriptionUpdateCompleted( service, descriptor ) );
   }
 
   @Override
   public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                          @Nonnull final ChannelDescriptor descriptor,
+                                          @Nonnull final ChannelAddress descriptor,
                                           @Nonnull final Throwable throwable )
   {
     cloneListeners().forEach( l -> l.onSubscriptionUpdateFailed( service, descriptor, throwable ) );

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.FilterUtil;
 
 /**
@@ -17,7 +17,7 @@ public final class Subscription
 {
   private final AreaOfInterestService _areaOfInterestService;
   @Nonnull
-  private final ChannelDescriptor _descriptor;
+  private final ChannelAddress _descriptor;
   @Nullable
   private Object _filter;
   private final Set<SubscriptionReference> _outwardReferences = new HashSet<>();
@@ -25,7 +25,7 @@ public final class Subscription
   private boolean _active;
 
   public Subscription( @Nonnull final AreaOfInterestService areaOfInterestService,
-                       @Nonnull final ChannelDescriptor descriptor )
+                       @Nonnull final ChannelAddress descriptor )
   {
     _areaOfInterestService = areaOfInterestService;
     _descriptor = descriptor;
@@ -46,7 +46,7 @@ public final class Subscription
   }
 
   @Nonnull
-  public ChannelDescriptor getDescriptor()
+  public ChannelAddress getDescriptor()
   {
     return _descriptor;
   }

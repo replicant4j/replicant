@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 /**
  * The AreaOfInterestService is responsible for managing the expected subscriptions
@@ -43,22 +43,22 @@ public interface AreaOfInterestService
   void destroyScope( @Nonnull Scope scope );
 
   @Nonnull
-  Map<ChannelDescriptor, Subscription> getSubscriptionsMap();
+  Map<ChannelAddress, Subscription> getSubscriptionsMap();
 
   @Nonnull
-  default Collection<ChannelDescriptor> getSubscriptionsChannels()
+  default Collection<ChannelAddress> getSubscriptionsChannels()
   {
     return getSubscriptionsMap().keySet();
   }
 
   @Nullable
-  Subscription findSubscription( @Nonnull ChannelDescriptor channel );
+  Subscription findSubscription( @Nonnull ChannelAddress channel );
 
   @Nonnull
-  SubscriptionReference createSubscriptionReference( @Nonnull Scope scope, @Nonnull ChannelDescriptor channel );
+  SubscriptionReference createSubscriptionReference( @Nonnull Scope scope, @Nonnull ChannelAddress channel );
 
   @Nonnull
-  Subscription createSubscription( @Nonnull ChannelDescriptor descriptor, @Nullable Object filter )
+  Subscription createSubscription( @Nonnull ChannelAddress descriptor, @Nullable Object filter )
     throws SubscriptionExistsException;
 
   void updateSubscription( @Nonnull Subscription subscription, @Nullable Object filter );

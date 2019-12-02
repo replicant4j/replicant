@@ -29,7 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
@@ -245,7 +245,7 @@ public abstract class AbstractSessionRestService
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
                                          @Nullable final String requestID,
                                          @Nullable final String eTag,
-                                         @Nonnull final ChannelDescriptor descriptor,
+                                         @Nonnull final ChannelAddress descriptor,
                                          @Nonnull final String filterContent )
   {
     final Supplier<ReplicantSessionManager.CacheStatus> action = () ->
@@ -308,7 +308,7 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
                                            @Nullable final String requestID,
-                                           @Nonnull final ChannelDescriptor descriptor )
+                                           @Nonnull final ChannelAddress descriptor )
   {
     final Runnable action = () ->
       getSessionManager().unsubscribe( ensureSession( sessionID, requestID ),
@@ -324,7 +324,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doGetChannel( @Nonnull final String sessionID,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionID, null );
@@ -409,13 +409,13 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelDescriptor toChannelDescriptor( final int channelID, @Nonnull final String subChannelText )
+  private ChannelAddress toChannelDescriptor( final int channelID, @Nonnull final String subChannelText )
   {
-    return new ChannelDescriptor( channelID, extractSubChannelId( channelID, subChannelText ) );
+    return new ChannelAddress( channelID, extractSubChannelId( channelID, subChannelText ) );
   }
 
   @Nonnull
-  private ChannelDescriptor toChannelDescriptor( final int channelID )
+  private ChannelAddress toChannelDescriptor( final int channelID )
   {
     if ( getChannelMetaData( channelID ).isInstanceGraph() )
     {
@@ -423,7 +423,7 @@ public abstract class AbstractSessionRestService
         standardResponse( Response.Status.BAD_REQUEST, "Failed to supply subChannelId to instance graph" );
       throw new WebApplicationException( response );
     }
-    return new ChannelDescriptor( channelID );
+    return new ChannelAddress( channelID );
   }
 
   @Nonnull
@@ -466,7 +466,7 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelDescriptor descriptor )
+  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress descriptor )
   {
     return getSessionManager().getSystemMetaData().getChannelMetaData( descriptor );
   }

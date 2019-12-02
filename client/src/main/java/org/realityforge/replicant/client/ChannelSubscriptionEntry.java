@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
  */
 public final class ChannelSubscriptionEntry
 {
-  private final ChannelDescriptor _descriptor;
+  private final ChannelAddress _descriptor;
   @Nullable
   private Object _filter;
   private boolean _explicitSubscription;
@@ -22,7 +22,7 @@ public final class ChannelSubscriptionEntry
   private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _roEntities =
     Collections.unmodifiableMap( _entities );
 
-  public ChannelSubscriptionEntry( @Nonnull final ChannelDescriptor descriptor,
+  public ChannelSubscriptionEntry( @Nonnull final ChannelAddress descriptor,
                                    @Nullable final Object filter,
                                    final boolean explicitSubscription )
   {
@@ -31,7 +31,7 @@ public final class ChannelSubscriptionEntry
     _explicitSubscription = explicitSubscription;
   }
 
-  public ChannelDescriptor getDescriptor()
+  public ChannelAddress getDescriptor()
   {
     return _descriptor;
   }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -117,7 +117,7 @@ public class ScopeTest
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
     final Scope scope = new Scope( areaOfInterestService, ValueUtil.randomString() );
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A, null );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     assertEquals( scope.getSubscriptionReferenceCount(), 0 );
@@ -159,11 +159,11 @@ public class ScopeTest
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
     final Scope scope = new Scope( areaOfInterestService, ValueUtil.randomString() );
 
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, 2 );
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.B, 3 );
-    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraph.B, 4 );
-    final ChannelDescriptor descriptor5 = new ChannelDescriptor( TestGraph.B, 5 );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.A, 2 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.B, 3 );
+    final ChannelAddress descriptor4 = new ChannelAddress( TestGraph.B, 4 );
+    final ChannelAddress descriptor5 = new ChannelAddress( TestGraph.B, 5 );
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor1 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
     final Subscription subscription3 = new Subscription( areaOfInterestService, descriptor3 );
@@ -193,7 +193,7 @@ public class ScopeTest
     final List<Subscription> graphBSubscriptions = scope.getRequiredSubscriptionsByGraph( TestGraph.B );
     assertEquals( graphBSubscriptions.size(), 3 );
 
-    final List<ChannelDescriptor> descriptors =
+    final List<ChannelAddress> descriptors =
       graphBSubscriptions.stream().map( Subscription::getDescriptor ).collect( Collectors.toList() );
 
     assertTrue( descriptors.contains( descriptor3 ) );
@@ -207,7 +207,7 @@ public class ScopeTest
     final AreaOfInterestService areaOfInterestService = mock( AreaOfInterestService.class );
     final Scope scope = new Scope( areaOfInterestService, ValueUtil.randomString() );
 
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A, null );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A, null );
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     assertEquals( scope.getSubscriptionReferenceCount(), 0 );
@@ -284,7 +284,7 @@ public class ScopeTest
 
     final Scope scope = new Scope( areaOfInterestService, name );
     final Subscription subscription =
-      new Subscription( areaOfInterestService, new ChannelDescriptor( TestGraph.A, null ) );
+      new Subscription( areaOfInterestService, new ChannelAddress( TestGraph.A, null ) );
 
     assertEquals( scope.isActive(), true );
     assertEquals( subscription.isActive(), true );

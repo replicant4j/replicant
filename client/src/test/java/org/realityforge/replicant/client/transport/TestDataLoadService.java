@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -202,7 +202,7 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
+  protected void requestSubscribeToGraph( @Nonnull final ChannelAddress descriptor,
                                           @Nullable final Object filterParameter,
                                           @Nullable final String cacheKey,
                                           @Nullable final String eTag,
@@ -213,14 +213,14 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
+  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelAddress descriptor,
                                               @Nonnull final Consumer<Runnable> completionAction,
                                               @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
   @Override
-  protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
+  protected void requestUpdateSubscription( @Nonnull final ChannelAddress descriptor,
                                             @Nonnull final Object filterParameter,
                                             @Nonnull final Consumer<Runnable> completionAction,
                                             @Nonnull final Consumer<Runnable> failAction )
@@ -228,7 +228,7 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelDescriptor> descriptor,
+  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelAddress> descriptor,
                                               @Nullable final Object filterParameter,
                                               @Nonnull final Consumer<Runnable> completionAction,
                                               @Nonnull final Consumer<Runnable> failAction )
@@ -236,14 +236,14 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelDescriptor> descriptors,
+  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelAddress> descriptors,
                                                   @Nonnull final Consumer<Runnable> completionAction,
                                                   @Nonnull final Consumer<Runnable> failAction )
   {
   }
 
   @Override
-  protected void requestBulkUpdateSubscription( @Nonnull final List<ChannelDescriptor> descriptors,
+  protected void requestBulkUpdateSubscription( @Nonnull final List<ChannelAddress> descriptors,
                                                 @Nonnull final Object filterParameter,
                                                 @Nonnull final Consumer<Runnable> completionAction,
                                                 @Nonnull final Consumer<Runnable> failAction )
@@ -251,7 +251,7 @@ public final class TestDataLoadService
   }
 
   @Override
-  protected boolean doesEntityMatchFilter( @Nonnull final ChannelDescriptor descriptor,
+  protected boolean doesEntityMatchFilter( @Nonnull final ChannelAddress descriptor,
                                            @Nullable final Object filter,
                                            @Nonnull final Class<?> entityType,
                                            @Nonnull final Object entityID )

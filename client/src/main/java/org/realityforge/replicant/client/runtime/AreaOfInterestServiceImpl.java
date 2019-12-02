@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 public class AreaOfInterestServiceImpl
   implements AreaOfInterestService
 {
   private final HashMap<String, Scope> _scopes = new HashMap<>();
-  private final HashMap<ChannelDescriptor, Subscription> _subscriptions = new HashMap<>();
+  private final HashMap<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
   private final AreaOfInterestListenerSupport _listeners = new AreaOfInterestListenerSupport();
 
   @Override
@@ -60,14 +60,14 @@ public class AreaOfInterestServiceImpl
 
   @Nonnull
   @Override
-  public Map<ChannelDescriptor, Subscription> getSubscriptionsMap()
+  public Map<ChannelAddress, Subscription> getSubscriptionsMap()
   {
     return Collections.unmodifiableMap( _subscriptions );
   }
 
   @Nullable
   @Override
-  public Subscription findSubscription( @Nonnull final ChannelDescriptor channel )
+  public Subscription findSubscription( @Nonnull final ChannelAddress channel )
   {
     return _subscriptions.get( channel );
   }
@@ -75,7 +75,7 @@ public class AreaOfInterestServiceImpl
   @Nonnull
   @Override
   public SubscriptionReference createSubscriptionReference( @Nonnull final Scope scope,
-                                                            @Nonnull final ChannelDescriptor channel )
+                                                            @Nonnull final ChannelAddress channel )
   {
     assert scope.isActive();
     return scope.requireSubscription( findOrCreateSubscription( channel ) );
@@ -121,7 +121,7 @@ public class AreaOfInterestServiceImpl
 
   @Nonnull
   @Override
-  public Subscription createSubscription( @Nonnull final ChannelDescriptor descriptor,
+  public Subscription createSubscription( @Nonnull final ChannelAddress descriptor,
                                           @Nullable final Object filter )
   {
     if ( _subscriptions.containsKey( descriptor ) )
@@ -139,7 +139,7 @@ public class AreaOfInterestServiceImpl
   }
 
   @Nonnull
-  protected Subscription findOrCreateSubscription( @Nonnull final ChannelDescriptor descriptor )
+  protected Subscription findOrCreateSubscription( @Nonnull final ChannelAddress descriptor )
   {
     final Subscription subscription = findSubscription( descriptor );
     return null != subscription ? subscription : createSubscription( descriptor, null );

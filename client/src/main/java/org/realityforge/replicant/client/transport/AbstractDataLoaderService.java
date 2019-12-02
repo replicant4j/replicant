@@ -22,7 +22,7 @@ import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChangeSet;
 import org.realityforge.replicant.client.ChannelAction;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -328,7 +328,7 @@ public abstract class AbstractDataLoaderService
     {
       if ( graph.getClass().equals( graphClass ) )
       {
-        final ChannelSubscriptionEntry entry = subscriptionManager.removeSubscription( new ChannelDescriptor( graph ) );
+        final ChannelSubscriptionEntry entry = subscriptionManager.removeSubscription( new ChannelAddress( graph ) );
         deregisterUnOwnedEntities( entry );
       }
     }
@@ -341,7 +341,7 @@ public abstract class AbstractDataLoaderService
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
     for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
-      deregisterUnOwnedEntities( subscriptionManager.removeSubscription( new ChannelDescriptor( graph, id ) ) );
+      deregisterUnOwnedEntities( subscriptionManager.removeSubscription( new ChannelAddress( graph, id ) ) );
     }
   }
 
@@ -456,7 +456,7 @@ public abstract class AbstractDataLoaderService
 
   private String label( AreaOfInterestEntry entry )
   {
-    final ChannelDescriptor descriptor = entry.getDescriptor();
+    final ChannelAddress descriptor = entry.getDescriptor();
     final Object filterParameter = entry.getFilterParameter();
     return getKey() + ":" + descriptor +
            ( null == filterParameter ? "" : "[" + filterToString( filterParameter ) + "]" );
@@ -512,13 +512,13 @@ public abstract class AbstractDataLoaderService
     assert null != aoiEntry.getFilterParameter();
     if ( _currentAoiActions.size() > 1 )
     {
-      final List<ChannelDescriptor> ids =
+      final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
       requestBulkUpdateSubscription( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
     else
     {
-      final ChannelDescriptor descriptor = aoiEntry.getDescriptor();
+      final ChannelAddress descriptor = aoiEntry.getDescriptor();
       requestUpdateSubscription( descriptor, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
     return true;
@@ -581,13 +581,13 @@ public abstract class AbstractDataLoaderService
     final AreaOfInterestEntry aoiEntry = _currentAoiActions.get( 0 );
     if ( _currentAoiActions.size() > 1 )
     {
-      final List<ChannelDescriptor> ids =
+      final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
       requestBulkUnsubscribeFromGraph( ids, completionAction, failAction );
     }
     else
     {
-      final ChannelDescriptor descriptor = aoiEntry.getDescriptor();
+      final ChannelAddress descriptor = aoiEntry.getDescriptor();
       requestUnsubscribeFromGraph( descriptor, completionAction, failAction );
     }
     return true;
@@ -677,7 +677,7 @@ public abstract class AbstractDataLoaderService
     else
     {
       // don't support bulk loading of anything that is already cached
-      final List<ChannelDescriptor> ids =
+      final List<ChannelAddress> ids =
         _currentAoiActions.stream().map( AreaOfInterestEntry::getDescriptor ).collect( Collectors.toList() );
       requestBulkSubscribeToGraph( ids, aoiEntry.getFilterParameter(), completionAction, failAction );
     }
@@ -703,7 +703,7 @@ public abstract class AbstractDataLoaderService
     _currentAoiActions.clear();
   }
 
-  protected abstract void requestSubscribeToGraph( @Nonnull ChannelDescriptor descriptor,
+  protected abstract void requestSubscribeToGraph( @Nonnull ChannelAddress descriptor,
                                                    @Nullable Object filterParameter,
                                                    @Nullable String cacheKey,
                                                    @Nullable String eTag,
@@ -711,25 +711,25 @@ public abstract class AbstractDataLoaderService
                                                    @Nonnull Consumer<Runnable> completionAction,
                                                    @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestUnsubscribeFromGraph( @Nonnull ChannelDescriptor descriptor,
+  protected abstract void requestUnsubscribeFromGraph( @Nonnull ChannelAddress descriptor,
                                                        @Nonnull Consumer<Runnable> completionAction,
                                                        @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestUpdateSubscription( @Nonnull ChannelDescriptor descriptor,
+  protected abstract void requestUpdateSubscription( @Nonnull ChannelAddress descriptor,
                                                      @Nonnull Object filterParameter,
                                                      @Nonnull Consumer<Runnable> completionAction,
                                                      @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestBulkSubscribeToGraph( @Nonnull List<ChannelDescriptor> descriptor,
+  protected abstract void requestBulkSubscribeToGraph( @Nonnull List<ChannelAddress> descriptor,
                                                        @Nullable Object filterParameter,
                                                        @Nonnull Consumer<Runnable> completionAction,
                                                        @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestBulkUnsubscribeFromGraph( @Nonnull List<ChannelDescriptor> descriptors,
+  protected abstract void requestBulkUnsubscribeFromGraph( @Nonnull List<ChannelAddress> descriptors,
                                                            @Nonnull Consumer<Runnable> completionAction,
                                                            @Nonnull Consumer<Runnable> failAction );
 
-  protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelDescriptor> descriptors,
+  protected abstract void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
                                                          @Nonnull Object filterParameter,
                                                          @Nonnull Consumer<Runnable> completionAction,
                                                          @Nonnull Consumer<Runnable> failAction );
@@ -742,14 +742,14 @@ public abstract class AbstractDataLoaderService
   }
 
   @Override
-  public boolean isSubscribed( @Nonnull final ChannelDescriptor descriptor )
+  public boolean isSubscribed( @Nonnull final ChannelAddress descriptor )
   {
     return null != getSubscriptionManager().findSubscription( descriptor );
   }
 
   @Override
   public boolean isAreaOfInterestActionPending( @Nonnull final AreaOfInterestAction action,
-                                                @Nonnull final ChannelDescriptor descriptor,
+                                                @Nonnull final ChannelAddress descriptor,
                                                 @Nullable final Object filter )
   {
     final ClientSession session = getSession();
@@ -765,7 +765,7 @@ public abstract class AbstractDataLoaderService
 
   @Override
   public int indexOfPendingAreaOfInterestAction( @Nonnull final AreaOfInterestAction action,
-                                                 @Nonnull final ChannelDescriptor descriptor,
+                                                 @Nonnull final ChannelAddress descriptor,
                                                  @Nullable final Object filter )
   {
     final ClientSession session = getSession();
@@ -953,7 +953,7 @@ public abstract class AbstractDataLoaderService
       for ( int i = 0; i < channelActionCount; i++ )
       {
         final ChannelAction action = changeSet.getChannelAction( i );
-        final ChannelDescriptor descriptor = toChannelDescriptor( action );
+        final ChannelAddress descriptor = toChannelDescriptor( action );
         final Object filter = action.getChannelFilter();
         final ChannelAction.Action actionType = action.getAction();
         if ( LOG.isLoggable( getLogLevel() ) )
@@ -1167,12 +1167,12 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  private ChannelDescriptor toChannelDescriptor( final ChannelAction action )
+  private ChannelAddress toChannelDescriptor( final ChannelAction action )
   {
     final int channel = action.getChannelId();
     final Object subChannelId = action.getSubChannelId();
     final Enum graph = channelToGraph( channel );
-    return new ChannelDescriptor( graph, subChannelId );
+    return new ChannelAddress( graph, subChannelId );
   }
 
   private int deregisterUnOwnedEntities( @Nonnull final ChannelSubscriptionEntry entry )
@@ -1213,7 +1213,7 @@ public abstract class AbstractDataLoaderService
                                                        @Nonnull final Collection<EntitySubscriptionEntry> entities )
   {
     int removedEntities = 0;
-    final ChannelDescriptor descriptor = graphEntry.getDescriptor();
+    final ChannelAddress descriptor = graphEntry.getDescriptor();
 
     final EntitySubscriptionEntry[] subscriptionEntries =
       entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );
@@ -1247,7 +1247,7 @@ public abstract class AbstractDataLoaderService
     return removedEntities;
   }
 
-  protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelDescriptor descriptor,
+  protected abstract boolean doesEntityMatchFilter( @Nonnull ChannelAddress descriptor,
                                                     @Nullable Object filter,
                                                     @Nonnull Class<?> entityType,
                                                     @Nonnull Object entityID );

@@ -1,6 +1,6 @@
 package org.realityforge.replicant.client.transport;
 
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -22,7 +22,7 @@ public class DataLoaderListenerSupportTest
 
     final DataLoaderListener listener = mock( DataLoaderListener.class );
     final Throwable throwable = new Throwable();
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
 
     assertEquals( support.getListeners().size(), 0 );
 

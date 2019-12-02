@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
@@ -34,7 +34,7 @@ public interface BaseRuntimeExtension
    */
   @Nonnull
   default SubscriptionReference subscribe( @Nonnull final Scope scope,
-                                           @Nonnull final ChannelDescriptor channel,
+                                           @Nonnull final ChannelAddress channel,
                                            @Nullable final Object filter )
   {
     Subscription subscription = getAreaOfInterestService().findSubscription( channel );
@@ -114,13 +114,13 @@ public interface BaseRuntimeExtension
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> subscribe( scope, new ChannelDescriptor( targetGraph, id ), filter ) );
+      forEach( id -> subscribe( scope, new ChannelAddress( targetGraph, id ), filter ) );
 
     getSubscriptionManager().getInstanceSubscriptions( sourceGraph ).stream().
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
-      forEach( id -> subscribe( scope, new ChannelDescriptor( targetGraph, id ), filter ) );
+      forEach( id -> subscribe( scope, new ChannelAddress( targetGraph, id ), filter ) );
 
     existing.values().forEach( Subscription::release );
   }

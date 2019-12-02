@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.EntityRepository;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.testng.annotations.Test;
@@ -67,7 +67,7 @@ public class BaseRuntimeExtensionTest
     final TestRuntime r = new TestRuntime();
     final AreaOfInterestService aoiService = r.getAreaOfInterestService();
     final Scope scope = new Scope( aoiService, ValueUtil.randomString() );
-    final ChannelDescriptor descriptor = new ChannelDescriptor( TestGraph.A );
+    final ChannelAddress descriptor = new ChannelAddress( TestGraph.A );
     final Subscription subscription = new Subscription( aoiService, descriptor );
     final SubscriptionReference reference = subscription.createReference();
     final String filter = ValueUtil.randomString();
@@ -174,16 +174,16 @@ public class BaseRuntimeExtensionTest
     final TestRuntime r = new TestRuntime();
     final AreaOfInterestService aoiService = r.getAreaOfInterestService();
     final Scope scope = new Scope( aoiService, ValueUtil.randomString() );
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptor4 = new ChannelDescriptor( TestGraph2.B, descriptor1.getID() );
-    final ChannelDescriptor descriptor5 = new ChannelDescriptor( TestGraph2.B, descriptor2.getID() );
-    final ChannelDescriptor descriptor6 = new ChannelDescriptor( TestGraph2.B, descriptor3.getID() );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptor4 = new ChannelAddress( TestGraph2.B, descriptor1.getID() );
+    final ChannelAddress descriptor5 = new ChannelAddress( TestGraph2.B, descriptor2.getID() );
+    final ChannelAddress descriptor6 = new ChannelAddress( TestGraph2.B, descriptor3.getID() );
 
     // These descriptors have differing filters so Q should be updated
-    final ChannelDescriptor descriptorP = new ChannelDescriptor( TestGraph.A, ValueUtil.nextID() );
-    final ChannelDescriptor descriptorQ = new ChannelDescriptor( TestGraph2.B, descriptorP.getID() );
+    final ChannelAddress descriptorP = new ChannelAddress( TestGraph.A, ValueUtil.nextID() );
+    final ChannelAddress descriptorQ = new ChannelAddress( TestGraph2.B, descriptorP.getID() );
 
     final Subscription subscription1 = new Subscription( aoiService, descriptor1 );
     final Subscription subscription2 = new Subscription( aoiService, descriptor2 );

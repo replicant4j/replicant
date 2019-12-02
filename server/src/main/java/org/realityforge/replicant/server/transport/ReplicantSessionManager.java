@@ -6,7 +6,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.server.ChangeSet;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 
 public interface ReplicantSessionManager
 {
@@ -88,7 +88,7 @@ public interface ReplicantSessionManager
 
   @Nonnull
   CacheStatus subscribe( @Nonnull ReplicantSession session,
-                         @Nonnull ChannelDescriptor descriptor,
+                         @Nonnull ChannelAddress descriptor,
                          boolean explicitlySubscribe,
                          @Nullable Object filter,
                          @Nonnull ChangeSet changeSet );
@@ -101,18 +101,18 @@ public interface ReplicantSessionManager
                       @Nonnull ChangeSet changeSet );
 
   void delinkSubscription( @Nonnull ReplicantSession session,
-                           @Nonnull ChannelDescriptor sourceGraph,
-                           @Nonnull ChannelDescriptor targetGraph,
+                           @Nonnull ChannelAddress sourceGraph,
+                           @Nonnull ChannelAddress targetGraph,
                            @Nonnull ChangeSet changeSet );
 
   void bulkDelinkSubscription( @Nonnull ReplicantSession session,
-                               @Nonnull ChannelDescriptor sourceGraph,
+                               @Nonnull ChannelAddress sourceGraph,
                                int channelID,
                                @Nonnull Collection<Serializable> subChannelIds,
                                @Nonnull ChangeSet changeSet );
 
   void updateSubscription( @Nonnull ReplicantSession session,
-                           @Nonnull ChannelDescriptor descriptor,
+                           @Nonnull ChannelAddress descriptor,
                            @Nullable Object filter,
                            @Nonnull ChangeSet changeSet );
 
@@ -123,7 +123,7 @@ public interface ReplicantSessionManager
                                @Nonnull ChangeSet changeSet );
 
   void unsubscribe( @Nonnull ReplicantSession session,
-                    @Nonnull ChannelDescriptor descriptor,
+                    @Nonnull ChannelAddress descriptor,
                     boolean explicitUnsubscribe,
                     @Nonnull ChangeSet changeSet );
 

@@ -13,7 +13,7 @@ import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.Packet;
 import org.realityforge.replicant.server.transport.PacketQueue;
@@ -155,7 +155,7 @@ final class Encoder
 
   @Nonnull
   private static String getChannelURL( @Nonnull final ReplicantSession session,
-                                       @Nonnull final ChannelDescriptor descriptor,
+                                       @Nonnull final ChannelAddress descriptor,
                                        @Nonnull final UriInfo uri )
   {
     final String baseURL = getSubscriptionsURL( session, uri ) + '/' + descriptor.getChannelId();
@@ -217,9 +217,9 @@ final class Encoder
   }
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
-                                              @Nonnull final Set<ChannelDescriptor> descriptors )
+                                              @Nonnull final Set<ChannelAddress> descriptors )
   {
-    for ( final ChannelDescriptor descriptor : descriptors )
+    for ( final ChannelAddress descriptor : descriptors )
     {
       g.writeStartObject();
       emitChannelDescriptor( g, descriptor );
@@ -258,7 +258,7 @@ final class Encoder
   }
 
   private static void emitChannelDescriptor( @Nonnull final JsonGenerator g,
-                                             @Nonnull final ChannelDescriptor descriptor )
+                                             @Nonnull final ChannelAddress descriptor )
   {
     emitChannelId( g, descriptor.getChannelId() );
     emitSubChannelId( g, descriptor.getSubChannelId() );
@@ -266,7 +266,7 @@ final class Encoder
 
   private static void emitChannelDescriptors( @Nonnull final JsonGenerator g,
                                               @Nonnull final String key,
-                                              @Nonnull final Set<ChannelDescriptor> descriptors )
+                                              @Nonnull final Set<ChannelAddress> descriptors )
   {
     if ( !descriptors.isEmpty() )
     {

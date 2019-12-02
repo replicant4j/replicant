@@ -13,7 +13,7 @@ import org.realityforge.gwt.webpoller.client.RequestFactory;
 import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.shared.transport.ReplicantContext;
 
 public abstract class WebPollerDataLoaderService
@@ -268,7 +268,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestSubscribeToGraph( @Nonnull final ChannelDescriptor descriptor,
+  protected void requestSubscribeToGraph( @Nonnull final ChannelAddress descriptor,
                                           @Nullable final Object filterParameter,
                                           @Nullable final String cacheKey,
                                           @Nullable final String eTag,
@@ -304,7 +304,7 @@ public abstract class WebPollerDataLoaderService
     }
   }
 
-  private boolean isGraphValid( @Nonnull final ChannelDescriptor descriptor )
+  private boolean isGraphValid( @Nonnull final ChannelAddress descriptor )
   {
     return getGraphType() == descriptor.getGraph().getClass();
   }
@@ -330,12 +330,12 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelDescriptor> descriptors,
+  protected void requestBulkSubscribeToGraph( @Nonnull final List<ChannelAddress> descriptors,
                                               @Nullable final Object filterParameter,
                                               @Nonnull final Consumer<Runnable> completionAction,
                                               @Nonnull final Consumer<Runnable> failAction )
   {
-    final ChannelDescriptor descriptor = descriptors.get( 0 );
+    final ChannelAddress descriptor = descriptors.get( 0 );
     if ( isGraphValid( descriptor ) )
     {
       descriptors.forEach( x -> getListener().onSubscribeStarted( this, x ) );
@@ -376,7 +376,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestUpdateSubscription( @Nonnull final ChannelDescriptor descriptor,
+  protected void requestUpdateSubscription( @Nonnull final ChannelAddress descriptor,
                                             @Nonnull final Object filterParameter,
                                             @Nonnull final Consumer<Runnable> completionAction,
                                             @Nonnull final Consumer<Runnable> failAction )
@@ -417,12 +417,12 @@ public abstract class WebPollerDataLoaderService
                    onError ) );
   }
 
-  protected void requestBulkUpdateSubscription( @Nonnull List<ChannelDescriptor> descriptors,
+  protected void requestBulkUpdateSubscription( @Nonnull List<ChannelAddress> descriptors,
                                                 @Nonnull Object filterParameter,
                                                 @Nonnull Consumer<Runnable> completionAction,
                                                 @Nonnull Consumer<Runnable> failAction )
   {
-    final ChannelDescriptor descriptor = descriptors.get( 0 );
+    final ChannelAddress descriptor = descriptors.get( 0 );
     if ( isGraphValid( descriptor ) )
     {
       descriptors.forEach( x -> getListener().onSubscriptionUpdateStarted( this, x ) );
@@ -461,7 +461,7 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelDescriptor descriptor,
+  protected void requestUnsubscribeFromGraph( @Nonnull final ChannelAddress descriptor,
                                               @Nonnull final Consumer<Runnable> completionAction,
                                               @Nonnull final Consumer<Runnable> failAction )
   {
@@ -490,11 +490,11 @@ public abstract class WebPollerDataLoaderService
   }
 
   @Override
-  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelDescriptor> descriptors,
+  protected void requestBulkUnsubscribeFromGraph( @Nonnull final List<ChannelAddress> descriptors,
                                                   @Nonnull final Consumer<Runnable> completionAction,
                                                   @Nonnull final Consumer<Runnable> failAction )
   {
-    final ChannelDescriptor descriptor = descriptors.get( 0 );
+    final ChannelAddress descriptor = descriptors.get( 0 );
     if ( isGraphValid( descriptor ) )
     {
       descriptors.forEach( x -> getListener().onUnsubscribeStarted( this, x ) );

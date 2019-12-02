@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.keycloak.adapters.OidcKeycloakAccount;
 import org.realityforge.keycloak.sks.SimpleAuthService;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 
 public abstract class AbstractSecuredSessionRestService
@@ -76,7 +76,7 @@ public abstract class AbstractSecuredSessionRestService
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
                                          @Nullable final String requestID,
                                          @Nullable final String eTag,
-                                         @Nonnull final ChannelDescriptor descriptor,
+                                         @Nonnull final ChannelAddress descriptor,
                                          @Nonnull final String filterContent )
   {
     return guard( sessionID, () -> super.doSubscribeChannel( sessionID, requestID, eTag, descriptor, filterContent ) );
@@ -86,7 +86,7 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
                                            @Nullable final String requestID,
-                                           @Nonnull final ChannelDescriptor descriptor )
+                                           @Nonnull final ChannelAddress descriptor )
   {
     return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, requestID, descriptor ) );
   }
@@ -94,7 +94,7 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doGetChannel( @Nonnull final String sessionID,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final UriInfo uri )
   {
     return guard( sessionID, () -> super.doGetChannel( sessionID, descriptor, uri ) );

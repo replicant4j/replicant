@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 /**
  * Basic interface for interacting with data loader services.
@@ -85,7 +85,7 @@ public interface DataLoaderService
   @Nonnull
   Class<? extends Enum> getGraphType();
 
-  boolean isSubscribed( @Nonnull ChannelDescriptor descriptor );
+  boolean isSubscribed( @Nonnull ChannelAddress descriptor );
 
   /**
    * Return true if the DataLoader has nothing outstanding to complete
@@ -135,28 +135,28 @@ public interface DataLoaderService
    * When the action parameter is DELETE the filter parameter is ignored.
    */
   boolean isAreaOfInterestActionPending( @Nonnull AreaOfInterestAction action,
-                                         @Nonnull ChannelDescriptor descriptor,
+                                         @Nonnull ChannelAddress descriptor,
                                          @Nullable Object filter );
 
   /**
    * Return the index of last matching AreaOfInterestAction in pending aoi actions list.
    */
   int indexOfPendingAreaOfInterestAction( @Nonnull AreaOfInterestAction action,
-                                          @Nonnull ChannelDescriptor descriptor,
+                                          @Nonnull ChannelAddress descriptor,
                                           @Nullable Object filter );
 
-  default void requestSubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Object filterParameter )
+  default void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
   {
     ensureSession().requestSubscribe( descriptor, filterParameter );
   }
 
-  default void requestSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor,
+  default void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
                                           @Nullable final Object filterParameter )
   {
     ensureSession().requestSubscriptionUpdate( descriptor, filterParameter );
   }
 
-  default void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor )
+  default void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
   {
     ensureSession().requestUnsubscribe( descriptor );
   }

@@ -83,7 +83,7 @@ public class ChangeAccumulatorTest
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
     accumulator.addActions( c,
-                            Arrays.asList( new ChannelAction( new ChannelDescriptor( 1, 2 ), Action.ADD, filter ) ) );
+                            Arrays.asList( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) ) );
 
     assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
 
@@ -95,7 +95,7 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
-    assertEquals( action.getChannelDescriptor().getChannelId(), 1 );
+    assertEquals( action.getChannelAddress().getChannelId(), 1 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
     assertEquals( packet.getRequestID(), "j1" );

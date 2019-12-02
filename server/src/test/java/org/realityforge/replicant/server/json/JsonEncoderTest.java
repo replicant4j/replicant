@@ -13,7 +13,7 @@ import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAction.Action;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.shared.json.TransportConstants;
@@ -59,7 +59,7 @@ public final class JsonEncoderTest
     change.getChannels().put( 3, "Blah" );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
-    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, "X" ), Action.UPDATE, filter ) );
+    cs.addAction( new ChannelAction( new ChannelAddress( 45, "X" ), Action.UPDATE, filter ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
     final JsonObject changeSet = toJsonObject( encoded );
 
@@ -142,7 +142,7 @@ public final class JsonEncoderTest
     throws Exception
   {
     final ChangeSet cs = new ChangeSet();
-    cs.addAction( new ChannelAction( new ChannelDescriptor( 45, null ), Action.ADD, null ) );
+    cs.addAction( new ChannelAction( new ChannelAddress( 45, null ), Action.ADD, null ) );
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( 1, null, null, cs ) );
     assertNotNull( changeSet );
 

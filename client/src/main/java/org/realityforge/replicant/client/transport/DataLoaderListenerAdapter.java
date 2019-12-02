@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 public abstract class DataLoaderListenerAdapter
   implements DataLoaderListener
@@ -67,7 +67,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeStarted( @Nonnull final DataLoaderService service,
-                                  @Nonnull final ChannelDescriptor descriptor )
+                                  @Nonnull final ChannelAddress descriptor )
   {
   }
 
@@ -76,7 +76,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelDescriptor descriptor )
+                                    @Nonnull final ChannelAddress descriptor )
   {
   }
 
@@ -85,7 +85,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                 @Nonnull final ChannelDescriptor descriptor,
+                                 @Nonnull final ChannelAddress descriptor,
                                  @Nonnull final Throwable throwable )
   {
   }
@@ -95,7 +95,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeStarted( @Nonnull final DataLoaderService service,
-                                    @Nonnull final ChannelDescriptor descriptor )
+                                    @Nonnull final ChannelAddress descriptor )
   {
   }
 
@@ -104,7 +104,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelDescriptor descriptor )
+                                      @Nonnull final ChannelAddress descriptor )
   {
   }
 
@@ -113,7 +113,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final Throwable throwable )
   {
   }
@@ -123,7 +123,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateStarted( @Nonnull final DataLoaderService service,
-                                           @Nonnull final ChannelDescriptor descriptor )
+                                           @Nonnull final ChannelAddress descriptor )
   {
   }
 
@@ -132,7 +132,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                             @Nonnull final ChannelDescriptor descriptor )
+                                             @Nonnull final ChannelAddress descriptor )
   {
   }
 
@@ -141,7 +141,7 @@ public abstract class DataLoaderListenerAdapter
    */
   @Override
   public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                          @Nonnull final ChannelDescriptor descriptor,
+                                          @Nonnull final ChannelAddress descriptor,
                                           @Nonnull final Throwable throwable )
   {
   }

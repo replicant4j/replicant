@@ -38,7 +38,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry recordSubscription( @Nonnull ChannelDescriptor graph,
+  ChannelSubscriptionEntry recordSubscription( @Nonnull ChannelAddress graph,
                                                @Nullable Object filter,
                                                boolean explicitSubscription )
     throws IllegalStateException;
@@ -52,7 +52,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph already subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry updateSubscription( @Nonnull ChannelDescriptor graph, @Nullable Object filter )
+  ChannelSubscriptionEntry updateSubscription( @Nonnull ChannelAddress graph, @Nullable Object filter )
     throws IllegalStateException;
 
   /**
@@ -63,7 +63,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalArgumentException if no such subscription
    */
   @Nonnull
-  ChannelSubscriptionEntry getSubscription( @Nonnull ChannelDescriptor graph )
+  ChannelSubscriptionEntry getSubscription( @Nonnull ChannelAddress graph )
     throws IllegalArgumentException;
 
   /**
@@ -73,7 +73,7 @@ public interface EntitySubscriptionManager
    * @return the subscription entry if it exists, null otherwise.
    */
   @Nullable
-  ChannelSubscriptionEntry findSubscription( @Nonnull ChannelDescriptor graph );
+  ChannelSubscriptionEntry findSubscription( @Nonnull ChannelAddress graph );
 
   /**
    * Remove subscription details for specified graph.
@@ -83,7 +83,7 @@ public interface EntitySubscriptionManager
    * @throws IllegalStateException if graph not subscribed to.
    */
   @Nonnull
-  ChannelSubscriptionEntry removeSubscription( @Nonnull ChannelDescriptor graph )
+  ChannelSubscriptionEntry removeSubscription( @Nonnull ChannelAddress graph )
     throws IllegalStateException;
 
   /**
@@ -117,7 +117,7 @@ public interface EntitySubscriptionManager
    * @param id     the id of the entity.
    * @param graphs the graphs that the entity is part of.
    */
-  void updateEntity( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull ChannelDescriptor[] graphs );
+  void updateEntity( @Nonnull Class<?> type, @Nonnull Object id, @Nonnull ChannelAddress[] graphs );
 
   /**
    * Disassociate entity from specified graph.
@@ -134,7 +134,7 @@ public interface EntitySubscriptionManager
   @Nonnull
   EntitySubscriptionEntry removeEntityFromGraph( @Nonnull Class<?> type,
                                                  @Nonnull Object id,
-                                                 @Nonnull ChannelDescriptor graph )
+                                                 @Nonnull ChannelAddress graph )
     throws IllegalStateException;
 
   /**

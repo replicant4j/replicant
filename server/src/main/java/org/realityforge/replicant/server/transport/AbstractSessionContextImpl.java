@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 
 /**
  * Base class for session context implementations.
@@ -15,8 +15,8 @@ public abstract class AbstractSessionContextImpl
                                   @Nonnull final ChangeSet changeSet,
                                   @Nonnull final Object filter,
                                   final boolean explicitSubscribe,
-                                  @Nonnull final ChannelDescriptor descriptor,
-                                  @Nullable final ChannelDescriptor sourceDescriptor )
+                                  @Nonnull final ChannelAddress descriptor,
+                                  @Nullable final ChannelAddress sourceDescriptor )
   {
     SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
     if ( null == entry )

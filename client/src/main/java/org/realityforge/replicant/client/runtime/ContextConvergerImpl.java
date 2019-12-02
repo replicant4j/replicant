@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.EntitySubscriptionManager;
 import org.realityforge.replicant.client.FilterUtil;
 import org.realityforge.replicant.client.transport.AreaOfInterestAction;
@@ -115,7 +115,7 @@ public abstract class ContextConvergerImpl
          !isPaused() &&
          getReplicantClientSystem().getState() == ReplicantClientSystem.State.CONNECTED )
     {
-      final HashSet<ChannelDescriptor> expectedChannels = new HashSet<>();
+      final HashSet<ChannelAddress> expectedChannels = new HashSet<>();
       // Need to duplicate the list of subscriptions. If an error occurs while processing subscription
       // and the subscription is removed, it will result in concurrent exception
       final List<Subscription> subscriptions = new ArrayList<>( getSubscriptions() );
@@ -157,7 +157,7 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelDescriptor> expectedChannels,
+  ConvergeAction convergeSubscription( @Nonnull final Set<ChannelAddress> expectedChannels,
                                        @Nonnull final Subscription subscription,
                                        final Subscription templateForGrouping,
                                        final AreaOfInterestAction aoiGroupAction,
@@ -176,7 +176,7 @@ public abstract class ContextConvergerImpl
             return ConvergeAction.TERMINATE;
         }
       }
-      final ChannelDescriptor descriptor = subscription.getDescriptor();
+      final ChannelAddress descriptor = subscription.getDescriptor();
       final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
       // service can be disconnected if it is not a required service and will converge later when it connects
       if ( DataLoaderService.State.CONNECTED == service.getState() )
@@ -328,23 +328,23 @@ public abstract class ContextConvergerImpl
   @Nullable
   protected abstract String filterToString( @Nullable final Object filter );
 
-  void removeOrphanSubscriptions( @Nonnull final Set<ChannelDescriptor> expectedChannels )
+  void removeOrphanSubscriptions( @Nonnull final Set<ChannelAddress> expectedChannels )
   {
     for ( final Enum graph : getSubscriptionManager().getTypeSubscriptions() )
     {
-      removeSubscriptionIfOrphan( expectedChannels, new ChannelDescriptor( graph ) );
+      removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph ) );
     }
     for ( final Enum graph : getSubscriptionManager().getInstanceSubscriptionKeys() )
     {
       for ( final Object id : getSubscriptionManager().getInstanceSubscriptions( graph ) )
       {
-        removeSubscriptionIfOrphan( expectedChannels, new ChannelDescriptor( graph, id ) );
+        removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph, id ) );
       }
     }
   }
 
-  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelDescriptor> expected,
-                                   @Nonnull final ChannelDescriptor descriptor )
+  void removeSubscriptionIfOrphan( @Nonnull final Set<ChannelAddress> expected,
+                                   @Nonnull final ChannelAddress descriptor )
   {
     if ( !expected.contains( descriptor ) &&
          getSubscriptionManager().getSubscription( descriptor ).isExplicitSubscription() )
@@ -353,7 +353,7 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  void removeOrphanSubscription( @Nonnull final ChannelDescriptor descriptor )
+  void removeOrphanSubscription( @Nonnull final ChannelAddress descriptor )
   {
     final DataLoaderService service = getReplicantClientSystem().getDataLoaderService( descriptor.getGraph() );
     if ( DataLoaderService.State.CONNECTED == service.getState() &&
@@ -370,7 +370,7 @@ public abstract class ContextConvergerImpl
     if ( !_subscriptionsUpToDate )
     {
       _subscriptions.clear();
-      final HashSet<ChannelDescriptor> processed = new HashSet<>();
+      final HashSet<ChannelAddress> processed = new HashSet<>();
       for ( final Subscription subscription : getAreaOfInterestService().getSubscriptionsMap().values() )
       {
         collectSubscription( subscription, processed );
@@ -381,7 +381,7 @@ public abstract class ContextConvergerImpl
   }
 
   private void collectSubscription( @Nonnull final Subscription subscription,
-                                    @Nonnull final HashSet<ChannelDescriptor> processed )
+                                    @Nonnull final HashSet<ChannelAddress> processed )
   {
     if ( !processed.contains( subscription.getDescriptor() ) )
     {
@@ -394,7 +394,7 @@ public abstract class ContextConvergerImpl
     }
   }
 
-  private void removeFailedSubscription( @Nonnull final ChannelDescriptor descriptor )
+  private void removeFailedSubscription( @Nonnull final ChannelAddress descriptor )
   {
     LOG.info( "Removing failed subscription " + descriptor );
     final Subscription subscription = getAreaOfInterestService().findSubscription( descriptor );
@@ -465,14 +465,14 @@ public abstract class ContextConvergerImpl
   {
     @Override
     public void onSubscribeCompleted( @Nonnull final DataLoaderService service,
-                                      @Nonnull final ChannelDescriptor descriptor )
+                                      @Nonnull final ChannelAddress descriptor )
     {
       convergeStep();
     }
 
     @Override
     public void onSubscribeFailed( @Nonnull final DataLoaderService service,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nonnull final Throwable throwable )
     {
       removeFailedSubscription( descriptor );
@@ -480,14 +480,14 @@ public abstract class ContextConvergerImpl
 
     @Override
     public void onUnsubscribeCompleted( @Nonnull final DataLoaderService service,
-                                        @Nonnull final ChannelDescriptor descriptor )
+                                        @Nonnull final ChannelAddress descriptor )
     {
       convergeStep();
     }
 
     @Override
     public void onUnsubscribeFailed( @Nonnull final DataLoaderService service,
-                                     @Nonnull final ChannelDescriptor descriptor,
+                                     @Nonnull final ChannelAddress descriptor,
                                      @Nonnull final Throwable throwable )
     {
       convergeStep();
@@ -495,14 +495,14 @@ public abstract class ContextConvergerImpl
 
     @Override
     public void onSubscriptionUpdateCompleted( @Nonnull final DataLoaderService service,
-                                               @Nonnull final ChannelDescriptor descriptor )
+                                               @Nonnull final ChannelAddress descriptor )
     {
       convergeStep();
     }
 
     @Override
     public void onSubscriptionUpdateFailed( @Nonnull final DataLoaderService service,
-                                            @Nonnull final ChannelDescriptor descriptor,
+                                            @Nonnull final ChannelAddress descriptor,
                                             @Nonnull final Throwable throwable )
     {
       removeFailedSubscription( descriptor );

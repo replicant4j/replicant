@@ -15,25 +15,25 @@ public final class ChannelAction
   }
 
   @Nonnull
-  private final ChannelDescriptor _channelDescriptor;
+  private final ChannelAddress _channelAddress;
   @Nonnull
   private final Action _action;
   @Nullable
   private final JsonObject _filter;
 
-  public ChannelAction( @Nonnull final ChannelDescriptor descriptor,
+  public ChannelAction( @Nonnull final ChannelAddress descriptor,
                         @Nonnull final Action action,
                         @Nullable final JsonObject filter )
   {
-    _channelDescriptor = descriptor;
+    _channelAddress = descriptor;
     _action = action;
     _filter = filter;
   }
 
   @Nonnull
-  public ChannelDescriptor getChannelDescriptor()
+  public ChannelAddress getChannelAddress()
   {
-    return _channelDescriptor;
+    return _channelAddress;
   }
 
   @Nonnull

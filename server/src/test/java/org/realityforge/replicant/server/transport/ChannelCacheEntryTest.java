@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
 import org.realityforge.replicant.server.ChangeSet;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -10,7 +10,7 @@ public class ChannelCacheEntryTest
   @Test
   public void basicOperation()
   {
-    final ChannelDescriptor descriptor = new ChannelDescriptor( 1, null );
+    final ChannelAddress descriptor = new ChannelAddress( 1, null );
     final ChannelCacheEntry entry = new ChannelCacheEntry( descriptor );
     assertEquals( entry.getDescriptor(), descriptor );
 

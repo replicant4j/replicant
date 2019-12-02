@@ -1,7 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -18,7 +18,7 @@ public class ReplicantSessionTest
 
     assertEquals( session.getSubscriptions().size(), 0 );
 
-    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, null );
+    final ChannelAddress cd1 = new ChannelAddress( 1, null );
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
     assertFalse( session.isSubscriptionEntryPresent( cd1 ) );
@@ -68,7 +68,7 @@ public class ReplicantSessionTest
 
     assertEquals( session.getETags().size(), 0 );
 
-    final ChannelDescriptor cd1 = new ChannelDescriptor( 1, null );
+    final ChannelAddress cd1 = new ChannelAddress( 1, null );
 
     assertEquals( session.getETag( cd1 ), null );
 

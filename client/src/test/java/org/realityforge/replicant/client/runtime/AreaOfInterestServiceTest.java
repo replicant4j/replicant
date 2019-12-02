@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.runtime;
 
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -255,9 +255,9 @@ public class AreaOfInterestServiceTest
     final Scope scope1 = service.createScopeReference( ValueUtil.randomString() ).getScope();
     final Scope scope2 = service.createScopeReference( ValueUtil.randomString() ).getScope();
 
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A, null );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B, 1 );
-    final ChannelDescriptor descriptor3 = new ChannelDescriptor( TestGraph.B, 2 );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A, null );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B, 1 );
+    final ChannelAddress descriptor3 = new ChannelAddress( TestGraph.B, 2 );
 
     assertEquals( scope1.getSubscriptionReferenceCount(), 0 );
 
@@ -321,8 +321,8 @@ public class AreaOfInterestServiceTest
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
     service.addAreaOfInterestListener( listener );
 
-    final ChannelDescriptor descriptor1 = new ChannelDescriptor( TestGraph.A );
-    final ChannelDescriptor descriptor2 = new ChannelDescriptor( TestGraph.B );
+    final ChannelAddress descriptor1 = new ChannelAddress( TestGraph.A );
+    final ChannelAddress descriptor2 = new ChannelAddress( TestGraph.B );
 
     final String filer1 = "Filer1";
     final String filer2 = null;

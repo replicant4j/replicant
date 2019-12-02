@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 /**
  * Client-side representation of session.
@@ -61,23 +61,23 @@ public final class ClientSession
     return _sessionID;
   }
 
-  void requestSubscribe( @Nonnull final ChannelDescriptor descriptor, @Nullable final Object filterParameter )
+  void requestSubscribe( @Nonnull final ChannelAddress descriptor, @Nullable final Object filterParameter )
   {
     enqueueAoiAction( descriptor, AreaOfInterestAction.ADD, filterParameter );
   }
 
-  void requestSubscriptionUpdate( @Nonnull final ChannelDescriptor descriptor,
+  void requestSubscriptionUpdate( @Nonnull final ChannelAddress descriptor,
                                   @Nullable final Object filterParameter )
   {
     enqueueAoiAction( descriptor, AreaOfInterestAction.UPDATE, filterParameter );
   }
 
-  void requestUnsubscribe( @Nonnull final ChannelDescriptor descriptor )
+  void requestUnsubscribe( @Nonnull final ChannelAddress descriptor )
   {
     enqueueAoiAction( descriptor, AreaOfInterestAction.REMOVE, null );
   }
 
-  private void enqueueAoiAction( @Nonnull final ChannelDescriptor descriptor,
+  private void enqueueAoiAction( @Nonnull final ChannelAddress descriptor,
                                  @Nonnull final AreaOfInterestAction action,
                                  @Nullable final Object filterParameter )
   {

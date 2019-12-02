@@ -56,7 +56,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelDescriptor graph,
+  public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelAddress graph,
                                                             @Nullable final Object filter,
                                                             final boolean explicitSubscription )
     throws IllegalStateException
@@ -87,7 +87,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nonnull
-  public ChannelSubscriptionEntry updateSubscription( @Nonnull final ChannelDescriptor graph,
+  public ChannelSubscriptionEntry updateSubscription( @Nonnull final ChannelAddress graph,
                                                       @Nullable final Object filter )
     throws IllegalStateException
   {
@@ -101,7 +101,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Override
   @Nullable
-  public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelDescriptor graph )
+  public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelAddress graph )
   {
     final Object id = graph.getID();
     if ( null == id )
@@ -127,7 +127,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Nonnull
   @Override
-  public ChannelSubscriptionEntry getSubscription( @Nonnull final ChannelDescriptor graph )
+  public ChannelSubscriptionEntry getSubscription( @Nonnull final ChannelAddress graph )
     throws IllegalArgumentException
   {
     final ChannelSubscriptionEntry subscription = findSubscription( graph );
@@ -143,7 +143,7 @@ public class EntitySubscriptionManagerImpl
    */
   @Nonnull
   @Override
-  public final ChannelSubscriptionEntry removeSubscription( @Nonnull final ChannelDescriptor graph )
+  public final ChannelSubscriptionEntry removeSubscription( @Nonnull final ChannelAddress graph )
     throws IllegalStateException
   {
     final Object id = graph.getID();
@@ -195,10 +195,10 @@ public class EntitySubscriptionManagerImpl
   @Override
   public void updateEntity( @Nonnull final Class<?> type,
                             @Nonnull final Object id,
-                            @Nonnull final ChannelDescriptor[] graphs )
+                            @Nonnull final ChannelAddress[] graphs )
   {
     final EntitySubscriptionEntry entityEntry = getEntitySubscriptions( type, id );
-    for ( final ChannelDescriptor graph : graphs )
+    for ( final ChannelAddress graph : graphs )
     {
       final ChannelSubscriptionEntry entry =
         entityEntry.getRwGraphSubscriptions().computeIfAbsent( graph, this::getSubscription );
@@ -219,11 +219,11 @@ public class EntitySubscriptionManagerImpl
   @Override
   public EntitySubscriptionEntry removeEntityFromGraph( @Nonnull final Class<?> type,
                                                         @Nonnull final Object id,
-                                                        @Nonnull final ChannelDescriptor graph )
+                                                        @Nonnull final ChannelAddress graph )
     throws IllegalStateException
   {
     final EntitySubscriptionEntry entry = getEntitySubscriptions( type, id );
-    final Map<ChannelDescriptor, ChannelSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
+    final Map<ChannelAddress, ChannelSubscriptionEntry> subscriptions = entry.getRwGraphSubscriptions();
     final ChannelSubscriptionEntry graphEntry = subscriptions.remove( graph );
     if ( null == graphEntry )
     {

@@ -18,7 +18,7 @@ import org.realityforge.replicant.client.Change;
 import org.realityforge.replicant.client.ChangeMapper;
 import org.realityforge.replicant.client.ChannelAction;
 import org.realityforge.replicant.client.ChannelAction.Action;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 import org.realityforge.replicant.client.ChannelSubscriptionEntry;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -60,13 +60,13 @@ public class DataLoaderServiceTest
     bGraph.add( "2" );
 
     final ChannelSubscriptionEntry entryA =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A, "1" ), null, true );
+      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.A, "1" ), null, true );
     final ChannelSubscriptionEntry entryB =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, "2" ), null, true );
+      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.B, "2" ), null, true );
     final ChannelSubscriptionEntry entryC =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.C ), null, true );
+      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.C ), null, true );
     final ChannelSubscriptionEntry entryD =
-      new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.D ), null, true );
+      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.D ), null, true );
 
     insertSubscription( entryA, String.class, "A1" );
     insertSubscription( entryB, String.class, "B1" );
@@ -77,10 +77,10 @@ public class DataLoaderServiceTest
     when( sm.getInstanceSubscriptions( TestGraph.A ) ).thenReturn( aGraph );
     when( sm.getInstanceSubscriptions( TestGraph.B ) ).thenReturn( bGraph );
     when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
-    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) ) ).thenReturn( entryA );
-    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) ) ).thenReturn( entryB );
-    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.C ) ) ).thenReturn( entryC );
-    when( sm.removeSubscription( new ChannelDescriptor( TestGraph.D ) ) ).thenReturn( entryD );
+    when( sm.removeSubscription( new ChannelAddress( TestGraph.A, "1" ) ) ).thenReturn( entryA );
+    when( sm.removeSubscription( new ChannelAddress( TestGraph.B, "2" ) ) ).thenReturn( entryB );
+    when( sm.removeSubscription( new ChannelAddress( TestGraph.C ) ) ).thenReturn( entryC );
+    when( sm.removeSubscription( new ChannelAddress( TestGraph.D ) ) ).thenReturn( entryD );
 
     when( repository.deregisterEntity( String.class, "A1" ) ).thenReturn( "A1" );
     when( repository.deregisterEntity( String.class, "B1" ) ).thenReturn( "B1" );
@@ -90,13 +90,13 @@ public class DataLoaderServiceTest
     service.purgeSubscriptions();
 
     final InOrder inOrder = inOrder( repository, sm, broker );
-    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.B, "2" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.B, "2" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
-    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.A, "1" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.A, "1" ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
-    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.D ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.D ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
-    inOrder.verify( sm ).removeSubscription( new ChannelDescriptor( TestGraph.C ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.C ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "C1" );
     inOrder.verify( broker ).removeAllChangeListeners( "B1" );
     inOrder.verify( broker ).removeAllChangeListeners( "A1" );
@@ -116,12 +116,12 @@ public class DataLoaderServiceTest
   }
 
   @SuppressWarnings( "unchecked" )
-  private Map<ChannelDescriptor, ChannelSubscriptionEntry> getRwGraphSubscriptions( final EntitySubscriptionEntry entry )
+  private Map<ChannelAddress, ChannelSubscriptionEntry> getRwGraphSubscriptions( final EntitySubscriptionEntry entry )
     throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
   {
     final Method method = entry.getClass().getDeclaredMethod( "getRwGraphSubscriptions" );
     method.setAccessible( true );
-    return (Map<ChannelDescriptor, ChannelSubscriptionEntry>) method.invoke( entry );
+    return (Map<ChannelAddress, ChannelSubscriptionEntry>) method.invoke( entry );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -487,7 +487,7 @@ public class DataLoaderServiceTest
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 9, 1 );
     verify( service.getSubscriptionManager() ).
-      recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null, false );
+      recordSubscription( new ChannelAddress( TestGraph.B, "S" ), null, false );
 
     final DataLoadAction action = actions.getLast();
 
@@ -513,10 +513,10 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getLastRxSequence(), 0 );
 
-    when( service.getSubscriptionManager().removeSubscription( new ChannelDescriptor( TestGraph.A ) ) ).
-      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.A ), null, true ) );
-    when( service.getSubscriptionManager().removeSubscription( new ChannelDescriptor( TestGraph.B, 33 ) ) ).
-      thenReturn( new ChannelSubscriptionEntry( new ChannelDescriptor( TestGraph.B, 33 ), null, true ) );
+    when( service.getSubscriptionManager().removeSubscription( new ChannelAddress( TestGraph.A ) ) ).
+      thenReturn( new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.A ), null, true ) );
+    when( service.getSubscriptionManager().removeSubscription( new ChannelAddress( TestGraph.B, 33 ) ) ).
+      thenReturn( new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.B, 33 ), null, true ) );
     configureRequests( service, service.getChangeSets() );
     service.ensureSession().enqueueDataLoad( "jsonData" );
     service.scheduleDataLoad();
@@ -530,11 +530,11 @@ public class DataLoaderServiceTest
 
     final InOrder inOrder = inOrder( service.getSubscriptionManager() );
     inOrder.verify( service.getSubscriptionManager() ).
-      recordSubscription( new ChannelDescriptor( TestGraph.A ), null, false );
-    inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelDescriptor( TestGraph.A ) );
+      recordSubscription( new ChannelAddress( TestGraph.A ), null, false );
+    inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelAddress( TestGraph.A ) );
     inOrder.verify( service.getSubscriptionManager() ).
-      recordSubscription( new ChannelDescriptor( TestGraph.B, "S" ), null, false );
-    inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelDescriptor( TestGraph.B, 33 ) );
+      recordSubscription( new ChannelAddress( TestGraph.B, "S" ), null, false );
+    inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelAddress( TestGraph.B, 33 ) );
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -550,7 +550,7 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A );
+      final ChannelAddress channel1 = new ChannelAddress( TestGraph.A );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel1, null ) );
       assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel1, null ), -1 );
 
@@ -572,8 +572,8 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 2 );
-      final ChannelDescriptor channel2b = new ChannelDescriptor( TestGraph.B );
+      final ChannelAddress channel2 = new ChannelAddress( TestGraph.B, 2 );
+      final ChannelAddress channel2b = new ChannelAddress( TestGraph.B );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel2b, null ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel2, null ) );
@@ -593,7 +593,7 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.C, 2 );
+      final ChannelAddress channel3 = new ChannelAddress( TestGraph.C, 2 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
         new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
@@ -609,7 +609,7 @@ public class DataLoaderServiceTest
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
       final Object filter = new Object();
-      final ChannelDescriptor channel4 = new ChannelDescriptor( TestGraph.B, 55 );
+      final ChannelAddress channel4 = new ChannelAddress( TestGraph.B, 55 );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel4, filter ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, filter ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
@@ -628,10 +628,10 @@ public class DataLoaderServiceTest
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
 
-      final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.B, 1 );
-      final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 2 );
-      final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.B, 3 );
-      final ChannelDescriptor channel4 = new ChannelDescriptor( TestGraph.B, 4 );
+      final ChannelAddress channel1 = new ChannelAddress( TestGraph.B, 1 );
+      final ChannelAddress channel2 = new ChannelAddress( TestGraph.B, 2 );
+      final ChannelAddress channel3 = new ChannelAddress( TestGraph.B, 3 );
+      final ChannelAddress channel4 = new ChannelAddress( TestGraph.B, 4 );
 
       service.requestSubscribe( channel1, null );
       service.requestSubscribe( channel2, null );
@@ -666,8 +666,8 @@ public class DataLoaderServiceTest
   public void progressAreaOfInterestActions()
     throws Exception
   {
-    final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.B, 1 );
+    final ChannelAddress channel1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress channel2 = new ChannelAddress( TestGraph.B, 1 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -701,9 +701,9 @@ public class DataLoaderServiceTest
   public void dontGroupActionsWithETags()
     throws Exception
   {
-    final ChannelDescriptor channel1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor channel2 = new ChannelDescriptor( TestGraph.A, 2 );
-    final ChannelDescriptor channel3 = new ChannelDescriptor( TestGraph.A, 3 );
+    final ChannelAddress channel1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress channel2 = new ChannelAddress( TestGraph.A, 2 );
+    final ChannelAddress channel3 = new ChannelAddress( TestGraph.A, 3 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -740,11 +740,11 @@ public class DataLoaderServiceTest
   public void progressBulkAreaOfInterestAddActions()
     throws Exception
   {
-    final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor channelA2 = new ChannelDescriptor( TestGraph.A, 2 );
-    final ChannelDescriptor channelA3 = new ChannelDescriptor( TestGraph.A, 3 );
-    final ChannelDescriptor channelB1 = new ChannelDescriptor( TestGraph.B, 1 );
-    final ChannelDescriptor channelB2 = new ChannelDescriptor( TestGraph.B, 2 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress channelA2 = new ChannelAddress( TestGraph.A, 2 );
+    final ChannelAddress channelA3 = new ChannelAddress( TestGraph.A, 3 );
+    final ChannelAddress channelB1 = new ChannelAddress( TestGraph.B, 1 );
+    final ChannelAddress channelB2 = new ChannelAddress( TestGraph.B, 2 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -782,7 +782,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA3 );
 
     completeOutstandingAOIs( service );
-    when( sm.findSubscription( any( ChannelDescriptor.class ) ) ).thenReturn(
+    when( sm.findSubscription( any( ChannelAddress.class ) ) ).thenReturn(
       new ChannelSubscriptionEntry( channelA1, null, true ) );
     assertEquals( service.progressAreaOfInterestActions(), true );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
@@ -803,8 +803,8 @@ public class DataLoaderServiceTest
   public void progressBulkAreaOfInterestAddActionsWithFilters()
     throws Exception
   {
-    final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor channelA2 = new ChannelDescriptor( TestGraph.A, 2 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress channelA2 = new ChannelAddress( TestGraph.A, 2 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
@@ -849,16 +849,16 @@ public class DataLoaderServiceTest
   public void progressBulkAreaOfInterestAddActionsWithIgnorableActions()
     throws Exception
   {
-    final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
-    final ChannelDescriptor channelA2 = new ChannelDescriptor( TestGraph.A, 2 );
-    final ChannelDescriptor channelA3 = new ChannelDescriptor( TestGraph.A, 3 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
+    final ChannelAddress channelA2 = new ChannelAddress( TestGraph.A, 2 );
+    final ChannelAddress channelA3 = new ChannelAddress( TestGraph.A, 3 );
 
     final TestDataLoadService service = new TestDataLoadService();
     configureService( service );
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
     assertNotNull( service.getSession() );
 
-    when( sm.findSubscription( any( ChannelDescriptor.class ) ) ).thenReturn(
+    when( sm.findSubscription( any( ChannelAddress.class ) ) ).thenReturn(
       new ChannelSubscriptionEntry( channelA1, "boo", true ) );
 
 
@@ -870,7 +870,7 @@ public class DataLoaderServiceTest
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
-    when( sm.findSubscription( any( ChannelDescriptor.class ) ) ).thenReturn( null );
+    when( sm.findSubscription( any( ChannelAddress.class ) ) ).thenReturn( null );
 
     service.requestSubscriptionUpdate( channelA1, "boo" );
     service.requestSubscriptionUpdate( channelA2, "boo" );
@@ -908,7 +908,7 @@ public class DataLoaderServiceTest
 
     assertTrue( service.isIdle() );
 
-    final ChannelDescriptor channelA1 = new ChannelDescriptor( TestGraph.A, 1 );
+    final ChannelAddress channelA1 = new ChannelAddress( TestGraph.A, 1 );
 
     // Have pending AOI
     service.requestSubscribe( channelA1, null );

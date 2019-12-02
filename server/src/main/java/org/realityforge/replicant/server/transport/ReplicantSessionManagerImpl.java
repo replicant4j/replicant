@@ -20,7 +20,7 @@ import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
-import org.realityforge.replicant.server.ChannelDescriptor;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.ChannelLink;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
@@ -37,7 +37,7 @@ public abstract class ReplicantSessionManagerImpl
   private final Map<String, ReplicantSession> _sessions = new HashMap<>();
   private final Map<String, ReplicantSession> _roSessions = Collections.unmodifiableMap( _sessions );
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
-  private final HashMap<ChannelDescriptor, ChannelCacheEntry> _cache = new HashMap<>();
+  private final HashMap<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
   /**
    * {@inheritDoc}
@@ -343,8 +343,8 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void delinkSubscription( @Nonnull final ReplicantSession session,
-                                  @Nonnull final ChannelDescriptor sourceGraph,
-                                  @Nonnull final ChannelDescriptor targetGraph,
+                                  @Nonnull final ChannelAddress sourceGraph,
+                                  @Nonnull final ChannelAddress targetGraph,
                                   @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( sourceGraph );
@@ -361,14 +361,14 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void bulkDelinkSubscription( @Nonnull final ReplicantSession session,
-                                      @Nonnull final ChannelDescriptor sourceGraph,
+                                      @Nonnull final ChannelAddress sourceGraph,
                                       final int channelID,
                                       @Nonnull final Collection<Serializable> subChannelIds,
                                       @Nonnull final ChangeSet changeSet )
   {
     for ( final Serializable id : subChannelIds )
     {
-      delinkSubscription( session, sourceGraph, new ChannelDescriptor( channelID, id ), changeSet );
+      delinkSubscription( session, sourceGraph, new ChannelAddress( channelID, id ), changeSet );
     }
   }
 
@@ -380,7 +380,7 @@ public abstract class ReplicantSessionManagerImpl
    */
   @Nonnull
   protected CacheStatus subscribe( @Nonnull final String sessionID,
-                                   @Nonnull final ChannelDescriptor descriptor,
+                                   @Nonnull final ChannelAddress descriptor,
                                    @Nullable final Object filter,
                                    @Nullable final String cacheKey,
                                    @Nonnull final ChangeSet changeSet )
@@ -410,7 +410,7 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   protected void updateSubscription( @Nonnull final String sessionID,
-                                     @Nonnull final ChannelDescriptor descriptor,
+                                     @Nonnull final ChannelAddress descriptor,
                                      @Nullable final Object filter,
                                      @Nonnull final ChangeSet changeSet )
   {
@@ -433,7 +433,7 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   protected void unsubscribe( @Nonnull final String sessionID,
-                              @Nonnull final ChannelDescriptor descriptor,
+                              @Nonnull final ChannelAddress descriptor,
                               @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
@@ -442,7 +442,7 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void updateSubscription( @Nonnull final ReplicantSession session,
-                                  @Nonnull final ChannelDescriptor descriptor,
+                                  @Nonnull final ChannelAddress descriptor,
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
@@ -466,11 +466,11 @@ public abstract class ReplicantSessionManagerImpl
     final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( channelID );
     assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
-    final ArrayList<ChannelDescriptor> channelsToUpdate = new ArrayList<>();
+    final ArrayList<ChannelAddress> channelsToUpdate = new ArrayList<>();
 
     for ( final Serializable subChannelId : subChannelIds )
     {
-      final ChannelDescriptor descriptor = new ChannelDescriptor( channelID, subChannelId );
+      final ChannelAddress descriptor = new ChannelAddress( channelID, subChannelId );
       final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
       if ( !doFiltersMatch( filter, entry.getFilter() ) )
       {
@@ -497,7 +497,7 @@ public abstract class ReplicantSessionManagerImpl
                                               filter );
       if ( !bulkLoaded )
       {
-        for ( final ChannelDescriptor descriptor : channelsToUpdate )
+        for ( final ChannelAddress descriptor : channelsToUpdate )
         {
           updateSubscription( session, descriptor, filter, changeSet );
         }
@@ -515,13 +515,13 @@ public abstract class ReplicantSessionManagerImpl
   {
     assert getSystemMetaData().getChannelMetaData( channelID ).isInstanceGraph();
 
-    final ArrayList<ChannelDescriptor> newChannels = new ArrayList<>();
+    final ArrayList<ChannelAddress> newChannels = new ArrayList<>();
     //OriginalFilter => Channels
-    final HashMap<Object, ArrayList<ChannelDescriptor>> channelsToUpdate = new HashMap<>();
+    final HashMap<Object, ArrayList<ChannelAddress>> channelsToUpdate = new HashMap<>();
 
     for ( final Serializable root : subChannelIds )
     {
-      final ChannelDescriptor descriptor = new ChannelDescriptor( channelID, root );
+      final ChannelAddress descriptor = new ChannelAddress( channelID, root );
       final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
       if ( null == entry )
       {
@@ -529,7 +529,7 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        final ArrayList<ChannelDescriptor> descriptors =
+        final ArrayList<ChannelAddress> descriptors =
           channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() );
         descriptors.add( descriptor );
       }
@@ -545,7 +545,7 @@ public abstract class ReplicantSessionManagerImpl
                                      explicitSubscribe );
       if ( !bulkLoaded )
       {
-        for ( final ChannelDescriptor descriptor : newChannels )
+        for ( final ChannelAddress descriptor : newChannels )
         {
           subscribe( session, descriptor, true, filter, changeSet );
         }
@@ -553,10 +553,10 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( !channelsToUpdate.isEmpty() )
     {
-      for ( final Map.Entry<Object, ArrayList<ChannelDescriptor>> update : channelsToUpdate.entrySet() )
+      for ( final Map.Entry<Object, ArrayList<ChannelAddress>> update : channelsToUpdate.entrySet() )
       {
         final Object originalFilter = update.getKey();
-        final ArrayList<ChannelDescriptor> descriptors = update.getValue();
+        final ArrayList<ChannelAddress> descriptors = update.getValue();
         boolean bulkLoaded = false;
 
         if ( descriptors.size() > 1 )
@@ -569,7 +569,7 @@ public abstract class ReplicantSessionManagerImpl
         }
         if ( !bulkLoaded )
         {
-          for ( final ChannelDescriptor descriptor : descriptors )
+          for ( final ChannelAddress descriptor : descriptors )
           {
             //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
             subscribe( session, descriptor, true, filter, changeSet );
@@ -582,7 +582,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   @Override
   public CacheStatus subscribe( @Nonnull final ReplicantSession session,
-                                @Nonnull final ChannelDescriptor descriptor,
+                                @Nonnull final ChannelAddress descriptor,
                                 final boolean explicitlySubscribe,
                                 @Nullable final Object filter,
                                 @Nonnull final ChangeSet changeSet )
@@ -640,7 +640,7 @@ public abstract class ReplicantSessionManagerImpl
       entry.setExplicitlySubscribed( true );
     }
     entry.setFilter( filter );
-    final ChannelDescriptor descriptor = entry.getDescriptor();
+    final ChannelAddress descriptor = entry.getDescriptor();
     final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( descriptor );
     if ( channelMetaData.isCacheable() )
     {
@@ -665,7 +665,7 @@ public abstract class ReplicantSessionManagerImpl
     return CacheStatus.REFRESH;
   }
 
-  protected boolean deleteCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  protected boolean deleteCacheEntry( @Nonnull final ChannelAddress descriptor )
   {
     _cacheLock.writeLock().lock();
     try
@@ -684,7 +684,7 @@ public abstract class ReplicantSessionManagerImpl
    * each channel cached.
    */
   @Nonnull
-  protected ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  protected ChannelCacheEntry ensureCacheEntry( @Nonnull final ChannelAddress descriptor )
   {
     assert getSystemMetaData().getChannelMetaData( descriptor ).isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( descriptor );
@@ -725,7 +725,7 @@ public abstract class ReplicantSessionManagerImpl
    * loaded at this stage. This is done to avoid using a global lock while loading data for a
    * particular cache entry.
    */
-  ChannelCacheEntry getCacheEntry( @Nonnull final ChannelDescriptor descriptor )
+  ChannelCacheEntry getCacheEntry( @Nonnull final ChannelAddress descriptor )
   {
     _cacheLock.readLock().lock();
     try
@@ -768,7 +768,7 @@ public abstract class ReplicantSessionManagerImpl
     assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).getFilterType() !=
            ChannelMetaData.FilterType.NONE;
     entry.setFilter( filter );
-    final ChannelDescriptor descriptor = entry.getDescriptor();
+    final ChannelAddress descriptor = entry.getDescriptor();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
     changeSet.addAction( descriptor, ChannelAction.Action.UPDATE, filter );
   }
@@ -779,7 +779,7 @@ public abstract class ReplicantSessionManagerImpl
    */
   @Nullable
   protected abstract String collectDataForSubscribe( @Nullable final ReplicantSession session,
-                                                     @Nonnull final ChannelDescriptor descriptor,
+                                                     @Nonnull final ChannelAddress descriptor,
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object filter );
 
@@ -791,13 +791,13 @@ public abstract class ReplicantSessionManagerImpl
    * @return true if method has actually bulk loaded all data, false otherwise.
    */
   protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
-                                                          @Nonnull ArrayList<ChannelDescriptor> descriptors,
+                                                          @Nonnull ArrayList<ChannelAddress> descriptors,
                                                           @Nonnull ChangeSet changeSet,
                                                           @Nullable Object filter,
                                                           boolean explicitSubscribe );
 
   protected abstract void collectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                                            @Nonnull ChannelDescriptor descriptor,
+                                                            @Nonnull ChannelAddress descriptor,
                                                             @Nonnull ChangeSet changeSet,
                                                             @Nullable Object originalFilter,
                                                             @Nullable Object filter );
@@ -808,7 +808,7 @@ public abstract class ReplicantSessionManagerImpl
    * filter, adding graph links etc.
    */
   protected abstract boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                                                   @Nonnull ArrayList<ChannelDescriptor> descriptors,
+                                                                   @Nonnull ArrayList<ChannelAddress> descriptors,
                                                                    @Nonnull ChangeSet changeSet,
                                                                    @Nullable Object originalFilter,
                                                                    @Nullable Object filter );
@@ -825,7 +825,7 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void unsubscribe( @Nonnull final ReplicantSession session,
-                           @Nonnull final ChannelDescriptor descriptor,
+                           @Nonnull final ChannelAddress descriptor,
                            final boolean explicitUnsubscribe,
                            @Nonnull final ChangeSet changeSet )
   {
@@ -845,7 +845,7 @@ public abstract class ReplicantSessionManagerImpl
   {
     for ( final Serializable subChannelId : subChannelIds )
     {
-      unsubscribe( session, new ChannelDescriptor( channelID, subChannelId ), explicitUnsubscribe, changeSet );
+      unsubscribe( session, new ChannelAddress( channelID, subChannelId ), explicitUnsubscribe, changeSet );
     }
   }
 
@@ -861,7 +861,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( entry.canUnsubscribe() )
     {
       changeSet.addAction( entry.getDescriptor(), ChannelAction.Action.REMOVE, null );
-      for ( final ChannelDescriptor downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
+      for ( final ChannelAddress downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         delinkDownstreamSubscription( session, entry, downstream, changeSet );
       }
@@ -871,7 +871,7 @@ public abstract class ReplicantSessionManagerImpl
 
   private void delinkDownstreamSubscription( @Nonnull final ReplicantSession session,
                                              @Nonnull final SubscriptionEntry sourceEntry,
-                                             @Nonnull final ChannelDescriptor downstream,
+                                             @Nonnull final ChannelAddress downstream,
                                              @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
@@ -969,11 +969,11 @@ public abstract class ReplicantSessionManagerImpl
                                 @Nonnull final ChannelLink link,
                                 @Nonnull final ChangeSet changeSet )
   {
-    final ChannelDescriptor source = link.getSourceChannel();
+    final ChannelAddress source = link.getSourceChannel();
     final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
     if ( null != sourceEntry )
     {
-      final ChannelDescriptor target = link.getTargetChannel();
+      final ChannelAddress target = link.getTargetChannel();
       final boolean targetUnfiltered =
         getSystemMetaData().getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
       if ( targetUnfiltered || shouldFollowLink( sourceEntry, target ) )
@@ -992,7 +992,7 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
-                                               @Nonnull final ChannelDescriptor target );
+                                               @Nonnull final ChannelAddress target );
 
   private void setupRegistryContext( @Nonnull final String sessionID )
   {

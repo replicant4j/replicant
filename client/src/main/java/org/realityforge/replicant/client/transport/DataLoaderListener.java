@@ -1,7 +1,7 @@
 package org.realityforge.replicant.client.transport;
 
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.client.ChannelDescriptor;
+import org.realityforge.replicant.client.ChannelAddress;
 
 public interface DataLoaderListener
 {
@@ -40,27 +40,27 @@ public interface DataLoaderListener
    */
   void onPollFailure( @Nonnull DataLoaderService service, @Nonnull Throwable throwable );
 
-  void onSubscribeStarted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
+  void onSubscribeStarted( @Nonnull DataLoaderService service, @Nonnull ChannelAddress descriptor );
 
-  void onSubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
+  void onSubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelAddress descriptor );
 
   void onSubscribeFailed( @Nonnull DataLoaderService service,
-                          @Nonnull ChannelDescriptor descriptor,
+                          @Nonnull ChannelAddress descriptor,
                           @Nonnull Throwable throwable );
 
-  void onUnsubscribeStarted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
+  void onUnsubscribeStarted( @Nonnull DataLoaderService service, @Nonnull ChannelAddress descriptor );
 
-  void onUnsubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
+  void onUnsubscribeCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelAddress descriptor );
 
   void onUnsubscribeFailed( @Nonnull DataLoaderService service,
-                            @Nonnull ChannelDescriptor descriptor,
+                            @Nonnull ChannelAddress descriptor,
                             @Nonnull Throwable throwable );
 
-  void onSubscriptionUpdateStarted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
+  void onSubscriptionUpdateStarted( @Nonnull DataLoaderService service, @Nonnull ChannelAddress descriptor );
 
-  void onSubscriptionUpdateCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelDescriptor descriptor );
+  void onSubscriptionUpdateCompleted( @Nonnull DataLoaderService service, @Nonnull ChannelAddress descriptor );
 
   void onSubscriptionUpdateFailed( @Nonnull DataLoaderService service,
-                                   @Nonnull ChannelDescriptor descriptor,
+                                   @Nonnull ChannelAddress descriptor,
                                    @Nonnull Throwable throwable );
 }

@@ -26,7 +26,7 @@ public final class ChangeSet
     _channelActions.add( action );
   }
 
-  public void addAction( @Nonnull final ChannelDescriptor descriptor,
+  public void addAction( @Nonnull final ChannelAddress descriptor,
                          @Nonnull final ChannelAction.Action action,
                          @Nullable final Object filter )
   {
@@ -86,7 +86,7 @@ public final class ChangeSet
     addActions( changeSet.getChannelActions() );
   }
 
-  public void merge( @Nonnull final ChannelDescriptor descriptor, @Nonnull final EntityMessageSet messages )
+  public void merge( @Nonnull final ChannelAddress descriptor, @Nonnull final EntityMessageSet messages )
   {
     mergeAll( ChangeUtil.toChanges( messages.getEntityMessages(),
                                     descriptor.getChannelId(),
