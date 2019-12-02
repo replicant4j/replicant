@@ -65,7 +65,9 @@ define 'replicant' do
     compile.with GWT_DEPS,
                  :javax_jsr305,
                  :gwt_webpoller,
-                 project('shared').package(:jar)
+                 project('shared').package(:jar),
+                 :mockito,
+                 :guiceyloops
 
     package(:jar).enhance do |jar|
       jar.include("#{_(:source, :main, :java)}/*")
