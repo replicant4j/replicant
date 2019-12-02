@@ -538,6 +538,7 @@ public class DataLoaderServiceTest
     inOrder.verifyNoMoreInteractions();
   }
 
+  @SuppressWarnings( "unchecked" )
   @Test
   public void isAreaOfInterestActionPending()
     throws Exception
@@ -597,7 +598,9 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       final AreaOfInterestEntry entry =
         new AreaOfInterestEntry( service.getKey(), channel3, AreaOfInterestAction.ADD, null );
-      add( service, AbstractDataLoaderService.class, "_currentAoiActions", entry );
+      final Field field = AbstractDataLoaderService.class.getDeclaredField( "_currentAoiActions" );
+      field.setAccessible( true );
+      ( (List<AreaOfInterestEntry>) field.get( service ) ).add( entry );
 
       assertTrue( service.isAreaOfInterestActionPending( AreaOfInterestAction.ADD, channel3, null ) );
       assertEquals( service.indexOfPendingAreaOfInterestAction( AreaOfInterestAction.ADD, channel3, null ),
@@ -623,7 +626,6 @@ public class DataLoaderServiceTest
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.REMOVE, channel4, filter ) );
       assertFalse( service.isAreaOfInterestActionPending( AreaOfInterestAction.UPDATE, channel4, filter ) );
     }
-
 
     {
       service.ensureSession().getPendingAreaOfInterestActions().clear();
@@ -861,7 +863,6 @@ public class DataLoaderServiceTest
     when( sm.findSubscription( any( ChannelAddress.class ) ) ).thenReturn(
       new ChannelSubscriptionEntry( channelA1, "boo", true ) );
 
-
     service.requestSubscribe( channelA1, null );
     service.requestSubscribe( channelA2, null );
 
@@ -1039,26 +1040,12 @@ public class DataLoaderServiceTest
   private void configureService( final TestDataLoadService service )
     throws Exception
   {
-    set( service, AbstractDataLoaderService.class, "_session", new ClientSession( service, ValueUtil.randomString() ) );
+    final Field field = AbstractDataLoaderService.class.getDeclaredField( "_session" );
+    field.setAccessible( true );
+    field.set( service, new ClientSession( service, ValueUtil.randomString() ) );
 
     service.setChangesToProcessPerTick( 1 );
     service.setLinksToProcessPerTick( 1 );
-  }
-
-  private void set( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
-    throws Exception
-  {
-    final Field field5 = clazz.getDeclaredField( fieldName );
-    field5.setAccessible( true );
-    field5.set( instance, value );
-  }
-
-  private void add( final Object instance, final Class<?> clazz, final String fieldName, final Object value )
-    throws Exception
-  {
-    final Field field5 = clazz.getDeclaredField( fieldName );
-    field5.setAccessible( true );
-    ( (List) field5.get( instance ) ).add( value );
   }
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
@@ -1069,14 +1056,5 @@ public class DataLoaderServiceTest
   private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
     assertNotNull( service.ensureSession().getRequest( request.getRequestID() ) );
-  }
-
-  private RequestEntry ensureRequest( final TestDataLoadService service, final TestChangeSet changeSet )
-  {
-    final String requestID = changeSet.getRequestID();
-    assertNotNull( requestID );
-    final RequestEntry request = service.ensureSession().getRequest( requestID );
-    assertNotNull( request );
-    return request;
   }
 }
