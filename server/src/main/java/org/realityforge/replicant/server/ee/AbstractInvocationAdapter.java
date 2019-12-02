@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.transport.SharedConstants;
 
 /**
  * A base class that used to wrap around invocation of an action.
@@ -16,8 +16,8 @@ public abstract class AbstractInvocationAdapter
   protected <T> T invokeAction( @Nonnull final String key, @Nonnull final Callable<T> action )
     throws Exception
   {
-    final String sessionID = (String) ReplicantContextHolder.remove( ReplicantContext.SESSION_ID_KEY );
-    final String requestID = (String) ReplicantContextHolder.remove( ReplicantContext.REQUEST_ID_KEY );
+    final String sessionID = (String) ReplicantContextHolder.remove( SharedConstants.SESSION_ID_KEY );
+    final String requestID = (String) ReplicantContextHolder.remove( SharedConstants.REQUEST_ID_KEY );
 
     return ReplicationRequestUtil.runRequest( getRegistry(),
                                               getEntityManager(),

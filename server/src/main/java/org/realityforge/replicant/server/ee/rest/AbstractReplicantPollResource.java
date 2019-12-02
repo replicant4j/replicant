@@ -22,7 +22,7 @@ import javax.ws.rs.container.ConnectionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.realityforge.replicant.shared.ee.rest.CacheUtil;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.transport.SharedConstants;
 
 /**
  * Jax-RS resource that responds to poll requests for replicant data stream.
@@ -81,8 +81,8 @@ public abstract class AbstractReplicantPollResource
   @GET
   @Produces( "text/plain" )
   public void poll( @Suspended final AsyncResponse response,
-                    @NotNull @HeaderParam( ReplicantContext.SESSION_ID_HEADER ) final String sessionID,
-                    @NotNull @QueryParam( ReplicantContext.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
+                    @NotNull @HeaderParam( SharedConstants.SESSION_ID_HEADER ) final String sessionID,
+                    @NotNull @QueryParam( SharedConstants.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
   {
     response.setTimeout( getPollTime(), TimeUnit.SECONDS );
     response.register( (ConnectionCallback) this::doDisconnect );
@@ -163,7 +163,7 @@ public abstract class AbstractReplicantPollResource
    */
   protected int getPollTime()
   {
-    return ReplicantContext.MAX_POLL_TIME_IN_SECONDS;
+    return SharedConstants.MAX_POLL_TIME_IN_SECONDS;
   }
 
   /**

@@ -7,7 +7,7 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.transport.SharedConstants;
 
 /**
  * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityMessageSet.
@@ -140,7 +140,7 @@ public final class EntityMessageCacheUtil
   @SuppressWarnings( "unchecked" )
   private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
   {
-    final Object invocationContext = r.getResource( ReplicantContext.REPLICATION_INVOCATION_KEY );
+    final Object invocationContext = r.getResource( SharedConstants.REPLICATION_INVOCATION_KEY );
     if ( null == invocationContext )
     {
       final String message =

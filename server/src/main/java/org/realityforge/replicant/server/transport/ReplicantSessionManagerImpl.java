@@ -25,7 +25,7 @@ import org.realityforge.replicant.server.ChannelLink;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.json.JsonEncoder;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.transport.SharedConstants;
 
 /**
  * Base class for session managers.
@@ -241,8 +241,8 @@ public abstract class ReplicantSessionManagerImpl
                                @Nullable final String etag,
                                @Nonnull final ChangeSet changeSet )
   {
-    final String requestID = (String) getRegistry().getResource( ReplicantContext.REQUEST_ID_KEY );
-    getRegistry().putResource( ReplicantContext.REQUEST_COMPLETE_KEY, Boolean.FALSE );
+    final String requestID = (String) getRegistry().getResource( SharedConstants.REQUEST_ID_KEY );
+    getRegistry().putResource( SharedConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
     return session.getQueue().addPacket( requestID, etag, changeSet );
   }
 
@@ -997,6 +997,6 @@ public abstract class ReplicantSessionManagerImpl
   private void setupRegistryContext( @Nonnull final String sessionID )
   {
     //Force the sessionID to the desired session in case call has not been set up by boundary
-    getRegistry().putResource( ReplicantContext.SESSION_ID_KEY, sessionID );
+    getRegistry().putResource( SharedConstants.SESSION_ID_KEY, sessionID );
   }
 }

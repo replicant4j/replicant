@@ -4,6 +4,7 @@
 
 * Rename occurrences of `ChannelID` to `ChannelId` to align with conventions in version 6.
 * Rename `ChannelDesriptor` to `ChannelAddress` to align with conventions in version 6.
+* Rename `ReplicantContext` to `SharedConstants` to align with conventions in version 6.
 
 ### [v5.100](https://github.com/replicant4j/replicant/tree/v5.100) (2019-11-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.99...v5.100)
 

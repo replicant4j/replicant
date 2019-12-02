@@ -20,7 +20,7 @@ import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.transport.SharedConstants;
 
 public abstract class GwtWebPollerDataLoaderService
   extends GwtDataLoaderService
@@ -138,11 +138,11 @@ public abstract class GwtWebPollerDataLoaderService
     final RequestBuilder rb = newRequestBuilder( method, url );
     if ( null != requestID )
     {
-      rb.setHeader( ReplicantContext.REQUEST_ID_HEADER, requestID );
+      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, requestID );
     }
     if ( null != eTag )
     {
-      rb.setHeader( ReplicantContext.ETAG_HEADER, eTag );
+      rb.setHeader( SharedConstants.ETAG_HEADER, eTag );
     }
     try
     {
@@ -195,7 +195,7 @@ public abstract class GwtWebPollerDataLoaderService
                                                            @Nonnull final String url )
   {
     final RequestBuilder rb = newRequestBuilder( method, url );
-    rb.setHeader( ReplicantContext.SESSION_ID_HEADER, getSessionID() );
+    rb.setHeader( SharedConstants.SESSION_ID_HEADER, getSessionID() );
     return rb;
   }
 
@@ -205,7 +205,7 @@ public abstract class GwtWebPollerDataLoaderService
   {
     final RequestBuilder rb = new RequestBuilder( method, url );
     //Timeout 2 seconds after maximum poll
-    rb.setTimeoutMillis( ( ReplicantContext.MAX_POLL_TIME_IN_SECONDS + 2 ) * 1000 );
+    rb.setTimeoutMillis( ( SharedConstants.MAX_POLL_TIME_IN_SECONDS + 2 ) * 1000 );
     rb.setHeader( "Pragma", "no-cache" );
     final String authenticationToken = getSessionContext().getAuthenticationToken();
     if ( null != authenticationToken )

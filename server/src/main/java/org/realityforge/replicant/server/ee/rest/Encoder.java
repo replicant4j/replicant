@@ -21,7 +21,7 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
 import org.realityforge.replicant.shared.ee.JsonUtil;
-import org.realityforge.replicant.shared.transport.ReplicantContext;
+import org.realityforge.replicant.shared.transport.SharedConstants;
 
 final class Encoder
 {
@@ -136,13 +136,13 @@ final class Encoder
   @Nonnull
   private static String getSessionURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
-    return uri.getBaseUri() + ReplicantContext.SESSION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
+    return uri.getBaseUri() + SharedConstants.SESSION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
   }
 
   @Nonnull
   private static String getSubscriptionsURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
-    return getSessionURL( session, uri ) + ReplicantContext.CHANNEL_URL_FRAGMENT;
+    return getSessionURL( session, uri ) + SharedConstants.CHANNEL_URL_FRAGMENT;
   }
 
   @Nonnull
