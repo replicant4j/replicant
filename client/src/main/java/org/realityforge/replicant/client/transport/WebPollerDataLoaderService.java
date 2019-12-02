@@ -95,7 +95,7 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected String getBaseSessionURL()
   {
-    return getBaseURL() + SharedConstants.SESSION_URL_FRAGMENT;
+    return getBaseURL() + SharedConstants.CONNECTION_URL_FRAGMENT;
   }
 
   /**

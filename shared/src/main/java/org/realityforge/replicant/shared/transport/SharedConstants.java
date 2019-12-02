@@ -46,7 +46,7 @@ public final class SharedConstants
   /**
    * The url relative to base from which initial token is generated and the replicant session created.
    */
-  public static final String SESSION_URL_FRAGMENT = "/session";
+  public static final String CONNECTION_URL_FRAGMENT = "/session";
   /**
    * The url relative to the session from which controls the channel subscriptions.
    */

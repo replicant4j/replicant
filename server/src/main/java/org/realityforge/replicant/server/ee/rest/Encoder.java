@@ -136,7 +136,7 @@ final class Encoder
   @Nonnull
   private static String getSessionURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
-    return uri.getBaseUri() + SharedConstants.SESSION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
+    return uri.getBaseUri() + SharedConstants.CONNECTION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
   }
 
   @Nonnull
