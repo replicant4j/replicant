@@ -158,7 +158,7 @@ public class EntityRepositoryTest
 
     assertEquals( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "B" ) ), e2 );
     assertEquals( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "D" ) ), e4 );
-    assertEquals( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "X" ) ), null );
+    assertNull( r.findByQuery( C.class, e -> Objects.equals( e.getCode(), "X" ) ) );
   }
 
   @Test

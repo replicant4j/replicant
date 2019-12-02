@@ -67,7 +67,7 @@ public class ReplicantRpcRequestBuilderTest
     verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
-    assertEquals( requestEntry.isExpectingResults(), false );
+    assertFalse( requestEntry.isExpectingResults() );
   }
 
   @Test
@@ -95,8 +95,8 @@ public class ReplicantRpcRequestBuilderTest
     verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
-    assertEquals( requestEntry.isCompletionDataPresent(), false );
-    assertEquals( requestEntry.isExpectingResults(), true );
+    assertFalse( requestEntry.isCompletionDataPresent() );
+    assertTrue( requestEntry.isExpectingResults() );
   }
 
   @Test
@@ -123,7 +123,7 @@ public class ReplicantRpcRequestBuilderTest
     verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
-    assertEquals( requestEntry.isExpectingResults(), false );
+    assertFalse( requestEntry.isExpectingResults() );
   }
 
   private void setRequest( final SessionContext sessionContext, final RequestEntry requestEntry )

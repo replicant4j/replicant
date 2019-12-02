@@ -146,7 +146,7 @@ public class DataLoaderServiceTest
 
     session1.enqueueOOB( sessionID, null );
 
-    assertEquals( service.getSessionContext().getSession(), null );
+    assertNull( service.getSessionContext().getSession() );
 
     when( service.getChangeBroker().isEnabled() ).thenReturn( true );
 
@@ -675,26 +675,26 @@ public class DataLoaderServiceTest
     configureService( service );
     assertNotNull( service.getSession() );
 
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertFalse( service.progressAreaOfInterestActions() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
 
     service.requestSubscribe( channel1, null );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
+    assertTrue( service.getCurrentAOIActions().get( 0 ).isInProgress() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
 
     // Nothing to do until the first AOI completes
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertFalse( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
     service.requestSubscribe( channel2, null );
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertFalse( service.progressAreaOfInterestActions() );
     assertEquals( 1, service.getCurrentAOIActions().size() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
 
     completeOutstandingAOIs( service );
 
-    assertEquals( true, service.progressAreaOfInterestActions() );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( 1, service.getCurrentAOIActions().size() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel2 );
   }
@@ -720,21 +720,21 @@ public class DataLoaderServiceTest
       eq( channel2AOI.getCacheKey() ) ) ).thenReturn(
       new CacheEntry( channel2AOI.getCacheKey(), "woo", "har" ) );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
+    assertTrue( service.getCurrentAOIActions().get( 0 ).isInProgress() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel1 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
+    assertTrue( service.getCurrentAOIActions().get( 0 ).isInProgress() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
-    assertEquals( service.getCurrentAOIActions().get( 0 ).isInProgress(), true );
+    assertTrue( service.getCurrentAOIActions().get( 0 ).isInProgress() );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channel3 );
   }
 
@@ -753,7 +753,7 @@ public class DataLoaderServiceTest
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
     assertNotNull( service.getSession() );
 
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertFalse( service.progressAreaOfInterestActions() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
 
     service.requestSubscribe( channelA1, null );
@@ -767,38 +767,38 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 8 );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelB1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelB2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA3 );
 
     completeOutstandingAOIs( service );
     when( sm.findSubscription( any( ChannelAddress.class ) ) ).thenReturn(
       new ChannelSubscriptionEntry( channelA1, null, true ) );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 1 ).getDescriptor(), channelA2 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelB1 );
 
-    assertEquals( service.progressAreaOfInterestActions(), false );
+    assertFalse( service.progressAreaOfInterestActions() );
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), false );
+    assertFalse( service.progressAreaOfInterestActions() );
   }
 
   @Test
@@ -813,7 +813,7 @@ public class DataLoaderServiceTest
     final EntitySubscriptionManager sm = service.getSubscriptionManager();
     assertNotNull( service.getSession() );
 
-    assertEquals( false, service.progressAreaOfInterestActions() );
+    assertFalse( service.progressAreaOfInterestActions() );
     assertEquals( 0, service.getCurrentAOIActions().size() );
 
     service.requestSubscribe( channelA1, null );
@@ -823,12 +823,12 @@ public class DataLoaderServiceTest
 
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 4 );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
 
     completeOutstandingAOIs( service );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA2 );
 
@@ -839,7 +839,7 @@ public class DataLoaderServiceTest
     when( sm.findSubscription( eq( channelA2 ) ) ).thenReturn(
       new ChannelSubscriptionEntry( channelA2, "FilterB", true ) );
 
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 2 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getDescriptor(), channelA1 );
     assertEquals( service.getCurrentAOIActions().get( 0 ).getFilterParameter(), "FilterB" );
@@ -867,7 +867,7 @@ public class DataLoaderServiceTest
     service.requestSubscribe( channelA2, null );
 
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
@@ -877,7 +877,7 @@ public class DataLoaderServiceTest
     service.requestSubscriptionUpdate( channelA2, "boo" );
 
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 2 );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
 
@@ -890,7 +890,7 @@ public class DataLoaderServiceTest
     service.requestUnsubscribe( channelA3 );
 
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 3 );
-    assertEquals( service.progressAreaOfInterestActions(), true );
+    assertTrue( service.progressAreaOfInterestActions() );
     assertEquals( service.getCurrentAOIActions().size(), 0 );
     assertEquals( service.ensureSession().getPendingAreaOfInterestActions().size(), 0 );
   }

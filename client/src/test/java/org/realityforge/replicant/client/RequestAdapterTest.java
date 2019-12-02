@@ -61,7 +61,7 @@ public class RequestAdapterTest
     assertFalse( request.isCompletionDataPresent() );
 
     adapter.onSuccess();
-    assertEquals( results[ 0 ], null );
+    assertNull( results[ 0 ] );
     assertTrue( request.isCompletionDataPresent() );
     assertNotNull( request.getCompletionAction() );
     assertTrue( request.isNormalCompletion() );

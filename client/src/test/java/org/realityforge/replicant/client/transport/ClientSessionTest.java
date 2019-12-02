@@ -17,12 +17,12 @@ public class ClientSessionTest
 
     assertEquals( rm.getRequest( e.getRequestID() ), e );
     assertEquals( rm.getRequests().get( e.getRequestID() ), e );
-    assertEquals( rm.getRequest( "NotHere" + e.getRequestID() ), null );
+    assertNull( rm.getRequest( "NotHere" + e.getRequestID() ) );
 
     assertTrue( rm.removeRequest( e.getRequestID() ) );
     assertFalse( rm.removeRequest( e.getRequestID() ) );
 
-    assertEquals( rm.getRequest( e.getRequestID() ), null );
+    assertNull( rm.getRequest( e.getRequestID() ) );
   }
 
   @Test

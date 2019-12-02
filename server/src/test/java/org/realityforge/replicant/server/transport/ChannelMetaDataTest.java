@@ -12,10 +12,10 @@ public class ChannelMetaDataTest
       new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
-    assertEquals( metaData.isTypeGraph(), true );
-    assertEquals( metaData.isInstanceGraph(), false );
+    assertTrue( metaData.isTypeGraph() );
+    assertFalse( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
-    assertEquals( metaData.isCacheable(), false );
+    assertFalse( metaData.isCacheable() );
 
     assertThrows( metaData::getFilterParameterType );
   }
@@ -27,10 +27,10 @@ public class ChannelMetaDataTest
       new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.NONE, null, false );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
-    assertEquals( metaData.isTypeGraph(), false );
-    assertEquals( metaData.isInstanceGraph(), true );
+    assertFalse( metaData.isTypeGraph() );
+    assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
-    assertEquals( metaData.isCacheable(), false );
+    assertFalse( metaData.isCacheable() );
   }
 
   @Test
@@ -40,11 +40,11 @@ public class ChannelMetaDataTest
       new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.STATIC, String.class, false );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
-    assertEquals( metaData.isTypeGraph(), false );
-    assertEquals( metaData.isInstanceGraph(), true );
+    assertFalse( metaData.isTypeGraph() );
+    assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.STATIC );
     assertEquals( metaData.getFilterParameterType(), String.class );
-    assertEquals( metaData.isCacheable(), false );
+    assertFalse( metaData.isCacheable() );
   }
 
   @Test

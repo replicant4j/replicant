@@ -92,7 +92,7 @@ public class AreaOfInterestServiceTest
     assertNotNull( reference );
     final Scope scope = reference.getScope();
     assertEquals( scope.getName(), name );
-    assertEquals( scope.isActive(), true );
+    assertTrue( scope.isActive() );
     assertEquals( scope.getReferenceCount(), 1 );
 
     verify( listener ).scopeCreated( scope );
@@ -101,28 +101,28 @@ public class AreaOfInterestServiceTest
 
     assertEquals( service.getScopeNames().size(), 1 );
     assertEquals( service.getScopes().size(), 1 );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ), true );
-    assertEquals( service.getScopes().contains( scope ), true );
+    assertTrue( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ) );
+    assertTrue( service.getScopes().contains( scope ) );
 
     {
       final ScopeReference reference2 = scope.createReference();
       assertEquals( reference2.getScope(), scope );
-      assertEquals( reference2.hasBeenReleased(), false );
+      assertFalse( reference2.hasBeenReleased() );
       assertEquals( scope.getReferenceCount(), 2 );
 
       reference2.release();
-      assertEquals( reference2.hasBeenReleased(), true );
+      assertTrue( reference2.hasBeenReleased() );
       assertEquals( scope.getReferenceCount(), 1 );
     }
 
     {
       final ScopeReference reference2 = service.createScopeReference( name );
       assertEquals( reference2.getScope(), scope );
-      assertEquals( reference2.hasBeenReleased(), false );
+      assertFalse( reference2.hasBeenReleased() );
       assertEquals( scope.getReferenceCount(), 2 );
 
       reference2.release();
-      assertEquals( reference2.hasBeenReleased(), true );
+      assertTrue( reference2.hasBeenReleased() );
       assertEquals( scope.getReferenceCount(), 1 );
     }
 
@@ -137,22 +137,22 @@ public class AreaOfInterestServiceTest
     subScope.requireScope( scope );
 
     assertEquals( subScope.getName(), subScopeName );
-    assertEquals( subScope.isActive(), true );
+    assertTrue( subScope.isActive() );
     assertEquals( subScope.getReferenceCount(), 1 );
     assertEquals( scope.getReferenceCount(), 2 );
 
     assertEquals( service.findScope( subScopeName ), subScope );
 
     assertEquals( service.getScopeNames().size(), 2 );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ), true );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( subScopeName ) ), true );
+    assertTrue( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ) );
+    assertTrue( service.getScopeNames().stream().anyMatch( n -> n.equals( subScopeName ) ) );
 
     assertEquals( service.getScopes().size(), 2 );
-    assertEquals( service.getScopes().contains( scope ), true );
-    assertEquals( service.getScopes().contains( subScope ), true );
+    assertTrue( service.getScopes().contains( scope ) );
+    assertTrue( service.getScopes().contains( subScope ) );
 
-    assertEquals( scope.isActive(), true );
-    assertEquals( subScope.isActive(), true );
+    assertTrue( scope.isActive() );
+    assertTrue( subScope.isActive() );
 
     // Delete reference to original scope. This means there is no explicit subscription anymore
 
@@ -162,18 +162,18 @@ public class AreaOfInterestServiceTest
 
     // All scopes should still exist
     assertEquals( service.getScopeNames().size(), 2 );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ), true );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( subScopeName ) ), true );
+    assertTrue( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ) );
+    assertTrue( service.getScopeNames().stream().anyMatch( n -> n.equals( subScopeName ) ) );
 
     assertEquals( service.getScopes().size(), 2 );
-    assertEquals( service.getScopes().contains( scope ), true );
-    assertEquals( service.getScopes().contains( subScope ), true );
+    assertTrue( service.getScopes().contains( scope ) );
+    assertTrue( service.getScopes().contains( subScope ) );
 
     assertEquals( scope.getReferenceCount(), 1 );
     assertEquals( subScope.getReferenceCount(), 1 );
 
-    assertEquals( scope.isActive(), true );
-    assertEquals( subScope.isActive(), true );
+    assertTrue( scope.isActive() );
+    assertTrue( subScope.isActive() );
 
     // Delete reference to subscope
 
@@ -182,16 +182,16 @@ public class AreaOfInterestServiceTest
     assertTrue( subScopeReference.hasBeenReleased() );
 
     assertEquals( service.getScopeNames().size(), 0 );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ), false );
-    assertEquals( service.getScopeNames().stream().anyMatch( n -> n.equals( subScopeName ) ), false );
+    assertFalse( service.getScopeNames().stream().anyMatch( n -> n.equals( name ) ) );
+    assertFalse( service.getScopeNames().stream().anyMatch( n -> n.equals( subScopeName ) ) );
 
     assertEquals( service.getScopes().size(), 0 );
 
     assertEquals( scope.getReferenceCount(), 0 );
     assertEquals( subScope.getReferenceCount(), 0 );
 
-    assertEquals( scope.isActive(), false );
-    assertEquals( subScope.isActive(), false );
+    assertFalse( scope.isActive() );
+    assertFalse( subScope.isActive() );
 
     verify( listener ).scopeDeleted( scope );
     verify( listener ).scopeDeleted( subScope );
@@ -217,15 +217,15 @@ public class AreaOfInterestServiceTest
     final Scope scope = reference.getScope();
     assertNotNull( scope );
 
-    assertEquals( scope.isActive(), true );
+    assertTrue( scope.isActive() );
     assertEquals( service.getScopeNames().size(), 1 );
-    assertEquals( reference.hasBeenReleased(), false );
+    assertFalse( reference.hasBeenReleased() );
 
     scope.release();
 
     assertEquals( service.getScopeNames().size(), 0 );
-    assertEquals( scope.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
+    assertFalse( scope.isActive() );
+    assertTrue( reference.hasBeenReleased() );
   }
 
   @Test
@@ -268,17 +268,17 @@ public class AreaOfInterestServiceTest
 
     assertEquals( subscription1.getDescriptor(), descriptor1 );
     assertEquals( subscription1.getReferenceCount(), 1 );
-    assertEquals( subscription1.isActive(), true );
+    assertTrue( subscription1.isActive() );
 
-    assertEquals( scope1.getRequiredSubscriptions().contains( subscription1 ), true );
+    assertTrue( scope1.getRequiredSubscriptions().contains( subscription1 ) );
     assertEquals( scope1.getSubscriptionReferenceCount(), 1 );
 
     verify( listener ).subscriptionCreated( subscription1 );
 
     assertEquals( service.getSubscriptionsChannels().size(), 1 );
-    assertEquals( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor1 ) ), true );
-    assertEquals( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor2 ) ), false );
-    assertEquals( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor3 ) ), false );
+    assertTrue( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor1 ) ) );
+    assertFalse( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor2 ) ) );
+    assertFalse( service.getSubscriptionsChannels().stream().anyMatch( n -> n.equals( descriptor3 ) ) );
 
     final Object newFilter = new Object();
     service.updateSubscription( subscription1, newFilter );
@@ -306,7 +306,7 @@ public class AreaOfInterestServiceTest
     reference1.release();
     assertTrue( reference1.hasBeenReleased() );
 
-    assertEquals( subscription1.isActive(), false );
+    assertFalse( subscription1.isActive() );
 
     assertEquals( service.getSubscriptionsChannels().size(), 0 );
 

@@ -26,14 +26,14 @@ public class DataLoaderEntryTest
     final DataLoaderService service = mock( DataLoaderService.class );
     final DataLoaderEntry entry = new DataLoaderEntry( service, true );
     assertEquals( entry.getService(), service );
-    assertEquals( entry.isRequired(), true );
+    assertTrue( entry.isRequired() );
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * DataLoaderEntry.REQUIRED_REGEN_PER_MILLISECOND );
 
     entry.getRateLimiter().setTokenCount( 0 );
 
     final TestConsumer action = new TestConsumer();
     assertFalse( entry.attemptAction( action ) );
-    assertEquals( action._dataLoaderService, null );
+    assertNull( action._dataLoaderService );
 
     entry.getRateLimiter().fillBucket();
 
@@ -45,7 +45,7 @@ public class DataLoaderEntryTest
   public void optionalService()
   {
     final DataLoaderEntry entry = new DataLoaderEntry( mock( DataLoaderService.class ), false );
-    assertEquals( entry.isRequired(), false );
+    assertFalse( entry.isRequired() );
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * DataLoaderEntry.OPTIONAL_REGEN_PER_MILLISECOND );
   }
 }

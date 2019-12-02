@@ -13,13 +13,13 @@ public class RequestEntryTest
     assertEquals( e.getRequestID(), "a1" );
     assertEquals( e.getCacheKey(), "X" );
 
-    assertEquals( e.isCompletionDataPresent(), false );
+    assertFalse( e.isCompletionDataPresent() );
     e.setNormalCompletionAction( null );
-    assertEquals( e.isCompletionDataPresent(), true );
-    assertEquals( e.isNormalCompletion(), true );
+    assertTrue( e.isCompletionDataPresent() );
+    assertTrue( e.isNormalCompletion() );
 
-    assertEquals( e.haveResultsArrived(), false );
+    assertFalse( e.haveResultsArrived() );
     e.markResultsAsArrived();
-    assertEquals( e.haveResultsArrived(), true );
+    assertTrue( e.haveResultsArrived() );
   }
 }

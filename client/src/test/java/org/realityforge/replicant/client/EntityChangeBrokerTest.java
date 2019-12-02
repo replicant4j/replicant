@@ -313,8 +313,8 @@ public class EntityChangeBrokerTest
 
   private void assertNoActiveTransaction( final EntityChangeBroker broker )
   {
-    assertEquals( broker.getCurrentTransaction(), null );
-    assertEquals( broker.isInTransaction(), false );
+    assertNull( broker.getCurrentTransaction() );
+    assertFalse( broker.isInTransaction() );
   }
 
   @Test
@@ -369,7 +369,7 @@ public class EntityChangeBrokerTest
   private void assertActiveTransaction( final EntityChangeBroker broker, final EntityBrokerTransaction transaction )
   {
     assertEquals( broker.getCurrentTransaction(), transaction );
-    assertEquals( broker.isInTransaction(), true );
+    assertTrue( broker.isInTransaction() );
   }
 
   @Test

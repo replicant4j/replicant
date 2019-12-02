@@ -48,21 +48,21 @@ public class RateLimitedValueTest
     assertEquals( value.getMaxTokenCount(), 200D );
     assertEquals( value.getTokensPerSecond(), 50D );
     assertEquals( value.getTokenCount(), 2D );
-    assertEquals( value.isBucketFull(), false );
+    assertFalse( value.isBucketFull() );
 
     value.fillBucket();
 
     assertEquals( value.getTokenCount(), 200D );
-    assertEquals( value.isBucketFull(), true );
+    assertTrue( value.isBucketFull() );
 
     value.setTokenCount( 0D );
     assertEquals( value.getTokenCount(), 0D );
-    assertEquals( value.isBucketFull(), false );
+    assertFalse( value.isBucketFull() );
 
     // Make sure it is truncated to max token count
     value.setTokenCount( 400000D );
     assertEquals( value.getTokenCount(), 200D );
-    assertEquals( value.isBucketFull(), true );
+    assertTrue( value.isBucketFull() );
 
     assertFalse( value.consume( 1000D ) );
     assertEquals( value.getTokenCount(), 200D );

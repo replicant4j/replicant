@@ -18,21 +18,21 @@ public class SessionContextTest
     //session
     {
       final ClientSession session = new ClientSession( mock( DataLoaderService.class ), ValueUtil.randomString() );
-      assertEquals( sessionContext.getSession(), null );
+      assertNull( sessionContext.getSession() );
       sessionContext.setSession( session );
       assertEquals( sessionContext.getSession(), session );
       sessionContext.setSession( null );
-      assertEquals( sessionContext.getSession(), null );
+      assertNull( sessionContext.getSession() );
     }
 
     //authToken
     {
       final String authToken = ValueUtil.randomString();
-      assertEquals( sessionContext.getAuthenticationToken(), null );
+      assertNull( sessionContext.getAuthenticationToken() );
       sessionContext.setAuthenticationToken( authToken );
       assertEquals( sessionContext.getAuthenticationToken(), authToken );
       sessionContext.setAuthenticationToken( null );
-      assertEquals( sessionContext.getAuthenticationToken(), null );
+      assertNull( sessionContext.getAuthenticationToken() );
     }
   }
 

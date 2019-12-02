@@ -22,10 +22,10 @@ public class AreaOfInterestEntryTest
     assertEquals( entry.getAction(), action );
     assertEquals( entry.getCacheKey(), "Foo:TestGraph.A" );
     assertEquals( entry.getFilterParameter(), filterParameter );
-    assertEquals( entry.match( action, descriptor, filterParameter ), true );
-    assertEquals( entry.match( action, descriptor, "OtherFilter" ), false );
-    assertEquals( entry.match( AreaOfInterestAction.REMOVE, descriptor, filterParameter ), false );
-    assertEquals( entry.match( action, new ChannelAddress( TestGraph.B, "X" ), filterParameter ), false );
+    assertTrue( entry.match( action, descriptor, filterParameter ) );
+    assertFalse( entry.match( action, descriptor, "OtherFilter" ) );
+    assertFalse( entry.match( AreaOfInterestAction.REMOVE, descriptor, filterParameter ) );
+    assertFalse( entry.match( action, new ChannelAddress( TestGraph.B, "X" ), filterParameter ) );
   }
 
    @Test
@@ -37,8 +37,8 @@ public class AreaOfInterestEntryTest
     final AreaOfInterestEntry entry =
       new AreaOfInterestEntry( "Foo", descriptor, action, null );
 
-    assertEquals( entry.match( action, descriptor, null ), true );
-    assertEquals( entry.match( action, descriptor, "OtherFilter" ), true );
-    assertEquals( entry.match( AreaOfInterestAction.ADD, descriptor, null ), false );
+    assertTrue( entry.match( action, descriptor, null ) );
+    assertTrue( entry.match( action, descriptor, "OtherFilter" ) );
+    assertFalse( entry.match( AreaOfInterestAction.ADD, descriptor, null ) );
   }
 }

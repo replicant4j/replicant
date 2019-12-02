@@ -52,7 +52,7 @@ public class ReplicantClientSystemImplTest
 
     final DataLoaderListenerSupport l = service1.getListener();
     assertEquals( l.getListeners().size(), 1 );
-    assertEquals( l.getListeners().contains( system.getDataLoaderListener() ), true );
+    assertTrue( l.getListeners().contains( system.getDataLoaderListener() ) );
 
     service1.setState( DataLoaderService.State.CONNECTED );
     reset( listener );
@@ -82,52 +82,52 @@ public class ReplicantClientSystemImplTest
 
     service1.reset();
     l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.ERROR );
     service1.reset();
     l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.ERROR );
     service1.reset();
     l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.CONNECTING );
     service1.reset();
     l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.DISCONNECTING );
     service1.reset();
     l.onPollFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.CONNECTED );
     service1.reset();
     l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.ERROR );
     service1.reset();
     l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.ERROR );
     service1.reset();
     l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.CONNECTING );
     service1.reset();
     l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.DISCONNECTING );
     service1.reset();
     l.onDataLoadFailure( service1, new Throwable() );
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
   }
 
   @Test
@@ -145,7 +145,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), true );
+    assertTrue( service1.isConnectCalled() );
 
     // set service state to in transition so connect is not called
 
@@ -153,13 +153,13 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
 
     service1.setState( DataLoaderService.State.DISCONNECTING );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
 
     // set service state to connected so no action required
 
@@ -167,7 +167,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
 
     // set service state to disconnected but rate limit it
 
@@ -175,7 +175,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
 
     // set service state to disconnected but rate limit it
 
@@ -183,7 +183,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), true );
+    assertTrue( service1.isConnectCalled() );
   }
 
   @Test
@@ -208,8 +208,8 @@ public class ReplicantClientSystemImplTest
     service1.reset();
     service3.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), true );
-    assertEquals( service3.isConnectCalled(), true );
+    assertTrue( service1.isConnectCalled() );
+    assertTrue( service3.isConnectCalled() );
 
     // set service state to in transition so connect is not called
 
@@ -220,8 +220,8 @@ public class ReplicantClientSystemImplTest
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
+    assertFalse( service3.isConnectCalled() );
 
     service1.setState( DataLoaderService.State.DISCONNECTING );
     entry1.getRateLimiter().fillBucket();
@@ -230,8 +230,8 @@ public class ReplicantClientSystemImplTest
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
+    assertFalse( service3.isConnectCalled() );
 
     // set service state to connected so no action required
 
@@ -242,8 +242,8 @@ public class ReplicantClientSystemImplTest
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
+    assertFalse( service3.isConnectCalled() );
 
     // set service state to disconnected but rate limit it
 
@@ -254,8 +254,8 @@ public class ReplicantClientSystemImplTest
     entry3.getRateLimiter().setTokenCount( 0 );
     service3.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), false );
-    assertEquals( service3.isConnectCalled(), false );
+    assertFalse( service1.isConnectCalled() );
+    assertFalse( service3.isConnectCalled() );
 
     // set service state to disconnected but rate limit it
 
@@ -266,8 +266,8 @@ public class ReplicantClientSystemImplTest
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.activate();
-    assertEquals( service1.isConnectCalled(), true );
-    assertEquals( service3.isConnectCalled(), true );
+    assertTrue( service1.isConnectCalled() );
+    assertTrue( service3.isConnectCalled() );
   }
 
   @Test
@@ -285,7 +285,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
 
     // set service state to in transition so connect is not called
 
@@ -293,13 +293,13 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     service1.setState( DataLoaderService.State.DISCONNECTING );
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     // set service state to DISCONNECTED so no action required
 
@@ -307,7 +307,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     // set service state to ERROR so no action required
 
@@ -315,7 +315,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     // set service state to connected but rate limit it
 
@@ -323,7 +323,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().setTokenCount( 0 );
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), false );
+    assertFalse( service1.isDisconnectCalled() );
 
     // set service state to connected
 
@@ -331,7 +331,7 @@ public class ReplicantClientSystemImplTest
     entry1.getRateLimiter().fillBucket();
     service1.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
   }
 
   @Test
@@ -355,8 +355,8 @@ public class ReplicantClientSystemImplTest
     entry3.getRateLimiter().fillBucket();
     service3.reset();
     system.deactivate();
-    assertEquals( service1.isDisconnectCalled(), true );
-    assertEquals( service3.isDisconnectCalled(), true );
+    assertTrue( service1.isDisconnectCalled() );
+    assertTrue( service3.isDisconnectCalled() );
 
   }
 
@@ -543,7 +543,7 @@ public class ReplicantClientSystemImplTest
     system.addReplicantSystemListener( listener );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    assertEquals( system.isActive(), false );
+    assertFalse( system.isActive() );
     assertEquals( newServiceA().getState(), DataLoaderService.State.DISCONNECTED );
 
     system.converge();
@@ -551,7 +551,7 @@ public class ReplicantClientSystemImplTest
     verify( listener, never() ).stateChanged( any(), any(), any() );
 
     assertEquals( system.getState(), ReplicantClientSystem.State.DISCONNECTED );
-    assertEquals( system.isActive(), false );
+    assertFalse( system.isActive() );
     assertEquals( newServiceA().getState(), DataLoaderService.State.DISCONNECTED );
   }
 

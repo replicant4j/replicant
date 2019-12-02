@@ -64,16 +64,16 @@ public class DataLoadActionTest
 
     //Ensure the initial state is as expected
     assertEquals( action.getRawJsonData(), "BLAH" );
-    assertEquals( action.getChangeSet(), null );
+    assertNull( action.getChangeSet() );
     if ( null != runnable )
     {
       assertEquals( runnable.getRunCount(), 0 );
     }
 
-    assertEquals( action.areEntityLinksCalculated(), false );
-    assertEquals( action.areEntityLinksPending(), false );
-    assertEquals( action.areChangesPending(), false );
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertFalse( action.areEntityLinksCalculated() );
+    assertFalse( action.areEntityLinksPending() );
+    assertFalse( action.areChangesPending() );
+    assertFalse( action.hasWorldBeenNotified() );
 
     if ( oob )
     {
@@ -99,9 +99,9 @@ public class DataLoadActionTest
     assertEquals( action.getRunnable(), runnable );
 
     assertEquals( action.getChangeSet(), changeSet );
-    assertEquals( action.getRawJsonData(), null );
+    assertNull( action.getRawJsonData() );
 
-    assertEquals( action.areChangesPending(), true );
+    assertTrue( action.areChangesPending() );
     final Change change = action.nextChange();
     assertNotNull( change );
     assertEquals( change, changeSet.getChange( 0 ) );
@@ -110,7 +110,7 @@ public class DataLoadActionTest
 
     if ( 1 == changeSet.getChangeCount() )
     {
-      assertEquals( action.areChangesPending(), false );
+      assertFalse( action.areChangesPending() );
     }
     else
     {
@@ -122,28 +122,28 @@ public class DataLoadActionTest
       }
     }
 
-    assertEquals( action.areEntityLinksCalculated(), false );
+    assertFalse( action.areEntityLinksCalculated() );
 
     action.calculateEntitiesToLink();
 
-    assertEquals( action.areEntityLinksCalculated(), true );
+    assertTrue( action.areEntityLinksCalculated() );
 
     if ( expectedLink )
     {
-      assertEquals( action.areEntityLinksPending(), true );
+      assertTrue( action.areEntityLinksPending() );
       assertEquals( action.nextEntityToLink(), entity );
-      assertEquals( action.areEntityLinksPending(), false );
+      assertFalse( action.areEntityLinksPending() );
     }
     else
     {
-      assertEquals( action.areEntityLinksPending(), false );
+      assertFalse( action.areEntityLinksPending() );
     }
 
-    assertEquals( action.hasWorldBeenNotified(), false );
+    assertFalse( action.hasWorldBeenNotified() );
 
     action.markWorldAsNotified();
 
-    assertEquals( action.hasWorldBeenNotified(), true );
+    assertTrue( action.hasWorldBeenNotified() );
   }
 
   @Test

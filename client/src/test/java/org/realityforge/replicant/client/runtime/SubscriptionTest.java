@@ -22,11 +22,11 @@ public class SubscriptionTest
     final Subscription subscription = new Subscription( areaOfInterestService, descriptor );
 
     assertEquals( subscription.getDescriptor(), descriptor );
-    assertEquals( subscription.isActive(), true );
-    assertEquals( subscription.hasBeenReleased(), false );
+    assertTrue( subscription.isActive() );
+    assertFalse( subscription.hasBeenReleased() );
     assertEquals( subscription.getReferenceCount(), 0 );
 
-    assertEquals( subscription.getFilter(), null );
+    assertNull( subscription.getFilter() );
 
     // Update subscription works ....
 
@@ -42,8 +42,8 @@ public class SubscriptionTest
 
     verify( areaOfInterestService, only() ).destroySubscription( subscription );
 
-    assertEquals( subscription.isActive(), false );
-    assertEquals( subscription.hasBeenReleased(), true );
+    assertFalse( subscription.isActive() );
+    assertTrue( subscription.hasBeenReleased() );
 
     reset( areaOfInterestService );
 
@@ -64,34 +64,34 @@ public class SubscriptionTest
     final SubscriptionReference reference = subscription.createReference();
 
     assertEquals( subscription.getReferenceCount(), 1 );
-    assertEquals( subscription.isActive(), true );
+    assertTrue( subscription.isActive() );
 
     // Create a second reference and let it be managed appropriately
     {
       final SubscriptionReference reference2 = subscription.createReference();
       assertEquals( subscription.getReferenceCount(), 2 );
 
-      assertEquals( reference2.hasBeenReleased(), false );
+      assertFalse( reference2.hasBeenReleased() );
       reference2.release();
-      assertEquals( reference2.hasBeenReleased(), true );
+      assertTrue( reference2.hasBeenReleased() );
 
       assertThrows( ReferenceReleasedException.class, reference2::getSubscription );
 
       // Subscription still has active reference so it should be alive
       assertEquals( subscription.getReferenceCount(), 1 );
-      assertEquals( subscription.isActive(), true );
+      assertTrue( subscription.isActive() );
     }
 
     answerDestroySubscription( areaOfInterestService, subscription );
 
-    assertEquals( reference.hasBeenReleased(), false );
+    assertFalse( reference.hasBeenReleased() );
     reference.release();
-    assertEquals( reference.hasBeenReleased(), true );
+    assertTrue( reference.hasBeenReleased() );
 
     // Releasing the last reference removes the subscription
     verify( areaOfInterestService, only() ).destroySubscription( subscription );
 
-    assertEquals( subscription.isActive(), false );
+    assertFalse( subscription.isActive() );
     assertEquals( subscription.getReferenceCount(), 0 );
   }
 
@@ -111,8 +111,8 @@ public class SubscriptionTest
 
     verify( areaOfInterestService, only() ).destroySubscription( subscription );
 
-    assertEquals( subscription.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
+    assertFalse( subscription.isActive() );
+    assertTrue( reference.hasBeenReleased() );
   }
 
   @Test
@@ -125,22 +125,22 @@ public class SubscriptionTest
     final Subscription subscription1 = new Subscription( areaOfInterestService, descriptor1 );
     final Subscription subscription2 = new Subscription( areaOfInterestService, descriptor2 );
 
-    assertEquals( subscription1.isActive(), true );
-    assertEquals( subscription2.isActive(), true );
+    assertTrue( subscription1.isActive() );
+    assertTrue( subscription2.isActive() );
     assertEquals( subscription1.getReferenceCount(), 0 );
     assertEquals( subscription2.getReferenceCount(), 0 );
 
-    assertEquals( subscription1.isSubscriptionRequired( subscription2 ), false );
+    assertFalse( subscription1.isSubscriptionRequired( subscription2 ) );
     assertEquals( subscription1.getRequiredSubscriptions().size(), 0 );
 
     final SubscriptionReference reference = subscription1.requireSubscription( subscription2 );
 
-    assertEquals( subscription1.isSubscriptionRequired( subscription2 ), true );
+    assertTrue( subscription1.isSubscriptionRequired( subscription2 ) );
     assertEquals( subscription1.getRequiredSubscriptions().size(), 1 );
-    assertEquals( subscription1.getRequiredSubscriptions().contains( subscription2 ), true );
+    assertTrue( subscription1.getRequiredSubscriptions().contains( subscription2 ) );
 
-    assertEquals( subscription1.isActive(), true );
-    assertEquals( subscription2.isActive(), true );
+    assertTrue( subscription1.isActive() );
+    assertTrue( subscription2.isActive() );
     assertEquals( subscription1.getReferenceCount(), 0 );
     assertEquals( subscription2.getReferenceCount(), 1 );
 
@@ -156,10 +156,10 @@ public class SubscriptionTest
     verify( areaOfInterestService ).destroySubscription( subscription1 );
     verify( areaOfInterestService ).destroySubscription( subscription2 );
 
-    assertEquals( subscription1.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
-    assertEquals( subscription2.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
+    assertFalse( subscription1.isActive() );
+    assertTrue( reference.hasBeenReleased() );
+    assertFalse( subscription2.isActive() );
+    assertTrue( reference.hasBeenReleased() );
     assertEquals( subscription1.getReferenceCount(), 0 );
     assertEquals( subscription2.getReferenceCount(), 0 );
 
@@ -178,9 +178,9 @@ public class SubscriptionTest
 
     subscription1.release();
 
-    assertEquals( reference1.hasBeenReleased(), true );
-    assertEquals( reference2.hasBeenReleased(), true );
-    assertEquals( reference3.hasBeenReleased(), true );
+    assertTrue( reference1.hasBeenReleased() );
+    assertTrue( reference2.hasBeenReleased() );
+    assertTrue( reference3.hasBeenReleased() );
   }
 
   private void answerDestroySubscription( @Nonnull final AreaOfInterestService areaOfInterestService,

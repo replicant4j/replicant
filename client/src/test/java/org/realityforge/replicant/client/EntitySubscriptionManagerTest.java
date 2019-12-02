@@ -264,7 +264,7 @@ public class EntitySubscriptionManagerTest
     final ChannelSubscriptionEntry s1 = sm.recordSubscription( new ChannelAddress( G.G1 ), "X", false );
     assertEquals( s1.getFilter(), "X" );
     final ChannelSubscriptionEntry s2 = sm.recordSubscription( new ChannelAddress( G.G2 ), null, false );
-    assertEquals( s2.getFilter(), null );
+    assertNull( s2.getFilter() );
 
     r.registerEntity( type, id, new A() );
 

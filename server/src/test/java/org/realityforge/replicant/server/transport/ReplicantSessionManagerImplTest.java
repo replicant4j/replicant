@@ -64,7 +64,7 @@ public class ReplicantSessionManagerImplTest
     final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
     assertEquals( sm.getSessionKey(), "sid" );
     assertEquals( sm.getSessionIDs().size(), 0 );
-    assertEquals( sm.getSession( "MySessionID" ), null );
+    assertNull( sm.getSession( "MySessionID" ) );
     final ReplicantSession sessionInfo = sm.createSession();
     assertNotNull( sessionInfo );
     assertNull( sessionInfo.getUserID() );
@@ -224,7 +224,7 @@ public class ReplicantSessionManagerImplTest
     session.getQueue().addPacket( null, null, new ChangeSet() );
 
     assertEquals( sm.pollJsonData( session, 0 ), "{\"last_id\":1,\"request_id\":null,\"etag\":null}" );
-    assertEquals( sm.pollJsonData( session, 1 ), null );
+    assertNull( sm.pollJsonData( session, 1 ) );
   }
 
   @Test
@@ -1340,7 +1340,7 @@ public class ReplicantSessionManagerImplTest
       final ChannelAction action = channelActions.get( 0 );
       assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
       assertEquals( action.getChannelAddress(), cd2 );
-      assertEquals( action.getFilter(), null );
+      assertNull( action.getFilter() );
     }
   }
 
@@ -1373,8 +1373,7 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.newReplicantSession();
 
-    assertEquals( session.getSessionID().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ),
-                  true );
+    assertTrue( session.getSessionID().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
   }
 
   @Test
@@ -1408,7 +1407,7 @@ public class ReplicantSessionManagerImplTest
 
     assertEquals( sm.pollPacket( session, p1.getSequence() ), p2 );
     assertEquals( sm.pollPacket( session, p2.getSequence() ), p3 );
-    assertEquals( sm.pollPacket( session, p3.getSequence() ), null );
+    assertNull( sm.pollPacket( session, p3.getSequence() ) );
   }
 
   @Test
@@ -1456,7 +1455,7 @@ public class ReplicantSessionManagerImplTest
 
     final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
 
-    assertEquals( entry2a.isExplicitlySubscribed(), false );
+    assertFalse( entry2a.isExplicitlySubscribed() );
     assertEquals( entry2a.getInwardSubscriptions().size(), 1 );
     assertEquals( entry2a.getOutwardSubscriptions().size(), 0 );
 
@@ -1659,11 +1658,11 @@ public class ReplicantSessionManagerImplTest
 
     sm.setCacheKey( "MyCache" );
 
-    assertEquals( sm.getCacheEntry( cd1 ).isInitialized(), false );
+    assertFalse( sm.getCacheEntry( cd1 ).isInitialized() );
 
     final ChannelCacheEntry entry = sm.ensureCacheEntry( cd1 );
 
-    assertEquals( entry.isInitialized(), true );
+    assertTrue( entry.isInitialized() );
     assertEquals( entry.getDescriptor(), cd1 );
     assertEquals( entry.getCacheKey(), "MyCache" );
     assertEquals( entry.getChangeSet().getChanges().size(), 1 );

@@ -26,8 +26,8 @@ public class ScopeTest
 
     final Scope scope = new Scope( areaOfInterestService, name );
 
-    assertEquals( scope.isActive(), true );
-    assertEquals( scope.hasBeenReleased(), false );
+    assertTrue( scope.isActive() );
+    assertFalse( scope.hasBeenReleased() );
     assertEquals( scope.getReferenceCount(), 0 );
     assertEquals( scope.getSubscriptionReferenceCount(), 0 );
 
@@ -38,8 +38,8 @@ public class ScopeTest
 
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
-    assertEquals( scope.isActive(), false );
-    assertEquals( scope.hasBeenReleased(), true );
+    assertFalse( scope.isActive() );
+    assertTrue( scope.hasBeenReleased() );
 
     reset( areaOfInterestService );
 
@@ -61,34 +61,34 @@ public class ScopeTest
 
     assertEquals( scope.getReferenceCount(), 1 );
     assertEquals( scope.getSubscriptionReferenceCount(), 0 );
-    assertEquals( scope.isActive(), true );
+    assertTrue( scope.isActive() );
 
     // Create a second reference and let it be managed appropriately
     {
       final ScopeReference reference2 = scope.createReference();
       assertEquals( scope.getReferenceCount(), 2 );
 
-      assertEquals( reference2.hasBeenReleased(), false );
+      assertFalse( reference2.hasBeenReleased() );
       reference2.release();
-      assertEquals( reference2.hasBeenReleased(), true );
+      assertTrue( reference2.hasBeenReleased() );
 
       assertThrows( ReferenceReleasedException.class, reference2::getScope );
 
       // Scope still has active reference so it should be alive
       assertEquals( scope.getReferenceCount(), 1 );
-      assertEquals( scope.isActive(), true );
+      assertTrue( scope.isActive() );
     }
 
     answerDestroyScope( areaOfInterestService, scope );
 
-    assertEquals( reference.hasBeenReleased(), false );
+    assertFalse( reference.hasBeenReleased() );
     reference.release();
-    assertEquals( reference.hasBeenReleased(), true );
+    assertTrue( reference.hasBeenReleased() );
 
     // Releasing the last reference removes the scope
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
-    assertEquals( scope.isActive(), false );
+    assertFalse( scope.isActive() );
     assertEquals( scope.getReferenceCount(), 0 );
   }
 
@@ -107,8 +107,8 @@ public class ScopeTest
 
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
-    assertEquals( scope.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
+    assertFalse( scope.isActive() );
+    assertTrue( reference.hasBeenReleased() );
   }
 
   @Test
@@ -127,7 +127,7 @@ public class ScopeTest
     assertEquals( scope.getRequiredScopes().size(), 0 );
     assertEquals( scope.getRequiredSubscriptions().size(), 1 );
     assertEquals( scope.getSubscriptionReferenceCount(), 1 );
-    assertEquals( reference1.hasBeenReleased(), false );
+    assertFalse( reference1.hasBeenReleased() );
 
     answerDestroySubscription( areaOfInterestService, subscription );
 
@@ -136,10 +136,10 @@ public class ScopeTest
     verify( areaOfInterestService, only() ).destroySubscription( subscription );
 
     assertEquals( scope.getSubscriptionReferenceCount(), 1 );
-    assertEquals( reference1.hasBeenReleased(), true );
+    assertTrue( reference1.hasBeenReleased() );
 
-    assertEquals( scope.isActive(), true );
-    assertEquals( scope.hasBeenReleased(), false );
+    assertTrue( scope.isActive() );
+    assertFalse( scope.hasBeenReleased() );
 
     reset( areaOfInterestService );
     answerDestroyScope( areaOfInterestService, scope );
@@ -149,8 +149,8 @@ public class ScopeTest
 
     verify( areaOfInterestService, only() ).destroyScope( scope );
 
-    assertEquals( scope.isActive(), false );
-    assertEquals( scope.hasBeenReleased(), true );
+    assertFalse( scope.isActive() );
+    assertTrue( scope.hasBeenReleased() );
   }
 
   @Test
@@ -218,7 +218,7 @@ public class ScopeTest
     reference1.release();
     verify( areaOfInterestService, only() ).destroySubscription( subscription );
     assertEquals( scope.getSubscriptionReferenceCount(), 1 );
-    assertEquals( reference1.hasBeenReleased(), true );
+    assertTrue( reference1.hasBeenReleased() );
 
     scope.purgeReleasedSubscriptionReferences();
 
@@ -235,12 +235,12 @@ public class ScopeTest
     final Scope scope1 = new Scope( areaOfInterestService, name1 );
     final Scope scope2 = new Scope( areaOfInterestService, name2 );
 
-    assertEquals( scope1.isActive(), true );
-    assertEquals( scope2.isActive(), true );
+    assertTrue( scope1.isActive() );
+    assertTrue( scope2.isActive() );
     assertEquals( scope1.getReferenceCount(), 0 );
     assertEquals( scope2.getReferenceCount(), 0 );
 
-    assertEquals( scope1.isScopeRequired( scope2 ), false );
+    assertFalse( scope1.isScopeRequired( scope2 ) );
 
     assertEquals( scope1.getRequiredScopes().size(), 0 );
     assertEquals( scope1.getRequiredSubscriptions().size(), 0 );
@@ -248,10 +248,10 @@ public class ScopeTest
     assertEquals( scope1.getRequiredScopes().size(), 1 );
     assertEquals( scope1.getRequiredSubscriptions().size(), 0 );
 
-    assertEquals( scope1.isScopeRequired( scope2 ), true );
+    assertTrue( scope1.isScopeRequired( scope2 ) );
 
-    assertEquals( scope1.isActive(), true );
-    assertEquals( scope2.isActive(), true );
+    assertTrue( scope1.isActive() );
+    assertTrue( scope2.isActive() );
     assertEquals( scope1.getReferenceCount(), 0 );
     assertEquals( scope2.getReferenceCount(), 1 );
 
@@ -266,10 +266,10 @@ public class ScopeTest
     verify( areaOfInterestService ).destroyScope( scope1 );
     verify( areaOfInterestService ).destroyScope( scope2 );
 
-    assertEquals( scope1.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
-    assertEquals( scope2.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
+    assertFalse( scope1.isActive() );
+    assertTrue( reference.hasBeenReleased() );
+    assertFalse( scope2.isActive() );
+    assertTrue( reference.hasBeenReleased() );
     assertEquals( scope1.getReferenceCount(), 0 );
     assertEquals( scope2.getReferenceCount(), 0 );
 
@@ -286,21 +286,21 @@ public class ScopeTest
     final Subscription subscription =
       new Subscription( areaOfInterestService, new ChannelAddress( TestGraph.A, null ) );
 
-    assertEquals( scope.isActive(), true );
-    assertEquals( subscription.isActive(), true );
+    assertTrue( scope.isActive() );
+    assertTrue( subscription.isActive() );
     assertEquals( scope.getReferenceCount(), 0 );
     assertEquals( subscription.getReferenceCount(), 0 );
 
-    assertEquals( scope.isSubscriptionRequired( subscription ), false );
-    assertEquals( scope.getSubscriptionReference( subscription ), null );
+    assertFalse( scope.isSubscriptionRequired( subscription ) );
+    assertNull( scope.getSubscriptionReference( subscription ) );
 
     final SubscriptionReference reference = scope.requireSubscription( subscription );
 
-    assertEquals( scope.isSubscriptionRequired( subscription ), true );
+    assertTrue( scope.isSubscriptionRequired( subscription ) );
     assertEquals( scope.getSubscriptionReference( subscription ), reference );
 
-    assertEquals( scope.isActive(), true );
-    assertEquals( subscription.isActive(), true );
+    assertTrue( scope.isActive() );
+    assertTrue( subscription.isActive() );
     assertEquals( scope.getReferenceCount(), 0 );
     assertEquals( subscription.getReferenceCount(), 1 );
 
@@ -314,10 +314,10 @@ public class ScopeTest
 
     verify( areaOfInterestService ).destroyScope( scope );
 
-    assertEquals( scope.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
-    assertEquals( subscription.isActive(), false );
-    assertEquals( reference.hasBeenReleased(), true );
+    assertFalse( scope.isActive() );
+    assertTrue( reference.hasBeenReleased() );
+    assertFalse( subscription.isActive() );
+    assertTrue( reference.hasBeenReleased() );
     assertEquals( scope.getReferenceCount(), 0 );
     assertEquals( subscription.getReferenceCount(), 0 );
 
@@ -337,9 +337,9 @@ public class ScopeTest
 
     scope.release();
 
-    assertEquals( reference1.hasBeenReleased(), true );
-    assertEquals( reference2.hasBeenReleased(), true );
-    assertEquals( reference3.hasBeenReleased(), true );
+    assertTrue( reference1.hasBeenReleased() );
+    assertTrue( reference2.hasBeenReleased() );
+    assertTrue( reference3.hasBeenReleased() );
   }
 
   private void answerDestroyScope( @Nonnull final AreaOfInterestService areaOfInterestService,
