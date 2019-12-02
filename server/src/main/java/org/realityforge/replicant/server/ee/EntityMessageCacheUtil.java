@@ -7,7 +7,7 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
-import org.realityforge.replicant.shared.transport.SharedConstants;
+import org.realityforge.replicant.shared.SharedConstants;
 
 /**
  * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityMessageSet.

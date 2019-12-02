@@ -20,7 +20,7 @@ import org.realityforge.replicant.client.transport.CacheService;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.RequestEntry;
 import org.realityforge.replicant.client.transport.SessionContext;
-import org.realityforge.replicant.shared.transport.SharedConstants;
+import org.realityforge.replicant.shared.SharedConstants;
 
 public abstract class GwtWebPollerDataLoaderService
   extends GwtDataLoaderService

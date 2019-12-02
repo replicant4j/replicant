@@ -14,7 +14,7 @@ import org.realityforge.gwt.webpoller.client.WebPoller;
 import org.realityforge.gwt.webpoller.client.WebPollerListener;
 import org.realityforge.gwt.webpoller.client.WebPollerListenerAdapter;
 import org.realityforge.replicant.client.ChannelAddress;
-import org.realityforge.replicant.shared.transport.SharedConstants;
+import org.realityforge.replicant.shared.SharedConstants;
 
 public abstract class WebPollerDataLoaderService
   extends AbstractDataLoaderService

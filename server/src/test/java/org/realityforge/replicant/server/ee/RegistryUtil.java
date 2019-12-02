@@ -6,7 +6,7 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.guiceyloops.server.TestTransactionSynchronizationRegistry;
-import org.realityforge.replicant.shared.transport.SharedConstants;
+import org.realityforge.replicant.shared.SharedConstants;
 import static org.testng.Assert.*;
 
 public final class RegistryUtil

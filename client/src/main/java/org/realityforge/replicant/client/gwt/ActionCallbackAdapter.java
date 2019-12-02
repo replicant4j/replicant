@@ -10,7 +10,7 @@ import org.realityforge.replicant.client.AbstractRequestAdapter;
 import org.realityforge.replicant.client.transport.ClientSession;
 import org.realityforge.replicant.client.transport.InvalidHttpResponseException;
 import org.realityforge.replicant.client.transport.RequestEntry;
-import org.realityforge.replicant.shared.transport.SharedConstants;
+import org.realityforge.replicant.shared.SharedConstants;
 
 final class ActionCallbackAdapter
   extends AbstractRequestAdapter

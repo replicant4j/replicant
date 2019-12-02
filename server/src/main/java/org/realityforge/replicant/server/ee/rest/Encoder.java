@@ -20,8 +20,8 @@ import org.realityforge.replicant.server.transport.PacketQueue;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
+import org.realityforge.replicant.shared.SharedConstants;
 import org.realityforge.replicant.shared.ee.JsonUtil;
-import org.realityforge.replicant.shared.transport.SharedConstants;
 
 final class Encoder
 {
