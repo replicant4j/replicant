@@ -83,7 +83,7 @@ public interface DataLoaderService
    * Return the class of graphs that this loader processes.
    */
   @Nonnull
-  Class<? extends Enum> getGraphType();
+  Class<? extends Enum<?>> getGraphType();
 
   boolean isSubscribed( @Nonnull ChannelAddress descriptor );
 

@@ -86,6 +86,7 @@ public class PacketQueue
    * @param changeSet the changeSet to create packet from.
    * @return the packet.
    */
+  @SuppressWarnings( "unchecked" )
   public synchronized Packet addPacket( @Nullable final String requestID,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )

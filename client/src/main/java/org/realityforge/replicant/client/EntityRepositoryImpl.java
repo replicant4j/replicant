@@ -2,12 +2,14 @@ package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 public class EntityRepositoryImpl
   implements EntityRepository
 {
-  private final HashMap<Class, HashMap<Object, ?>> _dataStore = new HashMap<>();
+  private final Map<Class<?>, HashMap<Object, ?>> _dataStore = new HashMap<>();
 
   @Override
   public <T> void registerEntity( @Nonnull final Class<T> type, @Nonnull final Object id, @Nonnull final T entity )
@@ -92,7 +94,7 @@ public class EntityRepositoryImpl
 
   @Nonnull
   @Override
-  public ArrayList<Class> getTypes()
+  public List<Class<?>> getTypes()
   {
     return new ArrayList<>( _dataStore.keySet() );
   }

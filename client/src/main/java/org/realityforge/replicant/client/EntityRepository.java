@@ -2,6 +2,7 @@ package org.realityforge.replicant.client;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -115,7 +116,7 @@ public interface EntityRepository
    * @return the list of ids.
    */
   @Nonnull
-  <T> ArrayList<Object> findAllIDs( @Nonnull Class<T> type );
+  <T> List<Object> findAllIDs( @Nonnull Class<T> type );
 
   /**
    * Return the list of types registered in repository.
@@ -123,5 +124,5 @@ public interface EntityRepository
    * @return the list of types.
    */
   @Nonnull
-  ArrayList<Class> getTypes();
+  List<Class<?>> getTypes();
 }

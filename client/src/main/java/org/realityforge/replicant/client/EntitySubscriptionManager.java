@@ -11,7 +11,7 @@ public interface EntitySubscriptionManager
    * These keys can be directly used to unsubscribe from the graph.
    */
   @Nonnull
-  Set<Enum> getTypeSubscriptions();
+  Set<Enum<?>> getTypeSubscriptions();
 
   /**
    * Return the collection of enums that represent instance subscriptions.
@@ -19,14 +19,14 @@ public interface EntitySubscriptionManager
    * to retrieve the set of instance subscriptions.
    */
   @Nonnull
-  Set<Enum> getInstanceSubscriptionKeys();
+  Set<Enum<?>> getInstanceSubscriptionKeys();
 
 
   /**
    * Return the collection of instance subscriptions for graph.
    */
   @Nonnull
-  Set<Object> getInstanceSubscriptions( @Nonnull Enum graph );
+  Set<Object> getInstanceSubscriptions( @Nonnull Enum<?> graph );
 
   /**
    * Record a subscription for specified graph.

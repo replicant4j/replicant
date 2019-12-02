@@ -14,31 +14,31 @@ public class EntitySubscriptionManagerImpl
   implements EntitySubscriptionManager
 {
   //Graph => InstanceID
-  private final HashMap<Enum, Map<Object, ChannelSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
+  private final Map<Enum<?>, Map<Object, ChannelSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
 
   //Graph => Type
-  private final HashMap<Enum, ChannelSubscriptionEntry> _typeSubscriptions = new HashMap<>();
+  private final Map<Enum<?>, ChannelSubscriptionEntry> _typeSubscriptions = new HashMap<>();
 
   // Entity map: Type => ID
-  private final HashMap<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
+  private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
 
   @Nonnull
   @Override
-  public Set<Enum> getTypeSubscriptions()
+  public Set<Enum<?>> getTypeSubscriptions()
   {
     return Collections.unmodifiableSet( _typeSubscriptions.keySet() );
   }
 
   @Nonnull
   @Override
-  public Set<Enum> getInstanceSubscriptionKeys()
+  public Set<Enum<?>> getInstanceSubscriptionKeys()
   {
     return Collections.unmodifiableSet( _instanceSubscriptions.keySet() );
   }
 
   @Nonnull
   @Override
-  public Set<Object> getInstanceSubscriptions( @Nonnull final Enum graph )
+  public Set<Object> getInstanceSubscriptions( @Nonnull final Enum<?> graph )
   {
     final Map<Object, ChannelSubscriptionEntry> map = _instanceSubscriptions.get( graph );
     if ( null == map )
@@ -169,7 +169,6 @@ public class EntitySubscriptionManagerImpl
         throw new IllegalStateException( "Graph not subscribed: " + graph );
       }
       return entry;
-
     }
   }
 

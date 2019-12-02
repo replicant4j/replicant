@@ -91,7 +91,7 @@ public final class TestDataLoadService
 
   @Nonnull
   @Override
-  public Class<? extends Enum> getGraphType()
+  public Class<? extends Enum<?>> getGraphType()
   {
     return TestGraph.class;
   }

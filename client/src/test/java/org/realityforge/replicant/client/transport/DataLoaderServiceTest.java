@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.mockito.InOrder;
 import org.realityforge.guiceyloops.shared.ValueUtil;
@@ -44,13 +45,13 @@ public class DataLoaderServiceTest
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
-    final HashSet<Enum> instanceGraphs = new LinkedHashSet<>();
+    final Set<Enum<?>> instanceGraphs = new LinkedHashSet<>();
     instanceGraphs.add( TestGraph.B );
     instanceGraphs.add( TestGraph.A );
 
     //LinkedHashSet means keys come out in "wrong" order
     // and will need to be resorted in purgeSubscriptions
-    final HashSet<Enum> typeGraphs = new LinkedHashSet<>();
+    final Set<Enum<?>> typeGraphs = new LinkedHashSet<>();
     typeGraphs.add( TestGraph.D );
     typeGraphs.add( TestGraph.C );
 

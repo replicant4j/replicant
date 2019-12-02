@@ -19,7 +19,7 @@ public class EntityRepositoryValidator
   public void validate( @Nonnull final EntityRepository repository )
     throws IllegalStateException
   {
-    for ( final Class entityType : repository.getTypes() )
+    for ( final Class<?> entityType : repository.getTypes() )
     {
       for ( final Object entityID : repository.findAllIDs( entityType ) )
       {
@@ -55,7 +55,7 @@ public class EntityRepositoryValidator
   }
 
   protected final Object getEntityByID( final EntityRepository repository,
-                                        final Class entityType,
+                                        final Class<?> entityType,
                                         final Object entityID )
   {
     try

@@ -3,6 +3,7 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -315,16 +316,16 @@ public abstract class AbstractDataLoaderService
     /*
      * Ensure that we only purge subscriptions that are managed by this data loader.
      */
-    final Class graphClass = getGraphType();
+    final Class<?> graphClass = getGraphType();
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Enum graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
+    for ( final Enum<?> graph : sortGraphs( subscriptionManager.getInstanceSubscriptionKeys() ) )
     {
       if ( graph.getClass().equals( graphClass ) )
       {
         unsubscribeInstanceGraphs( graph );
       }
     }
-    for ( final Enum graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
+    for ( final Enum<?> graph : sortGraphs( subscriptionManager.getTypeSubscriptions() ) )
     {
       if ( graph.getClass().equals( graphClass ) )
       {
@@ -345,12 +346,12 @@ public abstract class AbstractDataLoaderService
     }
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
   @Nonnull
-  private ArrayList<Enum> sortGraphs( @Nonnull final Set<Enum> enums )
+  private List<Enum<?>> sortGraphs( @Nonnull final Set<Enum<?>> enums )
   {
-    final ArrayList<Enum> list = new ArrayList<>( enums );
-    Collections.sort( list );
+    final List<Enum<?>> list = new ArrayList<>( enums );
+    Collections.sort( (List) list );
     Collections.reverse( list );
     return list;
   }
@@ -1203,7 +1204,7 @@ public abstract class AbstractDataLoaderService
   }
 
   @Nonnull
-  public abstract Class<? extends Enum> getGraphType();
+  public abstract Class<? extends Enum<?>> getGraphType();
 
   protected abstract int updateSubscriptionForFilteredEntities( @Nonnull ChannelSubscriptionEntry graphEntry,
                                                                 @Nullable Object filter );
@@ -1215,8 +1216,7 @@ public abstract class AbstractDataLoaderService
     int removedEntities = 0;
     final ChannelAddress descriptor = graphEntry.getDescriptor();
 
-    final EntitySubscriptionEntry[] subscriptionEntries =
-      entities.toArray( new EntitySubscriptionEntry[ entities.size() ] );
+    final EntitySubscriptionEntry[] subscriptionEntries = entities.toArray( new EntitySubscriptionEntry[ 0 ] );
     for ( final EntitySubscriptionEntry entry : subscriptionEntries )
     {
       final Class<?> entityType = entry.getType();
@@ -1329,7 +1329,7 @@ public abstract class AbstractDataLoaderService
    * @throws IllegalArgumentException if no such channel
    */
   @Nonnull
-  protected Enum channelToGraph( final int channel )
+  protected Enum<?> channelToGraph( final int channel )
     throws IllegalArgumentException
   {
     assert getGraphType().isEnum();
