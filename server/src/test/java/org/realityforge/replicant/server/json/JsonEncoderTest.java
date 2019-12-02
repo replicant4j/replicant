@@ -59,7 +59,7 @@ public final class JsonEncoderTest
     change.getChannels().put( 3, "Blah" );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
-    cs.addAction( new ChannelAction( new ChannelAddress( 45, "X" ), Action.UPDATE, filter ) );
+    cs.addAction( new ChannelAction( new ChannelAddress( 45, 42 ), Action.UPDATE, filter ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestID, etag, cs );
     final JsonObject changeSet = toJsonObject( encoded );
 
@@ -71,7 +71,7 @@ public final class JsonEncoderTest
 
     final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );
     assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
-    assertEquals( action.getString( TransportConstants.SUBCHANNEL_ID ), "X" );
+    assertEquals( action.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
     assertEquals( action.getString( TransportConstants.ACTION ), "update" );
     assertEquals( action.getJsonObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
 

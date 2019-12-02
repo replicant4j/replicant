@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -176,7 +177,7 @@ public abstract class AbstractSessionRestService
         throw new WebApplicationException( response );
       }
       //A bulk subscribe to an instance channel
-      final ArrayList<Serializable> scids = new ArrayList<>();
+      final List<Integer> scids = new ArrayList<>();
       for ( final String scid : subChannelIds.split( "," ) )
       {
         scids.add( Integer.parseInt( scid ) );
@@ -219,7 +220,7 @@ public abstract class AbstractSessionRestService
         throw new WebApplicationException( response );
       }
       //A bulk subscribe to an instance channel
-      final ArrayList<Serializable> scids = new ArrayList<>();
+      final List<Integer> scids = new ArrayList<>();
       for ( final String scid : subChannelIds.split( "," ) )
       {
         scids.add( Integer.parseInt( scid ) );
@@ -273,7 +274,7 @@ public abstract class AbstractSessionRestService
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
                                              @Nullable final String requestID,
                                              final int channelId,
-                                             @Nonnull Collection<Serializable> subChannelIds,
+                                             @Nonnull Collection<Integer> subChannelIds,
                                              @Nonnull final String filterContent )
   {
     final Runnable action = () ->
@@ -296,7 +297,7 @@ public abstract class AbstractSessionRestService
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
                                                @Nullable final String requestID,
                                                final int channelId,
-                                               @Nonnull final Collection<Serializable> subChannelIds )
+                                               @Nonnull final Collection<Integer> subChannelIds )
   {
     final Runnable action = () ->
       getSessionManager().bulkUnsubscribe( ensureSession( sessionID, requestID ),
@@ -561,7 +562,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   private String getInvocationKey( final int channelId,
-                                   @Nullable final Serializable subChannelId,
+                                   @Nullable final Integer subChannelId,
                                    @Nonnull final String action )
   {
     final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();

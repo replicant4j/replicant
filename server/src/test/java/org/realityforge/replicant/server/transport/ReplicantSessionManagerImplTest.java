@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.ReadWriteLock;
 import javax.annotation.Nonnull;
@@ -199,7 +200,7 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void deleteCacheEntry()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -236,11 +237,11 @@ public class ReplicantSessionManagerImplTest
   public void subscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData ch3 =
-      new ChannelMetaData( 2, "C3", null, ChannelMetaData.FilterType.STATIC, String.class, false );
+      new ChannelMetaData( 2, "C3", true, ChannelMetaData.FilterType.STATIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -355,7 +356,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withCache()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -410,7 +411,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -436,7 +437,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID_andCaching()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -468,7 +469,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID_andCachingThatNoMatch()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -505,9 +506,9 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -577,7 +578,7 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe_withCaching()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -664,14 +665,14 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -814,10 +815,10 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -858,10 +859,10 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -887,15 +888,15 @@ public class ReplicantSessionManagerImplTest
   public void bulkUnsubscribe()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -912,7 +913,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      final ArrayList<Serializable> subChannelIds = new ArrayList<>();
+      final List<Integer> subChannelIds = new ArrayList<>();
       subChannelIds.add( cd1.getSubChannelId() );
       subChannelIds.add( cd2.getSubChannelId() );
       //This next one is not subscribed
@@ -934,15 +935,15 @@ public class ReplicantSessionManagerImplTest
   public void bulkUnsubscribe_withSessionID()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -959,7 +960,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      final ArrayList<Serializable> subChannelIds = new ArrayList<>();
+      final List<Integer> subChannelIds = new ArrayList<>();
       subChannelIds.add( cd1.getSubChannelId() );
       subChannelIds.add( cd2.getSubChannelId() );
       //This next one is not subscribed
@@ -982,7 +983,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch =
-      new ChannelMetaData( 0, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
@@ -1025,7 +1026,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch =
-      new ChannelMetaData( 0, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
@@ -1065,7 +1066,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch =
-      new ChannelMetaData( 0, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
@@ -1098,11 +1099,11 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1115,7 +1116,7 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry e2 = session.createSubscriptionEntry( cd2 );
     e2.setFilter( originalFilter );
 
-    final ArrayList<Serializable> subChannelIds = new ArrayList<>();
+    final List<Integer> subChannelIds = new ArrayList<>();
     subChannelIds.add( cd1.getSubChannelId() );
     subChannelIds.add( cd2.getSubChannelId() );
 
@@ -1173,11 +1174,11 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", Integer.class, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1190,7 +1191,7 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry e2 = session.createSubscriptionEntry( cd2 );
     e2.setFilter( originalFilter );
 
-    final ArrayList<Serializable> subChannelIds = new ArrayList<>();
+    final List<Integer> subChannelIds = new ArrayList<>();
     subChannelIds.add( cd1.getSubChannelId() );
     subChannelIds.add( cd2.getSubChannelId() );
 
@@ -1223,14 +1224,14 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "Roster", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "Resource", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1290,13 +1291,13 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "Roster", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "Roster", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "Resource", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
@@ -1416,18 +1417,18 @@ public class ReplicantSessionManagerImplTest
     resetChangeSet();
 
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData ch3 =
-      new ChannelMetaData( 2, "C3", Integer.class, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 2, "C3", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd3a = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd3b = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd3a = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd3b = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomInt() );
 
     final ChannelLink link1 = new ChannelLink( cd1, cd2a );
     final ChannelLink link2 = new ChannelLink( cd1, cd2b );
@@ -1517,14 +1518,14 @@ public class ReplicantSessionManagerImplTest
     resetChangeSet();
 
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final ChannelLink link1 = new ChannelLink( cd1, cd2a );
     final ChannelLink link2 = new ChannelLink( cd1, cd2b );
@@ -1598,14 +1599,14 @@ public class ReplicantSessionManagerImplTest
     resetChangeSet();
 
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
+      new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", Integer.class, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomString() );
+    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final ChannelLink link1 = new ChannelLink( cd1, cd2a );
     final ChannelLink link2 = new ChannelLink( cd1, cd2b );
@@ -1649,7 +1650,7 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void ensureCacheEntry()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );

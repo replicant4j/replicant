@@ -13,16 +13,16 @@ public class ChannelAddressTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress cd1 = new ChannelAddress( 1, "X" );
-    final ChannelAddress cd2 = new ChannelAddress( 1, "X" );
-    final ChannelAddress cd3 = new ChannelAddress( 1, "Y" );
+    final ChannelAddress cd1 = new ChannelAddress( 1, 42 );
+    final ChannelAddress cd2 = new ChannelAddress( 1, 42 );
+    final ChannelAddress cd3 = new ChannelAddress( 1, 43 );
     final ChannelAddress cd4 = new ChannelAddress( 2, null );
     final ChannelAddress cd5 = new ChannelAddress( 3, null );
     final ChannelAddress cd6 = new ChannelAddress( 2, null );
 
     assertEquals( cd1.getChannelId(), 1 );
-    assertEquals( cd1.getSubChannelId(), "X" );
-    assertEquals( cd1.toString(), "#1.X#" );
+    assertEquals( cd1.getSubChannelId(), (Integer)42 );
+    assertEquals( cd1.toString(), "#1.42#" );
     assertTrue( cd1.equals( cd1 ) );
     assertTrue( cd1.equals( cd2 ) );
     assertFalse( cd1.equals( cd3 ) );

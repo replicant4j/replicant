@@ -15,8 +15,6 @@ public final class ChannelMetaData
   @Nonnull
   private final String _name;
   private final boolean _typeGraph;
-  @Nullable
-  private final Class _subChannelType;
   @Nonnull
   private final FilterType _filterType;
   private final Class _filterParameterType;
@@ -24,15 +22,14 @@ public final class ChannelMetaData
 
   public ChannelMetaData( final int channelId,
                           @Nonnull final String name,
-                          @Nullable final Class subChannelType,
+                          final boolean typeGraph,
                           @Nonnull final FilterType filterType,
                           @Nullable final Class filterParameterType,
                           final boolean cacheable )
   {
     _channelId = channelId;
     _name = Objects.requireNonNull( name );
-    _typeGraph = null == subChannelType;
-    _subChannelType = subChannelType;
+    _typeGraph = typeGraph;
     _filterType = Objects.requireNonNull( filterType );
     _filterParameterType = filterParameterType;
     if ( FilterType.NONE == filterType && null != filterParameterType )
@@ -48,16 +45,6 @@ public final class ChannelMetaData
 
   public int getChannelId()
   {
-  }
-
-  @Nonnull
-  public Class getSubChannelType()
-  {
-    if ( null == _subChannelType )
-    {
-      throw new IllegalStateException( "getSubChannelType invoked on type graph" );
-    }
-    return _subChannelType;
     return _channelId;
   }
 

@@ -363,10 +363,10 @@ public abstract class ReplicantSessionManagerImpl
   public void bulkDelinkSubscription( @Nonnull final ReplicantSession session,
                                       @Nonnull final ChannelAddress sourceGraph,
                                       final int channelId,
-                                      @Nonnull final Collection<Serializable> subChannelIds,
+                                      @Nonnull final Collection<Integer> subChannelIds,
                                       @Nonnull final ChangeSet changeSet )
   {
-    for ( final Serializable id : subChannelIds )
+    for ( final Integer id : subChannelIds )
     {
       delinkSubscription( session, sourceGraph, new ChannelAddress( channelId, id ), changeSet );
     }
@@ -399,7 +399,7 @@ public abstract class ReplicantSessionManagerImpl
 
   protected void bulkSubscribe( @Nonnull final String sessionID,
                                 final int channelId,
-                                @Nonnull final Collection<Serializable> subChannelIds,
+                                @Nonnull final Collection<Integer> subChannelIds,
                                 @Nullable final Object filter,
                                 final boolean explicitSubscribe,
                                 @Nonnull final ChangeSet changeSet )
@@ -422,7 +422,7 @@ public abstract class ReplicantSessionManagerImpl
 
   protected void bulkUpdateSubscription( @Nonnull final String sessionID,
                                          final int channelId,
-                                         @Nonnull final Collection<Serializable> subChannelIds,
+                                         @Nonnull final Collection<Integer> subChannelIds,
                                          @Nullable final Object filter,
                                          @Nonnull final ChangeSet changeSet )
   {
@@ -459,7 +459,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
                                       final int channelId,
-                                      @Nonnull final Collection<Serializable> subChannelIds,
+                                      @Nonnull final Collection<Integer> subChannelIds,
                                       @Nullable final Object filter,
                                       @Nonnull final ChangeSet changeSet )
   {
@@ -468,7 +468,7 @@ public abstract class ReplicantSessionManagerImpl
 
     final ArrayList<ChannelAddress> channelsToUpdate = new ArrayList<>();
 
-    for ( final Serializable subChannelId : subChannelIds )
+    for ( final Integer subChannelId : subChannelIds )
     {
       final ChannelAddress descriptor = new ChannelAddress( channelId, subChannelId );
       final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
@@ -508,7 +508,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
                              final int channelId,
-                             @Nonnull final Collection<Serializable> subChannelIds,
+                             @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter,
                              final boolean explicitSubscribe,
                              @Nonnull final ChangeSet changeSet )
@@ -519,7 +519,7 @@ public abstract class ReplicantSessionManagerImpl
     //OriginalFilter => Channels
     final HashMap<Object, ArrayList<ChannelAddress>> channelsToUpdate = new HashMap<>();
 
-    for ( final Serializable root : subChannelIds )
+    for ( final Integer root : subChannelIds )
     {
       final ChannelAddress descriptor = new ChannelAddress( channelId, root );
       final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
@@ -815,7 +815,7 @@ public abstract class ReplicantSessionManagerImpl
 
   protected void bulkUnsubscribe( @Nonnull final String sessionID,
                                   final int channelId,
-                                  @Nonnull final Collection<Serializable> subChannelIds,
+                                  @Nonnull final Collection<Integer> subChannelIds,
                                   final boolean explicitUnsubscribe,
                                   @Nonnull final ChangeSet changeSet )
   {
@@ -839,11 +839,11 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int channelId,
-                               @Nonnull final Collection<Serializable> subChannelIds,
+                               @Nonnull final Collection<Integer> subChannelIds,
                                final boolean explicitUnsubscribe,
                                @Nonnull final ChangeSet changeSet )
   {
-    for ( final Serializable subChannelId : subChannelIds )
+    for ( final Integer subChannelId : subChannelIds )
     {
       unsubscribe( session, new ChannelAddress( channelId, subChannelId ), explicitUnsubscribe, changeSet );
     }

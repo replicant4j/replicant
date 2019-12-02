@@ -16,11 +16,11 @@ public class SubscriptionEntryTest
   @Test
   public void basicFlow()
   {
-    final ChannelAddress cd1 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelAddress cd2 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelAddress cd3 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelAddress cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomString() );
-    final ChannelAddress cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomString() );
+    final ChannelAddress cd1 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelAddress cd2 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelAddress cd3 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelAddress cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final ChannelAddress cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
 
     final SubscriptionEntry entry = new SubscriptionEntry( cd1 );
 
@@ -104,8 +104,8 @@ public class SubscriptionEntryTest
   @Test
   public void sorting()
   {
-    final ChannelAddress cd1 = new ChannelAddress( 1, "X" );
-    final ChannelAddress cd3 = new ChannelAddress( 1, "Y" );
+    final ChannelAddress cd1 = new ChannelAddress( 1, 77 );
+    final ChannelAddress cd3 = new ChannelAddress( 1, 78 );
     final ChannelAddress cd4 = new ChannelAddress( 2, null );
     final ChannelAddress cd5 = new ChannelAddress( 3, null );
 

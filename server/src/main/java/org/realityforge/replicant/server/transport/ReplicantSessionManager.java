@@ -95,7 +95,7 @@ public interface ReplicantSessionManager
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
-                      @Nonnull Collection<Serializable> subChannelIds,
+                      @Nonnull Collection<Integer> subChannelIds,
                       @Nullable Object filter,
                       boolean explicitSubscribe,
                       @Nonnull ChangeSet changeSet );
@@ -108,7 +108,7 @@ public interface ReplicantSessionManager
   void bulkDelinkSubscription( @Nonnull ReplicantSession session,
                                @Nonnull ChannelAddress sourceGraph,
                                int channelId,
-                               @Nonnull Collection<Serializable> subChannelIds,
+                               @Nonnull Collection<Integer> subChannelIds,
                                @Nonnull ChangeSet changeSet );
 
   void updateSubscription( @Nonnull ReplicantSession session,
@@ -118,7 +118,7 @@ public interface ReplicantSessionManager
 
   void bulkUpdateSubscription( @Nonnull ReplicantSession session,
                                int channelId,
-                               @Nonnull Collection<Serializable> subChannelIds,
+                               @Nonnull Collection<Integer> subChannelIds,
                                @Nullable Object filter,
                                @Nonnull ChangeSet changeSet );
 
@@ -129,7 +129,7 @@ public interface ReplicantSessionManager
 
   void bulkUnsubscribe( @Nonnull ReplicantSession session,
                         int channelId,
-                        @Nonnull Collection<Serializable> subChannelIds,
+                        @Nonnull Collection<Integer> subChannelIds,
                         boolean explicitUnsubscribe,
                         @Nonnull ChangeSet changeSet );
 }

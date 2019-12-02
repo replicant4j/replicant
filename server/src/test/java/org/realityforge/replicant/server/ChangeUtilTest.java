@@ -17,13 +17,13 @@ public class ChangeUtilTest
     final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
 
     final List<Change> changes =
-      ChangeUtil.toChanges( Arrays.asList( message1, message2 ), new ChannelAddress( 1, "B" ) );
+      ChangeUtil.toChanges( Arrays.asList( message1, message2 ), new ChannelAddress( 1, 26 ) );
 
     assertEquals( changes.size(), 2 );
 
     assertEquals( changes.get( 0 ).getEntityMessage(), message1 );
-    assertEquals( changes.get( 0 ).getChannels().get( 1 ), "B" );
+    assertEquals( changes.get( 0 ).getChannels().get( 1 ), 26 );
     assertEquals( changes.get( 1 ).getEntityMessage(), message2 );
-    assertEquals( changes.get( 1 ).getChannels().get( 1 ), "B" );
+    assertEquals( changes.get( 1 ).getChannels().get( 1 ), 26 );
   }
 }

@@ -69,7 +69,7 @@ public class ChangeSetTest
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
     assertEquals( action.getChannelAddress().getChannelId(), 1 );
-    assertEquals( action.getChannelAddress().getSubChannelId(), 2 );
+    assertEquals( action.getChannelAddress().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -88,7 +88,7 @@ public class ChangeSetTest
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
     assertEquals( action.getChannelAddress().getChannelId(), 1 );
-    assertEquals( action.getChannelAddress().getSubChannelId(), 2 );
+    assertEquals( action.getChannelAddress().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
 
     final JsonObject filter =
@@ -117,7 +117,6 @@ public class ChangeSetTest
     assertEquals( change.getEntityMessage().getID(), id );
     assertNotSame( change, change1 );
   }
-
 
   @Test
   public void fullMerge()
@@ -148,7 +147,7 @@ public class ChangeSetTest
 
     final ChannelAction action = actions.get( 0 );
     assertEquals( action.getChannelAddress().getChannelId(), 1 );
-    assertEquals( action.getChannelAddress().getSubChannelId(), 2 );
+    assertEquals( action.getChannelAddress().getSubChannelId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }

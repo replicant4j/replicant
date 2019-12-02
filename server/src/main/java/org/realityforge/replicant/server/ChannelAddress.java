@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -9,14 +8,14 @@ public final class ChannelAddress
 {
   private final int _channelId;
   @Nullable
-  private final Serializable _subChannelId;
+  private final Integer _subChannelId;
 
   public ChannelAddress( final int channelId )
   {
     this( channelId, null );
   }
 
-  public ChannelAddress( final int channelId, @Nullable final Serializable subChannelId )
+  public ChannelAddress( final int channelId, @Nullable final Integer subChannelId )
   {
     _channelId = channelId;
     _subChannelId = subChannelId;
@@ -28,7 +27,7 @@ public final class ChannelAddress
   }
 
   @Nullable
-  public Serializable getSubChannelId()
+  public Integer getSubChannelId()
   {
     return _subChannelId;
   }
@@ -62,17 +61,17 @@ public final class ChannelAddress
   public int compareTo( @Nonnull final ChannelAddress other )
   {
     final int otherChannelId = other.getChannelId();
-    final int channelID = getChannelId();
+    final int channelId = getChannelId();
 
-    final int channelDiff = ( channelID < otherChannelId ) ? -1 : ( ( channelID == otherChannelId ) ? 0 : 1 );
+    final int channelDiff = Integer.compare( channelId, otherChannelId );
     if ( 0 != channelDiff )
     {
       return channelDiff;
     }
     else
     {
-      final Serializable otherSubChannelId = other.getSubChannelId();
-      final Serializable subChannelId = getSubChannelId();
+      final Integer otherSubChannelId = other.getSubChannelId();
+      final Integer subChannelId = getSubChannelId();
       if ( null == otherSubChannelId && null == subChannelId )
       {
         return 0;
@@ -87,8 +86,7 @@ public final class ChannelAddress
       }
       else
       {
-        //noinspection unchecked
-        return ( (Comparable) subChannelId ).compareTo( otherSubChannelId );
+        return subChannelId.compareTo( otherSubChannelId );
       }
     }
   }

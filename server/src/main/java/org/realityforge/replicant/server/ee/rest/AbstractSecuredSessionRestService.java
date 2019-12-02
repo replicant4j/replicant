@@ -113,7 +113,7 @@ public abstract class AbstractSecuredSessionRestService
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
                                              @Nullable final String requestID,
                                              final int channelId,
-                                             @Nonnull final Collection<Serializable> subChannelIds,
+                                             @Nonnull final Collection<Integer> subChannelIds,
                                              @Nonnull final String filterContent )
   {
     return guard( sessionID,
@@ -125,7 +125,7 @@ public abstract class AbstractSecuredSessionRestService
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
                                                @Nullable final String requestID,
                                                final int channelId,
-                                               @Nonnull final Collection<Serializable> subChannelIds )
+                                               @Nonnull final Collection<Integer> subChannelIds )
   {
     return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestID, channelId, subChannelIds ) );
   }
