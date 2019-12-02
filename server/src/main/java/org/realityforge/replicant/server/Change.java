@@ -22,11 +22,11 @@ public class Change
   }
 
   public Change( @Nonnull final EntityMessage entityMessage,
-                 final int channelID,
+                 final int channelId,
                  @Nullable final Serializable subChannelId )
   {
     this( entityMessage );
-    _channels.put( channelID, null == subChannelId ? 0 : subChannelId );
+    _channels.put( channelId, null == subChannelId ? 0 : subChannelId );
   }
 
   @Nonnull

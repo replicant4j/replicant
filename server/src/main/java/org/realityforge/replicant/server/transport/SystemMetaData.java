@@ -51,12 +51,12 @@ public final class SystemMetaData
    * @return the channel metadata.
    */
   @Nonnull
-  public ChannelMetaData getChannelMetaData( final int channelID )
+  public ChannelMetaData getChannelMetaData( final int channelId )
   {
-    if ( channelID >= _channels.size() || channelID < 0 )
+    if ( channelId >= _channels.size() || channelId < 0 )
     {
-      throw new NoSuchChannelException( channelID );
+      throw new NoSuchChannelException( channelId );
     }
-    return _channels.get( channelID );
+    return _channels.get( channelId );
   }
 }

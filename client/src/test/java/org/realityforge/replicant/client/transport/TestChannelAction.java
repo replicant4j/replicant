@@ -8,35 +8,35 @@ class TestChannelAction
   implements ChannelAction
 {
 
-  private final int _channelID;
+  private final int _channelId;
   @Nullable
   private final Object _subChannelId;
   private final Action _action;
   @Nullable
   private final Object _filter;
 
-  private TestChannelAction( final int channelID,
+  private TestChannelAction( final int channelId,
                              @Nullable final Object subChannelId,
                              @Nonnull final Action action,
                              @Nullable final Object filter )
   {
-    _channelID = channelID;
+    _channelId = channelId;
     _subChannelId = subChannelId;
     _action = action;
     _filter = filter;
   }
 
-  TestChannelAction( final int channelID,
+  TestChannelAction( final int channelId,
                      @Nullable final Object subChannelId,
                      @Nonnull final Action action )
   {
-    this( channelID, subChannelId, action, null );
+    this( channelId, subChannelId, action, null );
   }
 
   @Override
   public int getChannelId()
   {
-    return _channelID;
+    return _channelId;
   }
 
   @Nullable

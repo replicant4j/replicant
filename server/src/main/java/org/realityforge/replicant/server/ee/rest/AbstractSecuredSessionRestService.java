@@ -112,31 +112,31 @@ public abstract class AbstractSecuredSessionRestService
   @Override
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
                                              @Nullable final String requestID,
-                                             final int channelID,
+                                             final int channelId,
                                              @Nonnull final Collection<Serializable> subChannelIds,
                                              @Nonnull final String filterContent )
   {
     return guard( sessionID,
-                  () -> super.doBulkSubscribeChannel( sessionID, requestID, channelID, subChannelIds, filterContent ) );
+                  () -> super.doBulkSubscribeChannel( sessionID, requestID, channelId, subChannelIds, filterContent ) );
   }
 
   @Nonnull
   @Override
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
                                                @Nullable final String requestID,
-                                               final int channelID,
+                                               final int channelId,
                                                @Nonnull final Collection<Serializable> subChannelIds )
   {
-    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestID, channelID, subChannelIds ) );
+    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestID, channelId, subChannelIds ) );
   }
 
   @Nonnull
   @Override
   protected Response doGetInstanceChannels( @Nonnull final String sessionID,
-                                            final int channelID,
+                                            final int channelId,
                                             @Nonnull final UriInfo uri )
   {
-    return guard( sessionID, () -> super.doGetInstanceChannels( sessionID, channelID, uri ) );
+    return guard( sessionID, () -> super.doGetInstanceChannels( sessionID, channelId, uri ) );
   }
 
   @Nonnull

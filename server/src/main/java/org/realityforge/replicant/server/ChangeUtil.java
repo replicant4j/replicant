@@ -22,13 +22,13 @@ public final class ChangeUtil
 
   @Nonnull
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
-                                        final int channelID,
+                                        final int channelId,
                                         @Nullable final Serializable subChannelId )
   {
     final ArrayList<Change> changes = new ArrayList<>( messages.size() );
     for ( final EntityMessage message : messages )
     {
-      changes.add( new Change( message, channelID, subChannelId ) );
+      changes.add( new Change( message, channelId, subChannelId ) );
     }
     return changes;
   }

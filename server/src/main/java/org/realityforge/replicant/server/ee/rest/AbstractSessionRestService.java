@@ -74,7 +74,6 @@ import org.realityforge.replicant.shared.ee.rest.AbstractReplicantRestService;
  * }
  * </pre>
  */
-@SuppressWarnings( "RSReferenceInspection" )
 public abstract class AbstractSessionRestService
   extends AbstractReplicantRestService
 {
@@ -128,48 +127,48 @@ public abstract class AbstractSessionRestService
     return doGetChannels( sessionID, uri );
   }
 
-  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
+  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                              @PathParam( "channelID" ) @NotNull final int channelID,
+                              @PathParam( "channelId" ) @NotNull final int channelId,
                               @Context @Nonnull final UriInfo uri )
   {
-    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     if ( channelMetaData.isTypeGraph() )
     {
-      return doGetChannel( sessionID, toChannelDescriptor( channelID ), uri );
+      return doGetChannel( sessionID, toChannelDescriptor( channelId ), uri );
     }
     else
     {
-      return doGetInstanceChannels( sessionID, channelID, uri );
+      return doGetInstanceChannels( sessionID, channelId, uri );
     }
   }
 
-  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelId}" )
+  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId}" )
   @GET
   public Response getChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                              @PathParam( "channelID" ) @NotNull final int channelID,
+                              @PathParam( "channelId" ) @NotNull final int channelId,
                               @PathParam( "subChannelId" ) @NotNull final String subChannelId,
                               @Context @Nonnull final UriInfo uri )
   {
-    return doGetChannel( sessionID, toChannelDescriptor( channelID, subChannelId ), uri );
+    return doGetChannel( sessionID, toChannelDescriptor( channelId, subChannelId ), uri );
   }
 
-  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
+  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
   @DELETE
   public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                          @PathParam( "channelID" ) final int channelID,
+                                          @PathParam( "channelId" ) final int channelId,
                                           @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID,
                                           @QueryParam( "scid" ) @Nullable final String subChannelIds )
   {
     if ( null == subChannelIds )
     {
       //Handle type channel
-      return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID ) );
+      return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelId ) );
     }
     else
     {
-      final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+      final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
       if ( channelMetaData.isTypeGraph() )
       {
         final Response response =
@@ -180,26 +179,26 @@ public abstract class AbstractSessionRestService
       final ArrayList<Serializable> scids = new ArrayList<>();
       for ( final String scid : subChannelIds.split( "," ) )
       {
-        scids.add( toSubChannelId( channelMetaData, scid ) );
+        scids.add( Integer.parseInt( scid ) );
       }
-      return doBulkUnsubscribeChannel( sessionID, requestID, channelID, scids );
+      return doBulkUnsubscribeChannel( sessionID, requestID, channelId, scids );
     }
   }
 
-  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelId}" )
+  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId}" )
   @DELETE
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                                  @PathParam( "channelID" ) final int channelID,
+                                                  @PathParam( "channelId" ) final int channelId,
                                                   @PathParam( "subChannelId" ) @NotNull final String subChannelText,
                                                   @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID )
   {
-    return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelID, subChannelText ) );
+    return doUnsubscribeChannel( sessionID, requestID, toChannelDescriptor( channelId, subChannelText ) );
   }
 
-  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}" )
+  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                      @PathParam( "channelID" ) @NotNull final int channelID,
+                                      @PathParam( "channelId" ) @NotNull final int channelId,
                                       @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID,
                                       @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
                                       @QueryParam( "scid" ) @Nullable final String subChannelIds,
@@ -208,11 +207,11 @@ public abstract class AbstractSessionRestService
     if ( null == subChannelIds )
     {
       //Subscription to a type channel
-      return doSubscribeChannel( sessionID, requestID, eTag, toChannelDescriptor( channelID ), filterContent );
+      return doSubscribeChannel( sessionID, requestID, eTag, toChannelDescriptor( channelId ), filterContent );
     }
     else
     {
-      final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+      final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
       if ( channelMetaData.isTypeGraph() )
       {
         final Response response =
@@ -223,22 +222,26 @@ public abstract class AbstractSessionRestService
       final ArrayList<Serializable> scids = new ArrayList<>();
       for ( final String scid : subChannelIds.split( "," ) )
       {
-        scids.add( toSubChannelId( channelMetaData, scid ) );
+        scids.add( Integer.parseInt( scid ) );
       }
-      return doBulkSubscribeChannel( sessionID, requestID, channelID, scids, filterContent );
+      return doBulkSubscribeChannel( sessionID, requestID, channelId, scids, filterContent );
     }
   }
 
-  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelID:\\d+}.{subChannelId}" )
+  @Path( "{sessionID}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId}" )
   @PUT
   public Response subscribeToInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
-                                              @PathParam( "channelID" ) @NotNull final int channelID,
+                                              @PathParam( "channelId" ) @NotNull final int channelId,
                                               @PathParam( "subChannelId" ) @NotNull final String subChannelText,
                                               @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestID,
                                               @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
                                               @Nonnull final String filterContent )
   {
-    return doSubscribeChannel( sessionID, requestID, eTag, toChannelDescriptor( channelID, subChannelText ), filterContent );
+    return doSubscribeChannel( sessionID,
+                               requestID,
+                               eTag,
+                               toChannelDescriptor( channelId, subChannelText ),
+                               filterContent );
   }
 
   @Nonnull
@@ -269,22 +272,22 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
                                              @Nullable final String requestID,
-                                             final int channelID,
+                                             final int channelId,
                                              @Nonnull Collection<Serializable> subChannelIds,
                                              @Nonnull final String filterContent )
   {
     final Runnable action = () ->
     {
       final ReplicantSession session = ensureSession( sessionID, requestID );
-      final Object filter = toFilter( getChannelMetaData( channelID ), filterContent );
+      final Object filter = toFilter( getChannelMetaData( channelId ), filterContent );
       getSessionManager().bulkSubscribe( session,
-                                         channelID,
+                                         channelId,
                                          subChannelIds,
                                          filter,
                                          true,
                                          EntityMessageCacheUtil.getSessionChanges() );
     };
-    runRequest( getInvocationKey( channelID, null, "BulkSubscribe" ), sessionID, requestID, action );
+    runRequest( getInvocationKey( channelId, null, "BulkSubscribe" ), sessionID, requestID, action );
 
     return standardResponse( Response.Status.OK, "Channel subscriptions added." );
   }
@@ -292,16 +295,16 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
                                                @Nullable final String requestID,
-                                               final int channelID,
+                                               final int channelId,
                                                @Nonnull final Collection<Serializable> subChannelIds )
   {
     final Runnable action = () ->
       getSessionManager().bulkUnsubscribe( ensureSession( sessionID, requestID ),
-                                           channelID,
+                                           channelId,
                                            subChannelIds,
                                            true,
                                            EntityMessageCacheUtil.getSessionChanges() );
-    runRequest( getInvocationKey( channelID, null, "BulkUnsubscribe" ), sessionID, requestID, action );
+    runRequest( getInvocationKey( channelId, null, "BulkUnsubscribe" ), sessionID, requestID, action );
     return standardResponse( Response.Status.OK, "Channel subscriptions removed." );
   }
 
@@ -353,13 +356,13 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doGetInstanceChannels( @Nonnull final String sessionID,
-                                            final int channelID,
+                                            final int channelId,
                                             @Nonnull final UriInfo uri )
   {
     final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
     final ReplicantSession session = ensureSession( sessionID, null );
     final String content =
-      json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelID, session, g, uri ) );
+      json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelId, session, g, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
@@ -409,60 +412,43 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelAddress toChannelDescriptor( final int channelID, @Nonnull final String subChannelText )
+  private ChannelAddress toChannelDescriptor( final int channelId, @Nonnull final String subChannelText )
   {
-    return new ChannelAddress( channelID, extractSubChannelId( channelID, subChannelText ) );
+    return new ChannelAddress( channelId, extractSubChannelId( channelId, subChannelText ) );
   }
 
   @Nonnull
-  private ChannelAddress toChannelDescriptor( final int channelID )
+  private ChannelAddress toChannelDescriptor( final int channelId )
   {
-    if ( getChannelMetaData( channelID ).isInstanceGraph() )
+    if ( getChannelMetaData( channelId ).isInstanceGraph() )
     {
       final Response response =
         standardResponse( Response.Status.BAD_REQUEST, "Failed to supply subChannelId to instance graph" );
       throw new WebApplicationException( response );
     }
-    return new ChannelAddress( channelID );
+    return new ChannelAddress( channelId );
   }
 
   @Nonnull
-  private Serializable extractSubChannelId( final int channelID, @Nonnull final String subChannelText )
+  private Integer extractSubChannelId( final int channelId, @Nonnull final String subChannelText )
   {
-    final ChannelMetaData channelMetaData = getChannelMetaData( channelID );
+    final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     if ( channelMetaData.isTypeGraph() )
     {
       final Response response =
         standardResponse( Response.Status.BAD_REQUEST, "Attempted to supply subChannelId to type graph" );
       throw new WebApplicationException( response );
     }
-    return toSubChannelId( channelMetaData, subChannelText );
-  }
-
-  @Nonnull
-  private Serializable toSubChannelId( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final String value )
-  {
-    final Class subChannelType = channelMetaData.getSubChannelType();
-    if ( Integer.class == subChannelType )
-    {
-      return Integer.parseInt( value );
-    }
-    else if ( String.class == subChannelType )
-    {
-      return value;
-    }
     else
     {
-      final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Channel has invalid subChannel type" );
-      throw new WebApplicationException( response );
+      return Integer.parseInt( subChannelText );
     }
   }
 
   @Nonnull
-  private ChannelMetaData getChannelMetaData( final int channelID )
+  private ChannelMetaData getChannelMetaData( final int channelId )
   {
-    return getSessionManager().getSystemMetaData().getChannelMetaData( channelID );
+    return getSessionManager().getSystemMetaData().getChannelMetaData( channelId );
   }
 
   @Nonnull
@@ -574,12 +560,12 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private String getInvocationKey( final int channelID,
+  private String getInvocationKey( final int channelId,
                                    @Nullable final Serializable subChannelId,
                                    @Nonnull final String action )
   {
     final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
-    return systemMetaData.getName() + "." + action + systemMetaData.getChannelMetaData( channelID ).getName() +
+    return systemMetaData.getName() + "." + action + systemMetaData.getChannelMetaData( channelId ).getName() +
            ( ( null == subChannelId ) ? "" : "." + subChannelId );
   }
 }

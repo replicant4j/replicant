@@ -362,13 +362,13 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkDelinkSubscription( @Nonnull final ReplicantSession session,
                                       @Nonnull final ChannelAddress sourceGraph,
-                                      final int channelID,
+                                      final int channelId,
                                       @Nonnull final Collection<Serializable> subChannelIds,
                                       @Nonnull final ChangeSet changeSet )
   {
     for ( final Serializable id : subChannelIds )
     {
-      delinkSubscription( session, sourceGraph, new ChannelAddress( channelID, id ), changeSet );
+      delinkSubscription( session, sourceGraph, new ChannelAddress( channelId, id ), changeSet );
     }
   }
 
@@ -398,7 +398,7 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   protected void bulkSubscribe( @Nonnull final String sessionID,
-                                final int channelID,
+                                final int channelId,
                                 @Nonnull final Collection<Serializable> subChannelIds,
                                 @Nullable final Object filter,
                                 final boolean explicitSubscribe,
@@ -406,7 +406,7 @@ public abstract class ReplicantSessionManagerImpl
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    bulkSubscribe( session, channelID, subChannelIds, filter, explicitSubscribe, changeSet );
+    bulkSubscribe( session, channelId, subChannelIds, filter, explicitSubscribe, changeSet );
   }
 
   protected void updateSubscription( @Nonnull final String sessionID,
@@ -421,14 +421,14 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   protected void bulkUpdateSubscription( @Nonnull final String sessionID,
-                                         final int channelID,
+                                         final int channelId,
                                          @Nonnull final Collection<Serializable> subChannelIds,
                                          @Nullable final Object filter,
                                          @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
     final ReplicantSession session = ensureSession( sessionID );
-    bulkUpdateSubscription( session, channelID, subChannelIds, filter, changeSet );
+    bulkUpdateSubscription( session, channelId, subChannelIds, filter, changeSet );
     expandLinks( session, changeSet );
   }
 
@@ -458,19 +458,19 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void bulkUpdateSubscription( @Nonnull final ReplicantSession session,
-                                      final int channelID,
+                                      final int channelId,
                                       @Nonnull final Collection<Serializable> subChannelIds,
                                       @Nullable final Object filter,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( channelID );
+    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( channelId );
     assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
     final ArrayList<ChannelAddress> channelsToUpdate = new ArrayList<>();
 
     for ( final Serializable subChannelId : subChannelIds )
     {
-      final ChannelAddress descriptor = new ChannelAddress( channelID, subChannelId );
+      final ChannelAddress descriptor = new ChannelAddress( channelId, subChannelId );
       final SubscriptionEntry entry = session.getSubscriptionEntry( descriptor );
       if ( !doFiltersMatch( filter, entry.getFilter() ) )
       {
@@ -507,13 +507,13 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
-                             final int channelID,
+                             final int channelId,
                              @Nonnull final Collection<Serializable> subChannelIds,
                              @Nullable final Object filter,
                              final boolean explicitSubscribe,
                              @Nonnull final ChangeSet changeSet )
   {
-    assert getSystemMetaData().getChannelMetaData( channelID ).isInstanceGraph();
+    assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
 
     final ArrayList<ChannelAddress> newChannels = new ArrayList<>();
     //OriginalFilter => Channels
@@ -521,7 +521,7 @@ public abstract class ReplicantSessionManagerImpl
 
     for ( final Serializable root : subChannelIds )
     {
-      final ChannelAddress descriptor = new ChannelAddress( channelID, root );
+      final ChannelAddress descriptor = new ChannelAddress( channelId, root );
       final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
       if ( null == entry )
       {
@@ -814,13 +814,13 @@ public abstract class ReplicantSessionManagerImpl
                                                                    @Nullable Object filter );
 
   protected void bulkUnsubscribe( @Nonnull final String sessionID,
-                                  final int channelID,
+                                  final int channelId,
                                   @Nonnull final Collection<Serializable> subChannelIds,
                                   final boolean explicitUnsubscribe,
                                   @Nonnull final ChangeSet changeSet )
   {
     setupRegistryContext( sessionID );
-    bulkUnsubscribe( ensureSession( sessionID ), channelID, subChannelIds, explicitUnsubscribe, changeSet );
+    bulkUnsubscribe( ensureSession( sessionID ), channelId, subChannelIds, explicitUnsubscribe, changeSet );
   }
 
   @Override
@@ -838,14 +838,14 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
-                               final int channelID,
+                               final int channelId,
                                @Nonnull final Collection<Serializable> subChannelIds,
                                final boolean explicitUnsubscribe,
                                @Nonnull final ChangeSet changeSet )
   {
     for ( final Serializable subChannelId : subChannelIds )
     {
-      unsubscribe( session, new ChannelAddress( channelID, subChannelId ), explicitUnsubscribe, changeSet );
+      unsubscribe( session, new ChannelAddress( channelId, subChannelId ), explicitUnsubscribe, changeSet );
     }
   }
 

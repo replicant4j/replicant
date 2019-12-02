@@ -147,10 +147,10 @@ final class Encoder
 
   @Nonnull
   private static String getInstanceChannelURL( @Nonnull final ReplicantSession session,
-                                               final int channelID,
+                                               final int channelId,
                                                @Nonnull final UriInfo uri )
   {
-    return getSubscriptionsURL( session, uri ) + '/' + channelID;
+    return getSubscriptionsURL( session, uri ) + '/' + channelId;
   }
 
   @Nonnull
@@ -196,9 +196,9 @@ final class Encoder
   }
 
   private static void emitChannelId( @Nonnull final JsonGenerator g,
-                                     final int channelID )
+                                     final int channelId )
   {
-    g.write( "channelID", channelID );
+    g.write( "channelId", channelId );
   }
 
   private static void emitSubChannelId( @Nonnull final JsonGenerator g, @Nullable final Serializable subChannelId )
