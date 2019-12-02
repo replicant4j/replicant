@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v5.101](https://github.com/replicant4j/replicant/tree/v5.101) (2019-12-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.100...v5.101)
 
 * Rename occurrences of `ChannelID` to `ChannelId` to align with conventions in version 6.
 * Rename `ChannelDesriptor` to `ChannelAddress` to align with conventions in version 6.
