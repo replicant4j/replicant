@@ -49,7 +49,7 @@ public final class MessageTestUtil
     }
 
     final HashMap<String, Serializable> attributeValues =
-      ( null == a1 && null == a2 ) ? null : new HashMap<String, Serializable>();
+      ( null == a1 && null == a2 ) ? null : new HashMap<>();
     if ( null != a1 )
     {
       attributeValues.put( ATTR_KEY1, a1 );

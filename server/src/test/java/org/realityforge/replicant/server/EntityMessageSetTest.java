@@ -116,8 +116,8 @@ public class EntityMessageSetTest
       new EntityMessage( "a",
                          42,
                          0,
-                         new HashMap<String, Serializable>(),
-                         new HashMap<String, Serializable>(),
+                         new HashMap<>(),
+                         new HashMap<>(),
                          null );
 
     final EntityMessageSet set = new EntityMessageSet();

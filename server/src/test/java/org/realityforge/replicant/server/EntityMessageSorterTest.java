@@ -81,8 +81,8 @@ public class EntityMessageSorterTest
     return new EntityMessage( id,
                               typeID,
                               timestamp,
-                              new HashMap<String, Serializable>(),
-                              isDelete ? null : new HashMap<String, Serializable>(),
+                              new HashMap<>(),
+                              isDelete ? null : new HashMap<>(),
                               null );
   }
 
@@ -178,8 +178,8 @@ public class EntityMessageSorterTest
     return new EntityMessage( _nextID++,
                               typeID,
                               time,
-                              new HashMap<String, Serializable>(),
-                              new HashMap<String, Serializable>(),
+                              new HashMap<>(),
+                              new HashMap<>(),
                               null );
   }
 
@@ -193,7 +193,7 @@ public class EntityMessageSorterTest
     return new EntityMessage( _nextID++,
                               typeID,
                               time,
-                              new HashMap<String, Serializable>(),
+                              new HashMap<>(),
                               null,
                               null );
   }

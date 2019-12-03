@@ -83,8 +83,8 @@ public final class EntityMessage
       new EntityMessage( getID(),
                          getTypeID(),
                          getTimestamp(),
-                         new HashMap<String, Serializable>(),
-                         new HashMap<String, Serializable>(),
+                         new HashMap<>(),
+                         new HashMap<>(),
                          null );
     message.merge( this );
     return message;
