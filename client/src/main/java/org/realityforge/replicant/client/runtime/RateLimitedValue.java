@@ -1,13 +1,11 @@
 package org.realityforge.replicant.client.runtime;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 public final class RateLimitedValue
 {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final double MAX_POSSIBLE_TOKENS = Double.MAX_VALUE / 4;
-
   //Target rate in messages/sec
   private double _tokensPerSecond;
   // Last time the token count was regenerated
@@ -17,12 +15,12 @@ public final class RateLimitedValue
   // The number of tokens left in the bucket
   private double _tokenCount;
 
-  public RateLimitedValue( @Nonnegative final double tokensPerSecond )
+  public RateLimitedValue( final double tokensPerSecond )
   {
     this( tokensPerSecond, tokensPerSecond );
   }
 
-  public RateLimitedValue( @Nonnegative final double tokensPerSecond, @Nonnegative final double maxTokenAmount )
+  public RateLimitedValue( final double tokensPerSecond, final double maxTokenAmount )
   {
     setTokensPerSecond( tokensPerSecond );
     setMaxTokenCount( maxTokenAmount );
@@ -30,7 +28,7 @@ public final class RateLimitedValue
     _lastRegenTime = System.currentTimeMillis();
   }
 
-  public synchronized void setTokensPerSecond( @Nonnegative final double tokensPerSecond )
+  public synchronized void setTokensPerSecond( final double tokensPerSecond )
   {
     assert tokensPerSecond >= 0;
     _tokensPerSecond = Math.min( tokensPerSecond, MAX_POSSIBLE_TOKENS );
@@ -62,20 +60,20 @@ public final class RateLimitedValue
     return _tokenCount == _maxTokenCount;
   }
 
-  public void setMaxTokenCount( @Nonnegative final double maxTokenCount )
+  public void setMaxTokenCount( final double maxTokenCount )
   {
     assert maxTokenCount >= 0;
     _maxTokenCount = maxTokenCount;
     _tokenCount = Math.min( _tokenCount, _maxTokenCount );
   }
 
-  public void setTokenCount( @Nonnegative final double tokenCount )
+  public void setTokenCount( final double tokenCount )
   {
     assert tokenCount >= 0;
     _tokenCount = Math.min( tokenCount, _maxTokenCount );
   }
 
-  public synchronized boolean consume( @Nonnegative final double costInTokens )
+  public synchronized boolean consume( final double costInTokens )
   {
     regenerateTokens();
     if ( _tokenCount >= costInTokens )
@@ -89,7 +87,7 @@ public final class RateLimitedValue
     }
   }
 
-  public boolean attempt( @Nonnegative final double costInTokens, @Nonnull final Runnable action )
+  public boolean attempt( final double costInTokens, @Nonnull final Runnable action )
   {
     if ( consume( costInTokens ) )
     {
