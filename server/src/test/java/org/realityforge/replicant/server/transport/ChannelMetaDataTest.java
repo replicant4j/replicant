@@ -9,7 +9,7 @@ public class ChannelMetaDataTest
   public void typeGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false, true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertTrue( metaData.isTypeGraph() );
@@ -24,7 +24,7 @@ public class ChannelMetaDataTest
   public void instanceGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.NONE, null, false );
+      new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.NONE, null, false, true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertFalse( metaData.isTypeGraph() );
@@ -37,7 +37,7 @@ public class ChannelMetaDataTest
   public void filteredGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.STATIC, String.class, false );
+      new ChannelMetaData( 1, "MetaData", false, ChannelMetaData.FilterType.STATIC, String.class, false, true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertFalse( metaData.isTypeGraph() );
@@ -50,8 +50,8 @@ public class ChannelMetaDataTest
   @Test
   public void badFilteredConfig()
   {
-    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.STATIC, null, false ) );
-    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.DYNAMIC, null, false ) );
-    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.NONE, String.class, false ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.STATIC, null, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.DYNAMIC, null, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.NONE, String.class, false, true ) );
   }
 }
