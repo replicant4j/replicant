@@ -12,6 +12,7 @@ import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
+import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -60,7 +61,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
     assertNull( interceptor._messages );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "1" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
   }
 
   @Test
@@ -77,13 +78,13 @@ public class ReplicationInterceptorTest
     disableReplicationContext( registry );
 
     when( em.isOpen() ).thenReturn( true );
-    ReplicantContextHolder.put( SharedConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( SharedConstants.REQUEST_ID_KEY, "r1" );
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, "r1" );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
     // Make sure clear is called
-    assertNull( ReplicantContextHolder.get( SharedConstants.SESSION_ID_KEY ) );
+    assertNull( ReplicantContextHolder.get( ServerConstants.SESSION_ID_KEY ) );
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -91,7 +92,7 @@ public class ReplicationInterceptorTest
     assertEquals( interceptor._requestID, "r1" );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "0" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test
@@ -100,20 +101,20 @@ public class ReplicationInterceptorTest
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestInvocationContext context = new TestInvocationContext();
-    context.setRunnable( () -> registry.putResource( SharedConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE ) );
+    context.setRunnable( () -> registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE ) );
     final EntityManager entityManager = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor =
       createInterceptor( registry, entityManager );
 
-    ReplicantContextHolder.put( SharedConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( SharedConstants.REQUEST_ID_KEY, "r1" );
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, "r1" );
 
     when( entityManager.isOpen() ).thenReturn( true );
 
     interceptor.businessIntercept( context );
 
     assertTrue( context.isInvoked() );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "0" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test
@@ -130,13 +131,13 @@ public class ReplicationInterceptorTest
     disableReplicationContext( registry );
 
     when( em.isOpen() ).thenReturn( true );
-    ReplicantContextHolder.put( SharedConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( SharedConstants.REQUEST_ID_KEY, "r1" );
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, "r1" );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
     // Make sure clear is called
-    assertNull( ReplicantContextHolder.get( SharedConstants.SESSION_ID_KEY ) );
+    assertNull( ReplicantContextHolder.get( ServerConstants.SESSION_ID_KEY ) );
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -148,7 +149,7 @@ public class ReplicationInterceptorTest
     assertEquals( change.getEntityMessage().getID(), message.getID() );
     final Serializable expected = 77;
     assertEquals( change.getChannels().get( 44 ), expected );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "0" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test
@@ -169,7 +170,7 @@ public class ReplicationInterceptorTest
     interceptor.businessIntercept( context );
 
     assertTrue( context.isInvoked() );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "1" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
   }
 
   @Test
@@ -199,8 +200,8 @@ public class ReplicationInterceptorTest
     };
 
     when( em.isOpen() ).thenReturn( true );
-    ReplicantContextHolder.put( SharedConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( SharedConstants.REQUEST_ID_KEY, "r1" );
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, "r1" );
     try
     {
       interceptor.businessIntercept( context );
@@ -249,7 +250,7 @@ public class ReplicationInterceptorTest
     assertNull( interceptor._requestID );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "0" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test
@@ -281,7 +282,7 @@ public class ReplicationInterceptorTest
     assertNull( interceptor._requestID );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "1" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
   }
 
   @Test
@@ -306,7 +307,7 @@ public class ReplicationInterceptorTest
     assertNull( interceptor._sessionID );
     assertNull( interceptor._requestID );
     assertNull( interceptor._messages );
-    assertEquals( ReplicantContextHolder.get( SharedConstants.REQUEST_COMPLETE_KEY ), "1" );
+    assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
     assertEquals( result, TestInvocationContext.RESULT );
   }
 

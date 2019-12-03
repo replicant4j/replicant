@@ -25,7 +25,7 @@ public class ReplicantRpcRequestBuilderTest
     final SessionContext sessionContext = new SessionContext( "X" );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
-    verify( rb, never() ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), anyString() );
+    verify( rb, never() ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), anyString() );
     verify( rb, never() ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), anyString() );
   }
 
@@ -38,7 +38,7 @@ public class ReplicantRpcRequestBuilderTest
     sessionContext.setSession( new ClientSession( mock( DataLoaderService.class ), "1" ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( rb ).setCallback( callback );
-    verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( "1" ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( "1" ) );
     verify( rb, never() ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), anyString() );
   }
 
@@ -64,7 +64,7 @@ public class ReplicantRpcRequestBuilderTest
               } ).when( rb ).setCallback( any( RequestCallback.class ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
-    verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
     assertFalse( requestEntry.isExpectingResults() );
@@ -92,7 +92,7 @@ public class ReplicantRpcRequestBuilderTest
               } ).when( rb ).setCallback( any( RequestCallback.class ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onResponseReceived( request, response );
-    verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
     assertFalse( requestEntry.isCompletionDataPresent() );
@@ -120,7 +120,7 @@ public class ReplicantRpcRequestBuilderTest
               } ).when( rb ).setCallback( any( RequestCallback.class ) );
     new ReplicantRpcRequestBuilder( sessionContext ).doSetCallback( rb, callback );
     verify( callback ).onError( request, exception );
-    verify( rb ).setHeader( refEq( SharedConstants.SESSION_ID_HEADER ), refEq( session.getSessionID() ) );
+    verify( rb ).setHeader( refEq( SharedConstants.CONNECTION_ID_HEADER ), refEq( session.getSessionID() ) );
     verify( rb ).setHeader( refEq( SharedConstants.REQUEST_ID_HEADER ), refEq( requestEntry.getRequestID() ) );
 
     assertFalse( requestEntry.isExpectingResults() );

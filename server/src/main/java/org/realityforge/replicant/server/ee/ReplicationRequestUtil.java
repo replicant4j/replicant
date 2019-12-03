@@ -15,6 +15,7 @@ import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
+import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.shared.SharedConstants;
 
@@ -114,19 +115,19 @@ public final class ReplicationRequestUtil
     registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, invocationKey );
     if ( null != sessionID )
     {
-      registry.putResource( SharedConstants.SESSION_ID_KEY, sessionID );
+      registry.putResource( ServerConstants.SESSION_ID_KEY, sessionID );
     }
     else
     {
-      registry.putResource( SharedConstants.SESSION_ID_KEY, null );
+      registry.putResource( ServerConstants.SESSION_ID_KEY, null );
     }
     if ( null != requestID )
     {
-      registry.putResource( SharedConstants.REQUEST_ID_KEY, requestID );
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestID );
     }
     else
     {
-      registry.putResource( SharedConstants.REQUEST_ID_KEY, null );
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
     }
     if ( LOG.isLoggable( Level.FINE ) )
     {
@@ -149,8 +150,8 @@ public final class ReplicationRequestUtil
          entityManager.isOpen() &&
          !registry.getRollbackOnly() )
     {
-      final String sessionID = (String) registry.getResource( SharedConstants.SESSION_ID_KEY );
-      final String requestID = (String) registry.getResource( SharedConstants.REQUEST_ID_KEY );
+      final String sessionID = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
+      final String requestID = (String) registry.getResource( ServerConstants.REQUEST_ID_KEY );
       boolean requestComplete = true;
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );
@@ -164,19 +165,19 @@ public final class ReplicationRequestUtil
           requestComplete = !endpoint.saveEntityMessages( sessionID, requestID, messages, changeSet );
         }
       }
-      final Boolean complete = (Boolean) registry.getResource( SharedConstants.REQUEST_COMPLETE_KEY );
+      final Boolean complete = (Boolean) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
       // Clear all state in case there is multiple replication contexts started in one transaction
       registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, null );
-      registry.putResource( SharedConstants.SESSION_ID_KEY, null );
-      registry.putResource( SharedConstants.REQUEST_ID_KEY, null );
-      registry.putResource( SharedConstants.REQUEST_COMPLETE_KEY, null );
+      registry.putResource( ServerConstants.SESSION_ID_KEY, null );
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
+      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
 
       final boolean isComplete = !( null != complete && !complete ) && requestComplete;
-      ReplicantContextHolder.put( SharedConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
+      ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
     }
     else
     {
-      ReplicantContextHolder.put( SharedConstants.REQUEST_COMPLETE_KEY, "1" );
+      ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, "1" );
     }
     if ( LOG.isLoggable( Level.FINE ) )
     {

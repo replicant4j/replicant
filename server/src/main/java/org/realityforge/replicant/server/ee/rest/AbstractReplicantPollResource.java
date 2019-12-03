@@ -81,7 +81,7 @@ public abstract class AbstractReplicantPollResource
   @GET
   @Produces( "text/plain" )
   public void poll( @Suspended final AsyncResponse response,
-                    @NotNull @HeaderParam( SharedConstants.SESSION_ID_HEADER ) final String sessionID,
+                    @NotNull @HeaderParam( SharedConstants.CONNECTION_ID_HEADER ) final String sessionID,
                     @NotNull @QueryParam( SharedConstants.RECEIVE_SEQUENCE_PARAM ) final int rxSequence )
   {
     response.setTimeout( getPollTime(), TimeUnit.SECONDS );

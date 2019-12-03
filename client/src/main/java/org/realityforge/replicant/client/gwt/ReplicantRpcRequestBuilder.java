@@ -28,7 +28,7 @@ public class ReplicantRpcRequestBuilder
     final ClientSession session = _sessionContext.getSession();
     if ( null != session )
     {
-      rb.setHeader( SharedConstants.SESSION_ID_HEADER, session.getSessionID() );
+      rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, session.getSessionID() );
     }
     final RequestEntry entry = _sessionContext.getRequest();
     if ( null == entry )

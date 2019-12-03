@@ -195,7 +195,7 @@ public abstract class GwtWebPollerDataLoaderService
                                                            @Nonnull final String url )
   {
     final RequestBuilder rb = newRequestBuilder( method, url );
-    rb.setHeader( SharedConstants.SESSION_ID_HEADER, getSessionID() );
+    rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, getSessionID() );
     return rb;
   }
 

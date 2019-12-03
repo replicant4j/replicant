@@ -2,7 +2,6 @@ package org.realityforge.replicant.server.ee.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +31,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
+import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 import org.realityforge.replicant.server.ee.ReplicantContextHolder;
 import org.realityforge.replicant.server.ee.ReplicationRequestUtil;
@@ -490,8 +490,8 @@ public abstract class AbstractSessionRestService
     {
       throw new WebApplicationException( standardResponse( Response.Status.NOT_FOUND, "No such session." ) );
     }
-    getRegistry().putResource( SharedConstants.SESSION_ID_KEY, sessionID );
-    getRegistry().putResource( SharedConstants.REQUEST_ID_KEY, requestID );
+    getRegistry().putResource( ServerConstants.SESSION_ID_KEY, sessionID );
+    getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, requestID );
     return session;
   }
 
@@ -515,7 +515,7 @@ public abstract class AbstractSessionRestService
 
   private void configureCompletionHeader( @Nonnull final Response.ResponseBuilder builder )
   {
-    final String complete = (String) ReplicantContextHolder.remove( SharedConstants.REQUEST_COMPLETE_KEY );
+    final String complete = (String) ReplicantContextHolder.remove( ServerConstants.REQUEST_COMPLETE_KEY );
     if ( null != complete )
     {
       builder.header( SharedConstants.REQUEST_COMPLETE_HEADER, complete );
