@@ -114,7 +114,7 @@ public class ChangeSetTest
     final Collection<Change> changes = changeSet.getChanges();
     assertEquals( changes.size(), 1 );
     final Change change = changes.iterator().next();
-    assertEquals( change.getEntityMessage().getID(), id );
+    assertEquals( change.getEntityMessage().getId(), id );
     assertNotSame( change, change1 );
   }
 
@@ -139,7 +139,7 @@ public class ChangeSetTest
     final Collection<Change> changes = changeSet2.getChanges();
     assertEquals( changes.size(), 1 );
     final Change change = changes.iterator().next();
-    assertEquals( change.getEntityMessage().getID(), id );
+    assertEquals( change.getEntityMessage().getId(), id );
     assertNotSame( change, change1 );
 
     final LinkedList<ChannelAction> actions = changeSet2.getChannelActions();
@@ -169,7 +169,7 @@ public class ChangeSetTest
     final Collection<Change> changes = changeSet.getChanges();
     assertEquals( changes.size(), 1 );
     final Change change = changes.iterator().next();
-    assertEquals( change.getEntityMessage().getID(), id );
+    assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
     assertEquals( change.getChannels().get( 1 ), 0 );
   }

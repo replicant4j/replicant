@@ -28,7 +28,7 @@ final class TestChange
   }
 
   @Override
-  public int getTypeID()
+  public int getTypeId()
   {
     return 0;
   }

@@ -22,7 +22,7 @@ public interface Change
   /**
    * @return a code indicating the type of the entity changed.
    */
-  int getTypeID();
+  int getTypeId();
 
   /**
    * @return true if the change is an update, false if it is a remove.

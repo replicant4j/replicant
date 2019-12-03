@@ -14,7 +14,7 @@ public class ChangeTest
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final Change change = new Change( message );
 
-    assertEquals( change.getID(), "42#myID" );
+    assertEquals( change.getId(), "42#myID" );
     assertEquals( change.getEntityMessage(), message );
     assertEquals( change.getChannels().size(), 0 );
   }
@@ -31,8 +31,8 @@ public class ChangeTest
     change.getChannels().put( 2, 3 );
 
     final Change duplicate = change.duplicate();
-    assertEquals( duplicate.getID(), change.getID() );
-    assertEquals( duplicate.getEntityMessage().getID(), change.getEntityMessage().getID() );
+    assertEquals( duplicate.getId(), change.getId() );
+    assertEquals( duplicate.getEntityMessage().getId(), change.getEntityMessage().getId() );
     assertNotSame( duplicate.getEntityMessage(), change.getEntityMessage() );
     assertEquals( duplicate.getChannels(), change.getChannels() );
     assertNotSame( duplicate.getChannels(), change.getChannels() );

@@ -539,7 +539,7 @@ public class ReplicantSessionManagerImplTest
       // 1 Change comes from collectDataForSubscribe
       final Collection<Change> changes = getChanges();
       assertEquals( changes.size(), 1 );
-      assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
+      assertEquals( changes.iterator().next().getEntityMessage().getId(), 79 );
 
       assertEntry( e1, true, 0, 0, null );
     }
@@ -566,7 +566,7 @@ public class ReplicantSessionManagerImplTest
       // 1 Change comes from collectDataForSubscribe
       final Collection<Change> changes = getChanges();
       assertEquals( changes.size(), 1 );
-      assertEquals( changes.iterator().next().getEntityMessage().getID(), 79 );
+      assertEquals( changes.iterator().next().getEntityMessage().getId(), 79 );
 
       assertEntry( e1, true, 0, 0, filter );
 
@@ -1014,7 +1014,7 @@ public class ReplicantSessionManagerImplTest
     assertEquals( changes.size(), 1 );
     final Change change = changes.iterator().next();
     final EntityMessage entityMessage = change.getEntityMessage();
-    assertEquals( entityMessage.getID(), 78 );
+    assertEquals( entityMessage.getId(), 78 );
     //Ugly hack to check the filters correctly passed through
     assertNotNull( entityMessage.getAttributeValues() );
     assertEquals( entityMessage.getAttributeValues().get( "OriginalFilter" ), originalFilter );

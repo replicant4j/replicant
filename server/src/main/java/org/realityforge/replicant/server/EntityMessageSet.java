@@ -34,7 +34,7 @@ public final class EntityMessageSet
 
   public void merge( @Nonnull final EntityMessage message, final boolean copyOnMerge )
   {
-    final String key = toKey( message.getTypeID(), message.getID() );
+    final String key = toKey( message.getTypeId(), message.getId() );
     final EntityMessage existing = _entities.get( key );
     if ( null != existing )
     {

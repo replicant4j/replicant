@@ -24,7 +24,7 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native int getTypeID() /*-{
+  public final native int getTypeId() /*-{
     return this.type;
   }-*/;
 

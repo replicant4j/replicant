@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import org.testng.annotations.Test;
@@ -122,8 +121,8 @@ public class EntityMessageSetTest
 
     final EntityMessageSet set = new EntityMessageSet();
 
-    assertFalse( set.containsEntityMessage( message.getTypeID(), message.getID() ) );
+    assertFalse( set.containsEntityMessage( message.getTypeId(), message.getId() ) );
     set.merge( message );
-    assertTrue( set.containsEntityMessage( message.getTypeID(), message.getID() ) );
+    assertTrue( set.containsEntityMessage( message.getTypeId(), message.getId() ) );
   }
 }

@@ -146,7 +146,7 @@ public class ReplicationInterceptorTest
     assertNotNull( interceptor._messages );
     assertEquals( interceptor._changeSet.getChanges().size(), 1 );
     final Change change = interceptor._changeSet.getChanges().iterator().next();
-    assertEquals( change.getEntityMessage().getID(), message.getID() );
+    assertEquals( change.getEntityMessage().getId(), message.getId() );
     final Serializable expected = 77;
     assertEquals( change.getChannels().get( 44 ), expected );
     assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );

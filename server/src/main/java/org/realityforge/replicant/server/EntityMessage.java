@@ -11,34 +11,34 @@ import javax.annotation.Nullable;
 public final class EntityMessage
 {
   private final Serializable _id;
-  private final int _typeID;
+  private final int _typeId;
   private final Map<String, Serializable> _routingKeys;
   private Set<ChannelLink> _links;
   private Map<String, Serializable> _attributeValues;
   private long _timestamp;
 
   public EntityMessage( @Nonnull final Serializable id,
-                        final int typeID,
+                        final int typeId,
                         final long timestamp,
                         @Nonnull final Map<String, Serializable> routingKeys,
                         @Nullable final Map<String, Serializable> attributeValues,
                         @Nullable final Set<ChannelLink> links )
   {
     _id = id;
-    _typeID = typeID;
+    _typeId = typeId;
     _timestamp = timestamp;
     _routingKeys = routingKeys;
     _attributeValues = attributeValues;
     _links = links;
   }
 
-  public int getTypeID()
+  public int getTypeId()
   {
-    return _typeID;
+    return _typeId;
   }
 
   @Nonnull
-  public Serializable getID()
+  public Serializable getId()
   {
     return _id;
   }
@@ -80,8 +80,8 @@ public final class EntityMessage
   public EntityMessage duplicate()
   {
     final EntityMessage message =
-      new EntityMessage( getID(),
-                         getTypeID(),
+      new EntityMessage( getId(),
+                         getTypeId(),
                          getTimestamp(),
                          new HashMap<>(),
                          new HashMap<>(),
@@ -94,8 +94,8 @@ public final class EntityMessage
   public String toString()
   {
     return ( isUpdate() ? "U" : "D" ) +
-           "(Type=" + getTypeID() +
-           ",ID=" + getID() +
+           "(Type=" + getTypeId() +
+           ",ID=" + getId() +
            ",RoutingKeys=" + getRoutingKeys() +
            ( !isDelete() ? ",Data=" + getAttributeValues() : "" ) +
            ",Links=" + getLinks() +

@@ -13,8 +13,8 @@ public class EntityMessageTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
-    assertEquals( message.getID(), id );
-    assertEquals( message.getTypeID(), typeID );
+    assertEquals( message.getId(), id );
+    assertEquals( message.getTypeId(), typeID );
     assertEquals( message.getTimestamp(), 0 );
     assertNull( message.getLinks() );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a1" );
@@ -34,8 +34,8 @@ public class EntityMessageTest
 
     message.merge( message2 );
 
-    assertEquals( message.getID(), id );
-    assertEquals( message.getTypeID(), typeID );
+    assertEquals( message.getId(), id );
+    assertEquals( message.getTypeId(), typeID );
     assertEquals( message.getTimestamp(), 2 );
     assertNotNull( message.getLinks() );
     assertEquals( message.getLinks().size(), 1 );
@@ -51,8 +51,8 @@ public class EntityMessageTest
     final EntityMessage message3 = MessageTestUtil.createMessage( id, typeID, 1, null, null, null, "a4" );
 
     message.merge( message3 );
-    assertEquals( message.getID(), id );
-    assertEquals( message.getTypeID(), typeID );
+    assertEquals( message.getId(), id );
+    assertEquals( message.getTypeId(), typeID );
     assertEquals( message.getTimestamp(), 2, "Timestamp merge rule is to take the latest value" );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a3" );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY2, "a4" );

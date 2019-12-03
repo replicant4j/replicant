@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +69,7 @@ public class EntityMessageSorterTest
 
   private void assertIndex( final List<EntityMessage> l1, final int index, final Integer value )
   {
-    assertEquals( l1.get( index ).getID(), value );
+    assertEquals( l1.get( index ).getId(), value );
   }
 
   private EntityMessage newEntityMessage( final int id,
@@ -111,10 +110,10 @@ public class EntityMessageSorterTest
 
     final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
 
-    assertEquals( sortedMessages.get( 0 ).getTypeID(), 4 );
-    assertEquals( sortedMessages.get( 1 ).getTypeID(), 3 );
-    assertEquals( sortedMessages.get( 2 ).getTypeID(), 2 );
-    assertEquals( sortedMessages.get( 3 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 0 ).getTypeId(), 4 );
+    assertEquals( sortedMessages.get( 1 ).getTypeId(), 3 );
+    assertEquals( sortedMessages.get( 2 ).getTypeId(), 2 );
+    assertEquals( sortedMessages.get( 3 ).getTypeId(), 1 );
     assertUpdate( sortedMessages.get( 4 ) );
   }
 
@@ -130,10 +129,10 @@ public class EntityMessageSorterTest
     final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
 
     assertDeletion( sortedMessages.get( 0 ) );
-    assertEquals( sortedMessages.get( 1 ).getTypeID(), 1 );
-    assertEquals( sortedMessages.get( 2 ).getTypeID(), 2 );
-    assertEquals( sortedMessages.get( 3 ).getTypeID(), 3 );
-    assertEquals( sortedMessages.get( 4 ).getTypeID(), 4 );
+    assertEquals( sortedMessages.get( 1 ).getTypeId(), 1 );
+    assertEquals( sortedMessages.get( 2 ).getTypeId(), 2 );
+    assertEquals( sortedMessages.get( 3 ).getTypeId(), 3 );
+    assertEquals( sortedMessages.get( 4 ).getTypeId(), 4 );
   }
 
   @Test
@@ -149,7 +148,7 @@ public class EntityMessageSorterTest
     assertEquals( sortedMessages.get( 0 ).getTimestamp(), 20 );
     assertEquals( sortedMessages.get( 1 ).getTimestamp(), 15 );
     assertEquals( sortedMessages.get( 2 ).getTimestamp(), 10 );
-    assertEquals( sortedMessages.get( 3 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 3 ).getTypeId(), 1 );
   }
 
   @Test
@@ -162,7 +161,7 @@ public class EntityMessageSorterTest
 
     final List<EntityMessage> sortedMessages = EntityMessageSorter.sort( Arrays.asList( messages ) );
 
-    assertEquals( sortedMessages.get( 0 ).getTypeID(), 1 );
+    assertEquals( sortedMessages.get( 0 ).getTypeId(), 1 );
     assertEquals( sortedMessages.get( 1 ).getTimestamp(), 10 );
     assertEquals( sortedMessages.get( 2 ).getTimestamp(), 15 );
     assertEquals( sortedMessages.get( 3 ).getTimestamp(), 20 );

@@ -16,7 +16,7 @@ public class Change
 
   public Change( @Nonnull final EntityMessage entityMessage )
   {
-    _id = entityMessage.getTypeID() + "#" + entityMessage.getID();
+    _id = entityMessage.getTypeId() + "#" + entityMessage.getId();
     _entityMessage = entityMessage;
     _channels = new LinkedHashMap<>();
   }
@@ -30,7 +30,7 @@ public class Change
   }
 
   @Nonnull
-  public String getID()
+  public String getId()
   {
     return _id;
   }
