@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v5.102](https://github.com/replicant4j/replicant/tree/v5.102) (2019-12-03) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.101...v5.102)
 
 * Introduce `ServerConstants` and move several constants from `SharedConstants` to `ServerConstants` to align with changes applied in version 6.
 * Rename `getID()` to `getId()` and `getTypeID()` to `getTypeId()` to align with version 6.
