@@ -19,13 +19,15 @@ public final class ChannelMetaData
   private final FilterType _filterType;
   private final Class _filterParameterType;
   private final boolean _cacheable;
+  private final boolean _externallyVisible;
 
   public ChannelMetaData( final int channelId,
                           @Nonnull final String name,
                           final boolean typeGraph,
                           @Nonnull final FilterType filterType,
                           @Nullable final Class filterParameterType,
-                          final boolean cacheable )
+                          final boolean cacheable,
+                          final boolean externallyVisible )
   {
     _channelId = channelId;
     _name = Objects.requireNonNull( name );
@@ -41,6 +43,7 @@ public final class ChannelMetaData
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is not set to NONE" );
     }
     _cacheable = cacheable;
+    _externallyVisible = externallyVisible;
   }
 
   public int getChannelId()
@@ -83,5 +86,10 @@ public final class ChannelMetaData
   public boolean isCacheable()
   {
     return _cacheable;
+  }
+
+  public boolean isExternallyVisible()
+  {
+    return _externallyVisible;
   }
 }
