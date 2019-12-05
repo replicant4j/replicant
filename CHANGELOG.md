@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix `RequestDebugger` so that it is compatible with the latest version of JDT which has several bugs relating to intersection types.
+
 ### [v5.103](https://github.com/replicant4j/replicant/tree/v5.103) (2019-12-03) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.102...v5.103)
 
 * Remove usages of `@Nonnegative` annotation as it is only advisory and it forced additional elements onto the GWT compile classpath.

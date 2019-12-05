@@ -23,6 +23,7 @@ public class RequestDebugger
               " CacheKey: " + entry.getCacheKey() +
               " CompletionDataPresent?: " + entry.isCompletionDataPresent() +
               " ExpectingResults?: " + entry.isExpectingResults() +
-              " NormalCompletion?: " + ( entry.isCompletionDataPresent() ? entry.isNormalCompletion() : '?' ) );
+              " NormalCompletion?: " +
+              ( entry.isCompletionDataPresent() ? String.valueOf( entry.isNormalCompletion() ) : "?" ) );
   }
 }
