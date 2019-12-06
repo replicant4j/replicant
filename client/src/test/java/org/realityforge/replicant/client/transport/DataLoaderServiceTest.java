@@ -255,7 +255,7 @@ public class DataLoaderServiceTest
     assertTrue( request.haveResultsArrived() );
     assertNotInRequestManager( service, request );
     assertTrue( service.isDataLoadComplete() );
-    assertNotNull( service.getStatus().getRequestID() );
+    assertNotNull( service.getStatus().getRequestId() );
 
     verifyPostActionRun( request.getCompletionAction() );
   }
@@ -290,7 +290,7 @@ public class DataLoaderServiceTest
     verify( service.getChangeBroker() ).resume( "TestGraph" );
 
     assertTrue( service.isDataLoadComplete() );
-    assertNull( service.getStatus().getRequestID() );
+    assertNull( service.getStatus().getRequestId() );
 
     verify( service.getChangeMapper() ).applyChange( changeSet.getChange( 0 ) );
     verify( entity ).link();
@@ -333,16 +333,16 @@ public class DataLoaderServiceTest
 
     final RequestEntry request =
       service.ensureSession().newRequest( "", null );
-    changeSet.setRequestID( request.getRequestID() );
+    changeSet.setRequestId( request.getRequestId() );
     service.ensureSession().enqueueDataLoad( "blah" );
 
     progressWorkTillDone( service, 7, 1 );
 
     assertTrue( request.haveResultsArrived() );
-    final String requestID = changeSet.getRequestID();
-    assertNotNull( requestID );
+    final String requestId = changeSet.getRequestId();
+    assertNotNull( requestId );
     assertInRequestManager( service, request );
-    assertNotNull( service.getStatus().getRequestID() );
+    assertNotNull( service.getStatus().getRequestId() );
 
     verifyPostActionNotRun( changeSet.getRunnable() );
   }
@@ -368,7 +368,7 @@ public class DataLoaderServiceTest
     verify( service.getChangeBroker(), never() ).enable( "TEST" );
 
     assertTrue( service.isDataLoadComplete() );
-    assertNotNull( service.getStatus().getRequestID() );
+    assertNotNull( service.getStatus().getRequestId() );
 
     verifyPostActionRun( changeSet.getRunnable() );
   }
@@ -963,7 +963,7 @@ public class DataLoaderServiceTest
     assertFalse( service.isScheduleDataLoadCalled() );
     for ( final TestChangeSet cs : service.getChangeSets() )
     {
-      service.ensureSession().enqueueDataLoad( "BLAH:" + cs.getRequestID() );
+      service.ensureSession().enqueueDataLoad( "BLAH:" + cs.getRequestId() );
     }
     assertTrue( service.isScheduleDataLoadCalled() );
   }
@@ -984,7 +984,7 @@ public class DataLoaderServiceTest
       final RequestEntry request =
         service.ensureSession().newRequest( "", changeSet.getCacheKey() );
       request.setNormalCompletionAction( changeSet.getRunnable() );
-      changeSet.setRequestID( request.getRequestID() );
+      changeSet.setRequestId( request.getRequestId() );
       return request;
     }
     return null;
@@ -1051,11 +1051,11 @@ public class DataLoaderServiceTest
 
   private void assertNotInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNull( service.ensureSession().getRequest( request.getRequestID() ) );
+    assertNull( service.ensureSession().getRequest( request.getRequestId() ) );
   }
 
   private void assertInRequestManager( final TestDataLoadService service, final RequestEntry request )
   {
-    assertNotNull( service.ensureSession().getRequest( request.getRequestID() ) );
+    assertNotNull( service.ensureSession().getRequest( request.getRequestId() ) );
   }
 }

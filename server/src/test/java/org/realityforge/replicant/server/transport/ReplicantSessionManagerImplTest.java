@@ -1391,7 +1391,7 @@ public class ReplicantSessionManagerImplTest
 
     final Packet packet = sm.sendPacket( session, "X", new ChangeSet() );
     assertEquals( packet.getETag(), "X" );
-    assertEquals( packet.getRequestID(), "r1" );
+    assertEquals( packet.getRequestId(), "r1" );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
     assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }

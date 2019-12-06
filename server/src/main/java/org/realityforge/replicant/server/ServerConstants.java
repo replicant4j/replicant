@@ -11,7 +11,7 @@ public final class ServerConstants
    * Key used to retrieve an opaque identifier for the request from the ReplicantContextHolder.
    * Used to pass data from the servlet to the EJB.
    */
-  public static final String REQUEST_ID_KEY = "RequestID";
+  public static final String REQUEST_ID_KEY = "RequestId";
   /**
    * Key used to retrieve a flag whether the request produced a changeset relevant for the initiating session..
    * Used to pass data from the EJB to the servlet.

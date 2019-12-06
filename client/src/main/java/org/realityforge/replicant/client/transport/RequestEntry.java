@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
  */
 public class RequestEntry
 {
-  private final String _requestID;
+  private final String _requestId;
   @Nullable
   private final String _requestKey;
   @Nullable
@@ -18,19 +18,19 @@ public class RequestEntry
   private boolean _resultsArrived;
   private Runnable _completionAction;
 
-  public RequestEntry( @Nonnull final String requestID,
+  public RequestEntry( @Nonnull final String requestId,
                        @Nullable final String requestKey,
                        @Nullable final String cacheKey )
   {
-    _requestID = requestID;
+    _requestId = requestId;
     _requestKey = requestKey;
     _cacheKey = cacheKey;
   }
 
   @Nonnull
-  public String getRequestID()
+  public String getRequestId()
   {
-    return _requestID;
+    return _requestId;
   }
 
   @Nullable
@@ -101,7 +101,7 @@ public class RequestEntry
   public String toString()
   {
     final String requestKey = null == _requestKey ? "?" : _requestKey;
-    return "Request(" + requestKey + ")[ID=" + _requestID +
+    return "Request(" + requestKey + ")[ID=" + _requestId +
            ( ( null != _cacheKey ? ",Cache=" + _cacheKey : "" ) ) + "]";
   }
 }

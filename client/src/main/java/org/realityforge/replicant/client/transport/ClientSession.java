@@ -20,14 +20,12 @@ public final class ClientSession
 {
   private static final Logger LOG = Logger.getLogger( ClientSession.class.getName() );
   private static final Level LOG_LEVEL = Level.INFO;
-
   @Nonnull
   private final DataLoaderService _dataLoaderService;
   private final String _sessionID;
   private final Map<String, RequestEntry> _requests = new HashMap<>();
   private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
-  private int _requestID;
-
+  private int _requestId;
   /**
    * Pending actions that will change the area of interest.
    */
@@ -46,7 +44,6 @@ public final class ClientSession
    * typically need to be sequenced and are prioritized above other actions.
    */
   private final LinkedList<DataLoadAction> _oobActions = new LinkedList<>();
-
   private int _lastRxSequence;
 
   public ClientSession( @Nonnull final DataLoaderService dataLoaderService, @Nonnull final String sessionID )
@@ -133,8 +130,8 @@ public final class ClientSession
   @Nonnull
   public final RequestEntry newRequest( @Nullable final String requestKey, @Nullable final String cacheKey )
   {
-    final RequestEntry entry = new RequestEntry( newRequestID(), requestKey, cacheKey );
-    _requests.put( entry.getRequestID(), entry );
+    final RequestEntry entry = new RequestEntry( newRequestId(), requestKey, cacheKey );
+    _requests.put( entry.getRequestId(), entry );
     if ( LOG.isLoggable( LOG_LEVEL ) )
     {
       LOG.log( LOG_LEVEL, "Created request " + entry );
@@ -156,7 +153,7 @@ public final class ClientSession
     else
     {
       runnable.run();
-      removeRequest( request.getRequestID() );
+      removeRequest( request.getRequestId() );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, "Request " + request + " completed normally. No change set or already arrived." );
@@ -178,7 +175,7 @@ public final class ClientSession
     else
     {
       runnable.run();
-      removeRequest( request.getRequestID() );
+      removeRequest( request.getRequestId() );
       if ( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, "Request " + request + " completed with exception. No change set or already arrived." );
@@ -187,9 +184,9 @@ public final class ClientSession
   }
 
   @Nullable
-  final RequestEntry getRequest( @Nonnull final String requestID )
+  final RequestEntry getRequest( @Nonnull final String requestId )
   {
-    return _requests.get( requestID );
+    return _requests.get( requestId );
   }
 
   Map<String, RequestEntry> getRequests()
@@ -197,13 +194,13 @@ public final class ClientSession
     return _roRequests;
   }
 
-  final boolean removeRequest( @Nonnull final String requestID )
+  final boolean removeRequest( @Nonnull final String requestId )
   {
-    return null != _requests.remove( requestID );
+    return null != _requests.remove( requestId );
   }
 
-  protected String newRequestID()
+  protected String newRequestId()
   {
-    return String.valueOf( ++_requestID );
+    return String.valueOf( ++_requestId );
   }
 }

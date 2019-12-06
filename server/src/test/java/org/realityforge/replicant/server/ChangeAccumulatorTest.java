@@ -37,7 +37,7 @@ public class ChangeAccumulatorTest
     assertEquals( change.getId(), "42#myID" );
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getEntityMessage().getTypeId(), typeID );
-    assertEquals( packet.getRequestID(), "j1" );
+    assertEquals( packet.getRequestId(), "j1" );
     final Map<Integer, Serializable> channels = change.getChannels();
     assertEquals( channels.size(), 1 );
     assertEquals( channels.get( channelId ), subChannelId );
@@ -69,7 +69,7 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     assertEquals( packet.getChangeSet().getChanges().iterator().next().getEntityMessage().getId(), id );
-    assertEquals( packet.getRequestID(), "j1" );
+    assertEquals( packet.getRequestId(), "j1" );
 
     accumulator.complete( null, null );
     assertEquals( c.getQueue().size(), 1 );
@@ -98,7 +98,7 @@ public class ChangeAccumulatorTest
     assertEquals( action.getChannelAddress().getChannelId(), 1 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
-    assertEquals( packet.getRequestID(), "j1" );
+    assertEquals( packet.getRequestId(), "j1" );
 
     assertEquals( c.getQueue().size(), 1 );
     accumulator.complete( null, null );
@@ -119,7 +119,7 @@ public class ChangeAccumulatorTest
     assertFalse( impactsInitiator );
 
     assertEquals( c.getQueue().size(), 1 );
-    assertNull( c.getQueue().nextPacketToProcess().getRequestID() );
+    assertNull( c.getQueue().nextPacketToProcess().getRequestId() );
   }
 
   @Test

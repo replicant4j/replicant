@@ -81,17 +81,17 @@ public class PacketQueue
   /**
    * Add packet to queue.
    *
-   * @param requestID the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
+   * @param requestId the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
    * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
    * @param changeSet the changeSet to create packet from.
    * @return the packet.
    */
   @SuppressWarnings( "unchecked" )
-  public synchronized Packet addPacket( @Nullable final String requestID,
+  public synchronized Packet addPacket( @Nullable final String requestId,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {
-    final Packet packet = new Packet( _nextSequence++, requestID, etag, changeSet );
+    final Packet packet = new Packet( _nextSequence++, requestId, etag, changeSet );
     _packets.add( packet );
     Collections.sort( _packets );
     return packet;

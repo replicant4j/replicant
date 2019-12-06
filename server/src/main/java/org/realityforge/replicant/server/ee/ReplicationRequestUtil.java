@@ -35,11 +35,11 @@ public final class ReplicationRequestUtil
                                   @Nonnull final EntityMessageEndpoint endpoint,
                                   @Nonnull final String invocationKey,
                                   @Nullable final String sessionID,
-                                  @Nullable final String requestID,
+                                  @Nullable final String requestId,
                                   @Nonnull final Callable<T> action )
     throws Exception
   {
-    startReplication( registry, invocationKey, sessionID, requestID );
+    startReplication( registry, invocationKey, sessionID, requestId );
     try
     {
       return action.call();
@@ -56,10 +56,10 @@ public final class ReplicationRequestUtil
                                                                 @Nonnull final EntityMessageEndpoint endpoint,
                                                                 @Nonnull final String invocationKey,
                                                                 @Nullable final String sessionID,
-                                                                @Nullable final String requestID,
+                                                                @Nullable final String requestId,
                                                                 @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
   {
-    startReplication( registry, invocationKey, sessionID, requestID );
+    startReplication( registry, invocationKey, sessionID, requestId );
     try
     {
       return action.get();
@@ -75,10 +75,10 @@ public final class ReplicationRequestUtil
                                  @Nonnull final EntityMessageEndpoint endpoint,
                                  @Nonnull final String invocationKey,
                                  @Nullable final String sessionID,
-                                 @Nullable final String requestID,
+                                 @Nullable final String requestId,
                                  @Nonnull final Runnable action )
   {
-    startReplication( registry, invocationKey, sessionID, requestID );
+    startReplication( registry, invocationKey, sessionID, requestId );
     try
     {
       action.run();
@@ -94,12 +94,12 @@ public final class ReplicationRequestUtil
    *
    * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
    * @param sessionID     the id of the session that initiated change if any.
-   * @param requestID     the id of the request in the session that initiated change..
+   * @param requestId     the id of the request in the session that initiated change..
    */
   private static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
                                         @Nonnull final String invocationKey,
                                         @Nullable final String sessionID,
-                                        @Nullable final String requestID )
+                                        @Nullable final String requestId )
   {
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
     ReplicantContextHolder.clean();
@@ -121,9 +121,9 @@ public final class ReplicationRequestUtil
     {
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
     }
-    if ( null != requestID )
+    if ( null != requestId )
     {
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestID );
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
     }
     else
     {
@@ -151,7 +151,7 @@ public final class ReplicationRequestUtil
          !registry.getRollbackOnly() )
     {
       final String sessionID = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
-      final String requestID = (String) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+      final String requestId = (String) registry.getResource( ServerConstants.REQUEST_ID_KEY );
       boolean requestComplete = true;
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );
@@ -162,7 +162,7 @@ public final class ReplicationRequestUtil
           null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
         if ( null != changeSet || messages.size() > 0 )
         {
-          requestComplete = !endpoint.saveEntityMessages( sessionID, requestID, messages, changeSet );
+          requestComplete = !endpoint.saveEntityMessages( sessionID, requestId, messages, changeSet );
         }
       }
       final Boolean complete = (Boolean) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );

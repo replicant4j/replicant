@@ -19,7 +19,7 @@ public class RequestDebugger
   protected void outputRequest( @Nonnull final String prefix, @Nonnull final RequestEntry entry )
   {
     LOG.info( prefix + " Request: " + entry.getRequestKey() +
-              " / " + entry.getRequestID() +
+              " / " + entry.getRequestId() +
               " CacheKey: " + entry.getCacheKey() +
               " CompletionDataPresent?: " + entry.isCompletionDataPresent() +
               " ExpectingResults?: " + entry.isExpectingResults() +

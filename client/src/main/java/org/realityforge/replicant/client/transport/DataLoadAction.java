@@ -311,7 +311,7 @@ final class DataLoadAction
     assert null != changeSet;
     return new DataLoadStatus( systemKey,
                                changeSet.getSequence(),
-                               changeSet.getRequestID(),
+                               changeSet.getRequestId(),
                                getChannelAdds(),
                                _channelUpdates,
                                _channelRemoves,

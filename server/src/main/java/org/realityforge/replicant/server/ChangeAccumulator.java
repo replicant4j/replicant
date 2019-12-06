@@ -55,10 +55,10 @@ public final class ChangeAccumulator
    * Complete the collection of messages and forward them to the clients.
    *
    * @param sessionID the session that initiated the changes.
-   * @param requestID the opaque identifier indicating the request that caused the changes.
+   * @param requestId the opaque identifier indicating the request that caused the changes.
    * @return true if a change set was send to the originating session
    */
-  public boolean complete( @Nullable final String sessionID, @Nullable final String requestID )
+  public boolean complete( @Nullable final String sessionID, @Nullable final String requestId )
   {
     boolean impactsInitiator = false;
     for ( final Entry<ReplicantSession, ChangeSet> entry : _changeSets.entrySet() )
@@ -69,7 +69,7 @@ public final class ChangeAccumulator
       if ( !changeSet.getChannelActions().isEmpty() || !changeSet.getChanges().isEmpty() )
       {
         impactsInitiator |= isInitiator;
-        session.getQueue().addPacket( isInitiator ? requestID : null, null, changeSet );
+        session.getQueue().addPacket( isInitiator ? requestId : null, null, changeSet );
       }
     }
     _changeSets.clear();

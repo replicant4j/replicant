@@ -26,7 +26,7 @@ public final class JsoChangeSet
 
   @Override
   @Nullable
-  public final native String getRequestID()/*-{
+  public final native String getRequestId()/*-{
     return this.request_id;
   }-*/;
 

@@ -20,7 +20,7 @@ public interface ChangeSet
    * @return the id of the request that generated the changes. Null if not the originating session.
    */
   @Nullable
-  String getRequestID();
+  String getRequestId();
 
   /**
    * @return the version under which this can be cached.

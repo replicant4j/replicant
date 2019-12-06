@@ -82,10 +82,10 @@ public class DataLoadActionTest
     }
     else
     {
-      changeSet.setRequestID( "X" );
-      final String requestID = changeSet.getRequestID();
-      assertNotNull( requestID );
-      final RequestEntry request = new RequestEntry( requestID, "MyOperation", null );
+      changeSet.setRequestId( "X" );
+      final String requestId = changeSet.getRequestId();
+      assertNotNull( requestId );
+      final RequestEntry request = new RequestEntry( requestId, "MyOperation", null );
       if ( normalCompletion )
       {
         request.setNormalCompletionAction( runnable );

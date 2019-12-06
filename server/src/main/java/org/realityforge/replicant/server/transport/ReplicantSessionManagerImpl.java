@@ -218,7 +218,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != packet )
     {
       return JsonEncoder.
-        encodeChangeSet( packet.getSequence(), packet.getRequestID(), packet.getETag(), packet.getChangeSet() );
+        encodeChangeSet( packet.getSequence(), packet.getRequestId(), packet.getETag(), packet.getChangeSet() );
     }
     else
     {
@@ -240,9 +240,9 @@ public abstract class ReplicantSessionManagerImpl
                                @Nullable final String etag,
                                @Nonnull final ChangeSet changeSet )
   {
-    final String requestID = (String) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
+    final String requestId = (String) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
     getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
-    return session.getQueue().addPacket( requestID, etag, changeSet );
+    return session.getQueue().addPacket( requestId, etag, changeSet );
   }
 
   /**
@@ -294,7 +294,7 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionID,
-                                     @Nullable final String requestID,
+                                     @Nullable final String requestId,
                                      @Nonnull final Collection<EntityMessage> messages,
                                      @Nullable final ChangeSet sessionChanges )
   {
@@ -329,7 +329,7 @@ public abstract class ReplicantSessionManagerImpl
       getLock().readLock().unlock();
     }
 
-    return accumulator.complete( sessionID, requestID );
+    return accumulator.complete( sessionID, requestId );
   }
 
   protected abstract void processUpdateMessages( @Nonnull EntityMessage message,

@@ -14,17 +14,17 @@ public final class Packet
   @Nullable
   private final String _etag;
   @Nullable
-  private final String _requestID;
+  private final String _requestId;
   @Nonnull
   private final ChangeSet _changeSet;
 
   public Packet( final int sequence,
-                 @Nullable final String requestID,
+                 @Nullable final String requestId,
                  @Nullable final String etag,
                  @Nonnull final ChangeSet changeSet )
   {
     _sequence = sequence;
-    _requestID = requestID;
+    _requestId = requestId;
     _etag = etag;
     _changeSet = changeSet;
   }
@@ -35,9 +35,9 @@ public final class Packet
   }
 
   @Nullable
-  public String getRequestID()
+  public String getRequestId()
   {
-    return _requestID;
+    return _requestId;
   }
 
   @Nullable

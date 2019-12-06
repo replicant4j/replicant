@@ -10,7 +10,7 @@ public class RequestEntryTest
   {
     final RequestEntry e = new RequestEntry( "a1", "MyOperation", "X" );
 
-    assertEquals( e.getRequestID(), "a1" );
+    assertEquals( e.getRequestId(), "a1" );
     assertEquals( e.getCacheKey(), "X" );
 
     assertFalse( e.isCompletionDataPresent() );

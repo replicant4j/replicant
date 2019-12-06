@@ -3,7 +3,6 @@ package org.realityforge.replicant.client.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -869,7 +868,7 @@ public abstract class AbstractDataLoaderService
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       // OOB messages are not in response to requests as such
-      final String requestID = _currentAction.isOob() ? null : changeSet.getRequestID();
+      final String requestId = _currentAction.isOob() ? null : changeSet.getRequestId();
       // OOB messages have no etags as from local cache or generated locally
       final String eTag = _currentAction.isOob() ? null : changeSet.getETag();
       final int sequence = _currentAction.isOob() ? 0 : changeSet.getSequence();
@@ -879,7 +878,7 @@ public abstract class AbstractDataLoaderService
                  "Parsed ChangeSet:" +
                  " oob=" + _currentAction.isOob() +
                  " seq=" + sequence +
-                 " requestID=" + requestID +
+                 " requestId=" + requestId +
                  " eTag=" + eTag +
                  " changeCount=" + changeSet.getChangeCount()
         );
@@ -891,11 +890,11 @@ public abstract class AbstractDataLoaderService
       }
       else
       {
-        request = null != requestID ? session.getRequest( requestID ) : null;
-        if ( null == request && null != requestID )
+        request = null != requestId ? session.getRequest( requestId ) : null;
+        if ( null == request && null != requestId )
         {
           final String message =
-            "Unable to locate requestID '" + requestID + "' specified for ChangeSet: seq=" + sequence +
+            "Unable to locate requestId '" + requestId + "' specified for ChangeSet: seq=" + sequence +
             " Existing Requests: " + session.getRequests();
           if ( LOG.isLoggable( Level.WARNING ) )
           {
@@ -1130,17 +1129,17 @@ public abstract class AbstractDataLoaderService
     {
       runnable.run();
       // OOB messages are not in response to requests as such
-      final String requestID = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestID();
-      if ( null != requestID )
+      final String requestId = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestId();
+      if ( null != requestId )
       {
         // We can remove the request because this side ran second and the
         // RPC channel has already returned.
 
-        final boolean removed = session.removeRequest( requestID );
+        final boolean removed = session.removeRequest( requestId );
         if ( !removed )
         {
           LOG.severe( "ChangeSet " + set.getSequence() + " expected to complete request '" +
-                      requestID + "' but no request was registered with session." );
+                      requestId + "' but no request was registered with session." );
         }
         if ( config().requestDebugOutputEnabled() )
         {

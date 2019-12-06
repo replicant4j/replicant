@@ -14,7 +14,7 @@ public final class SharedConstants
   /**
    * HTTP request header to indicate the request id.
    */
-  public static final String REQUEST_ID_HEADER = "X-Replicant-RequestID";
+  public static final String REQUEST_ID_HEADER = "X-Replicant-RequestId";
   /**
    * HTTP request header to indicate the cache key if any.
    */

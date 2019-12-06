@@ -15,14 +15,14 @@ public class ClientSessionTest
     assertEquals( e.getRequestKey(), "Y" );
     assertEquals( e.getCacheKey(), "X" );
 
-    assertEquals( rm.getRequest( e.getRequestID() ), e );
-    assertEquals( rm.getRequests().get( e.getRequestID() ), e );
-    assertNull( rm.getRequest( "NotHere" + e.getRequestID() ) );
+    assertEquals( rm.getRequest( e.getRequestId() ), e );
+    assertEquals( rm.getRequests().get( e.getRequestId() ), e );
+    assertNull( rm.getRequest( "NotHere" + e.getRequestId() ) );
 
-    assertTrue( rm.removeRequest( e.getRequestID() ) );
-    assertFalse( rm.removeRequest( e.getRequestID() ) );
+    assertTrue( rm.removeRequest( e.getRequestId() ) );
+    assertFalse( rm.removeRequest( e.getRequestId() ) );
 
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -36,7 +36,7 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -54,7 +54,7 @@ public class ClientSessionTest
     assertTrue( e.isCompletionDataPresent() );
     assertTrue( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
-    assertNotNull( rm.getRequest( e.getRequestID() ) );
+    assertNotNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -71,7 +71,7 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -85,7 +85,7 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -103,7 +103,7 @@ public class ClientSessionTest
     assertTrue( e.isCompletionDataPresent() );
     assertFalse( e.isNormalCompletion() );
     assertEquals( e.getCompletionAction(), action );
-    assertNotNull( rm.getRequest( e.getRequestID() ) );
+    assertNotNull( rm.getRequest( e.getRequestId() ) );
   }
 
   @Test
@@ -120,6 +120,6 @@ public class ClientSessionTest
 
     verify( action ).run();
     assertFalse( e.isCompletionDataPresent() );
-    assertNull( rm.getRequest( e.getRequestID() ) );
+    assertNull( rm.getRequest( e.getRequestId() ) );
   }
 }

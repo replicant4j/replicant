@@ -74,21 +74,21 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
-                                         @Nullable final String requestID,
+                                         @Nullable final String requestId,
                                          @Nullable final String eTag,
                                          @Nonnull final ChannelAddress descriptor,
                                          @Nonnull final String filterContent )
   {
-    return guard( sessionID, () -> super.doSubscribeChannel( sessionID, requestID, eTag, descriptor, filterContent ) );
+    return guard( sessionID, () -> super.doSubscribeChannel( sessionID, requestId, eTag, descriptor, filterContent ) );
   }
 
   @Nonnull
   @Override
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
-                                           @Nullable final String requestID,
+                                           @Nullable final String requestId,
                                            @Nonnull final ChannelAddress descriptor )
   {
-    return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, requestID, descriptor ) );
+    return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, requestId, descriptor ) );
   }
 
   @Nonnull
@@ -111,23 +111,23 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
-                                             @Nullable final String requestID,
+                                             @Nullable final String requestId,
                                              final int channelId,
                                              @Nonnull final Collection<Integer> subChannelIds,
                                              @Nonnull final String filterContent )
   {
     return guard( sessionID,
-                  () -> super.doBulkSubscribeChannel( sessionID, requestID, channelId, subChannelIds, filterContent ) );
+                  () -> super.doBulkSubscribeChannel( sessionID, requestId, channelId, subChannelIds, filterContent ) );
   }
 
   @Nonnull
   @Override
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
-                                               @Nullable final String requestID,
+                                               @Nullable final String requestId,
                                                final int channelId,
                                                @Nonnull final Collection<Integer> subChannelIds )
   {
-    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestID, channelId, subChannelIds ) );
+    return guard( sessionID, () -> super.doBulkUnsubscribeChannel( sessionID, requestId, channelId, subChannelIds ) );
   }
 
   @Nonnull
