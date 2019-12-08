@@ -9,7 +9,6 @@ public class GwtDataLoaderListenerTest
 {
   @Test
   public void unwrapExceptionOnInvocationException()
-    throws Exception
   {
     final GwtDataLoaderListener service = new GwtDataLoaderListener( new SimpleEventBus() );
     final Exception cause = new Exception();
@@ -19,7 +18,6 @@ public class GwtDataLoaderListenerTest
 
   @Test
   public void firesOnlySystemErrorEventOnNonInvocationException()
-    throws Exception
   {
     final GwtDataLoaderListener service = new GwtDataLoaderListener( new SimpleEventBus() );
     final Exception cause = new Exception();

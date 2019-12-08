@@ -300,7 +300,6 @@ public class DataLoaderServiceTest
 
   @Test
   public void ordering()
-    throws Exception
   {
     final TestChangeSet cs1 = new TestChangeSet( 1, null, new Change[ 0 ] );
     final TestChangeSet cs2 = new TestChangeSet( 2, null, new Change[ 0 ] );

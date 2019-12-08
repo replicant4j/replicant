@@ -163,7 +163,6 @@ public class ReplicantPollResourceTest
   }
 
   protected TestReplicantPollResource newResource()
-    throws Exception
   {
     final TestReplicantPollResource resource = new TestReplicantPollResource();
     resource.postConstruct();

@@ -8,7 +8,6 @@ public class EntityRepositoryValidatorTest
 {
   @Test
   public void validate_LinkableThatReturnsTrueFor_isValid()
-    throws Exception
   {
     final EntityRepository r = new EntityRepositoryImpl();
     assertValidated( r );
@@ -23,7 +22,6 @@ public class EntityRepositoryValidatorTest
 
   @Test
   public void validate_LinkableThatReturnsFalseFor_isValid()
-    throws Exception
   {
     final EntityRepository r = new EntityRepositoryImpl();
     assertValidated( r );
@@ -52,7 +50,6 @@ public class EntityRepositoryValidatorTest
 
   @Test
   public void validate_nonLinkable()
-    throws Exception
   {
     final EntityRepository r = new EntityRepositoryImpl();
     assertValidated( r );

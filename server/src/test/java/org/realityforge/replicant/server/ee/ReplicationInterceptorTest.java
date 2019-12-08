@@ -321,7 +321,6 @@ public class ReplicationInterceptorTest
   private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry,
                                                         final EntityManager entityManager,
                                                         final boolean routeToSession )
-    throws Exception
   {
     return new TestReplicationInterceptor( entityManager, registry, routeToSession );
   }

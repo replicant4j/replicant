@@ -13,7 +13,6 @@ public class EntityMessageCacheUtilTest
 {
   @BeforeMethod
   public void setup()
-    throws Exception
   {
     RegistryUtil.bind();
   }

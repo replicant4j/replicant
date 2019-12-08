@@ -29,7 +29,6 @@ public class SessionRestServiceTest
   }
 
   private AbstractSessionRestService newResource( final ReplicantSessionManager sessionManager )
-    throws Exception
   {
     return new AbstractSessionRestService()
     {

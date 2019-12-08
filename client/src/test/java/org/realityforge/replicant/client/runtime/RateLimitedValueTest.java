@@ -123,7 +123,6 @@ public class RateLimitedValueTest
 
   @Nonnull
   private Field toField( final Class<?> type, final String fieldName )
-    throws NoSuchFieldException
   {
     Class<?> clazz = type;
     while ( null != clazz && Object.class != clazz )
