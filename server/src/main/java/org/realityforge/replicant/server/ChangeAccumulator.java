@@ -58,7 +58,7 @@ public final class ChangeAccumulator
    * @param requestId the opaque identifier indicating the request that caused the changes.
    * @return true if a change set was send to the originating session
    */
-  public boolean complete( @Nullable final String sessionID, @Nullable final String requestId )
+  public boolean complete( @Nullable final String sessionID, @Nullable final Integer requestId )
   {
     boolean impactsInitiator = false;
     for ( final Entry<ReplicantSession, ChangeSet> entry : _changeSets.entrySet() )

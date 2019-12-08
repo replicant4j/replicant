@@ -159,7 +159,7 @@ public abstract class AbstractSessionRestService
   @DELETE
   public Response unsubscribeFromChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                           @PathParam( "channelId" ) final int channelId,
-                                          @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestId,
+                                          @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId,
                                           @QueryParam( "scid" ) @Nullable final String subChannelIds )
   {
     if ( null == subChannelIds )
@@ -191,7 +191,7 @@ public abstract class AbstractSessionRestService
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                                   @PathParam( "channelId" ) final int channelId,
                                                   @PathParam( "subChannelId" ) @NotNull final String subChannelText,
-                                                  @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestId )
+                                                  @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId )
   {
     return doUnsubscribeChannel( sessionID, requestId, toChannelDescriptor( channelId, subChannelText ) );
   }
@@ -200,7 +200,7 @@ public abstract class AbstractSessionRestService
   @PUT
   public Response subscribeToChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                       @PathParam( "channelId" ) @NotNull final int channelId,
-                                      @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestId,
+                                      @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId,
                                       @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
                                       @QueryParam( "scid" ) @Nullable final String subChannelIds,
                                       @Nonnull final String filterContent )
@@ -234,7 +234,7 @@ public abstract class AbstractSessionRestService
   public Response subscribeToInstanceChannel( @PathParam( "sessionID" ) @NotNull final String sessionID,
                                               @PathParam( "channelId" ) @NotNull final int channelId,
                                               @PathParam( "subChannelId" ) @NotNull final String subChannelText,
-                                              @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final String requestId,
+                                              @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId,
                                               @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
                                               @Nonnull final String filterContent )
   {
@@ -247,7 +247,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
-                                         @Nullable final String requestId,
+                                         @Nullable final Integer requestId,
                                          @Nullable final String eTag,
                                          @Nonnull final ChannelAddress descriptor,
                                          @Nonnull final String filterContent )
@@ -272,7 +272,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
-                                             @Nullable final String requestId,
+                                             @Nullable final Integer requestId,
                                              final int channelId,
                                              @Nonnull Collection<Integer> subChannelIds,
                                              @Nonnull final String filterContent )
@@ -295,7 +295,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
-                                               @Nullable final String requestId,
+                                               @Nullable final Integer requestId,
                                                final int channelId,
                                                @Nonnull final Collection<Integer> subChannelIds )
   {
@@ -311,7 +311,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
-                                           @Nullable final String requestId,
+                                           @Nullable final Integer requestId,
                                            @Nonnull final ChannelAddress descriptor )
   {
     final Runnable action = () ->
@@ -483,7 +483,7 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ReplicantSession ensureSession( @Nonnull final String sessionID, @Nullable final String requestId )
+  private ReplicantSession ensureSession( @Nonnull final String sessionID, @Nullable final Integer requestId )
   {
     final ReplicantSession session = getSessionManager().getSession( sessionID );
     if ( null == session )
@@ -534,7 +534,7 @@ public abstract class AbstractSessionRestService
 
   private ReplicantSessionManager.CacheStatus runRequest( @Nonnull final String invocationKey,
                                                           @Nonnull final String sessionID,
-                                                          @Nullable final String requestId,
+                                                          @Nullable final Integer requestId,
                                                           @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
   {
     return ReplicationRequestUtil.runRequest( getRegistry(),
@@ -548,7 +548,7 @@ public abstract class AbstractSessionRestService
 
   private void runRequest( @Nonnull final String invocationKey,
                            @Nonnull final String sessionID,
-                           @Nullable final String requestId,
+                           @Nullable final Integer requestId,
                            @Nonnull final Runnable action )
   {
     ReplicationRequestUtil.runRequest( getRegistry(),

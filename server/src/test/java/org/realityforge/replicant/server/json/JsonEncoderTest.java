@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
@@ -48,7 +49,7 @@ public final class JsonEncoderTest
     values.put( "key3", date );
 
     final int lastChangeSetID = 1;
-    final String requestId = "j1";
+    final int requestId = ValueUtil.randomInt();
     final String etag = "#1";
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
 
@@ -65,7 +66,7 @@ public final class JsonEncoderTest
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getInt( TransportConstants.LAST_CHANGE_SET_ID ), lastChangeSetID );
-    assertEquals( changeSet.getString( TransportConstants.REQUEST_ID ), requestId );
+    assertEquals( changeSet.getInt( TransportConstants.REQUEST_ID ), requestId );
     assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
 
     final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );

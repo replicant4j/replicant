@@ -35,7 +35,7 @@ public final class ReplicationRequestUtil
                                   @Nonnull final EntityMessageEndpoint endpoint,
                                   @Nonnull final String invocationKey,
                                   @Nullable final String sessionID,
-                                  @Nullable final String requestId,
+                                  @Nullable final Integer requestId,
                                   @Nonnull final Callable<T> action )
     throws Exception
   {
@@ -56,7 +56,7 @@ public final class ReplicationRequestUtil
                                                                 @Nonnull final EntityMessageEndpoint endpoint,
                                                                 @Nonnull final String invocationKey,
                                                                 @Nullable final String sessionID,
-                                                                @Nullable final String requestId,
+                                                                @Nullable final Integer requestId,
                                                                 @Nonnull final Supplier<ReplicantSessionManager.CacheStatus> action )
   {
     startReplication( registry, invocationKey, sessionID, requestId );
@@ -75,7 +75,7 @@ public final class ReplicationRequestUtil
                                  @Nonnull final EntityMessageEndpoint endpoint,
                                  @Nonnull final String invocationKey,
                                  @Nullable final String sessionID,
-                                 @Nullable final String requestId,
+                                 @Nullable final Integer requestId,
                                  @Nonnull final Runnable action )
   {
     startReplication( registry, invocationKey, sessionID, requestId );
@@ -99,7 +99,7 @@ public final class ReplicationRequestUtil
   private static void startReplication( @Nonnull final TransactionSynchronizationRegistry registry,
                                         @Nonnull final String invocationKey,
                                         @Nullable final String sessionID,
-                                        @Nullable final String requestId )
+                                        @Nullable final Integer requestId )
   {
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
     ReplicantContextHolder.clean();
@@ -151,7 +151,7 @@ public final class ReplicationRequestUtil
          !registry.getRollbackOnly() )
     {
       final String sessionID = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
-      final String requestId = (String) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+      final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
       boolean requestComplete = true;
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );
@@ -159,7 +159,7 @@ public final class ReplicationRequestUtil
       if ( null != messageSet || null != changeSet )
       {
         final Collection<EntityMessage> messages =
-          null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
+          null == messageSet ? Collections.emptySet() : messageSet.getEntityMessages();
         if ( null != changeSet || messages.size() > 0 )
         {
           requestComplete = !endpoint.saveEntityMessages( sessionID, requestId, messages, changeSet );

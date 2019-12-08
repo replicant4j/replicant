@@ -1365,11 +1365,12 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.createSession();
 
-    sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, "r1" );
+    final Integer requestId = ValueUtil.randomInt();
+    sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, requestId );
 
     final Packet packet = sm.sendPacket( session, "X", new ChangeSet() );
     assertEquals( packet.getETag(), "X" );
-    assertEquals( packet.getRequestId(), "r1" );
+    assertEquals( packet.getRequestId(), requestId );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
     assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
   }

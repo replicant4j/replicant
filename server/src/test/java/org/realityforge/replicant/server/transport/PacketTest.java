@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server.transport;
 
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.ChangeSet;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -10,11 +11,12 @@ public class PacketTest
   public void basicOperation()
   {
     final ChangeSet changeSet = new ChangeSet();
-    final Packet packet = new Packet( 2, "r1", "e1", changeSet );
+    final Integer requestId = ValueUtil.randomInt();
+    final Packet packet = new Packet( 2, requestId, "e1", changeSet );
     final Packet other = new Packet( 3, null, null, changeSet );
 
     assertEquals( packet.getSequence(), 2 );
-    assertEquals( packet.getRequestId(), "r1" );
+    assertEquals( packet.getRequestId(), requestId );
     assertEquals( packet.getETag(), "e1" );
     assertEquals( packet.getChangeSet(), changeSet );
 

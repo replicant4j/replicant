@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Rename `RequestID` to `RequestId` to align with replicant version 6.
+* Update the type of `RequestId` to `integer` to align with replicant version 6.
+
 ### [v5.104](https://github.com/replicant4j/replicant/tree/v5.104) (2019-12-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.103...v5.104)
 
 * Fix `RequestDebugger` so that it is compatible with the latest version of JDT which has several bugs relating to intersection types.

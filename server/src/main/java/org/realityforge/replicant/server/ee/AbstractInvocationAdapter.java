@@ -17,7 +17,7 @@ public abstract class AbstractInvocationAdapter
     throws Exception
   {
     final String sessionID = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
-    final String requestId = (String) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
+    final Integer requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
 
     return ReplicationRequestUtil.runRequest( getRegistry(),
                                               getEntityManager(),

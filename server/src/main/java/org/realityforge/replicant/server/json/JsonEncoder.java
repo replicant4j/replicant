@@ -45,7 +45,7 @@ public final class JsonEncoder
    */
   @Nonnull
   public static String encodeChangeSet( final int lastChangeSetID,
-                                        @Nullable final String requestId,
+                                        @Nullable final Integer requestId,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {

@@ -240,7 +240,7 @@ public abstract class ReplicantSessionManagerImpl
                                @Nullable final String etag,
                                @Nonnull final ChangeSet changeSet )
   {
-    final String requestId = (String) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
+    final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
     getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
     return session.getQueue().addPacket( requestId, etag, changeSet );
   }
@@ -294,7 +294,7 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionID,
-                                     @Nullable final String requestId,
+                                     @Nullable final Integer requestId,
                                      @Nonnull final Collection<EntityMessage> messages,
                                      @Nullable final ChangeSet sessionChanges )
   {

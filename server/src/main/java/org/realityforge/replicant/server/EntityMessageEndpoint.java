@@ -16,7 +16,7 @@ public interface EntityMessageEndpoint
    * @return true if any messages were routed to the initiating session.
    */
   boolean saveEntityMessages( @Nullable String sessionID,
-                              @Nullable String requestId,
+                              @Nullable Integer requestId,
                               @Nonnull Collection<EntityMessage> messages,
                               @Nullable ChangeSet changeSet );
 }

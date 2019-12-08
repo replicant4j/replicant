@@ -74,7 +74,7 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doSubscribeChannel( @Nonnull final String sessionID,
-                                         @Nullable final String requestId,
+                                         @Nullable final Integer requestId,
                                          @Nullable final String eTag,
                                          @Nonnull final ChannelAddress descriptor,
                                          @Nonnull final String filterContent )
@@ -85,7 +85,7 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doUnsubscribeChannel( @Nonnull final String sessionID,
-                                           @Nullable final String requestId,
+                                           @Nullable final Integer requestId,
                                            @Nonnull final ChannelAddress descriptor )
   {
     return guard( sessionID, () -> super.doUnsubscribeChannel( sessionID, requestId, descriptor ) );
@@ -111,7 +111,7 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doBulkSubscribeChannel( @Nonnull final String sessionID,
-                                             @Nullable final String requestId,
+                                             @Nullable final Integer requestId,
                                              final int channelId,
                                              @Nonnull final Collection<Integer> subChannelIds,
                                              @Nonnull final String filterContent )
@@ -123,7 +123,7 @@ public abstract class AbstractSecuredSessionRestService
   @Nonnull
   @Override
   protected Response doBulkUnsubscribeChannel( @Nonnull final String sessionID,
-                                               @Nullable final String requestId,
+                                               @Nullable final Integer requestId,
                                                final int channelId,
                                                @Nonnull final Collection<Integer> subChannelIds )
   {

@@ -87,7 +87,7 @@ public class PacketQueue
    * @return the packet.
    */
   @SuppressWarnings( "unchecked" )
-  public synchronized Packet addPacket( @Nullable final String requestId,
+  public synchronized Packet addPacket( @Nullable final Integer requestId,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {
