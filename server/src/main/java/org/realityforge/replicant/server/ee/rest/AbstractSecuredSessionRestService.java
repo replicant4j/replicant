@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
