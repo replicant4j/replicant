@@ -19,11 +19,6 @@ public final class JsoChange
   }-*/;
 
   @Override
-  public final native String getDesignatorAsString() /*-{
-    return this.id;
-  }-*/;
-
-  @Override
   public final native int getTypeId() /*-{
     return this.type;
   }-*/;
@@ -40,24 +35,18 @@ public final class JsoChange
 
   @Override
   public final native boolean isNull( @Nonnull final String key )/*-{
-    if ( this.data )
-    {
+    if (this.data) {
       return this.data[key] == null;
-    }
-    else
-    {
+    } else {
       return false;
     }
   }-*/;
 
   @Override
   public final native int getIntegerValue( @Nonnull String key ) /*-{
-    if ( this.data && (typeof this.data[key] == "number") )
-    {
+    if (this.data && (typeof this.data[key] == "number")) {
       return this.data[key];
-    }
-    else
-    {
+    } else {
       return null;
     }
   }-*/;
@@ -65,18 +54,15 @@ public final class JsoChange
   @Nonnull
   @Override
   public final native Date getDateValue( @Nonnull String key ) /*-{
-    if ( this.data && (typeof this.data[key] == "string") )
-    {
-      var d = new Date( this.data[key] );
-      return @java.util.Date::new(IIIIII)( d.getFullYear(),
-                                           d.getMonth(),
-                                           d.getDate(),
-                                           d.getHours(),
-                                           d.getMinutes(),
-                                           d.getSeconds() );
-    }
-    else
-    {
+    if (this.data && (typeof this.data[key] == "string")) {
+      var d = new Date(this.data[key]);
+      return @java.util.Date::new(IIIIII)(d.getFullYear(),
+        d.getMonth(),
+        d.getDate(),
+        d.getHours(),
+        d.getMinutes(),
+        d.getSeconds());
+    } else {
       return null;
     }
   }-*/;
@@ -84,12 +70,9 @@ public final class JsoChange
   @Nonnull
   @Override
   public final native String getStringValue( @Nonnull String key ) /*-{
-    if ( this.data && (typeof this.data[key] == "string") )
-    {
+    if (this.data && (typeof this.data[key] == "string")) {
       return this.data[key];
-    }
-    else
-    {
+    } else {
       return null;
     }
   }-*/;
@@ -97,50 +80,37 @@ public final class JsoChange
   @Nonnull
   @Override
   public final native boolean getBooleanValue( @Nonnull String key ) /*-{
-    if ( this.data && (typeof this.data[key] == "boolean") )
-    {
+    if (this.data && (typeof this.data[key] == "boolean")) {
       return this.data[key];
-    }
-    else
-    {
+    } else {
       return null;
     }
   }-*/;
 
   @Override
   public final native int getChannelCount() /*-{
-    if ( this.channels )
-    {
+    if (this.channels) {
       return this.channels.length;
-    }
-    else
-    {
+    } else {
       return null;
     }
   }-*/;
 
   @Override
   public final native int getChannelId( final int index ) /*-{
-    if ( this.channels && index < this.channels.length )
-    {
+    if (this.channels && index < this.channels.length) {
       return this.channels[index].cid;
-    }
-    else
-    {
+    } else {
       return 0;
     }
   }-*/;
 
   @Override
   public final native Object getSubChannelId( final int index ) /*-{
-    if ( this.channels && index < this.channels.length )
-    {
-      if ( typeof(this.channels[index].scid) == 'number' )
-      {
-        return new @java.lang.Integer::new(I)( this.channels[index].scid );
-      }
-      else if ( typeof(this.channels[index].scid) == 'string' )
-      {
+    if (this.channels && index < this.channels.length) {
+      if (typeof (this.channels[index].scid) == 'number') {
+        return new @java.lang.Integer::new(I)(this.channels[index].scid);
+      } else if (typeof (this.channels[index].scid) == 'string') {
         return this.channels[index].scid;
       }
     }
