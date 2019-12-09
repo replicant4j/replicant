@@ -44,10 +44,8 @@ public abstract class AbstractDataLoaderService
   implements DataLoaderService
 {
   protected static final Logger LOG = Logger.getLogger( AbstractDataLoaderService.class.getName() );
-
   private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 100;
   private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 100;
-
   private DataLoadAction _currentAction;
   private List<AreaOfInterestEntry> _currentAoiActions = new ArrayList<>();
   private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
@@ -65,22 +63,18 @@ public abstract class AbstractDataLoaderService
   private Runnable _resetAction;
   @Nonnull
   private State _state = State.DISCONNECTED;
-
   private ClientSession _session;
-
   /*
    * Timing of state changes
    */
   private Date _connectingAt;
   private Date _connectedAt;
   private Date _disconnectedAt;
-
   /**
    * The last error that was received during connection establishment.
    * Nulled at the time of disconnection
    */
   private Throwable _lastErrorDuringConnection;
-
   /**
    * The last error that caused whilst connected, probably caused connection to drop.
    * Never nulled.
@@ -711,7 +705,7 @@ public abstract class AbstractDataLoaderService
   public boolean isIdle()
   {
     return _currentAoiActions.isEmpty() && _currentAction == null &&
-    _session.getPendingActions().isEmpty() && _session.getPendingAreaOfInterestActions().isEmpty();
+           _session.getPendingActions().isEmpty() && _session.getPendingAreaOfInterestActions().isEmpty();
   }
 
   @Override

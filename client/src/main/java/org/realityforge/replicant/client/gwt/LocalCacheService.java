@@ -16,7 +16,6 @@ public class LocalCacheService
   implements CacheService
 {
   private static final Logger LOG = Logger.getLogger( LocalCacheService.class.getName() );
-
   private static final String ETAG_SUFFIX = "_ETAG_";
   private boolean _loggedNoLocalStorage;
 

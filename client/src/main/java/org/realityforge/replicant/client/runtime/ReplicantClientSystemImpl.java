@@ -14,9 +14,7 @@ public abstract class ReplicantClientSystemImpl
   implements ReplicantClientSystem
 {
   protected static final int CONVERGE_DELAY_IN_MS = 2000;
-
   private static final Logger LOG = Logger.getLogger( ReplicantClientSystemImpl.class.getName() );
-
   private final ReplicantSystemListenerSupport _listenerSupport = new ReplicantSystemListenerSupport();
   private final Listener _dataLoaderListener = new Listener();
   private DataLoaderEntry[] _dataLoaders;

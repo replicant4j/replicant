@@ -18,29 +18,22 @@ public class EntityChangeBrokerImpl
   implements EntityChangeBroker
 {
   private static final Logger LOG = Logger.getLogger( EntityChangeBrokerImpl.class.getName() );
-
   private final ListenerEntry[] _emptyListenerSet = new ListenerEntry[ 0 ];
-
   @Nullable
   private EntityBrokerTransaction _transaction;
-
   private boolean _sending;
-
   /**
    * List of listeners that we either have to add or removed after message delivery completes.
    */
   private final LinkedList<DeferredListenerAction> _deferredListenerActions = new LinkedList<>();
-
   /**
    * Backlog of events we still have to send.
    */
   private LinkedList<EntityChangeEvent> _deferredEvents;
-
   private ListenerEntry[] _globalListeners = _emptyListenerSet;
   private final HashMap<EntityChangeListener, ListenerEntry> _listenerEntries = new HashMap<>();
   private final Map<Object, ListenerEntry[]> _objectListeners = new HashMap<>();
   private final Map<Class, ListenerEntry[]> _classListeners = new HashMap<>();
-
   private boolean _raiseErrorOnEventHandlerError = true;
 
   public final boolean shouldRaiseErrorOnEventHandlerError()

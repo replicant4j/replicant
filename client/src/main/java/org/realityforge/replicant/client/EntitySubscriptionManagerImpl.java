@@ -15,10 +15,8 @@ public class EntitySubscriptionManagerImpl
 {
   //Graph => InstanceID
   private final Map<Enum<?>, Map<Integer, ChannelSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
-
   //Graph => Type
   private final Map<Enum<?>, ChannelSubscriptionEntry> _typeSubscriptions = new HashMap<>();
-
   // Entity map: Type => ID
   private final Map<Class<?>, Map<Object, EntitySubscriptionEntry>> _entityMapping = new HashMap<>();
 
