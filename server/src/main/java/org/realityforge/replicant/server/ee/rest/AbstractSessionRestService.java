@@ -260,19 +260,19 @@ public abstract class AbstractSessionRestService
   protected Response doSubscribeChannel( @Nonnull final String sessionId,
                                          @Nullable final Integer requestId,
                                          @Nullable final String eTag,
-                                         @Nonnull final ChannelAddress descriptor,
+                                         @Nonnull final ChannelAddress address,
                                          @Nonnull final String filterContent )
   {
     final Runnable action = () ->
     {
       final ReplicantSession session = ensureSession( sessionId, requestId );
-      session.setETag( descriptor, eTag );
+      session.setETag( address, eTag );
       getSessionManager().subscribe( session,
-                                     descriptor,
-                                     toFilter( getChannelMetaData( descriptor ), filterContent ) );
+                                     address,
+                                     toFilter( getChannelMetaData( address ), filterContent ) );
     };
     final String invocationKey =
-      getInvocationKey( descriptor.getChannelId(), descriptor.getSubChannelId(), "Subscribe" );
+      getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Subscribe" );
     runRequest( invocationKey, getSession( sessionId ), requestId, action );
     return standardResponse( status, "Channel subscription added." );
   }
@@ -310,10 +310,10 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doUnsubscribeChannel( @Nonnull final String sessionId,
                                            @Nullable final Integer requestId,
-                                           @Nonnull final ChannelAddress descriptor )
+                                           @Nonnull final ChannelAddress address )
   {
-    final Runnable action = () -> getSessionManager().unsubscribe( ensureSession( sessionId, requestId ), descriptor );
-    runRequest( getInvocationKey( descriptor.getChannelId(), descriptor.getSubChannelId(), "Unsubscribe" ),
+    final Runnable action = () -> getSessionManager().unsubscribe( ensureSession( sessionId, requestId ), address );
+    runRequest( getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Unsubscribe" ),
                 getSession( sessionId ),
                 requestId,
                 action );
@@ -322,11 +322,11 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   protected Response doGetChannel( @Nonnull final String sessionId,
-                                   @Nonnull final ChannelAddress descriptor,
+                                   @Nonnull final ChannelAddress address,
                                    @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionId, null );
-    final SubscriptionEntry entry = session.findSubscriptionEntry( descriptor );
+    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null == entry )
     {
       return standardResponse( Response.Status.NOT_FOUND, "No such channel" );
@@ -435,9 +435,9 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress descriptor )
+  private ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress address )
   {
-    return getSystemMetaData().getChannelMetaData( descriptor );
+    return getSystemMetaData().getChannelMetaData( address );
   }
 
   @Nullable
