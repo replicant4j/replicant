@@ -202,16 +202,16 @@ public class ReplicantSessionManagerImplTest
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
-    assertFalse( sm.deleteCacheEntry( cd1 ) );
+    assertFalse( sm.deleteCacheEntry( address1 ) );
 
     sm.setCacheKey( "X" );
 
-    sm.ensureCacheEntry( cd1 );
+    sm.ensureCacheEntry( address1 );
 
-    assertTrue( sm.deleteCacheEntry( cd1 ) );
+    assertTrue( sm.deleteCacheEntry( address1 ) );
   }
 
   @Test
@@ -242,9 +242,9 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 2, "C3", true, ChannelMetaData.FilterType.STATIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), null );
-    final ChannelAddress cd3 = new ChannelAddress( ch3.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2 = new ChannelAddress( ch2.getChannelId(), null );
+    final ChannelAddress address3 = new ChannelAddress( ch3.getChannelId(), null );
 
     final TestFilter originalFilter = new TestFilter( 41 );
     final TestFilter filter = new TestFilter( 42 );
@@ -252,16 +252,16 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
-    assertNull( session.findSubscriptionEntry( cd1 ) );
+    assertNull( session.findSubscriptionEntry( address1 ) );
 
     // subscribe
     {
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status =
-        sm.subscribe( session, cd1, false, null, getChangeSet() );
+        sm.subscribe( session, address1, false, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
-      final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+      final SubscriptionEntry entry1 = session.findSubscriptionEntry( address1 );
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
@@ -273,9 +273,9 @@ public class ReplicantSessionManagerImplTest
     {
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status =
-        sm.subscribe( session, cd1, false, null, getChangeSet() );
+        sm.subscribe( session, address1, false, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.IGNORE );
-      assertEntry( session.getSubscriptionEntry( cd1 ), false, 0, 0, null );
+      assertEntry( session.getSubscriptionEntry( address1 ), false, 0, 0, null );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
     }
@@ -283,9 +283,10 @@ public class ReplicantSessionManagerImplTest
     // re-subscribe explicitly - should only set explicit flag
     {
       resetChangeSet();
-      final ReplicantSessionManagerImpl.CacheStatus status = sm.subscribe( session, cd1, true, null, getChangeSet() );
+      final ReplicantSessionManagerImpl.CacheStatus status =
+        sm.subscribe( session, address1, true, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.IGNORE );
-      assertEntry( session.getSubscriptionEntry( cd1 ), true, 0, 0, null );
+      assertEntry( session.getSubscriptionEntry( address1 ), true, 0, 0, null );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
     }
@@ -294,9 +295,9 @@ public class ReplicantSessionManagerImplTest
     {
       resetChangeSet();
       final ReplicantSessionManagerImpl.CacheStatus status =
-        sm.subscribe( session, cd2, true, originalFilter, getChangeSet() );
+        sm.subscribe( session, address2, true, originalFilter, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
-      assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
+      assertEntry( session.getSubscriptionEntry( address2 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 1 );
       assertSessionChangesCount( 1 );
 
@@ -304,19 +305,19 @@ public class ReplicantSessionManagerImplTest
 
       //Should be a noop as same filter
       final ReplicantSessionManagerImpl.CacheStatus status1 =
-        sm.subscribe( session, cd2, true, originalFilter, getChangeSet() );
+        sm.subscribe( session, address2, true, originalFilter, getChangeSet() );
       assertEquals( status1, ReplicantSessionManager.CacheStatus.IGNORE );
 
-      assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, originalFilter );
+      assertEntry( session.getSubscriptionEntry( address2 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
 
       //Should be a filter update
       final ReplicantSessionManagerImpl.CacheStatus status2 =
-        sm.subscribe( session, cd2, true, filter, getChangeSet() );
+        sm.subscribe( session, address2, true, filter, getChangeSet() );
       assertEquals( status2, ReplicantSessionManager.CacheStatus.IGNORE );
 
-      assertEntry( session.getSubscriptionEntry( cd2 ), true, 0, 0, filter );
+      assertEntry( session.getSubscriptionEntry( address2 ), true, 0, 0, filter );
       assertChannelActionCount( 1 );
       assertSessionChangesCount( 1 );
     }
@@ -324,23 +325,23 @@ public class ReplicantSessionManagerImplTest
     //Subscribe and attempt to update static filter
     {
       resetChangeSet();
-      sm.subscribe( session, cd3, true, originalFilter, getChangeSet() );
-      assertEntry( session.getSubscriptionEntry( cd3 ), true, 0, 0, originalFilter );
+      sm.subscribe( session, address3, true, originalFilter, getChangeSet() );
+      assertEntry( session.getSubscriptionEntry( address3 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 1 );
       assertSessionChangesCount( 1 );
 
       resetChangeSet();
 
       //Should be a noop as same filter
-      sm.subscribe( session, cd3, true, originalFilter, getChangeSet() );
+      sm.subscribe( session, address3, true, originalFilter, getChangeSet() );
 
-      assertEntry( session.getSubscriptionEntry( cd3 ), true, 0, 0, originalFilter );
+      assertEntry( session.getSubscriptionEntry( address3 ), true, 0, 0, originalFilter );
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
 
       try
       {
-        sm.subscribe( session, cd3, true, filter, getChangeSet() );
+        sm.subscribe( session, address3, true, filter, getChangeSet() );
         fail( "Successfully updated a static filter" );
       }
       catch ( final AttemptedToUpdateStaticFilterException ignore )
@@ -356,7 +357,7 @@ public class ReplicantSessionManagerImplTest
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
@@ -365,14 +366,14 @@ public class ReplicantSessionManagerImplTest
     // subscribe - matching cacheKey
     {
       final ReplicantSession session = sm.createSession();
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
       resetChangeSet();
-      session.setETag( cd1, "X" );
+      session.setETag( address1, "X" );
       final ReplicantSessionManagerImpl.CacheStatus status =
-        sm.subscribe( session, cd1, false, null, getChangeSet() );
+        sm.subscribe( session, address1, false, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
-      final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+      final SubscriptionEntry entry1 = session.findSubscriptionEntry( address1 );
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
@@ -383,14 +384,14 @@ public class ReplicantSessionManagerImplTest
     // subscribe - cacheKey differs
     {
       final ReplicantSession session = sm.createSession();
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
       resetChangeSet();
-      session.setETag( cd1, "Y" );
+      session.setETag( address1, "Y" );
       final ReplicantSessionManagerImpl.CacheStatus status =
-        sm.subscribe( session, cd1, false, null, getChangeSet() );
+        sm.subscribe( session, address1, false, null, getChangeSet() );
       assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
-      final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+      final SubscriptionEntry entry1 = session.findSubscriptionEntry( address1 );
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
@@ -411,18 +412,18 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
-    assertNull( session.findSubscriptionEntry( cd1 ) );
+    assertNull( session.findSubscriptionEntry( address1 ) );
 
     final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getId(), cd1, null, null, getChangeSet() );
+      sm.subscribe( session.getId(), address1, null, null, getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
-    final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+    final SubscriptionEntry entry1 = session.findSubscriptionEntry( address1 );
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
@@ -436,24 +437,24 @@ public class ReplicantSessionManagerImplTest
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
     sm.setCacheKey( "X" );
 
-    assertNull( session.getETag( cd1 ) );
+    assertNull( session.getETag( address1 ) );
 
-    assertNull( session.findSubscriptionEntry( cd1 ) );
+    assertNull( session.findSubscriptionEntry( address1 ) );
 
     final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getId(), cd1, null, "X", getChangeSet() );
+      sm.subscribe( session.getId(), address1, null, "X", getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
-    assertEquals( session.getETag( cd1 ), "X" );
+    assertEquals( session.getETag( address1 ), "X" );
 
-    final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+    final SubscriptionEntry entry1 = session.findSubscriptionEntry( address1 );
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
@@ -467,24 +468,24 @@ public class ReplicantSessionManagerImplTest
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
     sm.setCacheKey( "X" );
 
-    assertNull( session.getETag( cd1 ) );
+    assertNull( session.getETag( address1 ) );
 
-    assertNull( session.findSubscriptionEntry( cd1 ) );
+    assertNull( session.findSubscriptionEntry( address1 ) );
 
     final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getId(), cd1, null, "Y", getChangeSet() );
+      sm.subscribe( session.getId(), address1, null, "Y", getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
-    assertNull( session.getETag( cd1 ) );
+    assertNull( session.getETag( address1 ) );
 
-    final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
+    final SubscriptionEntry entry1 = session.findSubscriptionEntry( address1 );
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
@@ -506,15 +507,15 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2 = new ChannelAddress( ch2.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
     // Test with no filter
     {
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       resetChangeSet();
 
@@ -529,7 +530,7 @@ public class ReplicantSessionManagerImplTest
 
       final LinkedList<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), cd1, ChannelAction.Action.ADD, null );
+      assertChannelAction( actions.get( 0 ), address1, ChannelAction.Action.ADD, null );
 
       // 1 Change comes from collectDataForSubscribe
       final Collection<Change> changes = getChanges();
@@ -543,7 +544,7 @@ public class ReplicantSessionManagerImplTest
       final TestFilter filter = new TestFilter( 42 );
 
       resetChangeSet();
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd2 );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( address2 );
 
       assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
@@ -556,7 +557,7 @@ public class ReplicantSessionManagerImplTest
 
       final LinkedList<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), cd2, ChannelAction.Action.ADD, "{\"myField\":42}" );
+      assertChannelAction( actions.get( 0 ), address2, ChannelAction.Action.ADD, "{\"myField\":42}" );
 
       // 1 Change comes from collectDataForSubscribe
       final Collection<Change> changes = getChanges();
@@ -575,7 +576,7 @@ public class ReplicantSessionManagerImplTest
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
@@ -584,8 +585,8 @@ public class ReplicantSessionManagerImplTest
     //Locally cached
     {
       final ReplicantSession session = sm.createSession();
-      session.setETag( cd1, "X" );
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      session.setETag( address1, "X" );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       resetChangeSet();
 
@@ -605,8 +606,8 @@ public class ReplicantSessionManagerImplTest
     //Locally cached but an old version
     {
       final ReplicantSession session = sm.createSession();
-      session.setETag( cd1, "NOT" + sm._cacheKey );
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      session.setETag( address1, "NOT" + sm._cacheKey );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       resetChangeSet();
 
@@ -631,7 +632,7 @@ public class ReplicantSessionManagerImplTest
     //Not cached locally
     {
       final ReplicantSession session = sm.createSession();
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       resetChangeSet();
 
@@ -661,11 +662,11 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -673,8 +674,8 @@ public class ReplicantSessionManagerImplTest
     // Unsubscribe from channel that was explicitly subscribed
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, true, null, getChangeSet() );
-      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+      sm.subscribe( session, address1, true, null, getChangeSet() );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( address1 );
 
       //Rebind clears the state
       resetChangeSet();
@@ -684,16 +685,16 @@ public class ReplicantSessionManagerImplTest
       sm.performUnsubscribe( session, entry, true, getChangeSet() );
 
       assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
     }
 
     // implicit unsubscribe from channel that was implicitly subscribed should leave explicit subscription
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, true, null, getChangeSet() );
-      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+      sm.subscribe( session, address1, true, null, getChangeSet() );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( address1 );
 
       //Rebind clears the state
       resetChangeSet();
@@ -704,20 +705,20 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      assertNotNull( session.findSubscriptionEntry( cd1 ) );
+      assertNotNull( session.findSubscriptionEntry( address1 ) );
 
       sm.performUnsubscribe( session, entry, true, getChangeSet() );
 
       assertChannelActionCount( 1 );
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
     }
 
     // implicit unsubscribe from channel that was implicitly subscribed should delete subscription
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, false, null, getChangeSet() );
-      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+      sm.subscribe( session, address1, false, null, getChangeSet() );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( address1 );
 
       //Rebind clears the state
       resetChangeSet();
@@ -727,20 +728,20 @@ public class ReplicantSessionManagerImplTest
       sm.performUnsubscribe( session, entry, false, getChangeSet() );
 
       assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
     }
 
     // implicit unsubscribe from channel that was implicitly subscribed should leave subscription that
     // implicitly linked from elsewhere
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, false, null, getChangeSet() );
-      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+      sm.subscribe( session, address1, false, null, getChangeSet() );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( address1 );
 
-      sm.subscribe( session, cd2, false, null, getChangeSet() );
-      final SubscriptionEntry entry2 = session.getSubscriptionEntry( cd2 );
+      sm.subscribe( session, address2, false, null, getChangeSet() );
+      final SubscriptionEntry entry2 = session.getSubscriptionEntry( address2 );
       sm.linkSubscriptionEntries( entry2, entry );
 
       //Rebind clears the state
@@ -751,31 +752,31 @@ public class ReplicantSessionManagerImplTest
       sm.performUnsubscribe( session, entry, false, getChangeSet() );
 
       assertChannelActionCount( 0 );
-      assertNotNull( session.findSubscriptionEntry( cd1 ) );
+      assertNotNull( session.findSubscriptionEntry( address1 ) );
 
       sm.delinkSubscriptionEntries( entry2, entry );
 
       sm.performUnsubscribe( session, entry, false, getChangeSet() );
 
       assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
+      assertNull( session.findSubscriptionEntry( address1 ) );
     }
 
     // Unsubscribe als results in unsubscribe for all downstream channels
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, true, null, getChangeSet() );
-      sm.subscribe( session, cd2, false, null, getChangeSet() );
-      sm.subscribe( session, cd3, false, null, getChangeSet() );
-      sm.subscribe( session, cd4, false, null, getChangeSet() );
-      sm.subscribe( session, cd5, false, null, getChangeSet() );
+      sm.subscribe( session, address1, true, null, getChangeSet() );
+      sm.subscribe( session, address2, false, null, getChangeSet() );
+      sm.subscribe( session, address3, false, null, getChangeSet() );
+      sm.subscribe( session, address4, false, null, getChangeSet() );
+      sm.subscribe( session, address5, false, null, getChangeSet() );
 
-      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
-      final SubscriptionEntry entry2 = session.getSubscriptionEntry( cd2 );
-      final SubscriptionEntry entry3 = session.getSubscriptionEntry( cd3 );
-      final SubscriptionEntry entry4 = session.getSubscriptionEntry( cd4 );
-      final SubscriptionEntry entry5 = session.getSubscriptionEntry( cd5 );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( address1 );
+      final SubscriptionEntry entry2 = session.getSubscriptionEntry( address2 );
+      final SubscriptionEntry entry3 = session.getSubscriptionEntry( address3 );
+      final SubscriptionEntry entry4 = session.getSubscriptionEntry( address4 );
+      final SubscriptionEntry entry5 = session.getSubscriptionEntry( address5 );
 
       sm.linkSubscriptionEntries( entry, entry2 );
       sm.linkSubscriptionEntries( entry, entry3 );
@@ -795,11 +796,11 @@ public class ReplicantSessionManagerImplTest
         assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
       }
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
-      assertNull( session.findSubscriptionEntry( cd2 ) );
-      assertNull( session.findSubscriptionEntry( cd3 ) );
-      assertNull( session.findSubscriptionEntry( cd4 ) );
-      assertNull( session.findSubscriptionEntry( cd5 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
+      assertNull( session.findSubscriptionEntry( address2 ) );
+      assertNull( session.findSubscriptionEntry( address3 ) );
+      assertNull( session.findSubscriptionEntry( address4 ) );
+      assertNull( session.findSubscriptionEntry( address5 ) );
     }
   }
 
@@ -810,7 +811,7 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -818,8 +819,8 @@ public class ReplicantSessionManagerImplTest
     // Unsubscribe from channel that was explicitly subscribed
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, true, null, getChangeSet() );
-      final SubscriptionEntry entry = session.getSubscriptionEntry( cd1 );
+      sm.subscribe( session, address1, true, null, getChangeSet() );
+      final SubscriptionEntry entry = session.getSubscriptionEntry( address1 );
 
       //Rebind clears the state
       resetChangeSet();
@@ -829,9 +830,9 @@ public class ReplicantSessionManagerImplTest
       sm.unsubscribe( session, entry.getDescriptor(), true, getChangeSet() );
 
       assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
     }
 
     // unsubscribe from unsubscribed
@@ -840,7 +841,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.unsubscribe( session, cd1, true, getChangeSet() );
+      sm.unsubscribe( session, address1, true, getChangeSet() );
 
       assertChannelActionCount( 0 );
     }
@@ -853,26 +854,26 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
     resetChangeSet();
-    sm.subscribe( session, cd1, true, null, getChangeSet() );
+    sm.subscribe( session, address1, true, null, getChangeSet() );
 
     resetChangeSet();
     final TransactionSynchronizationRegistry registry = RegistryUtil.bind();
 
     assertChannelActionCount( 0 );
 
-    sm.unsubscribe( session.getId(), cd1, getChangeSet() );
+    sm.unsubscribe( session.getId(), address1, getChangeSet() );
     assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getId() );
 
     assertChannelActionCount( 1 );
-    assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
+    assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
 
-    assertNull( session.findSubscriptionEntry( cd1 ) );
+    assertNull( session.findSubscriptionEntry( address1 ) );
   }
 
   @Test
@@ -884,10 +885,10 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -895,9 +896,9 @@ public class ReplicantSessionManagerImplTest
     // Unsubscribe from channel that was explicitly subscribed
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, true, null, getChangeSet() );
-      sm.subscribe( session, cd2, true, null, getChangeSet() );
-      sm.subscribe( session, cd4, true, null, getChangeSet() );
+      sm.subscribe( session, address1, true, null, getChangeSet() );
+      sm.subscribe( session, address2, true, null, getChangeSet() );
+      sm.subscribe( session, address4, true, null, getChangeSet() );
 
       //Rebind clears the state
       resetChangeSet();
@@ -905,20 +906,20 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
 
       final List<Integer> subChannelIds = new ArrayList<>();
-      subChannelIds.add( cd1.getSubChannelId() );
-      subChannelIds.add( cd2.getSubChannelId() );
+      subChannelIds.add( address1.getSubChannelId() );
+      subChannelIds.add( address2.getSubChannelId() );
       //This next one is not subscribed
-      subChannelIds.add( cd3.getSubChannelId() );
+      subChannelIds.add( address3.getSubChannelId() );
       // This next one is for wrong channel so should be no-op
-      subChannelIds.add( cd4.getSubChannelId() );
+      subChannelIds.add( address4.getSubChannelId() );
       sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds, true, getChangeSet() );
 
       assertChannelActionCount( 2 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 1 ), cd2, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 1 ), address2, ChannelAction.Action.REMOVE, null );
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
-      assertNull( session.findSubscriptionEntry( cd2 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
+      assertNull( session.findSubscriptionEntry( address2 ) );
     }
   }
 
@@ -931,10 +932,10 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -942,9 +943,9 @@ public class ReplicantSessionManagerImplTest
     // Unsubscribe from channel that was explicitly subscribed
     {
       resetChangeSet();
-      sm.subscribe( session, cd1, true, null, getChangeSet() );
-      sm.subscribe( session, cd2, true, null, getChangeSet() );
-      sm.subscribe( session, cd4, true, null, getChangeSet() );
+      sm.subscribe( session, address1, true, null, getChangeSet() );
+      sm.subscribe( session, address2, true, null, getChangeSet() );
+      sm.subscribe( session, address4, true, null, getChangeSet() );
 
       //Rebind clears the state
       resetChangeSet();
@@ -952,20 +953,20 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
 
       final List<Integer> subChannelIds = new ArrayList<>();
-      subChannelIds.add( cd1.getSubChannelId() );
-      subChannelIds.add( cd2.getSubChannelId() );
+      subChannelIds.add( address1.getSubChannelId() );
+      subChannelIds.add( address2.getSubChannelId() );
       //This next one is not subscribed
-      subChannelIds.add( cd3.getSubChannelId() );
+      subChannelIds.add( address3.getSubChannelId() );
       // This next one is for wrong channel so should be no-op
-      subChannelIds.add( cd4.getSubChannelId() );
+      subChannelIds.add( address4.getSubChannelId() );
       sm.bulkUnsubscribe( session.getId(), ch1.getChannelId(), subChannelIds, true, getChangeSet() );
 
       assertChannelActionCount( 2 );
-      assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 1 ), cd2, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
+      assertChannelAction( getChannelActions().get( 1 ), address2, ChannelAction.Action.REMOVE, null );
 
-      assertNull( session.findSubscriptionEntry( cd1 ) );
-      assertNull( session.findSubscriptionEntry( cd2 ) );
+      assertNull( session.findSubscriptionEntry( address1 ) );
+      assertNull( session.findSubscriptionEntry( address2 ) );
     }
   }
 
@@ -976,7 +977,7 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
-    final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
+    final ChannelAddress address = new ChannelAddress( ch.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -986,7 +987,7 @@ public class ReplicantSessionManagerImplTest
 
     resetChangeSet();
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( address );
 
     assertChannelActionCount( 0 );
     assertEntry( e1, false, 0, 0, null );
@@ -997,7 +998,7 @@ public class ReplicantSessionManagerImplTest
 
     final LinkedList<ChannelAction> actions = getChannelActions();
     assertEquals( actions.size(), 1 );
-    assertChannelAction( actions.get( 0 ), cd, ChannelAction.Action.UPDATE, "{\"myField\":42}" );
+    assertChannelAction( actions.get( 0 ), address, ChannelAction.Action.UPDATE, "{\"myField\":42}" );
 
     // 1 Change comes from collectDataForUpdate
     final Collection<Change> changes = getChanges();
@@ -1018,7 +1019,7 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
-    final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
+    final ChannelAddress address = new ChannelAddress( ch.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1028,21 +1029,21 @@ public class ReplicantSessionManagerImplTest
 
     resetChangeSet();
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( address );
     e1.setFilter( originalFilter );
 
     assertChannelActionCount( 0 );
     assertEntry( e1, false, 0, 0, originalFilter );
 
     // Attempt to update to same filter - should be a noop
-    sm.updateSubscription( session, cd, originalFilter, getChangeSet() );
+    sm.updateSubscription( session, address, originalFilter, getChangeSet() );
 
     assertEntry( e1, false, 0, 0, originalFilter );
 
     assertChannelActionCount( 0 );
     assertSessionChangesCount( 0 );
 
-    sm.updateSubscription( session, cd, filter, getChangeSet() );
+    sm.updateSubscription( session, address, filter, getChangeSet() );
 
     assertEntry( e1, false, 0, 0, filter );
 
@@ -1057,7 +1058,7 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C2", true, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
-    final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
+    final ChannelAddress address = new ChannelAddress( ch.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1067,12 +1068,12 @@ public class ReplicantSessionManagerImplTest
 
     final TransactionSynchronizationRegistry registry = RegistryUtil.bind();
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( address );
     e1.setFilter( originalFilter );
 
     assertChannelActionCount( 0 );
 
-    sm.updateSubscription( session.getId(), cd, filter, getChangeSet() );
+    sm.updateSubscription( session.getId(), address, filter, getChangeSet() );
 
     assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getId() );
 
@@ -1089,8 +1090,8 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1098,14 +1099,14 @@ public class ReplicantSessionManagerImplTest
     final TestFilter originalFilter = new TestFilter( 41 );
     final TestFilter filter = new TestFilter( 42 );
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
     e1.setFilter( originalFilter );
-    final SubscriptionEntry e2 = session.createSubscriptionEntry( cd2 );
+    final SubscriptionEntry e2 = session.createSubscriptionEntry( address2 );
     e2.setFilter( originalFilter );
 
     final List<Integer> subChannelIds = new ArrayList<>();
-    subChannelIds.add( cd1.getSubChannelId() );
-    subChannelIds.add( cd2.getSubChannelId() );
+    subChannelIds.add( address1.getSubChannelId() );
+    subChannelIds.add( address2.getSubChannelId() );
 
     resetChangeSet();
 
@@ -1163,8 +1164,8 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 0, "C1", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1172,14 +1173,14 @@ public class ReplicantSessionManagerImplTest
     final TestFilter originalFilter = new TestFilter( 41 );
     final TestFilter filter = new TestFilter( 42 );
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd1 );
+    final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
     e1.setFilter( originalFilter );
-    final SubscriptionEntry e2 = session.createSubscriptionEntry( cd2 );
+    final SubscriptionEntry e2 = session.createSubscriptionEntry( address2 );
     e2.setFilter( originalFilter );
 
     final List<Integer> subChannelIds = new ArrayList<>();
-    subChannelIds.add( cd1.getSubChannelId() );
-    subChannelIds.add( cd2.getSubChannelId() );
+    subChannelIds.add( address1.getSubChannelId() );
+    subChannelIds.add( address2.getSubChannelId() );
 
     resetChangeSet();
 
@@ -1214,16 +1215,16 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
-    final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
-    final SubscriptionEntry se2a = session.createSubscriptionEntry( cd2a );
-    final SubscriptionEntry se2b = session.createSubscriptionEntry( cd2b );
+    final SubscriptionEntry se1 = session.createSubscriptionEntry( address1 );
+    final SubscriptionEntry se2a = session.createSubscriptionEntry( address2a );
+    final SubscriptionEntry se2b = session.createSubscriptionEntry( address2b );
 
     assertEntry( se1, false, 0, 0, null );
     assertEntry( se2a, false, 0, 0, null );
@@ -1234,24 +1235,24 @@ public class ReplicantSessionManagerImplTest
     assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertTrue( se1.getOutwardSubscriptions().contains( cd2a ) );
-    assertTrue( se2a.getInwardSubscriptions().contains( cd1 ) );
+    assertTrue( se1.getOutwardSubscriptions().contains( address2a ) );
+    assertTrue( se2a.getInwardSubscriptions().contains( address1 ) );
 
     sm.linkSubscriptionEntries( se2a, se2b );
 
     assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 1, null );
     assertEntry( se2b, false, 1, 0, null );
-    assertTrue( se2a.getOutwardSubscriptions().contains( cd2b ) );
-    assertTrue( se2b.getInwardSubscriptions().contains( cd2a ) );
+    assertTrue( se2a.getOutwardSubscriptions().contains( address2b ) );
+    assertTrue( se2b.getInwardSubscriptions().contains( address2a ) );
 
     sm.delinkSubscriptionEntries( se2a, se2b );
 
     assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertFalse( se2a.getOutwardSubscriptions().contains( cd2b ) );
-    assertFalse( se2b.getInwardSubscriptions().contains( cd2a ) );
+    assertFalse( se2a.getOutwardSubscriptions().contains( address2b ) );
+    assertFalse( se2b.getInwardSubscriptions().contains( address2a ) );
 
     //Duplicate delink - noop
     sm.delinkSubscriptionEntries( se2a, se2b );
@@ -1259,16 +1260,16 @@ public class ReplicantSessionManagerImplTest
     assertEntry( se1, false, 0, 1, null );
     assertEntry( se2a, false, 1, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertFalse( se2a.getOutwardSubscriptions().contains( cd2b ) );
-    assertFalse( se2b.getInwardSubscriptions().contains( cd2a ) );
+    assertFalse( se2a.getOutwardSubscriptions().contains( address2b ) );
+    assertFalse( se2b.getInwardSubscriptions().contains( address2a ) );
 
     sm.delinkSubscriptionEntries( se1, se2a );
 
     assertEntry( se1, false, 0, 0, null );
     assertEntry( se2a, false, 0, 0, null );
     assertEntry( se2b, false, 0, 0, null );
-    assertFalse( se1.getOutwardSubscriptions().contains( cd2a ) );
-    assertFalse( se2a.getInwardSubscriptions().contains( cd1 ) );
+    assertFalse( se1.getOutwardSubscriptions().contains( address2a ) );
+    assertFalse( se2a.getInwardSubscriptions().contains( address1 ) );
   }
 
   @Test
@@ -1280,16 +1281,16 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "Resource", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
     {
       final ReplicantSession session = sm.createSession();
-      final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
+      final SubscriptionEntry se1 = session.createSubscriptionEntry( address1 );
       se1.setExplicitlySubscribed( true );
-      final SubscriptionEntry se2 = session.createSubscriptionEntry( cd2 );
+      final SubscriptionEntry se2 = session.createSubscriptionEntry( address2 );
       se2.setExplicitlySubscribed( true );
 
       sm.linkSubscriptionEntries( se1, se2 );
@@ -1298,7 +1299,7 @@ public class ReplicantSessionManagerImplTest
       assertEntry( se2, true, 1, 0, null );
 
       final ChangeSet changeSet = new ChangeSet();
-      sm.delinkSubscription( session, cd1, cd2, changeSet );
+      sm.delinkSubscription( session, address1, address2, changeSet );
 
       //No action as se2 explicitly subscribed
       assertEquals( changeSet.getChannelActions().size(), 0 );
@@ -1306,9 +1307,9 @@ public class ReplicantSessionManagerImplTest
 
     {
       final ReplicantSession session = sm.createSession();
-      final SubscriptionEntry se1 = session.createSubscriptionEntry( cd1 );
+      final SubscriptionEntry se1 = session.createSubscriptionEntry( address1 );
       se1.setExplicitlySubscribed( true );
-      final SubscriptionEntry se2 = session.createSubscriptionEntry( cd2 );
+      final SubscriptionEntry se2 = session.createSubscriptionEntry( address2 );
 
       sm.linkSubscriptionEntries( se1, se2 );
 
@@ -1316,14 +1317,14 @@ public class ReplicantSessionManagerImplTest
       assertEntry( se2, false, 1, 0, null );
 
       final ChangeSet changeSet = new ChangeSet();
-      sm.delinkSubscription( session, cd1, cd2, changeSet );
+      sm.delinkSubscription( session, address1, address2, changeSet );
 
       //Action as se2 not explicitly subscribed and now is delinked
       final LinkedList<ChannelAction> channelActions = changeSet.getChannelActions();
       assertEquals( channelActions.size(), 1 );
       final ChannelAction action = channelActions.get( 0 );
       assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
-      assertEquals( action.getAddress(), cd2 );
+      assertEquals( action.getAddress(), address2 );
       assertNull( action.getFilter() );
     }
   }
@@ -1404,49 +1405,49 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 2, "C3", false, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd3a = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd3b = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address3a = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address3b = new ChannelAddress( ch3.getChannelId(), ValueUtil.randomInt() );
 
-    final ChannelLink link1 = new ChannelLink( cd1, cd2a );
-    final ChannelLink link2 = new ChannelLink( cd1, cd2b );
-    final ChannelLink link3 = new ChannelLink( cd1, cd3a );
-    final ChannelLink link4 = new ChannelLink( cd1, cd3b );
+    final ChannelLink link1 = new ChannelLink( address1, address2a );
+    final ChannelLink link2 = new ChannelLink( address1, address2b );
+    final ChannelLink link3 = new ChannelLink( address1, address3a );
+    final ChannelLink link4 = new ChannelLink( address1, address3b );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
-    //No expand as cd1 is not subscribed
+    //No expand as address1 is not subscribed
     assertFalse( sm.expandLinkIfRequired( session, link1, getChangeSet() ) );
 
-    sm.subscribe( session, cd1, true, new TestFilter( 33 ), getChangeSet() );
+    sm.subscribe( session, address1, true, new TestFilter( 33 ), getChangeSet() );
 
-    final SubscriptionEntry entry1 = session.getSubscriptionEntry( cd1 );
+    final SubscriptionEntry entry1 = session.getSubscriptionEntry( address1 );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 0 );
 
-    //Expand as cd1 is subscribed
+    //Expand as address1 is subscribed
     assertTrue( sm.expandLinkIfRequired( session, link1, getChangeSet() ) );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 1 );
 
-    final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
+    final SubscriptionEntry entry2a = session.getSubscriptionEntry( address2a );
 
     assertFalse( entry2a.isExplicitlySubscribed() );
     assertEquals( entry2a.getInwardSubscriptions().size(), 1 );
     assertEquals( entry2a.getOutwardSubscriptions().size(), 0 );
 
-    //No expand as cd2a is already subscribed
+    //No expand as address2a is already subscribed
     assertFalse( sm.expandLinkIfRequired( session, link1, getChangeSet() ) );
 
     // Subscribe to 2 explicitly
-    sm.subscribe( session, cd2b, true, null, getChangeSet() );
+    sm.subscribe( session, address2b, true, null, getChangeSet() );
 
-    final SubscriptionEntry entry2b = session.getSubscriptionEntry( cd2b );
+    final SubscriptionEntry entry2b = session.getSubscriptionEntry( address2b );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 1 );
@@ -1470,7 +1471,7 @@ public class ReplicantSessionManagerImplTest
     //We create a new subscription and copy the filter across
     assertTrue( sm.expandLinkIfRequired( session, link3, getChangeSet() ) );
 
-    final SubscriptionEntry entry3a = session.getSubscriptionEntry( cd3a );
+    final SubscriptionEntry entry3a = session.getSubscriptionEntry( address3a );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 3 );
@@ -1478,9 +1479,9 @@ public class ReplicantSessionManagerImplTest
     assertEquals( entry3a.getOutwardSubscriptions().size(), 0 );
     assertEquals( entry3a.getFilter(), entry1.getFilter() );
 
-    sm.subscribe( session, cd3b, true, new TestFilter( ValueUtil.randomInt() ), getChangeSet() );
+    sm.subscribe( session, address3b, true, new TestFilter( ValueUtil.randomInt() ), getChangeSet() );
 
-    final SubscriptionEntry entry3b = session.getSubscriptionEntry( cd3b );
+    final SubscriptionEntry entry3b = session.getSubscriptionEntry( address3b );
 
     //Do not update the filter... does this crazyness actually occur?
     assertFalse( sm.expandLinkIfRequired( session, link4, getChangeSet() ) );
@@ -1503,24 +1504,24 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
-    final ChannelLink link1 = new ChannelLink( cd1, cd2a );
-    final ChannelLink link2 = new ChannelLink( cd1, cd2b );
+    final ChannelLink link1 = new ChannelLink( address1, address2a );
+    final ChannelLink link2 = new ChannelLink( address1, address2b );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
 
     final ChangeSet changeSet = getChangeSet();
 
-    //No expand as cd1 is not subscribed
+    //No expand as address1 is not subscribed
     assertFalse( sm.expandLink( session, changeSet ) );
 
     assertChannelActionCount( 0 );
 
-    sm.subscribe( session, cd1, true, null, getChangeSet() );
+    sm.subscribe( session, address1, true, null, getChangeSet() );
 
     assertChannelActionCount( 1 );
 
@@ -1542,11 +1543,11 @@ public class ReplicantSessionManagerImplTest
 
     assertChannelActionCount( 2 );
 
-    final SubscriptionEntry entry1 = session.getSubscriptionEntry( cd1 );
-    final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
+    final SubscriptionEntry entry1 = session.getSubscriptionEntry( address1 );
+    final SubscriptionEntry entry2a = session.getSubscriptionEntry( address2a );
 
     // Should not subscribe this until second wave
-    assertNull( session.findSubscriptionEntry( cd2b ) );
+    assertNull( session.findSubscriptionEntry( address2b ) );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 1 );
@@ -1558,7 +1559,7 @@ public class ReplicantSessionManagerImplTest
 
     assertChannelActionCount( 3 );
 
-    final SubscriptionEntry entry2b = session.getSubscriptionEntry( cd2b );
+    final SubscriptionEntry entry2b = session.getSubscriptionEntry( address2b );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 2 );
@@ -1584,12 +1585,12 @@ public class ReplicantSessionManagerImplTest
       new ChannelMetaData( 1, "C2", false, ChannelMetaData.FilterType.NONE, null, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress cd2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress cd2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final ChannelAddress address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
-    final ChannelLink link1 = new ChannelLink( cd1, cd2a );
-    final ChannelLink link2 = new ChannelLink( cd1, cd2b );
+    final ChannelLink link1 = new ChannelLink( address1, address2a );
+    final ChannelLink link2 = new ChannelLink( address1, address2b );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
     final ReplicantSession session = sm.createSession();
@@ -1598,7 +1599,7 @@ public class ReplicantSessionManagerImplTest
 
     assertChannelActionCount( 0 );
 
-    sm.subscribe( session, cd1, true, null, getChangeSet() );
+    sm.subscribe( session, address1, true, null, getChangeSet() );
 
     assertChannelActionCount( 1 );
 
@@ -1613,9 +1614,9 @@ public class ReplicantSessionManagerImplTest
 
     sm.expandLinks( session, changeSet );
 
-    final SubscriptionEntry entry1 = session.getSubscriptionEntry( cd1 );
-    final SubscriptionEntry entry2a = session.getSubscriptionEntry( cd2a );
-    final SubscriptionEntry entry2b = session.getSubscriptionEntry( cd2b );
+    final SubscriptionEntry entry1 = session.getSubscriptionEntry( address1 );
+    final SubscriptionEntry entry2a = session.getSubscriptionEntry( address2a );
+    final SubscriptionEntry entry2b = session.getSubscriptionEntry( address2b );
 
     assertEquals( entry1.getInwardSubscriptions().size(), 0 );
     assertEquals( entry1.getOutwardSubscriptions().size(), 2 );
@@ -1633,18 +1634,18 @@ public class ReplicantSessionManagerImplTest
     final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", true, ChannelMetaData.FilterType.NONE, null, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress cd1 = new ChannelAddress( ch1.getChannelId(), null );
+    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
 
     final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
 
     sm.setCacheKey( "MyCache" );
 
-    assertFalse( sm.getCacheEntry( cd1 ).isInitialized() );
+    assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
 
-    final ChannelCacheEntry entry = sm.ensureCacheEntry( cd1 );
+    final ChannelCacheEntry entry = sm.ensureCacheEntry( address1 );
 
     assertTrue( entry.isInitialized() );
-    assertEquals( entry.getDescriptor(), cd1 );
+    assertEquals( entry.getDescriptor(), address1 );
     assertEquals( entry.getCacheKey(), "MyCache" );
     assertEquals( entry.getChangeSet().getChanges().size(), 1 );
   }
