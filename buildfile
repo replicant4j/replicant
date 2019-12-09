@@ -56,7 +56,6 @@ define 'replicant' do
     test.options[:java_args] = ['-ea']
 
     test.using :testng
-
     test.compile.with :mockito,
                       :guiceyloops,
                       :glassfish_embedded,
@@ -92,9 +91,9 @@ define 'replicant' do
                       # javax_javaee is provided so that JSON parsing can occur for JRE variant.
                       :glassfish_embedded
 
-    iml.add_gwt_facet({'org.realityforge.replicant.Replicant' => false,
-                       'org.realityforge.replicant.ReplicantDev' => false},
-                      :settings => {:compilerMaxHeapSize => '1024'},
+    iml.add_gwt_facet({ 'org.realityforge.replicant.Replicant' => false,
+                        'org.realityforge.replicant.ReplicantDev' => false },
+                      :settings => { :compilerMaxHeapSize => '1024' },
                       :gwt_dev_artifact => :gwt_dev)
 
     # Not sure what in this project breakes jacoco
