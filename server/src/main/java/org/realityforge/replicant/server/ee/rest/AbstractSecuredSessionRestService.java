@@ -21,6 +21,7 @@ public abstract class AbstractSecuredSessionRestService
   /**
    * Override this and return true if security should be disabled. Typically used during local development.
    */
+  @SuppressWarnings( "WeakerAccess" )
   protected boolean disableSecurity()
   {
     return false;
