@@ -12,6 +12,13 @@ public final class EntityMessage
 {
   private final Serializable _id;
   private final int _typeId;
+  /**
+   * Routing keys contain two types of values.
+   * For every graph that the entity type is contained within, the map will
+   * contain "filter_in_graphs" attributes for this entity and any entity on
+   * the path to the root of the instance graph. The map will also contain the
+   * the id of any instance roots for graphs that graph_link to this entity.
+   */
   private final Map<String, Serializable> _routingKeys;
   private Set<ChannelLink> _links;
   private Map<String, Serializable> _attributeValues;
