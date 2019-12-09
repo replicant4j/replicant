@@ -14,7 +14,7 @@ public class EntitySubscriptionManagerImpl
   implements EntitySubscriptionManager
 {
   //Graph => InstanceID
-  private final Map<Enum<?>, Map<Object, ChannelSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
+  private final Map<Enum<?>, Map<Integer, ChannelSubscriptionEntry>> _instanceSubscriptions = new HashMap<>();
 
   //Graph => Type
   private final Map<Enum<?>, ChannelSubscriptionEntry> _typeSubscriptions = new HashMap<>();
@@ -38,9 +38,9 @@ public class EntitySubscriptionManagerImpl
 
   @Nonnull
   @Override
-  public Set<Object> getInstanceSubscriptions( @Nonnull final Enum<?> graph )
+  public Set<Integer> getInstanceSubscriptions( @Nonnull final Enum<?> graph )
   {
-    final Map<Object, ChannelSubscriptionEntry> map = _instanceSubscriptions.get( graph );
+    final Map<Integer, ChannelSubscriptionEntry> map = _instanceSubscriptions.get( graph );
     if ( null == map )
     {
       return Collections.emptySet();
@@ -65,7 +65,7 @@ public class EntitySubscriptionManagerImpl
     if ( null == existing )
     {
       final ChannelSubscriptionEntry entry = new ChannelSubscriptionEntry( graph, filter, explicitSubscription );
-      final Object id = graph.getID();
+      final Integer id = graph.getId();
       if ( null == id )
       {
         _typeSubscriptions.put( graph.getGraph(), entry );
@@ -103,22 +103,15 @@ public class EntitySubscriptionManagerImpl
   @Nullable
   public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelAddress graph )
   {
-    final Object id = graph.getID();
+    final Integer id = graph.getId();
     if ( null == id )
     {
       return _typeSubscriptions.get( graph.getGraph() );
     }
     else
     {
-      Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph.getGraph() );
-      if ( null == instanceMap )
-      {
-        return null;
-      }
-      else
-      {
-        return instanceMap.get( id );
-      }
+      final Map<Integer, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph.getGraph() );
+      return null == instanceMap ? null : instanceMap.get( id );
     }
   }
 
@@ -146,7 +139,7 @@ public class EntitySubscriptionManagerImpl
   public final ChannelSubscriptionEntry removeSubscription( @Nonnull final ChannelAddress graph )
     throws IllegalStateException
   {
-    final Object id = graph.getID();
+    final Integer id = graph.getId();
     if ( null == id )
     {
       final ChannelSubscriptionEntry entry = _typeSubscriptions.remove( graph.getGraph() );
@@ -158,7 +151,7 @@ public class EntitySubscriptionManagerImpl
     }
     else
     {
-      final Map<Object, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph.getGraph() );
+      final Map<Integer, ChannelSubscriptionEntry> instanceMap = _instanceSubscriptions.get( graph.getGraph() );
       if ( null == instanceMap )
       {
         throw new IllegalStateException( "Graph not subscribed: " + graph );

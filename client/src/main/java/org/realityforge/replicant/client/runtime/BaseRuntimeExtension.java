@@ -82,7 +82,7 @@ public interface BaseRuntimeExtension
                                                      @Nonnull final Enum sourceGraph,
                                                      @Nonnull final Enum targetGraph,
                                                      @Nullable final Object filter,
-                                                     @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
+                                                     @Nonnull final Function<Integer, Stream<Integer>> sourceIDToTargetIDs )
   {
     getContextConverger().pauseAndRun( () -> doConvergeCrossDataSourceSubscriptions( scope,
                                                                                      sourceGraph,
@@ -98,19 +98,18 @@ public interface BaseRuntimeExtension
                                                        @Nonnull final Enum sourceGraph,
                                                        @Nonnull final Enum targetGraph,
                                                        @Nullable final Object filter,
-                                                       @Nonnull final Function<Object, Stream<Object>> sourceIDToTargetIDs )
+                                                       @Nonnull final Function<Integer, Stream<Integer>> sourceIDToTargetIDs )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
-    final Map<Object, Subscription> existing =
+    final Map<Integer, Subscription> existing =
       scope.getRequiredSubscriptionsByGraph( targetGraph ).stream().
         filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) ).
-        collect( Collectors.toMap( s -> s.getDescriptor().getID(), Function.identity() ) );
+        collect( Collectors.toMap( s -> s.getDescriptor().getId(), Function.identity() ) );
 
-    //noinspection ConstantConditions
     scope.getRequiredSubscriptions().stream().
       filter( s -> s.getDescriptor().getGraph() == sourceGraph ).
-      map( s -> s.getDescriptor().getID() ).
+      map( s -> s.getDescriptor().getId() ).
       flatMap( sourceIDToTargetIDs ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).

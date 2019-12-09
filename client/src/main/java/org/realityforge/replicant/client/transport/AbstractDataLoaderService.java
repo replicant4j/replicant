@@ -339,7 +339,7 @@ public abstract class AbstractDataLoaderService
   protected void unsubscribeInstanceGraphs( @Nonnull final Enum graph )
   {
     final EntitySubscriptionManager subscriptionManager = getSubscriptionManager();
-    for ( final Object id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
+    for ( final Integer id : new ArrayList<>( subscriptionManager.getInstanceSubscriptions( graph ) ) )
     {
       deregisterUnOwnedEntities( subscriptionManager.removeSubscription( new ChannelAddress( graph, id ) ) );
     }
@@ -1170,7 +1170,7 @@ public abstract class AbstractDataLoaderService
   private ChannelAddress toChannelDescriptor( final ChannelAction action )
   {
     final int channel = action.getChannelId();
-    final Object subChannelId = action.getSubChannelId();
+    final Integer subChannelId = action.getSubChannelId();
     final Enum graph = channelToGraph( channel );
     return new ChannelAddress( graph, subChannelId );
   }

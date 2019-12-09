@@ -26,7 +26,7 @@ public class ChangeAccumulatorTest
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     final int channelId = 1;
-    final String subChannelId = "2";
+    final Integer subChannelId = 2;
 
     accumulator.addChange( c, new Change( message, channelId, subChannelId ) );
     final Integer requestId = ValueUtil.randomInt();

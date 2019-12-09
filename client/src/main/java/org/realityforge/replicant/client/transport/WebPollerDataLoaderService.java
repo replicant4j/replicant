@@ -290,7 +290,7 @@ public abstract class WebPollerDataLoaderService
       final Consumer<Throwable> onError =
         throwable -> failAction.accept( () -> getListener().onSubscribeFailed( this, descriptor, throwable ) );
       performSubscribe( descriptor.getGraph().ordinal(),
-                        (Serializable) descriptor.getID(),
+                        (Serializable) descriptor.getId(),
                         filterParameter,
                         cacheKey,
                         eTag,
@@ -347,7 +347,7 @@ public abstract class WebPollerDataLoaderService
                                                                                                          descriptor,
                                                                                                          throwable ) ) );
       performBulkSubscribe( descriptor.getGraph().ordinal(),
-                            descriptors.stream().map( x -> (Serializable) x.getID() ).collect( Collectors.toList() ),
+                            descriptors.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
                             filterParameter,
                             onSuccess,
                             onError );
@@ -389,7 +389,7 @@ public abstract class WebPollerDataLoaderService
       final Consumer<Throwable> onError =
         throwable -> failAction.accept( () -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) );
       performUpdateSubscription( descriptor.getGraph().ordinal(),
-                                 (Serializable) descriptor.getID(),
+                                 (Serializable) descriptor.getId(),
                                  filterParameter,
                                  onSuccess,
                                  onError );
@@ -432,7 +432,7 @@ public abstract class WebPollerDataLoaderService
         x -> getListener().onSubscriptionUpdateFailed( this, descriptor, throwable ) ) );
       performBulkUpdateSubscription( descriptor.getGraph().ordinal(),
                                      descriptors.stream().map(
-                                       x -> (Serializable) x.getID() ).collect( Collectors.toList() ),
+                                       x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
                                      filterParameter,
                                      onSuccess,
                                      onError );
@@ -472,7 +472,7 @@ public abstract class WebPollerDataLoaderService
         throwable -> failAction.accept( () -> getListener().onUnsubscribeFailed( this, descriptor, throwable ) );
       final Runnable onSuccess =
         () -> completionAction.accept( () -> getListener().onUnsubscribeCompleted( this, descriptor ) );
-      performUnsubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getID(), onSuccess, onError );
+      performUnsubscribe( descriptor.getGraph().ordinal(), (Serializable) descriptor.getId(), onSuccess, onError );
     }
     else
     {
@@ -506,7 +506,7 @@ public abstract class WebPollerDataLoaderService
                                                                                                            descriptor,
                                                                                                            throwable ) ) );
       performBulkUnsubscribe( descriptor.getGraph().ordinal(),
-                              descriptors.stream().map( x -> (Serializable) x.getID() ).collect( Collectors.toList() ),
+                              descriptors.stream().map( x -> (Serializable) x.getId() ).collect( Collectors.toList() ),
                               onSuccess,
                               onError );
     }

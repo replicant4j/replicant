@@ -10,13 +10,13 @@ class TestChannelAction
 
   private final int _channelId;
   @Nullable
-  private final Object _subChannelId;
+  private final Integer _subChannelId;
   private final Action _action;
   @Nullable
   private final Object _filter;
 
   private TestChannelAction( final int channelId,
-                             @Nullable final Object subChannelId,
+                             @Nullable final Integer subChannelId,
                              @Nonnull final Action action,
                              @Nullable final Object filter )
   {
@@ -27,7 +27,7 @@ class TestChannelAction
   }
 
   TestChannelAction( final int channelId,
-                     @Nullable final Object subChannelId,
+                     @Nullable final Integer subChannelId,
                      @Nonnull final Action action )
   {
     this( channelId, subChannelId, action, null );
@@ -41,7 +41,7 @@ class TestChannelAction
 
   @Nullable
   @Override
-  public Object getSubChannelId()
+  public Integer getSubChannelId()
   {
     return _subChannelId;
   }

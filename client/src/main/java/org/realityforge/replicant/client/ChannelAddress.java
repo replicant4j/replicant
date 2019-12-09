@@ -9,14 +9,14 @@ public final class ChannelAddress
   @Nonnull
   private final Enum _graph;
   @Nullable
-  private final Object _id;
+  private final Integer _id;
 
   public ChannelAddress( @Nonnull final Enum graph )
   {
     this( graph, null );
   }
 
-  public ChannelAddress( @Nonnull final Enum graph, @Nullable final Object id )
+  public ChannelAddress( @Nonnull final Enum graph, @Nullable final Integer id )
   {
     _graph = Objects.requireNonNull( graph );
     _id = id;
@@ -35,7 +35,7 @@ public final class ChannelAddress
   }
 
   @Nullable
-  public Object getID()
+  public Integer getId()
   {
     return _id;
   }

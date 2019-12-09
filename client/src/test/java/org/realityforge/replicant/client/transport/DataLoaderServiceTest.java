@@ -55,15 +55,15 @@ public class DataLoaderServiceTest
     typeGraphs.add( TestGraph.D );
     typeGraphs.add( TestGraph.C );
 
-    final HashSet<Object> aGraph = new HashSet<>();
-    aGraph.add( "1" );
-    final HashSet<Object> bGraph = new HashSet<>();
-    bGraph.add( "2" );
+    final HashSet<Integer> aGraph = new HashSet<>();
+    aGraph.add( 1 );
+    final HashSet<Integer> bGraph = new HashSet<>();
+    bGraph.add( 2 );
 
     final ChannelSubscriptionEntry entryA =
-      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.A, "1" ), null, true );
+      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.A, 1 ), null, true );
     final ChannelSubscriptionEntry entryB =
-      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.B, "2" ), null, true );
+      new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.B, 2 ), null, true );
     final ChannelSubscriptionEntry entryC =
       new ChannelSubscriptionEntry( new ChannelAddress( TestGraph.C ), null, true );
     final ChannelSubscriptionEntry entryD =
@@ -78,8 +78,8 @@ public class DataLoaderServiceTest
     when( sm.getInstanceSubscriptions( TestGraph.A ) ).thenReturn( aGraph );
     when( sm.getInstanceSubscriptions( TestGraph.B ) ).thenReturn( bGraph );
     when( sm.getTypeSubscriptions() ).thenReturn( typeGraphs );
-    when( sm.removeSubscription( new ChannelAddress( TestGraph.A, "1" ) ) ).thenReturn( entryA );
-    when( sm.removeSubscription( new ChannelAddress( TestGraph.B, "2" ) ) ).thenReturn( entryB );
+    when( sm.removeSubscription( new ChannelAddress( TestGraph.A, 1 ) ) ).thenReturn( entryA );
+    when( sm.removeSubscription( new ChannelAddress( TestGraph.B, 2 ) ) ).thenReturn( entryB );
     when( sm.removeSubscription( new ChannelAddress( TestGraph.C ) ) ).thenReturn( entryC );
     when( sm.removeSubscription( new ChannelAddress( TestGraph.D ) ) ).thenReturn( entryD );
 
@@ -91,9 +91,9 @@ public class DataLoaderServiceTest
     service.purgeSubscriptions();
 
     final InOrder inOrder = inOrder( repository, sm, broker );
-    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.B, "2" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.B, 2 ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "B1" );
-    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.A, "1" ) );
+    inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.A, 1 ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "A1" );
     inOrder.verify( sm ).removeSubscription( new ChannelAddress( TestGraph.D ) );
     inOrder.verify( repository ).deregisterEntity( String.class, "D1" );
@@ -475,7 +475,7 @@ public class DataLoaderServiceTest
       new TestChangeSet( 1,
                          mock( Runnable.class ),
                          new Change[ 0 ],
-                         new ChannelAction[]{ new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD ) } );
+                         new ChannelAction[]{ new TestChannelAction( TestGraph.B.ordinal(), 77, Action.ADD ) } );
 
     final TestDataLoadService service = newService( new TestChangeSet[]{ changeSet1 }, true );
 
@@ -487,7 +487,7 @@ public class DataLoaderServiceTest
 
     final LinkedList<DataLoadAction> actions = progressWorkTillDone( service, 9, 1 );
     verify( service.getSubscriptionManager() ).
-      recordSubscription( new ChannelAddress( TestGraph.B, "S" ), null, false );
+      recordSubscription( new ChannelAddress( TestGraph.B, 77 ), null, false );
 
     final DataLoadAction action = actions.getLast();
 
@@ -501,7 +501,7 @@ public class DataLoaderServiceTest
   {
     final TestChannelAction a1 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.ADD );
     final TestChannelAction a2 = new TestChannelAction( TestGraph.A.ordinal(), null, Action.REMOVE );
-    final TestChannelAction a3 = new TestChannelAction( TestGraph.B.ordinal(), "S", Action.ADD );
+    final TestChannelAction a3 = new TestChannelAction( TestGraph.B.ordinal(), 77, Action.ADD );
     final TestChannelAction a4 = new TestChannelAction( TestGraph.B.ordinal(), 33, Action.REMOVE );
     final TestChangeSet changeSet1 =
       new TestChangeSet( 1,
@@ -533,7 +533,7 @@ public class DataLoaderServiceTest
       recordSubscription( new ChannelAddress( TestGraph.A ), null, false );
     inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelAddress( TestGraph.A ) );
     inOrder.verify( service.getSubscriptionManager() ).
-      recordSubscription( new ChannelAddress( TestGraph.B, "S" ), null, false );
+      recordSubscription( new ChannelAddress( TestGraph.B, 77 ), null, false );
     inOrder.verify( service.getSubscriptionManager() ).removeSubscription( new ChannelAddress( TestGraph.B, 33 ) );
     inOrder.verifyNoMoreInteractions();
   }

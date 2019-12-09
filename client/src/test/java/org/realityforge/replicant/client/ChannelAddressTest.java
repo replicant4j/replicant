@@ -15,14 +15,14 @@ public class ChannelAddressTest
 
     assertEquals( descriptor1.getSystem(), TestGraph.class );
     assertEquals( descriptor1.getGraph(), TestGraph.A );
-    assertNull( descriptor1.getID() );
+    assertNull( descriptor1.getId() );
     assertEquals( descriptor1.toString(), "TestGraph.A" );
     assertTrue( descriptor1.equals( descriptor1 ) );
     assertFalse( descriptor1.equals( descriptor2 ) );
 
     assertEquals( descriptor2.getSystem(), TestGraph.class );
     assertEquals( descriptor2.getGraph(), TestGraph.B );
-    assertEquals( descriptor2.getID(), 1 );
+    assertEquals( descriptor2.getId(), (Integer)1 );
     assertEquals( descriptor2.toString(), "TestGraph.B:1" );
     assertFalse( descriptor2.equals( descriptor1 ) );
     assertTrue( descriptor2.equals( descriptor2 ) );

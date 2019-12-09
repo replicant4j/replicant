@@ -84,7 +84,7 @@ final class TestChange
   }
 
   @Override
-  public Object getSubChannelId( final int index )
+  public Integer getSubChannelId( final int index )
   {
     return null;
   }

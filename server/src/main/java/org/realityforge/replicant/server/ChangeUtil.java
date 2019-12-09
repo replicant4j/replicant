@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,9 +22,9 @@ public final class ChangeUtil
   @Nonnull
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
                                         final int channelId,
-                                        @Nullable final Serializable subChannelId )
+                                        @Nullable final Integer subChannelId )
   {
-    final ArrayList<Change> changes = new ArrayList<>( messages.size() );
+    final List<Change> changes = new ArrayList<>( messages.size() );
     for ( final EntityMessage message : messages )
     {
       changes.add( new Change( message, channelId, subChannelId ) );

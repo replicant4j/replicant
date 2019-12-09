@@ -20,7 +20,7 @@ public class EntitySubscriptionDebugger
   {
     for ( final Enum key : subscriptionManager.getInstanceSubscriptionKeys() )
     {
-      for ( final Object id : subscriptionManager.getInstanceSubscriptions( key ) )
+      for ( final Integer id : subscriptionManager.getInstanceSubscriptions( key ) )
       {
         outputSubscription( subscriptionManager.getSubscription( new ChannelAddress( key, id ) ) );
       }

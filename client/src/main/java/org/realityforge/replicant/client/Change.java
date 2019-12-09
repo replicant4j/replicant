@@ -68,5 +68,5 @@ public interface Change
    * @return the sub-channel id.
    */
   @Nullable
-  Object getSubChannelId( int index );
+  Integer getSubChannelId( int index );
 }

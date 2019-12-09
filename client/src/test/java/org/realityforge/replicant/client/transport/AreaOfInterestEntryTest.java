@@ -25,7 +25,7 @@ public class AreaOfInterestEntryTest
     assertTrue( entry.match( action, descriptor, filterParameter ) );
     assertFalse( entry.match( action, descriptor, "OtherFilter" ) );
     assertFalse( entry.match( AreaOfInterestAction.REMOVE, descriptor, filterParameter ) );
-    assertFalse( entry.match( action, new ChannelAddress( TestGraph.B, "X" ), filterParameter ) );
+    assertFalse( entry.match( action, new ChannelAddress( TestGraph.B, 234 ), filterParameter ) );
   }
 
    @Test

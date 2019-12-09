@@ -336,7 +336,7 @@ public abstract class ContextConvergerImpl
     }
     for ( final Enum graph : getSubscriptionManager().getInstanceSubscriptionKeys() )
     {
-      for ( final Object id : getSubscriptionManager().getInstanceSubscriptions( graph ) )
+      for ( final Integer id : getSubscriptionManager().getInstanceSubscriptions( graph ) )
       {
         removeSubscriptionIfOrphan( expectedChannels, new ChannelAddress( graph, id ) );
       }

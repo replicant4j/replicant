@@ -26,7 +26,7 @@ public interface EntitySubscriptionManager
    * Return the collection of instance subscriptions for graph.
    */
   @Nonnull
-  Set<Object> getInstanceSubscriptions( @Nonnull Enum<?> graph );
+  Set<Integer> getInstanceSubscriptions( @Nonnull Enum<?> graph );
 
   /**
    * Record a subscription for specified graph.

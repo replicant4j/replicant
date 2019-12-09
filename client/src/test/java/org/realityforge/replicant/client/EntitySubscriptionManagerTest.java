@@ -356,8 +356,8 @@ public class EntitySubscriptionManagerTest
   public void subscribe_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.recordSubscription( new ChannelAddress( G.G1, "1" ), null, false );
-    sm.recordSubscription( new ChannelAddress( G.G1, "1" ), null, false );
+    sm.recordSubscription( new ChannelAddress( G.G1, 1 ), null, false );
+    sm.recordSubscription( new ChannelAddress( G.G1, 1 ), null, false );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -365,7 +365,7 @@ public class EntitySubscriptionManagerTest
   public void getSubscription_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.getSubscription( new ChannelAddress( G.G1, "1" ) );
+    sm.getSubscription( new ChannelAddress( G.G1, 1 ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -373,7 +373,7 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentInstanceGraph()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.removeSubscription( new ChannelAddress( G.G1, "1" ) );
+    sm.removeSubscription( new ChannelAddress( G.G1, 1 ) );
   }
 
   @Test( expectedExceptions = IllegalStateException.class,
@@ -381,8 +381,8 @@ public class EntitySubscriptionManagerTest
   public void unsubscribe_nonExistentInstanceGraph_whenTypeCreated()
   {
     final EntitySubscriptionManager sm = new EntitySubscriptionManagerImpl();
-    sm.recordSubscription( new ChannelAddress( G.G1 ), "1", false );
-    sm.removeSubscription( new ChannelAddress( G.G1, "2" ) );
+    sm.recordSubscription( new ChannelAddress( G.G1 ), 1, false );
+    sm.removeSubscription( new ChannelAddress( G.G1, 2 ) );
   }
 
   enum G

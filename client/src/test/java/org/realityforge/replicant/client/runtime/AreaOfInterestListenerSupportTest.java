@@ -21,7 +21,7 @@ public class AreaOfInterestListenerSupportTest
     final AreaOfInterestService service = mock( AreaOfInterestService.class );
     final Scope scope = new Scope( service, ValueUtil.randomString() );
     final Subscription subscription =
-      new Subscription( service, new ChannelAddress( TestGraph.A, ValueUtil.randomString() ) );
+      new Subscription( service, new ChannelAddress( TestGraph.A, ValueUtil.randomInt() ) );
 
     final AreaOfInterestListener listener = mock( AreaOfInterestListener.class );
 
