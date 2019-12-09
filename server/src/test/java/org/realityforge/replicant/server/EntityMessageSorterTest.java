@@ -72,17 +72,9 @@ public class EntityMessageSorterTest
     assertEquals( l1.get( index ).getId(), value );
   }
 
-  private EntityMessage newEntityMessage( final int id,
-                                          final int typeID,
-                                          final long timestamp,
-                                          final boolean isDelete )
+  private EntityMessage newEntityMessage( final int id, final int typeID, final long timestamp, final boolean isDelete )
   {
-    return new EntityMessage( id,
-                              typeID,
-                              timestamp,
-                              new HashMap<>(),
-                              isDelete ? null : new HashMap<>(),
-                              null );
+    return new EntityMessage( id, typeID, timestamp, new HashMap<>(), isDelete ? null : new HashMap<>(), null );
   }
 
   @Test
@@ -174,12 +166,7 @@ public class EntityMessageSorterTest
 
   private EntityMessage createUpdateMessage( final int typeID, final long time )
   {
-    return new EntityMessage( _nextID++,
-                              typeID,
-                              time,
-                              new HashMap<>(),
-                              new HashMap<>(),
-                              null );
+    return new EntityMessage( _nextID++, typeID, time, new HashMap<>(), new HashMap<>(), null );
   }
 
   private EntityMessage createDeletionMessage( final int typeID )
@@ -189,12 +176,7 @@ public class EntityMessageSorterTest
 
   private EntityMessage createDeletionMessage( final int typeID, final long time )
   {
-    return new EntityMessage( _nextID++,
-                              typeID,
-                              time,
-                              new HashMap<>(),
-                              null,
-                              null );
+    return new EntityMessage( _nextID++, typeID, time, new HashMap<>(), null, null );
   }
 
   private void assertDeletion( final EntityMessage message )

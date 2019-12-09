@@ -22,8 +22,8 @@ public class ChannelLinkTest
     final ChannelLink link1 = new ChannelLink( new ChannelAddress( 22, 44 ), new ChannelAddress( 1, 2 ) );
     final ChannelLink link2 = new ChannelLink( new ChannelAddress( 22, 44 ), new ChannelAddress( 1, 3 ) );
     final ChannelLink link3 = new ChannelLink( new ChannelAddress( 22, 77 ), new ChannelAddress( 1, 2 ) );
-    final ChannelLink link4 = new ChannelLink( new ChannelAddress( 27, null ), new ChannelAddress( 1, 2 ) );
-    final ChannelLink link5 = new ChannelLink( new ChannelAddress( 27, null ), new ChannelAddress( 1, 3 ) );
+    final ChannelLink link4 = new ChannelLink( new ChannelAddress( 27 ), new ChannelAddress( 1, 2 ) );
+    final ChannelLink link5 = new ChannelLink( new ChannelAddress( 27 ), new ChannelAddress( 1, 3 ) );
 
     assertLinkEqual( link1, link1 );
     assertLinkEqual( link2, link2 );

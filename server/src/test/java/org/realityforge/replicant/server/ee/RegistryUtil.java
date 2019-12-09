@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.ee;
 import javax.annotation.Nonnull;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.spi.NamingManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.guiceyloops.server.TestTransactionSynchronizationRegistry;
@@ -20,6 +21,10 @@ public final class RegistryUtil
   {
     try
     {
+      if ( !NamingManager.hasInitialContextFactoryBuilder() )
+      {
+        NamingManager.setInitialContextFactoryBuilder( environment -> e -> TestInitialContextFactory.getContext() );
+      }
       TestInitialContextFactory.reset();
       final Context context = TestInitialContextFactory.getContext().createSubcontext( "java:comp" );
       final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();

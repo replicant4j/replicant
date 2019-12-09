@@ -1,31 +1,32 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
 
-public final class ChannelCacheEntry
+final class ChannelCacheEntry
 {
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
   private final ChannelAddress _descriptor;
   private String _cacheKey;
   private ChangeSet _changeSet;
 
-  ChannelCacheEntry( @Nonnull final ChannelAddress descriptor )
+  ChannelCacheEntry( @Nonnull final ChannelAddress address )
   {
-    _descriptor = descriptor;
+    _descriptor = address;
   }
 
   @Nonnull
-  public ReadWriteLock getLock()
+  ReadWriteLock getLock()
   {
     return _lock;
   }
 
   @Nonnull
-  public ChannelAddress getDescriptor()
+  ChannelAddress getDescriptor()
   {
     return _descriptor;
   }
@@ -42,22 +43,14 @@ public final class ChannelCacheEntry
   }
 
   @Nonnull
-  public String getCacheKey()
+  String getCacheKey()
   {
-    if ( null == _cacheKey )
-    {
-      throw new NullPointerException( "cacheKey" );
-    }
-    return _cacheKey;
+    return Objects.requireNonNull( _cacheKey );
   }
 
   @Nonnull
-  public ChangeSet getChangeSet()
+  ChangeSet getChangeSet()
   {
-    if ( null == _changeSet )
-    {
-      throw new NullPointerException( "changeSet" );
-    }
-    return _changeSet;
+    return Objects.requireNonNull( _changeSet );
   }
 }

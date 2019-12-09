@@ -71,8 +71,7 @@ public class EntityMessageCacheUtilTest
   @Test( expectedExceptions = IllegalStateException.class )
   public void lookupOfResourceOutsideReplicationContext()
   {
-    TransactionSynchronizationRegistryUtil.lookup().
-      putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
+    TransactionSynchronizationRegistryUtil.lookup().putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
 
     EntityMessageCacheUtil.lookupSessionChanges();
   }
