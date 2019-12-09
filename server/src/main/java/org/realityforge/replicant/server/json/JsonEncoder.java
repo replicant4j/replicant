@@ -28,7 +28,7 @@ import org.realityforge.replicant.server.EntityMessage;
 public final class JsonEncoder
 {
   // Use constant to avoid slow filesystem access when serializing a message.
-  public static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
+  private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
 
   private JsonEncoder()
   {
