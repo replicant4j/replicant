@@ -7,7 +7,7 @@ public interface TransportConstants
 {
   String TYPE = "type";
   String LAST_CHANGE_SET_ID = "last_id";
-  String REQUEST_ID = "request_id";
+  String REQUEST_ID = "requestId";
   String ETAG = "etag";
   String CHANGES = "changes";
   String ENTITY_ID = "id";

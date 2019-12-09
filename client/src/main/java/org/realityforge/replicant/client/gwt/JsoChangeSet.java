@@ -27,8 +27,8 @@ public final class JsoChangeSet
   @Override
   @Nullable
   public final native Integer getRequestId()/*-{
-    if (typeof (this.request_id) == 'number') {
-      return new @java.lang.Integer::new(I)(this.request_id);
+    if (typeof (this.requestId) == 'number') {
+      return new @java.lang.Integer::new(I)(this.requestId);
     } else {
       return null;
     }
