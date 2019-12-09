@@ -3,6 +3,7 @@ repositories:
    - https://repo.maven.apache.org/maven2
    - https://stocksoftware.artifactoryonline.com/stocksoftware/public
    - https://stocksoftware.artifactoryonline.com/stocksoftware/oss
+   - https://stocksoftware.artifactoryonline.com/stocksoftware/staging
 
 artifacts:
   idea_codestyle: au.com.stocksoftware.idea.codestyle:idea-codestyle:xml:1.3
