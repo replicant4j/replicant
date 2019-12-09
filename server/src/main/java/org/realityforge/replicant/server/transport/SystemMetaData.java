@@ -42,9 +42,9 @@ public final class SystemMetaData
   }
 
   @Nonnull
-  public ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress descriptor )
+  public ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress address )
   {
-    return getChannelMetaData( descriptor.getChannelId() );
+    return getChannelMetaData( address.getChannelId() );
   }
 
   /**
