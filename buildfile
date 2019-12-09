@@ -66,6 +66,10 @@ define 'replicant' do
                  :mockito,
                  :guiceyloops
 
+    gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
+        :java_args => %w(-Xms512M -Xmx1024M),
+        :draft_compile => 'true') unless ENV['GWT'] == 'no'
+
     package(:jar).enhance do |jar|
       jar.include("#{_(:source, :main, :java)}/*")
       jar.include("#{_(:source, :main, :super)}/*")
@@ -78,9 +82,6 @@ define 'replicant' do
     package(:javadoc)
 
     test.options[:java_args] = ['-ea']
-    gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
-        :java_args => %w(-Xms512M -Xmx1024M),
-        :draft_compile => 'true') unless ENV['GWT'] == 'no'
 
     test.using :testng
     test.compile.with :mockito,
