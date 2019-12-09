@@ -78,9 +78,6 @@ define 'replicant' do
     end
     package(:javadoc)
 
-    test.using :testng
-    test.compile.with TEST_DEPS
-
     gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
         :java_args => %w(-Xms512M -Xmx1024M),
         :draft_compile => 'true') unless ENV['GWT'] == 'no'
