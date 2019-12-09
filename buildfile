@@ -53,6 +53,8 @@ define 'replicant' do
     end
     package(:javadoc)
 
+    test.options[:java_args] = ['-ea']
+
     test.using :testng
 
     test.compile.with :mockito,
