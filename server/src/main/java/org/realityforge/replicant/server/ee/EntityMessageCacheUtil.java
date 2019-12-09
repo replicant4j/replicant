@@ -97,7 +97,7 @@ public final class EntityMessageCacheUtil
     return remove( r, SESSION_KEY );
   }
 
-  private static <T> T remove( final TransactionSynchronizationRegistry r, final String key )
+  private static <T> T remove( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
   {
     final T messageSet = lookup( r, key );
     if ( null != messageSet )
@@ -108,7 +108,7 @@ public final class EntityMessageCacheUtil
   }
 
   @SuppressWarnings( "unchecked" )
-  private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
+  private static <T> T lookup( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
   {
     final Object invocationContext = r.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null == invocationContext )

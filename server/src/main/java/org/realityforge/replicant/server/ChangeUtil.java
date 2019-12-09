@@ -14,9 +14,9 @@ public final class ChangeUtil
 
   @Nonnull
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
-                                        @Nonnull final ChannelAddress descriptor )
+                                        @Nonnull final ChannelAddress address )
   {
-    return toChanges( messages, descriptor.getChannelId(), descriptor.getSubChannelId() );
+    return toChanges( messages, address.getChannelId(), address.getSubChannelId() );
   }
 
   @Nonnull
@@ -24,7 +24,7 @@ public final class ChangeUtil
                                         final int channelId,
                                         @Nullable final Integer subChannelId )
   {
-    final List<Change> changes = new ArrayList<>( messages.size() );
+    final ArrayList<Change> changes = new ArrayList<>( messages.size() );
     for ( final EntityMessage message : messages )
     {
       changes.add( new Change( message, channelId, subChannelId ) );

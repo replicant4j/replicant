@@ -44,7 +44,7 @@ public final class EntityMessage
     return _typeId;
   }
 
-  public final int getId()
+  public int getId()
   {
     return _id;
   }
