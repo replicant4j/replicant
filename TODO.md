@@ -2,18 +2,8 @@
 
 Some actions that should occur at some point in the future.
 
-* ChannelDescriptor should emit the "system" in toString (i.e. Rose, Planner etc)
-* Change should take a ChannelDescriptor as a parameter.
-* The Client/Server communication should be over generic interface and avoid generating typed
-  interfaces via domgen. i.e. Eliminate sub-classing of ReplicantSessionManagerImpl by using
-  generic interface. The remaining custom code can be moved to a context class.
-* Introduce an EntityMetaData class that describes type id and possibly other data (i.e. can
-  it generate channel links, attribute defs etc)
-* Introduce EntityDescriptor that binds EntityMetaData/type + ID.
 * Consolidate some of the common code across server and client libraries. i.e.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
-  - Stop domgen generating XMessageConstants and use generated ChannelMetaData data.
-  - Stop domgen generating XReplicantGraph and use generated ChannelMetaData data.
 * Rework the request system so that all the inputs/outputs are explicit.
     Inputs include:
       * SessionID
@@ -25,3 +15,21 @@ Some actions that should occur at some point in the future.
       * Job Return value
     This will ultimately allow the jobs and potentially polling results to move to being
     handled across a WebSocket.
+
+* Move to CBOR or protobuf for serialization.
+  - https://www.ietf.org/about/participate/tutorials/technical/cbor/
+  - http://cbor.io/impls.html
+  - https://github.com/dcodeIO/protobuf.js
+  - Or event better and faster - Capt Proto - https://capnproto.org/language.html
+  - Or Protobuf+gRPC = https://www.cncf.io/blog/2018/10/24/grpc-web-is-going-ga/
+
+* Add optional Map to Entity with current data and make userObject reference optional. The optional userObject
+  could be lazily created on access via `EntityLocator`.
+
+* Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
+
+* Introduce TransportFactory and pass that into context.
+
+* Rather than DEFAULT_LINKS_TO_PROCESS_PER_TICK and DEFAULT_CHANGES_TO_PROCESS_PER_TICK try to use time based feedback
+
+* Generate DebugTool to show client side replicant graph subscriptions
