@@ -165,6 +165,7 @@ public abstract class ReplicantSessionManagerImpl
    *
    * @param maxIdleTime the max idle time for a session.
    */
+  @SuppressWarnings( "WeakerAccess" )
   protected void removeIdleSessions( final long maxIdleTime )
   {
     final long now = System.currentTimeMillis();
