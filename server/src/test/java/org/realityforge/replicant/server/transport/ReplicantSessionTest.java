@@ -10,10 +10,10 @@ public class ReplicantSessionTest
   @Test
   public void basicOperation()
   {
-    final String sessionID = ValueUtil.randomString();
-    final ReplicantSession session = new ReplicantSession( null, sessionID );
+    final String sessionId = ValueUtil.randomString();
+    final ReplicantSession session = new ReplicantSession( null, sessionId );
 
-    assertEquals( session.getSessionID(), sessionID );
+    assertEquals( session.getSessionID(), sessionId );
     assertEquals( session.getQueue().size(), 0 );
 
     assertEquals( session.getSubscriptions().size(), 0 );
