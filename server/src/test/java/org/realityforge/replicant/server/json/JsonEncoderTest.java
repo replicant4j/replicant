@@ -153,7 +153,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeLong()
   {
-    final int id = 17;
+    final int id = ValueUtil.randomInt();
     final int typeID = 42;
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
     final HashMap<String, Serializable> attributeData = new HashMap<>();
