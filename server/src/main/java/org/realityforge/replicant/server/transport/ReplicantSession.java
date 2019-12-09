@@ -98,12 +98,14 @@ public final class ReplicantSession
     return _roETags;
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nullable
   public String getETag( @Nonnull final ChannelAddress address )
   {
     return _eTags.get( address );
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   public void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
   {
     if ( null == eTag )
@@ -125,6 +127,7 @@ public final class ReplicantSession
   /**
    * Return subscription entry for specified channel.
    */
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   public final SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
@@ -168,6 +171,7 @@ public final class ReplicantSession
   /**
    * Return true if specified channel is present.
    */
+  @SuppressWarnings( "WeakerAccess" )
   public final boolean isSubscriptionEntryPresent( final ChannelAddress address )
   {
     return null != findSubscriptionEntry( address );
