@@ -26,6 +26,7 @@ public final class SharedConstants
   /**
    * The url relative to base from which replicant event stream data is retrieved.
    */
+  @SuppressWarnings( "unused" )
   public static final String REPLICANT_URL_FRAGMENT = "/replicant";
   /**
    * The url relative to base from which initial token is generated and the replicant session created.
