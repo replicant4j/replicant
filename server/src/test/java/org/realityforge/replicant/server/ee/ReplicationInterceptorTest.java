@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.ee;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
@@ -13,8 +14,6 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.server.ServerConstants;
-import org.realityforge.replicant.server.transport.ReplicantSession;
-import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
