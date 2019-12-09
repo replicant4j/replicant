@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonGeneratorFactory;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.validation.constraints.NotNull;
@@ -74,12 +77,19 @@ import org.realityforge.replicant.shared.SharedConstants;
  */
 @SuppressWarnings( "UnresolvedRestParam" )
 public abstract class AbstractSessionRestService
-  extends AbstractReplicantRestService
 {
   private transient final ObjectMapper _jsonMapper = new ObjectMapper();
+  private JsonGeneratorFactory _factory;
 
   @Nonnull
   protected abstract ReplicantSessionManager getSessionManager();
+
+  public void postConstruct()
+  {
+    final HashMap<String, Object> config = new HashMap<>();
+    config.put( JsonGenerator.PRETTY_PRINTING, true );
+    _factory = Json.createGeneratorFactory( config );
+  }
 
   @Nonnull
   protected abstract EntityMessageEndpoint getEntityMessageEndpoint();
@@ -516,7 +526,7 @@ public abstract class AbstractSessionRestService
   private String json( @Nonnull final Consumer<JsonGenerator> consumer )
   {
     final StringWriter writer = new StringWriter();
-    final JsonGenerator g = factory().createGenerator( writer );
+    final JsonGenerator g = _factory.createGenerator( writer );
     consumer.accept( g );
     g.close();
     return writer.toString();
@@ -544,5 +554,13 @@ public abstract class AbstractSessionRestService
     final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
     return systemMetaData.getName() + "." + action + systemMetaData.getChannelMetaData( channelId ).getName() +
            ( ( null == subChannelId ) ? "" : "." + subChannelId );
+  }
+
+  @Nonnull
+  protected Response buildResponse( @Nonnull final Response.ResponseBuilder builder,
+                                    @Nonnull final String content )
+  {
+    CacheUtil.configureNoCacheHeaders( builder );
+    return builder.entity( content ).build();
   }
 }
