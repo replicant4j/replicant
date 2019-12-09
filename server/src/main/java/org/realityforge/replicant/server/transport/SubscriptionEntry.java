@@ -32,9 +32,9 @@ public final class SubscriptionEntry
   @Nullable
   private Object _filter;
 
-  public SubscriptionEntry( @Nonnull final ChannelAddress descriptor )
+  public SubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    _descriptor = descriptor;
+    _descriptor = address;
   }
 
   public ChannelAddress getDescriptor()
@@ -103,7 +103,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   /**
@@ -121,7 +121,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   /**
@@ -147,7 +147,7 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   /**
@@ -165,11 +165,11 @@ public final class SubscriptionEntry
         results.add( channel );
       }
     }
-    return results.toArray( new ChannelAddress[ results.size() ] );
+    return results.toArray( new ChannelAddress[ 0 ] );
   }
 
   @Override
-  public int compareTo( final SubscriptionEntry o )
+  public int compareTo( @Nonnull final SubscriptionEntry o )
   {
     return getDescriptor().compareTo( o.getDescriptor() );
   }
