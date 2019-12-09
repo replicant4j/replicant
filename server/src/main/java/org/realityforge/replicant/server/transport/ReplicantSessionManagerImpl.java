@@ -38,9 +38,6 @@ public abstract class ReplicantSessionManagerImpl
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   private final HashMap<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nonnull
   public String getSessionKey()
@@ -48,9 +45,6 @@ public abstract class ReplicantSessionManagerImpl
     return "sid";
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean invalidateSession( @Nonnull final String sessionID )
   {
@@ -76,9 +70,6 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public ReplicantSession getSession( @Nonnull final String sessionID )
@@ -115,9 +106,6 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nonnull
   public ReplicantSession createSession()

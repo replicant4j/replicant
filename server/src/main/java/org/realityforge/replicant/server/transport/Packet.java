@@ -52,9 +52,6 @@ public final class Packet
     return _changeSet;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public boolean equals( final Object other )
   {
     if ( !( other instanceof Packet ) )
@@ -68,9 +65,6 @@ public final class Packet
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public int compareTo( @Nonnull final Object other )
   {
     if ( !( other instanceof Packet ) )
@@ -151,17 +145,11 @@ public final class Packet
     return _sequence - 1 == sequence;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public int hashCode()
   {
     return _sequence;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public String toString()
   {
     return "PacketPacket[Sequence=" + _sequence + "]";
