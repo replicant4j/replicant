@@ -24,7 +24,7 @@ define 'replicant' do
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
 
   pom.add_apache_v2_license
-  pom.add_github_project('realityforge/replicant')
+  pom.add_github_project('replicant4j/replicant')
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
