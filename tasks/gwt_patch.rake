@@ -181,7 +181,7 @@ module Buildr
         end
       end
       version
-      end
+    end
     end
   end
 end
