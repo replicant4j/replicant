@@ -95,9 +95,6 @@ public abstract class AbstractDataLoaderService
     return getSessionContext().getKey();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Override
   public State getState()
@@ -105,9 +102,6 @@ public abstract class AbstractDataLoaderService
     return _state;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public Date getConnectingAt()
@@ -115,9 +109,6 @@ public abstract class AbstractDataLoaderService
     return _connectingAt;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public Date getConnectedAt()
@@ -125,9 +116,6 @@ public abstract class AbstractDataLoaderService
     return _connectedAt;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public Date getDisconnectedAt()
@@ -135,9 +123,6 @@ public abstract class AbstractDataLoaderService
     return _disconnectedAt;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public Throwable getLastErrorDuringConnection()
@@ -145,9 +130,6 @@ public abstract class AbstractDataLoaderService
     return _lastErrorDuringConnection;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public Throwable getLastError()
@@ -155,9 +137,6 @@ public abstract class AbstractDataLoaderService
     return _lastError;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public Date getLastErrorAt()
@@ -283,9 +262,6 @@ public abstract class AbstractDataLoaderService
     return getGraphType().getSimpleName();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nullable
   @Override
   public ClientSession getSession()
@@ -293,9 +269,6 @@ public abstract class AbstractDataLoaderService
     return _session;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   public abstract ClientSession ensureSession();
 

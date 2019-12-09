@@ -53,9 +53,6 @@ public class EntityChangeBrokerImpl
     _raiseErrorOnEventHandlerError = raiseErrorOnEventHandlerError;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public final void addChangeListener( @Nonnull final EntityChangeListener listener )
   {
@@ -71,9 +68,6 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public final void addChangeListener( @Nonnull final Class clazz,
                                        @Nonnull final EntityChangeListener listener )
@@ -90,9 +84,6 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public final void addChangeListener( @Nonnull final Object object, @Nonnull final EntityChangeListener listener )
   {
@@ -108,9 +99,6 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public final void removeChangeListener( @Nonnull final EntityChangeListener listener )
   {
@@ -129,9 +117,6 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public final void removeChangeListener( @Nonnull final Object object, @Nonnull final EntityChangeListener listener )
   {
@@ -159,9 +144,6 @@ public class EntityChangeBrokerImpl
     removeEntryIfEmpty( entry );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void removeAllChangeListeners( @Nonnull final Object object )
   {
@@ -182,9 +164,6 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public final void removeChangeListener( @Nonnull final Class clazz,
                                           @Nonnull final EntityChangeListener listener )
@@ -205,9 +184,6 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void purgeChangeListener( @Nonnull final EntityChangeListener listener )
   {
@@ -240,54 +216,36 @@ public class EntityChangeBrokerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void attributeChanged( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object value )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.ATTRIBUTE_CHANGED, entity, name, value ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void relatedAdded( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object other )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.RELATED_ADDED, entity, name, other ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void relatedRemoved( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object other )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.RELATED_REMOVED, entity, name, other ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void entityAdded( @Nonnull final Object entity )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_ADDED, entity, null, null ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void entityRemoved( @Nonnull final Object entity )
   {
     sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_REMOVED, entity, null, null ) );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nullable
   @Override
   public EntityBrokerTransaction getCurrentTransaction()
@@ -295,18 +253,12 @@ public class EntityChangeBrokerImpl
     return _transaction;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isInTransaction()
   {
     return null != _transaction;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void resume( @Nonnull final String key )
     throws IllegalStateException
@@ -325,9 +277,6 @@ public class EntityChangeBrokerImpl
     deliverDeferredEvents();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Override
   public final EntityBrokerTransaction pause( @Nonnull final String key )
@@ -340,18 +289,12 @@ public class EntityChangeBrokerImpl
     return _transaction;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isPaused()
   {
     return null != _transaction && _transaction.isPauseAction();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Override
   public EntityBrokerTransaction disable( @Nonnull final String key )
@@ -364,9 +307,6 @@ public class EntityChangeBrokerImpl
     return _transaction;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void enable( @Nonnull final String key )
   {
@@ -388,9 +328,6 @@ public class EntityChangeBrokerImpl
     return null != _transaction && _transaction.isDisableAction();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isEnabled()
   {

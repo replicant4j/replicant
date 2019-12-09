@@ -48,9 +48,6 @@ public final class EntityChangeEvent
     return _value;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public final String toString()
   {
     final StringBuilder sb = new StringBuilder();

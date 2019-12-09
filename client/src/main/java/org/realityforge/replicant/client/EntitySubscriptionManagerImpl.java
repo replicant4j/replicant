@@ -51,9 +51,6 @@ public class EntitySubscriptionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nonnull
   public final ChannelSubscriptionEntry recordSubscription( @Nonnull final ChannelAddress graph,
@@ -82,9 +79,6 @@ public class EntitySubscriptionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nonnull
   public ChannelSubscriptionEntry updateSubscription( @Nonnull final ChannelAddress graph,
@@ -96,9 +90,6 @@ public class EntitySubscriptionManagerImpl
     return subscription;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public final ChannelSubscriptionEntry findSubscription( @Nonnull final ChannelAddress graph )
@@ -115,9 +106,6 @@ public class EntitySubscriptionManagerImpl
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Override
   public ChannelSubscriptionEntry getSubscription( @Nonnull final ChannelAddress graph )
@@ -131,9 +119,6 @@ public class EntitySubscriptionManagerImpl
     return subscription;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Nonnull
   @Override
   public final ChannelSubscriptionEntry removeSubscription( @Nonnull final ChannelAddress graph )

@@ -44,36 +44,24 @@ public abstract class ReplicantClientSystemImpl
     removeListener();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isActive()
   {
     return _active;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public State getState()
   {
     return _state;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void activate()
   {
     setActive( true );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void deactivate()
   {

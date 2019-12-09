@@ -20,9 +20,6 @@ public class LocalCacheService
   private static final String ETAG_SUFFIX = "_ETAG_";
   private boolean _loggedNoLocalStorage;
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   @Nullable
   public CacheEntry lookup( @Nonnull final String key )
@@ -48,9 +45,6 @@ public class LocalCacheService
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean store( @Nonnull final String key, @Nonnull final String eTag, @Nonnull final String content )
   {
@@ -78,9 +72,6 @@ public class LocalCacheService
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean invalidate( @Nonnull final String key )
   {
