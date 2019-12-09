@@ -29,13 +29,13 @@ public final class MessageTestUtil
   }
 
   static EntityMessage createMessage( final int id,
-                                             final int typeID,
-                                             final long timestamp,
-                                             @Nullable final ChannelLink link,
-                                             @Nullable final String r1,
-                                             @Nullable final String r2,
-                                             @Nullable final String a1,
-                                             @Nullable final String a2 )
+                                      final int typeID,
+                                      final long timestamp,
+                                      @Nullable final ChannelLink link,
+                                      @Nullable final String r1,
+                                      @Nullable final String r2,
+                                      @Nullable final String a1,
+                                      @Nullable final String a2 )
   {
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
     if ( null != r1 )
