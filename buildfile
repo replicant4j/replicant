@@ -7,7 +7,6 @@ require 'buildr/single_intermediate_layout'
 GWT_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject, :gwt_user]
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
-TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 
 desc 'Replicant: Client-side state representation infrastructure'
 define 'replicant' do
