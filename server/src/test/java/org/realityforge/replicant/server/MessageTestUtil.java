@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.testng.Assert.*;
 
@@ -18,7 +17,7 @@ public final class MessageTestUtil
   public static final String ATTR_KEY1 = "ATTR_KEY1";
   public static final String ATTR_KEY2 = "ATTR_KEY2";
 
-  public static EntityMessage createMessage( @Nonnull final Serializable id,
+  public static EntityMessage createMessage( final int id,
                                              final int typeID,
                                              final long timestamp,
                                              @Nullable final String r1,
@@ -29,7 +28,7 @@ public final class MessageTestUtil
     return createMessage( id, typeID, timestamp, null, r1, r2, a1, a2 );
   }
 
-  public static EntityMessage createMessage( @Nonnull final Serializable id,
+  public static EntityMessage createMessage( final int id,
                                              final int typeID,
                                              final long timestamp,
                                              @Nullable final ChannelLink link,

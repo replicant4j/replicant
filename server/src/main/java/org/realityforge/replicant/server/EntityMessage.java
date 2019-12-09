@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 
 public final class EntityMessage
 {
-  private final Serializable _id;
+  private final int _id;
   private final int _typeId;
   /**
    * Routing keys contain two types of values.
@@ -24,7 +24,7 @@ public final class EntityMessage
   private Map<String, Serializable> _attributeValues;
   private long _timestamp;
 
-  public EntityMessage( @Nonnull final Serializable id,
+  public EntityMessage( final int id,
                         final int typeId,
                         final long timestamp,
                         @Nonnull final Map<String, Serializable> routingKeys,
@@ -44,8 +44,7 @@ public final class EntityMessage
     return _typeId;
   }
 
-  @Nonnull
-  public Serializable getId()
+  public final int getId()
   {
     return _id;
   }
