@@ -98,6 +98,7 @@ define 'replicant' do
     jacoco.enabled = false
   end
 
+  ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development')
   ipr.add_component_from_artifact(:idea_codestyle)
 
   ipr.add_component('JavacSettings') do |xml|
