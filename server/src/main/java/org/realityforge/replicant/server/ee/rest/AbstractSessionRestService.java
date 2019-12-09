@@ -87,7 +87,7 @@ public abstract class AbstractSessionRestService
     return doGetSession( sessionId, uri );
   }
 
-  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT )
+  @Path( "{sessionId}/channel" )
   @GET
   public Response getChannels( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                @Context @Nonnull final UriInfo uri )
@@ -95,7 +95,7 @@ public abstract class AbstractSessionRestService
     return doGetChannels( sessionId, uri );
   }
 
-  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}" )
+  @Path( "{sessionId}/channel/{channelId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
@@ -112,7 +112,7 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}" + SharedConstants.CHANNEL_URL_FRAGMENT + "/{channelId:\\d+}.{subChannelId:\\d+}" )
+  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
