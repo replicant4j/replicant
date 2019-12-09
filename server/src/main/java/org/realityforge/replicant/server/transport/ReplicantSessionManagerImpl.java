@@ -46,23 +46,23 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   @Override
-  public boolean invalidateSession( @Nonnull final String sessionID )
+  public boolean invalidateSession( @Nonnull final String sessionId )
   {
-    return null != removeSession( sessionID );
+    return null != removeSession( sessionId );
   }
 
   /**
    * Remove session with specified id.
    *
-   * @param sessionID the session id.
+   * @param sessionId the session id.
    * @return the session removed if any.
    */
-  protected ReplicantSession removeSession( final String sessionID )
+  protected ReplicantSession removeSession( final String sessionId )
   {
     _lock.writeLock().lock();
     try
     {
-      return _sessions.remove( sessionID );
+      return _sessions.remove( sessionId );
     }
     finally
     {
@@ -72,13 +72,13 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   @Nullable
-  public ReplicantSession getSession( @Nonnull final String sessionID )
+  public ReplicantSession getSession( @Nonnull final String sessionId )
   {
     _lock.readLock().lock();
     final ReplicantSession sessionInfo;
     try
     {
-      sessionInfo = _sessions.get( sessionID );
+      sessionInfo = _sessions.get( sessionId );
     }
     finally
     {
@@ -267,18 +267,18 @@ public abstract class ReplicantSessionManagerImpl
    * @throws RuntimeException if no such session is available.
    */
   @Nonnull
-  protected ReplicantSession ensureSession( @Nonnull final String sessionID )
+  protected ReplicantSession ensureSession( @Nonnull final String sessionId )
   {
-    final ReplicantSession session = getSession( sessionID );
+    final ReplicantSession session = getSession( sessionId );
     if ( null == session )
     {
-      throw newBadSessionException( sessionID );
+      throw newBadSessionException( sessionId );
     }
     return session;
   }
 
   @Nonnull
-  protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
+  protected abstract RuntimeException newBadSessionException( @Nonnull String sessionId );
 
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,
@@ -366,14 +366,14 @@ public abstract class ReplicantSessionManagerImpl
    * @return The cache status of data returned as part of subscribe.
    */
   @Nonnull
-  protected CacheStatus subscribe( @Nonnull final String sessionID,
+  protected CacheStatus subscribe( @Nonnull final String sessionId,
                                    @Nonnull final ChannelAddress descriptor,
                                    @Nullable final Object filter,
                                    @Nullable final String cacheKey,
                                    @Nonnull final ChangeSet changeSet )
   {
-    setupRegistryContext( sessionID );
-    final ReplicantSession session = ensureSession( sessionID );
+    setupRegistryContext( sessionId );
+    final ReplicantSession session = ensureSession( sessionId );
     session.setETag( descriptor, cacheKey );
     final CacheStatus status = subscribe( session, descriptor, true, filter, changeSet );
     if ( status != CacheStatus.USE )
@@ -384,47 +384,47 @@ public abstract class ReplicantSessionManagerImpl
     return status;
   }
 
-  protected void bulkSubscribe( @Nonnull final String sessionID,
+  protected void bulkSubscribe( @Nonnull final String sessionId,
                                 final int channelId,
                                 @Nonnull final Collection<Integer> subChannelIds,
                                 @Nullable final Object filter,
                                 final boolean explicitSubscribe,
                                 @Nonnull final ChangeSet changeSet )
   {
-    setupRegistryContext( sessionID );
-    final ReplicantSession session = ensureSession( sessionID );
+    setupRegistryContext( sessionId );
+    final ReplicantSession session = ensureSession( sessionId );
     bulkSubscribe( session, channelId, subChannelIds, filter, explicitSubscribe, changeSet );
   }
 
-  protected void updateSubscription( @Nonnull final String sessionID,
+  protected void updateSubscription( @Nonnull final String sessionId,
                                      @Nonnull final ChannelAddress descriptor,
                                      @Nullable final Object filter,
                                      @Nonnull final ChangeSet changeSet )
   {
-    setupRegistryContext( sessionID );
-    final ReplicantSession session = ensureSession( sessionID );
+    setupRegistryContext( sessionId );
+    final ReplicantSession session = ensureSession( sessionId );
     updateSubscription( session, descriptor, filter, changeSet );
     expandLinks( session, changeSet );
   }
 
-  protected void bulkUpdateSubscription( @Nonnull final String sessionID,
+  protected void bulkUpdateSubscription( @Nonnull final String sessionId,
                                          final int channelId,
                                          @Nonnull final Collection<Integer> subChannelIds,
                                          @Nullable final Object filter,
                                          @Nonnull final ChangeSet changeSet )
   {
-    setupRegistryContext( sessionID );
-    final ReplicantSession session = ensureSession( sessionID );
+    setupRegistryContext( sessionId );
+    final ReplicantSession session = ensureSession( sessionId );
     bulkUpdateSubscription( session, channelId, subChannelIds, filter, changeSet );
     expandLinks( session, changeSet );
   }
 
-  protected void unsubscribe( @Nonnull final String sessionID,
+  protected void unsubscribe( @Nonnull final String sessionId,
                               @Nonnull final ChannelAddress descriptor,
                               @Nonnull final ChangeSet changeSet )
   {
-    setupRegistryContext( sessionID );
-    unsubscribe( ensureSession( sessionID ), descriptor, true, changeSet );
+    setupRegistryContext( sessionId );
+    unsubscribe( ensureSession( sessionId ), descriptor, true, changeSet );
   }
 
   @Override
@@ -800,14 +800,14 @@ public abstract class ReplicantSessionManagerImpl
                                                                    @Nullable Object originalFilter,
                                                                    @Nullable Object filter );
 
-  protected void bulkUnsubscribe( @Nonnull final String sessionID,
+  protected void bulkUnsubscribe( @Nonnull final String sessionId,
                                   final int channelId,
                                   @Nonnull final Collection<Integer> subChannelIds,
                                   final boolean explicitUnsubscribe,
                                   @Nonnull final ChangeSet changeSet )
   {
-    setupRegistryContext( sessionID );
-    bulkUnsubscribe( ensureSession( sessionID ), channelId, subChannelIds, explicitUnsubscribe, changeSet );
+    setupRegistryContext( sessionId );
+    bulkUnsubscribe( ensureSession( sessionId ), channelId, subChannelIds, explicitUnsubscribe, changeSet );
   }
 
   @Override
@@ -981,9 +981,9 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelAddress target );
 
-  private void setupRegistryContext( @Nonnull final String sessionID )
+  private void setupRegistryContext( @Nonnull final String sessionId )
   {
-    //Force the sessionID to the desired session in case call has not been set up by boundary
-    getRegistry().putResource( ServerConstants.SESSION_ID_KEY, sessionID );
+    //Force the sessionId to the desired session in case call has not been set up by boundary
+    getRegistry().putResource( ServerConstants.SESSION_ID_KEY, sessionId );
   }
 }
