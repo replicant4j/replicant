@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
 
 public interface ReplicantSessionManager
@@ -62,13 +61,12 @@ public interface ReplicantSessionManager
   Set<String> getSessionIDs();
 
   /**
-   * Invalidate session with specified session ID.
-   * Ignore if no session with specified id.
+   * Invalidate specified session.
    *
-   * @param sessionId the session id.
+   * @param session the session.
    * @return true if a session was invalidated, false otherwise.
    */
-  boolean invalidateSession( @Nonnull String sessionId );
+  boolean invalidateSession( @Nonnull ReplicantSession session );
 
   /**
    * Create session for specified username.
@@ -85,39 +83,14 @@ public interface ReplicantSessionManager
   @Nonnull
   SystemMetaData getSystemMetaData();
 
-  @Nonnull
-  CacheStatus subscribe( @Nonnull ReplicantSession session,
-                         @Nonnull ChannelAddress address,
-                         boolean explicitlySubscribe,
-                         @Nullable Object filter,
-                         @Nonnull ChangeSet changeSet );
+  void subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
                       @Nonnull Collection<Integer> subChannelIds,
-                      @Nullable Object filter,
-                      boolean explicitSubscribe,
-                      @Nonnull ChangeSet changeSet );
+                      @Nullable Object filter );
 
-  void delinkSubscription( @Nonnull ReplicantSession session,
-                           @Nonnull ChannelAddress sourceGraph,
-                           @Nonnull ChannelAddress targetGraph,
-                           @Nonnull ChangeSet changeSet );
+  void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address );
 
-  void bulkDelinkSubscription( @Nonnull ReplicantSession session,
-                               @Nonnull ChannelAddress sourceGraph,
-                               int channelId,
-                               @Nonnull Collection<Integer> subChannelIds,
-                               @Nonnull ChangeSet changeSet );
-
-  void unsubscribe( @Nonnull ReplicantSession session,
-                    @Nonnull ChannelAddress address,
-                    boolean explicitUnsubscribe,
-                    @Nonnull ChangeSet changeSet );
-
-  void bulkUnsubscribe( @Nonnull ReplicantSession session,
-                        int channelId,
-                        @Nonnull Collection<Integer> subChannelIds,
-                        boolean explicitUnsubscribe,
-                        @Nonnull ChangeSet changeSet );
+  void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> subChannelIds );
 }
