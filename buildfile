@@ -28,13 +28,13 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
-    package(:jar).include("#{_(:source, :main, :java)}/*")
+    compile.with :javax_annotation
+
+    package(:jar).tap do |j|
+      j.include("#{project._(:source, :main, :java)}/*")
+    end
     package(:sources)
     package(:javadoc)
-
-    iml.add_gwt_facet({'org.realityforge.replicant.ReplicantShared' => false},
-                      :settings => {:compilerMaxHeapSize => '1024'},
-                      :gwt_dev_artifact => :gwt_dev)
   end
 
   define 'server' do
