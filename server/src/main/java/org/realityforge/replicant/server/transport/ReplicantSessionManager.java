@@ -9,31 +9,6 @@ import org.realityforge.replicant.server.ChannelAddress;
 public interface ReplicantSessionManager
 {
   /**
-   * Status returned when attempting to subscribe.
-   */
-  enum CacheStatus
-  {
-    /**
-     * The client supplied cacheKey is still valid and cached data should be reused.
-     */
-    USE,
-    /**
-     * The client did not supply cacheKey or it is out of date. Client cache should be refreshed from supplied data.
-     */
-    REFRESH,
-    /**
-     * The client did not supply cacheKey or it is out of date and the response is not cacheable. This may occur
-     * if multiple subscriptions occur in a single subscribe call or attempting to subscribe to channels that are
-     * already on the client.
-     *
-     * One day this may not be needed if the client can generate the cache from the in-memory representation rather
-     * than the representation as it passes over the network.
-     * TODO: Fix this.
-     */
-    IGNORE
-  }
-
-  /**
    * Return the session for specified ID.
    * Session ID's are effectively opaque.
    *
