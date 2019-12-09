@@ -92,6 +92,7 @@ public final class ReplicantSession
     return _queue;
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   public Map<ChannelAddress, String> getETags()
   {
