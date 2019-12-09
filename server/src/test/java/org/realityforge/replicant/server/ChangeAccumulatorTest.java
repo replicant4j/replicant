@@ -122,7 +122,7 @@ public class ChangeAccumulatorTest
   }
 
   @Test
-  public void basicOperation_whereSessionIDDifferent()
+  public void basicOperation_whereSessionDifferent()
     throws IOException
   {
     final Session webSocketSession = createSession();
