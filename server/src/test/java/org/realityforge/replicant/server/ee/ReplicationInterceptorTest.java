@@ -315,7 +315,6 @@ public class ReplicationInterceptorTest
 
   private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry,
                                                         final EntityManager entityManager )
-    throws Exception
   {
     return createInterceptor( registry, entityManager, true );
   }
