@@ -131,7 +131,7 @@ public abstract class ReplicantSessionManagerImpl
    * @return an unmodifiable map containing the set of sessions.
    */
   @Nonnull
-  protected Map<String, ReplicantSession> getSessions()
+  Map<String, ReplicantSession> getSessions()
   {
     return _roSessions;
   }
@@ -140,7 +140,7 @@ public abstract class ReplicantSessionManagerImpl
    * @return the lock used to guard access to sessions map.
    */
   @Nonnull
-  protected ReadWriteLock getLock()
+  ReadWriteLock getLock()
   {
     return _lock;
   }
@@ -222,11 +222,10 @@ public abstract class ReplicantSessionManagerImpl
    * @param session   the session.
    * @param etag      the etag for message if any.
    * @param changeSet the messages to be sent along to the client.
-   * @return the packet created.
    */
-  protected Packet sendPacket( @Nonnull final ReplicantSession session,
-                               @Nullable final String etag,
-                               @Nonnull final ChangeSet changeSet )
+  void sendPacket( @Nonnull final ReplicantSession session,
+                   @Nullable final String etag,
+                   @Nonnull final ChangeSet changeSet )
   {
     final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
     getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
@@ -288,6 +287,7 @@ public abstract class ReplicantSessionManagerImpl
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
+    final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
     final ChangeAccumulator accumulator = new ChangeAccumulator();
     try
     {
@@ -301,7 +301,6 @@ public abstract class ReplicantSessionManagerImpl
       {
         processUpdateMessages( message, sessions, accumulator );
       }
-      final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
       if ( null != initiatorSession && null != sessionChanges )
       {
         accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
@@ -317,7 +316,7 @@ public abstract class ReplicantSessionManagerImpl
       getLock().readLock().unlock();
     }
 
-    return accumulator.complete( sessionId, requestId );
+    return accumulator.complete( initiatorSession, requestId );
   }
 
   protected abstract void processUpdateMessages( @Nonnull EntityMessage message,
@@ -433,7 +432,7 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert ChannelMetaData.FilterType.DYNAMIC == getSystemMetaData().getChannelMetaData( address ).getFilterType();
+    assert getSystemMetaData().getChannelMetaData( address ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
     final SubscriptionEntry entry = session.getSubscriptionEntry( address );
     final Object originalFilter = entry.getFilter();
@@ -566,6 +565,26 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @Nullable
+  private Throwable subscribeToAddresses( @Nonnull final ReplicantSession session,
+                                          @Nonnull final ArrayList<ChannelAddress> addresses,
+                                          @Nullable final Object filter )
+  {
+    Throwable t = null;
+    for ( final ChannelAddress address : addresses )
+    {
+      try
+      {
+        subscribe( session, address, filter );
+      }
+      catch ( final Throwable e )
+      {
+        t = e;
+      }
+    }
+    return t;
+  }
+
   @Nonnull
   @Override
   public CacheStatus subscribe( @Nonnull final ReplicantSession session,
@@ -652,6 +671,7 @@ public abstract class ReplicantSessionManagerImpl
     return CacheStatus.REFRESH;
   }
 
+  @SuppressWarnings( "WeakerAccess" )
   protected boolean deleteCacheEntry( @Nonnull final ChannelAddress address )
   {
     _cacheLock.writeLock().lock();
@@ -829,12 +849,14 @@ public abstract class ReplicantSessionManagerImpl
                                final boolean explicitUnsubscribe,
                                @Nonnull final ChangeSet changeSet )
   {
+    final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
     for ( final Integer subChannelId : subChannelIds )
     {
       unsubscribe( session, new ChannelAddress( channelId, subChannelId ), explicitUnsubscribe, changeSet );
     }
   }
 
+  @SuppressWarnings( { "SameParameterValue", "WeakerAccess" } )
   protected void performUnsubscribe( @Nonnull final ReplicantSession session,
                                      @Nonnull final SubscriptionEntry entry,
                                      final boolean explicitUnsubscribe,
@@ -868,6 +890,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @SuppressWarnings( "unused" )
   protected void delinkDownstreamSubscriptions( @Nonnull final ReplicantSession session,
                                                 @Nonnull final SubscriptionEntry entry,
                                                 @Nonnull final EntityMessage message,
@@ -887,8 +910,8 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */
-  protected void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                          @Nonnull final SubscriptionEntry targetEntry )
+  void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.registerOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.registerInwardSubscriptions( sourceEntry.getDescriptor() );
@@ -897,15 +920,15 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
    */
-  protected void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                            @Nonnull final SubscriptionEntry targetEntry )
+  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                  @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.deregisterOutwardSubscriptions( targetEntry.getDescriptor() );
     targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
   }
 
   @SuppressWarnings( { "PMD.WhileLoopsMustUseBraces", "StatementWithEmptyBody" } )
-  protected void expandLinks( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  void expandLinks( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
     while ( expandLink( session, changeSet ) )
     {
@@ -918,7 +941,7 @@ public abstract class ReplicantSessionManagerImpl
    * subscribed. The expand involves subscribing to the target graph. As soon as one is expanded
    * terminate search and return true, otherwise return false.
    */
-  protected boolean expandLink( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  boolean expandLink( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
     for ( final Change change : changeSet.getChanges() )
     {
@@ -960,9 +983,8 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelAddress target = link.getTargetChannel();
-      final boolean targetUnfiltered =
-        getSystemMetaData().getChannelMetaData( target ).getFilterType() == ChannelMetaData.FilterType.NONE;
-      if ( targetUnfiltered || shouldFollowLink( sourceEntry, target ) )
+      final boolean linkingConditional = !getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
+      if ( linkingConditional || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
