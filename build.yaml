@@ -27,7 +27,7 @@ artifacts:
 
   glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:4.1.1.164
 
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.67
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.102
 
   testng: org.testng:testng:jar:6.11
 
