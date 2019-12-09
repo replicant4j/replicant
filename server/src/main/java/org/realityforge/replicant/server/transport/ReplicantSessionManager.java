@@ -47,11 +47,11 @@ public interface ReplicantSessionManager
    * Return the session for specified ID.
    * Session ID's are effectively opaque.
    *
-   * @param sessionID the session id.
+   * @param sessionId the session id.
    * @return the associated session or null if no such session.
    */
   @Nullable
-  ReplicantSession getSession( @Nonnull String sessionID );
+  ReplicantSession getSession( @Nonnull String sessionId );
 
   /**
    * Return the st of valid session ids.
@@ -65,10 +65,10 @@ public interface ReplicantSessionManager
    * Invalidate session with specified session ID.
    * Ignore if no session with specified id.
    *
-   * @param sessionID the session id.
+   * @param sessionId the session id.
    * @return true if a session was invalidated, false otherwise.
    */
-  boolean invalidateSession( @Nonnull String sessionID );
+  boolean invalidateSession( @Nonnull String sessionId );
 
   /**
    * Create session for specified username.
