@@ -43,7 +43,9 @@ define 'replicant' do
         project('shared').package(:jar) != dep[:artifact]
     end
 
-    compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar)
+    compile.with PROVIDED_DEPS,
+                 KEYCLOAK_DEPS,
+                 project('shared').package(:jar)
 
     package(:jar).enhance do |jar|
       jar.merge(project('shared').package(:jar))
