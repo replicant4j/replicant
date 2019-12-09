@@ -77,7 +77,7 @@ public final class JsonEncoderTest
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
     assertEquals( object.getInt( TransportConstants.ENTITY_ID ), id );
-    assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
+    assertEquals( object.getInt( TransportConstants.TYPE ), typeID );
 
     final JsonObject data = object.getJsonObject( TransportConstants.DATA );
     assertNotNull( data );
@@ -125,7 +125,7 @@ public final class JsonEncoderTest
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
     assertEquals( object.getInt( TransportConstants.ENTITY_ID ), id );
-    assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
+    assertEquals( object.getInt( TransportConstants.TYPE ), typeID );
 
     assertFalse( object.containsKey( TransportConstants.DATA ) );
   }

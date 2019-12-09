@@ -5,12 +5,12 @@ package org.realityforge.replicant.server.json;
  */
 public interface TransportConstants
 {
+  String TYPE = "type";
   String LAST_CHANGE_SET_ID = "last_id";
   String REQUEST_ID = "request_id";
   String ETAG = "etag";
   String CHANGES = "changes";
   String ENTITY_ID = "id";
-  String TYPE_ID = "type";
   String DATA = "data";
   String CHANNEL_ACTIONS = "channel_actions";
   String ACTION = "action";
