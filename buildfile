@@ -59,10 +59,10 @@ define 'replicant' do
   end
 
   define 'client' do
-    compile.with GWT_DEPS,
-                 :javax_annotation,
+    compile.with project('shared').package(:jar),
+                 project('shared').compile.dependencies,
+                 GWT_DEPS,
                  :gwt_webpoller,
-                 project('shared').package(:jar),
                  :mockito,
                  :guiceyloops
 
