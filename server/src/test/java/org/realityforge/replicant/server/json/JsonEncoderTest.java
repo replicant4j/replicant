@@ -70,7 +70,7 @@ public final class JsonEncoderTest
 
     final JsonObject action = changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getJsonObject( 0 );
     assertEquals( action.getInt( TransportConstants.CHANNEL_ID ), 45 );
-    assertEquals( action.getInt( TransportConstants.SUBCHANNEL_ID ), 42 );
+    assertEquals( action.getInt( TransportConstants.SUBCHANNEL_ID ), 77 );
     assertEquals( action.getString( TransportConstants.ACTION ), "update" );
     assertEquals( action.getJsonObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
 
