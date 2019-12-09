@@ -71,9 +71,9 @@ public final class MessageTestUtil
     return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues, links );
   }
 
-  public static void assertAttributeValue( final EntityMessage message,
-                                           final String key,
-                                           final String value )
+  static void assertAttributeValue( final EntityMessage message,
+                                    final String key,
+                                    final String value )
   {
     final Map<String, Serializable> values = message.getAttributeValues();
     assertNotNull( values );
