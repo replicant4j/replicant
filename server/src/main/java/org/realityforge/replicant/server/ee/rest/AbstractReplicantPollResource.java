@@ -22,7 +22,6 @@ import javax.ws.rs.container.ConnectionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.realityforge.replicant.shared.SharedConstants;
-import org.realityforge.replicant.shared.ee.rest.CacheUtil;
 
 /**
  * Jax-RS resource that responds to poll requests for replicant data stream.
