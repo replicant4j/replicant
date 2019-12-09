@@ -1,6 +1,5 @@
 package org.realityforge.replicant.server.transport;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -88,7 +87,7 @@ public interface ReplicantSessionManager
 
   @Nonnull
   CacheStatus subscribe( @Nonnull ReplicantSession session,
-                         @Nonnull ChannelAddress descriptor,
+                         @Nonnull ChannelAddress address,
                          boolean explicitlySubscribe,
                          @Nullable Object filter,
                          @Nonnull ChangeSet changeSet );
@@ -112,7 +111,7 @@ public interface ReplicantSessionManager
                                @Nonnull ChangeSet changeSet );
 
   void updateSubscription( @Nonnull ReplicantSession session,
-                           @Nonnull ChannelAddress descriptor,
+                           @Nonnull ChannelAddress address,
                            @Nullable Object filter,
                            @Nonnull ChangeSet changeSet );
 
@@ -123,7 +122,7 @@ public interface ReplicantSessionManager
                                @Nonnull ChangeSet changeSet );
 
   void unsubscribe( @Nonnull ReplicantSession session,
-                    @Nonnull ChannelAddress descriptor,
+                    @Nonnull ChannelAddress address,
                     boolean explicitUnsubscribe,
                     @Nonnull ChangeSet changeSet );
 
