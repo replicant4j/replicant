@@ -4,6 +4,7 @@
 
 * Rename `RequestID` to `RequestId` to align with replicant version 6.
 * Update the type of `RequestId` to `integer` to align with replicant version 6.
+* Remove `Change.getDesignatorAsString()` as it is no longer possible to have a non-integer designator.
 
 ### [v5.104](https://github.com/replicant4j/replicant/tree/v5.104) (2019-12-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.103...v5.104)
 
