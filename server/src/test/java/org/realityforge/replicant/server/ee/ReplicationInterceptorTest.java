@@ -13,6 +13,8 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.server.ServerConstants;
+import org.realityforge.replicant.server.transport.ReplicantSession;
+import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -32,12 +34,11 @@ public class ReplicationInterceptorTest
   {
     final TestInvocationContext context = new TestInvocationContext();
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
 
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
-    verify( em ).flush();
+    verify( interceptor.getEntityManager() ).flush();
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -50,12 +51,11 @@ public class ReplicationInterceptorTest
   {
     final TestInvocationContext context = new TestInvocationContext();
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
 
-    when( em.isOpen() ).thenReturn( false );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( false );
     final Object result = interceptor.businessIntercept( context );
-    verify( em, never() ).flush();
+    verify( interceptor.getEntityManager(), never() ).flush();
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -69,19 +69,18 @@ public class ReplicationInterceptorTest
   {
     final TestInvocationContext context = new TestInvocationContext();
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
     final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
 
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     final String sessionId = "s1";
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
     final Object result = interceptor.businessIntercept( context );
-    verify( em ).flush();
+    verify( interceptor.getEntityManager() ).flush();
 
     // Make sure clear is called
     assertNull( ReplicantContextHolder.get( ServerConstants.SESSION_ID_KEY ) );
@@ -102,16 +101,14 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestInvocationContext context = new TestInvocationContext();
     context.setRunnable( () -> registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE ) );
-    final EntityManager entityManager = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor =
-      createInterceptor( registry, entityManager );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
 
     final String sessionId = "s1";
 
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
 
-    when( entityManager.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
 
     interceptor.businessIntercept( context );
 
@@ -125,19 +122,18 @@ public class ReplicationInterceptorTest
   {
     final TestInvocationContext context = new TestInvocationContext();
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
     final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getSessionChanges( registry ).merge( new Change( message, 44, 77 ) );
     disableReplicationContext( registry );
 
     final String sessionId = "s1";
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
     final Object result = interceptor.businessIntercept( context );
-    verify( em ).flush();
+    verify( interceptor.getEntityManager() ).flush();
 
     // Make sure clear is called
     assertNull( ReplicantContextHolder.get( ServerConstants.SESSION_ID_KEY ) );
@@ -161,14 +157,13 @@ public class ReplicationInterceptorTest
   {
     final TestInvocationContext context = new TestInvocationContext();
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em, false );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry, false );
     final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
 
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
 
     interceptor.businessIntercept( context );
 
@@ -180,8 +175,7 @@ public class ReplicationInterceptorTest
   public void ensureNestedInvocationsShouldExcept()
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
     final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
@@ -193,15 +187,14 @@ public class ReplicationInterceptorTest
         throws Exception
       {
         final TestInvocationContext innerContext = new TestInvocationContext();
-        final EntityManager em = mock( EntityManager.class );
-        final TestReplicationInterceptor innerInterceptor = createInterceptor( registry, em );
-        when( em.isOpen() ).thenReturn( true );
+        final TestReplicationInterceptor innerInterceptor = createInterceptor( registry );
+        when( innerInterceptor.getEntityManager().isOpen() ).thenReturn( true );
         innerInterceptor.businessIntercept( innerContext );
         return super.proceed();
       }
     };
 
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
     try
@@ -229,8 +222,7 @@ public class ReplicationInterceptorTest
       }
     };
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
     final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
@@ -238,7 +230,7 @@ public class ReplicationInterceptorTest
 
     try
     {
-      when( em.isOpen() ).thenReturn( true );
+      when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
       interceptor.businessIntercept( context );
       fail( "Expected proceed to result in exception" );
     }
@@ -269,14 +261,13 @@ public class ReplicationInterceptorTest
         return super.proceed();
       }
     };
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
     final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
 
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
 
     assertTrue( context.isInvoked() );
@@ -293,17 +284,16 @@ public class ReplicationInterceptorTest
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestInvocationContext context = new TestInvocationContext();
-    final EntityManager em = mock( EntityManager.class );
-    final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
+    final TestReplicationInterceptor interceptor = createInterceptor( registry );
 
     //Create registry but no changes
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry );
     disableReplicationContext( registry );
 
-    when( em.isOpen() ).thenReturn( true );
+    when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     final Object result = interceptor.businessIntercept( context );
-    verify( em ).flush();
+    verify( interceptor.getEntityManager() ).flush();
 
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionId );
@@ -313,17 +303,15 @@ public class ReplicationInterceptorTest
     assertEquals( result, TestInvocationContext.RESULT );
   }
 
-  private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry,
-                                                        final EntityManager entityManager )
+  private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry )
   {
-    return createInterceptor( registry, entityManager, true );
+    return createInterceptor( registry, true );
   }
 
   private TestReplicationInterceptor createInterceptor( final TransactionSynchronizationRegistry registry,
-                                                        final EntityManager entityManager,
                                                         final boolean routeToSession )
   {
-    return new TestReplicationInterceptor( entityManager, registry, routeToSession );
+    return new TestReplicationInterceptor( registry, routeToSession );
   }
 
   private void enableReplicationContext( final TestTransactionSynchronizationRegistry registry )
@@ -342,19 +330,19 @@ public class ReplicationInterceptorTest
   {
     @Nonnull
     private final EntityManager _entityManager;
+    @Nonnull
+    private final TransactionSynchronizationRegistry _registry;
+    private String _sessionId;
     private Integer _requestId;
     private Collection<EntityMessage> _messages;
-    private final TransactionSynchronizationRegistry _registry;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
-    private String _sessionId;
 
-    private TestReplicationInterceptor( final EntityManager entityManager,
-                                        final TransactionSynchronizationRegistry registry,
+    private TestReplicationInterceptor( @Nonnull final TransactionSynchronizationRegistry registry,
                                         final boolean routeToSession )
     {
-      _entityManager = entityManager;
-      _registry = registry;
+      _entityManager = mock( EntityManager.class );
+      _registry = Objects.requireNonNull( registry );
       _routeToSession = routeToSession;
     }
 
