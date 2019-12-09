@@ -1323,7 +1323,7 @@ public class ReplicantSessionManagerImplTest
       assertEquals( channelActions.size(), 1 );
       final ChannelAction action = channelActions.get( 0 );
       assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
-      assertEquals( action.getChannelAddress(), cd2 );
+      assertEquals( action.getAddress(), cd2 );
       assertNull( action.getFilter() );
     }
   }
@@ -1682,12 +1682,12 @@ public class ReplicantSessionManagerImplTest
   }
 
   private void assertChannelAction( @Nonnull final ChannelAction channelAction,
-                                    @Nonnull final ChannelAddress channelAddress,
+                                    @Nonnull final ChannelAddress address,
                                     @Nonnull final ChannelAction.Action action,
                                     @Nullable final String filterAsString )
   {
     assertEquals( channelAction.getAction(), action );
-    assertEquals( channelAction.getChannelAddress(), channelAddress );
+    assertEquals( channelAction.getAddress(), address );
     if ( null == filterAsString )
     {
       assertNull( channelAction.getFilter() );

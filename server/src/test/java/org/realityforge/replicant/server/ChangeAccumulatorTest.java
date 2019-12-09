@@ -101,7 +101,7 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     final ChannelAction action = packet.getChangeSet().getChannelActions().iterator().next();
-    assertEquals( action.getChannelAddress().getChannelId(), 1 );
+    assertEquals( action.getAddress().getChannelId(), 1 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
     assertEquals( packet.getRequestId(), requestId );
