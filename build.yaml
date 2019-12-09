@@ -42,4 +42,6 @@ artifacts:
 
   simple_keycloak_service: org.realityforge.keycloak.sks:simple-keycloak-service:jar:0.1
 
+  graphql_java: com.graphql-java:graphql-java:jar:13.0
+
   gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.9.1
