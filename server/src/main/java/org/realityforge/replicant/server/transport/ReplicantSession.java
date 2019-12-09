@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
 
 public final class ReplicantSession
@@ -69,6 +70,20 @@ public final class ReplicantSession
   public void updateAccessTime()
   {
     _lastAccessedAt = System.currentTimeMillis();
+  }
+
+  /**
+   * Add packet to queue and potentially send packet to client if client has acked last message.
+   *
+   * @param requestId the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
+   * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
+   * @param changeSet the changeSet to create packet from.
+   */
+  public void sendPacket( @Nullable final Integer requestId,
+                          @Nullable final String etag,
+                          @Nonnull final ChangeSet changeSet )
+  {
+    getQueue().addPacket( requestId, etag, changeSet );
   }
 
   @Nonnull
