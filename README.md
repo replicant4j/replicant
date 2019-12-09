@@ -1,8 +1,8 @@
 # Replicant
 
-[![Build Status](https://secure.travis-ci.org/realityforge/replicant.png?branch=master)](http://travis-ci.org/realityforge/replicant)
-[<img src="https://img.shields.io/maven-central/v/org.realityforge.replicant/replicant.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.replicant%22%20a%3A%22replicant%22)
-[![codecov](https://codecov.io/gh/realityforge/replicant/branch/master/graph/badge.svg)](https://codecov.io/gh/realityforge/replicant)
+[![Build Status](https://secure.travis-ci.org/replicant4j/replicant.svg?branch=master)](http://travis-ci.org/replicant4j/replicant)
+[<img src="https://img.shields.io/maven-central/v/org.realityforge.replicant/replicant-client.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.replicant%22%20a%3A%22replicant-client%22)
+[![codecov](https://codecov.io/gh/replicant4j/replicant/branch/master/graph/badge.svg)](https://codecov.io/gh/replicant4j/replicant)
 
 The replicant library aims to provide infrastructure for replicating a portion of a complex server-side
 domain model to zero or more clients who have subscribed to the replication engine. When changes are
@@ -163,57 +163,6 @@ other calls that result in mass change may result in _bulk load_ change sets.
 ## Client-Side Developer Components
 
 There are several replicant components that developers directly interact with in client-side code.
-
-### EntityRepository
-
-The EntityRepository is the mechanism via which references to the client-side replica are obtained.
-At the current time, there is only one implementation of this service and it stores all replica's
-in memory.
-
-Typically it is used to access the root of an object graph, and then the code will traverse the
- relationships from the replica. i.e.
-
-```java
-EntityRepository repository = ...;
-
-// Retrieve all the people in the repository
-List<Person> people = repository.findAll( Person.class );
-
-// Sample code to retrieve all the phone numbers
-ArrayList<String> phoneNumbers = new ArrayList<String>();
-for ( Person p : people )
-{
-  phoneNumbers.add( p.getContactDetails().getPhoneNumber() );
-}
-```
-
-### EntityChangeBroker
-
-The `EntityChangeBroker` is the class responsible for registering and un-registering listeners who want to
-receive notification of replica changes. The listener implements the interface `EntityChangeListener`
-and registers to receive notifications via `EntityChangeBroker`. ie.
-
-```java
-EntityChangeBroker broker = ...;
-
-// Receive notification of any change to any replica in the system
-broker.addChangeListener( new EntityChangeListener() {...} );
-
-// Receive notification of any change to any replica of type Person in the system
-broker.addChangeListener( Person.class, new EntityChangeListener() {...} );
-
-Person person ...;
-// Receive notification of any change to the specified person in the system
-broker.addChangeListener( person, new EntityChangeListener() {...} );
-```
-
-The notifications occur in the following scenarios:
-
-* a replica is added.
-* a replica is removed.
-* an attribute on a replica is updated.
-* a reference is added from one replica to another replica.
-* a reference is removed between one replica and another replica.
 
 ### EntitySubscriptionManager
 
