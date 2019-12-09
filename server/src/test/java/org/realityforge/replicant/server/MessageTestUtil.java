@@ -28,7 +28,7 @@ public final class MessageTestUtil
     return createMessage( id, typeID, timestamp, null, r1, r2, a1, a2 );
   }
 
-  public static EntityMessage createMessage( final int id,
+  static EntityMessage createMessage( final int id,
                                              final int typeID,
                                              final long timestamp,
                                              @Nullable final ChannelLink link,
@@ -47,8 +47,7 @@ public final class MessageTestUtil
       routingKeys.put( ROUTING_KEY2, r2 );
     }
 
-    final HashMap<String, Serializable> attributeValues =
-      ( null == a1 && null == a2 ) ? null : new HashMap<>();
+    final HashMap<String, Serializable> attributeValues = ( null == a1 && null == a2 ) ? null : new HashMap<>();
     if ( null != a1 )
     {
       attributeValues.put( ATTR_KEY1, a1 );
