@@ -107,7 +107,7 @@ public final class JsoChange
 
   @Override
   public final native Integer getSubChannelId( final int index ) /*-{
-    if (this.channels && index < this.channels.length) {
+    if (this.channels && index < this.channels.length && this.channels[index].scid) {
       return new @java.lang.Integer::new(I)(this.channels[index].scid);
     }
     return null;
