@@ -433,7 +433,7 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert getSystemMetaData().getChannelMetaData( address ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
+    assert ChannelMetaData.FilterType.DYNAMIC == getSystemMetaData().getChannelMetaData( address ).getFilterType();
 
     final SubscriptionEntry entry = session.getSubscriptionEntry( address );
     final Object originalFilter = entry.getFilter();
@@ -451,7 +451,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nonnull final ChangeSet changeSet )
   {
     final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( channelId );
-    assert channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
+    assert ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType();
 
     final ArrayList<ChannelAddress> channelsToUpdate = new ArrayList<>();
 
@@ -582,11 +582,11 @@ public abstract class ReplicantSessionManagerImpl
         entry.setExplicitlySubscribed( true );
       }
       final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
-      if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.DYNAMIC )
+      if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() )
       {
         updateSubscription( session, address, filter, changeSet );
       }
-      else if ( channelMetaData.getFilterType() == ChannelMetaData.FilterType.STATIC )
+      else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
         final Object existingFilter = entry.getFilter();
         if ( !doFiltersMatch( filter, existingFilter ) )
