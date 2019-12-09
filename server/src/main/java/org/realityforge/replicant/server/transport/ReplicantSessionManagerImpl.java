@@ -154,6 +154,15 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   /**
+   * Remove any sessions that have been idle for 5 minutes.
+   */
+  @SuppressWarnings( "unused" )
+  public void removeIdleSessions()
+  {
+    removeIdleSessions( 1000 * 60 * 5 );
+  }
+
+  /**
    * Remove sessions that have not been accessed for the specified idle time.
    *
    * @param maxIdleTime the max idle time for a session.
