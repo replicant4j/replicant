@@ -36,15 +36,15 @@ public class SharedConstantsHolderTest
 
     ReplicantContextHolder.remove( key );
     assertNull( ReplicantContextHolder.get( key ) );
-    assertFalse( ReplicantContextHolder.contains( key ) );
+    assertFalse( null != ReplicantContextHolder.get( key ) );
 
     ReplicantContextHolder.put( key, value );
     assertNotNull( ReplicantContextHolder.get( key ) );
-    assertTrue( ReplicantContextHolder.contains( key ) );
+    assertTrue( null != ReplicantContextHolder.get( key ) );
 
     ReplicantContextHolder.clean();
 
     assertNull( ReplicantContextHolder.get( key ) );
-    assertFalse( ReplicantContextHolder.contains( key ) );
+    assertFalse( null != ReplicantContextHolder.get( key ) );
   }
 }

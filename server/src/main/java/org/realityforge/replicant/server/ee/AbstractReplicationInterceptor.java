@@ -20,6 +20,7 @@ public abstract class AbstractReplicationInterceptor
     return invokeAction( getInvocationKey( context ), context::proceed );
   }
 
+  @Nonnull
   private String getInvocationKey( @Nonnull final InvocationContext context )
   {
     final Method method = context.getMethod();
@@ -27,7 +28,7 @@ public abstract class AbstractReplicationInterceptor
     {
       return method.getDeclaringClass().getName() + "." + method.getName();
     }
-    final Constructor constructor = context.getConstructor();
+    final Constructor<?> constructor = context.getConstructor();
     if ( null != constructor )
     {
       return constructor.getDeclaringClass().getName() + "." + constructor.getName();
