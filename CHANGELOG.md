@@ -8,6 +8,7 @@
 * Update the type of `RequestId` to `integer` to align with replicant version 6.
 * Remove `Change.getDesignatorAsString()` as it is no longer possible to have a non-integer designator.
 * Model subChannelId values as integers to align with replicant version 6.
+* Align a significant amount of other code with version 6. This involves changing the types from string to integer and renaming several fields and methods.
 
 ### [v5.104](https://github.com/replicant4j/replicant/tree/v5.104) (2019-12-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.103...v5.104)
 
