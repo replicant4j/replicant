@@ -33,7 +33,7 @@ public final class SharedConstants
    */
   public static final String CONNECTION_URL_FRAGMENT = "/session";
   /**
-   * The url relative to the session from which controls the channel subscriptions.
+   * The url relative to the session that controls the channel subscriptions.
    */
   public static final String CHANNEL_URL_FRAGMENT = "/channel";
   /**
