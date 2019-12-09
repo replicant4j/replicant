@@ -6,19 +6,13 @@ require 'buildr/single_intermediate_layout'
 
 GIN_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject]
 
-POWERMOCK = [
-  :objenesis, :powermock_core, :powermock_reflect, :powermock_testng_common, :powermock_testng,
-  :powermock_testng_agent, :powermock_api_mockito, :powermock_api_mockito_common, :powermock_api_support, :javassist,
-  :powermock_module_javaagent
-]
-
 GWT_DEPS = [:gwt_user] + GIN_DEPS
 PROVIDED_DEPS = [:javax_jsr305, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 COMPILE_DEPS = KEYCLOAK_DEPS
 TEST_INFRA_DEPS = [:mockito, :guiceyloops, :glassfish_embedded, :testng]
 OPTIONAL_DEPS = GWT_DEPS, TEST_INFRA_DEPS
-TEST_DEPS = TEST_INFRA_DEPS + [:jndikit] + POWERMOCK
+TEST_DEPS = TEST_INFRA_DEPS + [:jndikit]
 
 desc 'Replicant: Client-side state representation infrastructure'
 define 'replicant' do

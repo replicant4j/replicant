@@ -2,7 +2,7 @@ package org.realityforge.replicant.client.runtime;
 
 import javax.annotation.Nonnull;
 
-public final class RateLimitedValue
+final class RateLimitedValue
 {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final double MAX_POSSIBLE_TOKENS = Double.MAX_VALUE / 4;
@@ -15,67 +15,56 @@ public final class RateLimitedValue
   // The number of tokens left in the bucket
   private double _tokenCount;
 
-  public RateLimitedValue( final double tokensPerSecond )
-  {
-    this( tokensPerSecond, tokensPerSecond );
-  }
-
-  public RateLimitedValue( final double tokensPerSecond, final double maxTokenAmount )
+  RateLimitedValue( final long now, final double tokensPerSecond, final double maxTokenAmount )
   {
     setTokensPerSecond( tokensPerSecond );
     setMaxTokenCount( maxTokenAmount );
     setTokenCount( maxTokenAmount );
-    _lastRegenTime = System.currentTimeMillis();
+    _lastRegenTime = now;
   }
 
-  public synchronized void setTokensPerSecond( final double tokensPerSecond )
+  void setTokensPerSecond( final double tokensPerSecond )
   {
     assert tokensPerSecond >= 0;
     _tokensPerSecond = Math.min( tokensPerSecond, MAX_POSSIBLE_TOKENS );
   }
 
-  public double getTokensPerSecond()
+  double getTokensPerSecond()
   {
     return _tokensPerSecond;
   }
 
-  public double getMaxTokenCount()
+  double getMaxTokenCount()
   {
     return _maxTokenCount;
   }
 
-  public synchronized void fillBucket()
+  void fillBucket()
   {
     _tokenCount = _maxTokenCount;
   }
 
-  public synchronized double getTokenCount()
+  double getTokenCount()
   {
     return _tokenCount;
   }
 
-  public synchronized boolean isBucketFull()
-  {
-    regenerateTokens();
-    return _tokenCount == _maxTokenCount;
-  }
-
-  public void setMaxTokenCount( final double maxTokenCount )
+  void setMaxTokenCount( final double maxTokenCount )
   {
     assert maxTokenCount >= 0;
     _maxTokenCount = maxTokenCount;
     _tokenCount = Math.min( _tokenCount, _maxTokenCount );
   }
 
-  public void setTokenCount( final double tokenCount )
+  void setTokenCount( final double tokenCount )
   {
     assert tokenCount >= 0;
     _tokenCount = Math.min( tokenCount, _maxTokenCount );
   }
 
-  public synchronized boolean consume( final double costInTokens )
+  boolean consume( final long now, final double costInTokens )
   {
-    regenerateTokens();
+    regenerateTokens( now );
     if ( _tokenCount >= costInTokens )
     {
       _tokenCount -= costInTokens;
@@ -87,9 +76,9 @@ public final class RateLimitedValue
     }
   }
 
-  public boolean attempt( final double costInTokens, @Nonnull final Runnable action )
+  boolean attempt( final long now, final double costInTokens, @Nonnull final Runnable action )
   {
-    if ( consume( costInTokens ) )
+    if ( consume( now, costInTokens ) )
     {
       action.run();
       return true;
@@ -103,9 +92,8 @@ public final class RateLimitedValue
   /**
    * Regenerate tokens available.
    */
-  final void regenerateTokens()
+  void regenerateTokens( final long now )
   {
-    final long now = System.currentTimeMillis();
     final long duration = now - _lastRegenTime;
     if ( duration > 0 )
     {

@@ -31,12 +31,12 @@ public final class DataLoaderEntry
     _required = required;
 
     final int regenRate = required ? REQUIRED_REGEN_PER_MILLISECOND : OPTIONAL_REGEN_PER_MILLISECOND;
-    _rateLimiter = new RateLimitedValue( regenRate, ACTION_COST * 2 );
+    _rateLimiter = new RateLimitedValue( System.currentTimeMillis(), regenRate, ACTION_COST * 2 );
   }
 
   public boolean attemptAction( @Nonnull final Consumer<DataLoaderService> action )
   {
-    return getRateLimiter().attempt( ACTION_COST, () -> action.accept( getService() ) );
+    return getRateLimiter().attempt( System.currentTimeMillis(), ACTION_COST, () -> action.accept( getService() ) );
   }
 
   @Nonnull
