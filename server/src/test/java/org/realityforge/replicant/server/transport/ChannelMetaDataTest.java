@@ -9,13 +9,15 @@ public class ChannelMetaDataTest
   public void typeGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false, true );
+      new ChannelMetaData( 1, "MetaData", true, ChannelMetaData.FilterType.NONE, null, false, false );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertTrue( metaData.isTypeGraph() );
     assertFalse( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
+    assertFalse( metaData.hasFilterParameter() );
+    assertFalse( metaData.isExternal() );
 
     assertThrows( metaData::getFilterParameterType );
   }
@@ -31,6 +33,8 @@ public class ChannelMetaDataTest
     assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
+    assertFalse( metaData.hasFilterParameter() );
+    assertTrue( metaData.isExternal() );
   }
 
   @Test
@@ -45,6 +49,8 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.STATIC );
     assertEquals( metaData.getFilterParameterType(), String.class );
     assertFalse( metaData.isCacheable() );
+    assertTrue( metaData.hasFilterParameter() );
+    assertTrue( metaData.isExternal() );
   }
 
   @Test
@@ -52,6 +58,12 @@ public class ChannelMetaDataTest
   {
     assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.STATIC, null, false, true ) );
     assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.DYNAMIC, null, false, true ) );
-    assertThrows( () -> new ChannelMetaData( 1, "X", true, ChannelMetaData.FilterType.NONE, String.class, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1,
+                                             "X",
+                                             true,
+                                             ChannelMetaData.FilterType.NONE,
+                                             String.class,
+                                             false,
+                                             true ) );
   }
 }
