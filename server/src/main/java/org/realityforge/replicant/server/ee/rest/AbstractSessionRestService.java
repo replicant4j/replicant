@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
@@ -81,10 +82,12 @@ public abstract class AbstractSessionRestService
   private transient final ObjectMapper _jsonMapper = new ObjectMapper();
   private JsonGeneratorFactory _factory;
 
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract ReplicantSessionManager getSessionManager();
 
-  public void postConstruct()
+  @PostConstruct
+  protected void postConstruct()
   {
     final HashMap<String, Object> config = new HashMap<>();
     config.put( JsonGenerator.PRETTY_PRINTING, true );
@@ -153,7 +156,7 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId}" )
+  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
@@ -194,7 +197,7 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId}" )
+  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId:\\d+}" )
   @DELETE
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                                   @PathParam( "channelId" ) final int channelId,
@@ -237,7 +240,7 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId}" )
+  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId:\\d+}" )
   @PUT
   public Response subscribeToInstanceChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                               @PathParam( "channelId" ) @NotNull final int channelId,
@@ -331,7 +334,7 @@ public abstract class AbstractSessionRestService
     else
     {
       final String content =
-        json( g -> Encoder.emitChannel( getSessionManager().getSystemMetaData(), session, g, entry, uri ) );
+        json( g -> Encoder.emitChannel( getSystemMetaData(), session, g, entry, uri ) );
       return buildResponse( Response.ok(), content );
     }
   }
@@ -342,7 +345,7 @@ public abstract class AbstractSessionRestService
   {
     final ReplicantSession session = ensureSession( sessionId, null );
     final String content =
-      json( g -> Encoder.emitChannelsList( getSessionManager().getSystemMetaData(), session, g, uri ) );
+      json( g -> Encoder.emitChannelsList( getSystemMetaData(), session, g, uri ) );
     return buildResponse( Response.ok(), content );
   }
 
@@ -351,7 +354,7 @@ public abstract class AbstractSessionRestService
                                             final int channelId,
                                             @Nonnull final UriInfo uri )
   {
-    final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
+    final SystemMetaData systemMetaData = getSystemMetaData();
     final ReplicantSession session = ensureSession( sessionId, null );
     final String content =
       json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelId, session, g, uri ) );
@@ -391,7 +394,7 @@ public abstract class AbstractSessionRestService
       final ReplicantSession session = getSessionManager().getSession( sessionId );
       if ( null != session )
       {
-        Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, false );
+        Encoder.emitSession( getSystemMetaData(), session, g, uri, false );
       }
     }
     g.writeEnd();
@@ -403,7 +406,7 @@ public abstract class AbstractSessionRestService
   {
     final ReplicantSession session = ensureSession( sessionId, null );
     final String content =
-      json( g -> Encoder.emitSession( getSessionManager().getSystemMetaData(), session, g, uri, true ) );
+      json( g -> Encoder.emitSession( getSystemMetaData(), session, g, uri, true ) );
     return buildResponse( Response.ok(), content );
   }
 
@@ -444,13 +447,13 @@ public abstract class AbstractSessionRestService
   @Nonnull
   private ChannelMetaData getChannelMetaData( final int channelId )
   {
-    return getSessionManager().getSystemMetaData().getChannelMetaData( channelId );
+    return getSystemMetaData().getChannelMetaData( channelId );
   }
 
   @Nonnull
   private ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress descriptor )
   {
-    return getSessionManager().getSystemMetaData().getChannelMetaData( descriptor );
+    return getSystemMetaData().getChannelMetaData( descriptor );
   }
 
   @Nullable
@@ -551,13 +554,19 @@ public abstract class AbstractSessionRestService
                                    @Nullable final Integer subChannelId,
                                    @Nonnull final String action )
   {
-    final SystemMetaData systemMetaData = getSessionManager().getSystemMetaData();
+    final SystemMetaData systemMetaData = getSystemMetaData();
     return systemMetaData.getName() + "." + action + systemMetaData.getChannelMetaData( channelId ).getName() +
            ( ( null == subChannelId ) ? "" : "." + subChannelId );
   }
 
   @Nonnull
-  protected Response buildResponse( @Nonnull final Response.ResponseBuilder builder,
+  private SystemMetaData getSystemMetaData()
+  {
+    return getSessionManager().getSystemMetaData();
+  }
+
+  @Nonnull
+  private Response buildResponse( @Nonnull final Response.ResponseBuilder builder,
                                     @Nonnull final String content )
   {
     CacheUtil.configureNoCacheHeaders( builder );
