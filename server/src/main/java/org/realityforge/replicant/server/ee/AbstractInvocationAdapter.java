@@ -22,7 +22,6 @@ public abstract class AbstractInvocationAdapter
     final Integer requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
     final ReplicantSession session =
       null != sessionId ? getReplicantSessionManager().getSession( sessionId ) : null;
-
     return ReplicationRequestUtil.runRequest( getRegistry(),
                                               getEntityManager(),
                                               getEndpoint(),
