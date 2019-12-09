@@ -22,7 +22,7 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -32,15 +32,16 @@ public class ChangeAccumulatorTest
 
     final int channelId = 1;
     final Integer subChannelId = 2;
+    final Integer requestId = 3;
 
-    accumulator.addChange( c, new Change( message, channelId, subChannelId ) );
-    final boolean impactsInitiator = accumulator.complete( c, 1 );
+    accumulator.addChange( session, new Change( message, channelId, subChannelId ) );
+    final boolean impactsInitiator = accumulator.complete( session, requestId );
 
     assertTrue( impactsInitiator );
 
     final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
     verify( remote ).sendText(
-      "{\"type\":\"update\",\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.2\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+      "{\"type\":\"update\",\"requestId\":3,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.2\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
     reset( remote );
     accumulator.complete( null, null );
     verify( remote, never() ).sendText( anyString() );
@@ -51,7 +52,7 @@ public class ChangeAccumulatorTest
     throws IOException
   {
     final Session webSocketSession = createSession();
-    final ReplicantSession c = new ReplicantSession( webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final int id = 17;
@@ -59,19 +60,23 @@ public class ChangeAccumulatorTest
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
-    accumulator.addChanges( c, Collections.singletonList( new Change( message, 1, 0 ) ) );
+    final int channelId = 1;
+    final Integer subChannelId = 0;
+    final Integer requestId = 3;
 
-    assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 1 );
+    accumulator.addChanges( session, Collections.singletonList( new Change( message, channelId, subChannelId ) ) );
 
-    final boolean impactsInitiator = accumulator.complete( c, 1 );
+    assertEquals( accumulator.getChangeSet( session ).getChanges().size(), 1 );
 
-    assertEquals( accumulator.getChangeSet( c ).getChanges().size(), 0 );
+    final boolean impactsInitiator = accumulator.complete( session, requestId );
+
+    assertEquals( accumulator.getChangeSet( session ).getChanges().size(), 0 );
 
     assertTrue( impactsInitiator );
 
     final RemoteEndpoint.Basic remote = webSocketSession.getBasicRemote();
     verify( remote ).sendText(
-      "{\"type\":\"update\",\"requestId\":1,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
+      "{\"type\":\"update\",\"requestId\":3,\"changes\":[{\"id\":\"42.17\",\"channels\":[\"1.0\"],\"data\":{\"ATTR_KEY2\":\"a2\",\"ATTR_KEY1\":\"a1\"}}]}" );
     reset( remote );
 
     accumulator.complete( null, null );
@@ -85,20 +90,24 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    accumulator.addActions( c,
-                            Collections.singletonList( new ChannelAction( new ChannelAddress( 1, 2 ),
+    final int channelId = 1;
+    final Integer subChannelId = 2;
+    final Integer requestId = 1;
+
+    accumulator.addActions( session,
+                            Collections.singletonList( new ChannelAction( new ChannelAddress( channelId, subChannelId ),
                                                                           Action.ADD,
                                                                           filter ) ) );
 
-    assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 1 );
+    assertEquals( accumulator.getChangeSet( session ).getChannelActions().size(), 1 );
 
-    final boolean impactsInitiator = accumulator.complete( c, 1 );
+    final boolean impactsInitiator = accumulator.complete( session, requestId );
 
-    assertEquals( accumulator.getChangeSet( c ).getChannelActions().size(), 0 );
+    assertEquals( accumulator.getChangeSet( session ).getChannelActions().size(), 0 );
 
     assertTrue( impactsInitiator );
 
@@ -118,13 +127,17 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
     final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
-    accumulator.addChange( c, new Change( message, 1, 0 ) );
-    final boolean impactsInitiator = accumulator.complete( new ReplicantSession( createSession() ), 1 );
+    final int channelId = 1;
+    final Integer subChannelId = 0;
+    final Integer requestId = 3;
+
+    accumulator.addChange( session, new Change( message, channelId, subChannelId ) );
+    final boolean impactsInitiator = accumulator.complete( new ReplicantSession( createSession() ), requestId );
 
     assertFalse( impactsInitiator );
 
@@ -144,11 +157,12 @@ public class ChangeAccumulatorTest
   {
     final Session webSocketSession = createSession();
 
-    final ReplicantSession c = new ReplicantSession( webSocketSession );
+    final ReplicantSession session = new ReplicantSession( webSocketSession );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    accumulator.getChangeSet( c );
-    final boolean impactsInitiator = accumulator.complete( c, 1 );
+    accumulator.getChangeSet( session );
+    final Integer requestId = 1;
+    final boolean impactsInitiator = accumulator.complete( session, requestId );
 
     assertFalse( impactsInitiator );
 
