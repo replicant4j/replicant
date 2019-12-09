@@ -3,7 +3,7 @@ package org.realityforge.replicant.server.json;
 /**
  * Constants used to build up JSON payload transmitted to the client.
  */
-public interface TransportConstants
+interface TransportConstants
 {
   String TYPE = "type";
   String LAST_CHANGE_SET_ID = "last_id";
