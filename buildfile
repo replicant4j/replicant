@@ -96,6 +96,10 @@ define 'replicant' do
     jacoco.enabled = false
   end
 
+  ipr.add_component('JavacSettings') do |xml|
+    xml.option(:name => 'ADDITIONAL_OPTIONS_STRING', :value => '-Xlint:all,-processing,-serial')
+  end
+
   ipr.add_component_from_artifact(:idea_codestyle)
 
   iml.add_jruby_facet
