@@ -67,7 +67,7 @@ public class EntityMessageSorterTest
     }
   }
 
-  private void assertIndex( final List<EntityMessage> l1, final int index, final Integer value )
+  private void assertIndex( final List<EntityMessage> l1, final int index, final int value )
   {
     assertEquals( l1.get( index ).getId(), value );
   }

@@ -20,7 +20,7 @@ public class ChangeAccumulatorTest
     final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -36,7 +36,7 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     final Change change = packet.getChangeSet().getChanges().iterator().next();
-    assertEquals( change.getId(), "42#myID" );
+    assertEquals( change.getId(), "42#17" );
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getEntityMessage().getTypeId(), typeID );
     assertEquals( packet.getRequestId(), requestId );
@@ -54,7 +54,7 @@ public class ChangeAccumulatorTest
     final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -117,7 +117,7 @@ public class ChangeAccumulatorTest
     final ReplicantSession c = new ReplicantSession( null, "s1" );
     final ChangeAccumulator accumulator = new ChangeAccumulator();
 
-    final EntityMessage message = MessageTestUtil.createMessage( "myID", 42, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
 
     accumulator.addChange( c, new Change( message, 1, 0 ) );
     final Integer requestId = ValueUtil.randomInt();

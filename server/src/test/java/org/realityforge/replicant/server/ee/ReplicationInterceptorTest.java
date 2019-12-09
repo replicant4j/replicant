@@ -71,7 +71,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
@@ -124,7 +124,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getSessionChanges( registry ).merge( new Change( message, 44, 77 ) );
     disableReplicationContext( registry );
@@ -159,7 +159,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em, false );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
@@ -179,7 +179,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
@@ -228,7 +228,7 @@ public class ReplicationInterceptorTest
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );
@@ -268,7 +268,7 @@ public class ReplicationInterceptorTest
     };
     final EntityManager em = mock( EntityManager.class );
     final TestReplicationInterceptor interceptor = createInterceptor( registry, em );
-    final EntityMessage message = MessageTestUtil.createMessage( "ID", 1, 0, "r1", "r2", "a1", "a2" );
+    final EntityMessage message = MessageTestUtil.createMessage( 17, 1, 0, "r1", "r2", "a1", "a2" );
     enableReplicationContext( registry );
     EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( message );
     disableReplicationContext( registry );

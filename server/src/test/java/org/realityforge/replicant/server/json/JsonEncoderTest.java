@@ -29,7 +29,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeAllData()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
     final Calendar calendar = Calendar.getInstance();
     calendar.set( Calendar.YEAR, 2001 );
@@ -77,7 +77,7 @@ public final class JsonEncoderTest
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
+    assertEquals( object.getInt( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
     final JsonObject data = object.getJsonObject( TransportConstants.DATA );
@@ -108,7 +108,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeChangeSetFromEntityMessages_deleteMessage()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
@@ -125,7 +125,7 @@ public final class JsonEncoderTest
 
     final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), id );
+    assertEquals( object.getInt( TransportConstants.ENTITY_ID ), id );
     assertEquals( object.getInt( TransportConstants.TYPE_ID ), typeID );
 
     assertFalse( object.containsKey( TransportConstants.DATA ) );
@@ -154,7 +154,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeLong()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
     final HashMap<String, Serializable> attributeData = new HashMap<>();

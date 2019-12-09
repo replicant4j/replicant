@@ -15,12 +15,12 @@ public class ChangeSetTest
   @Test
   public void basicOperation()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
-    final EntityMessage message3 = MessageTestUtil.createMessage( "X", 42, 0, "X", "X", "X", "X" );
+    final EntityMessage message3 = MessageTestUtil.createMessage( 18, 42, 0, "X", "X", "X", "X" );
 
     final Change change1 = new Change( message1 );
     final Change change2 = new Change( message2 );
@@ -99,7 +99,7 @@ public class ChangeSetTest
   @Test
   public void merge_with_Copy()
   {
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -123,7 +123,7 @@ public class ChangeSetTest
   {
     final ChangeSet changeSet = new ChangeSet();
 
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
@@ -157,7 +157,7 @@ public class ChangeSetTest
   {
     final ChangeSet changeSet = new ChangeSet();
 
-    final String id = "myID";
+    final int id = 17;
     final int typeID = 42;
 
     final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
