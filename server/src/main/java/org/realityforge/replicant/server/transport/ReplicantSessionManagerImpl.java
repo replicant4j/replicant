@@ -75,20 +75,20 @@ public abstract class ReplicantSessionManagerImpl
   public ReplicantSession getSession( @Nonnull final String sessionId )
   {
     _lock.readLock().lock();
-    final ReplicantSession sessionInfo;
+    final ReplicantSession session;
     try
     {
-      sessionInfo = _sessions.get( sessionId );
+      session = _sessions.get( sessionId );
     }
     finally
     {
       _lock.readLock().unlock();
     }
-    if ( null != sessionInfo )
+    if ( null != session )
     {
-      sessionInfo.updateAccessTime();
+      session.updateAccessTime();
     }
-    return sessionInfo;
+    return session;
   }
 
   @Nonnull
@@ -110,17 +110,17 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   public ReplicantSession createSession()
   {
-    final ReplicantSession sessionInfo = newReplicantSession();
+    final ReplicantSession session = newReplicantSession();
     _lock.writeLock().lock();
     try
     {
-      _sessions.put( sessionInfo.getId(), sessionInfo );
+      _sessions.put( session.getId(), session );
     }
     finally
     {
       _lock.writeLock().unlock();
     }
-    return sessionInfo;
+    return session;
   }
 
   /**
