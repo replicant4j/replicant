@@ -110,17 +110,6 @@ public interface ReplicantSessionManager
                                @Nonnull Collection<Integer> subChannelIds,
                                @Nonnull ChangeSet changeSet );
 
-  void updateSubscription( @Nonnull ReplicantSession session,
-                           @Nonnull ChannelAddress address,
-                           @Nullable Object filter,
-                           @Nonnull ChangeSet changeSet );
-
-  void bulkUpdateSubscription( @Nonnull ReplicantSession session,
-                               int channelId,
-                               @Nonnull Collection<Integer> subChannelIds,
-                               @Nullable Object filter,
-                               @Nonnull ChangeSet changeSet );
-
   void unsubscribe( @Nonnull ReplicantSession session,
                     @Nonnull ChannelAddress address,
                     boolean explicitUnsubscribe,
