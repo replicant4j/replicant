@@ -78,28 +78,28 @@ public abstract class AbstractSecuredSessionRestService
   protected Response doSubscribeChannel( @Nonnull final String sessionId,
                                          @Nullable final Integer requestId,
                                          @Nullable final String eTag,
-                                         @Nonnull final ChannelAddress descriptor,
+                                         @Nonnull final ChannelAddress address,
                                          @Nonnull final String filterContent )
   {
-    return guard( sessionId, () -> super.doSubscribeChannel( sessionId, requestId, eTag, descriptor, filterContent ) );
+    return guard( sessionId, () -> super.doSubscribeChannel( sessionId, requestId, eTag, address, filterContent ) );
   }
 
   @Nonnull
   @Override
   protected Response doUnsubscribeChannel( @Nonnull final String sessionId,
                                            @Nullable final Integer requestId,
-                                           @Nonnull final ChannelAddress descriptor )
+                                           @Nonnull final ChannelAddress address )
   {
-    return guard( sessionId, () -> super.doUnsubscribeChannel( sessionId, requestId, descriptor ) );
+    return guard( sessionId, () -> super.doUnsubscribeChannel( sessionId, requestId, address ) );
   }
 
   @Nonnull
   @Override
   protected Response doGetChannel( @Nonnull final String sessionId,
-                                   @Nonnull final ChannelAddress descriptor,
+                                   @Nonnull final ChannelAddress address,
                                    @Nonnull final UriInfo uri )
   {
-    return guard( sessionId, () -> super.doGetChannel( sessionId, descriptor, uri ) );
+    return guard( sessionId, () -> super.doGetChannel( sessionId, address, uri ) );
   }
 
   @Nonnull
