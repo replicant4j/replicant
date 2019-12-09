@@ -23,9 +23,9 @@ public final class ReplicantSession
   @Nonnull
   private final Session _webSocketSession;
   @Nonnull
-  private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
+  private final Map<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
-  private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+  private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
 
   public ReplicantSession( @Nonnull final Session webSocketSession )
   {
