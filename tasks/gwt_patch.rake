@@ -170,17 +170,17 @@ module Buildr
 
     module ProjectExtension
       protected
-      def gwt_detect_version(dependencies)
-        version = nil
-        dependencies.each do |dep|
-          if dep.respond_to?(:to_spec_hash)
-            hash = dep.to_spec_hash
-            if %w(org.realityforge.com.google.gwt com.google.gwt).include?(hash[:group]) && 'gwt-user' == hash[:id] && :jar == hash[:type]
-              version = hash[:version]
-            end
+    def gwt_detect_version(dependencies)
+      version = nil
+      dependencies.each do |dep|
+        if dep.respond_to?(:to_spec_hash)
+          hash = dep.to_spec_hash
+          if %w(org.realityforge.com.google.gwt com.google.gwt).include?(hash[:group]) && 'gwt-user' == hash[:id] && :jar == hash[:type]
+            version = hash[:version]
           end
         end
-        version
+      end
+      version
       end
     end
   end
