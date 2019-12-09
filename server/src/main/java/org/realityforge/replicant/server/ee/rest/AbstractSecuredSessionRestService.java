@@ -12,9 +12,11 @@ import org.realityforge.keycloak.sks.SimpleAuthService;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 
+@SuppressWarnings( "unused" )
 public abstract class AbstractSecuredSessionRestService
   extends AbstractSessionRestService
 {
+  @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   protected abstract SimpleAuthService getAuthService();
 
