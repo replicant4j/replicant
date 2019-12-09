@@ -347,6 +347,7 @@ public class ReplicationInterceptorTest
     private final TransactionSynchronizationRegistry _registry;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
+    private String _sessionId;
 
     private TestReplicationInterceptor( final EntityManager entityManager,
                                         final TransactionSynchronizationRegistry registry,
