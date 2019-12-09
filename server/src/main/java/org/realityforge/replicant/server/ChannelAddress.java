@@ -10,6 +10,15 @@ public final class ChannelAddress
   @Nullable
   private final Integer _subChannelId;
 
+  @Nonnull
+  public static ChannelAddress parse( @Nonnull final String name )
+  {
+    final int offset = name.indexOf( "." );
+    final int channelId = Integer.parseInt( -1 == offset ? name : name.substring( 0, offset ) );
+    final Integer subChannelId = -1 == offset ? null : Integer.parseInt( name.substring( offset + 1 ) );
+    return new ChannelAddress( channelId, subChannelId );
+  }
+
   public ChannelAddress( final int channelId )
   {
     this( channelId, null );
@@ -30,6 +39,11 @@ public final class ChannelAddress
   public Integer getSubChannelId()
   {
     return _subChannelId;
+  }
+
+  public boolean hasSubChannelId()
+  {
+    return null != _subChannelId;
   }
 
   @Override
@@ -57,6 +71,7 @@ public final class ChannelAddress
     return result;
   }
 
+  @SuppressWarnings( "unchecked" )
   @Override
   public int compareTo( @Nonnull final ChannelAddress other )
   {
@@ -86,7 +101,7 @@ public final class ChannelAddress
       }
       else
       {
-        return subChannelId.compareTo( otherSubChannelId );
+        return ( (Comparable) subChannelId ).compareTo( otherSubChannelId );
       }
     }
   }
