@@ -229,7 +229,7 @@ public abstract class ReplicantSessionManagerImpl
   {
     final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
     getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
-    return session.getQueue().addPacket( requestId, etag, changeSet );
+    session.getQueue().addPacket( requestId, etag, changeSet );
   }
 
   /**
