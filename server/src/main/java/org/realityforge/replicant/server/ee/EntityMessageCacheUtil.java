@@ -34,13 +34,7 @@ public final class EntityMessageCacheUtil
   @Nullable
   public static EntityMessageSet lookupEntityMessageSet()
   {
-    return lookupEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
-  }
-
-  @Nullable
-  public static EntityMessageSet lookupEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
-  {
-    return lookup( r, KEY );
+    return lookup( TransactionSynchronizationRegistryUtil.lookup(), KEY );
   }
 
   @Nullable
