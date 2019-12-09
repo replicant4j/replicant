@@ -48,7 +48,7 @@ public final class JsonEncoderTest
     values.put( "key3", date );
 
     final int lastChangeSetID = 1;
-    final int requestId = ValueUtil.randomInt();
+    final int requestId = 1;
     final String etag = "#1";
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
 
@@ -58,7 +58,7 @@ public final class JsonEncoderTest
     change.getChannels().put( 3, 73 );
     final ChangeSet cs = new ChangeSet();
     cs.merge( change );
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, 42 ), Action.UPDATE, filter ) );
+    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, 77 ), Action.UPDATE, filter ) );
     final String encoded = JsonEncoder.encodeChangeSet( lastChangeSetID, requestId, etag, cs );
     final JsonObject changeSet = toJsonObject( encoded );
 
