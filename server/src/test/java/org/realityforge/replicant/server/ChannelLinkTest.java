@@ -13,7 +13,7 @@ public class ChannelLinkTest
     assertEquals( link.getSourceChannel().getSubChannelId(), (Integer) 44 );
     assertEquals( link.getTargetChannel().getChannelId(), 1 );
     assertEquals( link.getTargetChannel().getSubChannelId(), (Integer) 2 );
-    assertEquals( link.toString(), "[#22.44#=>#1.2#]" );
+    assertEquals( link.toString(), "[22.44=>1.2]" );
   }
 
   @Test

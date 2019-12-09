@@ -22,7 +22,7 @@ public class ChannelAddressTest
 
     assertEquals( cd1.getChannelId(), 1 );
     assertEquals( cd1.getSubChannelId(), (Integer)42 );
-    assertEquals( cd1.toString(), "#1.42#" );
+    assertEquals( cd1.toString(), "1.42" );
     assertEquals( cd1, cd1 );
     assertEquals( cd2, cd1 );
     assertNotEquals( cd3, cd1 );
@@ -30,7 +30,7 @@ public class ChannelAddressTest
 
     assertEquals( cd4.getChannelId(), 2 );
     assertNull( cd4.getSubChannelId() );
-    assertEquals( cd4.toString(), "#2#" );
+    assertEquals( cd4.toString(), "2" );
     assertEquals( cd4, cd4 );
     assertEquals( cd6, cd4 );
     assertNotEquals( cd3, cd4 );
