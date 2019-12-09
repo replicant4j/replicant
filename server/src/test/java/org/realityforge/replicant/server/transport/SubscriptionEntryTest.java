@@ -45,7 +45,6 @@ public class SubscriptionEntryTest
     entry.setFilter( null );
     assertNull( entry.getFilter() );
 
-
     // Deregister when there is none subscribed
     assertEquals( entry.deregisterOutwardSubscriptions( cd2 ), new ChannelAddress[ 0 ] );
     assertEquals( entry.deregisterInwardSubscriptions( cd2 ), new ChannelAddress[ 0 ] );
@@ -104,8 +103,8 @@ public class SubscriptionEntryTest
   @Test
   public void sorting()
   {
-    final ChannelAddress cd1 = new ChannelAddress( 1, 77 );
-    final ChannelAddress cd3 = new ChannelAddress( 1, 78 );
+    final ChannelAddress cd1 = new ChannelAddress( 1, 42 );
+    final ChannelAddress cd3 = new ChannelAddress( 1, 43 );
     final ChannelAddress cd4 = new ChannelAddress( 2, null );
     final ChannelAddress cd5 = new ChannelAddress( 3, null );
 
