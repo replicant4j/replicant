@@ -34,7 +34,6 @@ define 'replicant' do
       j.include("#{project._(:source, :main, :java)}/*")
     end
     package(:sources)
-    package(:javadoc)
   end
 
   define 'server' do
