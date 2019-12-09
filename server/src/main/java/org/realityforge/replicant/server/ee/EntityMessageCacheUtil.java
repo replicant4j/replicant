@@ -2,8 +2,6 @@ package org.realityforge.replicant.server.ee;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
@@ -23,20 +21,8 @@ public final class EntityMessageCacheUtil
    */
   private static final String SESSION_KEY = KEY + "/Session";
 
-  /**
-   * Standard JNDI key for TransactionSynchronizationRegistry.
-   */
-  private static final String REGISTRY_KEY = "java:comp/TransactionSynchronizationRegistry";
-
-
   private EntityMessageCacheUtil()
   {
-  }
-
-  @Nonnull
-  public static EntityMessageSet getEntityMessageSet()
-  {
-    return getEntityMessageSet( lookupTransactionSynchronizationRegistry() );
   }
 
   @Nonnull
@@ -48,7 +34,7 @@ public final class EntityMessageCacheUtil
   @Nullable
   public static EntityMessageSet lookupEntityMessageSet()
   {
-    return lookupEntityMessageSet( lookupTransactionSynchronizationRegistry() );
+    return lookupEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
   }
 
   @Nullable
@@ -60,7 +46,7 @@ public final class EntityMessageCacheUtil
   @Nullable
   public static EntityMessageSet removeEntityMessageSet()
   {
-    return removeEntityMessageSet( lookupTransactionSynchronizationRegistry() );
+    return removeEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
   }
 
   @Nullable
@@ -72,7 +58,7 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static ChangeSet getSessionChanges()
   {
-    return getSessionChanges( lookupTransactionSynchronizationRegistry() );
+    return getSessionChanges( TransactionSynchronizationRegistryUtil.lookup() );
   }
 
   @Nonnull
@@ -84,7 +70,7 @@ public final class EntityMessageCacheUtil
   @Nullable
   public static ChangeSet lookupSessionChanges()
   {
-    return lookupSessionChanges( lookupTransactionSynchronizationRegistry() );
+    return lookupSessionChanges( TransactionSynchronizationRegistryUtil.lookup() );
   }
 
   @Nullable
@@ -96,7 +82,7 @@ public final class EntityMessageCacheUtil
   @Nullable
   public static ChangeSet removeSessionChanges()
   {
-    return removeSessionChanges( lookupTransactionSynchronizationRegistry() );
+    return removeSessionChanges( TransactionSynchronizationRegistryUtil.lookup() );
   }
 
   @Nullable
@@ -150,20 +136,5 @@ public final class EntityMessageCacheUtil
       throw new IllegalStateException( message );
     }
     return (T) r.getResource( key );
-  }
-
-  @Nonnull
-  static TransactionSynchronizationRegistry lookupTransactionSynchronizationRegistry()
-  {
-    try
-    {
-      return (TransactionSynchronizationRegistry) new InitialContext().lookup( REGISTRY_KEY );
-    }
-    catch ( final NamingException ne )
-    {
-      final String message =
-        "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
-      throw new IllegalStateException( message, ne );
-    }
   }
 }

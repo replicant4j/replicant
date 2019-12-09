@@ -29,11 +29,13 @@ public class EntityMessageCacheUtilTest
     assertNull( EntityMessageCacheUtil.lookupEntityMessageSet() );
 
     //Now we force the creation of EntityMessageSet
-    final EntityMessageSet messageSet = EntityMessageCacheUtil.getEntityMessageSet();
+    final EntityMessageSet messageSet =
+      EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
 
     assertNotNull( messageSet );
     assertEquals( messageSet, EntityMessageCacheUtil.lookupEntityMessageSet() );
-    assertEquals( messageSet, EntityMessageCacheUtil.getEntityMessageSet() );
+    assertEquals( messageSet,
+                  EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() ) );
 
     //Now we remove EntityMessageSet
     assertEquals( messageSet, EntityMessageCacheUtil.removeEntityMessageSet() );
@@ -69,7 +71,7 @@ public class EntityMessageCacheUtilTest
   @Test( expectedExceptions = IllegalStateException.class )
   public void lookupOfResourceOutsideReplicationContext()
   {
-    EntityMessageCacheUtil.lookupTransactionSynchronizationRegistry().
+    TransactionSynchronizationRegistryUtil.lookup().
       putResource( SharedConstants.REPLICATION_INVOCATION_KEY, null );
 
     EntityMessageCacheUtil.lookupSessionChanges();
