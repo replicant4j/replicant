@@ -42,13 +42,6 @@ public abstract class ReplicantSessionManagerImpl
   private final HashMap<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
   @Override
-  @Nonnull
-  public String getSessionKey()
-  {
-    return "sid";
-  }
-
-  @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
   {
     _lock.writeLock().lock();

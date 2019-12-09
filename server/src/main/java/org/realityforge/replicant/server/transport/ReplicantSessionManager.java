@@ -34,15 +34,6 @@ public interface ReplicantSessionManager
   }
 
   /**
-   * Return the key used to access session information.
-   * Typically this is used as part of the cookie or header name in the dependent system.
-   *
-   * @return the key used to access session information.
-   */
-  @Nonnull
-  String getSessionKey();
-
-  /**
    * Return the session for specified ID.
    * Session ID's are effectively opaque.
    *
