@@ -145,7 +145,7 @@ public final class ReplicantSession
    * @throws IllegalStateException if subscription already exists.
    */
   @Nonnull
-  public final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
+  final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     if ( !_subscriptions.containsKey( address ) )
     {
@@ -180,7 +180,7 @@ public final class ReplicantSession
   /**
    * Delete specified subscription entry.
    */
-  public final boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
+  final boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
   {
     return null != _subscriptions.remove( entry.getDescriptor() );
   }
