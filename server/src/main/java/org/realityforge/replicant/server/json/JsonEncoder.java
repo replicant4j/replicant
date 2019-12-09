@@ -144,6 +144,22 @@ public final class JsonEncoder
     return writer.toString();
   }
 
+  @Nonnull
+  private static String toDescriptor( final ChannelAction channelAction )
+  {
+    final Action action = channelAction.getAction();
+    final char actionValue =
+      Action.ADD == action ? SharedConstants.CHANNEL_ACTION_ADD :
+      Action.REMOVE == action ? SharedConstants.CHANNEL_ACTION_REMOVE :
+      Action.UPDATE == action ? SharedConstants.CHANNEL_ACTION_UPDATE :
+      SharedConstants.CHANNEL_ACTION_DELETE;
+
+    final ChannelAddress address = channelAction.getAddress();
+
+    final Integer scid = address.getSubChannelId();
+    return String.valueOf( actionValue ) + address.getChannelId() + ( null == scid ? "" : "." + scid );
+  }
+
   private static void writeField( final JsonGenerator generator,
                                   final String key,
                                   final Serializable serializable,
