@@ -18,9 +18,9 @@ public final class ReplicantSession
   private long _lastAccessedAt;
   private final PacketQueue _queue = new PacketQueue();
   @Nonnull
-  private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
+  private final Map<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
-  private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+  private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
 
   public ReplicantSession( @Nullable final String userID, @Nonnull final String id )
   {
@@ -86,7 +86,7 @@ public final class ReplicantSession
   }
 
   @Nonnull
-  public final PacketQueue getQueue()
+  public PacketQueue getQueue()
   {
     return _queue;
   }
@@ -119,7 +119,7 @@ public final class ReplicantSession
   }
 
   @Nonnull
-  public final Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
+  public Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
   {
     return Collections.unmodifiableMap( _subscriptions );
   }
@@ -129,7 +129,7 @@ public final class ReplicantSession
    */
   @SuppressWarnings( "WeakerAccess" )
   @Nonnull
-  public final SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
+  public SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     final SubscriptionEntry entry = findSubscriptionEntry( address );
     if ( null == entry )
@@ -145,7 +145,7 @@ public final class ReplicantSession
    * @throws IllegalStateException if subscription already exists.
    */
   @Nonnull
-  final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
+  public SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     if ( !_subscriptions.containsKey( address ) )
     {
@@ -163,7 +163,7 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nullable
-  public final SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
+  public SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     return _subscriptions.get( address );
   }
@@ -172,7 +172,7 @@ public final class ReplicantSession
    * Return true if specified channel is present.
    */
   @SuppressWarnings( "WeakerAccess" )
-  public final boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
+  public boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
   {
     return null != findSubscriptionEntry( address );
   }
@@ -180,7 +180,7 @@ public final class ReplicantSession
   /**
    * Delete specified subscription entry.
    */
-  final boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
+  boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
   {
     return null != _subscriptions.remove( entry.getDescriptor() );
   }
