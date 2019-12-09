@@ -28,7 +28,13 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static EntityMessageSet getEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return getEntityMessageSet( r, KEY );
+    EntityMessageSet messageSet = lookup( r, KEY );
+    if ( null == messageSet )
+    {
+      messageSet = new EntityMessageSet();
+      r.putResource( KEY, messageSet );
+    }
+    return messageSet;
   }
 
   @Nullable
@@ -58,7 +64,13 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static ChangeSet getSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    return getChanges( r, SESSION_KEY );
+    ChangeSet changes = lookup( r, SESSION_KEY );
+    if ( null == changes )
+    {
+      changes = new ChangeSet();
+      r.putResource( SESSION_KEY, changes );
+    }
+    return changes;
   }
 
   @Nullable
@@ -83,28 +95,6 @@ public final class EntityMessageCacheUtil
   public static ChangeSet removeSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
   {
     return remove( r, SESSION_KEY );
-  }
-
-  private static ChangeSet getChanges( final TransactionSynchronizationRegistry r, final String key )
-  {
-    ChangeSet changes = lookup( r, key );
-    if ( null == changes )
-    {
-      changes = new ChangeSet();
-      r.putResource( key, changes );
-    }
-    return changes;
-  }
-
-  private static EntityMessageSet getEntityMessageSet( final TransactionSynchronizationRegistry r, final String key )
-  {
-    EntityMessageSet messageSet = lookup( r, key );
-    if ( null == messageSet )
-    {
-      messageSet = new EntityMessageSet();
-      r.putResource( key, messageSet );
-    }
-    return messageSet;
   }
 
   private static <T> T remove( final TransactionSynchronizationRegistry r, final String key )
