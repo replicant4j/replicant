@@ -14,6 +14,7 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.server.ServerConstants;
+import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -79,6 +80,10 @@ public class ReplicationInterceptorTest
     final String sessionId = "s1";
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
+
+    when( interceptor.getReplicantSessionManager().getSession( sessionId ) )
+      .thenReturn( new ReplicantSession( null, sessionId ) );
+
     final Object result = interceptor.businessIntercept( context );
     verify( interceptor.getEntityManager() ).flush();
 
@@ -104,6 +109,8 @@ public class ReplicationInterceptorTest
     final TestReplicationInterceptor interceptor = createInterceptor( registry );
 
     final String sessionId = "s1";
+    when( interceptor.getReplicantSessionManager().getSession( sessionId ) )
+      .thenReturn( new ReplicantSession( null, sessionId ) );
 
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
@@ -129,6 +136,9 @@ public class ReplicationInterceptorTest
     disableReplicationContext( registry );
 
     final String sessionId = "s1";
+    when( interceptor.getReplicantSessionManager().getSession( sessionId ) )
+      .thenReturn( new ReplicantSession( null, sessionId ) );
+
     when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
