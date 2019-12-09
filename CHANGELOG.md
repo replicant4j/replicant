@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v5.105](https://github.com/replicant4j/replicant/tree/v5.105) (2019-12-09) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v5.104...v5.105)
 
 * Rename `RequestID` to `RequestId` to align with replicant version 6.
 * Update the type of `RequestId` to `integer` to align with replicant version 6.
