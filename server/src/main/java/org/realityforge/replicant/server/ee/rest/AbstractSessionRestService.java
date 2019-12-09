@@ -546,7 +546,7 @@ public abstract class AbstractSessionRestService
   }
 
   private void runRequest( @Nonnull final String invocationKey,
-                           @Nonnull final String sessionID,
+                           @Nonnull final ReplicantSession session,
                            @Nullable final Integer requestId,
                            @Nonnull final Runnable action )
   {
@@ -554,7 +554,7 @@ public abstract class AbstractSessionRestService
                                        getEntityManager(),
                                        getEntityMessageEndpoint(),
                                        invocationKey,
-                                       sessionID,
+                                       session,
                                        requestId,
                                        action );
   }

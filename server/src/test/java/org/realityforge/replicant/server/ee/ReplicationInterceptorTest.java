@@ -14,6 +14,7 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.server.ServerConstants;
+import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -331,6 +332,8 @@ public class ReplicationInterceptorTest
     private final EntityManager _entityManager;
     @Nonnull
     private final TransactionSynchronizationRegistry _registry;
+    @Nonnull
+    private final ReplicantSessionManager _sessionManager;
     private String _sessionId;
     private Integer _requestId;
     private Collection<EntityMessage> _messages;
@@ -342,6 +345,7 @@ public class ReplicationInterceptorTest
     {
       _entityManager = mock( EntityManager.class );
       _registry = Objects.requireNonNull( registry );
+      _sessionManager = mock( ReplicantSessionManager.class );
       _routeToSession = routeToSession;
     }
 
@@ -381,6 +385,13 @@ public class ReplicationInterceptorTest
     protected EntityMessageEndpoint getEndpoint()
     {
       return this;
+    }
+
+    @Nonnull
+    @Override
+    protected ReplicantSessionManager getReplicantSessionManager()
+    {
+      return _sessionManager;
     }
   }
 }
