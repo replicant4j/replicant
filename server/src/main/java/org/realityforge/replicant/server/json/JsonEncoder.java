@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonWriter;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 import org.realityforge.replicant.server.Change;
@@ -202,5 +203,16 @@ public final class JsonEncoder
     {
       throw new IllegalStateException( "Unable to encode: " + serializable );
     }
+  }
+
+  @Nonnull
+  public static String asString( @Nonnull final JsonObject message )
+  {
+    final StringWriter writer = new StringWriter();
+    final JsonWriter jsonWriter = Json.createWriter( writer );
+    jsonWriter.writeObject( message );
+    jsonWriter.close();
+    writer.flush();
+    return writer.toString();
   }
 }
