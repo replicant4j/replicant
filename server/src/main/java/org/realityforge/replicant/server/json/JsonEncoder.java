@@ -192,7 +192,7 @@ public final class JsonEncoder
     else if ( serializable instanceof Integer )
     {
 
-      final Integer value = (Integer) serializable;
+      final int value = (Integer) serializable;
       if ( 0 != value )
       {
         generator.write( TransportConstants.SUBCHANNEL_ID, value );
