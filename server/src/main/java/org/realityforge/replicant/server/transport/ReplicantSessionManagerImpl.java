@@ -752,8 +752,7 @@ public abstract class ReplicantSessionManagerImpl
                                   @Nullable final Object filter,
                                   @Nonnull final ChangeSet changeSet )
   {
-    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).getFilterType() !=
-           ChannelMetaData.FilterType.NONE;
+    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).hasFilterParameter();
     entry.setFilter( filter );
     final ChannelAddress address = entry.getDescriptor();
     collectDataForSubscriptionUpdate( session, entry.getDescriptor(), changeSet, originalFilter, filter );
