@@ -26,8 +26,12 @@ public final class JsoChangeSet
 
   @Override
   @Nullable
-  public final native String getRequestId()/*-{
-    return this.request_id;
+  public final native Integer getRequestId()/*-{
+    if (typeof (this.request_id) == 'number') {
+      return new @java.lang.Integer::new(I)(this.request_id);
+    } else {
+      return null;
+    }
   }-*/;
 
   @Nullable
@@ -38,12 +42,9 @@ public final class JsoChangeSet
 
   @Override
   public final native int getChangeCount()/*-{
-    if ( this.changes )
-    {
+    if (this.changes) {
       return this.changes.length;
-    }
-    else
-    {
+    } else {
       return 0;
     }
   }-*/;
@@ -61,12 +62,9 @@ public final class JsoChangeSet
 
   @Override
   public native final int getChannelActionCount()/*-{
-    if ( this.channel_actions )
-    {
+    if (this.channel_actions) {
       return this.channel_actions.length;
-    }
-    else
-    {
+    } else {
       return 0;
     }
   }-*/;

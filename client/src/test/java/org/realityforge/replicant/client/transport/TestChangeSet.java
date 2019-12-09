@@ -12,7 +12,7 @@ final class TestChangeSet
   private final int _sequence;
   private final Runnable _runnable;
   private final ChannelAction[] _actions;
-  private String _requestId;
+  private Integer _requestId;
   private String _cacheKey;
   private String _etag;
   private final Change[] _changes;
@@ -44,7 +44,7 @@ final class TestChangeSet
     _cacheKey = cacheKey;
   }
 
-  void setRequestId( final String requestId )
+  void setRequestId( final Integer requestId )
   {
     _requestId = requestId;
   }
@@ -78,7 +78,8 @@ final class TestChangeSet
   }
 
   @Override
-  public String getRequestId()
+  @Nullable
+  public Integer getRequestId()
   {
     return _requestId;
   }

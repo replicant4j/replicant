@@ -868,7 +868,7 @@ public abstract class AbstractDataLoaderService
       }
       final ChangeSet changeSet = parseChangeSet( _currentAction.getRawJsonData() );
       // OOB messages are not in response to requests as such
-      final String requestId = _currentAction.isOob() ? null : changeSet.getRequestId();
+      final Integer requestId = _currentAction.isOob() ? null : changeSet.getRequestId();
       // OOB messages have no etags as from local cache or generated locally
       final String eTag = _currentAction.isOob() ? null : changeSet.getETag();
       final int sequence = _currentAction.isOob() ? 0 : changeSet.getSequence();
@@ -1129,7 +1129,7 @@ public abstract class AbstractDataLoaderService
     {
       runnable.run();
       // OOB messages are not in response to requests as such
-      final String requestId = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestId();
+      final Integer requestId = _currentAction.isOob() ? null : _currentAction.getChangeSet().getRequestId();
       if ( null != requestId )
       {
         // We can remove the request because this side ran second and the

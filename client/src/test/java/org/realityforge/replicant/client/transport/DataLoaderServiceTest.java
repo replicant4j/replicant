@@ -338,7 +338,7 @@ public class DataLoaderServiceTest
     progressWorkTillDone( service, 7, 1 );
 
     assertTrue( request.haveResultsArrived() );
-    final String requestId = changeSet.getRequestId();
+    final Integer requestId = changeSet.getRequestId();
     assertNotNull( requestId );
     assertInRequestManager( service, request );
     assertNotNull( service.getStatus().getRequestId() );

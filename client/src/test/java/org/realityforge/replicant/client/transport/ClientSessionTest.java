@@ -17,7 +17,7 @@ public class ClientSessionTest
 
     assertEquals( rm.getRequest( e.getRequestId() ), e );
     assertEquals( rm.getRequests().get( e.getRequestId() ), e );
-    assertNull( rm.getRequest( "NotHere" + e.getRequestId() ) );
+    assertNull( rm.getRequest( ValueUtil.randomInt() ) );
 
     assertTrue( rm.removeRequest( e.getRequestId() ) );
     assertFalse( rm.removeRequest( e.getRequestId() ) );

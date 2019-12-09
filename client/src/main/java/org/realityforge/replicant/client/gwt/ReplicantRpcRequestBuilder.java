@@ -37,7 +37,7 @@ public class ReplicantRpcRequestBuilder
     }
     else
     {
-      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, entry.getRequestId() );
+      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( entry.getRequestId() ) );
       rb.setCallback( new RequestCallback()
       {
         @Override

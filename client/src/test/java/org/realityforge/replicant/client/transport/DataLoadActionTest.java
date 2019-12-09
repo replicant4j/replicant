@@ -82,8 +82,8 @@ public class DataLoadActionTest
     }
     else
     {
-      changeSet.setRequestId( "X" );
-      final String requestId = changeSet.getRequestId();
+      changeSet.setRequestId( ValueUtil.randomInt() );
+      final Integer requestId = changeSet.getRequestId();
       assertNotNull( requestId );
       final RequestEntry request = new RequestEntry( requestId, "MyOperation", null );
       if ( normalCompletion )

@@ -23,8 +23,8 @@ public final class ClientSession
   @Nonnull
   private final DataLoaderService _dataLoaderService;
   private final String _sessionID;
-  private final Map<String, RequestEntry> _requests = new HashMap<>();
-  private final Map<String, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
+  private final Map<Integer, RequestEntry> _requests = new HashMap<>();
+  private final Map<Integer, RequestEntry> _roRequests = Collections.unmodifiableMap( _requests );
   private int _requestId;
   /**
    * Pending actions that will change the area of interest.
@@ -184,23 +184,23 @@ public final class ClientSession
   }
 
   @Nullable
-  final RequestEntry getRequest( @Nonnull final String requestId )
+  final RequestEntry getRequest( final int requestId )
   {
     return _requests.get( requestId );
   }
 
-  Map<String, RequestEntry> getRequests()
+  Map<Integer, RequestEntry> getRequests()
   {
     return _roRequests;
   }
 
-  final boolean removeRequest( @Nonnull final String requestId )
+  final boolean removeRequest(  final int requestId )
   {
     return null != _requests.remove( requestId );
   }
 
-  protected String newRequestId()
+  protected int newRequestId()
   {
-    return String.valueOf( ++_requestId );
+    return  ++_requestId ;
   }
 }

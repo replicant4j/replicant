@@ -16,7 +16,7 @@ public final class DataLoadStatus
   private final String _systemKey;
   private final int _sequence;
   @Nullable
-  private final String _requestId;
+  private final Integer _requestId;
   @Nonnull
   private final List<ChannelChangeStatus> _channelAdds;
   @Nonnull
@@ -33,7 +33,7 @@ public final class DataLoadStatus
 
   public DataLoadStatus( @Nonnull final String systemKey,
                          final int sequence,
-                         @Nullable final String requestId,
+                         @Nullable final Integer requestId,
                          @Nonnull final List<ChannelChangeStatus> channelAdds,
                          @Nonnull final List<ChannelChangeStatus> channelUpdates,
                          @Nonnull final List<ChannelChangeStatus> channelRemoves,
@@ -64,7 +64,7 @@ public final class DataLoadStatus
   }
 
   @Nullable
-  public String getRequestId()
+  public Integer getRequestId()
   {
     return _requestId;
   }

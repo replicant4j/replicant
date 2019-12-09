@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
  */
 public class RequestEntry
 {
-  private final String _requestId;
+  private final Integer _requestId;
   @Nullable
   private final String _requestKey;
   @Nullable
@@ -18,7 +18,7 @@ public class RequestEntry
   private boolean _resultsArrived;
   private Runnable _completionAction;
 
-  public RequestEntry( @Nonnull final String requestId,
+  public RequestEntry( @Nonnull final Integer requestId,
                        @Nullable final String requestKey,
                        @Nullable final String cacheKey )
   {
@@ -28,7 +28,7 @@ public class RequestEntry
   }
 
   @Nonnull
-  public String getRequestId()
+  public Integer getRequestId()
   {
     return _requestId;
   }
