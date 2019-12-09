@@ -363,7 +363,7 @@ public class ReplicationInterceptorTest
     }
 
     @Override
-    public boolean saveEntityMessages( @Nullable final String sessionID,
+    public boolean saveEntityMessages( @Nullable final String sessionId,
                                        @Nullable final Integer requestId,
                                        @Nonnull final Collection<EntityMessage> messages,
                                        @Nullable final ChangeSet changeSet )
@@ -372,7 +372,7 @@ public class ReplicationInterceptorTest
       {
         fail( "saveEntityMessages called multiple times" );
       }
-      _sessionID = sessionID;
+      _sessionID = sessionId;
       _requestId = requestId;
       _messages = messages;
       _changeSet = changeSet;

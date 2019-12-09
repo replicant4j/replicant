@@ -293,7 +293,7 @@ public abstract class ReplicantSessionManagerImpl
   protected abstract RuntimeException newBadSessionException( @Nonnull String sessionID );
 
   @Override
-  public boolean saveEntityMessages( @Nullable final String sessionID,
+  public boolean saveEntityMessages( @Nullable final String sessionId,
                                      @Nullable final Integer requestId,
                                      @Nonnull final Collection<EntityMessage> messages,
                                      @Nullable final ChangeSet sessionChanges )
@@ -313,7 +313,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         processUpdateMessages( message, sessions, accumulator );
       }
-      final ReplicantSession initiatorSession = null != sessionID ? getSession( sessionID ) : null;
+      final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
       if ( null != initiatorSession && null != sessionChanges )
       {
         accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
@@ -329,7 +329,7 @@ public abstract class ReplicantSessionManagerImpl
       getLock().readLock().unlock();
     }
 
-    return accumulator.complete( sessionID, requestId );
+    return accumulator.complete( sessionId, requestId );
   }
 
   protected abstract void processUpdateMessages( @Nonnull EntityMessage message,
