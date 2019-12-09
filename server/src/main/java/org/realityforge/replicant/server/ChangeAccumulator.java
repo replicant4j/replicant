@@ -17,7 +17,7 @@ public final class ChangeAccumulator
 
   public void addAction( @Nonnull final ReplicantSession session, @Nonnull final ChannelAction action )
   {
-    getChangeSet( session ).addAction( action );
+    getChangeSet( session ).mergeAction( action );
   }
 
   public void addActions( @Nonnull final ReplicantSession session, @Nonnull final Collection<ChannelAction> actions )
@@ -25,7 +25,7 @@ public final class ChangeAccumulator
     final ChangeSet changeSet = getChangeSet( session );
     for ( final ChannelAction action : actions )
     {
-      changeSet.addAction( action );
+      changeSet.mergeAction( action );
     }
   }
 

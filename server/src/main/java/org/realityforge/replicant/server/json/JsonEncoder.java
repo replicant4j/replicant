@@ -110,11 +110,11 @@ public final class JsonEncoder
         writeField( generator, TransportConstants.ENTITY_ID, entityMessage.getId(), dateFormat );
         generator.write( TransportConstants.TYPE_ID, entityMessage.getTypeId() );
 
-        final Map<Integer, Serializable> channels = change.getChannels();
+        final Map<Integer, Integer> channels = change.getChannels();
         if ( channels.size() > 0 )
         {
           generator.writeStartArray( TransportConstants.CHANNELS );
-          for ( final Entry<Integer, Serializable> entry : channels.entrySet() )
+          for ( final Entry<Integer, Integer> entry : channels.entrySet() )
           {
             generator.writeStartObject();
             generator.write( TransportConstants.CHANNEL_ID, entry.getKey() );

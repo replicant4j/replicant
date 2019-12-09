@@ -22,8 +22,8 @@ public class ChangeUtilTest
     assertEquals( changes.size(), 2 );
 
     assertEquals( changes.get( 0 ).getEntityMessage(), message1 );
-    assertEquals( changes.get( 0 ).getChannels().get( 1 ), 26 );
+    assertEquals( changes.get( 0 ).getChannels().get( 1 ), (Integer) 26 );
     assertEquals( changes.get( 1 ).getEntityMessage(), message2 );
-    assertEquals( changes.get( 1 ).getChannels().get( 1 ), 26 );
+    assertEquals( changes.get( 1 ).getChannels().get( 1 ), (Integer) 26 );
   }
 }

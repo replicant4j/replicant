@@ -28,7 +28,7 @@ public class ChangeSetTest
 
     change1.getChannels().put( 1, 1 );
     change2.getChannels().put( 2, 3 );
-    change3.getChannels().put( 3, "S" );
+    change3.getChannels().put( 3, 42 );
 
     final ChangeSet changeSet = new ChangeSet();
 
@@ -63,7 +63,7 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.addAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
+    changeSet.mergeAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
@@ -82,7 +82,7 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final TestFilter myFilter = new TestFilter( 23 );
-    changeSet.addAction( new ChannelAddress( 1, 2 ), Action.ADD, myFilter );
+    changeSet.mergeAction( new ChannelAddress( 1, 2 ), Action.ADD, myFilter );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
@@ -131,7 +131,7 @@ public class ChangeSetTest
     changeSet.merge( change1 );
 
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.addAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
+    changeSet.mergeAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
 
     final ChangeSet changeSet2 = new ChangeSet();
     changeSet2.merge( changeSet, true );
@@ -171,6 +171,6 @@ public class ChangeSetTest
     final Change change = changes.iterator().next();
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
-    assertEquals( change.getChannels().get( 1 ), 0 );
+    assertNull( change.getChannels().get( 1 ) );
   }
 }

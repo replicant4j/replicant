@@ -12,28 +12,74 @@ public final class ChangeSet
 {
   private final LinkedList<ChannelAction> _channelActions = new LinkedList<>();
   private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<>();
+  private boolean _required;
 
-  public void addActions( @Nonnull final Collection<ChannelAction> actions )
+  public boolean isRequired()
+  {
+    return _required;
+  }
+
+  public void setRequired( final boolean required )
+  {
+    _required = required;
+  }
+
+  private void mergeActions( @Nonnull final Collection<ChannelAction> actions )
   {
     for ( final ChannelAction action : actions )
     {
-      addAction( action );
+      mergeAction( action );
     }
   }
 
-  public void addAction( @Nonnull final ChannelAction action )
+  public void mergeAction( @Nonnull final ChannelAddress address,
+                           @Nonnull final ChannelAction.Action action,
+                           @Nullable final Object filter )
   {
+    mergeAction( new ChannelAction( address, action, filterToJsonObject( filter ) ) );
+  }
+
+  public void mergeAction( @Nonnull final ChannelAction action )
+  {
+    /*
+     * If we have an unfiltered inverse action in actions list then we can remove
+     * that action and avoid adding this action. This avoids scenario where there
+     * are multiple actions for the same address in ChangeSet.
+     */
+    if ( ChannelAction.Action.ADD == action.getAction() )
+    {
+      if ( _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.getAction() &&
+                                          a.getAddress().equals( action.getAddress() ) &&
+                                          null == action.getFilter() ) )
+      {
+        return;
+      }
+    }
+    else if ( ChannelAction.Action.REMOVE == action.getAction() )
+    {
+      if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.getAction() &&
+                                          a.getAddress().equals( action.getAddress() ) &&
+                                          null == a.getFilter() ) )
+      {
+        return;
+      }
+    }
+    else if ( ChannelAction.Action.DELETE == action.getAction() )
+    {
+      final boolean removedAdd =
+        _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.getAction() &&
+                                       a.getAddress().equals( action.getAddress() ) );
+      _channelActions.removeIf( a -> a.getAddress().equals( action.getAddress() ) );
+      if ( removedAdd )
+      {
+        return;
+      }
+    }
+
     _channelActions.add( action );
   }
 
-  public void addAction( @Nonnull final ChannelAddress descriptor,
-                         @Nonnull final ChannelAction.Action action,
-                         @Nullable final Object filter )
-  {
-    addAction( new ChannelAction( descriptor, action, filterToJsonObject( filter ) ) );
-  }
-
-  private JsonObject filterToJsonObject( final @Nullable Object filter )
+  private JsonObject filterToJsonObject( @Nullable final Object filter )
   {
     return null == filter ? null : JsonUtil.toJsonObject( filter );
   }
@@ -44,12 +90,12 @@ public final class ChangeSet
     return _channelActions;
   }
 
-  public void mergeAll( @Nonnull final Collection<Change> changes )
+  void mergeAll( @Nonnull final Collection<Change> changes )
   {
     mergeAll( changes, false );
   }
 
-  public void mergeAll( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
+  private void mergeAll( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
   {
     for ( final Change change : changes )
     {
@@ -64,33 +110,28 @@ public final class ChangeSet
 
   public void merge( @Nonnull final Change change, final boolean copyOnMerge )
   {
-    final Change existing = _changes.get( change.getId() );
+    final Change existing = _changes.get( change.getKey() );
     if ( null != existing )
     {
       existing.merge( change );
     }
     else
     {
-      _changes.put( change.getId(), copyOnMerge ? change.duplicate() : change );
+      _changes.put( change.getKey(), copyOnMerge ? change.duplicate() : change );
     }
-  }
-
-  public void merge( @Nonnull final ChangeSet changeSet )
-  {
-    merge( changeSet, false );
   }
 
   public void merge( @Nonnull final ChangeSet changeSet, final boolean copyOnMerge )
   {
     mergeAll( changeSet.getChanges(), copyOnMerge );
-    addActions( changeSet.getChannelActions() );
+    mergeActions( changeSet.getChannelActions() );
   }
 
-  public void merge( @Nonnull final ChannelAddress descriptor, @Nonnull final EntityMessageSet messages )
+  public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
   {
     mergeAll( ChangeUtil.toChanges( messages.getEntityMessages(),
-                                    descriptor.getChannelId(),
-                                    descriptor.getSubChannelId() ) );
+                                    address.getChannelId(),
+                                    address.getSubChannelId() ) );
   }
 
   @Nonnull

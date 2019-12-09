@@ -36,11 +36,11 @@ public class ChangeAccumulatorTest
     assertEquals( c.getQueue().size(), 1 );
     final Packet packet = c.getQueue().nextPacketToProcess();
     final Change change = packet.getChangeSet().getChanges().iterator().next();
-    assertEquals( change.getId(), "42#17" );
+    assertEquals( change.getKey(), "42#17" );
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getEntityMessage().getTypeId(), typeID );
     assertEquals( packet.getRequestId(), requestId );
-    final Map<Integer, Serializable> channels = change.getChannels();
+    final Map<Integer, Integer> channels = change.getChannels();
     assertEquals( channels.size(), 1 );
     assertEquals( channels.get( channelId ), subChannelId );
 
