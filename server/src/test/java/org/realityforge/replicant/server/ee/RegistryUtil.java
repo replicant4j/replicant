@@ -6,7 +6,7 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.guiceyloops.server.TestTransactionSynchronizationRegistry;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.server.ServerConstants;
 import static org.testng.Assert.*;
 
 public final class RegistryUtil
@@ -23,7 +23,7 @@ public final class RegistryUtil
       TestInitialContextFactory.reset();
       final Context context = TestInitialContextFactory.getContext().createSubcontext( "java:comp" );
       final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
-      registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, "Ignored" );
+      registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, "Ignored" );
       context.bind( "TransactionSynchronizationRegistry", registry );
       return registry;
     }

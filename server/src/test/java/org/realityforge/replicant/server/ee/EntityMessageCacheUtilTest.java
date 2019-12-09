@@ -3,7 +3,7 @@ package org.realityforge.replicant.server.ee;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.server.ServerConstants;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -72,7 +72,7 @@ public class EntityMessageCacheUtilTest
   public void lookupOfResourceOutsideReplicationContext()
   {
     TransactionSynchronizationRegistryUtil.lookup().
-      putResource( SharedConstants.REPLICATION_INVOCATION_KEY, null );
+      putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
 
     EntityMessageCacheUtil.lookupSessionChanges();
   }

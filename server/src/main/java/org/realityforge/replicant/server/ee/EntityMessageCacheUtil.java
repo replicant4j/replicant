@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.EntityMessageSet;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.server.ServerConstants;
 
 /**
  * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityMessageSet.
@@ -110,7 +110,7 @@ public final class EntityMessageCacheUtil
   @SuppressWarnings( "unchecked" )
   private static <T> T lookup( final TransactionSynchronizationRegistry r, final String key )
   {
-    final Object invocationContext = r.getResource( SharedConstants.REPLICATION_INVOCATION_KEY );
+    final Object invocationContext = r.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null == invocationContext )
     {
       final String message =

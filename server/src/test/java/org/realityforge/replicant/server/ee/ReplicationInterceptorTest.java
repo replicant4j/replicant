@@ -13,7 +13,6 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.realityforge.replicant.server.ServerConstants;
-import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -327,12 +326,12 @@ public class ReplicationInterceptorTest
 
   private void enableReplicationContext( final TestTransactionSynchronizationRegistry registry )
   {
-    registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, "Test" );
+    registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, "Test" );
   }
 
   private void disableReplicationContext( final TestTransactionSynchronizationRegistry registry )
   {
-    registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, null );
+    registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
   }
 
   static class TestReplicationInterceptor

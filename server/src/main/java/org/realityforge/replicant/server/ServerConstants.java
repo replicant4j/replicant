@@ -3,6 +3,11 @@ package org.realityforge.replicant.server;
 public final class ServerConstants
 {
   /**
+   * Key added to the context when passing through replication method.
+   * Used to ensure that there can be at most one replication context active.
+   */
+  public static final String REPLICATION_INVOCATION_KEY = "ReplicationActive";
+  /**
    * Key used to retrieve an opaque identifier for the session from the ReplicantContextHolder.
    * Used to pass data from the servlet to the EJB.
    */

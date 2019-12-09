@@ -17,7 +17,6 @@ import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.EntityMessageSet;
 import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
-import org.realityforge.replicant.shared.SharedConstants;
 
 /**
  * Utility class for interacting with replication request infrastructure.
@@ -103,7 +102,7 @@ public final class ReplicationRequestUtil
   {
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
     ReplicantContextHolder.clean();
-    final Object existingKey = registry.getResource( SharedConstants.REPLICATION_INVOCATION_KEY );
+    final Object existingKey = registry.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null != existingKey )
     {
       final String message =
@@ -112,7 +111,7 @@ public final class ReplicationRequestUtil
       throw new IllegalStateException( message );
     }
 
-    registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, invocationKey );
+    registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, invocationKey );
     if ( null != sessionID )
     {
       registry.putResource( ServerConstants.SESSION_ID_KEY, sessionID );
@@ -167,7 +166,7 @@ public final class ReplicationRequestUtil
       }
       final Boolean complete = (Boolean) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
       // Clear all state in case there is multiple replication contexts started in one transaction
-      registry.putResource( SharedConstants.REPLICATION_INVOCATION_KEY, null );
+      registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );

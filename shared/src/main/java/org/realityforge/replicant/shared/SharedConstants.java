@@ -3,11 +3,6 @@ package org.realityforge.replicant.shared;
 public final class SharedConstants
 {
   /**
-   * Key added to the context when passing through replication method.
-   * Used to ensure that there can be at most one replication context active.
-   */
-  public static final String REPLICATION_INVOCATION_KEY = "ReplicationActive";
-  /**
    * HTTP request header to indicate the session id.
    */
   public static final String CONNECTION_ID_HEADER = "X-Replicant-SessionID";
