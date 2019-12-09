@@ -15,11 +15,6 @@ public final class ChangeAccumulator
 {
   private final Map<ReplicantSession, ChangeSet> _changeSets = new HashMap<>();
 
-  public void addAction( @Nonnull final ReplicantSession session, @Nonnull final ChannelAction action )
-  {
-    getChangeSet( session ).mergeAction( action );
-  }
-
   public void addActions( @Nonnull final ReplicantSession session, @Nonnull final Collection<ChannelAction> actions )
   {
     final ChangeSet changeSet = getChangeSet( session );
