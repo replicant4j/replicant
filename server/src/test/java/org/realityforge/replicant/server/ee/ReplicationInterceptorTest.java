@@ -77,8 +77,9 @@ public class ReplicationInterceptorTest
     disableReplicationContext( registry );
 
     when( em.isOpen() ).thenReturn( true );
-    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 37 );
+    final String sessionId = "s1";
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -87,8 +88,8 @@ public class ReplicationInterceptorTest
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
-    assertEquals( interceptor._sessionID, "s1" );
-    assertEquals( interceptor._requestId, (Integer) 37 );
+    assertEquals( interceptor._sessionId, sessionId );
+    assertEquals( interceptor._requestId, (Integer) 1 );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
     assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
@@ -105,8 +106,10 @@ public class ReplicationInterceptorTest
     final TestReplicationInterceptor interceptor =
       createInterceptor( registry, entityManager );
 
-    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 37 );
+    final String sessionId = "s1";
+
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
 
     when( entityManager.isOpen() ).thenReturn( true );
 
@@ -129,9 +132,10 @@ public class ReplicationInterceptorTest
     EntityMessageCacheUtil.getSessionChanges( registry ).merge( new Change( message, 44, 77 ) );
     disableReplicationContext( registry );
 
+    final String sessionId = "s1";
     when( em.isOpen() ).thenReturn( true );
-    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 37 );
+    ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
     final Object result = interceptor.businessIntercept( context );
     verify( em ).flush();
 
@@ -140,8 +144,8 @@ public class ReplicationInterceptorTest
 
     assertTrue( context.isInvoked() );
     assertEquals( result, TestInvocationContext.RESULT );
-    assertEquals( interceptor._sessionID, "s1" );
-    assertEquals( interceptor._requestId, (Integer) 37 );
+    assertEquals( interceptor._sessionId, sessionId );
+    assertEquals( interceptor._requestId, (Integer) 1 );
     assertNotNull( interceptor._messages );
     assertEquals( interceptor._changeSet.getChanges().size(), 1 );
     final Change change = interceptor._changeSet.getChanges().iterator().next();
@@ -174,7 +178,6 @@ public class ReplicationInterceptorTest
 
   @Test
   public void ensureNestedInvocationsShouldExcept()
-    throws Exception
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final EntityManager em = mock( EntityManager.class );
@@ -200,7 +203,7 @@ public class ReplicationInterceptorTest
 
     when( em.isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, "s1" );
-    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 37 );
+    ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
     try
     {
       interceptor.businessIntercept( context );
@@ -245,7 +248,7 @@ public class ReplicationInterceptorTest
     }
 
     assertTrue( context.isInvoked() );
-    assertNull( interceptor._sessionID );
+    assertNull( interceptor._sessionId );
     assertNull( interceptor._requestId );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
@@ -277,7 +280,7 @@ public class ReplicationInterceptorTest
     final Object result = interceptor.businessIntercept( context );
 
     assertTrue( context.isInvoked() );
-    assertNull( interceptor._sessionID );
+    assertNull( interceptor._sessionId );
     assertNull( interceptor._requestId );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -303,7 +306,7 @@ public class ReplicationInterceptorTest
     verify( em ).flush();
 
     assertTrue( context.isInvoked() );
-    assertNull( interceptor._sessionID );
+    assertNull( interceptor._sessionId );
     assertNull( interceptor._requestId );
     assertNull( interceptor._messages );
     assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
@@ -338,10 +341,10 @@ public class ReplicationInterceptorTest
     extends AbstractReplicationInterceptor
     implements EntityMessageEndpoint
   {
-    private String _sessionID;
+    @Nonnull
+    private final EntityManager _entityManager;
     private Integer _requestId;
     private Collection<EntityMessage> _messages;
-    private EntityManager _entityManager;
     private final TransactionSynchronizationRegistry _registry;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
@@ -372,7 +375,7 @@ public class ReplicationInterceptorTest
       {
         fail( "saveEntityMessages called multiple times" );
       }
-      _sessionID = sessionId;
+      _sessionId = sessionId;
       _requestId = requestId;
       _messages = messages;
       _changeSet = changeSet;
