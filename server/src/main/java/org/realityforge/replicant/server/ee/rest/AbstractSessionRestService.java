@@ -370,7 +370,7 @@ public abstract class AbstractSessionRestService
   @Nonnull
   protected Response doCreateSession()
   {
-    return buildResponse( Response.ok(), getSessionManager().createSession().getSessionID() );
+    return buildResponse( Response.ok(), getSessionManager().createSession().getId() );
   }
 
   @Nonnull

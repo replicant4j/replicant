@@ -126,7 +126,7 @@ public abstract class ReplicantSessionManagerImpl
     _lock.writeLock().lock();
     try
     {
-      _sessions.put( sessionInfo.getSessionID(), sessionInfo );
+      _sessions.put( sessionInfo.getId(), sessionInfo );
     }
     finally
     {

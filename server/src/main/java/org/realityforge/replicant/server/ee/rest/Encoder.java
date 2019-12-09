@@ -51,7 +51,7 @@ final class Encoder
   {
     final PacketQueue queue = session.getQueue();
     g.writeStartObject();
-    g.write( "id", session.getSessionID() );
+    g.write( "id", session.getId() );
     final String userID = session.getUserID();
     if ( null == userID )
     {
@@ -136,7 +136,7 @@ final class Encoder
   @Nonnull
   private static String getSessionURL( @Nonnull final ReplicantSession session, @Nonnull final UriInfo uri )
   {
-    return uri.getBaseUri() + SharedConstants.CONNECTION_URL_FRAGMENT.substring( 1 ) + "/" + session.getSessionID();
+    return uri.getBaseUri() + SharedConstants.CONNECTION_URL_FRAGMENT.substring( 1 ) + "/" + session.getId();
   }
 
   @Nonnull

@@ -64,7 +64,7 @@ public final class ChangeAccumulator
     for ( final Entry<ReplicantSession, ChangeSet> entry : _changeSets.entrySet() )
     {
       final ReplicantSession session = entry.getKey();
-      final boolean isInitiator = session.getSessionID().equals( sessionID );
+      final boolean isInitiator = session.getId().equals( sessionID );
       final ChangeSet changeSet = entry.getValue();
       if ( !changeSet.getChannelActions().isEmpty() || !changeSet.getChanges().isEmpty() )
       {

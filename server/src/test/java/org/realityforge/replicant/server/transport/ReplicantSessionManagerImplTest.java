@@ -68,7 +68,7 @@ public class ReplicantSessionManagerImplTest
     final ReplicantSession sessionInfo = sm.createSession();
     assertNotNull( sessionInfo );
     assertNull( sessionInfo.getUserID() );
-    assertNotNull( sessionInfo.getSessionID() );
+    assertNotNull( sessionInfo.getId() );
     assertEquals( sm.getSessionIDs().size(), 1 );
     assertEquals( sessionInfo.getCreatedAt(), sessionInfo.getLastAccessedAt() );
     assertTrue( System.currentTimeMillis() - sessionInfo.getCreatedAt() < 100L );
@@ -76,16 +76,16 @@ public class ReplicantSessionManagerImplTest
     Thread.sleep( 1 );
 
     // Make sure we can also get it thorugh the map interface
-    assertEquals( sm.getSessions().get( sessionInfo.getSessionID() ), sessionInfo );
+    assertEquals( sm.getSessions().get( sessionInfo.getId() ), sessionInfo );
 
     // The next line should update the last accessed time too!
-    assertEquals( sm.getSession( sessionInfo.getSessionID() ), sessionInfo );
+    assertEquals( sm.getSession( sessionInfo.getId() ), sessionInfo );
     assertNotEquals( sessionInfo.getCreatedAt(), sessionInfo.getLastAccessedAt() );
 
-    assertTrue( sm.invalidateSession( sessionInfo.getSessionID() ) );
+    assertTrue( sm.invalidateSession( sessionInfo.getId() ) );
     assertEquals( sm.getSessionIDs().size(), 0 );
-    assertFalse( sm.invalidateSession( sessionInfo.getSessionID() ) );
-    assertNull( sm.getSession( sessionInfo.getSessionID() ) );
+    assertFalse( sm.invalidateSession( sessionInfo.getId() ) );
+    assertNull( sm.getSession( sessionInfo.getId() ) );
   }
 
   @Test
@@ -100,11 +100,11 @@ public class ReplicantSessionManagerImplTest
     }
     final int removeCount = sm.removeIdleSessions( 10000 );
     assertEquals( removeCount, 0 );
-    assertEquals( sm.getSessions().get( session.getSessionID() ), session );
+    assertEquals( sm.getSessions().get( session.getId() ), session );
 
     final int removeCount2 = sm.removeIdleSessions( 0 );
     assertEquals( removeCount2, 1 );
-    assertNull( sm.getSessions().get( session.getSessionID() ) );
+    assertNull( sm.getSessions().get( session.getId() ) );
   }
 
   @Test
@@ -142,7 +142,7 @@ public class ReplicantSessionManagerImplTest
       @Override
       public void run()
       {
-        sessions[ 1 ] = sm.getSession( sessions[ 0 ].getSessionID() );
+        sessions[ 1 ] = sm.getSession( sessions[ 0 ].getId() );
       }
     } );
 
@@ -160,7 +160,7 @@ public class ReplicantSessionManagerImplTest
       @Override
       public void run()
       {
-        invalidated[ 0 ] = sm.invalidateSession( sessions[ 0 ].getSessionID() );
+        invalidated[ 0 ] = sm.invalidateSession( sessions[ 0 ].getId() );
       }
     } );
 
@@ -420,7 +420,7 @@ public class ReplicantSessionManagerImplTest
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
     final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getSessionID(), cd1, null, null, getChangeSet() );
+      sm.subscribe( session.getId(), cd1, null, null, getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
     final SubscriptionEntry entry1 = session.findSubscriptionEntry( cd1 );
@@ -449,7 +449,7 @@ public class ReplicantSessionManagerImplTest
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
     final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getSessionID(), cd1, null, "X", getChangeSet() );
+      sm.subscribe( session.getId(), cd1, null, "X", getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.USE );
 
     assertEquals( session.getETag( cd1 ), "X" );
@@ -480,7 +480,7 @@ public class ReplicantSessionManagerImplTest
     assertNull( session.findSubscriptionEntry( cd1 ) );
 
     final ReplicantSessionManagerImpl.CacheStatus status =
-      sm.subscribe( session.getSessionID(), cd1, null, "Y", getChangeSet() );
+      sm.subscribe( session.getId(), cd1, null, "Y", getChangeSet() );
     assertEquals( status, ReplicantSessionManager.CacheStatus.REFRESH );
 
     assertNull( session.getETag( cd1 ) );
@@ -867,8 +867,8 @@ public class ReplicantSessionManagerImplTest
 
     assertChannelActionCount( 0 );
 
-    sm.unsubscribe( session.getSessionID(), cd1, getChangeSet() );
-    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getSessionID() );
+    sm.unsubscribe( session.getId(), cd1, getChangeSet() );
+    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getId() );
 
     assertChannelActionCount( 1 );
     assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -959,7 +959,7 @@ public class ReplicantSessionManagerImplTest
       subChannelIds.add( cd3.getSubChannelId() );
       // This next one is for wrong channel so should be no-op
       subChannelIds.add( cd4.getSubChannelId() );
-      sm.bulkUnsubscribe( session.getSessionID(), ch1.getChannelId(), subChannelIds, true, getChangeSet() );
+      sm.bulkUnsubscribe( session.getId(), ch1.getChannelId(), subChannelIds, true, getChangeSet() );
 
       assertChannelActionCount( 2 );
       assertChannelAction( getChannelActions().get( 0 ), cd1, ChannelAction.Action.REMOVE, null );
@@ -1073,9 +1073,9 @@ public class ReplicantSessionManagerImplTest
 
     assertChannelActionCount( 0 );
 
-    sm.updateSubscription( session.getSessionID(), cd, filter, getChangeSet() );
+    sm.updateSubscription( session.getId(), cd, filter, getChangeSet() );
 
-    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getSessionID() );
+    assertEquals( registry.getResource( ServerConstants.SESSION_ID_KEY ), session.getId() );
 
     assertEntry( e1, false, 0, 0, filter );
 
@@ -1133,7 +1133,7 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 0 );
 
     // Attempt to update both channels
-    sm.bulkUpdateSubscription( session.getSessionID(), ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
+    sm.bulkUpdateSubscription( session.getId(), ch1.getChannelId(), subChannelIds, filter, getChangeSet() );
 
     assertEntry( e1, false, 0, 0, filter );
     assertEntry( e2, false, 0, 0, filter );
@@ -1347,7 +1347,7 @@ public class ReplicantSessionManagerImplTest
     assertTrue( ensureFailed, "Ensure expected to fail with non-existent session" );
 
     final ReplicantSession session = sm.createSession();
-    assertEquals( sm.ensureSession( session.getSessionID() ), session );
+    assertEquals( sm.ensureSession( session.getId() ), session );
   }
 
   @Test
@@ -1356,7 +1356,7 @@ public class ReplicantSessionManagerImplTest
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.newReplicantSession();
 
-    assertTrue( session.getSessionID().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
+    assertTrue( session.getId().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
   }
 
   @Test
