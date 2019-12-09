@@ -52,7 +52,7 @@ import org.realityforge.replicant.shared.SharedConstants;
  * Extend this class and provider a SessionManager as required. ie.
  *
  * <pre>
- * \@Path( ReplicantContext.SESSION_URL_FRAGMENT )
+ * \@Path( ReplicantContext.CONNECTION_URL_FRAGMENT )
  * \@Produces( MediaType.APPLICATION_JSON )
  * \@ApplicationScoped
  * public class CalendarSessionRestService
@@ -160,7 +160,7 @@ public abstract class AbstractSessionRestService
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
-                              @PathParam( "subChannelId" ) @NotNull final String subChannelId,
+                              @PathParam( "subChannelId" ) @NotNull final int subChannelId,
                               @Context @Nonnull final UriInfo uri )
   {
     return doGetChannel( sessionId, toChannelDescriptor( channelId, subChannelId ), uri );
@@ -201,10 +201,10 @@ public abstract class AbstractSessionRestService
   @DELETE
   public Response unsubscribeFromInstanceChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                                   @PathParam( "channelId" ) final int channelId,
-                                                  @PathParam( "subChannelId" ) @NotNull final String subChannelText,
+                                                  @PathParam( "subChannelId" ) final int subChannelId,
                                                   @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId )
   {
-    return doUnsubscribeChannel( sessionId, requestId, toChannelDescriptor( channelId, subChannelText ) );
+    return doUnsubscribeChannel( sessionId, requestId, toChannelDescriptor( channelId, subChannelId ) );
   }
 
   @Path( "{sessionId}/channel/{channelId:\\d+}" )
@@ -244,7 +244,7 @@ public abstract class AbstractSessionRestService
   @PUT
   public Response subscribeToInstanceChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                                               @PathParam( "channelId" ) @NotNull final int channelId,
-                                              @PathParam( "subChannelId" ) @NotNull final String subChannelText,
+                                              @PathParam( "subChannelId" ) @NotNull final int subChannelId,
                                               @HeaderParam( SharedConstants.REQUEST_ID_HEADER ) @Nullable final Integer requestId,
                                               @HeaderParam( SharedConstants.ETAG_HEADER ) @Nullable final String eTag,
                                               @Nonnull final String filterContent )
@@ -252,7 +252,7 @@ public abstract class AbstractSessionRestService
     return doSubscribeChannel( sessionId,
                                requestId,
                                eTag,
-                               toChannelDescriptor( channelId, subChannelText ),
+                               toChannelDescriptor( channelId, subChannelId ),
                                filterContent );
   }
 
@@ -411,9 +411,9 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private ChannelAddress toChannelDescriptor( final int channelId, @Nonnull final String subChannelText )
+  private ChannelAddress toChannelDescriptor( final int channelId, final int subChannelId )
   {
-    return new ChannelAddress( channelId, extractSubChannelId( channelId, subChannelText ) );
+    return new ChannelAddress( channelId, subChannelId );
   }
 
   @Nonnull
@@ -426,22 +426,6 @@ public abstract class AbstractSessionRestService
       throw new WebApplicationException( response );
     }
     return new ChannelAddress( channelId );
-  }
-
-  @Nonnull
-  private Integer extractSubChannelId( final int channelId, @Nonnull final String subChannelText )
-  {
-    final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
-    if ( channelMetaData.isTypeGraph() )
-    {
-      final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Attempted to supply subChannelId to type graph" );
-      throw new WebApplicationException( response );
-    }
-    else
-    {
-      return Integer.parseInt( subChannelText );
-    }
   }
 
   @Nonnull
