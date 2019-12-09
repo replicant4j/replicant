@@ -18,10 +18,7 @@ public final class ReplicantSession
   private long _lastAccessedAt;
   private final PacketQueue _queue = new PacketQueue();
   private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
-  private final Map<ChannelAddress, String> _roETags = Collections.unmodifiableMap( _eTags );
   private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
-  private final Map<ChannelAddress, SubscriptionEntry> _roSubscriptions =
-    Collections.unmodifiableMap( _subscriptions );
 
   public ReplicantSession( @Nullable final String userID, @Nonnull final String id )
   {
@@ -96,7 +93,7 @@ public final class ReplicantSession
   @Nonnull
   public Map<ChannelAddress, String> getETags()
   {
-    return _roETags;
+    return Collections.unmodifiableMap( _eTags );
   }
 
   @SuppressWarnings( "WeakerAccess" )
@@ -122,7 +119,7 @@ public final class ReplicantSession
   @Nonnull
   public final Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
   {
-    return _roSubscriptions;
+    return Collections.unmodifiableMap( _subscriptions );
   }
 
   /**
