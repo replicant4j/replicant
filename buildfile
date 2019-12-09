@@ -38,7 +38,10 @@ define 'replicant' do
 
   define 'server' do
     pom.provided_dependencies.concat PROVIDED_DEPS
-    pom.optional_dependencies.concat OPTIONAL_DEPS
+    pom.dependency_filter = Proc.new do |dep|
+      dep[:scope].to_s != 'test' &&
+        project('shared').package(:jar) != dep[:artifact]
+    end
 
     compile.with PROVIDED_DEPS, COMPILE_DEPS, project('shared').package(:jar)
 
