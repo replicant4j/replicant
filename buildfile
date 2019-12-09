@@ -77,6 +77,7 @@ define 'replicant' do
     end
     package(:javadoc)
 
+    test.options[:java_args] = ['-ea']
     gwt(%w(org.realityforge.replicant.Replicant org.realityforge.replicant.ReplicantDev),
         :java_args => %w(-Xms512M -Xmx1024M),
         :draft_compile => 'true') unless ENV['GWT'] == 'no'
