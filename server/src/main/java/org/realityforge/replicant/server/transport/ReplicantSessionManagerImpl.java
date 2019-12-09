@@ -516,9 +516,9 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        final ArrayList<ChannelAddress> descriptors =
+        final ArrayList<ChannelAddress> addresses =
           channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() );
-        descriptors.add( address );
+        addresses.add( address );
       }
     }
 
@@ -543,20 +543,20 @@ public abstract class ReplicantSessionManagerImpl
       for ( final Map.Entry<Object, ArrayList<ChannelAddress>> update : channelsToUpdate.entrySet() )
       {
         final Object originalFilter = update.getKey();
-        final ArrayList<ChannelAddress> descriptors = update.getValue();
+        final ArrayList<ChannelAddress> addresses = update.getValue();
         boolean bulkLoaded = false;
 
-        if ( descriptors.size() > 1 )
+        if ( addresses.size() > 1 )
         {
           bulkLoaded = bulkCollectDataForSubscriptionUpdate( session,
-                                                             descriptors,
+                                                             addresses,
                                                              changeSet,
                                                              originalFilter,
                                                              filter );
         }
         if ( !bulkLoaded )
         {
-          for ( final ChannelAddress address : descriptors )
+          for ( final ChannelAddress address : addresses )
           {
             //Just call subscribe as it will do the "right" thing wrt to checking if it needs updates etc.
             subscribe( session, address, true, filter, changeSet );
@@ -778,7 +778,7 @@ public abstract class ReplicantSessionManagerImpl
    * @return true if method has actually bulk loaded all data, false otherwise.
    */
   protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
-                                                          @Nonnull ArrayList<ChannelAddress> descriptors,
+                                                          @Nonnull ArrayList<ChannelAddress> addresses,
                                                           @Nonnull ChangeSet changeSet,
                                                           @Nullable Object filter,
                                                           boolean explicitSubscribe );
@@ -795,7 +795,7 @@ public abstract class ReplicantSessionManagerImpl
    * filter, adding graph links etc.
    */
   protected abstract boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                                                   @Nonnull ArrayList<ChannelAddress> descriptors,
+                                                                   @Nonnull ArrayList<ChannelAddress> addresses,
                                                                    @Nonnull ChangeSet changeSet,
                                                                    @Nullable Object originalFilter,
                                                                    @Nullable Object filter );
