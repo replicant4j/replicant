@@ -84,20 +84,20 @@ public final class ReplicantSession
   }
 
   @Nullable
-  public String getETag( @Nonnull final ChannelAddress descriptor )
+  public String getETag( @Nonnull final ChannelAddress address )
   {
-    return _eTags.get( descriptor );
+    return _eTags.get( address );
   }
 
-  public void setETag( @Nonnull final ChannelAddress descriptor, @Nullable final String eTag )
+  public void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
   {
     if ( null == eTag )
     {
-      _eTags.remove( descriptor );
+      _eTags.remove( address );
     }
     else
     {
-      _eTags.put( descriptor, eTag );
+      _eTags.put( address, eTag );
     }
   }
 
@@ -111,12 +111,12 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nonnull
-  public final SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress descriptor )
+  public final SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    final SubscriptionEntry entry = findSubscriptionEntry( descriptor );
+    final SubscriptionEntry entry = findSubscriptionEntry( address );
     if ( null == entry )
     {
-      throw new IllegalStateException( "Unable to locate subscription entry for " + descriptor );
+      throw new IllegalStateException( "Unable to locate subscription entry for " + address );
     }
     return entry;
   }
@@ -127,17 +127,17 @@ public final class ReplicantSession
    * @throws IllegalStateException if subscription already exists.
    */
   @Nonnull
-  public final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress descriptor )
+  public final SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    if ( !_subscriptions.containsKey( descriptor ) )
+    if ( !_subscriptions.containsKey( address ) )
     {
-      final SubscriptionEntry entry = new SubscriptionEntry( descriptor );
-      _subscriptions.put( descriptor, entry );
+      final SubscriptionEntry entry = new SubscriptionEntry( address );
+      _subscriptions.put( address, entry );
       return entry;
     }
     else
     {
-      throw new IllegalStateException( "SubscriptionEntry for channel " + descriptor + " already exists" );
+      throw new IllegalStateException( "SubscriptionEntry for channel " + address + " already exists" );
     }
   }
 
@@ -145,17 +145,17 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nullable
-  public final SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress descriptor )
+  public final SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    return _subscriptions.get( descriptor );
+    return _subscriptions.get( address );
   }
 
   /**
    * Return true if specified channel is present.
    */
-  public final boolean isSubscriptionEntryPresent( final ChannelAddress descriptor )
+  public final boolean isSubscriptionEntryPresent( final ChannelAddress address )
   {
-    return null != findSubscriptionEntry( descriptor );
+    return null != findSubscriptionEntry( address );
   }
 
   /**
