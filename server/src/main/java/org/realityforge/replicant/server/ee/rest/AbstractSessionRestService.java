@@ -57,6 +57,7 @@ import org.realityforge.replicant.shared.SharedConstants;
  * }
  * </pre>
  */
+@SuppressWarnings( "UnresolvedRestParam" )
 public abstract class AbstractSessionRestService
 {
   private JsonGeneratorFactory _factory;
