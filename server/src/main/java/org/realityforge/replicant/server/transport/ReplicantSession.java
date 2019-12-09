@@ -17,7 +17,9 @@ public final class ReplicantSession
   private long _createdAt;
   private long _lastAccessedAt;
   private final PacketQueue _queue = new PacketQueue();
+  @Nonnull
   private final HashMap<ChannelAddress, String> _eTags = new HashMap<>();
+  @Nonnull
   private final HashMap<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
 
   public ReplicantSession( @Nullable final String userID, @Nonnull final String id )
