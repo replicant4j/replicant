@@ -80,12 +80,7 @@ public final class EntityMessage
   public EntityMessage duplicate()
   {
     final EntityMessage message =
-      new EntityMessage( getId(),
-                         getTypeId(),
-                         getTimestamp(),
-                         new HashMap<>(),
-                         new HashMap<>(),
-                         null );
+      new EntityMessage( getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>(), null );
     message.merge( this );
     return message;
   }
