@@ -12,8 +12,8 @@ import static org.testng.Assert.*;
  */
 public final class MessageTestUtil
 {
-  public static final String ROUTING_KEY1 = "ROUTING_KEY1";
-  public static final String ROUTING_KEY2 = "ROUTING_KEY2";
+  static final String ROUTING_KEY1 = "ROUTING_KEY1";
+  static final String ROUTING_KEY2 = "ROUTING_KEY2";
   public static final String ATTR_KEY1 = "ATTR_KEY1";
   public static final String ATTR_KEY2 = "ATTR_KEY2";
 
@@ -80,9 +80,9 @@ public final class MessageTestUtil
     assertEquals( values.get( key ), value );
   }
 
-  public static void assertRouteValue( final EntityMessage message,
-                                       final String key,
-                                       final String value )
+  static void assertRouteValue( final EntityMessage message,
+                                final String key,
+                                final String value )
   {
     assertEquals( message.getRoutingKeys().get( key ), value );
   }
