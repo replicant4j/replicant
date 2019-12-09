@@ -74,6 +74,7 @@ import org.realityforge.replicant.shared.SharedConstants;
  * }
  * </pre>
  */
+@SuppressWarnings( "UnresolvedRestParam" )
 public abstract class AbstractSessionRestService
   extends AbstractReplicantRestService
 {
