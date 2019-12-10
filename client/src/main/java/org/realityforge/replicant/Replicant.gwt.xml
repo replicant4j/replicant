@@ -4,7 +4,6 @@
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.storage.Storage"/>
   <inherits name="com.google.gwt.user.Window"/>
-  <inherits name="com.google.gwt.http.HTTP"/>
   <inherits name="com.google.gwt.json.JSON"/>
 
   <source path='client'>
