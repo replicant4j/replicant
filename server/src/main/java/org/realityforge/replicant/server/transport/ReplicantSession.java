@@ -77,6 +77,7 @@ public final class ReplicantSession
   /**
    * @return a token used for authentication, if any.
    */
+  @SuppressWarnings( "unused" )
   @Nullable
   public String getAuthToken()
   {
