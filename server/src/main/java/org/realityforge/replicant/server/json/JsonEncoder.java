@@ -20,7 +20,9 @@ import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAction.Action;
+import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.shared.SharedConstants;
 
 /**
  * Utility class used when encoding EntityMessage into JSON payload.
