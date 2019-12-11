@@ -6,12 +6,9 @@
   <inherits name="com.google.gwt.user.Window"/>
   <inherits name="com.google.gwt.json.JSON"/>
 
+  <source path='shared'/>
   <source path='client'>
-    <include name='*.java'/>
-    <include name='gwt/**/*'/>
-    <include name='transport/**/*'/>
-    <include name='runtime/**/*'/>
-    <include name='net/**/*'/>
+    <exclude name='test/**/*'/>
   </source>
 
   <super-source path="sprsrc"/>
