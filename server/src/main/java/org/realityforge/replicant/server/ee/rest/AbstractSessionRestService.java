@@ -274,6 +274,7 @@ public abstract class AbstractSessionRestService
     final String invocationKey =
       getInvocationKey( address.getChannelId(), address.getSubChannelId(), "Subscribe" );
     runRequest( invocationKey, getSession( sessionId ), requestId, action );
+    final Response.Status status = Response.Status.OK;
     return standardResponse( status, "Channel subscription added." );
   }
 
