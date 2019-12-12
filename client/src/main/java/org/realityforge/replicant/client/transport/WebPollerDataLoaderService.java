@@ -51,9 +51,9 @@ public abstract class WebPollerDataLoaderService
   @Nonnull
   protected abstract String getEndpointOffset();
 
-  protected void onSessionCreated( @Nonnull final String sessionID, @Nullable final Runnable runnable )
+  protected void onSessionCreated( @Nonnull final String sessionId, @Nullable final Runnable runnable )
   {
-    setSession( new ClientSession( this, sessionID ), runnable );
+    setSession( new ClientSession( this, sessionId ), runnable );
     scheduleDataLoad();
     startPolling();
   }
