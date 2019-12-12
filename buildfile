@@ -4,7 +4,7 @@ require 'buildr/gwt'
 require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
-GWT_DEPS = [:google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject, :gwt_user]
+GWT_DEPS = [:jsinterop_annotations, :jsinterop_base, :google_guice, :google_guice_assistedinject, :aopalliance, :gwt_gin, :javax_inject, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 

@@ -45,3 +45,6 @@ artifacts:
   graphql_java: com.graphql-java:graphql-java:jar:13.0
 
   gwt_webpoller: org.realityforge.gwt.webpoller:gwt-webpoller:jar:0.9.1
+
+  jsinterop_annotations: org.realityforge.com.google.jsinterop:jsinterop-annotations:jar:2.8.2-v20191108
+  jsinterop_base: com.google.jsinterop:base:jar:1.0.0
