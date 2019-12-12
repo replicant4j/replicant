@@ -14,8 +14,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeAccumulator;
