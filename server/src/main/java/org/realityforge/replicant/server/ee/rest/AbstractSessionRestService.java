@@ -552,7 +552,7 @@ public abstract class AbstractSessionRestService
 
   @Nonnull
   private Response buildResponse( @Nonnull final Response.ResponseBuilder builder,
-                                    @Nonnull final String content )
+                                  @Nonnull final String content )
   {
     CacheUtil.configureNoCacheHeaders( builder );
     return builder.entity( content ).build();
