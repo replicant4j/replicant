@@ -1250,7 +1250,7 @@ public class ReplicantSessionManagerImplTest
     assertEquals( packet.getETag(), "X" );
     assertEquals( packet.getRequestId(), requestId );
     assertEquals( packet.getChangeSet().getChanges().size(), 0 );
-    assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
+    assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test

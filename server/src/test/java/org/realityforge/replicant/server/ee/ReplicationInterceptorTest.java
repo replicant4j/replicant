@@ -105,7 +105,7 @@ public class ReplicationInterceptorTest
   {
     final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
     final TestInvocationContext context = new TestInvocationContext();
-    context.setRunnable( () -> registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE ) );
+    context.setRunnable( () -> registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" ) );
     final TestReplicationInterceptor interceptor = createInterceptor( registry );
 
     final String sessionId = "s1";

@@ -144,14 +144,14 @@ public final class ReplicationRequestUtil
           requestComplete = !endpoint.saveEntityMessages( sessionId, requestId, messages, changeSet );
         }
       }
-      final Boolean complete = (Boolean) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+      final String complete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
       // Clear all state in case there is multiple replication contexts started in one transaction
       registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
 
-      final boolean isComplete = !( null != complete && !complete ) && requestComplete;
+      final boolean isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;
       ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
     }
     else

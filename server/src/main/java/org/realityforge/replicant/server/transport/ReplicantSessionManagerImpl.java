@@ -219,7 +219,7 @@ public abstract class ReplicantSessionManagerImpl
                    @Nonnull final ChangeSet changeSet )
   {
     final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
-    getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, Boolean.FALSE );
+    getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
     session.sendPacket( requestId, etag, changeSet );
   }
 
