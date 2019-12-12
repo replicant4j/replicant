@@ -368,7 +368,8 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 1 );
   }
 
-  @Test
+  //TODO: Re-enable test once caching is re-enabled
+  @Test( enabled = false )
   public void subscribe_withSessionID_andCaching()
     throws Exception
   {
