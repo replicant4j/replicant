@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Consistently use `String` values when setting `REQUEST_COMPLETE_KEY` rather than using `String` in some contexts and `Boolean` in other contexts.
+
 ### [v6.52](https://github.com/replicant4j/replicant/tree/v6.52) (2019-11-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.51...v6.52)
 
 * Simplify `ReplicantSubscription` to ease subclassing by reducing the number of template methods that need to be implemented.

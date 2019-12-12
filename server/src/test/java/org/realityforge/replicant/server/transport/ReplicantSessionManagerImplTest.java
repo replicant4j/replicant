@@ -1262,7 +1262,7 @@ public class ReplicantSessionManagerImplTest
 
     final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
     verify( remote ).sendText( "{\"type\":\"update\",\"requestId\":1,\"etag\":\"X\"}" );
-    assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), Boolean.FALSE );
+    assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
   }
 
   @Test
