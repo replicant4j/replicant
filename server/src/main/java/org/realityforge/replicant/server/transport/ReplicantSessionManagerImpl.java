@@ -501,7 +501,8 @@ public abstract class ReplicantSessionManagerImpl
         }
 
         final String eTag = cacheEntry.getCacheKey();
-        if ( eTag.equals( session.getETag( address ) ) )
+        //TODO: Re-add support for cache hits
+        if ( false && eTag.equals( session.getETag( address ) ) )
         {
         }
         else
