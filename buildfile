@@ -58,7 +58,6 @@ define 'replicant' do
     end
     package(:javadoc)
 
-    test.options[:properties] = TEST_OPTIONS
     test.options[:java_args] = ['-ea']
 
     test.using :testng
@@ -111,7 +110,13 @@ define 'replicant' do
     end
     package(:javadoc)
 
-    test.options[:properties] = TEST_OPTIONS
+    test.options[:properties] = {
+      'braincheck.environment' => 'development',
+      'arez.environment' => 'development',
+      'replicant.environment' => 'development',
+      'replicant.check_diagnostic_messages' => 'true',
+      'replicant.diagnostic_messages_file' => _('src/test/java/replicant/diagnostic_messages.json')
+    }
     test.options[:java_args] = ['-ea']
 
     test.using :testng
