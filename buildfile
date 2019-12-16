@@ -136,6 +136,7 @@ define 'replicant' do
     p.enable_annotation_processor = false if p.processorpath.empty?
   end
   project('shared').task('upload').actions.clear
+
   ipr.add_component('JavaProjectCodeInsightSettings') do |xml|
     xml.tag!('excluded-names') do
       xml << '<name>com.sun.istack.internal.NotNull</name>'
