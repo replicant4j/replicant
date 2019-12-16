@@ -189,7 +189,7 @@ public final class ReplicantContext
    * @return the subscription if it exists, null otherwise.
    */
   @Nullable
-  public final Subscription findSubscription( @Nonnull final ChannelAddress address )
+  public Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
     return getSubscriptionService().findSubscription( address );
   }
@@ -413,7 +413,7 @@ public final class ReplicantContext
    * @return the underlying EntityService.
    */
   @Nonnull
-  final EntityService getEntityService()
+  EntityService getEntityService()
   {
     return _entityService;
   }
@@ -424,7 +424,7 @@ public final class ReplicantContext
    * @return the underlying SubscriptionService.
    */
   @Nonnull
-  final SubscriptionService getSubscriptionService()
+  SubscriptionService getSubscriptionService()
   {
     return _subscriptionService;
   }
@@ -435,7 +435,7 @@ public final class ReplicantContext
    * @return the underlying ReplicantRuntime.
    */
   @Nonnull
-  final ReplicantRuntime getRuntime()
+  ReplicantRuntime getRuntime()
   {
     return _runtime;
   }
@@ -446,7 +446,7 @@ public final class ReplicantContext
    * @return the underlying Converger.
    */
   @Nonnull
-  final Converger getConverger()
+  Converger getConverger()
   {
     return _converger;
   }
@@ -457,7 +457,7 @@ public final class ReplicantContext
    * @return the underlying SchemaService.
    */
   @Nonnull
-  final SchemaService getSchemaService()
+  SchemaService getSchemaService()
   {
     return _schemaService;
   }
@@ -468,7 +468,7 @@ public final class ReplicantContext
    * @return the underlying Validator.
    */
   @Nonnull
-  final Validator getValidator()
+  Validator getValidator()
   {
     return _validator;
   }
