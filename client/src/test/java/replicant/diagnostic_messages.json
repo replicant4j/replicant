@@ -117,6 +117,19 @@
     ]
   },
   {
+    "code":10,
+    "type":"FAIL",
+    "messagePattern":"Error sending event to listener: replicant.EntityChangeBrokerTest$1@3aaf4f07 Error: java.lang.UnsupportedOperationException",
+    "callers":[
+      {
+        "class":"replicant.EntityChangeBroker",
+        "method":"doSendEvent",
+        "file":"EntityChangeBroker.java",
+        "lineNumber":506
+      }
+    ]
+  },
+  {
     "code":11,
     "type":"INVARIANT",
     "messagePattern":"Response message specified requestId '%s' but request specified requestId '%s'.",
