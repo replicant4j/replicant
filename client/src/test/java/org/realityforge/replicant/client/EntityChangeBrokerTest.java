@@ -718,7 +718,7 @@ public class EntityChangeBrokerTest
                                                    @Nonnull final String attrKey,
                                                    final int attributeValue )
   {
-    assertEvent( event, EntityChangeType.ATTRIBUTE_CHANGED, entity, attrKey, attributeValue );
+    assertEvent( event, EntityChangeEvent.Type.ATTRIBUTE_CHANGED, entity, attrKey, attributeValue );
   }
 
   @SuppressWarnings( "SameParameterValue" )
@@ -727,7 +727,7 @@ public class EntityChangeBrokerTest
                                                  @Nonnull final String relKey,
                                                  @Nonnull final Object other )
   {
-    assertEvent( event, EntityChangeType.RELATED_REMOVED, entity, relKey, other );
+    assertEvent( event, EntityChangeEvent.Type.RELATED_REMOVED, entity, relKey, other );
   }
 
   private void assertRelatedRemovedEventCount( @Nonnull final RecordingListener listener, final int eventCount )
@@ -741,7 +741,7 @@ public class EntityChangeBrokerTest
                                                @Nonnull final String relKey,
                                                @Nonnull final Object other )
   {
-    assertEvent( event, EntityChangeType.RELATED_ADDED, entity, relKey, other );
+    assertEvent( event, EntityChangeEvent.Type.RELATED_ADDED, entity, relKey, other );
   }
 
   private void assertRelatedAddedEventCount( @Nonnull final RecordingListener listener, final int eventCount )
@@ -750,7 +750,7 @@ public class EntityChangeBrokerTest
   }
 
   private static void assertEvent( @Nonnull final EntityChangeEvent event,
-                                   @Nonnull final EntityChangeType type,
+                                   @Nonnull final EntityChangeEvent.Type type,
                                    @Nonnull final Object entity,
                                    @Nonnull final String name,
                                    @Nullable final Object value )
@@ -771,7 +771,7 @@ public class EntityChangeBrokerTest
     assertEquals( entity, event.getObject() );
     assertNull( event.getName() );
     assertNull( event.getValue() );
-    assertEquals( EntityChangeType.ENTITY_REMOVED, event.getType() );
+    assertEquals( EntityChangeEvent.Type.ENTITY_REMOVED, event.getType() );
   }
 
   private static void assertEntityAddedEvent( @Nonnull final EntityChangeEvent event, @Nonnull final Object entity )
@@ -779,7 +779,7 @@ public class EntityChangeBrokerTest
     assertEquals( entity, event.getObject() );
     assertNull( event.getName() );
     assertNull( event.getValue() );
-    assertEquals( EntityChangeType.ENTITY_ADDED, event.getType() );
+    assertEquals( EntityChangeEvent.Type.ENTITY_ADDED, event.getType() );
   }
 
   public static class A

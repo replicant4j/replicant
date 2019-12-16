@@ -10,12 +10,12 @@ import javax.annotation.Nullable;
 public final class EntityChangeEvent
 {
   @Nonnull
-  private final EntityChangeType _type;
+  private final Type _type;
   private final Object _object;
   private final String _name;
   private final Object _value;
 
-  EntityChangeEvent( @Nonnull final EntityChangeType type,
+  EntityChangeEvent( @Nonnull final Type type,
                      @Nonnull final Object object,
                      @Nullable final String name,
                      @Nullable final Object value )
@@ -27,7 +27,7 @@ public final class EntityChangeEvent
   }
 
   @Nonnull
-  public EntityChangeType getType()
+  public Type getType()
   {
     return _type;
   }
@@ -58,5 +58,17 @@ public final class EntityChangeEvent
            "value=" + getValue() + "," +
            "object=" + getObject() +
            "]";
+  }
+
+  /**
+   * The types of events that can be raised.
+   */
+  public enum Type
+  {
+    ATTRIBUTE_CHANGED,
+    RELATED_ADDED,
+    RELATED_REMOVED,
+    ENTITY_ADDED,
+    ENTITY_REMOVED
   }
 }

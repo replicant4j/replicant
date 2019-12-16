@@ -239,31 +239,31 @@ public final class EntityChangeBroker
   @Override
   public void attributeChanged( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object value )
   {
-    sendEvent( new EntityChangeEvent( EntityChangeType.ATTRIBUTE_CHANGED, entity, name, value ) );
+    sendEvent( new EntityChangeEvent( EntityChangeEvent.Type.ATTRIBUTE_CHANGED, entity, name, value ) );
   }
 
   @Override
   public void relatedAdded( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object other )
   {
-    sendEvent( new EntityChangeEvent( EntityChangeType.RELATED_ADDED, entity, name, other ) );
+    sendEvent( new EntityChangeEvent( EntityChangeEvent.Type.RELATED_ADDED, entity, name, other ) );
   }
 
   @Override
   public void relatedRemoved( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object other )
   {
-    sendEvent( new EntityChangeEvent( EntityChangeType.RELATED_REMOVED, entity, name, other ) );
+    sendEvent( new EntityChangeEvent( EntityChangeEvent.Type.RELATED_REMOVED, entity, name, other ) );
   }
 
   @Override
   public void entityAdded( @Nonnull final Object entity )
   {
-    sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_ADDED, entity, null, null ) );
+    sendEvent( new EntityChangeEvent( EntityChangeEvent.Type.ENTITY_ADDED, entity, null, null ) );
   }
 
   @Override
   public void entityRemoved( @Nonnull final Object entity )
   {
-    sendEvent( new EntityChangeEvent( EntityChangeType.ENTITY_REMOVED, entity, null, null ) );
+    sendEvent( new EntityChangeEvent( EntityChangeEvent.Type.ENTITY_REMOVED, entity, null, null ) );
   }
 
   /**
@@ -495,28 +495,28 @@ public final class EntityChangeBroker
     for ( final ListenerEntry entry : listeners )
     {
       final EntityChangeListener listener = entry.getListener();
-      final EntityChangeType type = event.getType();
+      final EntityChangeEvent.Type type = event.getType();
       try
       {
-        if ( EntityChangeType.ATTRIBUTE_CHANGED == type )
+        if ( EntityChangeEvent.Type.ATTRIBUTE_CHANGED == type )
         {
           listener.attributeChanged( event );
         }
-        else if ( EntityChangeType.RELATED_ADDED == type )
+        else if ( EntityChangeEvent.Type.RELATED_ADDED == type )
         {
           listener.relatedAdded( event );
         }
-        else if ( EntityChangeType.RELATED_REMOVED == type )
+        else if ( EntityChangeEvent.Type.RELATED_REMOVED == type )
         {
           listener.relatedRemoved( event );
         }
-        else if ( EntityChangeType.ENTITY_ADDED == type )
+        else if ( EntityChangeEvent.Type.ENTITY_ADDED == type )
         {
           listener.entityAdded( event );
         }
         else
         {
-          assert EntityChangeType.ENTITY_REMOVED == type;
+          assert EntityChangeEvent.Type.ENTITY_REMOVED == type;
           listener.entityRemoved( event );
         }
       }
