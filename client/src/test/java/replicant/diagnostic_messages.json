@@ -119,7 +119,7 @@
   {
     "code":10,
     "type":"FAIL",
-    "messagePattern":"Error sending event to listener: replicant.EntityChangeBrokerTest$1@3aaf4f07 Error: java.lang.UnsupportedOperationException",
+    "messagePattern":"Error sending event to listener: %s Error: %s",
     "callers":[
       {
         "class":"replicant.EntityChangeBroker",
