@@ -136,4 +136,24 @@ define 'replicant' do
     p.enable_annotation_processor = false if p.processorpath.empty?
   end
   project('shared').task('upload').actions.clear
+  ipr.add_component('NullableNotNullManager') do |component|
+    component.option :name => 'myDefaultNullable', :value => 'javax.annotation.Nullable'
+    component.option :name => 'myDefaultNotNull', :value => 'javax.annotation.Nonnull'
+    component.option :name => 'myNullables' do |option|
+      option.value do |value|
+        value.list :size => '2' do |list|
+          list.item :index => '0', :class => 'java.lang.String', :itemvalue => 'org.jetbrains.annotations.Nullable'
+          list.item :index => '1', :class => 'java.lang.String', :itemvalue => 'javax.annotation.Nullable'
+        end
+      end
+    end
+    component.option :name => 'myNotNulls' do |option|
+      option.value do |value|
+        value.list :size => '2' do |list|
+          list.item :index => '0', :class => 'java.lang.String', :itemvalue => 'org.jetbrains.annotations.NotNull'
+          list.item :index => '1', :class => 'java.lang.String', :itemvalue => 'javax.annotation.Nonnull'
+        end
+      end
+    end
+  end
 end
