@@ -137,6 +137,16 @@ define 'replicant' do
   end
   project('shared').task('upload').actions.clear
 
+  ipr.add_testng_configuration('client',
+                               :module => 'client',
+                               :jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development -Dreplicant.output_fixture_data=true -Dreplicant.check_diagnostic_messages=false -Dreplicant.diagnostic_messages_file=src/test/java/replicant/diagnostic_messages.json')
+  ipr.add_testng_configuration('client - update invariant messages',
+                               :module => 'client',
+                               :jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development -Dreplicant.output_fixture_data=true -Dreplicant.check_diagnostic_messages=true -Dreplicant.diagnostic_messages_file=src/test/java/replicant/diagnostic_messages.json')
+  ipr.add_testng_configuration('server',
+                               :module => 'server',
+                               :jvm_args => '-ea')
+
   ipr.add_component('JavaProjectCodeInsightSettings') do |xml|
     xml.tag!('excluded-names') do
       xml << '<name>com.sun.istack.internal.NotNull</name>'
