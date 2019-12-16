@@ -1,8 +1,10 @@
 package replicant;
 
+import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -10,6 +12,28 @@ import static org.testng.Assert.*;
 public class ReplicantRuntimeTest
   extends AbstractReplicantTest
 {
+  @AfterMethod
+  @Override
+  protected void afterTest()
+  {
+    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    try
+    {
+      final ReplicantContext context = Replicant.context();
+      context.deactivate();
+      // Need to dispose converger so can safely dispose runtime
+      final Converger converger = context.getConverger();
+      Disposable.dispose( converger );
+      // Dispose the runtime as it can have a once-off scheduled to process at a later date to reflect active states
+      Disposable.dispose( context.getRuntime() );
+    }
+    finally
+    {
+      schedulerLock.dispose();
+    }
+    super.afterTest();
+  }
+
   @Test
   public void registerAndDeregisterLifecycle()
   {

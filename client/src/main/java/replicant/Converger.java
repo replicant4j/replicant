@@ -2,6 +2,7 @@ package replicant;
 
 import arez.Disposable;
 import arez.annotations.ArezComponent;
+import arez.annotations.DepType;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.Observe;
@@ -90,11 +91,13 @@ abstract class Converger
   @Nullable
   abstract SafeProcedure getConvergeCompleteAction();
 
-  @Observe( mutation = true, nestedActionsAllowed = true )
+  // depType allows NONE as during dispose when runtime is component disposed there is nothing left to observe
+  @Observe( mutation = true, nestedActionsAllowed = true, depType = DepType.AREZ_OR_NONE )
   void converge()
   {
     preConverge();
-    if ( RuntimeState.CONNECTED == getReplicantRuntime().getState() )
+    final ReplicantRuntime runtime = getReplicantRuntime();
+    if ( Disposable.isNotDisposed( runtime ) && RuntimeState.CONNECTED == runtime.getState() )
     {
       convergeStep();
     }
