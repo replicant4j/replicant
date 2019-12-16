@@ -501,7 +501,7 @@ public final class EntityChangeBroker
       }
       catch ( final Throwable t )
       {
-        if ( Replicant.shouldCheckApiInvariants() )
+        if ( Replicant.shouldCheckInvariants() )
         {
           fail( () -> "Replicant-0010: Error sending event to listener: " + listener + " Error: " + t );
         }
