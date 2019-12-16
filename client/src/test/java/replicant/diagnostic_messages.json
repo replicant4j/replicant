@@ -1053,6 +1053,44 @@
     ]
   },
   {
+    "code":110,
+    "type":"API_INVARIANT",
+    "messagePattern":"EntityChangeBroker.%s invoked but no lock is present.",
+    "callers":[
+      {
+        "class":"replicant.EntityChangeBroker",
+        "method":"resume",
+        "file":"EntityChangeBroker.java",
+        "lineNumber":257
+      },
+      {
+        "class":"replicant.EntityChangeBroker",
+        "method":"enable",
+        "file":"EntityChangeBroker.java",
+        "lineNumber":320
+      }
+    ]
+  },
+  {
+    "code":111,
+    "type":"API_INVARIANT",
+    "messagePattern":"EntityChangeBroker.%s invoked but lock is of the incorrect type.",
+    "callers":[
+      {
+        "class":"replicant.EntityChangeBroker",
+        "method":"resume",
+        "file":"EntityChangeBroker.java",
+        "lineNumber":260
+      },
+      {
+        "class":"replicant.EntityChangeBroker",
+        "method":"enable",
+        "file":"EntityChangeBroker.java",
+        "lineNumber":323
+      }
+    ]
+  },
+  {
     "code":112,
     "type":"API_INVARIANT",
     "messagePattern":"EntityChangeBroker.%s invoked but lock is present.",
