@@ -276,7 +276,7 @@ public final class EntityChangeBroker
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> null != _lock,
+      apiInvariant( () -> null == _lock,
                     () -> "Replicant-0112: EntityChangeBroker.pause invoked but lock is present." );
     }
     _lock = new EntityBrokerLock( false );
@@ -303,7 +303,7 @@ public final class EntityChangeBroker
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> null != _lock,
+      apiInvariant( () -> null == _lock,
                     () -> "Replicant-0112: EntityChangeBroker.disable invoked but lock is present." );
     }
     _lock = new EntityBrokerLock( true );
