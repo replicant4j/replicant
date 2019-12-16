@@ -16,9 +16,11 @@ import org.realityforge.braincheck.BrainCheckTestUtil;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+@Listeners( MessageCollector.class )
 public abstract class AbstractReplicantTest
 {
   private final ArrayList<String> _observerErrors = new ArrayList<>();

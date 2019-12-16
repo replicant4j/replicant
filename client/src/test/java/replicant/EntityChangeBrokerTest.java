@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public class EntityChangeBrokerTest
+  extends AbstractReplicantTest
 {
   public static final String ATTR_KEY = "MyAttribute";
   public static final String REL_KEY = "MyRelationship";
