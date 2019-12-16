@@ -5,6 +5,7 @@
 * Consistently use `String` values when setting `REQUEST_COMPLETE_KEY` rather than using `String` in some contexts and `Boolean` in other contexts.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.158`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.144`.
+* Import and simplify the `EntityChangeBroker` and related code from replicant version 5.x. The intent is to support replicant 5 change monitoring strategies aswell as Arez change based detection within the same codebase.
 
 ### [v6.52](https://github.com/replicant4j/replicant/tree/v6.52) (2019-11-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.51...v6.52)
 
