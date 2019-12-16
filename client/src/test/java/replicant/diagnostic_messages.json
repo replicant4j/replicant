@@ -847,7 +847,7 @@
   {
     "code":69,
     "type":"INVARIANT",
-    "messagePattern":"ChangeSet contained an EntityChange message referencing channel 1.1 but no such subscription exists locally.",
+    "messagePattern":"ChangeSet contained an EntityChange message referencing channel %s but no such subscription exists locally.",
     "callers":[
       {
         "class":"replicant.Connector",
@@ -951,7 +951,7 @@
   {
     "code":79,
     "type":"INVARIANT",
-    "messagePattern":"Connector.updateSubscriptionForFilteredEntities invoked for address 1.0.1725309406 but the channel does not have a DYNAMIC filter.",
+    "messagePattern":"Connector.updateSubscriptionForFilteredEntities invoked for address %s but the channel does not have a DYNAMIC filter.",
     "callers":[
       {
         "class":"replicant.Connector",
@@ -990,7 +990,7 @@
   {
     "code":82,
     "type":"INVARIANT",
-    "messagePattern":"Connector.requestSubscriptionUpdate invoked for channel 1.0 but channel does not have a dynamic filter.",
+    "messagePattern":"Connector.requestSubscriptionUpdate invoked for channel %s but channel does not have a dynamic filter.",
     "callers":[
       {
         "class":"replicant.Connector",
@@ -1003,7 +1003,7 @@
   {
     "code":83,
     "type":"INVARIANT",
-    "messagePattern":"Attempting to update channel 1.0 but channel does not allow dynamic updates of filter and channel has not been explicitly subscribed.",
+    "messagePattern":"Attempting to update channel %s but channel does not allow dynamic updates of filter and channel has not been explicitly subscribed.",
     "callers":[
       {
         "class":"replicant.Converger",
@@ -1029,7 +1029,7 @@
   {
     "code":87,
     "type":"INVARIANT",
-    "messagePattern":"Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but channel has not supplied expected id.",
+    "messagePattern":"Subscription.getInstanceRoot() invoked on subscription for channel %s but channel has not supplied expected id.",
     "callers":[
       {
         "class":"replicant.Subscription",
@@ -1042,7 +1042,7 @@
   {
     "code":88,
     "type":"INVARIANT",
-    "messagePattern":"Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but entity is not present.",
+    "messagePattern":"Subscription.getInstanceRoot() invoked on subscription for channel %s but entity is not present.",
     "callers":[
       {
         "class":"replicant.Subscription",
