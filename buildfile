@@ -121,6 +121,8 @@ define 'replicant' do
                       :glassfish_embedded
   end
 
+  iml.excluded_directories << project._('tmp')
+
   ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development')
   ipr.add_component_from_artifact(:idea_codestyle)
 
