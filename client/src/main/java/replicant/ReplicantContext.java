@@ -40,6 +40,12 @@ public final class ReplicantContext
    */
   @Nullable
   private final SpyImpl _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
+  /**
+   * Support infrastructure for change broker.
+   */
+  @Nullable
+  private final EntityChangeBroker _changeBroker =
+    Replicant.isChangeBrokerEnabled() ? new EntityChangeBroker() : null;
 
   ReplicantContext()
   {
@@ -257,6 +263,36 @@ public final class ReplicantContext
     }
     assert null != _spy;
     return _spy;
+  }
+
+  /**
+   * Return the EntityChangeBroker associated with the context.
+   * This method should not be invoked unless {@link Replicant#isChangeBrokerEnabled()} ()} returns true.
+   *
+   * @return the EntityChangeBroker associated with the context.
+   */
+  @Nonnull
+  public EntityChangeBroker getChangeBroker()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::isChangeBrokerEnabled,
+                    () -> "Replicant-0042: Attempting to get the ChangeBroker but the change broker is not enabled." );
+    }
+    assert null != _changeBroker;
+    return _changeBroker;
+  }
+
+  /**
+   * Return the EntityChangeEmitter associated with the context.
+   * This method should not be invoked unless {@link Replicant#isChangeBrokerEnabled()} ()} returns true.
+   *
+   * @return the EntityChangeEmitter associated with the context.
+   */
+  @Nonnull
+  public EntityChangeEmitter getChangeEmitter()
+  {
+    return getChangeBroker().getEmitter();
   }
 
   /**

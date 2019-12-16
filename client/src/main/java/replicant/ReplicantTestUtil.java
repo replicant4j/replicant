@@ -49,6 +49,7 @@ public final class ReplicantTestUtil
       checkInvariants();
       checkApiInvariants();
     }
+    disableChangeBroker();
     disableZones();
     ( (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger() ).setLogger( null );
     resetState();
@@ -88,6 +89,32 @@ public final class ReplicantTestUtil
   private static void setEnableNames( final boolean value )
   {
     setConstant( "ENABLE_NAMES", value );
+  }
+
+  /**
+   * Set `replicant.enable_change_broker` setting to true.
+   */
+  public static void enableChangeBroker()
+  {
+    setEnableChangeBroker( true );
+  }
+
+  /**
+   * Set `replicant.enable_change_broker` setting to false.
+   */
+  public static void disableChangeBroker()
+  {
+    setEnableChangeBroker( false );
+  }
+
+  /**
+   * Configure the `replicant.enable_change_broker` setting.
+   *
+   * @param value the setting.
+   */
+  private static void setEnableChangeBroker( final boolean value )
+  {
+    setConstant( "ENABLE_CHANGE_BROKER", value );
   }
 
   /**
