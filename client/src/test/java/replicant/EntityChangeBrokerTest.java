@@ -197,6 +197,73 @@ public class EntityChangeBrokerTest
   }
 
   @Test
+  public void ensureErrorsInHandlersFailAppropriately()
+  {
+    final B entity = new B();
+
+    final EntityChangeBroker broker = new EntityChangeBroker();
+    final EntityChangeEmitter emitter = broker.getEmitter();
+    final EntityChangeListener listener1 = new EntityChangeListener()
+    {
+      @Override
+      public void entityAdded( @Nonnull final EntityChangeEvent event )
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void entityRemoved( @Nonnull final EntityChangeEvent event )
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void attributeChanged( @Nonnull final EntityChangeEvent event )
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void relatedAdded( @Nonnull final EntityChangeEvent event )
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void relatedRemoved( @Nonnull final EntityChangeEvent event )
+      {
+        throw new UnsupportedOperationException();
+      }
+    };
+    final RecordingListener listener2 = new RecordingListener();
+
+    broker.addChangeListener( listener1 );
+    broker.addChangeListener( listener2 );
+
+    assertEntityAddedEventCount( listener2, 0 );
+
+    ReplicantTestUtil.noCheckInvariants();
+
+    // The error is consumed as we are not checking invariants
+    emitter.entityAdded( entity );
+
+    assertEntityAddedEventCount( listener2, 1 );
+    assertEntityAddedEvent( listener2.getEntityAddedEvents().get( 0 ), entity );
+
+    final List<TestLogger.LogEntry> entries = getTestLogger().getEntries();
+    assertEquals( entries.size(), 1 );
+    assertEquals( entries.get( 0 ).getMessage(), "Replicant-0010: Error sending event to listener: " + listener1 );
+
+    ReplicantTestUtil.checkInvariants();
+
+    // The error is consumed as we are not checking invariants
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> emitter.entityAdded( entity ) );
+    assertEquals( exception.getMessage(), "Replicant-0010: Error sending event to listener: " + listener1 +
+                                          " Error: java.lang.UnsupportedOperationException" );
+  }
+
+  @Test
   public void ensureDeferredMessagesAreDelivered()
   {
     final B entity = new B();

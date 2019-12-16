@@ -505,6 +505,10 @@ public final class EntityChangeBroker
         {
           fail( () -> "Replicant-0010: Error sending event to listener: " + listener + " Error: " + t );
         }
+        else
+        {
+          ReplicantLogger.log( "Replicant-0010: Error sending event to listener: " + listener, t );
+        }
       }
     }
   }
