@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
  * A simple container for representing listener in the broker.
  */
 final class ListenerEntry
-  implements Cloneable
 {
   @Nonnull
   private final EntityChangeListener _listener;
