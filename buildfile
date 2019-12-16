@@ -136,6 +136,15 @@ define 'replicant' do
     p.enable_annotation_processor = false if p.processorpath.empty?
   end
   project('shared').task('upload').actions.clear
+  ipr.add_component('JavaProjectCodeInsightSettings') do |xml|
+    xml.tag!('excluded-names') do
+      xml << '<name>com.sun.istack.internal.NotNull</name>'
+      xml << '<name>com.sun.istack.internal.Nullable</name>'
+      xml << '<name>org.jetbrains.annotations.Nullable</name>'
+      xml << '<name>org.jetbrains.annotations.NotNull</name>'
+      xml << '<name>org.testng.AssertJUnit</name>'
+    end
+  end
   ipr.add_component('NullableNotNullManager') do |component|
     component.option :name => 'myDefaultNullable', :value => 'javax.annotation.Nullable'
     component.option :name => 'myDefaultNotNull', :value => 'javax.annotation.Nonnull'
