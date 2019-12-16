@@ -55,10 +55,18 @@ final class ReplicantContextHolder
    */
   static void reset()
   {
-    if ( null != c_context )
+    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    try
     {
-      Disposable.dispose( c_context );
+      if ( null != c_context )
+      {
+        Disposable.dispose( c_context );
+      }
+      c_context = new ReplicantContext();
     }
-    c_context = new ReplicantContext();
+    finally
+    {
+      schedulerLock.dispose();
+    }
   }
 }
