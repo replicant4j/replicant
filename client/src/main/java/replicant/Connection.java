@@ -2,6 +2,7 @@ package replicant;
 
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentDependency;
+import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.component.CollectionsUtil;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ abstract class Connection
   /**
    * Return a unique identifier for the connection, typically supplied by the backend.
    */
-  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  @Observable( readOutsideTransaction = Feature.ENABLE, writeOutsideTransaction = Feature.ENABLE )
   @Nullable
   abstract String getConnectionId();
 
@@ -269,7 +270,7 @@ abstract class Connection
   /**
    * Return the id of the last request transmitted to the server.
    */
-  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  @Observable( readOutsideTransaction = Feature.ENABLE, writeOutsideTransaction = Feature.ENABLE )
   abstract int getLastTxRequestId();
 
   abstract void setLastTxRequestId( int lastTxRequestId );
@@ -277,7 +278,7 @@ abstract class Connection
   /**
    * Return the id of the last sync request received from the server.
    */
-  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  @Observable( readOutsideTransaction = Feature.ENABLE, writeOutsideTransaction = Feature.ENABLE )
   abstract int getLastRxSyncRequestId();
 
   abstract void setLastRxSyncRequestId( int lastRxSyncRequestId );

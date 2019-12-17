@@ -122,7 +122,7 @@ public abstract class AreaOfInterest
     _filter = filter;
   }
 
-  @Observable( readOutsideTransaction = true )
+  @Observable( readOutsideTransaction = Feature.ENABLE )
   @Nonnull
   public Status getStatus()
   {

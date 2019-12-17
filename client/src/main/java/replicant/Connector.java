@@ -614,7 +614,7 @@ abstract class Connector
   }
 
   @Nonnull
-  @Observable( readOutsideTransaction = true )
+  @Observable( readOutsideTransaction = Feature.ENABLE )
   ConnectorState getState()
   {
     return _state;

@@ -273,7 +273,7 @@ abstract class ReplicantRuntime
     return null;
   }
 
-  @Observable( readOutsideTransaction = true, writeOutsideTransaction = true )
+  @Observable( readOutsideTransaction = Feature.ENABLE, writeOutsideTransaction = Feature.ENABLE )
   abstract int retryGeneration();
 
   abstract void setRetryGeneration( int value );
