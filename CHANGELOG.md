@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.53](https://github.com/replicant4j/replicant/tree/v6.53) (2019-12-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.52...v6.53)
 
 * Consistently use `String` values when setting `REQUEST_COMPLETE_KEY` rather than using `String` in some contexts and `Boolean` in other contexts.
