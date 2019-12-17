@@ -98,6 +98,11 @@ abstract class Connector
   @Nullable
   private Disposable _schedulerLock;
   /**
+   * This lock is acquired and released when _schedulerLock is acquired and released but only if the broker is enabled.
+   */
+  @Nullable
+  private EntityBrokerLock _brokerLock;
+  /**
    * Maximum number of entity links to attempt in a single tick of the scheduler. After this many links have
    * been processed then return and any remaining links can occur in a later tick.
    */
@@ -244,7 +249,15 @@ abstract class Connector
   final void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
+    if ( Replicant.isChangeBrokerEnabled() )
+    {
+      getReplicantContext().getChangeBroker().disable();
+    }
     purgeSubscriptions();
+    if ( Replicant.isChangeBrokerEnabled() )
+    {
+      getReplicantContext().getChangeBroker().enable();
+    }
     // Avoid emitting an event if disconnect resulted in an error
     if ( ConnectorState.ERROR != getState() )
     {
@@ -460,6 +473,10 @@ abstract class Connector
     if ( null == _schedulerLock )
     {
       _schedulerLock = context().pauseScheduler();
+      if ( Replicant.isChangeBrokerEnabled() )
+      {
+        _brokerLock = getReplicantContext().getChangeBroker().pause();
+      }
     }
     try
     {
@@ -501,6 +518,13 @@ abstract class Connector
   {
     if ( null != _schedulerLock )
     {
+      if ( Replicant.isChangeBrokerEnabled() )
+      {
+        assert null != _brokerLock;
+        getReplicantContext().getChangeBroker().resume();
+        _brokerLock = null;
+      }
+
       _schedulerLock.dispose();
       _schedulerLock = null;
     }
