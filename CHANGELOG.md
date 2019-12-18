@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.55](https://github.com/replicant4j/replicant/tree/v6.55) (2019-12-18) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.54...v6.55)
 
 * Fix incorrect constant key in `ReplicantConfig` which made it impossible to enable the `enable_change_broker` compile time setting.
