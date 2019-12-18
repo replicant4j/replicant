@@ -17,7 +17,7 @@ final class ReplicantConfig
   private static boolean ENABLE_NAMES =
     "true".equals( System.getProperty( "replicant.enable_names", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_CHANGE_BROKER =
-    "true".equals( System.getProperty( "replicant.replicant.enable_change_broker", "false" ) );
+    "true".equals( System.getProperty( "replicant.enable_change_broker", "false" ) );
   private static boolean ENABLE_ZONES = "true".equals( System.getProperty( "replicant.enable_zones", "false" ) );
   private static boolean VALIDATE_CHANGE_SET_ON_READ =
     "true".equals( System.getProperty( "replicant.validateChangeSetOnRead",

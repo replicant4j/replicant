@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix incorrect constant key in `ReplicantConfig` which made it impossible to enable the `enable_change_broker` compile time setting.
+
 ### [v6.54](https://github.com/replicant4j/replicant/tree/v6.54) (2019-12-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.53...v6.54)
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.159`.
