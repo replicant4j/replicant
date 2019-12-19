@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.56](https://github.com/replicant4j/replicant/tree/v6.56) (2019-12-19) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.55...v6.56)
 
 * Add the ability for the user to explicitly pause and resume the change broker by exposing the pause method and enabling resume by calling `release()` on the lock.
