@@ -272,14 +272,14 @@ public final class EntityChangeBroker
    * @return the transaction created by action.
    */
   @Nonnull
-  EntityBrokerLock pause()
+  public EntityBrokerLock pause()
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> null == _lock,
                     () -> "Replicant-0112: EntityChangeBroker.pause invoked but lock is present." );
     }
-    _lock = new EntityBrokerLock( false );
+    _lock = new EntityBrokerLock( this, false );
     return _lock;
   }
 
@@ -306,7 +306,7 @@ public final class EntityChangeBroker
       apiInvariant( () -> null == _lock,
                     () -> "Replicant-0112: EntityChangeBroker.disable invoked but lock is present." );
     }
-    _lock = new EntityBrokerLock( true );
+    _lock = new EntityBrokerLock( this, true );
     return _lock;
   }
 

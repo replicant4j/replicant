@@ -521,7 +521,7 @@ abstract class Connector
       if ( Replicant.isChangeBrokerEnabled() )
       {
         assert null != _brokerLock;
-        getReplicantContext().getChangeBroker().resume();
+        _brokerLock.release();
         _brokerLock = null;
       }
 
