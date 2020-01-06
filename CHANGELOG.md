@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.57](https://github.com/replicant4j/replicant/tree/v6.57) (2020-01-06) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.56...v6.57)
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.147`.
