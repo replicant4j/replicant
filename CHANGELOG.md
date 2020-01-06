@@ -4,6 +4,7 @@
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.147`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.164`.
+* Expose the `EntityChangeBroker.isPaused()` method for use by downstream libraries.
 
 ### [v6.56](https://github.com/replicant4j/replicant/tree/v6.56) (2019-12-19) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.55...v6.56)
 

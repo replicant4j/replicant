@@ -286,7 +286,7 @@ public final class EntityChangeBroker
   /**
    * @return true if the broker is paused.
    */
-  boolean isPaused()
+  public boolean isPaused()
   {
     return null != _lock && _lock.isPauseAction();
   }
