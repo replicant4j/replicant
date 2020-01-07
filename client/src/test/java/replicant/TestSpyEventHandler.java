@@ -1,6 +1,7 @@
 package replicant;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import static org.testng.Assert.*;
@@ -8,7 +9,7 @@ import static org.testng.Assert.*;
 public final class TestSpyEventHandler
   implements SpyEventHandler
 {
-  private final ArrayList<Object> _events = new ArrayList<>();
+  private final List<Object> _events = new ArrayList<>();
   /**
    * When ussing assertNextEvent this tracks the index that we are up to.
    */
