@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Re-introduce an event based notification mechanism for legacy applications when significant state changing events occur. The events emitted are introduced on an as-needed basis and currently include; `SubscribeCompletedEvent`, `SubscribeStartedEvent`, `SubscriptionUpdateCompletedEvent`, `SubscriptionUpdateStartedEvent`, `MessageProcessedEvent`. This code is omitted unless the `replicant.enable_events` compile time setting is set to `true`. The code will likely be removed in the future as the legacy applications are decommissioned.
+
 ### [v6.57](https://github.com/replicant4j/replicant/tree/v6.57) (2020-01-06) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.56...v6.57)
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.147`.
