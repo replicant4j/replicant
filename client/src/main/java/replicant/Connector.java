@@ -1438,6 +1438,14 @@ abstract class Connector
   protected void onSubscribeStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING );
+    if ( Replicant.areEventsEnabled() && getReplicantContext().willPropagateApplicationEvents() )
+    {
+      final SystemSchema schema = getSchema();
+      getReplicantContext().getEventBroker()
+        .reportApplicationEvent( new replicant.events.SubscribeStartedEvent( schema.getId(),
+                                                                             schema.getName(),
+                                                                             address ) );
+    }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1452,6 +1460,14 @@ abstract class Connector
     if ( null != areaOfInterest && AreaOfInterest.Status.DELETED != areaOfInterest.getStatus() )
     {
       areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
+    }
+    if ( Replicant.areEventsEnabled() && getReplicantContext().willPropagateApplicationEvents() )
+    {
+      final SystemSchema schema = getSchema();
+      getReplicantContext().getEventBroker()
+        .reportApplicationEvent( new replicant.events.SubscribeCompletedEvent( schema.getId(),
+                                                                               schema.getName(),
+                                                                               address ) );
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1486,6 +1502,14 @@ abstract class Connector
   protected void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING );
+    if ( Replicant.areEventsEnabled() && getReplicantContext().willPropagateApplicationEvents() )
+    {
+      final SystemSchema schema = getSchema();
+      getReplicantContext().getEventBroker()
+        .reportApplicationEvent( new replicant.events.SubscriptionUpdateStartedEvent( schema.getId(),
+                                                                                      schema.getName(),
+                                                                                      address ) );
+    }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
@@ -1497,6 +1521,14 @@ abstract class Connector
   protected void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED );
+    if ( Replicant.areEventsEnabled() && getReplicantContext().willPropagateApplicationEvents() )
+    {
+      final SystemSchema schema = getSchema();
+      getReplicantContext().getEventBroker()
+        .reportApplicationEvent( new replicant.events.SubscriptionUpdateCompletedEvent( schema.getId(),
+                                                                                        schema.getName(),
+                                                                                        address ) );
+    }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
