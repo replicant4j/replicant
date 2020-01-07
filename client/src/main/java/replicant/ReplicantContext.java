@@ -41,6 +41,12 @@ public final class ReplicantContext
   @Nullable
   private final SpyImpl _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
   /**
+   * Support infrastructure for application events.
+   */
+  @Nullable
+  private final ApplicationEventBroker _eventBroker =
+    Replicant.areEventsEnabled() ? new ApplicationEventBroker() : null;
+  /**
    * Support infrastructure for change broker.
    */
   @Nullable
@@ -263,6 +269,35 @@ public final class ReplicantContext
     }
     assert null != _spy;
     return _spy;
+  }
+
+  /**
+   * Return true if application events will be propagated.
+   * This means events are enabled and there is at least one application event handler present.
+   *
+   * @return true if application events will be propagated, false otherwise.
+   */
+  boolean willPropagateApplicationEvents()
+  {
+    return Replicant.areEventsEnabled() && getEventBroker().willPropagateApplicationEvents();
+  }
+
+  /**
+   * Return the event broker associated with context.
+   * This method should not be invoked unless {@link Replicant#areEventsEnabled()} returns true.
+   *
+   * @return the event broker associated with context.
+   */
+  @Nonnull
+  public ApplicationEventBroker getEventBroker()
+  {
+    if ( Replicant.shouldCheckApiInvariants() )
+    {
+      apiInvariant( Replicant::areEventsEnabled,
+                    () -> "Replicant-0092: Attempting to get ApplicationEventBroker but events are not enabled." );
+    }
+    assert null != _eventBroker;
+    return _eventBroker;
   }
 
   /**
