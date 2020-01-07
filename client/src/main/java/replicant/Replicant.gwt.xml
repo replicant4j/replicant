@@ -9,6 +9,7 @@
   <inherits name='elemental2.webstorage.WebStorage'/>
 
   <source path='' includes='*.java'/>
+  <source path='events'/>
   <source path='messages'/>
   <source path='spy'/>
 
