@@ -35,6 +35,17 @@ public final class Replicant
   }
 
   /**
+   * Return true if the {@link ApplicationEventHandler} infrastructure is enabled, false otherwise.
+   * This functionality should only be enabled to support legacy systems as it will be removed in the future.
+   *
+   * @return true if the replicant will generate events, false otherwise.
+   */
+  public static boolean areEventsEnabled()
+  {
+    return ReplicantConfig.areEventsEnabled();
+  }
+
+  /**
    * Return true if zones are enabled, false otherwise.
    *
    * @return true if zones are enabled, false otherwise.

@@ -50,6 +50,7 @@ public final class ReplicantTestUtil
       checkApiInvariants();
     }
     disableChangeBroker();
+    disableEvents();
     disableZones();
     ( (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger() ).setLogger( null );
     resetState();
@@ -115,6 +116,32 @@ public final class ReplicantTestUtil
   private static void setEnableChangeBroker( final boolean value )
   {
     setConstant( "ENABLE_CHANGE_BROKER", value );
+  }
+
+  /**
+   * Set `replicant.enable_events` setting to true.
+   */
+  public static void enableEvents()
+  {
+    setEnableEvents( true );
+  }
+
+  /**
+   * Set `replicant.enable_events` setting to false.
+   */
+  public static void disableEvents()
+  {
+    setEnableEvents( false );
+  }
+
+  /**
+   * Configure the `replicant.enable_events` setting.
+   *
+   * @param value the setting.
+   */
+  private static void setEnableEvents( final boolean value )
+  {
+    setConstant( "ENABLE_EVENTS", value );
   }
 
   /**
