@@ -334,7 +334,8 @@ public class ConnectorTest
     connector.onDisconnectFailure();
 
     handler.assertEventCount( 1 );
-    handler.assertNextEvent( DisconnectFailureEvent.class, e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+    handler.assertNextEvent( DisconnectFailureEvent.class,
+                             e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
   }
 
   @Test
