@@ -1,6 +1,5 @@
 package replicant;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
