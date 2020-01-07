@@ -88,7 +88,7 @@ public final class ApplicationEventBroker
    */
   public boolean willPropagateApplicationEvents()
   {
-    return Replicant.areSpiesEnabled() && !getApplicationEventHandlers().isEmpty();
+    return Replicant.areEventsEnabled() && !getApplicationEventHandlers().isEmpty();
   }
 
   @Nonnull
