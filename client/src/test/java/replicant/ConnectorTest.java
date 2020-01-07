@@ -457,6 +457,33 @@ public class ConnectorTest
   }
 
   @Test
+  public void onMessageProcessed_EventsEnabled()
+  {
+    ReplicantTestUtil.enableEvents();
+    ReplicantTestUtil.resetState();
+
+    final Connector connector = createConnector();
+
+    safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
+
+    final TestSpyEventHandler spyHandler = registerTestSpyEventHandler();
+    final TestApplicationEventHandler appHandler = registerTestApplicationEventHandler();
+
+    final MessageResponse response =
+      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, null, null ), null );
+    connector.onMessageProcessed( response );
+
+    spyHandler.assertEventCount( 1 );
+
+    spyHandler.assertNextEvent( MessageProcessedEvent.class,
+                                e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+    appHandler.assertEventCount( 1 );
+
+    appHandler.assertNextEvent( replicant.events.MessageProcessedEvent.class,
+                                e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
+  }
+
+  @Test
   public void onMessageProcessFailure()
   {
     final Connector connector = createConnector();

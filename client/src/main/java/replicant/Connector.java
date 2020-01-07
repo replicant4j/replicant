@@ -1364,6 +1364,12 @@ abstract class Connector
    */
   void onMessageProcessed( @Nonnull final MessageResponse response )
   {
+    if ( Replicant.areEventsEnabled() && getReplicantContext().willPropagateApplicationEvents() )
+    {
+      final SystemSchema schema = getSchema();
+      getReplicantContext().getEventBroker()
+        .reportApplicationEvent( new replicant.events.MessageProcessedEvent( schema.getId(), schema.getName() ) );
+    }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()

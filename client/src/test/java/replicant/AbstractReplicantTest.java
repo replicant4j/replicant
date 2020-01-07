@@ -171,6 +171,14 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
+  protected final TestApplicationEventHandler registerTestApplicationEventHandler()
+  {
+    final TestApplicationEventHandler handler = new TestApplicationEventHandler();
+    Replicant.context().getEventBroker().addApplicationEventHandler( handler );
+    return handler;
+  }
+
+  @Nonnull
   protected final TestSpyEventHandler registerTestSpyEventHandler()
   {
     final TestSpyEventHandler handler = new TestSpyEventHandler();
