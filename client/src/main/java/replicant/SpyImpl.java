@@ -1,6 +1,7 @@
 package replicant;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import static org.realityforge.braincheck.Guards.*;
@@ -14,7 +15,7 @@ final class SpyImpl
   /**
    * The list of spy handlers to call when an event is received.
    */
-  private final ArrayList<SpyEventHandler> _spyEventHandlers = new ArrayList<>();
+  private final List<SpyEventHandler> _spyEventHandlers = new ArrayList<>();
 
   @Override
   public void addSpyEventHandler( @Nonnull final SpyEventHandler handler )
@@ -72,7 +73,7 @@ final class SpyImpl
   }
 
   @Nonnull
-  ArrayList<SpyEventHandler> getSpyEventHandlers()
+  List<SpyEventHandler> getSpyEventHandlers()
   {
     return _spyEventHandlers;
   }
