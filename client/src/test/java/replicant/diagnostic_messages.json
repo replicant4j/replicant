@@ -195,24 +195,29 @@
     "messagePattern":"Attempting to remove handler %s that is not in the list of spy handlers."
   },
   {
-    "code":40,
-    "type":"API_INVARIANT",
-    "messagePattern":"Attempting to add handler %s that is already in the list of spy handlers."
+    "code": 40,
+    "type": "API_INVARIANT",
+    "messagePattern": "Attempting to add handler %s that is already in the list of spy handlers."
   },
   {
-    "code":41,
-    "type":"INVARIANT",
-    "messagePattern":"RequestEntry passed a name '%s' but Replicant.areNamesEnabled() is false"
+    "code": 41,
+    "type": "INVARIANT",
+    "messagePattern": "RequestEntry passed a name '%s' but Replicant.areNamesEnabled() is false"
   },
   {
-    "code":43,
-    "type":"API_INVARIANT",
-    "messagePattern":"RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false"
+    "code": 42,
+    "type": "API_INVARIANT",
+    "messagePattern": "Attempting to get the ChangeBroker but the change broker is not enabled."
   },
   {
-    "code":44,
-    "type":"API_INVARIANT",
-    "messagePattern":"ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false"
+    "code": 43,
+    "type": "API_INVARIANT",
+    "messagePattern": "RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false"
+  },
+  {
+    "code": 44,
+    "type": "API_INVARIANT",
+    "messagePattern": "ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false"
   },
   {
     "code":45,
@@ -400,24 +405,44 @@
     "messagePattern":"Attempted to deregister schema with id %s but no such schema exists."
   },
   {
-    "code":87,
-    "type":"INVARIANT",
-    "messagePattern":"Subscription.getInstanceRoot() invoked on subscription for channel %s but channel has not supplied expected id."
+    "code": 87,
+    "type": "INVARIANT",
+    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but channel has not supplied expected id."
   },
   {
-    "code":88,
-    "type":"INVARIANT",
-    "messagePattern":"Subscription.getInstanceRoot() invoked on subscription for channel %s but entity is not present."
+    "code": 88,
+    "type": "INVARIANT",
+    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but entity is not present."
   },
   {
-    "code":110,
-    "type":"API_INVARIANT",
-    "messagePattern":"EntityChangeBroker.%s invoked but no lock is present."
+    "code": 89,
+    "type": "API_INVARIANT",
+    "messagePattern": "Attempting to add handler %s that is already in the list of application handlers."
   },
   {
-    "code":111,
-    "type":"API_INVARIANT",
-    "messagePattern":"EntityChangeBroker.%s invoked but lock is of the incorrect type."
+    "code": 90,
+    "type": "API_INVARIANT",
+    "messagePattern": "Attempting to remove handler %s that is not in the list of application handlers."
+  },
+  {
+    "code": 91,
+    "type": "INVARIANT",
+    "messagePattern": "Attempting to report ApplicationEvent '%s' but willPropagateApplicationEvents() returns false."
+  },
+  {
+    "code": 92,
+    "type": "API_INVARIANT",
+    "messagePattern": "Attempting to get ApplicationEventBroker but events are not enabled."
+  },
+  {
+    "code": 110,
+    "type": "API_INVARIANT",
+    "messagePattern": "EntityChangeBroker.%s invoked but no lock is present."
+  },
+  {
+    "code": 111,
+    "type": "API_INVARIANT",
+    "messagePattern": "EntityChangeBroker.%s invoked but lock is of the incorrect type."
   },
   {
     "code":112,
