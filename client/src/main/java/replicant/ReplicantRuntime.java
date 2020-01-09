@@ -35,7 +35,7 @@ abstract class ReplicantRuntime
     return new Arez_ReplicantRuntime();
   }
 
-  @Action( verifyRequired = false )
+  @Action( verifyRequired = false, reportParameters = false )
   public void setAuthToken( @Nullable final String authToken )
   {
     if ( !Objects.equals( _authToken, authToken ) )
