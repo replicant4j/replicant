@@ -21,7 +21,7 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent( deferSchedule = true, disposeNotifier = Feature.DISABLE )
 abstract class ReplicantRuntime
 {
-  private final ArrayList<ConnectorEntry> _connectors = new ArrayList<>();
+  private final List<ConnectorEntry> _connectors = new ArrayList<>();
   private boolean _active = true;
   /**
    * Token used to authenticate replicant sessions.
