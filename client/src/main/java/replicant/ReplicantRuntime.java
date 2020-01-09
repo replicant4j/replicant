@@ -21,6 +21,7 @@ import static org.realityforge.braincheck.Guards.*;
 @ArezComponent( deferSchedule = true, disposeNotifier = Feature.DISABLE )
 abstract class ReplicantRuntime
 {
+  @Nonnull
   private final List<ConnectorEntry> _connectors = new ArrayList<>();
   private boolean _active = true;
   /**
