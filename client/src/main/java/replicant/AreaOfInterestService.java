@@ -1,11 +1,20 @@
 package replicant;
 
+import arez.Arez;
+import arez.Disposable;
+import arez.ObservableValue;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
+import arez.annotations.Observable;
+import arez.annotations.ObservableValueRef;
+import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
-import arez.component.internal.AbstractContainer;
+import arez.component.DisposeNotifier;
+import arez.component.Identifiable;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.AreaOfInterestCreatedEvent;
@@ -22,40 +31,17 @@ import static org.realityforge.braincheck.Guards.*;
  */
 @ArezComponent( disposeNotifier = Feature.DISABLE )
 abstract class AreaOfInterestService
-  extends AbstractContainer<Integer, AreaOfInterest>
+  extends ReplicantService
 {
-  @Override
-  protected final boolean shouldDisposeEntryOnDispose()
-  {
-    return true;
-  }
-
-  @Override
-  protected final boolean reportRead()
-  {
-    return true;
-  }
-
-  @Override
-  protected final boolean reportWrite()
-  {
-    return true;
-  }
-
   /**
-   * Reference to the context to which this service belongs.
+   * A map of all the entities ArezId to entity.
    */
-  @Nullable
-  private final ReplicantContext _context;
+  @Nonnull
+  private final Map<Integer, AreaOfInterest> _areasOfInterest = new HashMap<>();
 
   AreaOfInterestService( @Nullable final ReplicantContext context )
   {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( () -> Replicant.areZonesEnabled() || null == context,
-                 () -> "Replicant-0035: AreaOfInterestService passed a context but Replicant.areZonesEnabled() is false" );
-    }
-    _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
+    super( context );
   }
 
   /**
@@ -77,7 +63,7 @@ abstract class AreaOfInterestService
   @Nonnull
   List<AreaOfInterest> getAreasOfInterest()
   {
-    return CollectionsUtil.asList( entities() );
+    return CollectionsUtil.asList( areasOfInterest() );
   }
 
   /**
@@ -89,7 +75,7 @@ abstract class AreaOfInterestService
   @Nullable
   AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
   {
-    return entities().filter( e -> e.getAddress().equals( address ) ).findAny().orElse( null );
+    return areasOfInterest().filter( e -> e.getAddress().equals( address ) ).findAny().orElse( null );
   }
 
   /**
@@ -131,9 +117,107 @@ abstract class AreaOfInterestService
     }
   }
 
-  @Nonnull
-  final ReplicantContext getReplicantContext()
+  /**
+   * Attach specified entity to the set of entities managed by the container.
+   * This should not be invoked if the entity is already attached to the repository.
+   *
+   * @param entity the entity to register.
+   */
+  @SuppressWarnings( "SuspiciousMethodCalls" )
+  protected void attach( @Nonnull final AreaOfInterest entity )
   {
-    return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
+    if ( Arez.shouldCheckApiInvariants() )
+    {
+      apiInvariant( () -> Disposable.isNotDisposed( entity ),
+                    () -> "Arez-0168: Called attach() passing an entity that is disposed. Entity: " + entity );
+      apiInvariant( () -> !_areasOfInterest.containsKey( Identifiable.getArezId( entity ) ),
+                    () -> "Arez-0136: Called attach() passing an entity that is already attached " +
+                          "to the container. Entity: " + entity );
+    }
+    getAreasOfInterestObservableValue().preReportChanged();
+    attachEntity( entity );
+    _areasOfInterest.put( Identifiable.getArezId( entity ), entity );
+    getAreasOfInterestObservableValue().reportChanged();
+  }
+
+  /**
+   * Dispose or detach all the entities associated with the container.
+   */
+  @PreDispose
+  void preDispose()
+  {
+    _areasOfInterest.values().forEach( entry -> detachEntity( entry, true ) );
+    _areasOfInterest.clear();
+  }
+
+  /**
+   * Return true if the specified entity is contained in the container.
+   *
+   * @param entity the entity.
+   * @return true if the specified entity is contained in the container, false otherwise.
+   */
+  protected boolean contains( @Nonnull final AreaOfInterest entity )
+  {
+    getAreasOfInterestObservableValue().reportObserved();
+    return _areasOfInterest.containsKey( Identifiable.<Integer>getArezId( entity ) );
+  }
+
+  /**
+   * Detach entity from container without disposing entity.
+   * The entity must be attached to the container.
+   *
+   * @param entity the entity to detach.
+   */
+  private void detach( @Nonnull final AreaOfInterest entity )
+  {
+    // This method has been extracted to try and avoid GWT inlining into invoker
+    final AreaOfInterest removed = _areasOfInterest.remove( Identifiable.<Integer>getArezId( entity ) );
+    if ( null != removed )
+    {
+      getAreasOfInterestObservableValue().preReportChanged();
+      detachEntity( entity, false );
+      getAreasOfInterestObservableValue().reportChanged();
+    }
+    else
+    {
+      fail( () -> "Arez-0157: Called detach() passing an entity that was not attached to the container. Entity: " +
+                  entity );
+    }
+  }
+
+  /**
+   * Return a stream of all entities in the container.
+   *
+   * @return the underlying entities.
+   */
+  @Observable( expectSetter = false )
+  @Nonnull
+  public Stream<AreaOfInterest> areasOfInterest()
+  {
+    return _areasOfInterest.values().stream();
+  }
+
+  @ObservableValueRef
+  @Nonnull
+  abstract ObservableValue<Stream<AreaOfInterest>> getAreasOfInterestObservableValue();
+
+  private void attachEntity( @Nonnull final AreaOfInterest entity )
+  {
+    DisposeNotifier
+      .asDisposeNotifier( entity )
+      .addOnDisposeListener( this, () -> {
+        getAreasOfInterestObservableValue().preReportChanged();
+        detach( entity );
+        getAreasOfInterestObservableValue().reportChanged();
+      } );
+  }
+
+  private void detachEntity( @Nonnull final AreaOfInterest entity, final boolean disposeOnDetach )
+  {
+    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this );
+    if ( disposeOnDetach )
+    {
+      Disposable.dispose( entity );
+    }
   }
 }
