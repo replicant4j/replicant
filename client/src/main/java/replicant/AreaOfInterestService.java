@@ -10,10 +10,9 @@ import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
 import arez.component.CollectionsUtil;
 import arez.component.DisposeNotifier;
-import arez.component.Identifiable;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,10 +33,10 @@ abstract class AreaOfInterestService
   extends ReplicantService
 {
   /**
-   * A map of all the entities ArezId to entity.
+   * A set of all the AreasOfInterest.
    */
   @Nonnull
-  private final Map<Integer, AreaOfInterest> _areasOfInterest = new HashMap<>();
+  private final Set<AreaOfInterest> _areasOfInterest = new HashSet<>();
 
   AreaOfInterestService( @Nullable final ReplicantContext context )
   {
@@ -118,106 +117,105 @@ abstract class AreaOfInterestService
   }
 
   /**
-   * Attach specified entity to the set of entities managed by the container.
-   * This should not be invoked if the entity is already attached to the repository.
+   * Attach specified areaOfInterest to the set of areasOfInterest managed by the container.
+   * This should not be invoked if the areaOfInterest is already attached to the repository.
    *
-   * @param entity the entity to register.
+   * @param areaOfInterest the areaOfInterest to register.
    */
-  @SuppressWarnings( "SuspiciousMethodCalls" )
-  protected void attach( @Nonnull final AreaOfInterest entity )
+  protected void attach( @Nonnull final AreaOfInterest areaOfInterest )
   {
     if ( Arez.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> Disposable.isNotDisposed( entity ),
-                    () -> "Arez-0168: Called attach() passing an entity that is disposed. Entity: " + entity );
-      apiInvariant( () -> !_areasOfInterest.containsKey( Identifiable.getArezId( entity ) ),
-                    () -> "Arez-0136: Called attach() passing an entity that is already attached " +
-                          "to the container. Entity: " + entity );
+      apiInvariant( () -> Disposable.isNotDisposed( areaOfInterest ),
+                    () -> "Replicant-0093: Called attach() passing an areaOfInterest that is disposed. " +
+                          "AreaOfInterest: " + areaOfInterest );
+      apiInvariant( () -> !_areasOfInterest.contains( areaOfInterest ),
+                    () -> "Replicant-0094: Called attach() passing an areaOfInterest that is already attached to " +
+                          "the container. AreaOfInterest: " + areaOfInterest );
     }
     getAreasOfInterestObservableValue().preReportChanged();
-    attachEntity( entity );
-    _areasOfInterest.put( Identifiable.getArezId( entity ), entity );
+    doAttach( areaOfInterest );
+    _areasOfInterest.add( areaOfInterest );
     getAreasOfInterestObservableValue().reportChanged();
   }
 
   /**
-   * Dispose or detach all the entities associated with the container.
+   * Dispose or detach all the areasOfInterest associated with the container.
    */
   @PreDispose
   void preDispose()
   {
-    _areasOfInterest.values().forEach( entry -> detachEntity( entry, true ) );
+    _areasOfInterest.forEach( entry -> doDetach( entry, true ) );
     _areasOfInterest.clear();
   }
 
   /**
-   * Return true if the specified entity is contained in the container.
+   * Return true if the specified areaOfInterest is contained in the container.
    *
-   * @param entity the entity.
-   * @return true if the specified entity is contained in the container, false otherwise.
+   * @param areaOfInterest the areaOfInterest.
+   * @return true if the specified areaOfInterest is contained in the container, false otherwise.
    */
-  protected boolean contains( @Nonnull final AreaOfInterest entity )
+  protected boolean contains( @Nonnull final AreaOfInterest areaOfInterest )
   {
     getAreasOfInterestObservableValue().reportObserved();
-    return _areasOfInterest.containsKey( Identifiable.<Integer>getArezId( entity ) );
+    return _areasOfInterest.contains( areaOfInterest );
   }
 
   /**
-   * Detach entity from container without disposing entity.
-   * The entity must be attached to the container.
+   * Detach areaOfInterest from container without disposing areaOfInterest.
+   * The areaOfInterest must be attached to the container.
    *
-   * @param entity the entity to detach.
+   * @param areaOfInterest the areaOfInterest to detach.
    */
-  private void detach( @Nonnull final AreaOfInterest entity )
+  private void detach( @Nonnull final AreaOfInterest areaOfInterest )
   {
     // This method has been extracted to try and avoid GWT inlining into invoker
-    final AreaOfInterest removed = _areasOfInterest.remove( Identifiable.<Integer>getArezId( entity ) );
-    if ( null != removed )
+    if ( _areasOfInterest.remove( areaOfInterest ) )
     {
       getAreasOfInterestObservableValue().preReportChanged();
-      detachEntity( entity, false );
+      doDetach( areaOfInterest, false );
       getAreasOfInterestObservableValue().reportChanged();
     }
     else
     {
-      fail( () -> "Arez-0157: Called detach() passing an entity that was not attached to the container. Entity: " +
-                  entity );
+      fail( () -> "Replicant-0095: Called detach() passing an areaOfInterest that was not attached to the container. " +
+                  "AreaOfInterest: " + areaOfInterest );
     }
   }
 
   /**
-   * Return a stream of all entities in the container.
+   * Return a stream of all areasOfInterest in the container.
    *
-   * @return the underlying entities.
+   * @return the underlying areasOfInterest.
    */
   @Observable( expectSetter = false )
   @Nonnull
   public Stream<AreaOfInterest> areasOfInterest()
   {
-    return _areasOfInterest.values().stream();
+    return _areasOfInterest.stream();
   }
 
   @ObservableValueRef
   @Nonnull
   abstract ObservableValue<Stream<AreaOfInterest>> getAreasOfInterestObservableValue();
 
-  private void attachEntity( @Nonnull final AreaOfInterest entity )
+  private void doAttach( @Nonnull final AreaOfInterest areaOfInterest )
   {
     DisposeNotifier
-      .asDisposeNotifier( entity )
+      .asDisposeNotifier( areaOfInterest )
       .addOnDisposeListener( this, () -> {
         getAreasOfInterestObservableValue().preReportChanged();
-        detach( entity );
+        detach( areaOfInterest );
         getAreasOfInterestObservableValue().reportChanged();
       } );
   }
 
-  private void detachEntity( @Nonnull final AreaOfInterest entity, final boolean disposeOnDetach )
+  private void doDetach( @Nonnull final AreaOfInterest areaOfInterest, final boolean disposeOnDetach )
   {
-    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( areaOfInterest ).removeOnDisposeListener( this );
     if ( disposeOnDetach )
     {
-      Disposable.dispose( entity );
+      Disposable.dispose( areaOfInterest );
     }
   }
 }
