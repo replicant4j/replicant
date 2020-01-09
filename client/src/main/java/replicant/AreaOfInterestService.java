@@ -30,6 +30,18 @@ abstract class AreaOfInterestService
     return true;
   }
 
+  @Override
+  protected final boolean reportRead()
+  {
+    return true;
+  }
+
+  @Override
+  protected final boolean reportWrite()
+  {
+    return true;
+  }
+
   /**
    * Reference to the context to which this service belongs.
    */
