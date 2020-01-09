@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.165`.
+* Avoid crash scenario where a delayed dispose in response to `decRef` reducing the reference count to `0` triggers after `AreaOfInterest` was explicitly disposed. In most applications this should not be a problem but applications that include reference counting as well as explicit dispose can trigger this bug. 
 
 ### [v6.58](https://github.com/replicant4j/replicant/tree/v6.58) (2020-01-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.57...v6.58)
 

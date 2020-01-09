@@ -89,7 +89,7 @@ public abstract class AreaOfInterest
 
   private synchronized void tryDispose()
   {
-    if ( 0 >= _refCount )
+    if ( Disposable.isNotDisposed( this ) && 0 >= getRefCount() )
     {
       Disposable.dispose( this );
     }
