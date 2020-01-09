@@ -130,6 +130,10 @@ public abstract class AbstractReplicantTest
       if ( _printObserverErrors )
       {
         System.out.println( message );
+        if ( null != throwable )
+        {
+          throwable.printStackTrace();
+        }
       }
     }
   }
