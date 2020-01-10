@@ -307,8 +307,6 @@ public class ConnectorTest
     safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
                                     RuntimeState.CONNECTING ) );
 
-    final Throwable error = new Throwable();
-
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
