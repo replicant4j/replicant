@@ -217,5 +217,15 @@ abstract class AreaOfInterestService
     {
       Disposable.dispose( areaOfInterest );
     }
+    final ReplicantContext context = getReplicantContext();
+    if ( RuntimeState.CONNECTED == context.getState() )
+    {
+      final ChannelAddress address = areaOfInterest.getAddress();
+      final Subscription subscription = context.findSubscription( address );
+      if ( null != subscription )
+      {
+        context.getRuntime().getConnector( address.getSystemId() ).requestSync();
+      }
+    }
   }
 }

@@ -6,6 +6,7 @@
 * Avoid crash scenario where a delayed dispose in response to `decRef` reducing the reference count to `0` triggers after `AreaOfInterest` was explicitly disposed. In most applications this should not be a problem but applications that include reference counting as well as explicit dispose can trigger this bug.
 * Rework `AreaOfInterestService` to avoid depending on the arez internal class `arez.component.internal.AbstractContainer` as the API and behaviour of this type can change between Arez releases, potentially breaking replicant.
 * When `ReplicantContext.activate()` is invoked, attempt to send synchronization messages for any connectors where relevant. This catches an error scenario where a sync attempt should be made when the context is deactivated but is instead discarded.
+* Make sure a sync is requested if an `AreaOfInterest` is removed and there is a local `Subscription` present for the `AreaOfInterest`.
 
 ### [v6.58](https://github.com/replicant4j/replicant/tree/v6.58) (2020-01-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.57...v6.58)
 
