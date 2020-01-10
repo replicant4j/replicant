@@ -1770,13 +1770,13 @@ public class ConnectorTest
       safeAction( () -> Replicant.context().findSubscription( address ) );
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
-    safeAction( () -> assertEquals( subscription.getFilter(), null ) );
+    safeAction( () -> assertNull( subscription.getFilter() ) );
     safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
       assertEquals( e.getSubscription().getAddress(), address );
-      safeAction( () -> assertEquals( e.getSubscription().getFilter(), null ) );
+      safeAction( () -> assertNull( e.getSubscription().getFilter() ) );
     } );
   }
 
