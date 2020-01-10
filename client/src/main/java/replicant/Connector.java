@@ -652,6 +652,19 @@ abstract class Connector
       }
       else if ( ChannelChangeDescriptor.Type.REMOVE == actionType || ChannelChangeDescriptor.Type.DELETE == actionType )
       {
+        final Subscription subscription = getReplicantContext().findSubscription( address );
+        /*
+         * It is possible for a subscription to no longer be present and still receive a remove action
+         * for the subscription. This can occur due to interleaving of messages - i.e. The application
+         * initiates an action that deletes a root entity of an instance channel and then removes
+         * subscription from the channel. Depending on the order in which the operations complete
+         * could result in a channel remove action when not needed.
+         */
+        if ( null != subscription )
+        {
+          Disposable.dispose( subscription );
+        }
+
         final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
         if ( null != areaOfInterest )
         {
@@ -665,19 +678,6 @@ abstract class Connector
             // We dispose it locally and assume that whatever component create AreaOfInterest can respond appropriately
             Disposable.dispose( areaOfInterest );
           }
-        }
-
-        final Subscription subscription = getReplicantContext().findSubscription( address );
-        /*
-         * It is possible for a subscription to no longer be present and still receive a remove action
-         * for the subscription. This can occur due to interleaving of messages - i.e. The application
-         * initiates an action that deletes a root entity of an instance channel and then removes
-         * subscription from the channel. Depending on the order in which the operations complete
-         * could result in a channel remove action when not needed.
-         */
-        if ( null != subscription )
-        {
-          Disposable.dispose( subscription );
         }
         response.incChannelRemoveCount();
       }

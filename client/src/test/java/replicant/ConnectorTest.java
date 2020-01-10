@@ -1854,10 +1854,10 @@ public class ConnectorTest
     assertTrue( Disposable.isDisposed( areaOfInterest ) );
 
     handler.assertEventCount( 2 );
-    handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
-                             e -> assertEquals( e.getAreaOfInterest().getAddress(), address ) );
     handler.assertNextEvent( SubscriptionDisposedEvent.class,
                              e -> assertEquals( e.getSubscription().getAddress(), address ) );
+    handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
+                             e -> assertEquals( e.getAreaOfInterest().getAddress(), address ) );
   }
 
   @Test
