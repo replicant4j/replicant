@@ -121,7 +121,7 @@ public class WebStorageCacheService
   @Override
   public Set<ChannelAddress> keySet( final int systemId )
   {
-    final HashSet<ChannelAddress> keys = new HashSet<>();
+    final Set<ChannelAddress> keys = new HashSet<>();
     getIndex( systemId ).forEach( v -> keys.add( ChannelAddress.parse( systemId, v ) ) );
     return CollectionsUtil.wrap( keys );
   }
