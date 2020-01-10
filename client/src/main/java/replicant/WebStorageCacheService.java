@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.component.CollectionsUtil;
 import elemental2.core.Global;
 import elemental2.core.JsObject;
 import elemental2.dom.DomGlobal;

@@ -7,7 +7,6 @@ import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
-import arez.component.CollectionsUtil;
 import arez.component.ComponentObservable;
 import arez.component.DisposeNotifier;
 import java.util.Collection;

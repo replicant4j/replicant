@@ -9,7 +9,6 @@ import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
 import arez.annotations.Observe;
-import arez.component.CollectionsUtil;
 import arez.component.DisposeNotifier;
 import java.util.ArrayList;
 import java.util.List;

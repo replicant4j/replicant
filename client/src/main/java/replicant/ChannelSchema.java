@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.component.CollectionsUtil;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;

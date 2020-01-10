@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Decouple from `arez.component.CollectionsUtil` which will be removed from Arez in the near future.
+
 ### [v6.59](https://github.com/replicant4j/replicant/tree/v6.59) (2020-01-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.58...v6.59)
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.165`.

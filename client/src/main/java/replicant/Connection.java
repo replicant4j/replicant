@@ -4,7 +4,6 @@ import arez.annotations.ArezComponent;
 import arez.annotations.ComponentDependency;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
-import arez.component.CollectionsUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
