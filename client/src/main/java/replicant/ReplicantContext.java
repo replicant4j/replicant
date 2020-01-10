@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Arez;
+import arez.ArezContext;
 import arez.Disposable;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,8 @@ public final class ReplicantContext
   private final Validator _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
   @Nonnull
   private final SchemaService _schemaService = SchemaService.create();
+  @Nonnull
+  private final ArezContext _context;
   /**
    * Service responsible for caching data to avoid hitting the network during requests.
    */
@@ -55,7 +58,8 @@ public final class ReplicantContext
 
   ReplicantContext()
   {
-    Arez.context().triggerScheduler();
+    _context = Arez.context();
+    _context.triggerScheduler();
   }
 
   public void setAuthToken( @Nullable final String authToken )
@@ -378,6 +382,16 @@ public final class ReplicantContext
   }
 
   /**
+   * Request a resynchronization with the backend if necessary. This should rarely if ever be used
+   * but can be required when bugs are present in the replicant code and it is not resynchronizing
+   * with the backend.
+   */
+  private void requestSync()
+  {
+    _context.safeAction( () -> getRuntime().getConnectors().forEach( c -> c.getConnector().maybeRequestSync() ) );
+  }
+
+  /**
    * Set the desired state of the context as "active" and start to converge Connectors to being CONNECTED.
    * The desired state of the context is accessible via {@link #isActive()} while the actual state of the
    * context is accessible via {@link #getState()}.
@@ -385,6 +399,7 @@ public final class ReplicantContext
   public void activate()
   {
     getRuntime().activate();
+    requestSync();
   }
 
   /**
