@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.148`.
+
 ### [v6.60](https://github.com/replicant4j/replicant/tree/v6.60) (2020-01-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.59...v6.60)
 
 * Decouple from `arez.component.CollectionsUtil` which will be removed from Arez in the near future.
