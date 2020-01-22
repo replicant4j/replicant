@@ -5,6 +5,7 @@
 * Upgrade the `org.realityforge.grim` artifacts to version `0.04`.
 * Upgrade the `org.realityforge.guiceyloops` artifact to version `0.106`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.148`.
+* Remove the `schemaName` field from all the events defined in the package `replicant.events`. The `schemaName` value is only present when the `replicant.enable_names` compile time constant is set to `true` which is rarely the case in production environments. The field was not used in any downstream projects.
 
 ### [v6.60](https://github.com/replicant4j/replicant/tree/v6.60) (2020-01-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.59...v6.60)
 

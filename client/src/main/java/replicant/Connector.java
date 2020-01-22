@@ -1368,7 +1368,7 @@ abstract class Connector
     {
       final SystemSchema schema = getSchema();
       getReplicantContext().getEventBroker()
-        .reportApplicationEvent( new replicant.events.MessageProcessedEvent( schema.getId(), schema.getName() ) );
+        .reportApplicationEvent( new replicant.events.MessageProcessedEvent( schema.getId() ) );
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1442,9 +1442,7 @@ abstract class Connector
     {
       final SystemSchema schema = getSchema();
       getReplicantContext().getEventBroker()
-        .reportApplicationEvent( new replicant.events.SubscribeStartedEvent( schema.getId(),
-                                                                             schema.getName(),
-                                                                             address ) );
+        .reportApplicationEvent( new replicant.events.SubscribeStartedEvent( schema.getId(), address ) );
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1465,9 +1463,7 @@ abstract class Connector
     {
       final SystemSchema schema = getSchema();
       getReplicantContext().getEventBroker()
-        .reportApplicationEvent( new replicant.events.SubscribeCompletedEvent( schema.getId(),
-                                                                               schema.getName(),
-                                                                               address ) );
+        .reportApplicationEvent( new replicant.events.SubscribeCompletedEvent( schema.getId(), address ) );
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1506,9 +1502,7 @@ abstract class Connector
     {
       final SystemSchema schema = getSchema();
       getReplicantContext().getEventBroker()
-        .reportApplicationEvent( new replicant.events.SubscriptionUpdateStartedEvent( schema.getId(),
-                                                                                      schema.getName(),
-                                                                                      address ) );
+        .reportApplicationEvent( new replicant.events.SubscriptionUpdateStartedEvent( schema.getId(), address ) );
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1525,9 +1519,7 @@ abstract class Connector
     {
       final SystemSchema schema = getSchema();
       getReplicantContext().getEventBroker()
-        .reportApplicationEvent( new replicant.events.SubscriptionUpdateCompletedEvent( schema.getId(),
-                                                                                        schema.getName(),
-                                                                                        address ) );
+        .reportApplicationEvent( new replicant.events.SubscriptionUpdateCompletedEvent( schema.getId(), address ) );
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {

@@ -12,10 +12,9 @@ public class SubscribeCompletedEventTest
   public void basicOperation()
   {
     final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final SubscribeCompletedEvent event = new SubscribeCompletedEvent( 23, "Rose", address );
+    final SubscribeCompletedEvent event = new SubscribeCompletedEvent( 23, address );
 
     assertEquals( event.getSchemaId(), 23 );
-    assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getAddress(), address );
   }
 }

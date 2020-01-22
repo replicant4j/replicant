@@ -11,9 +11,7 @@ public class MessageProcessedEventTest
   public void basicOperation()
   {
     final int schemaId = 23;
-    final String schemaName = "Rose";
-    final MessageProcessedEvent event = new MessageProcessedEvent( schemaId, schemaName );
+    final MessageProcessedEvent event = new MessageProcessedEvent( schemaId );
     assertEquals( event.getSchemaId(), schemaId );
-    assertEquals( event.getSchemaName(), schemaName );
   }
 }

@@ -15,10 +15,9 @@ public class SubscriptionUpdateStartedEventTest
     pauseScheduler();
 
     final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final SubscriptionUpdateStartedEvent event = new SubscriptionUpdateStartedEvent( 23, "Rose", address );
+    final SubscriptionUpdateStartedEvent event = new SubscriptionUpdateStartedEvent( 23, address );
 
     assertEquals( event.getSchemaId(), 23 );
-    assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getAddress(), address );
   }
 }
