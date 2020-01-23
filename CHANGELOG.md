@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add logging to `AbstractReplicantEndpoint` when web socket actions occur. This mandates that downstream libraries implement a template method to retrieve the `Logger` to log to.
+
 ### [v6.61](https://github.com/replicant4j/replicant/tree/v6.61) (2020-01-22) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.60...v6.61)
 
 * Upgrade the `org.realityforge.grim` artifacts to version `0.04`.

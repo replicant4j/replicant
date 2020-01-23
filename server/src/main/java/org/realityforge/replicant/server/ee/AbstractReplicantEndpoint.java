@@ -6,6 +6,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
@@ -50,10 +52,22 @@ public abstract class AbstractReplicantEndpoint
   @Nonnull
   protected abstract EntityMessageEndpoint getEndpoint();
 
+  @SuppressWarnings( "WeakerAccess" )
+  @Nonnull
+  protected abstract Logger getLogger();
+
   @OnOpen
   public void onOpen( @Nonnull final Session session )
   {
     final ReplicantSession newReplicantSession = getSessionManager().createSession( session );
+    final Logger logger = getLogger();
+    if ( logger.isLoggable( Level.FINE ) )
+    {
+      logger.log( Level.FINE,
+                  "Opening WebSocket Session " + session.getId() +
+                  " for replicant session " + getReplicantSession( session ).getId() );
+    }
+
     final JsonObjectBuilder builder =
       Json.createObjectBuilder()
         .add( "type", "session-created" )
@@ -76,6 +90,13 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( session, "Unable to locate associated replicant session" );
       return;
     }
+    final Logger logger = getLogger();
+    if ( logger.isLoggable( Level.FINE ) )
+    {
+      logger.log( Level.FINE,
+                  "Message on WebSocket Session " + session.getId() +
+                  " for replicant session " + getReplicantSession( session ).getId() + ". Message:\n" + message );
+    }
     final JsonObject command;
     final String type;
     final int requestId;
@@ -90,7 +111,7 @@ public abstract class AbstractReplicantEndpoint
       onMalformedMessage( replicantSession, message );
       return;
     }
-    if ( !"auth".equals( type )  && !isAuthorized( replicantSession ) )
+    if ( !"auth".equals( type ) && !isAuthorized( replicantSession ) )
     {
       sendErrorAndClose( session, "Replicant session not authroized" );
       return;
@@ -442,9 +463,15 @@ public abstract class AbstractReplicantEndpoint
   }
 
   @OnError
-  public void onError( @Nonnull final Session session, @SuppressWarnings( "unused" ) @Nonnull final Throwable error )
+  public void onError( @Nonnull final Session session, @Nonnull final Throwable error )
     throws IOException
   {
+    final Logger logger = getLogger();
+    if ( logger.isLoggable( Level.INFO ) )
+    {
+      logger.log( Level.INFO, "Error on WebSocket Session " + session.getId(), error );
+    }
+
     sendErrorAndClose( session, error.toString() );
   }
 
@@ -474,6 +501,13 @@ public abstract class AbstractReplicantEndpoint
   @OnClose
   public void onClose( @Nonnull final Session session )
   {
+    final Logger logger = getLogger();
+    if ( logger.isLoggable( Level.FINE ) )
+    {
+      logger.log( Level.FINE,
+                  "Closing WebSocket Session " + session.getId() +
+                  " for replicant session " + getReplicantSession( session ).getId() );
+    }
     getSessionManager().invalidateSession( getReplicantSession( session ) );
   }
 
