@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.62](https://github.com/replicant4j/replicant/tree/v6.62) (2020-01-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.61...v6.62)
 
 * Add logging to `AbstractReplicantEndpoint` when web socket actions occur. This mandates that downstream libraries implement a template method to retrieve the `Logger` to log to.
