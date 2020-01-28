@@ -236,6 +236,14 @@ public abstract class ReplicantSessionManagerImpl
       }
       for ( final ReplicantSession session : sessions )
       {
+        /*
+         * The expandLinks call is extremely dangerous as it can result in accessing the underlying database.
+         * If another thread/request has a database lock as they changed an entity that would be in the expanded set
+         * AND they are trying to complete a request (i.e. also calling saveEntityMessages() but from different thread)
+         * then they will have a database lock that blocks this request but this request will have acquired the in memory
+         * lock via getLock() that blocks the other request completing, thus producing a deadlock (one side holding the
+         * JVM lock and attempting to acquire the DB lock and the other side vice-versa).
+         */
         expandLinks( session, accumulator.getChangeSet( session ) );
       }
     }
