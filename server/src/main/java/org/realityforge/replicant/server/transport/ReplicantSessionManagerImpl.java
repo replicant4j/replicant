@@ -234,7 +234,7 @@ public abstract class ReplicantSessionManagerImpl
         accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
         accumulator.addActions( initiatorSession, sessionChanges.getChannelActions() );
       }
-      for ( final ReplicantSession session : getSessions().values() )
+      for ( final ReplicantSession session : sessions )
       {
         expandLinks( session, accumulator.getChangeSet( session ) );
       }
