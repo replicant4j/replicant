@@ -146,7 +146,7 @@ abstract class ReplicantRuntime
    *
    * @return the state of the runtime.
    */
-  @Memoize
+  @Memoize( readOutsideTransaction = Feature.ENABLE )
   RuntimeState getState()
   {
     // Are any required connecting?

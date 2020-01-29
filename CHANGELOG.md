@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Make `ReplicantRuntime.getState()` a `@Memoize(readOutsideTransaction=ENABLED)` method so that it can be read in imperative code without the need to explicitly wrap it in an Arez action. Typically this is done via code such as `Replicant.context().getState()`.  
+
 ### [v6.62](https://github.com/replicant4j/replicant/tree/v6.62) (2020-01-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.61...v6.62)
 
 * Add logging to `AbstractReplicantEndpoint` when web socket actions occur. This mandates that downstream libraries implement a template method to retrieve the `Logger` to log to.
