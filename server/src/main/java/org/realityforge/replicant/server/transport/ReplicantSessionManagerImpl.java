@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -34,6 +36,8 @@ import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
 public abstract class ReplicantSessionManagerImpl
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
+  @Nonnull
+  private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
   private final Map<String, ReplicantSession> _sessions = new HashMap<>();
   private final Map<String, ReplicantSession> _roSessions = Collections.unmodifiableMap( _sessions );
@@ -262,9 +266,13 @@ public abstract class ReplicantSessionManagerImpl
         {
           expandLinks( session, accumulator.getChangeSet( session ) );
         }
-        catch ( final Exception ignored )
+        catch ( final Exception e )
         {
           // This can occur when there is an error accessing the database
+          if ( LOG.isLoggable( Level.INFO ) )
+          {
+            LOG.log( Level.INFO, "Error invoking expandLinks for session " + session.getId(), e );
+          }
           session.close();
         }
       }
