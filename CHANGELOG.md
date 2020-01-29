@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Make `ReplicantRuntime.getState()` a `@Memoize(readOutsideTransaction=ENABLED)` method so that it can be read in imperative code without the need to explicitly wrap it in an Arez action. Typically this is done via code such as `Replicant.context().getState()`.  
+* Catch exceptions in server code when calling `expandLinks(...)` and rather than aborting the entire request, just close the session that generated the error and continue processing the change set for other sessions.
 
 ### [v6.62](https://github.com/replicant4j/replicant/tree/v6.62) (2020-01-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.61...v6.62)
 

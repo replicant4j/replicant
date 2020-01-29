@@ -244,7 +244,15 @@ public abstract class ReplicantSessionManagerImpl
          * lock via getLock() that blocks the other request completing, thus producing a deadlock (one side holding the
          * JVM lock and attempting to acquire the DB lock and the other side vice-versa).
          */
-        expandLinks( session, accumulator.getChangeSet( session ) );
+        try
+        {
+          expandLinks( session, accumulator.getChangeSet( session ) );
+        }
+        catch ( final Exception ignored )
+        {
+          // This can occur when there is an error accessing the database
+          session.close();
+        }
       }
     }
     finally
