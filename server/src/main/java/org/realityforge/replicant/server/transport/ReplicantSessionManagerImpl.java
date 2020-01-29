@@ -243,6 +243,20 @@ public abstract class ReplicantSessionManagerImpl
          * then they will have a database lock that blocks this request but this request will have acquired the in memory
          * lock via getLock() that blocks the other request completing, thus producing a deadlock (one side holding the
          * JVM lock and attempting to acquire the DB lock and the other side vice-versa).
+         *
+         * We may be able to "fix" this by:
+         * - Copying the set of sessions into new array and iterating over these, thus releasing the in-memory lock
+         *   and allowing one thread to progress. We would have to handle scenario where individual sessions error
+         *   out and thus drop those sessions on error but continue processing other sessions. This can probably occur
+         *   if we overlap subscribe/unsubscribe processing. IN the worst case scenario the client would be forced to
+         *   reconnect. - ACTUALLY no - this could result in out-of-order messages which is VERY BAD
+         * - Push the processing of EntityMessage messages into a separate thread with a separate transaction context.
+         *   This has same failure conditions as above and mail also fail if entity data changes that impact graph-links
+         *   before messages are processed. This would force us to reconnect clients on error again.
+         * - We could also reduce the incidence of this by "front-loading" data during the transaction where possible.
+         *   This is really only possible when we are dealing with subscribe and subscription updates. In which case we
+         *   could do the same logic as in expandLinks but in the business logic code. This is probably a better approach
+         *   and has no additional error scenarios other than additional complexity.
          */
         try
         {
