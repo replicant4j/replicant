@@ -261,8 +261,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.CONNECTING ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING );
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -272,8 +271,7 @@ public class ConnectorTest
     connector.onDisconnected();
 
     assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.DISCONNECTED ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.DISCONNECTED );
 
     verify( connector.getTransport() ).unbind();
   }
@@ -304,8 +302,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.CONNECTING ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING );
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -313,8 +310,7 @@ public class ConnectorTest
     connector.onDisconnectFailure();
 
     assertEquals( connector.getState(), ConnectorState.ERROR );
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.ERROR ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.ERROR );
   }
 
   @Test
@@ -345,8 +341,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(),
-                                    RuntimeState.CONNECTING ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING );
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -358,7 +353,7 @@ public class ConnectorTest
     connector.onConnected();
 
     assertEquals( connector.getState(), ConnectorState.CONNECTED );
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTED ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTED );
   }
 
   @Test
@@ -385,7 +380,7 @@ public class ConnectorTest
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING );
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -393,7 +388,7 @@ public class ConnectorTest
     connector.onConnectFailure();
 
     assertEquals( connector.getState(), ConnectorState.ERROR );
-    safeAction( () -> assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.ERROR ) );
+    assertEquals( connector.getReplicantRuntime().getState(), RuntimeState.ERROR );
   }
 
   @Test

@@ -559,13 +559,12 @@ public class ReplicantRuntimeTest
     {
       runtime.deactivate();
     }
-    safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
+    assertEquals( runtime.getState(), expectedSystemState );
 
     schedulerLock.dispose();
   }
 
-  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final ConnectorState state )
+  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState, @Nonnull final ConnectorState state )
   {
     ReplicantTestUtil.resetState();
 
@@ -573,7 +572,7 @@ public class ReplicantRuntimeTest
     final ReplicantRuntime runtime = Replicant.context().getRuntime();
     createConnectorInState( state );
 
-    safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
+    assertEquals( runtime.getState(), expectedSystemState );
 
     schedulerLock.dispose();
   }
@@ -601,7 +600,7 @@ public class ReplicantRuntimeTest
     createConnectorInState( service1State );
     createConnectorInState( service2State );
 
-    safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
+    assertEquals( runtime.getState(), expectedSystemState );
 
     schedulerLock.dispose();
   }
@@ -623,7 +622,7 @@ public class ReplicantRuntimeTest
 
     runtime.setConnectorRequired( connector3.getSchema().getId(), false );
 
-    safeAction( () -> assertEquals( runtime.getState(), expectedSystemState ) );
+    assertEquals( runtime.getState(), expectedSystemState );
 
     schedulerLock.dispose();
   }

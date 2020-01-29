@@ -348,13 +348,13 @@ public class ReplicantContextTest
   public void active()
   {
     final ReplicantContext context = Replicant.context();
-    safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
+    assertEquals( context.getState(), RuntimeState.CONNECTED );
     safeAction( () -> assertTrue( context.isActive() ) );
     context.deactivate();
-    safeAction( () -> assertEquals( context.getState(), RuntimeState.DISCONNECTED ) );
+    assertEquals( context.getState(), RuntimeState.DISCONNECTED );
     safeAction( () -> assertFalse( context.isActive() ) );
     context.activate();
-    safeAction( () -> assertEquals( context.getState(), RuntimeState.CONNECTED ) );
+    assertEquals( context.getState(), RuntimeState.CONNECTED );
     safeAction( () -> assertTrue( context.isActive() ) );
   }
 
