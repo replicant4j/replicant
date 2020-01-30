@@ -1640,7 +1640,7 @@ public class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
@@ -1677,7 +1677,7 @@ public class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
@@ -1717,7 +1717,7 @@ public class ConnectorTest
     assertFalse( response.needsChannelChangesProcessed() );
 
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertNull( subscription.getFilter() ) );
@@ -1762,7 +1762,7 @@ public class ConnectorTest
     assertEquals( response.getChannelAddCount(), 1 );
 
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.getAddress(), address );
     safeAction( () -> assertNull( subscription.getFilter() ) );
@@ -1803,7 +1803,7 @@ public class ConnectorTest
     assertEquals( response.getChannelRemoveCount(), 1 );
 
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNull( subscription );
     assertTrue( Disposable.isDisposed( initialSubscription ) );
 
@@ -1842,7 +1842,7 @@ public class ConnectorTest
     assertEquals( response.getChannelRemoveCount(), 1 );
 
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNull( subscription );
     assertTrue( Disposable.isDisposed( initialSubscription ) );
 
@@ -1992,7 +1992,7 @@ public class ConnectorTest
     assertEquals( response.getChannelUpdateCount(), 1 );
 
     final Subscription subscription =
-      safeAction( () -> Replicant.context().findSubscription( address ) );
+      Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertFalse( Disposable.isDisposed( initialSubscription ) );
 
@@ -2661,7 +2661,7 @@ public class ConnectorTest
 
     assertEquals( callCount.get(), 1 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+    assertNull( Replicant.context().findSubscription( address ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
@@ -2718,7 +2718,7 @@ public class ConnectorTest
 
     assertEquals( callCount.get(), 1 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+    assertNull( Replicant.context().findSubscription( address ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {
@@ -2778,7 +2778,7 @@ public class ConnectorTest
 
     assertEquals( callCount.get(), 1 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
-    assertNull( safeAction( () -> Replicant.context().findSubscription( address ) ) );
+    assertNull( Replicant.context().findSubscription( address ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscribeStartedEvent.class, e -> {

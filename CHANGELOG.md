@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Change `SubscriptionService.findInstanceSubscription(...)` so that it is effectively `readOutsideTransaction=ENABLED` to allow it to be invoked by imperative code outside an Arez action. Typically this is done via code such as `Replicant.context().findInstanceSubscription(...)` and is often used to detect whether a subscription is present locally.
+
 ### [v6.63](https://github.com/replicant4j/replicant/tree/v6.63) (2020-01-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.62...v6.63)
 
 * Make `ReplicantRuntime.getState()` a `@Memoize(readOutsideTransaction=ENABLED)` method so that it can be read in imperative code without the need to explicitly wrap it in an Arez action. Typically this is done via code such as `Replicant.context().getState()`.

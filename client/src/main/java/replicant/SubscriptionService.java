@@ -1,8 +1,10 @@
 package replicant;
 
+import arez.ArezContext;
 import arez.Disposable;
 import arez.ObservableValue;
 import arez.annotations.ArezComponent;
+import arez.annotations.ContextRef;
 import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
@@ -213,12 +215,15 @@ abstract class SubscriptionService
     final Subscription subscription = null == channelMap ? null : channelMap.get( channelId );
     if ( null == subscription )
     {
-      getTypeSubscriptionsObservableValue().reportObserved();
+      getTypeSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
       return null;
     }
     else
     {
-      ComponentObservable.observe( subscription );
+      if ( context().isTrackingTransactionActive() )
+      {
+        ComponentObservable.observe( subscription );
+      }
       return subscription;
     }
   }
@@ -242,12 +247,15 @@ abstract class SubscriptionService
     final Subscription subscription = null == instanceMap ? null : instanceMap.get( id );
     if ( null == subscription || Disposable.isDisposed( subscription ) )
     {
-      getInstanceSubscriptionsObservableValue().reportObserved();
+      getInstanceSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
       return null;
     }
     else
     {
-      ComponentObservable.observe( subscription );
+      if ( context().isTrackingTransactionActive() )
+      {
+        ComponentObservable.observe( subscription );
+      }
       return subscription;
     }
   }
@@ -335,4 +343,7 @@ abstract class SubscriptionService
       .peek( this::detachSubscription )
       .forEach( Disposable::dispose );
   }
+
+  @ContextRef
+  abstract ArezContext context();
 }

@@ -63,8 +63,8 @@ public class SubscriptionServiceTest
     assertEquals( findSubscriptionAddress2CallCount.get(), 1 );
     assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
     assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-    safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
-    safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+    assertNull( service.findSubscription( address1 ) );
+    assertNull( service.findSubscription( address2 ) );
     safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 0 ) );
 
     // Add subscription on address1
@@ -75,8 +75,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 2 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 2 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
     }
 
@@ -88,8 +88,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 3 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNotNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
     }
 
@@ -101,8 +101,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 4 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNotNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 3 ) );
     }
 
@@ -124,8 +124,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 5 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNotNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
     }
 
@@ -147,8 +147,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 4 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 6 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
     }
 
@@ -215,8 +215,8 @@ public class SubscriptionServiceTest
     assertEquals( findSubscriptionAddress2CallCount.get(), 1 );
     assertEquals( getInstanceSubscriptionsCallCount.get(), 1 );
     assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-    safeAction( () -> assertNull( service.findSubscription( address1 ) ) );
-    safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+    assertNull( service.findSubscription( address1 ) );
+    assertNull( service.findSubscription( address2 ) );
     safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 0 ) );
     safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 0 ) );
     safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
@@ -229,8 +229,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 2 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 2 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 1 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
@@ -244,8 +244,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 3 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNotNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
@@ -259,8 +259,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 4 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNotNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 3 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 1 ) );
@@ -285,8 +285,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 3 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 5 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNotNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNotNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
@@ -311,8 +311,8 @@ public class SubscriptionServiceTest
       assertEquals( findSubscriptionAddress2CallCount.get(), 4 );
       assertEquals( getInstanceSubscriptionsCallCount.get(), 6 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 1 );
-      safeAction( () -> assertNotNull( service.findSubscription( address1 ) ) );
-      safeAction( () -> assertNull( service.findSubscription( address2 ) ) );
+      assertNotNull( service.findSubscription( address1 ) );
+      assertNull( service.findSubscription( address2 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 1 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 1 ) );
       safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 1 ).size(), 0 ) );
