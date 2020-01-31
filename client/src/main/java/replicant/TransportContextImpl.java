@@ -31,12 +31,11 @@ final class TransportContextImpl
     return _disposed;
   }
 
-  @Nonnull
   @Override
-  public RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
+  public int newRequestId( @Nullable final String name, final boolean syncRequest )
   {
     assert isNotDisposed();
-    return _connector.ensureConnection().newRequest( name, syncRequest );
+    return _connector.ensureConnection().newRequest( name, syncRequest ).getRequestId();
   }
 
   @Override
