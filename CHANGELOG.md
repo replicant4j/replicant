@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.65](https://github.com/replicant4j/replicant/tree/v6.65) (2020-01-31) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.64...v6.65)
 
 * Refactor the `replicant.TransportContext` interface to make it public and to ensure all methods are callable from outside the package.
 * Extract `replicant.AbstractTransport` class to facilitate the construction of alternative transport implementations.
