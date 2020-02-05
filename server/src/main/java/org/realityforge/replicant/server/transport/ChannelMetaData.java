@@ -30,7 +30,8 @@ public final class ChannelMetaData
   private final int _channelId;
   @Nonnull
   private final String _name;
-  private final boolean _typeGraph;
+  @Nullable
+  private final Integer _instanceRootEntityTypeId;
   @Nonnull
   private final FilterType _filterType;
   private final Class<?> _filterParameterType;
@@ -43,7 +44,7 @@ public final class ChannelMetaData
 
   public ChannelMetaData( final int channelId,
                           @Nonnull final String name,
-                          final boolean isTypeGraph,
+                          @Nullable final Integer instanceRootEntityTypeId,
                           @Nonnull final FilterType filterType,
                           @Nullable final Class<?> filterParameterType,
                           final boolean cacheable,
@@ -51,7 +52,7 @@ public final class ChannelMetaData
   {
     _channelId = channelId;
     _name = Objects.requireNonNull( name );
-    _typeGraph = isTypeGraph;
+    _instanceRootEntityTypeId = instanceRootEntityTypeId;
     _filterType = Objects.requireNonNull( filterType );
     _filterParameterType = filterParameterType;
     if ( !hasFilterParameter() && null != filterParameterType )
@@ -79,12 +80,19 @@ public final class ChannelMetaData
 
   public boolean isTypeGraph()
   {
-    return _typeGraph;
+    return null == _instanceRootEntityTypeId;
   }
 
   public boolean isInstanceGraph()
   {
     return !isTypeGraph();
+  }
+
+  @Nonnull
+  public Integer getInstanceRootEntityTypeId()
+  {
+    assert null != _instanceRootEntityTypeId;
+    return _instanceRootEntityTypeId;
   }
 
   @Nonnull
@@ -101,10 +109,7 @@ public final class ChannelMetaData
   @Nonnull
   public Class<?> getFilterParameterType()
   {
-    if ( null == _filterParameterType )
-    {
-      throw new IllegalStateException( "getFilterParameterType invoked on unfiltered graph" );
-    }
+    assert null != _filterParameterType;
     return _filterParameterType;
   }
 
