@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -904,4 +905,42 @@ public abstract class ReplicantSessionManagerImpl
 
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelAddress target );
+
+  /**
+   * Process message handling any logical deletes.
+   *
+   * @param address     the address of the graph.
+   * @param message     the message to process
+   * @param session     the session that message is being processed for.
+   * @param accumulator for collecting changes.
+   * @param filter      a filter that transforms and or filters entity message before handling. May be null.
+   */
+  protected void processDeleteMessage( @Nonnull final ChannelAddress address,
+                                       @Nonnull final EntityMessage message,
+                                       @Nonnull final ReplicantSession session,
+                                       @Nonnull final ChangeAccumulator accumulator,
+                                       @Nullable final Function<EntityMessage, EntityMessage> filter )
+  {
+    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+
+    // If the session is not subscribed to graph then skip processing
+    if ( null != entry )
+    {
+      final EntityMessage m = null == filter ? message : filter.apply( message );
+
+      // Process any deleted messages that are in scope for session
+      if ( null != m && m.isDelete() )
+      {
+        final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
+
+        // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
+        if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )
+        {
+          performUnsubscribe( session, entry, true, true, accumulator.getChangeSet( session ) );
+        }
+        // Delink any implicit subscriptions that was a result of the deleted entity
+        delinkDownstreamSubscriptions( session, entry, m, accumulator );
+      }
+    }
+  }
 }

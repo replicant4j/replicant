@@ -4,6 +4,7 @@
 
 * Optimize access to channels from `SystemMetaData` and remove unused `SystemMetaData.getChannels()` method.
 * Replace `ChannelMetaData._typeGraph` boolean flag with `ChannelMetaData._instanceRootEntityTypeId` to make it easier to drive business logic and to write tests for subscription logic.
+* Extract generic `ReplicantSessionManagerImpl.processDeleteMessage()` from downstream libraries to make it easier to refactor logic in subscription managers.
 
 ### [v6.66](https://github.com/replicant4j/replicant/tree/v6.66) (2020-02-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.65...v6.66)
 
