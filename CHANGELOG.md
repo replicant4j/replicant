@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Import `ReplicantSession.pingTransport()` from downstream consumers that is used to keep alive the web socket connection when passing through some intermediaries that close websockets when idle. 
+* Import `ReplicantSession.pingTransport()` from downstream consumers that is used to keep alive the web socket connection when passing through some intermediaries that close websockets when idle.
 * Add `ReplicantSessionManagerImpl.pingSessions()` method that pings all sessions to keep them alive. This is expected to be called periodically to ensure websockets are not closed by intermediaries such as firewalls and load balancers.
 
 ### [v6.65](https://github.com/replicant4j/replicant/tree/v6.65) (2020-01-31) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.64...v6.65)
