@@ -38,10 +38,15 @@ public abstract class ReplicantSessionManagerImpl
 {
   @Nonnull
   private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
+  @Nonnull
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
+  @Nonnull
   private final Map<String, ReplicantSession> _sessions = new HashMap<>();
+  @Nonnull
   private final Map<String, ReplicantSession> _roSessions = Collections.unmodifiableMap( _sessions );
+  @Nonnull
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
+  @Nonnull
   private final HashMap<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
   @Override
