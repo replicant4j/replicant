@@ -18,14 +18,14 @@ import org.realityforge.replicant.server.json.JsonEncoder;
 public final class ReplicantSession
   implements Serializable, Closeable
 {
-  @Nullable
-  private String _authToken;
   @Nonnull
   private final Session _webSocketSession;
   @Nonnull
   private final Map<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
   private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+  @Nullable
+  private String _authToken;
 
   public ReplicantSession( @Nonnull final Session webSocketSession )
   {
