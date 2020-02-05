@@ -148,6 +148,27 @@ public abstract class ReplicantSessionManagerImpl
     removeAllSessions();
   }
 
+  @SuppressWarnings( "WeakerAccess" )
+  public void pingSessions()
+  {
+    _lock.readLock().lock();
+    try
+    {
+      for ( final ReplicantSession session : _sessions.values() )
+      {
+        if ( LOG.isLoggable( Level.FINEST ) )
+        {
+          LOG.finest( "Pinging websocket for session " + session.getId() );
+        }
+        session.pingTransport();
+      }
+    }
+    finally
+    {
+      _lock.readLock().unlock();
+    }
+  }
+
   /**
    * Remove all sessions and force them to reconnect.
    */
