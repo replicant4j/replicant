@@ -47,7 +47,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   @Nonnull
-  private final HashMap<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
+  private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
