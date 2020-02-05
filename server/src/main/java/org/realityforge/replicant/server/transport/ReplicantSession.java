@@ -63,6 +63,27 @@ public final class ReplicantSession
     }
   }
 
+  /**
+   * Send a ping at the network level to ensure the connection is kept alive.
+   *
+   * This is required to keep connection alove when passing through some load balancers
+   * that proxy non-ssl websockets and close the socket after an idle period.
+   */
+  public void pingTransport()
+  {
+    if ( _webSocketSession.isOpen() )
+    {
+      try
+      {
+        _webSocketSession.getBasicRemote().sendPing( null );
+      }
+      catch ( final IOException ignored )
+      {
+        // All scenarios we can envision imply the session is shutting down, and thus can be ignored
+      }
+    }
+  }
+
   @Nonnull
   public Session getWebSocketSession()
   {

@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Import `ReplicantSession.pingTransport()` from downstream consumers that is used to keep alive the web socket connection when passing through some intermediaries that close websockets when idle. 
+
 ### [v6.65](https://github.com/replicant4j/replicant/tree/v6.65) (2020-01-31) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.64...v6.65)
 
 * Refactor the `replicant.TransportContext` interface to make it public and to ensure all methods are callable from outside the package.
