@@ -10,6 +10,7 @@ public final class SystemMetaData
 {
   @Nonnull
   private final String _name;
+  @Nonnull
   private final List<ChannelMetaData> _channels;
 
   public SystemMetaData( @Nonnull final String name, @Nonnull final ChannelMetaData... channels )
