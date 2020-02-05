@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Optimize access to channels from `SystemMetaData` and remove unused `SystemMetaData.getChannels()` method.
+
 ### [v6.66](https://github.com/replicant4j/replicant/tree/v6.66) (2020-02-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.65...v6.66)
 
 * Import `ReplicantSession.pingTransport()` from downstream consumers that is used to keep alive the web socket connection when passing through some intermediaries that close websockets when idle.
