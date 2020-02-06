@@ -56,10 +56,6 @@ public final class SystemMetaData
   @Nonnull
   public ChannelMetaData getChannelMetaData( final int channelId )
   {
-    if ( channelId >= _channels.length || channelId < 0 )
-    {
-      throw new NoSuchChannelException( channelId );
-    }
     return _channels[ channelId ];
   }
 
