@@ -82,7 +82,7 @@ final class Encoder
   {
     g.write( "url", getInstanceChannelURL( session, channeID, uri ) );
     final Collection<SubscriptionEntry> entries =
-      session.getSubscriptions().values().stream().filter( s -> s.getDescriptor().getChannelId() == channeID ).
+      session.getSubscriptions().values().stream().filter( s -> s.getAddress().getChannelId() == channeID ).
         collect( Collectors.toList() );
     emitSubscriptions( systemMetaData, session, g, entries, uri );
   }
@@ -181,9 +181,9 @@ final class Encoder
                            @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    final ChannelMetaData channelMetaData = systemMetaData.getChannelMetaData( entry.getDescriptor() );
-    g.write( "url", getChannelURL( session, entry.getDescriptor(), uri ) );
-    emitChannelDescriptor( systemMetaData, g, entry.getDescriptor() );
+    final ChannelMetaData channelMetaData = systemMetaData.getChannelMetaData( entry.getAddress() );
+    g.write( "url", getChannelURL( session, entry.getAddress(), uri ) );
+    emitChannelDescriptor( systemMetaData, g, entry.getAddress() );
     g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
     if ( channelMetaData.hasFilterParameter() )
     {

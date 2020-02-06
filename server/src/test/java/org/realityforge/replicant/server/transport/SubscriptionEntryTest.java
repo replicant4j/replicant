@@ -24,7 +24,7 @@ public class SubscriptionEntryTest
 
     final SubscriptionEntry entry = new SubscriptionEntry( cd1 );
 
-    assertEquals( entry.getDescriptor(), cd1 );
+    assertEquals( entry.getAddress(), cd1 );
     assertFalse( entry.isExplicitlySubscribed() );
     assertEquals( entry.getInwardSubscriptions().size(), 0 );
     assertEquals( entry.getOutwardSubscriptions().size(), 0 );

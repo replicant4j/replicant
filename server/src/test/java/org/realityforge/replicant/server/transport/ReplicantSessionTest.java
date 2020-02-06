@@ -38,7 +38,7 @@ public class ReplicantSessionTest
 
     final SubscriptionEntry entry = session.createSubscriptionEntry( cd1 );
 
-    assertEquals( entry.getDescriptor(), cd1 );
+    assertEquals( entry.getAddress(), cd1 );
     assertEquals( session.getSubscriptions().size(), 1 );
     assertEquals( session.findSubscriptionEntry( cd1 ), entry );
     assertEquals( session.getSubscriptionEntry( cd1 ), entry );

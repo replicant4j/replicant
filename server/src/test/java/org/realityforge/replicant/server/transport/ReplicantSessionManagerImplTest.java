@@ -826,7 +826,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      sm.unsubscribe( session, entry.getDescriptor(), EntityMessageCacheUtil.getSessionChanges() );
+      sm.unsubscribe( session, entry.getAddress(), EntityMessageCacheUtil.getSessionChanges() );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
@@ -1717,7 +1717,7 @@ public class ReplicantSessionManagerImplTest
     protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                         @Nonnull final ChannelAddress target )
     {
-      return null != _followSource && _followSource.equals( sourceEntry.getDescriptor() );
+      return null != _followSource && _followSource.equals( sourceEntry.getAddress() );
     }
 
     @Nonnull

@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,7 +16,8 @@ import org.realityforge.replicant.server.ChannelAddress;
 public final class SubscriptionEntry
   implements Comparable<SubscriptionEntry>
 {
-  private final ChannelAddress _descriptor;
+  @Nonnull
+  private final ChannelAddress _address;
   /**
    * This is a list of channels that this auto-subscribed to.
    */
@@ -23,7 +25,6 @@ public final class SubscriptionEntry
   private final Set<ChannelAddress> _outwardSubscriptions = new HashSet<>();
   @Nonnull
   private final Set<ChannelAddress> _roOutwardSubscriptions = Collections.unmodifiableSet( _outwardSubscriptions );
-
   /**
    * This is a list of channels that auto-subscribed to this channel.
    */
@@ -37,12 +38,13 @@ public final class SubscriptionEntry
 
   public SubscriptionEntry( @Nonnull final ChannelAddress address )
   {
-    _descriptor = address;
+    _address = Objects.requireNonNull( address );
   }
 
-  public ChannelAddress getDescriptor()
+  @Nonnull
+  public ChannelAddress getAddress()
   {
-    return _descriptor;
+    return _address;
   }
 
   /**
@@ -174,6 +176,6 @@ public final class SubscriptionEntry
   @Override
   public int compareTo( @Nonnull final SubscriptionEntry o )
   {
-    return getDescriptor().compareTo( o.getDescriptor() );
+    return getAddress().compareTo( o.getAddress() );
   }
 }

@@ -460,7 +460,7 @@ public abstract class ReplicantSessionManagerImpl
         if ( !doFiltersMatch( filter, existingFilter ) )
         {
           final String message =
-            "Attempted to update filter on channel " + entry.getDescriptor() + " from " + existingFilter +
+            "Attempted to update filter on channel " + entry.getAddress() + " from " + existingFilter +
             " to " + filter + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
           throw new AttemptedToUpdateStaticFilterException( message );
         }
@@ -494,7 +494,7 @@ public abstract class ReplicantSessionManagerImpl
                          @Nonnull final ChangeSet changeSet )
   {
     entry.setFilter( filter );
-    final ChannelAddress address = entry.getDescriptor();
+    final ChannelAddress address = entry.getAddress();
     final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
     if ( channelMetaData.isCacheable() )
     {
@@ -777,7 +777,7 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( entry.canUnsubscribe() )
     {
-      changeSet.mergeAction( entry.getDescriptor(),
+      changeSet.mergeAction( entry.getAddress(),
                              delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
                              null );
       for ( final ChannelAddress downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
@@ -824,8 +824,8 @@ public abstract class ReplicantSessionManagerImpl
   void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
                                 @Nonnull final SubscriptionEntry targetEntry )
   {
-    sourceEntry.registerOutwardSubscriptions( targetEntry.getDescriptor() );
-    targetEntry.registerInwardSubscriptions( sourceEntry.getDescriptor() );
+    sourceEntry.registerOutwardSubscriptions( targetEntry.getAddress() );
+    targetEntry.registerInwardSubscriptions( sourceEntry.getAddress() );
   }
 
   /**
@@ -834,8 +834,8 @@ public abstract class ReplicantSessionManagerImpl
   void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
                                   @Nonnull final SubscriptionEntry targetEntry )
   {
-    sourceEntry.deregisterOutwardSubscriptions( targetEntry.getDescriptor() );
-    targetEntry.deregisterInwardSubscriptions( sourceEntry.getDescriptor() );
+    sourceEntry.deregisterOutwardSubscriptions( targetEntry.getAddress() );
+    targetEntry.deregisterInwardSubscriptions( sourceEntry.getAddress() );
   }
 
   @SuppressWarnings( { "PMD.WhileLoopsMustUseBraces", "StatementWithEmptyBody" } )
@@ -914,7 +914,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nonnull final ChannelAddress target )
   {
     throw new IllegalStateException( "shouldFollowLink called for link between channel " +
-                                     sourceEntry.getDescriptor() + " and " + target +
+                                     sourceEntry.getAddress() + " and " + target +
                                      " and the target has no filter or the link is unknown." );
   }
 

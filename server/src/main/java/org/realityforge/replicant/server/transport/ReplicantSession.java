@@ -219,6 +219,6 @@ public final class ReplicantSession
    */
   boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
   {
-    return null != _subscriptions.remove( entry.getDescriptor() );
+    return null != _subscriptions.remove( entry.getAddress() );
   }
 }
