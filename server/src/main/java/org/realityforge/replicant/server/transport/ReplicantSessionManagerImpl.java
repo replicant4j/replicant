@@ -322,13 +322,17 @@ public abstract class ReplicantSessionManagerImpl
                                    @Nullable final Object filter,
                                    @Nonnull final ChangeSet changeSet )
   {
-    assert getSystemMetaData().getChannelMetaData( address ).getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
+    final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( address );
+    assert channel.hasFilterParameter();
+    assert channel.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
     final SubscriptionEntry entry = session.getSubscriptionEntry( address );
     final Object originalFilter = entry.getFilter();
     if ( !doFiltersMatch( filter, originalFilter ) )
     {
-      performUpdateSubscription( entry, originalFilter, filter, changeSet );
+      entry.setFilter( filter );
+      collectDataForSubscriptionUpdate( address, changeSet, originalFilter, filter );
+      changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
     }
   }
 
@@ -338,11 +342,12 @@ public abstract class ReplicantSessionManagerImpl
                              @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter )
   {
-    assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
+    final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( channelId );
+    assert channel.isInstanceGraph();
 
     final List<ChannelAddress> newChannels = new ArrayList<>();
     //OriginalFilter => Channels
-    final HashMap<Object, List<ChannelAddress>> channelsToUpdate = new HashMap<>();
+    final Map<Object, List<ChannelAddress>> channelsToUpdate = new HashMap<>();
 
     for ( final Integer root : subChannelIds )
     {
@@ -361,7 +366,9 @@ public abstract class ReplicantSessionManagerImpl
 
     if ( !newChannels.isEmpty() )
     {
-      if ( !bulkCollectDataForSubscribe( session, newChannels, filter ) )
+      if ( !channel.isInstanceGraph() ||
+           !channel.areBulkLoadsSupported() ||
+           !bulkCollectDataForSubscribe( session, newChannels, filter ) )
       {
         t = subscribeToAddresses( session, newChannels, filter );
       }
@@ -374,7 +381,10 @@ public abstract class ReplicantSessionManagerImpl
         final List<ChannelAddress> addresses = update.getValue();
         boolean bulkLoaded = false;
 
-        if ( addresses.size() > 1 )
+        if ( addresses.size() > 1 &&
+             channel.isInstanceGraph() &&
+             channel.areBulkLoadsSupported() &&
+             ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() )
         {
           bulkLoaded = bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter );
         }
@@ -670,25 +680,16 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  void performUpdateSubscription( @Nonnull final SubscriptionEntry entry,
-                                  @Nullable final Object originalFilter,
-                                  @Nullable final Object filter,
-                                  @Nonnull final ChangeSet changeSet )
-  {
-    assert getSystemMetaData().getChannelMetaData( entry.getDescriptor() ).hasFilterParameter();
-    entry.setFilter( filter );
-    final ChannelAddress address = entry.getDescriptor();
-    collectDataForSubscriptionUpdate( entry.getDescriptor(), changeSet, originalFilter, filter );
-    changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
-  }
-
   /**
    * @return the cacheKey if any. The return value is ignored for non-cacheable channels.
    */
   @Nonnull
-  protected abstract SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress address,
-                                                              @Nonnull final ChangeSet changeSet,
-                                                              @Nullable final Object filter );
+  protected SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress address,
+                                                     @Nonnull final ChangeSet changeSet,
+                                                     @Nullable final Object filter )
+  {
+    throw new IllegalStateException( "collectDataForSubscribe called for unsupported channel " + address );
+  }
 
   /**
    * This method is called in an attempt to use a more efficient method for bulk loading instance graphs.
@@ -697,16 +698,20 @@ public abstract class ReplicantSessionManagerImpl
    *
    * @return true if method has actually bulk loaded all data, false otherwise.
    */
-  protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
-                                                          @Nonnull List<ChannelAddress> addresses,
-                                                          @Nullable Object filter );
+  protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
+                                                 @Nonnull final List<ChannelAddress> addresses,
+                                                 @Nullable final Object filter )
+  {
+    final ChannelAddress address = addresses.get( 0 );
+    throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
+  }
 
   protected void collectDataForSubscriptionUpdate( @Nonnull final ChannelAddress address,
                                                    @Nonnull final ChangeSet changeSet,
                                                    @Nullable final Object originalFilter,
                                                    @Nullable final Object filter )
   {
-    throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unknown channel " + address );
+    throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
   }
 
   /**
@@ -714,10 +719,14 @@ public abstract class ReplicantSessionManagerImpl
    * It is expected that the hook does everything including updating SubscriptionEntry with new
    * filter, adding graph links etc.
    */
-  protected abstract boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                                                   @Nonnull List<ChannelAddress> addresses,
-                                                                   @Nullable Object originalFilter,
-                                                                   @Nullable Object filter );
+  protected boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
+                                                          @Nonnull List<ChannelAddress> addresses,
+                                                          @Nullable Object originalFilter,
+                                                          @Nullable Object filter )
+  {
+    final ChannelAddress address = addresses.get( 0 );
+    throw new IllegalStateException( "bulkCollectDataForSubscriptionUpdate called for unknown channel " + address );
+  }
 
   @Override
   public void unsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
