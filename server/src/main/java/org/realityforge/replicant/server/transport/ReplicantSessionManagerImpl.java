@@ -316,10 +316,6 @@ public abstract class ReplicantSessionManagerImpl
                                                  @Nonnull Collection<ReplicantSession> sessions,
                                                  @Nonnull ChangeAccumulator accumulator );
 
-  protected abstract void processDeleteMessages( @Nonnull EntityMessage message,
-                                                 @Nonnull Collection<ReplicantSession> sessions,
-                                                 @Nonnull ChangeAccumulator accumulator );
-
   private void updateSubscription( @Nonnull final ReplicantSession session,
                                    @Nonnull final ChannelAddress address,
                                    @Nullable final Object filter,
@@ -905,6 +901,46 @@ public abstract class ReplicantSessionManagerImpl
 
   protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                                @Nonnull final ChannelAddress target );
+  @Nullable
+  protected abstract EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,
+                                                        @Nonnull ChannelAddress address,
+                                                        @Nonnull EntityMessage message );
+
+  protected void processDeleteMessages( @Nonnull final EntityMessage message,
+                                        @Nonnull final Collection<ReplicantSession> sessions,
+                                        @Nonnull final ChangeAccumulator accumulator )
+  {
+    final SystemMetaData schema = getSystemMetaData();
+    final int instanceChannelCount = schema.getInstanceChannelCount();
+    final ChannelAddress[] addresses = new ChannelAddress[ instanceChannelCount ];
+    for ( int i = 0; i < addresses.length; i++ )
+    {
+      final ChannelMetaData channel = schema.getInstanceChannelByIndex( i );
+      final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
+      if ( null != subChannelId )
+      {
+        addresses[ i ] = new ChannelAddress( channel.getChannelId(), subChannelId );
+      }
+    }
+
+    for ( final ReplicantSession session : sessions )
+    {
+      for ( int i = 0; i < addresses.length; i++ )
+      {
+        final ChannelAddress address = addresses[ i ];
+        if ( null != address )
+        {
+          final boolean isFiltered =
+            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
+          processDeleteMessage( address,
+                                message,
+                                session,
+                                accumulator,
+                                isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
+        }
+      }
+    }
+  }
 
   /**
    * Process message handling any logical deletes.
