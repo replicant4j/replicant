@@ -1691,13 +1691,6 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected void processDeleteMessages( @Nonnull final EntityMessage message,
-                                          @Nonnull final Collection<ReplicantSession> sessions,
-                                          @Nonnull final ChangeAccumulator accumulator )
-    {
-    }
-
-    @Override
     protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
                                                    @Nonnull final ArrayList<ChannelAddress> descriptors,
                                                    @Nullable final Object filter )
