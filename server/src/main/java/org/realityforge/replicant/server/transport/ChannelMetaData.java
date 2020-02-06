@@ -27,6 +27,23 @@ public final class ChannelMetaData
     DYNAMIC
   }
 
+  public enum CacheType
+  {
+    /**
+     * No caching
+     */
+    NONE,
+    /**
+     * Caching is managed internally by replicant. If a change arrives for an entity in the graph then the
+     * cache is expired.
+     */
+    INTERNAL,
+    /**
+     * Application code is responsible for managing the cache and expiring data when it is stale..
+     */
+    EXTERNAL
+  }
+
   private final int _channelId;
   @Nonnull
   private final String _name;
@@ -35,7 +52,8 @@ public final class ChannelMetaData
   @Nonnull
   private final FilterType _filterType;
   private final Class<?> _filterParameterType;
-  private final boolean _cacheable;
+  @Nonnull
+  private final CacheType _cacheType;
   /**
    * Flag indicating whether it is valid to attempt to perform bulk loads for channel.
    */
@@ -51,7 +69,7 @@ public final class ChannelMetaData
                           @Nullable final Integer instanceRootEntityTypeId,
                           @Nonnull final FilterType filterType,
                           @Nullable final Class<?> filterParameterType,
-                          final boolean cacheable,
+                          @Nonnull final CacheType cacheType,
                           final boolean bulkLoadsSupported,
                           final boolean external )
   {
@@ -60,6 +78,7 @@ public final class ChannelMetaData
     _instanceRootEntityTypeId = instanceRootEntityTypeId;
     _filterType = Objects.requireNonNull( filterType );
     _filterParameterType = filterParameterType;
+    _cacheType = Objects.requireNonNull( cacheType );
     _bulkLoadsSupported = bulkLoadsSupported;
     if ( !hasFilterParameter() && null != filterParameterType )
     {
@@ -69,7 +88,6 @@ public final class ChannelMetaData
     {
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
-    _cacheable = cacheable;
     _external = external;
   }
 
@@ -121,7 +139,13 @@ public final class ChannelMetaData
 
   public boolean isCacheable()
   {
-    return _cacheable;
+    return CacheType.NONE != _cacheType;
+  }
+
+  @Nonnull
+  public CacheType getCacheType()
+  {
+    return _cacheType;
   }
 
   public boolean areBulkLoadsSupported()

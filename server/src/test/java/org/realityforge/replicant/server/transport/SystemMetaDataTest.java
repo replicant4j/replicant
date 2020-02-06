@@ -10,18 +10,32 @@ public class SystemMetaDataTest
   public void basicOperation()
   {
     final ChannelMetaData ch0 =
-      new ChannelMetaData( 0, ValueUtil.randomString(), 2, ChannelMetaData.FilterType.NONE, null, false, false, false );
+      new ChannelMetaData( 0,
+                           ValueUtil.randomString(),
+                           2,
+                           ChannelMetaData.FilterType.NONE,
+                           null,
+                           ChannelMetaData.CacheType.NONE,
+                           false,
+                           false );
     final ChannelMetaData ch1 =
       new ChannelMetaData( 1,
                            ValueUtil.randomString(),
                            null,
                            ChannelMetaData.FilterType.NONE,
                            null,
-                           false,
+                           ChannelMetaData.CacheType.NONE,
                            false,
                            false );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 2, ValueUtil.randomString(), 54, ChannelMetaData.FilterType.NONE, null, false, true, false );
+      new ChannelMetaData( 2,
+                           ValueUtil.randomString(),
+                           54,
+                           ChannelMetaData.FilterType.NONE,
+                           null,
+                           ChannelMetaData.CacheType.NONE,
+                           true,
+                           false );
     final String name = ValueUtil.randomString();
 
     final SystemMetaData systemMetaData = new SystemMetaData( name, ch0, ch1, ch2 );
