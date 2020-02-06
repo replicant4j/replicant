@@ -702,10 +702,13 @@ public abstract class ReplicantSessionManagerImpl
                                                           @Nonnull ArrayList<ChannelAddress> addresses,
                                                           @Nullable Object filter );
 
-  protected abstract void collectDataForSubscriptionUpdate( @Nonnull ChannelAddress address,
-                                                            @Nonnull ChangeSet changeSet,
-                                                            @Nullable Object originalFilter,
-                                                            @Nullable Object filter );
+  protected void collectDataForSubscriptionUpdate( @Nonnull final ChannelAddress address,
+                                                   @Nonnull final ChangeSet changeSet,
+                                                   @Nullable final Object originalFilter,
+                                                   @Nullable final Object filter )
+  {
+    throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unknown channel " + address );
+  }
 
   /**
    * Hook method by which efficient bulk collection of data for subscription updates can occur.
