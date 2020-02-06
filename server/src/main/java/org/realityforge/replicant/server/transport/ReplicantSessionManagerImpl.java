@@ -910,9 +910,12 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   @Nullable
-  protected abstract EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,
-                                                        @Nonnull ChannelAddress address,
-                                                        @Nonnull EntityMessage message );
+  protected EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
+                                               @Nonnull final ChannelAddress address,
+                                               @Nonnull final EntityMessage message )
+  {
+    throw new IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
+  }
 
   protected void processDeleteMessages( @Nonnull final EntityMessage message,
                                         @Nonnull final Collection<ReplicantSession> sessions,
