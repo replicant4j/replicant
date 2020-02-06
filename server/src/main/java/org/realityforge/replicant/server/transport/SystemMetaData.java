@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.transport;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.realityforge.replicant.server.ChannelAddress;
 
@@ -11,6 +12,8 @@ public final class SystemMetaData
   private final String _name;
   @Nonnull
   private final ChannelMetaData[] _channels;
+  @Nonnull
+  private final ChannelMetaData[] _instanceChannels;
 
   public SystemMetaData( @Nonnull final String name, @Nonnull final ChannelMetaData... channels )
   {
@@ -26,6 +29,8 @@ public final class SystemMetaData
     }
     _name = Objects.requireNonNull( name );
     _channels = channels;
+    _instanceChannels =
+      Stream.of( channels ).filter( ChannelMetaData::isInstanceGraph ).toArray( ChannelMetaData[]::new );
   }
 
   @Nonnull
@@ -56,5 +61,16 @@ public final class SystemMetaData
       throw new NoSuchChannelException( channelId );
     }
     return _channels[ channelId ];
+  }
+
+  public int getInstanceChannelCount()
+  {
+    return _instanceChannels.length;
+  }
+
+  @Nonnull
+  public ChannelMetaData getInstanceChannelByIndex( final int index )
+  {
+    return _instanceChannels[ index ];
   }
 }
