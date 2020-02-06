@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -339,9 +340,9 @@ public abstract class ReplicantSessionManagerImpl
   {
     assert getSystemMetaData().getChannelMetaData( channelId ).isInstanceGraph();
 
-    final ArrayList<ChannelAddress> newChannels = new ArrayList<>();
+    final List<ChannelAddress> newChannels = new ArrayList<>();
     //OriginalFilter => Channels
-    final HashMap<Object, ArrayList<ChannelAddress>> channelsToUpdate = new HashMap<>();
+    final HashMap<Object, List<ChannelAddress>> channelsToUpdate = new HashMap<>();
 
     for ( final Integer root : subChannelIds )
     {
@@ -353,9 +354,7 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        final ArrayList<ChannelAddress> addresses =
-          channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() );
-        addresses.add( address );
+        channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() ).add( address );
       }
     }
     Throwable t = null;
@@ -369,10 +368,10 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( !channelsToUpdate.isEmpty() )
     {
-      for ( final Map.Entry<Object, ArrayList<ChannelAddress>> update : channelsToUpdate.entrySet() )
+      for ( final Map.Entry<Object, List<ChannelAddress>> update : channelsToUpdate.entrySet() )
       {
         final Object originalFilter = update.getKey();
-        final ArrayList<ChannelAddress> addresses = update.getValue();
+        final List<ChannelAddress> addresses = update.getValue();
         boolean bulkLoaded = false;
 
         if ( addresses.size() > 1 )
@@ -401,7 +400,7 @@ public abstract class ReplicantSessionManagerImpl
 
   @Nullable
   private Throwable subscribeToAddresses( @Nonnull final ReplicantSession session,
-                                          @Nonnull final ArrayList<ChannelAddress> addresses,
+                                          @Nonnull final List<ChannelAddress> addresses,
                                           @Nullable final Object filter )
   {
     Throwable t = null;
@@ -699,7 +698,7 @@ public abstract class ReplicantSessionManagerImpl
    * @return true if method has actually bulk loaded all data, false otherwise.
    */
   protected abstract boolean bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
-                                                          @Nonnull ArrayList<ChannelAddress> addresses,
+                                                          @Nonnull List<ChannelAddress> addresses,
                                                           @Nullable Object filter );
 
   protected void collectDataForSubscriptionUpdate( @Nonnull final ChannelAddress address,
@@ -716,7 +715,7 @@ public abstract class ReplicantSessionManagerImpl
    * filter, adding graph links etc.
    */
   protected abstract boolean bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                                                   @Nonnull ArrayList<ChannelAddress> addresses,
+                                                                   @Nonnull List<ChannelAddress> addresses,
                                                                    @Nullable Object originalFilter,
                                                                    @Nullable Object filter );
 
