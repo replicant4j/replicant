@@ -899,8 +899,14 @@ public abstract class ReplicantSessionManagerImpl
     return false;
   }
 
-  protected abstract boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
-                                               @Nonnull final ChannelAddress target );
+  protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
+                                      @Nonnull final ChannelAddress target )
+  {
+    throw new IllegalStateException( "shouldFollowLink called for link between channel " +
+                                     sourceEntry.getDescriptor() + " and " + target +
+                                     " and the target has no filter or the link is unknown." );
+  }
+
   @Nullable
   protected abstract EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,
                                                         @Nonnull ChannelAddress address,
