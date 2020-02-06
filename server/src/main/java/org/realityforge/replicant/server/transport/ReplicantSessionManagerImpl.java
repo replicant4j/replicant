@@ -324,7 +324,7 @@ public abstract class ReplicantSessionManagerImpl
 
     final SubscriptionEntry entry = session.getSubscriptionEntry( address );
     final Object originalFilter = entry.getFilter();
-    if ( !doFiltersMatch( filter, originalFilter ) )
+    if ( doFiltersNotMatch( filter, originalFilter ) )
     {
       entry.setFilter( filter );
       collectDataForSubscriptionUpdate( address, changeSet, originalFilter, filter );
@@ -453,7 +453,7 @@ public abstract class ReplicantSessionManagerImpl
       else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
         final Object existingFilter = entry.getFilter();
-        if ( !doFiltersMatch( filter, existingFilter ) )
+        if ( doFiltersNotMatch( filter, existingFilter ) )
         {
           final String message =
             "Attempted to update filter on channel " + entry.getAddress() + " from " + existingFilter +
@@ -477,10 +477,10 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  private boolean doFiltersMatch( final Object filter1, final Object filter2 )
+  private boolean doFiltersNotMatch( final Object filter1, final Object filter2 )
   {
-    return ( null == filter2 && null == filter1 ) ||
-           ( null != filter2 && filter2.equals( filter1 ) );
+    return ( null != filter2 || null != filter1 ) &&
+           ( null == filter2 || !filter2.equals( filter1 ) );
   }
 
   void performSubscribe( @Nonnull final ReplicantSession session,
