@@ -313,10 +313,6 @@ public abstract class ReplicantSessionManagerImpl
     return accumulator.complete( initiatorSession, requestId );
   }
 
-  protected abstract void processUpdateMessages( @Nonnull EntityMessage message,
-                                                 @Nonnull Collection<ReplicantSession> sessions,
-                                                 @Nonnull ChangeAccumulator accumulator );
-
   private void updateSubscription( @Nonnull final ReplicantSession session,
                                    @Nonnull final ChannelAddress address,
                                    @Nullable final Object filter,
@@ -924,6 +920,77 @@ public abstract class ReplicantSessionManagerImpl
                                                @Nonnull final EntityMessage message )
   {
     throw new IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
+  }
+
+  protected void processUpdateMessages( @Nonnull final EntityMessage message,
+                                        @Nonnull final Collection<ReplicantSession> sessions,
+                                        @Nonnull final ChangeAccumulator accumulator )
+  {
+    final SystemMetaData schema = getSystemMetaData();
+    final int channelCount = schema.getChannelCount();
+    final ChannelAddress[] addresses = new ChannelAddress[ channelCount ];
+    for ( int i = 0; i < addresses.length; i++ )
+    {
+      final ChannelMetaData channel = schema.getChannelMetaData( i );
+      if ( channel.isInstanceGraph() )
+      {
+        final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
+        if ( null != subChannelId )
+        {
+          addresses[ i ] = new ChannelAddress( channel.getChannelId(), subChannelId );
+        }
+      }
+      else
+      {
+        if ( message.getRoutingKeys().containsKey( channel.getName() ) )
+        {
+          addresses[ i ] = new ChannelAddress( channel.getChannelId() );
+        }
+      }
+      if ( null != addresses[ i ] && ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
+      {
+        deleteCacheEntry( addresses[ i ] );
+      }
+    }
+
+    for ( final ReplicantSession session : sessions )
+    {
+      for ( int i = 0; i < addresses.length; i++ )
+      {
+        final ChannelAddress address = addresses[ i ];
+        if ( null != address )
+        {
+          final boolean isFiltered =
+            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
+          processUpdateMessage( address,
+                                message,
+                                session,
+                                accumulator,
+                                isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
+        }
+      }
+    }
+  }
+
+  private void processUpdateMessage( @Nonnull final ChannelAddress address,
+                                     @Nonnull final EntityMessage message,
+                                     @Nonnull final ReplicantSession session,
+                                     @Nonnull final ChangeAccumulator accumulator,
+                                     @Nullable final Function<EntityMessage, EntityMessage> filter )
+  {
+    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+
+    // If the session is not subscribed to graph then skip processing
+    if ( null != entry )
+    {
+      final EntityMessage m = null == filter ? message : filter.apply( message );
+
+      // Process any  messages that are in scope for session
+      if ( null != m )
+      {
+        accumulator.addChange( session, new Change( message, address.getChannelId(), address.getSubChannelId() ) );
+      }
+    }
   }
 
   protected void processDeleteMessages( @Nonnull final EntityMessage message,
