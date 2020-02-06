@@ -31,7 +31,6 @@ public final class SubscriptionEntry
   private final Set<ChannelAddress> _inwardSubscriptions = new HashSet<>();
   @Nonnull
   private final Set<ChannelAddress> _roInwardSubscriptions = Collections.unmodifiableSet( _inwardSubscriptions );
-
   private boolean _explicitlySubscribed;
   @Nullable
   private Object _filter;
