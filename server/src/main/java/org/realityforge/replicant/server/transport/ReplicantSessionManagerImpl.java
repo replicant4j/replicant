@@ -971,11 +971,11 @@ public abstract class ReplicantSessionManagerImpl
    * @param accumulator for collecting changes.
    * @param filter      a filter that transforms and or filters entity message before handling. May be null.
    */
-  protected void processDeleteMessage( @Nonnull final ChannelAddress address,
-                                       @Nonnull final EntityMessage message,
-                                       @Nonnull final ReplicantSession session,
-                                       @Nonnull final ChangeAccumulator accumulator,
-                                       @Nullable final Function<EntityMessage, EntityMessage> filter )
+  private void processDeleteMessage( @Nonnull final ChannelAddress address,
+                                     @Nonnull final EntityMessage message,
+                                     @Nonnull final ReplicantSession session,
+                                     @Nonnull final ChangeAccumulator accumulator,
+                                     @Nullable final Function<EntityMessage, EntityMessage> filter )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
 
