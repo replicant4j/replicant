@@ -74,10 +74,7 @@ public final class ChannelAddress
   @Override
   public int compareTo( @Nonnull final ChannelAddress other )
   {
-    final int otherChannelId = other.getChannelId();
-    final int channelId = getChannelId();
-
-    final int channelDiff = Integer.compare( channelId, otherChannelId );
+    final int channelDiff = Integer.compare( getChannelId(), other.getChannelId() );
     if ( 0 != channelDiff )
     {
       return channelDiff;
