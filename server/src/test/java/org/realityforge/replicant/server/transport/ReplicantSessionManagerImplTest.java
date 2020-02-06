@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.ReadWriteLock;
 import javax.annotation.Nonnull;
@@ -173,9 +174,8 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void deleteCacheEntry()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true,
-                                                     bulkLoadsSupported,
-                                                     true );
+    final ChannelMetaData ch1 =
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -200,15 +200,11 @@ public class ReplicantSessionManagerImplTest
   public void subscribe()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 1, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData ch3 =
-      new ChannelMetaData( 2, "C3", null, ChannelMetaData.FilterType.STATIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 2, "C3", null, ChannelMetaData.FilterType.STATIC, String.class, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -320,9 +316,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withCache()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true,
-                                                     bulkLoadsSupported,
-                                                     true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -376,7 +370,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -403,9 +397,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID_andCaching()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true,
-                                                     bulkLoadsSupported,
-                                                     true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -438,9 +430,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID_andCachingThatNoMatch()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true,
-                                                     bulkLoadsSupported,
-                                                     true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -472,13 +462,11 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 1, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData ch3 =
-      new ChannelMetaData( 2, "C3", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 2, "C3", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId() );
@@ -567,11 +555,9 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe_withCaching()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true,
-                                                     bulkLoadsSupported,
-                                                     true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, true, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId() );
@@ -672,7 +658,7 @@ public class ReplicantSessionManagerImplTest
   public void performUnsubscribe()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -821,7 +807,7 @@ public class ReplicantSessionManagerImplTest
   public void unsubscribe()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -864,7 +850,7 @@ public class ReplicantSessionManagerImplTest
   public void unsubscribe_usingSessionID()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -891,9 +877,9 @@ public class ReplicantSessionManagerImplTest
   public void bulkUnsubscribe()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -938,9 +924,9 @@ public class ReplicantSessionManagerImplTest
   public void bulkUnsubscribe_withSessionID()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -983,56 +969,10 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
-  public void performUpdateSubscription()
-  {
-    final ChannelMetaData ch =
-      new ChannelMetaData( 0, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
-
-    final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
-
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
-    final ReplicantSession session = createSession( sm );
-
-    final TestFilter originalFilter = new TestFilter( 41 );
-    final TestFilter filter = new TestFilter( 42 );
-
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( cd );
-
-    assertChannelActionCount( 0 );
-    assertEntry( e1, false, 0, 0, null );
-
-    sm.performUpdateSubscription( e1, originalFilter, filter, EntityMessageCacheUtil.getSessionChanges() );
-
-    assertEntry( e1, false, 0, 0, filter );
-
-    final LinkedList<ChannelAction> actions = getChannelActions();
-    assertEquals( actions.size(), 1 );
-    assertChannelAction( actions.get( 0 ), cd, ChannelAction.Action.UPDATE, "{\"myField\":42}" );
-
-    // 1 Change comes from collectDataForUpdate
-    final Collection<Change> changes = getChanges();
-    assertEquals( changes.size(), 1 );
-    final Change change = changes.iterator().next();
-    final EntityMessage entityMessage = change.getEntityMessage();
-    assertEquals( entityMessage.getId(), 78 );
-    //Ugly hack to check the filters correctly passed through
-    assertNotNull( entityMessage.getAttributeValues() );
-    assertEquals( entityMessage.getAttributeValues().get( "OriginalFilter" ), originalFilter );
-    assertEquals( entityMessage.getAttributeValues().get( "Filter" ), filter );
-  }
-
-  @Test
   public void updateSubscription()
   {
     final ChannelMetaData ch =
-      new ChannelMetaData( 0, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 0, "C2", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
 
     final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
@@ -1071,9 +1011,7 @@ public class ReplicantSessionManagerImplTest
   public void bulkSubscribe_forUpdate()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -1152,9 +1090,7 @@ public class ReplicantSessionManagerImplTest
   public void bulkSubscribe_ForUpdate_whereBulkUpdateHookIsUsed()
   {
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 0, "C1", 42, ChannelMetaData.FilterType.DYNAMIC, String.class, false, true, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
@@ -1188,7 +1124,7 @@ public class ReplicantSessionManagerImplTest
     // Attempt to update both channels
     sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter );
 
-    assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 1 );
+//    assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 1 );
 
     // the original filter is still set as it is expected that the hook method does the magic
     assertEntry( e1, false, 0, 0, originalFilter );
@@ -1208,9 +1144,10 @@ public class ReplicantSessionManagerImplTest
                            null, ChannelMetaData.FilterType.DYNAMIC,
                            String.class,
                            false,
-                           bulkLoadsSupported, true );
+                           false,
+                            true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "Resource", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "Resource", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1301,15 +1238,11 @@ public class ReplicantSessionManagerImplTest
     EntityMessageCacheUtil.removeSessionChanges();
 
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData ch3 =
-      new ChannelMetaData( 2, "C3", 42, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 2, "C3", 42, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1406,11 +1339,9 @@ public class ReplicantSessionManagerImplTest
     EntityMessageCacheUtil.removeSessionChanges();
 
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1487,11 +1418,9 @@ public class ReplicantSessionManagerImplTest
     EntityMessageCacheUtil.removeSessionChanges();
 
     final ChannelMetaData ch1 =
-      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false,
-                           bulkLoadsSupported,
-                           true );
+      new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.DYNAMIC, String.class, false, false, true );
     final ChannelMetaData ch2 =
-      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, bulkLoadsSupported, true );
+      new ChannelMetaData( 1, "C2", 42, ChannelMetaData.FilterType.NONE, null, false, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1543,7 +1472,8 @@ public class ReplicantSessionManagerImplTest
                                                      null, ChannelMetaData.FilterType.NONE,
                                                      null,
                                                      true,
-                                                     bulkLoadsSupported, true );
+                                                     false,
+                                                      true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1572,7 +1502,8 @@ public class ReplicantSessionManagerImplTest
                                                      null, ChannelMetaData.FilterType.NONE,
                                                      null,
                                                      true,
-                                                     bulkLoadsSupported, true );
+                                                     false,
+                                                      true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1596,9 +1527,7 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void tryGetCacheEntry_entryNotCached_instanceDeleted()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true,
-                                                     bulkLoadsSupported,
-                                                     true );
+    final ChannelMetaData ch1 = new ChannelMetaData( 0, "C1", null, ChannelMetaData.FilterType.NONE, null, true, false, true );
     final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
 
     final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
@@ -1726,7 +1655,7 @@ public class ReplicantSessionManagerImplTest
 
     @Override
     protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
-                                                   @Nonnull final ArrayList<ChannelAddress> descriptors,
+                                                   @Nonnull final List<ChannelAddress> descriptors,
                                                    @Nullable final Object filter )
     {
       return false;
@@ -1734,7 +1663,7 @@ public class ReplicantSessionManagerImplTest
 
     @Override
     protected boolean bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                            @Nonnull final ArrayList<ChannelAddress> descriptors,
+                                                            @Nonnull final List<ChannelAddress> addresses,
                                                             @Nullable final Object originalFilter,
                                                             @Nullable final Object filter )
     {

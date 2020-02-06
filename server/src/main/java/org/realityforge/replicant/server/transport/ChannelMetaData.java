@@ -37,6 +37,10 @@ public final class ChannelMetaData
   private final Class<?> _filterParameterType;
   private final boolean _cacheable;
   /**
+   *Flag indicating whether it is valid to attempt to perform bulk loads for channel.
+   */
+  private final boolean _bulkLoadsSupported;
+  /**
    * Flag indicating whether the channel should able to be subscribed to externally.
    * i.e. Can this be explicitly subscribed.
    */
@@ -48,6 +52,7 @@ public final class ChannelMetaData
                           @Nonnull final FilterType filterType,
                           @Nullable final Class<?> filterParameterType,
                           final boolean cacheable,
+                          final boolean bulkLoadsSupported,
                           final boolean external )
   {
     _channelId = channelId;
@@ -55,6 +60,7 @@ public final class ChannelMetaData
     _instanceRootEntityTypeId = instanceRootEntityTypeId;
     _filterType = Objects.requireNonNull( filterType );
     _filterParameterType = filterParameterType;
+    _bulkLoadsSupported = bulkLoadsSupported;
     if ( !hasFilterParameter() && null != filterParameterType )
     {
       throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
@@ -116,6 +122,11 @@ public final class ChannelMetaData
   public boolean isCacheable()
   {
     return _cacheable;
+  }
+
+  public boolean areBulkLoadsSupported()
+  {
+    return _bulkLoadsSupported;
   }
 
   public boolean isExternal()

@@ -5,11 +5,19 @@ import static org.testng.Assert.*;
 
 public class ChannelMetaDataTest
 {
+  @SuppressWarnings( "ResultOfMethodCallIgnored" )
   @Test
   public void typeGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", null, ChannelMetaData.FilterType.NONE, null, false, false );
+      new ChannelMetaData( 1,
+                           "MetaData",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           null,
+                           false,
+                           false,
+                           false );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertTrue( metaData.isTypeGraph() );
@@ -18,6 +26,7 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isCacheable() );
     assertFalse( metaData.hasFilterParameter() );
     assertFalse( metaData.isExternal() );
+    assertFalse( metaData.areBulkLoadsSupported() );
 
     assertThrows( metaData::getInstanceRootEntityTypeId );
     assertThrows( metaData::getFilterParameterType );
@@ -27,7 +36,7 @@ public class ChannelMetaDataTest
   public void instanceGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", 23, ChannelMetaData.FilterType.NONE, null, false, true );
+      new ChannelMetaData( 1, "MetaData", 23, ChannelMetaData.FilterType.NONE, null, false, false, true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertFalse( metaData.isTypeGraph() );
@@ -43,7 +52,7 @@ public class ChannelMetaDataTest
   public void filteredGraph()
   {
     final ChannelMetaData metaData =
-      new ChannelMetaData( 1, "MetaData", null, ChannelMetaData.FilterType.STATIC, String.class, false, true );
+      new ChannelMetaData( 1, "MetaData", 22, ChannelMetaData.FilterType.STATIC, String.class, false, false, true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
     assertFalse( metaData.isTypeGraph() );
@@ -58,13 +67,28 @@ public class ChannelMetaDataTest
   @Test
   public void badFilteredConfig()
   {
-    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.STATIC, null, false, true ) );
-    assertThrows( () -> new ChannelMetaData( 1, "X", null, ChannelMetaData.FilterType.DYNAMIC, null, false, true ) );
+    assertThrows( () -> new ChannelMetaData( 1,
+                                             "X",
+                                             null,
+                                             ChannelMetaData.FilterType.STATIC,
+                                             null,
+                                             false,
+                                             false,
+                                             true ) );
+    assertThrows( () -> new ChannelMetaData( 1,
+                                             "X",
+                                             null,
+                                             ChannelMetaData.FilterType.DYNAMIC,
+                                             null,
+                                             false,
+                                             false,
+                                             true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.NONE,
                                              String.class,
+                                             false,
                                              false,
                                              true ) );
   }
