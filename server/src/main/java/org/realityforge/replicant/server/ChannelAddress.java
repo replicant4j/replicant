@@ -101,7 +101,7 @@ public final class ChannelAddress
       }
       else
       {
-        return ( (Comparable) subChannelId ).compareTo( otherSubChannelId );
+        return subChannelId.compareTo( otherSubChannelId );
       }
     }
   }
