@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.67](https://github.com/replicant4j/replicant/tree/v6.67) (2020-02-06) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.66...v6.67)
 
 * Optimize access to channels from `SystemMetaData` and remove unused `SystemMetaData.getChannels()` method.
 * Replace `ChannelMetaData._typeGraph` boolean flag with `ChannelMetaData._instanceRootEntityTypeId` to make it easier to drive business logic and to write tests for subscription logic.
