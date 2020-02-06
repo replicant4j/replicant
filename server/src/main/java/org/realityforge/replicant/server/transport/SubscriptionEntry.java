@@ -19,13 +19,17 @@ public final class SubscriptionEntry
   /**
    * This is a list of channels that this auto-subscribed to.
    */
+  @Nonnull
   private final HashSet<ChannelAddress> _outwardSubscriptions = new HashSet<>();
+  @Nonnull
   private final Set<ChannelAddress> _roOutwardSubscriptions = Collections.unmodifiableSet( _outwardSubscriptions );
 
   /**
    * This is a list of channels that auto-subscribed to this channel.
    */
+  @Nonnull
   private final HashSet<ChannelAddress> _inwardSubscriptions = new HashSet<>();
+  @Nonnull
   private final Set<ChannelAddress> _roInwardSubscriptions = Collections.unmodifiableSet( _inwardSubscriptions );
 
   private boolean _explicitlySubscribed;
