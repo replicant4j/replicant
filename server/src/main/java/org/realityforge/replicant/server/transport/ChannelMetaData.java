@@ -37,7 +37,7 @@ public final class ChannelMetaData
   private final Class<?> _filterParameterType;
   private final boolean _cacheable;
   /**
-   *Flag indicating whether it is valid to attempt to perform bulk loads for channel.
+   * Flag indicating whether it is valid to attempt to perform bulk loads for channel.
    */
   private final boolean _bulkLoadsSupported;
   /**
