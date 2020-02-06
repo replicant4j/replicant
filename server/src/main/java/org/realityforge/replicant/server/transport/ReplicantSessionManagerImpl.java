@@ -150,7 +150,7 @@ public abstract class ReplicantSessionManagerImpl
     removeAllSessions();
   }
 
-  @SuppressWarnings( "WeakerAccess" )
+  @SuppressWarnings( { "WeakerAccess", "unused" } )
   public void pingSessions()
   {
     _lock.readLock().lock();
