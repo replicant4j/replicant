@@ -2,7 +2,7 @@ package org.realityforge.replicant.server;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -143,7 +143,7 @@ public class ChangeSetTest
     assertEquals( change.getEntityMessage().getId(), id );
     assertNotSame( change, change1 );
 
-    final LinkedList<ChannelAction> actions = changeSet2.getChannelActions();
+    final List<ChannelAction> actions = changeSet2.getChannelActions();
     assertEquals( actions.size(), 1 );
 
     final ChannelAction action = actions.get( 0 );

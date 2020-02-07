@@ -3,6 +3,8 @@ package org.realityforge.replicant.server;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonObject;
@@ -10,8 +12,10 @@ import org.realityforge.replicant.server.ee.JsonUtil;
 
 public final class ChangeSet
 {
-  private final LinkedList<ChannelAction> _channelActions = new LinkedList<>();
-  private final LinkedHashMap<String, Change> _changes = new LinkedHashMap<>();
+  @Nonnull
+  private final List<ChannelAction> _channelActions = new LinkedList<>();
+  @Nonnull
+  private final Map<String, Change> _changes = new LinkedHashMap<>();
   private boolean _required;
 
   public boolean isRequired()
@@ -85,7 +89,7 @@ public final class ChangeSet
   }
 
   @Nonnull
-  public LinkedList<ChannelAction> getChannelActions()
+  public List<ChannelAction> getChannelActions()
   {
     return _channelActions;
   }

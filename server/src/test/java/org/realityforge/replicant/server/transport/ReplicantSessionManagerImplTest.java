@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -565,7 +564,7 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      final LinkedList<ChannelAction> actions = getChannelActions();
+      final List<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
       assertChannelAction( actions.get( 0 ), address1, ChannelAction.Action.ADD, null );
 
@@ -590,7 +589,7 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, filter );
 
-      final LinkedList<ChannelAction> actions = getChannelActions();
+      final List<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
       assertChannelAction( actions.get( 0 ), address2, ChannelAction.Action.ADD, "{\"myField\":42}" );
 
@@ -619,7 +618,7 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, false, 0, 0, null );
 
-      final LinkedList<ChannelAction> actions = getChannelActions();
+      final List<ChannelAction> actions = getChannelActions();
       assertEquals( actions.size(), 1 );
       assertChannelAction( actions.get( 0 ), address3, ChannelAction.Action.DELETE, null );
 
@@ -1792,7 +1791,8 @@ public class ReplicantSessionManagerImplTest
     assertEquals( getChanges().size(), sessionChangesCount );
   }
 
-  private LinkedList<ChannelAction> getChannelActions()
+  @Nonnull
+  private List<ChannelAction> getChannelActions()
   {
     return EntityMessageCacheUtil.getSessionChanges().getChannelActions();
   }
