@@ -922,9 +922,9 @@ public abstract class ReplicantSessionManagerImpl
     throw new IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
   }
 
-  protected void processUpdateMessages( @Nonnull final EntityMessage message,
-                                        @Nonnull final Collection<ReplicantSession> sessions,
-                                        @Nonnull final ChangeAccumulator accumulator )
+  private void processUpdateMessages( @Nonnull final EntityMessage message,
+                                      @Nonnull final Collection<ReplicantSession> sessions,
+                                      @Nonnull final ChangeAccumulator accumulator )
   {
     final SystemMetaData schema = getSystemMetaData();
     final int channelCount = schema.getChannelCount();
@@ -993,9 +993,9 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  protected void processDeleteMessages( @Nonnull final EntityMessage message,
-                                        @Nonnull final Collection<ReplicantSession> sessions,
-                                        @Nonnull final ChangeAccumulator accumulator )
+  private void processDeleteMessages( @Nonnull final EntityMessage message,
+                                      @Nonnull final Collection<ReplicantSession> sessions,
+                                      @Nonnull final ChangeAccumulator accumulator )
   {
     final SystemMetaData schema = getSystemMetaData();
     final int instanceChannelCount = schema.getInstanceChannelCount();
