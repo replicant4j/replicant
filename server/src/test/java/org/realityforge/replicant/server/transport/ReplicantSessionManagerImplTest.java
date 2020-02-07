@@ -1873,14 +1873,6 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
-                                                   @Nonnull final List<ChannelAddress> descriptors,
-                                                   @Nullable final Object filter )
-    {
-      return false;
-    }
-
-    @Override
     protected boolean bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
                                                             @Nonnull final List<ChannelAddress> addresses,
                                                             @Nullable final Object originalFilter,
