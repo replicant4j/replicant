@@ -19,7 +19,6 @@ import org.realityforge.guiceyloops.server.AssertUtil;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.Change;
-import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAddress;
@@ -1871,13 +1870,6 @@ public class ReplicantSessionManagerImplTest
     public SystemMetaData getSystemMetaData()
     {
       return _systemMetaData;
-    }
-
-    @Override
-    protected void processUpdateMessages( @Nonnull final EntityMessage message,
-                                          @Nonnull final Collection<ReplicantSession> sessions,
-                                          @Nonnull final ChangeAccumulator accumulator )
-    {
     }
 
     @Override
