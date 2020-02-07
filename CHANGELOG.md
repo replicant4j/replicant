@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix bug introduced in `v6.67` that resulted in potentially incorrect filters being used for instance graphs.
+
 ### [v6.67](https://github.com/replicant4j/replicant/tree/v6.67) (2020-02-06) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.66...v6.67)
 
 * Optimize access to channels from `SystemMetaData` and remove unused `SystemMetaData.getChannels()` method.

@@ -960,8 +960,7 @@ public abstract class ReplicantSessionManagerImpl
         final ChannelAddress address = addresses[ i ];
         if ( null != address )
         {
-          final boolean isFiltered =
-            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
+          final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
           processUpdateMessage( address,
                                 message,
                                 session,
