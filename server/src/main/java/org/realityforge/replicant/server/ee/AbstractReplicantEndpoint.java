@@ -34,6 +34,7 @@ import org.realityforge.replicant.server.transport.WebSocketUtil;
 
 public abstract class AbstractReplicantEndpoint
 {
+  protected static final Logger LOG = Logger.getLogger( AbstractEeReplicantEndpoint.class.getName() );
   private transient final ObjectMapper _jsonMapper = new ObjectMapper();
 
   @SuppressWarnings( "WeakerAccess" )
@@ -52,20 +53,15 @@ public abstract class AbstractReplicantEndpoint
   @Nonnull
   protected abstract EntityMessageEndpoint getEndpoint();
 
-  @SuppressWarnings( "WeakerAccess" )
-  @Nonnull
-  protected abstract Logger getLogger();
-
   @OnOpen
   public void onOpen( @Nonnull final Session session )
   {
     final ReplicantSession newReplicantSession = getSessionManager().createSession( session );
-    final Logger logger = getLogger();
-    if ( logger.isLoggable( Level.FINE ) )
+    if ( LOG.isLoggable( Level.FINE ) )
     {
-      logger.log( Level.FINE,
-                  "Opening WebSocket Session " + session.getId() +
-                  " for replicant session " + getReplicantSession( session ).getId() );
+      LOG.log( Level.FINE,
+               "Opening WebSocket Session " + session.getId() +
+               " for replicant session " + getReplicantSession( session ).getId() );
     }
 
     final JsonObjectBuilder builder =
@@ -90,10 +86,9 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( session, "Unable to locate associated replicant session" );
       return;
     }
-    final Logger logger = getLogger();
-    if ( logger.isLoggable( Level.FINE ) )
+    if ( LOG.isLoggable( Level.FINE ) )
     {
-      logger.log( Level.FINE,
+      LOG.log( Level.FINE,
                   "Message on WebSocket Session " + session.getId() +
                   " for replicant session " + getReplicantSession( session ).getId() + ". Message:\n" + message );
     }
@@ -504,10 +499,9 @@ public abstract class AbstractReplicantEndpoint
   public void onError( @Nonnull final Session session, @Nonnull final Throwable error )
     throws IOException
   {
-    final Logger logger = getLogger();
-    if ( logger.isLoggable( Level.INFO ) )
+    if ( LOG.isLoggable( Level.INFO ) )
     {
-      logger.log( Level.INFO, "Error on WebSocket Session " + session.getId(), error );
+      LOG.log( Level.INFO, "Error on WebSocket Session " + session.getId(), error );
     }
 
     sendErrorAndClose( session, error.toString() );
@@ -539,12 +533,11 @@ public abstract class AbstractReplicantEndpoint
   @OnClose
   public void onClose( @Nonnull final Session session )
   {
-    final Logger logger = getLogger();
-    if ( logger.isLoggable( Level.FINE ) )
+    if ( LOG.isLoggable( Level.FINE ) )
     {
-      logger.log( Level.FINE,
-                  "Closing WebSocket Session " + session.getId() +
-                  " for replicant session " + getReplicantSession( session ).getId() );
+      LOG.log( Level.FINE,
+               "Closing WebSocket Session " + session.getId() +
+               " for replicant session " + getReplicantSession( session ).getId() );
     }
     closeSession( getReplicantSession( session ) );
   }
