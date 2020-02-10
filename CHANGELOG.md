@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Add template methods into `AbstractReplicantEndpoint` so that the application can get notification when a command is processed by the websocket handler and/or a websocket is closed.
+* Introduce `AbstractEeReplicantEndpoint` to simplify writing endpoints in an enterprise java environment.
 
 ### [v6.68](https://github.com/replicant4j/replicant/tree/v6.68) (2020-02-07) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.67...v6.68)
 
