@@ -405,6 +405,20 @@ public class ReplicantContextTest
   }
 
   @Test
+  public void newRequest_noConnection()
+  {
+    final Connector connector = createConnector();
+    final int schemaId = connector.getSchema().getId();
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> Replicant.context().newRequest( schemaId, "MyAction" ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0035: ReplicantContext.newRequest() invoked for schema " + schemaId +
+                  " but the connection has not been established" );
+  }
+
+  @Test
   public void registerConnector()
   {
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );

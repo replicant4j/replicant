@@ -170,6 +170,11 @@
     "messagePattern":"Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=%s Address=%s]"
   },
   {
+    "code":35,
+    "type":"API_INVARIANT",
+    "messagePattern":"ReplicantContext.newRequest() invoked for schema %s but the connection has not been established"
+  },
+  {
     "code":36,
     "type":"API_INVARIANT",
     "messagePattern":"Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class %s but an existing processor already exists for type"
