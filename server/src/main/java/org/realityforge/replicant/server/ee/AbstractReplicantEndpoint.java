@@ -116,6 +116,7 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( session, "Replicant session not authroized" );
       return;
     }
+    beforeCommand( replicantSession, type, command );
     if ( "etags".equals( type ) )
     {
       onETags( replicantSession, command );
@@ -148,6 +149,42 @@ public abstract class AbstractReplicantEndpoint
     {
       onUnknownCommand( replicantSession, command );
     }
+    afterCommand( replicantSession, type, command );
+  }
+
+  /**
+   * A hook method invoked as a session is closed.
+   *
+   * @param session the session.
+   */
+  protected void onSessionClose( @Nonnull final ReplicantSession session )
+  {
+  }
+
+  /**
+   * A hook method invoked before a command is processed.
+   *
+   * @param session the session.
+   * @param type    the type of the command.
+   * @param command the command object
+   */
+  protected void beforeCommand( @Nonnull final ReplicantSession session,
+                                @Nonnull final String type,
+                                @Nonnull final JsonObject command )
+  {
+  }
+
+  /**
+   * A hook method invoked after a command is processed.
+   *
+   * @param session the session.
+   * @param type    the type of the command.
+   * @param command the command object
+   */
+  protected void afterCommand( @Nonnull final ReplicantSession session,
+                               @Nonnull final String type,
+                               @Nonnull final JsonObject command )
+  {
   }
 
   @SuppressWarnings( { "WeakerAccess", "unused" } )
@@ -494,7 +531,7 @@ public abstract class AbstractReplicantEndpoint
     final ReplicantSession replicantSession = getSessionManager().getSession( session.getId() );
     if ( null != replicantSession )
     {
-      getSessionManager().invalidateSession( replicantSession );
+      closeSession( replicantSession );
     }
   }
 
@@ -508,7 +545,7 @@ public abstract class AbstractReplicantEndpoint
                   "Closing WebSocket Session " + session.getId() +
                   " for replicant session " + getReplicantSession( session ).getId() );
     }
-    getSessionManager().invalidateSession( getReplicantSession( session ) );
+    closeSession( getReplicantSession( session ) );
   }
 
   @Nullable
@@ -543,6 +580,12 @@ public abstract class AbstractReplicantEndpoint
   {
     WebSocketUtil.sendJsonObject( replicantSession.getWebSocketSession(), object );
     replicantSession.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, reason ) );
+    closeSession( replicantSession );
+  }
+
+  private void closeSession( @Nonnull final ReplicantSession replicantSession )
+  {
+    onSessionClose( replicantSession );
     getSessionManager().invalidateSession( replicantSession );
   }
 }
