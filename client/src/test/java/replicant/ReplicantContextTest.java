@@ -419,6 +419,19 @@ public class ReplicantContextTest
   }
 
   @Test
+  public void findConnectionId()
+  {
+    final Connector connector = createConnector();
+    final int schemaId = connector.getSchema().getId();
+
+    assertNull( Replicant.context().findConnectionId( schemaId ) );
+
+    final Connection connection = newConnection( connector );
+
+    assertEquals( Replicant.context().findConnectionId( schemaId ), connection.getConnectionId() );
+  }
+
+  @Test
   public void registerConnector()
   {
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );

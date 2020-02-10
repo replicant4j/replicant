@@ -446,6 +446,19 @@ public final class ReplicantContext
   }
 
   /**
+   * Get the connection id from the connector for specified schema if the connector has established a connection else return null.
+   *
+   * @param schemaId the id of the schema.
+   */
+  @Nullable
+  public String findConnectionId( final int schemaId )
+  {
+    final Connector connector = getRuntime().getConnector( schemaId );
+    final Connection connection = connector.getConnection();
+    return null == connection ? null : connection.getConnectionId();
+  }
+
+  /**
    * Create a new request abstraction.
    * This generates a requestId for connection but it is the responsibility of the caller to perform request and
    * invoke the {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
