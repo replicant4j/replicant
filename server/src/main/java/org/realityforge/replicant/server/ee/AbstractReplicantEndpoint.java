@@ -117,6 +117,7 @@ public abstract class AbstractReplicantEndpoint
       return;
     }
     beforeCommand( replicantSession, type, command );
+    //noinspection IfCanBeSwitch
     if ( "etags".equals( type ) )
     {
       onETags( replicantSession, command );
