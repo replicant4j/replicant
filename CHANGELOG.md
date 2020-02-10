@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.3.0`.
+
 ### [v6.69](https://github.com/replicant4j/replicant/tree/v6.69) (2020-02-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.68...v6.69)
 
 * Add template methods into `AbstractReplicantEndpoint` so that the application can get notification when a command is processed by the websocket handler and/or a websocket is closed.
