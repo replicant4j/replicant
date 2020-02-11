@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.70](https://github.com/replicant4j/replicant/tree/v6.70) (2020-02-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.69...v6.70)
 
 * Generate a runtime exception when `EntityChangeBroker` is instantiated but has been compiled with the compiler flag `-XdisableClassMetadata` as the broker will fail in suprising ways due to lack og `Class.getSuperClass()` support.
 
