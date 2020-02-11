@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jsinterop.base.Js;
 import replicant.DeferredListenerAction.ActionType;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -43,6 +44,15 @@ public final class EntityChangeBroker
   private final Map<Object, ListenerEntry[]> _objectListeners = new HashMap<>();
   @Nonnull
   private final Map<Class<?>, ListenerEntry[]> _classListeners = new HashMap<>();
+
+  EntityChangeBroker()
+  {
+    Js.debugger();
+    if ( !ClassMetaDataCheck.isClassMetadataEnabled() )
+    {
+      throw new IllegalStateException( "Attempting to compile replicant with replicant.enable_change_broker set to true but the compiler was passed -XdisableClassMetadata that strips the metadata required for this functionality" );
+    }
+  }
 
   @Nonnull
   EntityChangeEmitter getEmitter()
@@ -402,6 +412,12 @@ public final class EntityChangeBroker
     while ( null != clazz && clazz != Object.class )
     {
       doSendEvent( getListeners( _classListeners, clazz ), event );
+
+      // getSuperclass() will return NULL when -XdisableClassMetadata is passed to the compiler
+      // When we use Arez entities, the actual class of the entities are something like com.biz.Arez_MyEntity
+      // but the application code will add listeners for the public type com.biz.MyEntity as
+      // com.biz.Arez_MyEntity is generated code and package access. Thus the EntityChangeBroker
+      // will fail to send messages when compiled with -XdisableClassMetadata for these entities.
       clazz = clazz.getSuperclass();
     }
     _sending = false;
