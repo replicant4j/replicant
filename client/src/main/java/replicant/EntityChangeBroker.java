@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jsinterop.base.Js;
 import replicant.DeferredListenerAction.ActionType;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -47,7 +46,6 @@ public final class EntityChangeBroker
 
   EntityChangeBroker()
   {
-    Js.debugger();
     if ( !ClassMetaDataCheck.isClassMetadataEnabled() )
     {
       throw new IllegalStateException( "Attempting to compile replicant with replicant.enable_change_broker set to true but the compiler was passed -XdisableClassMetadata that strips the metadata required for this functionality" );
