@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.4.0`.
+* Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.5.0`.
 
 ### [v6.70](https://github.com/replicant4j/replicant/tree/v6.70) (2020-02-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.69...v6.70)
 
