@@ -10,7 +10,7 @@ import jsinterop.annotations.JsType;
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
  */
-@SuppressWarnings( "NullableProblems" )
+@SuppressWarnings( "NotNullFieldNotInitialized" )
 @SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class UseCacheMessage

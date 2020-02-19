@@ -8,7 +8,7 @@ import jsinterop.annotations.JsType;
 /**
  * The abstract message that messages conform to.
  */
-@SuppressWarnings( "NullableProblems" )
+@SuppressWarnings( "NotNullFieldNotInitialized" )
 @SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public abstract class AbstractMessage

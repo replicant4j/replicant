@@ -8,7 +8,7 @@ import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
-@SuppressWarnings( { "NullableProblems", "unused" } )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "unused" } )
 public final class BulkSubscribeMessage
   extends ClientToServerMessage
 {
