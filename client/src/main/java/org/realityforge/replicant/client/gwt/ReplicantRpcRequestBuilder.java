@@ -3,6 +3,8 @@ package org.realityforge.replicant.client.gwt;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
+import java.util.Objects;
+import javax.annotation.Nonnull;
 import org.realityforge.replicant.shared.SharedConstants;
 import replicant.Replicant;
 import replicant.ReplicantContext;
@@ -11,11 +13,21 @@ import replicant.Request;
 public class ReplicantRpcRequestBuilder
   extends RpcRequestBuilder
 {
+  @Nonnull
+  private final String _baseUrl;
   private final int _schemaId;
 
-  public ReplicantRpcRequestBuilder( final int schemaId )
+  public ReplicantRpcRequestBuilder( @Nonnull final String baseUrl, final int schemaId )
   {
+    _baseUrl = Objects.requireNonNull( baseUrl );
     _schemaId = schemaId;
+  }
+
+  @Override
+  protected void doFinish( final RequestBuilder rb )
+  {
+    super.doFinish( rb );
+    rb.setHeader( MODULE_BASE_HEADER, _baseUrl );
   }
 
   @Override

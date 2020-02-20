@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Refactor `ReplicantRpcRequestBuilder` to accept the base url during construction.
+
 ### [v6.71](https://github.com/replicant4j/replicant/tree/v6.71) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.70...v6.71)
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.169`.

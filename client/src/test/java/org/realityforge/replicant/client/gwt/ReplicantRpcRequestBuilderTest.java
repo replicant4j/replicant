@@ -29,7 +29,7 @@ public class ReplicantRpcRequestBuilderTest
       final RequestBuilder rb = mock( RequestBuilder.class );
       final RequestCallback chainedCallback = mock( RequestCallback.class );
 
-      new ReplicantRpcRequestBuilder( schemaId ).doSetCallback( rb, chainedCallback );
+      new ReplicantRpcRequestBuilder( ValueUtil.randomString(), schemaId ).doSetCallback( rb, chainedCallback );
 
       verify( rb ).setCallback( any( ReplicantRequestCallback.class ) );
       verify( rb ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), eq( r.getConnectionId() ) );
@@ -45,7 +45,7 @@ public class ReplicantRpcRequestBuilderTest
 
     final SystemSchema schema = newSchema();
     createConnector( schema );
-    new ReplicantRpcRequestBuilder( schema.getId() ).doSetCallback( rb, callback );
+    new ReplicantRpcRequestBuilder( ValueUtil.randomString(), schema.getId() ).doSetCallback( rb, callback );
 
     verify( rb ).setCallback( eq( callback ) );
     verify( rb, never() ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), anyString() );
