@@ -1,7 +1,6 @@
 <module>
   <inherits name='replicant.Replicant'/>
   <inherits name='com.google.gwt.user.RemoteService'/>
-  <inherits name='org.realityforge.gwt.keycloak.Keycloak'/>
 
   <source path='client'/>
 </module>
