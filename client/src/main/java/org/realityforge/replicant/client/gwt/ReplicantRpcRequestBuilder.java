@@ -25,7 +25,7 @@ public abstract class ReplicantRpcRequestBuilder
     final replicant.Request request = getRequest();
     if ( null != request )
     {
-      rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, String.valueOf( request.getConnectionId() ) );
+      rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, request.getConnectionId() );
       rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( request.getRequestId() ) );
       rb.setCallback( new ReplicantRequestCallback( request, callback ) );
     }
