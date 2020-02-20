@@ -5,12 +5,13 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
 import javax.annotation.Nullable;
 import org.realityforge.replicant.shared.SharedConstants;
+import replicant.Request;
 
 public abstract class ReplicantRpcRequestBuilder
   extends RpcRequestBuilder
 {
   @Nullable
-  protected abstract replicant.Request getRequest();
+  protected abstract Request getRequest();
 
   @Override
   protected void doSetCallback( final RequestBuilder rb, final RequestCallback callback )
@@ -22,7 +23,7 @@ public abstract class ReplicantRpcRequestBuilder
      *
      * Note: A non-replicant enabled method can occur on an otherwise replicant enabled service.
      */
-    final replicant.Request request = getRequest();
+    final Request request = getRequest();
     if ( null != request )
     {
       rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, request.getConnectionId() );
