@@ -96,6 +96,7 @@ define 'replicant' do
                  :jetbrains_annotations,
                  GWT_DEPS,
                  :react4j_core,
+                 :gwt_keycloak,
                  :braincheck,
                  :grim_annotations,
                  :arez_core
