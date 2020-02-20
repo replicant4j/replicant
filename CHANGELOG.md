@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `WebSocketConfig.create(...)` helper method and make the constructor private access to simplify creating the config object.
+
 ### [v6.72](https://github.com/replicant4j/replicant/tree/v6.72) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.71...v6.72)
 
 * Refactor `ReplicantRpcRequestBuilder` to accept the base url during construction.
