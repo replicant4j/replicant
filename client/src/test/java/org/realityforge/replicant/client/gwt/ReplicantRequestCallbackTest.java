@@ -22,29 +22,32 @@ public class ReplicantRequestCallbackTest
   {
     final SystemSchema schema = newSchema();
     newConnection( createConnector( schema ) );
-    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
+    Replicant.context().request( schema.getId(), ValueUtil.randomString(), () -> {
 
-    final RequestCallback chainedCallback = mock( RequestCallback.class );
+      final replicant.Request r = Replicant.context().currentRequest( schema.getId() );
 
-    final Request request = mock( Request.class );
-    final Response response = mock( Response.class );
+      final RequestCallback chainedCallback = mock( RequestCallback.class );
 
-    when( response.getStatusCode() ).thenReturn( 200 );
-    when( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "1" );
+      final Request request = mock( Request.class );
+      final Response response = mock( Response.class );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+      when( response.getStatusCode() ).thenReturn( 200 );
+      when( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "1" );
 
-    new ReplicantRequestCallback( r, chainedCallback )
-      .onResponseReceived( request, response );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, e -> {
-      assertEquals( e.getRequestId(), r.getRequestId() );
-      assertTrue( e.isNormalCompletion() );
-      assertFalse( e.isExpectingResults() );
+      new ReplicantRequestCallback( r, chainedCallback )
+        .onResponseReceived( request, response );
+
+      handler.assertEventCount( 1 );
+      handler.assertNextEvent( RequestCompletedEvent.class, e -> {
+        assertEquals( e.getRequestId(), r.getRequestId() );
+        assertTrue( e.isNormalCompletion() );
+        assertFalse( e.isExpectingResults() );
+      } );
+
+      verify( chainedCallback ).onResponseReceived( request, response );
     } );
-
-    verify( chainedCallback ).onResponseReceived( request, response );
   }
 
   @Test
@@ -52,29 +55,32 @@ public class ReplicantRequestCallbackTest
   {
     final SystemSchema schema = newSchema();
     newConnection( createConnector( schema ) );
-    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
+    Replicant.context().request( schema.getId(), ValueUtil.randomString(), () -> {
 
-    final RequestCallback chainedCallback = mock( RequestCallback.class );
+      final replicant.Request r = Replicant.context().currentRequest( schema.getId() );
 
-    final Request request = mock( Request.class );
-    final Response response = mock( Response.class );
+      final RequestCallback chainedCallback = mock( RequestCallback.class );
 
-    when( response.getStatusCode() ).thenReturn( 200 );
-    when( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "0" );
+      final Request request = mock( Request.class );
+      final Response response = mock( Response.class );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+      when( response.getStatusCode() ).thenReturn( 200 );
+      when( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "0" );
 
-    new ReplicantRequestCallback( r, chainedCallback )
-      .onResponseReceived( request, response );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, e -> {
-      assertEquals( e.getRequestId(), r.getRequestId() );
-      assertTrue( e.isNormalCompletion() );
-      assertTrue( e.isExpectingResults() );
+      new ReplicantRequestCallback( r, chainedCallback )
+        .onResponseReceived( request, response );
+
+      handler.assertEventCount( 1 );
+      handler.assertNextEvent( RequestCompletedEvent.class, e -> {
+        assertEquals( e.getRequestId(), r.getRequestId() );
+        assertTrue( e.isNormalCompletion() );
+        assertTrue( e.isExpectingResults() );
+      } );
+
+      verify( chainedCallback, never() ).onResponseReceived( request, response );
     } );
-
-    verify( chainedCallback, never() ).onResponseReceived( request, response );
   }
 
   @Test
@@ -82,27 +88,30 @@ public class ReplicantRequestCallbackTest
   {
     final SystemSchema schema = newSchema();
     newConnection( createConnector( schema ) );
-    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
+    Replicant.context().request( schema.getId(), ValueUtil.randomString(), () -> {
 
-    final RequestCallback chainedCallback = mock( RequestCallback.class );
+      final replicant.Request r = Replicant.context().currentRequest( schema.getId() );
 
-    final Request request = mock( Request.class );
-    final Response response = mock( Response.class );
+      final RequestCallback chainedCallback = mock( RequestCallback.class );
 
-    when( response.getStatusCode() ).thenReturn( 400 );
+      final Request request = mock( Request.class );
+      final Response response = mock( Response.class );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+      when( response.getStatusCode() ).thenReturn( 400 );
 
-    new ReplicantRequestCallback( r, chainedCallback )
-      .onResponseReceived( request, response );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, e -> {
-      assertEquals( e.getRequestId(), r.getRequestId() );
-      assertFalse( e.isNormalCompletion() );
+      new ReplicantRequestCallback( r, chainedCallback )
+        .onResponseReceived( request, response );
+
+      handler.assertEventCount( 1 );
+      handler.assertNextEvent( RequestCompletedEvent.class, e -> {
+        assertEquals( e.getRequestId(), r.getRequestId() );
+        assertFalse( e.isNormalCompletion() );
+      } );
+
+      verify( chainedCallback ).onError( eq( request ), any( InvalidHttpResponseException.class ) );
     } );
-
-    verify( chainedCallback ).onError( eq( request ), any( InvalidHttpResponseException.class ) );
   }
 
   @Test
@@ -110,27 +119,30 @@ public class ReplicantRequestCallbackTest
   {
     final SystemSchema schema = newSchema();
     newConnection( createConnector( schema ) );
-    final replicant.Request r = Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
+    Replicant.context().request( schema.getId(), ValueUtil.randomString(), () -> {
 
-    final RequestCallback chainedCallback = mock( RequestCallback.class );
+      final replicant.Request r = Replicant.context().currentRequest( schema.getId() );
 
-    final Request request = mock( Request.class );
-    final Response response = mock( Response.class );
+      final RequestCallback chainedCallback = mock( RequestCallback.class );
 
-    when( response.getStatusCode() ).thenReturn( 400 );
+      final Request request = mock( Request.class );
+      final Response response = mock( Response.class );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+      when( response.getStatusCode() ).thenReturn( 400 );
 
-    final Throwable exception = new Throwable();
-    new ReplicantRequestCallback( r, chainedCallback )
-      .onError( request, exception );
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, e -> {
-      assertEquals( e.getRequestId(), r.getRequestId() );
-      assertFalse( e.isNormalCompletion() );
+      final Throwable exception = new Throwable();
+      new ReplicantRequestCallback( r, chainedCallback )
+        .onError( request, exception );
+
+      handler.assertEventCount( 1 );
+      handler.assertNextEvent( RequestCompletedEvent.class, e -> {
+        assertEquals( e.getRequestId(), r.getRequestId() );
+        assertFalse( e.isNormalCompletion() );
+      } );
+
+      verify( chainedCallback ).onError( eq( request ), eq( exception ) );
     } );
-
-    verify( chainedCallback ).onError( eq( request ), eq( exception ) );
   }
 }

@@ -5,6 +5,7 @@
 * Upgrade the `org.realityforge.arez` artifacts to version `0.169`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.151`.
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.5.0`.
+* Refactor the way requests are generated so that if a request occurs before a replicant connection has been established then the request is added to a pending queue which is processed the next time connection is established.
 
 ### [v6.70](https://github.com/replicant4j/replicant/tree/v6.70) (2020-02-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.69...v6.70)
 

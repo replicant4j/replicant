@@ -2,12 +2,13 @@ package org.realityforge.replicant.client.gwt;
 
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
-import javax.annotation.Nullable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.shared.SharedConstants;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
+import replicant.ReplicantContext;
+import replicant.Request;
 import replicant.SystemSchema;
 import static org.mockito.Mockito.*;
 
@@ -19,17 +20,21 @@ public class ReplicantRpcRequestBuilderTest
   {
     final SystemSchema schema = newSchema();
     newConnection( createConnector( schema ) );
-    final replicant.Request r =
-      Replicant.context().newRequest( schema.getId(), ValueUtil.randomString() );
 
-    final RequestBuilder rb = mock( RequestBuilder.class );
-    final RequestCallback chainedCallback = mock( RequestCallback.class );
+    final int schemaId = schema.getId();
+    final ReplicantContext context = Replicant.context();
+    context.request( schemaId, ValueUtil.randomString(), () -> {
+      final Request r = context.currentRequest( schemaId );
 
-    new TestReplicantRpcRequestBuilder( r ).doSetCallback( rb, chainedCallback );
+      final RequestBuilder rb = mock( RequestBuilder.class );
+      final RequestCallback chainedCallback = mock( RequestCallback.class );
 
-    verify( rb ).setCallback( any( ReplicantRequestCallback.class ) );
-    verify( rb ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), eq( r.getConnectionId() ) );
-    verify( rb ).setHeader( eq( SharedConstants.REQUEST_ID_HEADER ), eq( String.valueOf( r.getRequestId() ) ) );
+      new ReplicantRpcRequestBuilder( schemaId ).doSetCallback( rb, chainedCallback );
+
+      verify( rb ).setCallback( any( ReplicantRequestCallback.class ) );
+      verify( rb ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), eq( r.getConnectionId() ) );
+      verify( rb ).setHeader( eq( SharedConstants.REQUEST_ID_HEADER ), eq( String.valueOf( r.getRequestId() ) ) );
+    } );
   }
 
   @Test
@@ -38,29 +43,12 @@ public class ReplicantRpcRequestBuilderTest
     final RequestBuilder rb = mock( RequestBuilder.class );
     final RequestCallback callback = mock( RequestCallback.class );
 
-    new TestReplicantRpcRequestBuilder( null ).doSetCallback( rb, callback );
+    final SystemSchema schema = newSchema();
+    createConnector( schema );
+    new ReplicantRpcRequestBuilder( schema.getId() ).doSetCallback( rb, callback );
 
     verify( rb ).setCallback( eq( callback ) );
     verify( rb, never() ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), anyString() );
     verify( rb, never() ).setHeader( eq( SharedConstants.REQUEST_ID_HEADER ), anyString() );
-  }
-
-  static class TestReplicantRpcRequestBuilder
-    extends ReplicantRpcRequestBuilder
-  {
-    @Nullable
-    private final replicant.Request _request;
-
-    TestReplicantRpcRequestBuilder( @Nullable final replicant.Request request )
-    {
-      _request = request;
-    }
-
-    @Nullable
-    @Override
-    protected replicant.Request getRequest()
-    {
-      return _request;
-    }
   }
 }

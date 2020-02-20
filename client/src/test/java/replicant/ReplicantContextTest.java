@@ -398,10 +398,12 @@ public class ReplicantContextTest
     final Connector connector = createConnector();
     newConnection( connector );
 
-    final Request request = Replicant.context().newRequest( connector.getSchema().getId(), "MyAction" );
+    Replicant.context().request( connector.getSchema().getId(), "MyAction", () -> {
+      final replicant.Request request = Replicant.context().currentRequest( connector.getSchema().getId() );
 
-    assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
-    assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
+      assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
+      assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
+    } );
   }
 
   @Test
@@ -411,8 +413,8 @@ public class ReplicantContextTest
     final int schemaId = connector.getSchema().getId();
 
     final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> Replicant.context().newRequest( schemaId, "MyAction" ) );
+      expectThrows( IllegalStateException.class, () -> Replicant.context().request( schemaId, "MyAction", ()  -> {
+      } ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0035: ReplicantContext.newRequest() invoked for schema " + schemaId +
                   " but the connection has not been established" );

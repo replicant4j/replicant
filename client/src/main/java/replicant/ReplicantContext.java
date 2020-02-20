@@ -459,16 +459,16 @@ public final class ReplicantContext
   }
 
   /**
-   * Create a new request abstraction.
-   * This generates a requestId for connection but it is the responsibility of the caller to perform request and
-   * invoke the {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
+   * Perform a request when the connection has been established.
+   * This call waits till a connection is established and then invokes the callback with a new Request.
+   * It is the responsibility of the callback to perform the actual request and invoke the
+   * {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
    * when the request completes.
    *
    * @param schemaId the id of the schema of connector where request created.
    * @param name     the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
    */
-  @Nonnull
-  public Request newRequest( final int schemaId, @Nullable final String name )
+  public void request( final int schemaId, @Nullable final String name, @Nonnull final SafeProcedure callback )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -476,8 +476,24 @@ public final class ReplicantContext
                     () -> "Replicant-0035: ReplicantContext.newRequest() invoked for schema " + schemaId +
                           " but the connection has not been established" );
     }
-    final Connection connection = getRuntime().getConnector( schemaId ).ensureConnection();
-    return new Request( connection, connection.newRequest( name, false ) );
+    getRuntime().getConnector( schemaId ).request( name, callback );
+  }
+
+  /**
+   * Get the request that is currently being called.
+   *
+   * @param schemaId the id of the schema of connector where request created.
+   * @return the current request being invoked.
+   */
+  @Nonnull
+  public Request currentRequest( final int schemaId )
+  {
+    return getRuntime().getConnector( schemaId ).currentRequest();
+  }
+
+  public boolean hasCurrentRequest( final int schemaId )
+  {
+    return getRuntime().getConnector( schemaId ).hasCurrentRequest();
   }
 
   /**
