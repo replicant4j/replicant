@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.arez` artifacts to version `0.170`.
+
 ### [v6.73](https://github.com/replicant4j/replicant/tree/v6.73) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.72...v6.73)
 
 * Add `WebSocketConfig.create(...)` helper method and make the constructor private access to simplify creating the config object.
