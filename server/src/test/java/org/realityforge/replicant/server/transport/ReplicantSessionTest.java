@@ -9,6 +9,7 @@ import static org.testng.Assert.*;
 
 public class ReplicantSessionTest
 {
+  @SuppressWarnings( "ConstantConditions" )
   @Test
   public void basicOperation()
   {
@@ -63,6 +64,7 @@ public class ReplicantSessionTest
     assertEquals( session.getSubscriptions().size(), 0 );
   }
 
+  @SuppressWarnings( "ConstantConditions" )
   @Test
   public void cacheKeys()
   {
