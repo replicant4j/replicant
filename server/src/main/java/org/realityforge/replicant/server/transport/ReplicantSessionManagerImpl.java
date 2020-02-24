@@ -692,6 +692,7 @@ public abstract class ReplicantSessionManagerImpl
    *
    * @return true if method has actually bulk loaded all data, false otherwise.
    */
+  @SuppressWarnings( "unused" )
   protected boolean bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
                                                  @Nonnull final List<ChannelAddress> addresses,
                                                  @Nullable final Object filter )
@@ -912,6 +913,7 @@ public abstract class ReplicantSessionManagerImpl
                                      " and the target has no filter or the link is unknown." );
   }
 
+  @SuppressWarnings( "unused" )
   @Nullable
   protected EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
                                                @Nonnull final ChannelAddress address,
@@ -921,58 +923,57 @@ public abstract class ReplicantSessionManagerImpl
   }
 
   private void processUpdateMessages( @Nonnull final EntityMessage message,
-                                      @Nonnull final Collection<ReplicantSession> sessions,
-                                      @Nonnull final ChangeAccumulator accumulator )
+                                      @Nonnull final ReplicantSession session,
+                                      @Nonnull final ChangeSet changeSet )
   {
     final SystemMetaData schema = getSystemMetaData();
     final int channelCount = schema.getChannelCount();
-    final ChannelAddress[] addresses = new ChannelAddress[ channelCount ];
-    for ( int i = 0; i < addresses.length; i++ )
+    for ( int i = 0; i < channelCount; i++ )
     {
       final ChannelMetaData channel = schema.getChannelMetaData( i );
-      if ( channel.isInstanceGraph() )
+      final ChannelAddress address = extractAddressFromMessage( channel, message );
+      if ( null != address )
       {
-        final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
-        if ( null != subChannelId )
+        if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
         {
-          addresses[ i ] = new ChannelAddress( channel.getChannelId(), subChannelId );
+          deleteCacheEntry( address );
         }
-      }
-      else
-      {
-        if ( message.getRoutingKeys().containsKey( channel.getName() ) )
-        {
-          addresses[ i ] = new ChannelAddress( channel.getChannelId() );
-        }
-      }
-      if ( null != addresses[ i ] && ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
-      {
-        deleteCacheEntry( addresses[ i ] );
+        final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
+        processUpdateMessage( address,
+                              message,
+                              session,
+                              changeSet,
+                              isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
       }
     }
+  }
 
-    for ( final ReplicantSession session : sessions )
+  @Nullable
+  private ChannelAddress extractAddressFromMessage( @Nonnull final ChannelMetaData channel,
+                                                    @Nonnull final EntityMessage message )
+  {
+    if ( channel.isInstanceGraph() )
     {
-      for ( int i = 0; i < addresses.length; i++ )
+      final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
+      if ( null != subChannelId )
       {
-        final ChannelAddress address = addresses[ i ];
-        if ( null != address )
-        {
-          final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
-          processUpdateMessage( address,
-                                message,
-                                session,
-                                accumulator,
-                                isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
-        }
+        return new ChannelAddress( channel.getChannelId(), subChannelId );
       }
     }
+    else
+    {
+      if ( message.getRoutingKeys().containsKey( channel.getName() ) )
+      {
+        return new ChannelAddress( channel.getChannelId() );
+      }
+    }
+    return null;
   }
 
   private void processUpdateMessage( @Nonnull final ChannelAddress address,
                                      @Nonnull final EntityMessage message,
                                      @Nonnull final ReplicantSession session,
-                                     @Nonnull final ChangeAccumulator accumulator,
+                                     @Nonnull final ChangeSet changeSet,
                                      @Nullable final Function<EntityMessage, EntityMessage> filter )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
