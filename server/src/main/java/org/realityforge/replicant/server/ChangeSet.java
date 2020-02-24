@@ -28,7 +28,7 @@ public final class ChangeSet
     _required = required;
   }
 
-  private void mergeActions( @Nonnull final Collection<ChannelAction> actions )
+  public void mergeActions( @Nonnull final Collection<ChannelAction> actions )
   {
     for ( final ChannelAction action : actions )
     {
@@ -94,12 +94,12 @@ public final class ChangeSet
     return _channelActions;
   }
 
-  void mergeAll( @Nonnull final Collection<Change> changes )
+  public void merge( @Nonnull final Collection<Change> changes )
   {
-    mergeAll( changes, false );
+    merge( changes, false );
   }
 
-  private void mergeAll( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
+  private void merge( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
   {
     for ( final Change change : changes )
     {
@@ -127,15 +127,13 @@ public final class ChangeSet
 
   public void merge( @Nonnull final ChangeSet changeSet, final boolean copyOnMerge )
   {
-    mergeAll( changeSet.getChanges(), copyOnMerge );
+    merge( changeSet.getChanges(), copyOnMerge );
     mergeActions( changeSet.getChannelActions() );
   }
 
   public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
   {
-    mergeAll( ChangeUtil.toChanges( messages.getEntityMessages(),
-                                    address.getChannelId(),
-                                    address.getSubChannelId() ) );
+    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address.getChannelId(), address.getSubChannelId() ) );
   }
 
   @Nonnull

@@ -35,7 +35,7 @@ public class ChangeSetTest
 
     assertEquals( changeSet.getChanges().size(), 0 );
 
-    changeSet.mergeAll( Collections.singletonList( change1 ) );
+    changeSet.merge( Collections.singletonList( change1 ) );
 
     assertEquals( changeSet.getChanges().size(), 1 );
     assertEquals( change1.getChannels().size(), 1 );
