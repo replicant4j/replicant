@@ -115,9 +115,9 @@ public final class ReplicantSession
   }
 
   /**
-   * Add packet to queue and potentially send packet to client if client has acked last message.
+   * Send a packet to the client.
    *
-   * @param requestId the opaque identifier indicating the request that caused the changes if the owning session initiated the changes.
+   * @param requestId the request id that caused these changes if this session requested the changes.
    * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
    * @param changeSet the changeSet to create packet from.
    */
