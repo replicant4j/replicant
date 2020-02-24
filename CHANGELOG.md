@@ -5,6 +5,7 @@
 * Upgrade the `org.realityforge.arez` artifacts to version `0.170`.
 * Add `ReplicantSession.maybeSendPacket(...)` helper method that will only send a packet for `ChangeSet` if it is non-empty or it is marked as required.
 * Refactor `ReplicantSessionManagerImpl.saveEntityMessages(...)` so that each session is processed in succession rather than processing all sessions simultaneously an phase-by-phase, event-by-event. This is preparing for a future mechanism via which sessions can be locked during processing to avoid concurrency issues as outlined in stocksoftware/rose#716 and replicant4j/replicant#4. 
+* Remove unused `ChangeAccumulator`.
 
 ### [v6.73](https://github.com/replicant4j/replicant/tree/v6.73) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.72...v6.73)
 
