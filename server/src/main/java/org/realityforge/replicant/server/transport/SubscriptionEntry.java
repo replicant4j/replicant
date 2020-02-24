@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -99,7 +100,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
-    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
       if ( !_outwardSubscriptions.contains( channel ) )
@@ -117,7 +118,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] deregisterOutwardSubscriptions( final ChannelAddress... channels )
   {
-    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
       if ( _outwardSubscriptions.contains( channel ) )
@@ -143,7 +144,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
-    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
       if ( !_inwardSubscriptions.contains( channel ) )
@@ -161,7 +162,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
-    final ArrayList<ChannelAddress> results = new ArrayList<>( channels.length );
+    final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
       if ( _inwardSubscriptions.contains( channel ) )
