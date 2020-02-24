@@ -128,6 +128,26 @@ public final class ReplicantSession
     WebSocketUtil.sendText( getWebSocketSession(), JsonEncoder.encodeChangeSet( requestId, etag, changeSet ) );
   }
 
+  /**
+   * Send a packet to the client if the changeSet is not empty or it is marked as required.
+   *
+   * @param requestId the request id that caused these changes if this session requested the changes.
+   * @param changeSet the changeSet to create packet from.
+   * @return true if the packet was sent, false if it was ignorable.
+   */
+  public boolean maybeSendPacket( @Nullable final Integer requestId, @Nonnull final ChangeSet changeSet )
+  {
+    if ( changeSet.isRequired() || !changeSet.getChannelActions().isEmpty() || !changeSet.getChanges().isEmpty() )
+    {
+      sendPacket( requestId, null, changeSet );
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
   @SuppressWarnings( "WeakerAccess" )
   @Nonnull
   public Map<ChannelAddress, String> getETags()

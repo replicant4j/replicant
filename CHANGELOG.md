@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.170`.
+* Add `ReplicantSession.maybeSendPacket(...)` helper method that will only send a packet for `ChangeSet` if it is non-empty or it is marked as required.
 
 ### [v6.73](https://github.com/replicant4j/replicant/tree/v6.73) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.72...v6.73)
 
