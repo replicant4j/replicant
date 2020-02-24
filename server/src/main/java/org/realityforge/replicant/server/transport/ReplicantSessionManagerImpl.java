@@ -78,16 +78,14 @@ public abstract class ReplicantSessionManagerImpl
   public ReplicantSession getSession( @Nonnull final String sessionId )
   {
     _lock.readLock().lock();
-    final ReplicantSession session;
     try
     {
-      session = _sessions.get( sessionId );
+      return _sessions.get( sessionId );
     }
     finally
     {
       _lock.readLock().unlock();
     }
-    return session;
   }
 
   @Nonnull
