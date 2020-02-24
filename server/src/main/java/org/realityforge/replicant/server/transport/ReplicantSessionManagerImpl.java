@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -22,7 +23,6 @@ import javax.json.JsonObjectBuilder;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.Change;
-import org.realityforge.replicant.server.ChangeAccumulator;
 import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAddress;
@@ -242,65 +242,23 @@ public abstract class ReplicantSessionManagerImpl
                                      @Nonnull final Collection<EntityMessage> messages,
                                      @Nullable final ChangeSet sessionChanges )
   {
+    boolean impactsInitiator = false;
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
-    final ReplicantSession initiatorSession = null != sessionId ? getSession( sessionId ) : null;
-    final ChangeAccumulator accumulator = new ChangeAccumulator();
     try
     {
-      final Collection<ReplicantSession> sessions = getSessions().values();
-      for ( final EntityMessage message : messages )
+      for ( final ReplicantSession session : getSessions().values() )
       {
-        processDeleteMessages( message, sessions, accumulator );
-      }
-
-      for ( final EntityMessage message : messages )
-      {
-        processUpdateMessages( message, sessions, accumulator );
-      }
-      if ( null != initiatorSession && null != sessionChanges )
-      {
-        accumulator.getChangeSet( initiatorSession ).setRequired( sessionChanges.isRequired() );
-        accumulator.addChanges( initiatorSession, sessionChanges.getChanges() );
-        accumulator.addActions( initiatorSession, sessionChanges.getChannelActions() );
-      }
-      for ( final ReplicantSession session : sessions )
-      {
-        /*
-         * The expandLinks call is extremely dangerous as it can result in accessing the underlying database.
-         * If another thread/request has a database lock as they changed an entity that would be in the expanded set
-         * AND they are trying to complete a request (i.e. also calling saveEntityMessages() but from different thread)
-         * then they will have a database lock that blocks this request but this request will have acquired the in memory
-         * lock via getLock() that blocks the other request completing, thus producing a deadlock (one side holding the
-         * JVM lock and attempting to acquire the DB lock and the other side vice-versa).
-         *
-         * We may be able to "fix" this by:
-         * - Copying the set of sessions into new array and iterating over these, thus releasing the in-memory lock
-         *   and allowing one thread to progress. We would have to handle scenario where individual sessions error
-         *   out and thus drop those sessions on error but continue processing other sessions. This can probably occur
-         *   if we overlap subscribe/unsubscribe processing. IN the worst case scenario the client would be forced to
-         *   reconnect. - ACTUALLY no - this could result in out-of-order messages which is VERY BAD
-         * - Push the processing of EntityMessage messages into a separate thread with a separate transaction context.
-         *   This has same failure conditions as above and mail also fail if entity data changes that impact graph-links
-         *   before messages are processed. This would force us to reconnect clients on error again.
-         * - We could also reduce the incidence of this by "front-loading" data during the transaction where possible.
-         *   This is really only possible when we are dealing with subscribe and subscription updates. In which case we
-         *   could do the same logic as in expandLinks but in the business logic code. This is probably a better approach
-         *   and has no additional error scenarios other than additional complexity.
-         */
-        try
+        final ChangeSet changeSet = new ChangeSet();
+        final boolean isInitiator = Objects.equals( session.getId(), sessionId );
+        if ( isInitiator && null != sessionChanges )
         {
-          expandLinks( session, accumulator.getChangeSet( session ) );
+          changeSet.setRequired( sessionChanges.isRequired() );
+          changeSet.merge( sessionChanges.getChanges() );
+          changeSet.mergeActions( sessionChanges.getChannelActions() );
         }
-        catch ( final Exception e )
-        {
-          // This can occur when there is an error accessing the database
-          if ( LOG.isLoggable( Level.INFO ) )
-          {
-            LOG.log( Level.INFO, "Error invoking expandLinks for session " + session.getId(), e );
-          }
-          session.close();
-        }
+        saveEntityMessagesForSession( messages, session, changeSet );
+        impactsInitiator = session.maybeSendPacket( isInitiator ? requestId : null, changeSet );
       }
     }
     finally
@@ -308,7 +266,57 @@ public abstract class ReplicantSessionManagerImpl
       getLock().readLock().unlock();
     }
 
-    return accumulator.complete( initiatorSession, requestId );
+    return impactsInitiator;
+  }
+
+  private void saveEntityMessagesForSession( @Nonnull final Collection<EntityMessage> messages,
+                                             @Nonnull final ReplicantSession session,
+                                             @Nonnull final ChangeSet changeSet )
+  {
+    for ( final EntityMessage message : messages )
+    {
+      processDeleteMessages( message, session, changeSet );
+    }
+
+    for ( final EntityMessage message : messages )
+    {
+      processUpdateMessages( message, session, changeSet );
+    }
+    /*
+     * The expandLinks call is extremely dangerous as it can result in accessing the underlying database.
+     * If another thread/request has a database lock as they changed an entity that would be in the expanded set
+     * AND they are trying to complete a request (i.e. also calling saveEntityMessages() but from different thread)
+     * then they will have a database lock that blocks this request but this request will have acquired the in memory
+     * lock via getLock() that blocks the other request completing, thus producing a deadlock (one side holding the
+     * JVM lock and attempting to acquire the DB lock and the other side vice-versa).
+     *
+     * We may be able to "fix" this by:
+     * - Copying the set of sessions into new array and iterating over these, thus releasing the in-memory lock
+     *   and allowing one thread to progress. We would have to handle scenario where individual sessions error
+     *   out and thus drop those sessions on error but continue processing other sessions. This can probably occur
+     *   if we overlap subscribe/unsubscribe processing. IN the worst case scenario the client would be forced to
+     *   reconnect. - ACTUALLY no - this could result in out-of-order messages which is VERY BAD
+     * - Push the processing of EntityMessage messages into a separate thread with a separate transaction context.
+     *   This has same failure conditions as above and mail also fail if entity data changes that impact graph-links
+     *   before messages are processed. This would force us to reconnect clients on error again.
+     * - We could also reduce the incidence of this by "front-loading" data during the transaction where possible.
+     *   This is really only possible when we are dealing with subscribe and subscription updates. In which case we
+     *   could do the same logic as in expandLinks but in the business logic code. This is probably a better approach
+     *   and has no additional error scenarios other than additional complexity.
+     */
+    try
+    {
+      expandLinks( session, changeSet );
+    }
+    catch ( final Exception e )
+    {
+      // This can occur when there is an error accessing the database
+      if ( LOG.isLoggable( Level.INFO ) )
+      {
+        LOG.log( Level.INFO, "Error invoking expandLinks for session " + session.getId(), e );
+      }
+      session.close();
+    }
   }
 
   private void updateSubscription( @Nonnull final ReplicantSession session,
@@ -800,7 +808,7 @@ public abstract class ReplicantSessionManagerImpl
   protected void delinkDownstreamSubscriptions( @Nonnull final ReplicantSession session,
                                                 @Nonnull final SubscriptionEntry entry,
                                                 @Nonnull final EntityMessage message,
-                                                @Nonnull final ChangeAccumulator accumulator )
+                                                @Nonnull final ChangeSet changeSet )
   {
     // Delink any implicit subscriptions that was a result of the deleted entity
     final Set<ChannelLink> links = message.getLinks();
@@ -808,7 +816,7 @@ public abstract class ReplicantSessionManagerImpl
     {
       for ( final ChannelLink link : links )
       {
-        delinkDownstreamSubscription( session, entry, link.getTargetChannel(), accumulator.getChangeSet( session ) );
+        delinkDownstreamSubscription( session, entry, link.getTargetChannel(), changeSet );
       }
     }
   }
@@ -986,43 +994,31 @@ public abstract class ReplicantSessionManagerImpl
       // Process any  messages that are in scope for session
       if ( null != m )
       {
-        accumulator.addChange( session, new Change( message, address.getChannelId(), address.getSubChannelId() ) );
+        changeSet.merge( new Change( message, address.getChannelId(), address.getSubChannelId() ) );
       }
     }
   }
 
   private void processDeleteMessages( @Nonnull final EntityMessage message,
-                                      @Nonnull final Collection<ReplicantSession> sessions,
-                                      @Nonnull final ChangeAccumulator accumulator )
+                                      @Nonnull final ReplicantSession session,
+                                      @Nonnull final ChangeSet changeSet )
   {
     final SystemMetaData schema = getSystemMetaData();
     final int instanceChannelCount = schema.getInstanceChannelCount();
-    final ChannelAddress[] addresses = new ChannelAddress[ instanceChannelCount ];
-    for ( int i = 0; i < addresses.length; i++ )
+    for ( int i = 0; i < instanceChannelCount; i++ )
     {
       final ChannelMetaData channel = schema.getInstanceChannelByIndex( i );
       final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
       if ( null != subChannelId )
       {
-        addresses[ i ] = new ChannelAddress( channel.getChannelId(), subChannelId );
-      }
-    }
-
-    for ( final ReplicantSession session : sessions )
-    {
-      for ( int i = 0; i < addresses.length; i++ )
-      {
-        final ChannelAddress address = addresses[ i ];
-        if ( null != address )
-        {
-          final boolean isFiltered =
-            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
-          processDeleteMessage( address,
-                                message,
-                                session,
-                                accumulator,
-                                isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
-        }
+        final ChannelAddress address = new ChannelAddress( channel.getChannelId(), subChannelId );
+        final boolean isFiltered =
+          ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
+        processDeleteMessage( address,
+                              message,
+                              session,
+                              changeSet,
+                              isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
       }
     }
   }
@@ -1030,16 +1026,16 @@ public abstract class ReplicantSessionManagerImpl
   /**
    * Process message handling any logical deletes.
    *
-   * @param address     the address of the graph.
-   * @param message     the message to process
-   * @param session     the session that message is being processed for.
-   * @param accumulator for collecting changes.
-   * @param filter      a filter that transforms and or filters entity message before handling. May be null.
+   * @param address   the address of the graph.
+   * @param message   the message to process
+   * @param session   the session that message is being processed for.
+   * @param changeSet for changeSet for session.
+   * @param filter    a filter that transforms and or filters entity message before handling. May be null.
    */
   private void processDeleteMessage( @Nonnull final ChannelAddress address,
                                      @Nonnull final EntityMessage message,
                                      @Nonnull final ReplicantSession session,
-                                     @Nonnull final ChangeAccumulator accumulator,
+                                     @Nonnull final ChangeSet changeSet,
                                      @Nullable final Function<EntityMessage, EntityMessage> filter )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
@@ -1057,10 +1053,10 @@ public abstract class ReplicantSessionManagerImpl
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
         if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )
         {
-          performUnsubscribe( session, entry, true, true, accumulator.getChangeSet( session ) );
+          performUnsubscribe( session, entry, true, true, changeSet );
         }
         // Delink any implicit subscriptions that was a result of the deleted entity
-        delinkDownstreamSubscriptions( session, entry, m, accumulator );
+        delinkDownstreamSubscriptions( session, entry, m, changeSet );
       }
     }
   }
