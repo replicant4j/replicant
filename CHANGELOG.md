@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.braincheck` artifact to version `1.26.0`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.170`.
 * Add `ReplicantSession.maybeSendPacket(...)` helper method that will only send a packet for `ChangeSet` if it is non-empty or it is marked as required.
 * Refactor `ReplicantSessionManagerImpl.saveEntityMessages(...)` so that each session is processed in succession rather than processing all sessions simultaneously an phase-by-phase, event-by-event. This is preparing for a future mechanism via which sessions can be locked during processing to avoid concurrency issues as outlined in stocksoftware/rose#716 and replicant4j/replicant#4.
