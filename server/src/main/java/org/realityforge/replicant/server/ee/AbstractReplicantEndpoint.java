@@ -153,6 +153,7 @@ public abstract class AbstractReplicantEndpoint
    *
    * @param session the session.
    */
+  @SuppressWarnings( "unused" )
   protected void onSessionClose( @Nonnull final ReplicantSession session )
   {
   }
@@ -164,6 +165,7 @@ public abstract class AbstractReplicantEndpoint
    * @param type    the type of the command.
    * @param command the command object
    */
+  @SuppressWarnings( "unused" )
   protected void beforeCommand( @Nonnull final ReplicantSession session,
                                 @Nonnull final String type,
                                 @Nonnull final JsonObject command )
@@ -177,6 +179,7 @@ public abstract class AbstractReplicantEndpoint
    * @param type    the type of the command.
    * @param command the command object
    */
+  @SuppressWarnings( "unused" )
   protected void afterCommand( @Nonnull final ReplicantSession session,
                                @Nonnull final String type,
                                @Nonnull final JsonObject command )
