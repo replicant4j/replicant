@@ -167,7 +167,6 @@ public final class ReplicantSession
     return _eTags.get( address );
   }
 
-  @SuppressWarnings( "WeakerAccess" )
   public void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
   {
     if ( null == eTag )
