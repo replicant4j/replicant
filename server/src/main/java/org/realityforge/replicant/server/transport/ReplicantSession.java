@@ -232,8 +232,7 @@ public final class ReplicantSession
   /**
    * Return true if specified channel is present.
    */
-  @SuppressWarnings( "WeakerAccess" )
-  public boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
+  boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
   {
     return null != findSubscriptionEntry( address );
   }
