@@ -34,7 +34,7 @@ public final class ReplicantSession
 
   public void close( @Nonnull final CloseReason closeReason )
   {
-    if ( _webSocketSession.isOpen() )
+    if ( isOpen() )
     {
       try
       {
@@ -50,7 +50,7 @@ public final class ReplicantSession
   @Override
   public void close()
   {
-    if ( _webSocketSession.isOpen() )
+    if ( isOpen() )
     {
       try
       {
@@ -71,7 +71,7 @@ public final class ReplicantSession
    */
   public void pingTransport()
   {
-    if ( _webSocketSession.isOpen() )
+    if ( isOpen() )
     {
       try
       {
@@ -82,6 +82,11 @@ public final class ReplicantSession
         // All scenarios we can envision imply the session is shutting down, and thus can be ignored
       }
     }
+  }
+
+  public boolean isOpen()
+  {
+    return _webSocketSession.isOpen();
   }
 
   @Nonnull

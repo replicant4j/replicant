@@ -8,6 +8,7 @@
 * Remove unused `ChangeAccumulator`.
 * Expose `ChangeSet.merge(Collection<Change>)` and `ChangeSet.mergeActions(Collection<Change>)` as public methods.
 * Remove invariant guard that is no longer needed post `v6.71` when invoking `Replicant.context().request(...)`.
+* Expose `ReplicantSession.isOpen()` helper method.
 
 ### [v6.73](https://github.com/replicant4j/replicant/tree/v6.73) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.72...v6.73)
 
