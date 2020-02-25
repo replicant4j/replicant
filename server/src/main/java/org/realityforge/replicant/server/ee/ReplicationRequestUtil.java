@@ -48,7 +48,6 @@ public final class ReplicationRequestUtil
     }
   }
 
-  @SuppressWarnings( "unused" )
   public static void runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
                                  @Nonnull final EntityManager entityManager,
                                  @Nonnull final EntityMessageEndpoint endpoint,
