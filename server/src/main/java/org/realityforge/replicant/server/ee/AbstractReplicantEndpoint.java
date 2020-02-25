@@ -89,8 +89,8 @@ public abstract class AbstractReplicantEndpoint
     if ( LOG.isLoggable( Level.FINE ) )
     {
       LOG.log( Level.FINE,
-                  "Message on WebSocket Session " + session.getId() +
-                  " for replicant session " + getReplicantSession( session ).getId() + ". Message:\n" + message );
+               "Message on WebSocket Session " + session.getId() +
+               " for replicant session " + getReplicantSession( session ).getId() + ". Message:\n" + message );
     }
     final JsonObject command;
     final String type;
