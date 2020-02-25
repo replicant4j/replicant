@@ -470,12 +470,6 @@ public final class ReplicantContext
    */
   public void request( final int schemaId, @Nullable final String name, @Nonnull final SafeProcedure callback )
   {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( () -> ConnectorState.CONNECTED == getRuntime().getConnector( schemaId ).getState(),
-                    () -> "Replicant-0035: ReplicantContext.newRequest() invoked for schema " + schemaId +
-                          " but the connection has not been established" );
-    }
     getRuntime().getConnector( schemaId ).request( name, callback );
   }
 
