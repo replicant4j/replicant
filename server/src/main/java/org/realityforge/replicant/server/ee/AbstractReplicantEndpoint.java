@@ -203,8 +203,7 @@ public abstract class AbstractReplicantEndpoint
 
   private void onETags( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
-    final JsonObject etags = command.getJsonObject( "etags" );
-    for ( final Map.Entry<String, JsonValue> entry : etags.entrySet() )
+    for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( "etags" ).entrySet() )
     {
       final ChannelAddress address = ChannelAddress.parse( entry.getKey() );
       final String eTag = ( (JsonString) entry.getValue() ).getString();
