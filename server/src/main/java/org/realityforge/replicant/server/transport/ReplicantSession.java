@@ -154,13 +154,6 @@ public final class ReplicantSession
   }
 
   @SuppressWarnings( "WeakerAccess" )
-  @Nonnull
-  public Map<ChannelAddress, String> getETags()
-  {
-    return Collections.unmodifiableMap( _eTags );
-  }
-
-  @SuppressWarnings( "WeakerAccess" )
   @Nullable
   public String getETag( @Nonnull final ChannelAddress address )
   {

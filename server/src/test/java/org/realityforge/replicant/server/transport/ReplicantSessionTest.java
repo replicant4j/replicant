@@ -70,24 +70,12 @@ public class ReplicantSessionTest
   {
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
 
-    assertEquals( session.getETags().size(), 0 );
-
     final ChannelAddress cd1 = new ChannelAddress( 1, null );
 
     assertNull( session.getETag( cd1 ) );
 
     session.setETag( cd1, "X" );
 
-    assertEquals( session.getETags().size(), 1 );
     assertEquals( session.getETag( cd1 ), "X" );
-    try
-    {
-      session.getETags().remove( cd1 );
-      fail( "Expected to be unable to delete cacheKey as it is a read-only set" );
-    }
-    catch ( final UnsupportedOperationException uoe )
-    {
-      //ignored
-    }
   }
 }
