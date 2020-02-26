@@ -1636,4 +1636,10 @@ abstract class Connector
   {
     _pendingRequests.add( new PendingRequest( name, callback ) );
   }
+
+  @Nonnull
+  List<PendingRequest> getPendingRequests()
+  {
+    return _pendingRequests;
+  }
 }
