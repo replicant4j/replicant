@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.websocket.Session;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.testng.annotations.Test;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class SubscriptionEntryTest
@@ -22,7 +25,7 @@ public class SubscriptionEntryTest
     final ChannelAddress cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
     final ChannelAddress cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
 
-    final SubscriptionEntry entry = new SubscriptionEntry( cd1 );
+    final SubscriptionEntry entry = new SubscriptionEntry( newSession(), cd1 );
 
     assertEquals( entry.getAddress(), cd1 );
     assertFalse( entry.isExplicitlySubscribed() );
@@ -108,10 +111,11 @@ public class SubscriptionEntryTest
     final ChannelAddress cd4 = new ChannelAddress( 2, null );
     final ChannelAddress cd5 = new ChannelAddress( 3, null );
 
-    final SubscriptionEntry entry1 = new SubscriptionEntry( cd1 );
-    final SubscriptionEntry entry3 = new SubscriptionEntry( cd3 );
-    final SubscriptionEntry entry4 = new SubscriptionEntry( cd4 );
-    final SubscriptionEntry entry5 = new SubscriptionEntry( cd5 );
+    final ReplicantSession session = newSession();
+    final SubscriptionEntry entry1 = new SubscriptionEntry( session, cd1 );
+    final SubscriptionEntry entry3 = new SubscriptionEntry( session, cd3 );
+    final SubscriptionEntry entry4 = new SubscriptionEntry( session, cd4 );
+    final SubscriptionEntry entry5 = new SubscriptionEntry( session, cd5 );
 
     final List<SubscriptionEntry> list = new ArrayList<>( Arrays.asList( entry5, entry4, entry3, entry1 ) );
 
@@ -119,5 +123,11 @@ public class SubscriptionEntryTest
 
     final SubscriptionEntry[] expected = { entry1, entry3, entry4, entry5 };
     assertEquals( list.toArray( new SubscriptionEntry[ 0 ] ), expected );
+  }
+
+  @Nonnull
+  private ReplicantSession newSession()
+  {
+    return new ReplicantSession( mock( Session.class ) );
   }
 }

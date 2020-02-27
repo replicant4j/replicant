@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -28,6 +29,8 @@ public final class ReplicantSession
   private final Map<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
   private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+  @Nonnull
+  private final ReentrantLock _lock = new ReentrantLock( true );
   @Nullable
   private String _authToken;
 
@@ -154,6 +157,12 @@ public final class ReplicantSession
     return getWebSocketSession().getId();
   }
 
+  @Nonnull
+  public ReentrantLock getLock()
+  {
+    return _lock;
+  }
+
   /**
    * Send a packet to the client.
    *
@@ -165,6 +174,7 @@ public final class ReplicantSession
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {
+    ensureLockedByCurrentThread();
     final String message = JsonEncoder.encodeChangeSet( requestId, etag, changeSet );
     LOG.log( Level.FINE,
              () -> "Sending text message for replicant session " + getId() + " with payload " + message );
@@ -175,35 +185,33 @@ public final class ReplicantSession
     }
   }
 
-  /**
-   * Send a packet to the client if the changeSet is not empty or it is marked as required.
-   *
-   * @param requestId the request id that caused these changes if this session requested the changes.
-   * @param changeSet the changeSet to create packet from.
-   * @return true if the packet was sent, false if it was ignorable.
-   */
-  public boolean maybeSendPacket( @Nullable final Integer requestId, @Nonnull final ChangeSet changeSet )
+  void ensureLockedByCurrentThread()
   {
-    if ( changeSet.isRequired() || !changeSet.getChannelActions().isEmpty() || !changeSet.getChanges().isEmpty() )
+    if ( !_lock.isHeldByCurrentThread() )
     {
-      sendPacket( requestId, null, changeSet );
-      return true;
-    }
-    else
-    {
-      return false;
+      throw new IllegalStateException( "Expected session to be locked by the current thread" );
     }
   }
 
-  @SuppressWarnings( "WeakerAccess" )
   @Nullable
-  public String getETag( @Nonnull final ChannelAddress address )
+  String getETag( @Nonnull final ChannelAddress address )
   {
     return _eTags.get( address );
   }
 
-  public void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
+  public void setETags( @Nonnull final Map<ChannelAddress, String> etags )
   {
+    ensureLockedByCurrentThread();
+    _eTags.clear();
+    for ( final Map.Entry<ChannelAddress, String> etag : etags.entrySet() )
+    {
+      setETag( etag.getKey(), etag.getValue() );
+    }
+  }
+
+  void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
+  {
+    ensureLockedByCurrentThread();
     if ( null == eTag )
     {
       _eTags.remove( address );
@@ -217,6 +225,7 @@ public final class ReplicantSession
   @Nonnull
   public Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
   {
+    ensureLockedByCurrentThread();
     return Collections.unmodifiableMap( _subscriptions );
   }
 
@@ -227,6 +236,7 @@ public final class ReplicantSession
   @Nonnull
   public SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
+    ensureLockedByCurrentThread();
     final SubscriptionEntry entry = findSubscriptionEntry( address );
     if ( null == entry )
     {
@@ -263,6 +273,7 @@ public final class ReplicantSession
   @Nullable
   public SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
+    ensureLockedByCurrentThread();
     return _subscriptions.get( address );
   }
 
@@ -271,6 +282,7 @@ public final class ReplicantSession
    */
   boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
   {
+    ensureLockedByCurrentThread();
     return null != findSubscriptionEntry( address );
   }
 

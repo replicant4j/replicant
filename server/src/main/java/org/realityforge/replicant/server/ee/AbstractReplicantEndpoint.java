@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -123,19 +124,47 @@ public abstract class AbstractReplicantEndpoint
     }
     else if ( "sub".equals( type ) )
     {
-      onSubscribe( replicantSession, command );
+      try
+      {
+        onSubscribe( replicantSession, command );
+      }
+      catch ( final InterruptedException ignored )
+      {
+        replicantSession.closeDueToInterrupt();
+      }
     }
     else if ( "bulk-sub".equals( type ) )
     {
-      onBulkSubscribe( replicantSession, command );
+      try
+      {
+        onBulkSubscribe( replicantSession, command );
+      }
+      catch ( final InterruptedException ignored )
+      {
+        replicantSession.closeDueToInterrupt();
+      }
     }
     else if ( "unsub".equals( type ) )
     {
-      onUnsubscribe( replicantSession, command );
+      try
+      {
+        onUnsubscribe( replicantSession, command );
+      }
+      catch ( final InterruptedException ignored )
+      {
+        replicantSession.closeDueToInterrupt();
+      }
     }
     else if ( "bulk-unsub".equals( type ) )
     {
-      onBulkUnsubscribe( replicantSession, command );
+      try
+      {
+        onBulkUnsubscribe( replicantSession, command );
+      }
+      catch ( final InterruptedException ignored )
+      {
+        replicantSession.closeDueToInterrupt();
+      }
     }
     else if ( "auth".equals( type ) )
     {
@@ -203,12 +232,14 @@ public abstract class AbstractReplicantEndpoint
 
   private void onETags( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
+    final Map<ChannelAddress, String> etags = new HashMap<>();
     for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( "etags" ).entrySet() )
     {
       final ChannelAddress address = ChannelAddress.parse( entry.getKey() );
       final String eTag = ( (JsonString) entry.getValue() ).getString();
-      replicantSession.setETag( address, eTag );
+      etags.put( address, eTag );
     }
+    replicantSession.setETags( etags );
     sendOk( replicantSession.getWebSocketSession(), command.getInt( "requestId" ) );
   }
 
@@ -239,7 +270,7 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
+    throws IOException, InterruptedException
   {
     final ChannelAddress address = ChannelAddress.parse( command.getString( "channel" ) );
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
@@ -275,25 +306,38 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
-  private void subscribe( @Nonnull final ReplicantSession replicantSession,
-                          @Nullable final Integer requestId,
+  private void subscribe( @Nonnull final ReplicantSession session,
+                          final int requestId,
                           @Nonnull final ChannelAddress address,
                           @Nullable final Object filter )
+    throws InterruptedException
   {
-    ReplicationRequestUtil.runRequest( getRegistry(),
-                                       getEntityManager(),
-                                       getEndpoint(),
-                                       "Subscribe(" + address + ")",
-                                       replicantSession,
-                                       requestId,
-                                       () -> {
-                                         EntityMessageCacheUtil.getSessionChanges().setRequired( true );
-                                         getSessionManager().subscribe( replicantSession, address, filter );
-                                       } );
+    ReplicationRequestUtil.sessionUpdateRequest( getRegistry(),
+                                                 getEntityManager(),
+                                                 getEndpoint(),
+                                                 "Subscribe(" + address + ")",
+                                                 session,
+                                                 requestId,
+                                                 () -> doSubscribe( session, address, filter ) );
   }
 
-  private void onBulkSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
+  private void doSubscribe( @Nonnull final ReplicantSession session,
+                            @Nonnull final ChannelAddress address,
+                            @Nullable final Object filter )
+  {
+    EntityMessageCacheUtil.getSessionChanges().setRequired( true );
+    try
+    {
+      getSessionManager().subscribe( session, address, filter );
+    }
+    catch ( final InterruptedException ignored )
+    {
+      session.closeDueToInterrupt();
+    }
+  }
+
+  private void onBulkSubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
+    throws IOException, InterruptedException
   {
     final ChannelAddress[] addresses = extractChannels( command );
     if ( 0 == addresses.length )
@@ -306,18 +350,18 @@ public abstract class AbstractReplicantEndpoint
     final List<Integer> subChannelIds = new ArrayList<>();
     for ( final ChannelAddress address : addresses )
     {
-      if ( !checkSubscribeRequest( replicantSession, channelMetaData, address ) )
+      if ( !checkSubscribeRequest( session, channelMetaData, address ) )
       {
         return;
       }
       if ( address.getChannelId() != channelId )
       {
-        sendErrorAndClose( replicantSession, "Bulk channel subscribe included addresses from multiple channels" );
+        sendErrorAndClose( session, "Bulk channel subscribe included addresses from multiple channels" );
         return;
       }
       else if ( !address.hasSubChannelId() )
       {
-        sendErrorAndClose( replicantSession,
+        sendErrorAndClose( session,
                            "Bulk channel subscribe included addresses channel without sub-channel ids" );
         return;
       }
@@ -331,23 +375,32 @@ public abstract class AbstractReplicantEndpoint
     final Object filter = extractFilter( channelMetaData, command );
     if ( 1 == addresses.length )
     {
-      subscribe( replicantSession, requestId, addresses[ 0 ], filter );
+      subscribe( session, requestId, addresses[ 0 ], filter );
     }
     else
     {
-      ReplicationRequestUtil.runRequest( getRegistry(),
-                                         getEntityManager(),
-                                         getEndpoint(),
-                                         "BulkSubscribe(" + channelMetaData.getChannelId() + ")",
-                                         replicantSession,
-                                         requestId,
-                                         () -> {
-                                           EntityMessageCacheUtil.getSessionChanges().setRequired( true );
-                                           getSessionManager().bulkSubscribe( replicantSession,
-                                                                              channelId,
-                                                                              subChannelIds,
-                                                                              filter );
-                                         } );
+      ReplicationRequestUtil.sessionUpdateRequest( getRegistry(),
+                                                   getEntityManager(),
+                                                   getEndpoint(),
+                                                   "BulkSubscribe(" + channelMetaData.getChannelId() + ")",
+                                                   session,
+                                                   requestId,
+                                                   () -> doBulkSubscribe( session, channelId, subChannelIds, filter ) );
+    }
+  }
+
+  private void doBulkSubscribe( @Nonnull final ReplicantSession session,
+                                final int channelId,
+                                final List<Integer> subChannelIds, final Object filter )
+  {
+    EntityMessageCacheUtil.getSessionChanges().setRequired( true );
+    try
+    {
+      getSessionManager().bulkSubscribe( session, channelId, subChannelIds, filter );
+    }
+    catch ( final InterruptedException ignored )
+    {
+      session.closeDueToInterrupt();
     }
   }
 
@@ -373,7 +426,7 @@ public abstract class AbstractReplicantEndpoint
   }
 
   private void onUnsubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
+    throws IOException, InterruptedException
   {
     final ChannelAddress address = ChannelAddress.parse( command.getString( "channel" ) );
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
@@ -384,8 +437,8 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
-  private void onBulkUnsubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException
+  private void onBulkUnsubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
+    throws IOException, InterruptedException
   {
     final ChannelAddress[] addresses = extractChannels( command );
     if ( 0 == addresses.length )
@@ -398,18 +451,18 @@ public abstract class AbstractReplicantEndpoint
     final List<Integer> subChannelIds = new ArrayList<>();
     for ( final ChannelAddress address : addresses )
     {
-      if ( !checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
+      if ( !checkUnsubscribeRequest( session, channelMetaData, address ) )
       {
         return;
       }
       if ( address.getChannelId() != channelId )
       {
-        sendErrorAndClose( replicantSession, "Bulk channel unsubscribe included addresses from multiple channels" );
+        sendErrorAndClose( session, "Bulk channel unsubscribe included addresses from multiple channels" );
         return;
       }
       else if ( !address.hasSubChannelId() )
       {
-        sendErrorAndClose( replicantSession,
+        sendErrorAndClose( session,
                            "Bulk channel unsubscribe included addresses channel without sub-channel ids" );
         return;
       }
@@ -422,39 +475,60 @@ public abstract class AbstractReplicantEndpoint
     final int requestId = command.getInt( "requestId" );
     if ( 1 == addresses.length )
     {
-      unsubscribe( replicantSession, requestId, addresses[ 0 ] );
+      unsubscribe( session, requestId, addresses[ 0 ] );
     }
     else
     {
-      ReplicationRequestUtil.runRequest( getRegistry(),
-                                         getEntityManager(),
-                                         getEndpoint(),
-                                         "BulkUnsubscribe(" + channelMetaData.getChannelId() + ")",
-                                         replicantSession,
-                                         requestId,
-                                         () -> {
-                                           EntityMessageCacheUtil.getSessionChanges().setRequired( true );
-                                           getSessionManager().bulkUnsubscribe( replicantSession,
-                                                                                channelId,
-                                                                                subChannelIds );
-                                         } );
+      ReplicationRequestUtil.sessionUpdateRequest( getRegistry(),
+                                                   getEntityManager(),
+                                                   getEndpoint(),
+                                                   "BulkUnsubscribe(" + channelMetaData.getChannelId() + ")",
+                                                   session,
+                                                   requestId,
+                                                   () -> doBulkUnsubscribe( session, channelId, subChannelIds ) );
     }
   }
 
-  private void unsubscribe( @Nonnull final ReplicantSession replicantSession,
-                            @Nullable final Integer requestId,
-                            @Nonnull final ChannelAddress address )
+  private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,
+                                  final int channelId,
+                                  final List<Integer> subChannelIds )
   {
-    ReplicationRequestUtil.runRequest( getRegistry(),
-                                       getEntityManager(),
-                                       getEndpoint(),
-                                       "Unsubscribe(" + address + ")",
-                                       replicantSession,
-                                       requestId,
-                                       () -> {
-                                         EntityMessageCacheUtil.getSessionChanges().setRequired( true );
-                                         getSessionManager().unsubscribe( replicantSession, address );
-                                       } );
+    EntityMessageCacheUtil.getSessionChanges().setRequired( true );
+    try
+    {
+      getSessionManager().bulkUnsubscribe( session, channelId, subChannelIds );
+    }
+    catch ( final InterruptedException ignored )
+    {
+      session.closeDueToInterrupt();
+    }
+  }
+
+  private void unsubscribe( @Nonnull final ReplicantSession session,
+                            final int requestId,
+                            @Nonnull final ChannelAddress address )
+    throws InterruptedException
+  {
+    ReplicationRequestUtil.sessionUpdateRequest( getRegistry(),
+                                                 getEntityManager(),
+                                                 getEndpoint(),
+                                                 "Unsubscribe(" + address + ")",
+                                                 session,
+                                                 requestId,
+                                                 () -> doUnsubscribe( session, address ) );
+  }
+
+  private void doUnsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
+  {
+    EntityMessageCacheUtil.getSessionChanges().setRequired( true );
+    try
+    {
+      getSessionManager().unsubscribe( session, address );
+    }
+    catch ( final InterruptedException ignored )
+    {
+      session.closeDueToInterrupt();
+    }
   }
 
   private boolean checkUnsubscribeRequest( @Nonnull final ReplicantSession replicantSession,
@@ -582,6 +656,12 @@ public abstract class AbstractReplicantEndpoint
   private void closeSession( @Nonnull final ReplicantSession replicantSession )
   {
     onSessionClose( replicantSession );
-    getSessionManager().invalidateSession( replicantSession );
+    try
+    {
+      getSessionManager().invalidateSession( replicantSession );
+    }
+    catch ( final InterruptedException ignored )
+    {
+    }
   }
 }

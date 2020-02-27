@@ -33,7 +33,8 @@ public interface ReplicantSessionManager
    * @param session the session.
    * @return true if a session was invalidated, false otherwise.
    */
-  boolean invalidateSession( @Nonnull ReplicantSession session );
+  boolean invalidateSession( @Nonnull ReplicantSession session )
+    throws InterruptedException;
 
   /**
    * Create replicant session for specified WebSocket session.
@@ -50,14 +51,18 @@ public interface ReplicantSessionManager
   @Nonnull
   SystemMetaData getSystemMetaData();
 
-  void subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
+  void subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter )
+    throws InterruptedException;
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
                       @Nonnull Collection<Integer> subChannelIds,
-                      @Nullable Object filter );
+                      @Nullable Object filter )
+    throws InterruptedException;
 
-  void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address );
+  void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address )
+    throws InterruptedException;
 
-  void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> subChannelIds );
+  void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> subChannelIds )
+    throws InterruptedException;
 }

@@ -18,13 +18,14 @@ public final class WebSocketUtil
     sendText( session, JsonEncoder.asString( message ) );
   }
 
-  public static void sendText( @Nonnull final Session session, @Nonnull final String message )
+  public static boolean sendText( @Nonnull final Session session, @Nonnull final String message )
   {
     if ( session.isOpen() )
     {
       try
       {
         session.getBasicRemote().sendText( message );
+        return true;
       }
       catch ( final IOException ignored )
       {
@@ -40,5 +41,6 @@ public final class WebSocketUtil
         }
       }
     }
+    return false;
   }
 }

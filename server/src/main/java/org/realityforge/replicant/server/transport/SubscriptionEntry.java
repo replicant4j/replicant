@@ -18,6 +18,8 @@ public final class SubscriptionEntry
   implements Comparable<SubscriptionEntry>
 {
   @Nonnull
+  private final ReplicantSession _session;
+  @Nonnull
   private final ChannelAddress _address;
   /**
    * This is a list of channels that this auto-subscribed to.
@@ -37,8 +39,10 @@ public final class SubscriptionEntry
   @Nullable
   private Object _filter;
 
-  public SubscriptionEntry( @Nonnull final ChannelAddress address )
+  public SubscriptionEntry( @Nonnull final ReplicantSession session,
+                            @Nonnull final ChannelAddress address )
   {
+    _session = Objects.requireNonNull( session );
     _address = Objects.requireNonNull( address );
   }
 
@@ -68,6 +72,7 @@ public final class SubscriptionEntry
 
   public void setExplicitlySubscribed( final boolean explicitlySubscribed )
   {
+    _session.ensureLockedByCurrentThread();
     _explicitlySubscribed = explicitlySubscribed;
   }
 
@@ -83,6 +88,7 @@ public final class SubscriptionEntry
 
   public void setFilter( @Nullable final Object filter )
   {
+    _session.ensureLockedByCurrentThread();
     _filter = filter;
   }
 
@@ -101,6 +107,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
+    _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
@@ -119,6 +126,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
+    _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
@@ -146,6 +154,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
+    _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {
@@ -164,6 +173,7 @@ public final class SubscriptionEntry
   @Nonnull
   public ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
+    _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
     {

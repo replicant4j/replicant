@@ -52,6 +52,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void basicWorkflow()
+    throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     assertEquals( sm.getSessionIDs().size(), 0 );
@@ -147,7 +148,14 @@ public class ReplicantSessionManagerImplTest
     assertEquals( invalidated[ 0 ], Boolean.TRUE );
   }
 
-  private CyclicBarrier go( final Runnable target )
+  @FunctionalInterface
+  public interface Action
+  {
+    void run()
+      throws Exception;
+  }
+
+  private CyclicBarrier go( final Action target )
     throws Exception
   {
     final CyclicBarrier start = new CyclicBarrier( 2 );
@@ -203,6 +211,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void subscribe()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -745,6 +754,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void performUnsubscribe()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -901,6 +911,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void unsubscribe()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -951,6 +962,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void unsubscribe_usingSessionID()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -985,6 +997,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void bulkUnsubscribe()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -1046,6 +1059,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void bulkUnsubscribe_withSessionID()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -1108,6 +1122,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void updateSubscription()
+    throws Exception
   {
     final ChannelMetaData ch =
       new ChannelMetaData( 0,
@@ -1154,6 +1169,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void bulkSubscribe_forUpdate()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -1240,6 +1256,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void bulkSubscribe_ForUpdate_whereBulkUpdateHookIsUsed()
+    throws Exception
   {
     final ChannelMetaData ch1 =
       new ChannelMetaData( 0,
@@ -1401,6 +1418,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void expandLinkIfRequired()
+    throws Exception
   {
     EntityMessageCacheUtil.removeSessionChanges();
 
@@ -1523,6 +1541,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void expandLink()
+    throws Exception
   {
     EntityMessageCacheUtil.removeSessionChanges();
 
@@ -1616,6 +1635,7 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void expandLinks()
+    throws Exception
   {
     EntityMessageCacheUtil.removeSessionChanges();
 

@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.ee;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -48,22 +49,32 @@ public final class ReplicationRequestUtil
     }
   }
 
-  public static void runRequest( @Nonnull final TransactionSynchronizationRegistry registry,
-                                 @Nonnull final EntityManager entityManager,
-                                 @Nonnull final EntityMessageEndpoint endpoint,
-                                 @Nonnull final String invocationKey,
-                                 @Nullable final ReplicantSession session,
-                                 @Nullable final Integer requestId,
-                                 @Nonnull final Runnable action )
+  static void sessionUpdateRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                                    @Nonnull final EntityManager entityManager,
+                                    @Nonnull final EntityMessageEndpoint endpoint,
+                                    @Nonnull final String invocationKey,
+                                    @Nonnull final ReplicantSession session,
+                                    final int requestId,
+                                    @Nonnull final Runnable action )
+    throws InterruptedException
   {
-    startReplication( registry, invocationKey, session, requestId );
+    final ReentrantLock lock = session.getLock();
     try
     {
-      action.run();
+      lock.lockInterruptibly();
+      startReplication( registry, invocationKey, session, requestId );
+      try
+      {
+        action.run();
+      }
+      finally
+      {
+        completeReplication( registry, entityManager, endpoint, invocationKey );
+      }
     }
     finally
     {
-      completeReplication( registry, entityManager, endpoint, invocationKey );
+      lock.unlock();
     }
   }
 

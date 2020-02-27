@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -21,6 +22,7 @@ import javax.annotation.PreDestroy;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.transaction.TransactionSynchronizationRegistry;
+import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.Change;
 import org.realityforge.replicant.server.ChangeSet;
@@ -53,6 +55,7 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
+    throws InterruptedException
   {
     _lock.writeLock().lock();
     try
@@ -245,43 +248,61 @@ public abstract class ReplicantSessionManagerImpl
     boolean impactsInitiator = false;
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
+    final List<ReplicantSession> sessions;
     try
     {
-      for ( final ReplicantSession session : getSessions().values() )
-      {
-        final ChangeSet changeSet = new ChangeSet();
-        final boolean isInitiator = Objects.equals( session.getId(), sessionId );
-        if ( isInitiator && null != sessionChanges )
-        {
-          changeSet.setRequired( sessionChanges.isRequired() );
-          changeSet.merge( sessionChanges.getChanges() );
-          changeSet.mergeActions( sessionChanges.getChannelActions() );
-        }
-        saveEntityMessagesForSession( messages, session, changeSet );
-        impactsInitiator = session.maybeSendPacket( isInitiator ? requestId : null, changeSet );
-      }
+      sessions = new ArrayList<>( getSessions().values() );
     }
     finally
     {
       getLock().readLock().unlock();
     }
+    for ( final ReplicantSession session : sessions )
+    {
+      if ( session.isOpen() )
+      {
+        final ReentrantLock lock = session.getLock();
+        try
+        {
+          lock.lockInterruptibly();
+
+          final ChangeSet changeSet = new ChangeSet();
+          final boolean isInitiator = Objects.equals( session.getId(), sessionId );
+          if ( isInitiator && null != sessionChanges )
+          {
+            changeSet.setRequired( sessionChanges.isRequired() );
+            changeSet.merge( sessionChanges.getChanges() );
+            changeSet.mergeActions( sessionChanges.getChannelActions() );
+          }
+          processMessages( messages, session, changeSet );
+          if ( changeSet.hasContent() )
+          {
+            completeMessageProcessing( session, changeSet );
+            session.sendPacket( requestId, null, changeSet );
+
+            if ( isInitiator )
+            {
+              impactsInitiator = true;
+            }
+          }
+        }
+        catch ( final InterruptedException ignored )
+        {
+          session.closeDueToInterrupt();
+        }
+        finally
+        {
+          lock.unlock();
+        }
+      }
+    }
 
     return impactsInitiator;
   }
 
-  private void saveEntityMessagesForSession( @Nonnull final Collection<EntityMessage> messages,
-                                             @Nonnull final ReplicantSession session,
-                                             @Nonnull final ChangeSet changeSet )
+  private void completeMessageProcessing( @Nonnull final ReplicantSession session,
+                                          @Nonnull final ChangeSet changeSet )
   {
-    for ( final EntityMessage message : messages )
-    {
-      processDeleteMessages( message, session, changeSet );
-    }
-
-    for ( final EntityMessage message : messages )
-    {
-      processUpdateMessages( message, session, changeSet );
-    }
     /*
      * The expandLinks call is extremely dangerous as it can result in accessing the underlying database.
      * If another thread/request has a database lock as they changed an entity that would be in the expanded set
@@ -319,6 +340,21 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  private void processMessages( @Nonnull final Collection<EntityMessage> messages,
+                                @Nonnull final ReplicantSession session,
+                                @Nonnull final ChangeSet changeSet )
+  {
+    for ( final EntityMessage message : messages )
+    {
+      processDeleteMessages( message, session, changeSet );
+    }
+
+    for ( final EntityMessage message : messages )
+    {
+      processUpdateMessages( message, session, changeSet );
+    }
+  }
+
   private void updateSubscription( @Nonnull final ReplicantSession session,
                                    @Nonnull final ChannelAddress address,
                                    @Nullable final Object filter,
@@ -343,6 +379,24 @@ public abstract class ReplicantSessionManagerImpl
                              final int channelId,
                              @Nonnull final Collection<Integer> subChannelIds,
                              @Nullable final Object filter )
+    throws InterruptedException
+  {
+    final ReentrantLock lock = session.getLock();
+    lock.lockInterruptibly();
+    try
+    {
+      doBulkSubscribe( session, channelId, subChannelIds, filter );
+    }
+    finally
+    {
+      lock.unlock();
+    }
+  }
+
+  private void doBulkSubscribe( @Nonnull final ReplicantSession session,
+                                final int channelId,
+                                @Nonnull final Collection<Integer> subChannelIds,
+                                @Nullable final Object filter )
   {
     final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( channelId );
     assert channel.isInstanceGraph();
@@ -434,8 +488,18 @@ public abstract class ReplicantSessionManagerImpl
   public void subscribe( @Nonnull final ReplicantSession session,
                          @Nonnull final ChannelAddress address,
                          @Nullable final Object filter )
+    throws InterruptedException
   {
-    subscribe( session, address, true, filter, EntityMessageCacheUtil.getSessionChanges() );
+    final ReentrantLock lock = session.getLock();
+    lock.lockInterruptibly();
+    try
+    {
+      subscribe( session, address, true, filter, EntityMessageCacheUtil.getSessionChanges() );
+    }
+    finally
+    {
+      lock.unlock();
+    }
   }
 
   void subscribe( @Nonnull final ReplicantSession session,
@@ -733,8 +797,18 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public void unsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
+    throws InterruptedException
   {
-    unsubscribe( session, address, EntityMessageCacheUtil.getSessionChanges() );
+    final ReentrantLock lock = session.getLock();
+    lock.lockInterruptibly();
+    try
+    {
+      unsubscribe( session, address, EntityMessageCacheUtil.getSessionChanges() );
+    }
+    finally
+    {
+      lock.unlock();
+    }
   }
 
   void unsubscribe( @Nonnull final ReplicantSession session,
@@ -759,6 +833,23 @@ public abstract class ReplicantSessionManagerImpl
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int channelId,
                                @Nonnull final Collection<Integer> subChannelIds )
+    throws InterruptedException
+  {
+    final ReentrantLock lock = session.getLock();
+    lock.lockInterruptibly();
+    try
+    {
+      doBulkUnsubscribe( session, channelId, subChannelIds );
+    }
+    finally
+    {
+      lock.unlock();
+    }
+  }
+
+  private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,
+                                  final int channelId,
+                                  @Nonnull final Collection<Integer> subChannelIds )
   {
     final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
     for ( final int subChannelId : subChannelIds )
