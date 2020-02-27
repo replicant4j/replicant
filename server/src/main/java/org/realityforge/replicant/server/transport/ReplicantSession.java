@@ -36,6 +36,11 @@ public final class ReplicantSession
     _webSocketSession = Objects.requireNonNull( webSocketSession );
   }
 
+  public void closeDueToInterrupt()
+  {
+    close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Action interrupted" ) );
+  }
+
   public void close( @Nonnull final CloseReason closeReason )
   {
     if ( isOpen() )
