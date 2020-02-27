@@ -761,7 +761,7 @@ public abstract class ReplicantSessionManagerImpl
                                @Nonnull final Collection<Integer> subChannelIds )
   {
     final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-    for ( final Integer subChannelId : subChannelIds )
+    for ( final int subChannelId : subChannelIds )
     {
       performUnsubscribe( session, new ChannelAddress( channelId, subChannelId ), sessionChanges );
     }
