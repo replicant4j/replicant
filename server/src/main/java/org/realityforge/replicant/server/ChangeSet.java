@@ -18,6 +18,11 @@ public final class ChangeSet
   private final Map<String, Change> _changes = new LinkedHashMap<>();
   private boolean _required;
 
+  public boolean hasContent()
+  {
+    return _required || !_channelActions.isEmpty() || !_changes.isEmpty();
+  }
+
   public boolean isRequired()
   {
     return _required;
