@@ -907,7 +907,10 @@ public abstract class ReplicantSessionManagerImpl
           linkSubscriptionEntries( sourceEntry, session.getSubscriptionEntry( target ) );
           return true;
         }
-        linkSubscriptionEntries( sourceEntry, targetEntry );
+        else
+        {
+          linkSubscriptionEntries( sourceEntry, targetEntry );
+        }
       }
     }
     return false;
