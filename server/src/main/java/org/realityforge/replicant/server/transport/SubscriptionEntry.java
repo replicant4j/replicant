@@ -89,6 +89,7 @@ public final class SubscriptionEntry
   /**
    * Return the channels that were subscribed as a result of subscribing to this channel.
    */
+  @Nonnull
   public Set<ChannelAddress> getOutwardSubscriptions()
   {
     return _roOutwardSubscriptions;
@@ -116,7 +117,7 @@ public final class SubscriptionEntry
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
   @Nonnull
-  public ChannelAddress[] deregisterOutwardSubscriptions( final ChannelAddress... channels )
+  public ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
     for ( final ChannelAddress channel : channels )
@@ -133,6 +134,7 @@ public final class SubscriptionEntry
   /**
    * Return the channels that were auto-subscribed to the current channel.
    */
+  @Nonnull
   public Set<ChannelAddress> getInwardSubscriptions()
   {
     return _roInwardSubscriptions;
