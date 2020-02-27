@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.websocket.CloseReason;
@@ -18,6 +20,8 @@ import org.realityforge.replicant.server.json.JsonEncoder;
 public final class ReplicantSession
   implements Serializable, Closeable
 {
+  @Nonnull
+  private static final Logger LOG = Logger.getLogger( ReplicantSession.class.getName() );
   @Nonnull
   private final Session _webSocketSession;
   @Nonnull
@@ -36,14 +40,23 @@ public final class ReplicantSession
   {
     if ( isOpen() )
     {
+      LOG.log( Level.FINE,
+               () -> "Closing websocket for replicant session " + getId() + " with " + closeReason );
       try
       {
         _webSocketSession.close( closeReason );
       }
-      catch ( final IOException ignored )
+      catch ( final IOException ioe )
       {
-        // Assume it is already closing
+        LOG.log( Level.FINE,
+                 () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
       }
+    }
+    else
+    {
+      LOG.log( Level.FINE,
+               () -> "Websocket close requested for replicant session " + getId() + " with " + closeReason +
+                     " but the websocket is already closed" );
     }
   }
 
@@ -52,14 +65,22 @@ public final class ReplicantSession
   {
     if ( isOpen() )
     {
+      LOG.log( Level.FINE, () -> "Closing websocket for replicant session " + getId() );
       try
       {
         _webSocketSession.close();
       }
-      catch ( final IOException ignored )
+      catch ( final IOException ioe )
       {
-        // Assume it is already closing
+        LOG.log( Level.FINE,
+                 () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
       }
+    }
+    else
+    {
+      LOG.log( Level.FINE,
+               () -> "Websocket close requested for replicant session " + getId() +
+                     " but the websocket is already closed" );
     }
   }
 
@@ -73,14 +94,23 @@ public final class ReplicantSession
   {
     if ( isOpen() )
     {
+      LOG.log( Level.FINE, () -> "Pinging websocket for replicant session " + getId() );
       try
       {
         _webSocketSession.getBasicRemote().sendPing( null );
       }
-      catch ( final IOException ignored )
+      catch ( final IOException ioe )
       {
         // All scenarios we can envision imply the session is shutting down, and thus can be ignored
+        LOG.log( Level.FINER,
+                 () -> "Websocket ping for replicant session " + getId() + " generated error " + ioe );
       }
+    }
+    else
+    {
+      LOG.log( Level.FINE,
+               () -> "Websocket ping requested for replicant session " + getId() +
+                     " but the websocket is already closed" );
     }
   }
 
@@ -130,7 +160,14 @@ public final class ReplicantSession
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {
-    WebSocketUtil.sendText( getWebSocketSession(), JsonEncoder.encodeChangeSet( requestId, etag, changeSet ) );
+    final String message = JsonEncoder.encodeChangeSet( requestId, etag, changeSet );
+    LOG.log( Level.FINE,
+             () -> "Sending text message for replicant session " + getId() + " with payload " + message );
+    if ( !WebSocketUtil.sendText( getWebSocketSession(), message ) )
+    {
+      LOG.log( Level.FINE,
+               () -> "Failed to send text message for replicant session " + getId() + " with payload " + message );
+    }
   }
 
   /**
@@ -203,7 +240,9 @@ public final class ReplicantSession
   {
     if ( !_subscriptions.containsKey( address ) )
     {
-      final SubscriptionEntry entry = new SubscriptionEntry( address );
+      LOG.log( Level.FINE,
+               () -> "Creating subscription entry for replicant session " + getId() + " on address " + address );
+      final SubscriptionEntry entry = new SubscriptionEntry( this, address );
       _subscriptions.put( address, entry );
       return entry;
     }
@@ -235,6 +274,20 @@ public final class ReplicantSession
    */
   boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
   {
-    return null != _subscriptions.remove( entry.getAddress() );
+    ensureLockedByCurrentThread();
+    final ChannelAddress address = entry.getAddress();
+    final boolean removed = null != _subscriptions.remove( address );
+    if ( removed )
+    {
+      LOG.log( Level.FINE,
+               () -> "Removed subscription entry for replicant session " + getId() + " on address " + address );
+    }
+    else
+    {
+      LOG.log( Level.FINE,
+               () -> "Attempted to remove subscription entry for replicant session " + getId() + " on address " +
+                     address + " but no such subscription existed" );
+    }
+    return removed;
   }
 }
