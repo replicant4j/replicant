@@ -315,7 +315,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         LOG.log( Level.INFO, "Error invoking expandLinks for session " + session.getId(), e );
       }
-      session.close();
+      session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Expanding links failed" ) );
     }
   }
 
