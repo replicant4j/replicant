@@ -11,10 +11,6 @@ import org.realityforge.replicant.server.ChannelAddress;
 public abstract class AbstractSecuredSessionRestService
   extends AbstractSessionRestService
 {
-  @SuppressWarnings( "WeakerAccess" )
-  @Nonnull
-  protected abstract SimpleAuthService getAuthService();
-
   /**
    * Override this and return true if security should be disabled. Typically used during local development.
    */

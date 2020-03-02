@@ -11,6 +11,7 @@
 * Expose `ReplicantSession.isOpen()` helper method.
 * Add `ChangeSet.hasContent()` helper method that is used to determine whether a `ChangeSet` is required to be sent to the client.
 * Add `FINE` and `FINER` level logging to `ReplicantSession` when events of interest occur. The intent is to make it easy to turn logging on trace problems during development and production.
+* Remove the `AbstractSecuredSessionRestService.getAuthService()` method as it is unused.
 
 ### [v6.73](https://github.com/replicant4j/replicant/tree/v6.73) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.72...v6.73)
 
