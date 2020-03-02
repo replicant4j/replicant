@@ -14,7 +14,7 @@
 * Remove the `AbstractSecuredSessionRestService.getAuthService()` method as it is unused.
 * Refactor the way processing is performed on the server. The entity change messages are still collected within the transaction but they are now packaged up and posted to separate queues for each session. Another task in a separate thread will then process the change messages for each session. The selection/routing of each message to a session occurs in this separate thread as does the expansion of `GraphLink` messages. This fixes several dead-lock scenarios that could occur as described in #16
 * Add locking to `ReplicantSession` so that routing messages and altering of subscriptions requires the lock acquisition. This avoids several crashes related to concurrency issues such as those described in #4 and several issues within rose.
-z
+
 ### [v6.73](https://github.com/replicant4j/replicant/tree/v6.73) (2020-02-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.72...v6.73)
 
 * Add `WebSocketConfig.create(...)` helper method and make the constructor private access to simplify creating the config object.
