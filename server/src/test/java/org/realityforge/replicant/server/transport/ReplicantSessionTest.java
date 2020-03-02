@@ -64,7 +64,6 @@ public class ReplicantSessionTest
     assertEquals( session.getSubscriptions().size(), 0 );
   }
 
-  @SuppressWarnings( "ConstantConditions" )
   @Test
   public void cacheKeys()
   {
