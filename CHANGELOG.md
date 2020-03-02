@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.74](https://github.com/replicant4j/replicant/tree/v6.74) (2020-03-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.73...v6.74)
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.170`.
 * Add `ReplicantSession.maybeSendPacket(...)` helper method that will only send a packet for `ChangeSet` if it is non-empty or it is marked as required.
