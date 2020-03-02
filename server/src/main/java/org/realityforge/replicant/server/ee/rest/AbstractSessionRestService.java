@@ -56,7 +56,6 @@ import org.realityforge.replicant.server.transport.SystemMetaData;
  * }
  * </pre>
  */
-@SuppressWarnings( "UnresolvedRestParam" )
 public abstract class AbstractSessionRestService
 {
   private JsonGeneratorFactory _factory;
