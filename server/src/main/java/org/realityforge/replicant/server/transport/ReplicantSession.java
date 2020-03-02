@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +31,8 @@ public final class ReplicantSession
   private final Map<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
   private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+  @Nonnull
+  private final BlockingQueue<Packet> _pendingPackets = new LinkedBlockingQueue<>();
   @Nonnull
   private final ReentrantLock _lock = new ReentrantLock( true );
   @Nullable
@@ -161,6 +165,17 @@ public final class ReplicantSession
   public ReentrantLock getLock()
   {
     return _lock;
+  }
+
+  void queuePacket( @Nonnull final Packet packet )
+  {
+    _pendingPackets.add( packet );
+  }
+
+  @Nullable
+  Packet popPendingPacket()
+  {
+    return _pendingPackets.poll();
   }
 
   /**

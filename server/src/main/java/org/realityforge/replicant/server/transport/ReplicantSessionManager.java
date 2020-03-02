@@ -5,7 +5,9 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.websocket.Session;
+import org.realityforge.replicant.server.ChangeSet;
 import org.realityforge.replicant.server.ChannelAddress;
+import org.realityforge.replicant.server.EntityMessage;
 
 public interface ReplicantSessionManager
 {
@@ -65,4 +67,10 @@ public interface ReplicantSessionManager
 
   void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> subChannelIds )
     throws InterruptedException;
+
+  void sendChangeMessage( @Nonnull ReplicantSession session,
+                          @Nullable Integer requestId,
+                          @Nullable String etag,
+                          @Nonnull Collection<EntityMessage> messages,
+                          @Nonnull ChangeSet changeSet );
 }

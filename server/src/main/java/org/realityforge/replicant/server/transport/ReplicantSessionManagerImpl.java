@@ -2,7 +2,6 @@ package org.realityforge.replicant.server.transport;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,11 +46,12 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   private final Map<String, ReplicantSession> _sessions = new HashMap<>();
   @Nonnull
-  private final Map<String, ReplicantSession> _roSessions = Collections.unmodifiableMap( _sessions );
-  @Nonnull
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   @Nonnull
   private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
+
+  @Nonnull
+  protected abstract ReplicantMessageBroker getReplicantMessageBroker();
 
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
@@ -106,6 +106,20 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @Nonnull
+  Set<ReplicantSession> getSessions()
+  {
+    _lock.readLock().lock();
+    try
+    {
+      return new HashSet<>( _sessions.values() );
+    }
+    finally
+    {
+      _lock.readLock().unlock();
+    }
+  }
+
   @Override
   @Nonnull
   public ReplicantSession createSession( @Nonnull final Session webSocketSession )
@@ -121,28 +135,6 @@ public abstract class ReplicantSessionManagerImpl
       _lock.writeLock().unlock();
     }
     return session;
-  }
-
-  /**
-   * Return an unmodifiable map containing the set of sessions.
-   * The user should also acquire a read lock via {@link #getLock()} prior to invoking
-   * this method ensure it is not modified while being inspected.
-   *
-   * @return an unmodifiable map containing the set of sessions.
-   */
-  @Nonnull
-  Map<String, ReplicantSession> getSessions()
-  {
-    return _roSessions;
-  }
-
-  /**
-   * @return the lock used to guard access to sessions map.
-   */
-  @Nonnull
-  ReadWriteLock getLock()
-  {
-    return _lock;
   }
 
   @PreDestroy
@@ -247,57 +239,48 @@ public abstract class ReplicantSessionManagerImpl
   {
     boolean impactsInitiator = false;
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
-    getLock().readLock().lock();
-    final List<ReplicantSession> sessions;
-    try
-    {
-      sessions = new ArrayList<>( getSessions().values() );
-    }
-    finally
-    {
-      getLock().readLock().unlock();
-    }
-    for ( final ReplicantSession session : sessions )
+    for ( final ReplicantSession session : getSessions() )
     {
       if ( session.isOpen() )
       {
-        final ReentrantLock lock = session.getLock();
-        try
+        final ChangeSet changeSet = new ChangeSet();
+        final boolean isInitiator = Objects.equals( session.getId(), sessionId );
+        if ( isInitiator && null != sessionChanges )
         {
-          lock.lockInterruptibly();
+          changeSet.setRequired( sessionChanges.isRequired() );
+          changeSet.merge( sessionChanges.getChanges() );
+          changeSet.mergeActions( sessionChanges.getChannelActions() );
+        }
 
-          final ChangeSet changeSet = new ChangeSet();
-          final boolean isInitiator = Objects.equals( session.getId(), sessionId );
-          if ( isInitiator && null != sessionChanges )
-          {
-            changeSet.setRequired( sessionChanges.isRequired() );
-            changeSet.merge( sessionChanges.getChanges() );
-            changeSet.mergeActions( sessionChanges.getChannelActions() );
-          }
-          processMessages( messages, session, changeSet );
-          if ( changeSet.hasContent() )
-          {
-            completeMessageProcessing( session, changeSet );
-            session.sendPacket( requestId, null, changeSet );
-
-            if ( isInitiator )
-            {
-              impactsInitiator = true;
-            }
-          }
-        }
-        catch ( final InterruptedException ignored )
+        if ( isInitiator )
         {
-          session.closeDueToInterrupt();
+          impactsInitiator = true;
         }
-        finally
-        {
-          lock.unlock();
-        }
+        getReplicantMessageBroker().queueChangeMessage( session,
+                                                        isInitiator ? requestId : null,
+                                                        null,
+                                                        messages,
+                                                        changeSet );
       }
     }
 
     return impactsInitiator;
+  }
+
+  @Override
+  public void sendChangeMessage( @Nonnull final ReplicantSession session,
+                                 @Nullable final Integer requestId,
+                                 @Nullable final String etag,
+                                 @Nonnull final Collection<EntityMessage> messages,
+                                 @Nonnull final ChangeSet changeSet )
+  {
+    processMessages( messages, session, changeSet );
+
+    if ( changeSet.hasContent() )
+    {
+      completeMessageProcessing( session, changeSet );
+      session.sendPacket( requestId, etag, changeSet );
+    }
   }
 
   private void completeMessageProcessing( @Nonnull final ReplicantSession session,
@@ -1153,5 +1136,14 @@ public abstract class ReplicantSessionManagerImpl
         delinkDownstreamSubscriptions( session, entry, m, changeSet );
       }
     }
+  }
+
+  /**
+   * @return the lock used to guard access to sessions map.
+   */
+  @Nonnull
+  ReadWriteLock getLock()
+  {
+    return _lock;
   }
 }
