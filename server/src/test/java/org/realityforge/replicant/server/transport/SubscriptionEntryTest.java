@@ -25,7 +25,9 @@ public class SubscriptionEntryTest
     final ChannelAddress cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
     final ChannelAddress cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
 
-    final SubscriptionEntry entry = new SubscriptionEntry( newSession(), cd1 );
+    final ReplicantSession session = newSession();
+    session.getLock().lock();
+    final SubscriptionEntry entry = new SubscriptionEntry( session, cd1 );
 
     assertEquals( entry.getAddress(), cd1 );
     assertFalse( entry.isExplicitlySubscribed() );

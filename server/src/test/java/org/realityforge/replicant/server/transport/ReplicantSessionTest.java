@@ -17,6 +17,7 @@ public class ReplicantSessionTest
     final String sessionId = ValueUtil.randomString();
     when( webSocketSession.getId() ).thenReturn( sessionId );
     final ReplicantSession session = new ReplicantSession( webSocketSession );
+    session.getLock().lock();
 
     assertEquals( session.getId(), sessionId );
 
@@ -68,6 +69,7 @@ public class ReplicantSessionTest
   public void cacheKeys()
   {
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    session.getLock().lock();
 
     final ChannelAddress cd1 = new ChannelAddress( 1, null );
 
