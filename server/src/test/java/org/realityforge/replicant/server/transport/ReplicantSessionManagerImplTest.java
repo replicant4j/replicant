@@ -62,9 +62,6 @@ public class ReplicantSessionManagerImplTest
     assertNotNull( session.getId() );
     assertEquals( sm.getSessionIDs().size(), 1 );
 
-    // Make sure we can also get it thorugh the map interface
-    assertEquals( sm.getSessions().get( session.getId() ), session );
-
     // The next line should update the last accessed time too!
     assertEquals( sm.getSession( session.getId() ), session );
 
@@ -85,9 +82,9 @@ public class ReplicantSessionManagerImplTest
     final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.createSession( webSocketSession );
 
-    assertEquals( sm.getSessions().get( session.getId() ), session );
+    assertEquals( sm.getSession( session.getId() ), session );
     sm.removeClosedSessions();
-    assertEquals( sm.getSessions().get( session.getId() ), session );
+    assertEquals( sm.getSession( session.getId() ), session );
   }
 
   @Test
@@ -101,9 +98,9 @@ public class ReplicantSessionManagerImplTest
     final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
     final ReplicantSession session = sm.createSession( webSocketSession );
 
-    assertEquals( sm.getSessions().get( session.getId() ), session );
+    assertEquals( sm.getSession( session.getId() ), session );
     sm.removeClosedSessions();
-    assertNull( sm.getSessions().get( session.getId() ) );
+    assertNull( sm.getSession( session.getId() ) );
   }
 
   @Test
