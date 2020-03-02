@@ -656,12 +656,6 @@ public abstract class AbstractReplicantEndpoint
   private void closeSession( @Nonnull final ReplicantSession replicantSession )
   {
     onSessionClose( replicantSession );
-    try
-    {
-      getSessionManager().invalidateSession( replicantSession );
-    }
-    catch ( final InterruptedException ignored )
-    {
-    }
+    getSessionManager().invalidateSession( replicantSession );
   }
 }

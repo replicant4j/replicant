@@ -35,8 +35,7 @@ public interface ReplicantSessionManager
    * @param session the session.
    * @return true if a session was invalidated, false otherwise.
    */
-  boolean invalidateSession( @Nonnull ReplicantSession session )
-    throws InterruptedException;
+  boolean invalidateSession( @Nonnull ReplicantSession session );
 
   /**
    * Create replicant session for specified WebSocket session.

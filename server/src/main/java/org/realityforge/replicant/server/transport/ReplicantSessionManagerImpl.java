@@ -55,7 +55,6 @@ public abstract class ReplicantSessionManagerImpl
 
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
-    throws InterruptedException
   {
     _lock.writeLock().lock();
     try
