@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -400,9 +401,8 @@ public class ReplicantSessionManagerImplTest
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
-      final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-      verify( remote ).sendText(
-        "{\"type\":\"update\",\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+      verify( sm.getReplicantMessageBroker() )
+        .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
     }
   }
 
@@ -515,9 +515,8 @@ public class ReplicantSessionManagerImplTest
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
-    final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-    verify( remote ).sendText(
-      "{\"type\":\"update\",\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+    verify( sm.getReplicantMessageBroker() )
+      .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
   }
 
   @Test
@@ -705,13 +704,13 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-      verify( remote ).sendText(
-        "{\"type\":\"update\",\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+      verify( sm.getReplicantMessageBroker() )
+        .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
     }
 
     //Not cached locally
     {
+      reset( sm.getReplicantMessageBroker() );
       sm.deleteAllCacheEntries();
       final ReplicantSession session = createSession( sm );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
@@ -725,13 +724,13 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-      verify( remote ).sendText(
-        "{\"type\":\"update\",\"etag\":\"X\",\"channels\":[\"+0\"],\"changes\":[{\"id\":\"1.79\",\"channels\":[\"0\"],\"data\":{\"ID\":79}}]}" );
+      verify( sm.getReplicantMessageBroker() )
+        .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
     }
 
     //Locally cached but deleted
     {
+      reset( sm.getReplicantMessageBroker() );
       sm.deleteAllCacheEntries();
       final ReplicantSession session = createSession( sm );
       with( session, () -> session.setETag( address1, "X" ) );
@@ -750,6 +749,10 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
       assertSessionChangesCount( 0 );
+
+      // Queue a cached response that contains a delete
+      verify( sm.getReplicantMessageBroker() )
+        .queueChangeMessage( eq( session ), eq( null ), eq( null ), eq( Collections.emptyList() ), any() );
     }
   }
 
@@ -1418,11 +1421,11 @@ public class ReplicantSessionManagerImplTest
 
     sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, 1 );
 
-    with( session, () -> sm.sendPacket( session, "X", new ChangeSet() ) );
+    final ChangeSet changeSet = new ChangeSet();
+    with( session, () -> sm.queueCachedChangeSet( session, "X", changeSet ) );
 
-    final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-    verify( remote ).sendText( "{\"type\":\"update\",\"requestId\":1,\"etag\":\"X\"}" );
-    assertEquals( sm.getRegistry().getResource( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
+    verify( sm.getReplicantMessageBroker() )
+      .queueChangeMessage( eq( session ), eq( 1 ), eq( "X" ), eq( Collections.emptyList() ), eq( changeSet ) );
   }
 
   @Test
@@ -1860,6 +1863,8 @@ public class ReplicantSessionManagerImplTest
     extends ReplicantSessionManagerImpl
   {
     private final SystemMetaData _systemMetaData;
+    @Nonnull
+    private final ReplicantMessageBroker _broker = mock( ReplicantMessageBroker.class );
     private ChannelAddress _followSource;
     private String _cacheKey;
     private boolean _bulkCollectDataForSubscriptionUpdate;
@@ -1912,7 +1917,7 @@ public class ReplicantSessionManagerImplTest
     @Override
     protected ReplicantMessageBroker getReplicantMessageBroker()
     {
-      return null;
+      return _broker;
     }
 
     @Override

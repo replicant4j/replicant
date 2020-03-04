@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.transport;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -215,13 +216,15 @@ public abstract class ReplicantSessionManagerImpl
    * @param etag      the etag for message if any.
    * @param changeSet the messages to be sent along to the client.
    */
-  void sendPacket( @Nonnull final ReplicantSession session,
-                   @Nullable final String etag,
-                   @Nonnull final ChangeSet changeSet )
+  void queueCachedChangeSet( @Nonnull final ReplicantSession session,
+                             @Nullable final String etag,
+                             @Nonnull final ChangeSet changeSet )
   {
-    final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
-    getRegistry().putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
-    session.sendPacket( requestId, etag, changeSet );
+    final TransactionSynchronizationRegistry registry = getRegistry();
+    final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+    registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
+    registry.putResource( ServerConstants.CACHED_RESULT_SENT_KEY, "1" );
+    getReplicantMessageBroker().queueChangeMessage( session, requestId, etag, Collections.emptyList(), changeSet );
   }
 
   /**
@@ -253,6 +256,18 @@ public abstract class ReplicantSessionManagerImpl
 
         if ( isInitiator )
         {
+          /*
+           * We mark this as required and as impacting the initiator because we no longer know whether the
+           * action did result in a message that needs to be sent to the client as routing occurs in a separate
+           * thread. This change here now means every rpc will be paired with a replicant message even if it
+           * is an empty ok message. This is acceptable in the short term as we expect to remove external rpc
+           * at a later stage and move all rpc onto replicant channel.
+           */
+          if ( null == getRegistry().getResource( ServerConstants.CACHED_RESULT_SENT_KEY ) )
+          {
+            // We skip scenario when we have already sent a cached result
+            changeSet.setRequired( true );
+          }
           impactsInitiator = true;
         }
         getReplicantMessageBroker().queueChangeMessage( session,
@@ -557,7 +572,7 @@ public abstract class ReplicantSessionManagerImpl
           final ChangeSet cacheChangeSet = new ChangeSet();
           cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
           cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
-          sendPacket( session, eTag, cacheChangeSet );
+          queueCachedChangeSet( session, eTag, cacheChangeSet );
           changeSet.setRequired( false );
         }
         return;
@@ -569,7 +584,7 @@ public abstract class ReplicantSessionManagerImpl
         assert address.hasSubChannelId();
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
-        sendPacket( session, null, cacheChangeSet );
+        queueCachedChangeSet( session, null, cacheChangeSet );
         changeSet.setRequired( false );
         return;
       }

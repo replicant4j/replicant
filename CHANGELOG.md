@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.26.0`.
+* Fix bug where a request that caused changes replicated to the user could result in a hang in the client due to failing to send back a answer over replicant.
 
 ### [v6.74](https://github.com/replicant4j/replicant/tree/v6.74) (2020-03-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.73...v6.74)
 

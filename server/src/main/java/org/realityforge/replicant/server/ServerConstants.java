@@ -25,6 +25,11 @@ public final class ServerConstants
    * Used to pass data from the EJB to the servlet.
    */
   public static final String REQUEST_COMPLETE_KEY = "RequestComplete";
+  /**
+   * Key used to flag that a cached result has been sent.
+   * This means that there should be ZERO changes in session changeset and it should be marked as not required.
+   */
+  public static final String CACHED_RESULT_SENT_KEY = "CachedResultSent";
 
   private ServerConstants()
   {
