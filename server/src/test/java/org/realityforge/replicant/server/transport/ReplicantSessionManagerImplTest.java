@@ -36,9 +36,6 @@ import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
-/**
- * TODO: Add tests for saveEntityMessages
- */
 public class ReplicantSessionManagerImplTest
 {
   @BeforeMethod
