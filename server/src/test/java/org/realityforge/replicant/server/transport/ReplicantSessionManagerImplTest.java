@@ -52,7 +52,6 @@ public class ReplicantSessionManagerImplTest
 
   @Test
   public void basicWorkflow()
-    throws Exception
   {
     final TestReplicantSessionManager sm = new TestReplicantSessionManager();
     assertEquals( sm.getSessionIDs().size(), 0 );
