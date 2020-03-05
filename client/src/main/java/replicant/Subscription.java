@@ -76,6 +76,7 @@ public abstract class Subscription
 
   public abstract void setExplicitSubscription( boolean explicitSubscription );
 
+  @Nonnull
   @Observable( expectSetter = false )
   Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> getEntities()
   {
