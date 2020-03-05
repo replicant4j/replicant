@@ -36,6 +36,7 @@ public abstract class Subscription
   @Nullable
   private Object _filter;
 
+  @Nonnull
   static Subscription create( @Nullable final ReplicantContext context,
                               @Nonnull final ChannelAddress address,
                               @Nullable final Object filter,
